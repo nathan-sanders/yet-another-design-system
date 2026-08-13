@@ -26,3 +26,6 @@ dist-ssr
 # build output
 dist
 *.tsbuildinfo
+
+*storybook.log
+storybook-static
