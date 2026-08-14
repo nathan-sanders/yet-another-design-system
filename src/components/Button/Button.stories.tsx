@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { ArrowRight, Plus } from 'lucide-react'
 
 import { Button } from './Button'
 
@@ -90,18 +91,22 @@ export const States: Story = {
   ),
 }
 
-/** The Start Icon / End Icon slots from the Figma component. */
+/**
+ * The Start Icon / End Icon slots from the Figma component. Pass a Lucide icon
+ * component — the Button renders it through <Icon>, so the glyph size and
+ * stroke weight come from the design system rather than the call site.
+ */
 export const WithIcons: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-wrap items-center gap-4">
       {sizes.map((size) => (
-        <Button key={`start-${size}`} {...args} size={size} startIcon={<PlusIcon />}>
+        <Button key={`start-${size}`} {...args} size={size} startIcon={Plus}>
           Create
         </Button>
       ))}
       {sizes.map((size) => (
-        <Button key={`end-${size}`} {...args} size={size} appearance="secondary" endIcon={<ArrowIcon />}>
+        <Button key={`end-${size}`} {...args} size={size} appearance="secondary" endIcon={ArrowRight}>
           Continue
         </Button>
       ))}
@@ -124,18 +129,3 @@ export const OverlayOnScrim: Story = {
   ),
 }
 
-function PlusIcon() {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
-      <path d="M8 3.5v9M3.5 8h9" />
-    </svg>
-  )
-}
-
-function ArrowIcon() {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M3.5 8h9M9 4.5 12.5 8 9 11.5" />
-    </svg>
-  )
-}
