@@ -375,6 +375,19 @@
   --inset-shadow-bottom: inset 0px -16px 16px -8px var(--surface-inner-shadow);
   --inset-shadow-left: inset 16px 0px 16px -8px var(--surface-inner-shadow);
   --inset-shadow-right: inset -16px 0px 8px -8px var(--surface-inner-shadow);
+
+  /* motion — Astryx's scale. The names are Astryx's; the prefixes are Tailwind's, */
+  /* which is what turns them into duration-* and ease-* utilities.               */
+  --transition-duration-fast-min: 130ms;
+  --transition-duration-fast: 175ms;
+  --transition-duration-fast-max: 230ms;
+  --transition-duration-medium-min: 310ms;
+  --transition-duration-medium: 410ms;
+  --transition-duration-medium-max: 550ms;
+  --transition-duration-slow-min: 730ms;
+  --transition-duration-slow: 975ms;
+  --transition-duration-slow-max: 1300ms;
+  --ease-standard: cubic-bezier(0.24, 1, 0.4, 1);
 }
 
 /* ---- 2. Semantic tokens (theme-aware). Light is default; .dark overrides. ---- */
@@ -959,4 +972,19 @@
   --opacity-95: 0.95;
   --opacity-100: 1.0;
   --icon-stroke-weight: 1.5;
+}
+
+/* ---- 5. Reduced motion. Astryx: components honour the OS setting by ---- */
+/*    replacing animation with an instant state change. Applied globally    */
+/*    so no component has to remember to.                                   */
+/*                                                                          */
+/*    1ms rather than 0: Base UI decides when a popup may unmount by asking  */
+/*    element.getAnimations(), and a zero-length transition can mean no      */
+/*    animation is ever observed — which would leave the popup mounted.      */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }

@@ -1,0 +1,12 @@
+[
+  { "n": "motion/duration/fast-min", "t": "FLOAT", "v": 130 },
+  { "n": "motion/duration/fast", "t": "FLOAT", "v": 175 },
+  { "n": "motion/duration/fast-max", "t": "FLOAT", "v": 230 },
+  { "n": "motion/duration/medium-min", "t": "FLOAT", "v": 310 },
+  { "n": "motion/duration/medium", "t": "FLOAT", "v": 410 },
+  { "n": "motion/duration/medium-max", "t": "FLOAT", "v": 550 },
+  { "n": "motion/duration/slow-min", "t": "FLOAT", "v": 730 },
+  { "n": "motion/duration/slow", "t": "FLOAT", "v": 975 },
+  { "n": "motion/duration/slow-max", "t": "FLOAT", "v": 1300 },
+  { "n": "motion/ease/standard", "t": "STRING", "v": "cubic-bezier(0.24, 1, 0.4, 1)" }
+]

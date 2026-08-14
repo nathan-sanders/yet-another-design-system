@@ -17,9 +17,21 @@ def load(name):
     with open(os.path.join(T, name)) as f:
         return json.load(f)
 
+def load_optional(name):
+    """A token file that may not exist yet.
+
+    motion.json is the only one today. Its ten variables are hand-seeded from
+    Astryx's motion scale because Figma does not have them yet; they use the
+    same [{n, t, v}] shape as every real export, so once the variables exist in
+    Figma they arrive through dimensions.json instead and deleting motion.json
+    is the whole migration.
+    """
+    path = os.path.join(T, name)
+    return json.load(open(path)) if os.path.exists(path) else []
+
 prims = load("primitives.json")
 sem = load("semantic.json")
-dims = load("dimensions.json")
+dims = load("dimensions.json") + load_optional("motion.json")
 
 def slug(name):
     """Figma variable name -> CSS custom property name (without the leading --).
@@ -176,6 +188,7 @@ radius, text_fs, text_lh, blur, fweight = {}, {}, {}, {}, {}
 fonts = {}
 border_w, opacity, extras = {}, {}, {}
 shadows_drop, shadows_inner = {}, {}
+durations, eases = {}, {}
 
 for d in dims:
     n, t, v = d["n"], d["t"], d["v"]
@@ -198,6 +211,12 @@ for d in dims:
         border_w[n.split("/")[1]] = f"{int(v)}px"
     elif n.startswith("opacity/"):
         opacity[n.split("/")[1]] = round(v / 100, 2)
+    elif n.startswith("motion/duration/"):
+        durations[n.split("/")[-1]] = f"{int(v)}ms"
+    elif n.startswith("motion/ease/"):
+        # A STRING variable: Figma has no bezier type, so the curve travels as
+        # its literal CSS value and is emitted unchanged.
+        eases[n.split("/")[-1]] = v
     elif n.startswith("elevation/drop shadow/") or n.startswith("elevation/inner shadow/"):
         inner = "inner shadow" in n
         rest = n.split("shadow/", 1)[1]        # e.g. "high top/blur-radius"
@@ -251,6 +270,16 @@ for g in drop_order:
 for g in ["top","bottom","left","right"]:
     if g in shadows_inner:
         theme.append(f"  --inset-shadow-{slug(g)}: {build_shadow(shadows_inner[g], inset=True)};")
+theme.append("")
+theme.append("  /* motion — Astryx's scale. The names are Astryx's; the prefixes are Tailwind's, */")
+theme.append("  /* which is what turns them into duration-* and ease-* utilities.               */")
+duration_order = ["fast-min","fast","fast-max",
+                  "medium-min","medium","medium-max",
+                  "slow-min","slow","slow-max"]
+for k in duration_order:
+    if k in durations: theme.append(f"  --transition-duration-{k}: {durations[k]};")
+for k in sorted(eases):
+    theme.append(f"  --ease-{k}: {eases[k]};")
 
 # ---- reference-only vars (utilities already built into Tailwind) ----
 extra_lines = []
@@ -301,6 +330,21 @@ out.append("")
 out.append("/* ---- Reference-only tokens (Tailwind already generates these utilities) ---- */")
 out.append(":root {")
 out += extra_lines
+out.append("}")
+out.append("")
+out.append("/* ---- 5. Reduced motion. Astryx: components honour the OS setting by ---- */")
+out.append("/*    replacing animation with an instant state change. Applied globally    */")
+out.append("/*    so no component has to remember to.                                   */")
+out.append("/*                                                                          */")
+out.append("/*    1ms rather than 0: Base UI decides when a popup may unmount by asking  */")
+out.append("/*    element.getAnimations(), and a zero-length transition can mean no      */")
+out.append("/*    animation is ever observed — which would leave the popup mounted.      */")
+out.append("@media (prefers-reduced-motion: reduce) {")
+out.append("  *, *::before, *::after {")
+out.append("    animation-duration: 1ms !important;")
+out.append("    animation-iteration-count: 1 !important;")
+out.append("    transition-duration: 1ms !important;")
+out.append("  }")
 out.append("}")
 
 css = "\n".join(out) + "\n"
