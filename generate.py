@@ -14,9 +14,30 @@ sem = load("semantic.json")
 dims = load("dimensions.json")
 
 def slug(name):
-    s = name.lower().strip()
-    s = s.replace("/", "-").replace(" ", "-")
-    s = re.sub(r"-+", "-", s)
+    """Figma variable name -> CSS custom property name (without the leading --).
+
+    Handled per path segment, because a leading + or - carries meaning. Figma
+    names the two arms of a diverging scale "-08".."-01" and "+01".."+08". The
+    old version replaced "/" with "-" and then collapsed runs of dashes, which
+    silently ate the minus sign and left the plus sign intact — producing
+    "data-viz-diverging-08" for the negative arm and "data-viz-diverging-+01"
+    for the positive one. "+" is not legal in a CSS identifier, so every "+"
+    token was dropped by the browser, and collapsing the two arms onto the same
+    names would have been just as wrong. Both signs are now spelled out.
+    """
+    parts = []
+    for raw in name.split("/"):
+        p = raw.strip().lower()
+        if p.startswith("+"):
+            p = "pos-" + p[1:]
+        elif p.startswith("-"):
+            p = "neg-" + p[1:]
+        # Anything else outside [a-z0-9-] becomes a dash rather than surviving
+        # into the output and breaking the declaration.
+        p = re.sub(r"[^a-z0-9-]+", "-", p)
+        parts.append(p)
+    s = "-".join(parts)
+    s = re.sub(r"-+", "-", s).strip("-")
     return s
 
 def px2rem(v):
@@ -184,6 +205,21 @@ out += extra_lines
 out.append("}")
 
 css = "\n".join(out) + "\n"
+
+# ---- guard: every declaration must be a legal CSS custom property ----
+# A name the browser cannot parse is dropped silently: the token simply does not
+# exist at runtime, with no error anywhere. That is how the diverging scale lost
+# half its values. Fail the build loudly instead.
+declared = re.findall(r"^\s*(--[^\s:]+)\s*:", css, re.M)
+invalid = sorted({n for n in declared if not re.fullmatch(r"--[a-z][a-z0-9-]*", n)})
+if invalid:
+    raise SystemExit(
+        "generate.py: refusing to write theme.css — these names are not valid CSS "
+        "custom properties and would be silently ignored by the browser:\n  "
+        + "\n  ".join(invalid)
+        + "\n\nFix slug() to handle the characters involved."
+    )
+
 out_path = os.path.join(HERE, "src", "styles", "theme.css")
 os.makedirs(os.path.dirname(out_path), exist_ok=True)
 with open(out_path, "w") as f:

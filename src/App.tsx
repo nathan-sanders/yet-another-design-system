@@ -102,21 +102,47 @@ const feedback: [string, string][] = [
   ['bg-feedback-danger-foreground', 'feedback-danger-foreground'],
 ]
 
+// Note: `decorative-oragne-*` is spelled that way in Figma. Left as-is so the
+// code matches the source of truth; rename it in Figma and re-run generate.py.
 const decorative: [string, string][] = [
-  ['bg-decorative-neutral-background', 'decorative-neutral-background'],
-  ['bg-decorative-neutral-highlight', 'decorative-neutral-highlight'],
-  ['bg-decorative-stone-background', 'decorative-stone-background'],
-  ['bg-decorative-stone-highlight', 'decorative-stone-highlight'],
-  ['bg-decorative-green-background', 'decorative-green-background'],
-  ['bg-decorative-green-highlight', 'decorative-green-highlight'],
-  ['bg-decorative-yellow-background', 'decorative-yellow-background'],
-  ['bg-decorative-yellow-highlight', 'decorative-yellow-highlight'],
-  ['bg-decorative-amber-background', 'decorative-amber-background'],
-  ['bg-decorative-amber-highlight', 'decorative-amber-highlight'],
-  ['bg-decorative-red-background', 'decorative-red-background'],
-  ['bg-decorative-red-highlight', 'decorative-red-highlight'],
-  ['bg-decorative-blue-background', 'decorative-blue-background'],
-  ['bg-decorative-blue-highlight', 'decorative-blue-highlight'],
+  ['bg-decorative-stone-background', 'stone'],
+  ['bg-decorative-red-background', 'red'],
+  ['bg-decorative-oragne-background', 'oragne [sic]'],
+  ['bg-decorative-amber-background', 'amber'],
+  ['bg-decorative-yellow-background', 'yellow'],
+  ['bg-decorative-lime-background', 'lime'],
+  ['bg-decorative-green-background', 'green'],
+  ['bg-decorative-emerald-background', 'emerald'],
+  ['bg-decorative-teal-background', 'teal'],
+  ['bg-decorative-cyan-background', 'cyan'],
+  ['bg-decorative-sky-background', 'sky'],
+  ['bg-decorative-blue-background', 'blue'],
+  ['bg-decorative-indigo-background', 'indigo'],
+  ['bg-decorative-violet-background', 'violet'],
+  ['bg-decorative-purple-background', 'purple'],
+  ['bg-decorative-fuchsia-background', 'fuchsia'],
+  ['bg-decorative-pink-background', 'pink'],
+  ['bg-decorative-rose-background', 'rose'],
+]
+
+// The diverging scale: 8 negative steps (red) through 8 positive (blue).
+const diverging: [string, string][] = [
+  ['bg-data-viz-diverging-neg-08', 'neg-08'],
+  ['bg-data-viz-diverging-neg-07', 'neg-07'],
+  ['bg-data-viz-diverging-neg-06', 'neg-06'],
+  ['bg-data-viz-diverging-neg-05', 'neg-05'],
+  ['bg-data-viz-diverging-neg-04', 'neg-04'],
+  ['bg-data-viz-diverging-neg-03', 'neg-03'],
+  ['bg-data-viz-diverging-neg-02', 'neg-02'],
+  ['bg-data-viz-diverging-neg-01', 'neg-01'],
+  ['bg-data-viz-diverging-pos-01', 'pos-01'],
+  ['bg-data-viz-diverging-pos-02', 'pos-02'],
+  ['bg-data-viz-diverging-pos-03', 'pos-03'],
+  ['bg-data-viz-diverging-pos-04', 'pos-04'],
+  ['bg-data-viz-diverging-pos-05', 'pos-05'],
+  ['bg-data-viz-diverging-pos-06', 'pos-06'],
+  ['bg-data-viz-diverging-pos-07', 'pos-07'],
+  ['bg-data-viz-diverging-pos-08', 'pos-08'],
 ]
 
 const dataViz: [string, string][] = [
@@ -213,6 +239,17 @@ export default function App() {
 
         <Section title="Data visualisation">
           <Swatches items={dataViz} />
+        </Section>
+
+        <Section
+          title="Diverging scale"
+          hint="Runs negative (red) to positive (blue). Every step should be filled — a gap means a token failed to resolve."
+        >
+          <div className="flex overflow-hidden rounded-md border border-surface-border">
+            {diverging.map(([cls, name]) => (
+              <div key={name} className={`h-12 flex-1 ${cls}`} title={name} />
+            ))}
+          </div>
         </Section>
 
         <Section title="Type scale" hint="Sizes and line heights come from --text-*.">
