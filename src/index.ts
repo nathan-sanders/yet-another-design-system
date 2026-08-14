@@ -27,6 +27,9 @@ export type { DividerProps } from './components/Divider'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { Tooltip } from './components/Tooltip'
+export type { TooltipProps, TooltipPopupProps } from './components/Tooltip'
+
 export { cn } from './lib/cn'
 
 // Icons themselves are not re-exported: import them straight from lucide-react
