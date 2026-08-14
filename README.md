@@ -106,3 +106,7 @@ Pagination Button.
    ├─ index.ts              # library barrel export
    └─ main.tsx  App.tsx     # token playground
 ```
+
+## License
+
+[MIT](LICENSE) © Nathan Sanders
