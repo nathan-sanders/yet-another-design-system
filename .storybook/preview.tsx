@@ -59,7 +59,12 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: 'todo',
+      //
+      // 'error' because every story is a test, and an accessible component
+      // library is the point. A violation here should break the build the same
+      // way a type error does — a story that reports a problem nobody is forced
+      // to look at is how the whole suite sat broken without anyone noticing.
+      test: 'error',
     },
   },
 }

@@ -57,7 +57,12 @@ export const Separators: Story = {
           <tr key={separator}>
             <td className="text-sm text-content-subtle capitalize">{separator}</td>
             <td>
-              <Breadcrumbs separator={separator}>
+              {/* Each trail needs its own aria-label here. A page normally has
+                  one, so the default name is fine — but several sharing the
+                  name "Breadcrumb" are indistinguishable landmarks, which axe
+                  flags as landmark-unique. This is the case the prop exists
+                  for. */}
+              <Breadcrumbs separator={separator} aria-label={`${separator} separator`}>
                 <Breadcrumbs.Item href="/">Home</Breadcrumbs.Item>
                 <Breadcrumbs.Item href="/docs">Docs</Breadcrumbs.Item>
                 <Breadcrumbs.Item>API Reference</Breadcrumbs.Item>
@@ -95,7 +100,7 @@ export const States: Story = {
         <tr>
           <td className="text-sm text-content-subtle">Link — default</td>
           <td>
-            <Breadcrumbs>
+            <Breadcrumbs aria-label="Link, default state">
               <Breadcrumbs.Item href="/">Label</Breadcrumbs.Item>
               <Breadcrumbs.Item href="/projects">Projects</Breadcrumbs.Item>
             </Breadcrumbs>
@@ -104,7 +109,7 @@ export const States: Story = {
         <tr>
           <td className="text-sm text-content-subtle">Link — hover / focus</td>
           <td>
-            <Breadcrumbs>
+            <Breadcrumbs aria-label="Link, hover and focus state">
               <Breadcrumbs.Item href="/">Hover or tab to me</Breadcrumbs.Item>
               <Breadcrumbs.Item href="/projects">Projects</Breadcrumbs.Item>
             </Breadcrumbs>
@@ -113,7 +118,7 @@ export const States: Story = {
         <tr>
           <td className="text-sm text-content-subtle">Link — disabled</td>
           <td>
-            <Breadcrumbs>
+            <Breadcrumbs aria-label="Link, disabled state">
               <Breadcrumbs.Item href="/" disabled>
                 Label
               </Breadcrumbs.Item>
@@ -124,7 +129,7 @@ export const States: Story = {
         <tr>
           <td className="text-sm text-content-subtle">Current page</td>
           <td>
-            <Breadcrumbs>
+            <Breadcrumbs aria-label="Current page state">
               <Breadcrumbs.Item href="/">Home</Breadcrumbs.Item>
               <Breadcrumbs.Item>Label</Breadcrumbs.Item>
             </Breadcrumbs>
@@ -145,7 +150,7 @@ export const WithIcons: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col gap-4">
-      <Breadcrumbs>
+      <Breadcrumbs aria-label="Settings trail">
         <Breadcrumbs.Item href="/" startIcon={House}>
           Home
         </Breadcrumbs.Item>
@@ -154,7 +159,7 @@ export const WithIcons: Story = {
         </Breadcrumbs.Item>
         <Breadcrumbs.Item startIcon={User}>Profile</Breadcrumbs.Item>
       </Breadcrumbs>
-      <Breadcrumbs separator="chevron">
+      <Breadcrumbs separator="chevron" aria-label="Files trail">
         <Breadcrumbs.Item href="/" startIcon={House}>
           Home
         </Breadcrumbs.Item>
