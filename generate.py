@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-"""Generate a Tailwind v4 theme.css from Figma token exports."""
-import json, re, os
+"""Generate a Tailwind v4 theme.css from Figma token exports.
+
+Colours are emitted as OKLCH. Figma can only store hex, so the exported values
+are 8-bit roundings of colours that are really defined in OKLCH; every primitive
+in this system is a Tailwind palette colour, so the canonical OKLCH value is
+read straight from the installed Tailwind and used instead of the rounded hex.
+Anything without a Tailwind counterpart is converted from its hex.
+"""
+import json, re, os, math
 
 HERE = os.path.dirname(__file__)
 T = os.path.join(HERE, "tokens")
+TW_THEME = os.path.join(HERE, "node_modules", "tailwindcss", "theme.css")
 
 def load(name):
     with open(os.path.join(T, name)) as f:
@@ -40,6 +48,63 @@ def slug(name):
     s = re.sub(r"-+", "-", s).strip("-")
     return s
 
+# ---------- colour: hex -> OKLCH ----------
+def _srgb_to_linear(c):
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+def _fmt(x, nd):
+    s = f"{round(x, nd):f}".rstrip("0").rstrip(".")
+    return s if s not in ("", "-0") else "0"
+
+def hex_to_oklch(h):
+    """'#rrggbb' or '#rrggbbaa' -> an oklch() string."""
+    s = h.lstrip("#")
+    a = 1.0
+    if len(s) == 8:
+        a = int(s[6:8], 16) / 255
+        s = s[:6]
+    r, g, b = (int(s[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    r, g, b = _srgb_to_linear(r), _srgb_to_linear(g), _srgb_to_linear(b)
+    l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b
+    m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b
+    t = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b
+    l_, m_, t_ = l ** (1 / 3), m ** (1 / 3), t ** (1 / 3)
+    L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * t_
+    A = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * t_
+    B = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * t_
+    C = math.hypot(A, B)
+    # Achromatic colours get hue `none`, matching how Tailwind writes them.
+    if C < 1e-6:
+        chroma, hue = "0", "none"
+    else:
+        chroma, hue = _fmt(C, 4), _fmt(math.degrees(math.atan2(B, A)) % 360, 3)
+    out = f"oklch({_fmt(L * 100, 1)}% {chroma} {hue}"
+    # Alpha is stored 8-bit in Figma, so 10% arrives as 26/255 = 0.10196.
+    # Rounded to 2dp to give back the round number that was designed; the
+    # largest possible shift is 1/510 of an alpha step.
+    return out + (f" / {_fmt(a, 2)})" if a < 1 else ")")
+
+def load_tailwind_palette():
+    """'red-500' -> 'oklch(...)', exactly as the installed Tailwind ships it."""
+    if not os.path.exists(TW_THEME):
+        return {}
+    css = open(TW_THEME).read()
+    return {m.group(1): m.group(2)
+            for m in re.finditer(r"--color-([a-z]+-\d+):\s*(oklch\([^)]*\))", css)}
+
+TW = load_tailwind_palette()
+stats = {"tailwind": 0, "converted": 0, "unmatched": []}
+
+def primitive_value(name, hexval):
+    """Prefer Tailwind's canonical OKLCH; fall back to converting the hex."""
+    if name in TW:
+        stats["tailwind"] += 1
+        return TW[name]
+    stats["converted"] += 1
+    if re.fullmatch(r"[a-z]+-\d+", name):
+        stats["unmatched"].append(name)
+    return hex_to_oklch(hexval)
+
 def px2rem(v):
     if v == 0:
         return "0"
@@ -58,10 +123,14 @@ def resolve(val):
     if isinstance(val, str) and val.startswith("@"):
         target = val[1:]
         return ref.get(target, f"/* unresolved: {target} */")
+    # Raw colours in the semantic layer are alpha variants of the palette; they
+    # get the same OKLCH treatment so no hex survives into the output.
+    if isinstance(val, str) and val.startswith("#"):
+        return hex_to_oklch(val)
     return val
 
 # ---- 1. primitives (static -> @theme) ----
-prim_lines = [f"  --color-{slug(p['n'])}: {p['v']};" for p in prims]
+prim_lines = [f"  --color-{slug(p['n'])}: {primitive_value(slug(p['n']), p['v'])};" for p in prims]
 
 # ---- 2. semantic (theme-aware -> :root / .dark) ----
 light_lines, dark_lines = [], []
@@ -226,6 +295,14 @@ with open(out_path, "w") as f:
     f.write(css)
 
 print(f"primitives: {len(prims)}  semantic: {len(sem)}  dimensions: {len(dims)}")
+if not TW:
+    print("  ! tailwindcss not found in node_modules — every colour was converted "
+          "from its Figma hex rather than taken from the Tailwind palette")
+print(f"colours: {stats['tailwind']} from the Tailwind palette, "
+      f"{stats['converted']} converted from hex")
+if stats["unmatched"]:
+    print("  ! scale-shaped names with no Tailwind counterpart (check the spelling "
+          "in Figma): " + ", ".join(sorted(set(stats["unmatched"]))))
 print(f"radius:{len(radius)} text:{len(text_fs)} blur:{len(blur)} "
       f"drop-shadows:{len(shadows_drop)} inner-shadows:{len(shadows_inner)}")
 print(f"wrote {out_path} ({len(css)} bytes, {css.count(chr(10))} lines)")
