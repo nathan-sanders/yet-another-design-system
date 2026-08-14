@@ -27,6 +27,15 @@ export type { DividerProps } from './components/Divider'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { SegmentedControl } from './components/SegmentedControl'
+export type {
+  SegmentedControlProps,
+  SegmentedControlItemProps,
+  SegmentedControlAppearance,
+  SegmentedControlSize,
+  SegmentedControlLayout,
+} from './components/SegmentedControl'
+
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps, TooltipPopupProps } from './components/Tooltip'
 

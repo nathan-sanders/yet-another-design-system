@@ -82,11 +82,12 @@ Figma-driven.
 | **Button** | 6 appearances (primary, secondary, destructive, ghost, overlay, link) × 3 sizes × default/hover/focus/disabled, with icon slots |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
+| **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx
-import { Badge, Breadcrumbs, Button, Icon, Tooltip } from './src'
-import { House, Plus, Star, Trash2 } from 'lucide-react'
+import { Badge, Breadcrumbs, Button, Icon, SegmentedControl, Tooltip } from './src'
+import { House, LayoutGrid, List, Plus, Star, Trash2 } from 'lucide-react'
 
 <Button appearance="primary" size="large" startIcon={Plus}>Create</Button>
 <Icon icon={Star} size="large" />
@@ -98,10 +99,19 @@ import { House, Plus, Star, Trash2 } from 'lucide-react'
   <Breadcrumbs.Item>My Project</Breadcrumbs.Item>
 </Breadcrumbs>
 
+<SegmentedControl aria-label="View mode" value={view} onValueChange={setView}>
+  <SegmentedControl.Item value="grid" startIcon={LayoutGrid}>Grid</SegmentedControl.Item>
+  <SegmentedControl.Item value="list" startIcon={List}>List</SegmentedControl.Item>
+</SegmentedControl>
+
 <Tooltip label="Delete project">
   <Button appearance="destructive" startIcon={Trash2} aria-label="Delete project" />
 </Tooltip>
 ```
+
+A segmented control is an *input*, not navigation, so it renders as a radio group: exactly one option
+is always selected, and the arrow keys move between them. Its three heights are Button's, so the two
+line up in a toolbar row without anyone nudging a margin.
 
 A tooltip wraps whatever it describes — the child becomes the trigger, so any component works. It
 lands on `aria-describedby`, which means it *describes* rather than names: an icon-only button still
