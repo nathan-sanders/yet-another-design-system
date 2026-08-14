@@ -34,6 +34,7 @@ Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css
 | **Colors** (primitives) | `@theme { --color-blue-500 … }` | `bg-blue-500` |
 | **Semantic Theme** (Light/Dark) | `:root { … }` + `.dark { … }` | `bg-surface-canvas`, `text-content-primary` |
 | **Design Tokens** (spacing, type, radius, shadows) | `@theme { --radius-md … }` | `rounded-md`, `text-base`, `shadow-low` |
+| **Motion** (durations, easing) | `@theme { --transition-duration-fast … }` | `duration-fast`, `ease-standard` |
 
 `src/styles/theme.css` is **generated — never edit it by hand.** When Figma changes, re-export the
 three JSON files into `tokens/` and run `python3 generate.py`.
@@ -74,14 +75,18 @@ Figma-driven.
 
 | Component | Variants |
 |---|---|
+| **Avatar** | Photo, initials or `+N` at 5 sizes (20/24/36/40/128); online/offline/unavailable status, each with its own shape |
+| **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
 | **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 6 appearances (primary, secondary, destructive, ghost, overlay, link) × 3 sizes × default/hover/focus/disabled, with icon slots |
+| **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
+| **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx
-import { Badge, Breadcrumbs, Button, Icon } from './src'
-import { House, Plus, Star } from 'lucide-react'
+import { Badge, Breadcrumbs, Button, Icon, Tooltip } from './src'
+import { House, Plus, Star, Trash2 } from 'lucide-react'
 
 <Button appearance="primary" size="large" startIcon={Plus}>Create</Button>
 <Icon icon={Star} size="large" />
@@ -92,7 +97,15 @@ import { House, Plus, Star } from 'lucide-react'
   <Breadcrumbs.Item href="/projects">Projects</Breadcrumbs.Item>
   <Breadcrumbs.Item>My Project</Breadcrumbs.Item>
 </Breadcrumbs>
+
+<Tooltip label="Delete project">
+  <Button appearance="destructive" startIcon={Trash2} aria-label="Delete project" />
+</Tooltip>
 ```
+
+A tooltip wraps whatever it describes — the child becomes the trigger, so any component works. It
+lands on `aria-describedby`, which means it *describes* rather than names: an icon-only button still
+needs its own `aria-label`, and the types enforce that.
 
 The last `Breadcrumbs.Item` becomes the current page on its own — plain text with
 `aria-current="page"` rather than a link — so you never mark it up by hand.
@@ -109,6 +122,7 @@ Pagination Button.
 ```
 ├─ tokens/                  # Figma exports — the input to generate.py
 │  ├─ primitives.json  semantic.json  dimensions.json
+│  └─ motion.json           # hand-seeded until Figma has motion variables
 ├─ generate.py              # tokens/*.json -> src/styles/theme.css
 ├─ .storybook/              # loads theme.css, adds the light/dark toolbar switch
 └─ src/

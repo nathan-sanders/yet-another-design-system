@@ -69,6 +69,39 @@ the Figma hex only when there is no counterpart (just `white` and `black`).
 differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A colour
 that isn't a Tailwind value belongs in the **semantic** layer, which is fully Figma-driven.
 
+### Motion
+
+Motion is a token tier like colour or radius, not a library. The scale is **Astryx's**, taken
+verbatim: nine durations — `fast`/`medium`/`slow`, each with a `-min` and `-max` — and one easing
+curve, `standard` (`cubic-bezier(0.24, 1, 0.4, 1)`).
+
+Tailwind v4 has `--transition-duration-*` and `--ease-*` as theme namespaces, so the tokens arrive as
+utilities on their own: **`duration-fast`**, **`ease-standard`**. The names are Astryx's; the prefixes
+are Tailwind's. That translation is the same one `generate.py` already does turning Figma's
+`border-radius/rounded-md` into `--radius-md`.
+
+`tokens/motion.json` is **hand-seeded** — Figma does not have these variables yet. It uses the same
+`[{n, t, v}]` shape as a real export, so once they exist in Figma they arrive through
+`dimensions.json` and deleting `motion.json` is the whole migration. In Figma, durations are ordinary
+FLOAT variables; the curve is a **STRING** variable, because Figma has no bezier type.
+
+`prefers-reduced-motion: reduce` is honoured globally in section 5 of `theme.css`, so no component has
+to remember to. It clamps to **1ms rather than 0** on purpose: Base UI decides when a popup may
+unmount by asking `element.getAnimations()`, and a zero-length transition can mean no animation is
+ever observed — which would leave the popup mounted forever.
+
+**Why no JS animation library.** We looked at `motion` (`motion/react`, formerly Framer Motion) and
+turned it down twice over. Base UI's supported path is CSS transitions — `data-starting-style` /
+`data-ending-style`, and it holds the element in the DOM until the transition ends; driving a popup
+with Motion instead means making *every* overlay controlled, adding `keepMounted`, wrapping in
+`AnimatePresence` and calling `actionsRef.current.unmount()` from `onAnimationComplete`. And its
+durations and easings would live in JS objects — a second source of truth that Figma cannot reach,
+which is the one thing this system exists to avoid.
+
+**When a library would earn its place:** layout animation (FLIP), drag, and spring-based gestures —
+none of which CSS does. Carousel and a sliding Tabs indicator are the plausible candidates on the
+roadmap. Reach for it there, per component, not as the foundation.
+
 ### Refreshing tokens
 
 Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the
@@ -186,15 +219,43 @@ Each component gets its own folder with the component, its story, and a barrel `
    Two things go past Figma, both gaps in the file rather than inventions: Figma gives Avatar no
    Focus state, but `href`/`onClick` make one interactive; and there is no "no data" variant, so
    the `User` glyph is borrowed from the end of Astryx's fallback chain. Astryx's built-in tooltip
-   is left out until the library has a Tooltip.
+   is left out: an avatar that needs a name should be wrapped in `Tooltip`.
+
+7. **Tooltip** — a short label describing the thing you are pointing at. Mirrors Figma node
+   `40004073:20833`, which has **no variant set at all** — one look, no sizes, no colours, no arrow —
+   so there is not a single `tv()` variant. Everything interesting is behaviour.
+   Third Base UI component and the **first that portals**, so it sets the pattern every later overlay
+   (Popover, Dialog, Select, Menu) will copy. Base UI supplies the lifecycle: hover/focus delays,
+   `role="tooltip"`, `aria-describedby`, Escape, collision flipping, and holding the node in the DOM
+   until the closing transition ends.
+   **API:** a wrapper, not a compound — `<Tooltip label="Copy link"><Button …/></Tooltip>`. `children`
+   goes to Base UI's `render`, so the caller's own element becomes the trigger instead of being
+   wrapped in a Base UI `<button>`; Button, Avatar and Badge all work unchanged. `Tooltip.Provider`
+   (shared hover delay across a toolbar) and the raw `Root`/`Trigger`/`Portal`/`Positioner`/`Popup`
+   are attached for controlled or externally-anchored tooltips.
+   `side`/`align`/`sideOffset` are **not** Figma variants and deliberately not `tv()` variants —
+   they are behaviour, and they go to the positioner, which is what makes collision flipping work.
+   **First component to use the motion tokens:** `duration-fast` + `ease-standard`, fading and
+   scaling from `origin-(--transform-origin)` so it grows out of the edge nearest its trigger.
+   `data-[instant]:duration-0` covers the cases where animating is wrong — keyboard focus, dismissal,
+   and the second tooltip in a Provider group.
+   **A11y trap:** a tooltip *describes*, it does not name. It lands on `aria-describedby`, so an
+   icon-only Button still needs its own `aria-label` — which `ButtonProps` already requires at compile
+   time. A tooltip is never a substitute for a label.
+   **Wrapping trap:** Figma's text layer is `nowrap` because it is auto-width on canvas, but the frame
+   also carries `max-w-96` and `word-break: break-word`, which are dead properties unless the text can
+   wrap. It wraps.
+   **Height trap: 32px**, and the last 2px come from an inner Span frame with 1px of vertical padding.
+   Flattening it gives 30, and no round `py-*` splits the difference: 24 (line-height) + 2×1 (span) +
+   2×2 (popup) + 2×1 (border). **32px is the number to check** when this changes.
 
 **Still to build**, foundational/static first:
 
-7. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-8. **List Item** — variants/states; native, styled.
-9. **Table Cell** — native, styled.
-10. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
-11. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+8. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+9. **List Item** — variants/states; native, styled.
+10. **Table Cell** — native, styled.
+11. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
+12. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.
