@@ -249,13 +249,51 @@ Each component gets its own folder with the component, its story, and a barrel `
    Flattening it gives 30, and no round `py-*` splits the difference: 24 (line-height) + 2×1 (span) +
    2×2 (popup) + 2×1 (border). **32px is the number to check** when this changes.
 
+8. **SegmentedControl** — pick one of a small set of mutually exclusive options, all visible at
+   once. Mirrors Figma nodes `40004127:14774` (Segment Control, `Appearance` Secondary | Ghost) and
+   `40002016:7049` (Segments, `Active` × `State` × `Size`). Composed API, like Breadcrumbs:
+   `<SegmentedControl>` + `<SegmentedControl.Item>`.
+   `appearance`: secondary | ghost — the same token pairs Button's two appearances use, which is
+   what makes it pair with them. `size`: small | default | large. `layout`: hug | fill.
+   **Fourth Base UI component, first built on `RadioGroup` + `Radio`.** It is an *input*, not
+   navigation, so it renders `role="radiogroup"` → `role="radio"` with `aria-checked`, roving
+   tabindex and arrow-key movement — the same DOM Astryx emits. That is *why* it is not a
+   ToggleGroup: a group of `aria-pressed` toggles can be left with nothing selected, and a segmented
+   control always has exactly one. Tabs are wrong for the opposite reason — they navigate between
+   panels — item 12 below still belongs to Base UI `Tabs`.
+   **Base UI's `Radio` renders a `<span>`** (inside a group, a `CompositeItem` with `tag: "span"`).
+   It takes **both** `nativeButton` and `render={<button type="button" />}` to become a real button —
+   that pairing is what gives `:focus-visible` and the native `disabled` attribute.
+   **Selection follows focus:** `RadioGroup` clicks the hidden input on arrow-key focus. Correct
+   radiogroup behaviour, and what Astryx does. Don't fight it. `enableHomeAndEndKeys` is off, so
+   Home/End do nothing here (Button's toolbar cousins differ).
+   **Heights are Button's, and they fall out of the parts:** a 20px segment inside 1px of padding
+   inside a 1px border is 24px, and the same for 28→32 and 36→40. **24 / 32 / 40 are the numbers to
+   check** when this changes. Segments are a fixed `h-*`, not Figma's `min-h`, so
+   `focus-visible:border-2` cannot resize them, and each carries a transparent 1px border at rest so
+   selecting one doesn't grow it.
+   **Do not add `overflow-clip` to the track**, even though Figma has it. Figma draws focus as an
+   overlay *inside* the segment; here it is a 3px ring painting outside a segment that sits 1px in
+   from the track edge, so clipping would slice the ring off the first and last segments.
+   **Second component to use the motion tokens**, after Tooltip: `duration-fast-min` +
+   `ease-standard` crossfading colour, background, border and shadow. Astryx measures at 125ms on
+   `cubic-bezier(0.24, 1, 0.4, 1)` — the same curve, and 130ms is the nearest token. No sliding
+   indicator: that needs the JS layout library this system deliberately turned down.
+   Two things go past Figma, both gaps in the file rather than inventions: **`large`** (Figma draws
+   only small and default, but the whole point is matching Button's three sizes), and
+   **`layout="fill"`** (Astryx's, for a fixed-width panel). Figma's focus ring is drawn at
+   `rounded-xs` on a `rounded-sm` segment — an artefact of it being a separate overlay layer; the
+   segment's own radius is used instead, as in Button. Figma also binds hover text to
+   `Action/Secondary/Foreground Hover`, which **does not exist in `theme.css`** and is identical to
+   the plain foreground, so the plain token is used rather than inventing one.
+
 **Still to build**, foundational/static first:
 
-8. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-9. **List Item** — variants/states; native, styled.
-10. **Table Cell** — native, styled.
-11. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
-12. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+9. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+10. **List Item** — variants/states; native, styled.
+11. **Table Cell** — native, styled.
+12. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
+13. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.
