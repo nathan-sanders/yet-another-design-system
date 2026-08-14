@@ -74,16 +74,28 @@ Figma-driven.
 
 | Component | Variants |
 |---|---|
+| **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |
+| **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 6 appearances (primary, secondary, destructive, ghost, overlay, link) × 3 sizes × default/hover/focus/disabled, with icon slots |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 
 ```tsx
-import { Button, Icon } from './src'
-import { Plus, Star } from 'lucide-react'
+import { Badge, Breadcrumbs, Button, Icon } from './src'
+import { House, Plus, Star } from 'lucide-react'
 
 <Button appearance="primary" size="large" startIcon={Plus}>Create</Button>
 <Icon icon={Star} size="large" />
+<Badge color="green">Live</Badge>
+
+<Breadcrumbs separator="chevron">
+  <Breadcrumbs.Item href="/" startIcon={House}>Home</Breadcrumbs.Item>
+  <Breadcrumbs.Item href="/projects">Projects</Breadcrumbs.Item>
+  <Breadcrumbs.Item>My Project</Breadcrumbs.Item>
+</Breadcrumbs>
 ```
+
+The last `Breadcrumbs.Item` becomes the current page on its own — plain text with
+`aria-current="page"` rather than a link — so you never mark it up by hand.
 
 Icons take the Lucide component itself (`startIcon={Plus}`, not `<Plus />`) so the design system
 controls size and stroke weight rather than the call site. Lucide icons aren't re-exported from this
