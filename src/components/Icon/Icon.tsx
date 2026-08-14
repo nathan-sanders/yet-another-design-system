@@ -18,11 +18,25 @@ import { cn } from '../../lib/cn'
  * To colour one deliberately, pass a text utility: `<Icon className="text-content-danger" />`.
  */
 const icon = tv({
-  // Stroke weight comes from the --icon-stroke-weight token (1.5). It is applied
-  // as CSS rather than via Lucide's `strokeWidth` prop because that prop lands
-  // on the SVG presentation attribute, which cannot hold a `var()`. CSS wins
-  // over the presentation attribute, so this overrides Lucide's default of 2.
-  base: 'inline-block shrink-0 [stroke-width:var(--icon-stroke-weight)]',
+  // Stroke weight comes from the --icon-stroke-weight token (1.5), and needs two
+  // rules to actually land at 1.5px on screen:
+  //
+  // 1. `stroke-width` is set in CSS rather than via Lucide's `strokeWidth` prop,
+  //    because that prop becomes an SVG presentation attribute, which cannot
+  //    hold a `var()`. CSS also beats the attribute, overriding Lucide's default
+  //    of 2.
+  //
+  // 2. `vector-effect: non-scaling-stroke` keeps the stroke out of the viewBox
+  //    scale. Lucide draws on a 24x24 viewBox, so rendering at 16px scales
+  //    everything by 16/24 — a stroke of 1.5 would paint at 1px, and at 0.75px
+  //    for the 12px size. Figma specifies a literal 1.5px stroke at every icon
+  //    size, and this is what reproduces that. It is not inherited, so it has to
+  //    be pushed onto the descendant shapes rather than set on the <svg>.
+  base: [
+    'inline-block shrink-0',
+    '[stroke-width:var(--icon-stroke-weight)]',
+    '[&_*]:[vector-effect:non-scaling-stroke]',
+  ],
   variants: {
     size: {
       small: 'size-3', // 12px
