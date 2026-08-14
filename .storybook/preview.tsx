@@ -37,7 +37,10 @@ const preview: Preview = {
         document.documentElement.classList.toggle('dark', dark)
       }, [dark])
       return (
-        <div className="bg-surface-canvas font-sans text-content-primary p-6">
+        // min-h-dvh so the canvas background fills the frame rather than hugging
+        // the story — otherwise a short story leaves the browser's own white
+        // showing below it, which reads as a bug in dark mode.
+        <div className="min-h-dvh bg-surface-canvas font-sans text-content-primary p-6">
           <Story />
         </div>
       )

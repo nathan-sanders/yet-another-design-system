@@ -120,7 +120,23 @@ Each component gets its own folder with the component, its story, and a barrel `
    focus or disabled state, so it renders as a `<span>`. Uses the ramp's `Background` + `Foreground`;
    the `Highlight` is unused because Figma's Badge has no border.
 
-4. **Divider** — a line separating content. Mirrors Figma node `40002032:610` one-for-one: its three
+4. **Breadcrumbs** — a trail of links to the current page. Mirrors Figma nodes `40004041:11934`
+   (Breadcrumbs), `40004041:11838` (Breadcrumb Item) and `40004041:11868` (Separator).
+   Composed API: `<Breadcrumbs>` + `<Breadcrumbs.Item>`, modelled on Meta's Astryx.
+   `separator`: slash | chevron | arrow | dot — slash is the character, the rest are Lucide glyphs
+   at 16px. One size only, as in Figma.
+   **The last child is the current page automatically** (a private context, not a prop), rendering as
+   plain text with `aria-current="page"`; `isCurrent` overrides it. Renders `<nav aria-label>` → `<ol>`
+   → one `<li>` per crumb, with the separator inside the preceding `<li>` so the list count matches
+   the crumb count.
+   **Colour trap:** breadcrumb links are `content-subtle` + underline-on-hover, *not* the blue
+   `action-link-foreground` that Button's `link` appearance uses. A trail is navigation chrome.
+   **Focus trap:** the ring is an inset `outline` + `ring`, not Button's `border-2` — a crumb has no
+   border and no fixed height, so a border would grow the row on focus. Note that `outline-none` sets
+   Tailwind's `--tw-outline-style: none`, so `focus-visible:outline-solid` is required or the inner
+   border silently never paints.
+
+5. **Divider** — a line separating content. Mirrors Figma node `40002032:610` one-for-one: its three
    properties `Orientation` horizontal | vertical, `Line Style` solid | dashed and `Emphasis`
    default | emphasized are the three props, and its eight variants are the eight combinations.
    1px in all of them. Static, like Badge.
@@ -143,11 +159,11 @@ Each component gets its own folder with the component, its story, and a barrel `
 
 **Still to build**, foundational/static first:
 
-5. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-6. **List Item** — variants/states; native, styled.
-7. **Table Cell** — native, styled.
-8. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
-9. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+6. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+7. **List Item** — variants/states; native, styled.
+8. **Table Cell** — native, styled.
+9. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
+10. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.
