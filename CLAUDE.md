@@ -11,50 +11,39 @@ Figma, so the code matches Figma and both stay in sync.
 
 ## Stack
 
-- **React + TypeScript**, built with **Vite**
+- **React 19 + TypeScript**, built with **Vite**
 - **Tailwind CSS v4** (via `@tailwindcss/vite`) — theme lives in CSS, not `tailwind.config.js`
 - **Base UI** — headless, accessible primitives. Package is **`@base-ui/react`** (v1+; it was renamed
   from `@base-ui-components/react`, so ignore older docs that use the old name). Import e.g.
   `import { Dialog } from '@base-ui/react'` or subpath `'@base-ui/react/dialog'`. Components use the
   compound pattern (a `Root` orchestrates state; child parts consume context).
 - **Storybook** for previewing/testing each component in isolation
-- Recommended for variants: **`tailwind-variants`** (or `cva`) to map Figma variants → class sets
-- Fonts: **Inter** (sans), **Geist Mono** (mono)
+- **`tailwind-variants`** maps Figma variants → class sets; `src/lib/cn.ts` (clsx + tailwind-merge)
+  lets a caller override a component's defaults
+- **`lucide-react`** for icons, wrapped by the `Icon` component
+- Fonts: **Inter** (sans), **Geist Mono** (mono), self-hosted via `@fontsource`
 
-## Target repo structure
+## Commands
 
-Scaffold into this layout (adjust only with the human's OK):
-
-```
-nates-design-system/
-├─ CLAUDE.md  README.md
-├─ package.json  vite.config.ts  tsconfig.json  index.html
-├─ tokens/                     # Figma exports — source for generate.py
-│  ├─ primitives.json  semantic.json  dimensions.json
-├─ generate.py                 # tokens/*.json -> src/styles/theme.css
-├─ .storybook/                 # main.ts, preview.ts (imports theme.css; light/dark bg)
-└─ src/
-   ├─ styles/theme.css         # GENERATED — do not hand-edit
-   ├─ lib/cn.ts                # className merge helper (clsx + tailwind-merge)
-   ├─ components/
-   │  └─ Button/               # Button.tsx, Button.stories.tsx, index.ts
-   ├─ index.ts                 # library barrel export
-   └─ main.tsx  App.tsx        # dev playground: token swatches + dark-mode toggle
+```bash
+npm run dev          # token playground (localhost:5173)
+npm run storybook    # component library (localhost:6006)
+npm run build        # tsc -b && vite build
+python3 generate.py  # rebuild src/styles/theme.css from tokens/*.json
 ```
 
-Each component gets its own folder with the component, its Storybook story, and a barrel `index.ts`.
+## Design tokens
 
-## Design tokens (already built — do not regenerate by hand)
+`src/styles/theme.css` is **generated — never hand-edit it.** Structure:
 
-`theme.css` is generated from Figma and is the styling foundation. Structure:
-
-- `@theme { --color-* … }` — the **primitive** palette (e.g. `--color-blue-500`) → utilities like
-  `bg-blue-500`. Also holds static dimensions: `--spacing: 0.25rem` (drives the whole numeric
-  spacing/width/height scale), `--radius-*`, `--text-*` (+ `--text-*--line-height`), `--blur-*`,
+- `@theme { --color-* … }` — the **primitive** palette → utilities like `bg-blue-500`. Also static
+  dimensions: `--spacing: 0.25rem`, `--radius-*`, `--text-*` (+ `--text-*--line-height`), `--blur-*`,
   `--shadow-*`, `--inset-shadow-*`, `--font-sans/-mono`, `--font-weight-*`.
 - `:root { --surface-canvas … }` and `.dark { … }` — the **semantic** tokens (role-based, theme-aware).
 - `@theme inline { --color-surface-canvas: var(--surface-canvas) … }` — exposes semantic tokens as
-  color utilities.
+  colour utilities.
+- A trailing `:root` for reference-only values: `--border-width-*`, `--opacity-*`,
+  `--icon-stroke-weight`.
 
 ### The golden rule for components
 
@@ -66,52 +55,72 @@ not for use inside components.
 
 ### Dark mode
 
-Toggled by `class="dark"` on `<html>`. Because color lives in the semantic layer, **do not write
-`dark:` variants for color** — the token swaps itself. A theme toggle just adds/removes that class.
+Toggled by `class="dark"` on `<html>`. Because colour lives in the semantic layer, **do not write
+`dark:` variants for colour** — the token swaps itself. A theme toggle just adds/removes that class.
+
+### Colour is OKLCH, and Tailwind owns the primitives
+
+Every colour is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
+roundings; all 288 primitives are Tailwind palette colours, so `generate.py` reads
+`node_modules/tailwindcss/theme.css` and uses Tailwind's canonical value, falling back to converting
+the Figma hex only when there is no counterpart (just `white` and `black`).
+
+**Consequence:** a primitive changed in Figma is ignored. `generate.py` reports any primitive that
+differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A colour
+that isn't a Tailwind value belongs in the **semantic** layer, which is fully Figma-driven.
 
 ### Refreshing tokens
 
-Tokens come from Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes,
-re-export the JSON and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
+Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the
+three JSON files and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
+
+`generate.py` refuses to write if it would emit an invalid CSS custom property name. This matters:
+an invalid name is dropped **silently** by the browser, which is how eight diverging colours once
+went missing. Figma's `+`/`-` sign prefixes become `pos-`/`neg-` (`--data-viz-diverging-neg-08`).
 
 ## Figma is the source of truth
 
 - File key: `8bRBn0lf6TfPyFWR2XttDP` (Yet Another Design System)
-- If the Figma MCP is available here, read component variants/props directly before building each one:
-  - `search_design_system` — find published components
-  - `use_figma` with the Plugin API (`figma.variables.*`, `figma.getNodeByIdAsync`, `findAllWithCriteria`)
-    to inspect variant sets, or `get_context_for_code_connect` for a component's property/variant tree
-  - Colors come back as `{r,g,b,a}` 0–1 floats — convert to hex
-- If the Figma MCP is **not** wired into Claude Code, proceed from `theme.css` + the exported JSON, and
-  ask the human to paste a screenshot or the variant list for each component.
+- **Trap:** calling `get_metadata` with no `nodeId` lists only the 📓 Cover page, making the file look
+  empty. It is not — components live under high-numbered node ids (`400020xx:xxxxx`). Ask for a link
+  to the specific node rather than concluding the components are elsewhere.
+- `search_design_system` also surfaces look-alike components from the Sprout Social org libraries
+  ("Seeds Components", "Seeds Foundations"). Those are a different, read-only source — use this file.
+- Code Connect (`get_context_for_code_connect`) requires a Dev/Full seat on an Org plan and is **not**
+  available here. Read variants with `get_metadata` + `get_variable_defs` instead.
+- Icon instances inside components are hidden by default, and hidden nodes report unreliable
+  geometry — trust `get_variable_defs` over measured sizes.
+- Colours come back as `{r,g,b,a}` 0–1 floats — convert to hex.
 
-## Components to build (from the Figma library)
+## Components
 
-Build order — foundational/static first, interactive later:
+Each component gets its own folder with the component, its story, and a barrel `index.ts`.
 
-1. **Button** — variants: primary, secondary, destructive, ghost, overlay; sizes; states
-   (default/hover/disabled/loading). Likely a native `<button>` styled with tokens (Base UI has no
-   generic Button). Read the exact variant matrix from Figma first.
-2. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-3. **List Item** — variants/states; native, styled.
-4. **Table Cell** — native, styled.
-5. **Tab Button / Tabs** — use **Base UI `Tabs`** for behavior; style with tokens.
-6. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+**Built:**
 
-For each component: read its Figma variants → model them as typed props → implement with
-`tailwind-variants` → cover all states → write a Storybook story showing every variant in light and
-dark.
+1. **Button** — `appearance`: primary | secondary | destructive | ghost | overlay | **link**;
+   `size`: small (24px) | default (32px) | large (40px); `startIcon`/`endIcon` take a `LucideIcon`.
+   Hover/focus/disabled are CSS states, not props. Focus is a 2px inner border + 3px outer ring from
+   the focus tokens, on `:focus-visible`. Disabled is `opacity-40`.
+2. **Icon** — wraps any Lucide glyph. `size`: small 12 | base 16 | large 20 | x-large 24. Colour is
+   `currentColor` so it inherits (that is what lets it sit inside a Button correctly). Stroke weight
+   uses `--icon-stroke-weight` applied as CSS plus `vector-effect: non-scaling-stroke` — Lucide draws
+   on a 24×24 viewBox, so without that a 1.5 stroke paints at 1px at 16px size.
 
-## Suggested first steps (let the human confirm before large actions)
+**Still to build**, foundational/static first:
 
-1. Scaffold Vite + React + TS.
-2. Wire Tailwind v4 (`@tailwindcss/vite`) and import `theme.css`; load Inter + Geist Mono.
-3. Install `@base-ui/react`, `tailwind-variants`; set up Storybook.
-4. Prove the pipeline: a page showing token swatches + a dark-mode toggle, so we can see tokens working.
-5. Build **Button** end-to-end as the reference pattern, then proceed down the list.
+3. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+4. **List Item** — variants/states; native, styled.
+5. **Table Cell** — native, styled.
+6. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
+7. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+
+For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
+cover all states → write a story showing every variant in light and dark.
 
 ## Working style
 
 - Propose a short plan and get a yes before scaffolding or installing.
 - Keep commits/steps small and explain them in plain language.
-- Don't hardcode colors, spacing, radii, or shadows — always tokens.
+- Don't hardcode colours, spacing, radii, or shadows — always tokens.
+- Verify by measuring (computed styles, screenshots) rather than assuming.

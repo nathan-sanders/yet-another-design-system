@@ -1,59 +1,108 @@
-# Yet Another Design System — tokens (Tailwind v4)
+# Yet Another Design System
 
-This folder is the **token foundation** of your design system, generated straight from your Figma
-variables. It's the first of the layers described below; components come next.
+A themeable React component library whose entire look is driven by design tokens exported from
+Figma — so the code and the design file stay in sync, and dark mode costs nothing to support.
 
-## What's here
+Built with React 19, TypeScript, Vite, Tailwind CSS v4, and [Base UI](https://base-ui.com).
+Previewed in Storybook.
 
-- **`theme.css`** — the file your app imports. Contains all your tokens as Tailwind v4 theme
-  variables. This is the deliverable.
-- `tokens/*.json` — the raw values pulled from Figma (primitives, semantic, dimensions).
-- `generate.py` — rebuilds `theme.css` from the JSON. Re-run it whenever your Figma tokens change.
+## Quick start
 
-## How the three tiers map to code
+```bash
+npm install
+npm run dev          # token playground at localhost:5173
+npm run storybook    # component library at localhost:6006
+```
 
-| Figma collection | In `theme.css` | Result |
+| Script | What it does |
+|---|---|
+| `npm run dev` | Playground showing every token, with a dark-mode toggle |
+| `npm run storybook` | Every component, every variant, light and dark |
+| `npm run build` | Type-check and build |
+| `python3 generate.py` | Rebuild `theme.css` from `tokens/*.json` |
+
+## How it works
+
+Three layers, each generated from the one above it.
+
+```
+Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css  →  components
+```
+
+| Figma collection | Becomes | Gives you |
 |---|---|---|
-| **Colors** (primitives) | `@theme { --color-blue-500 … }` | utilities like `bg-blue-500` |
-| **Semantic Theme** (Light/Dark) | `:root { --surface-canvas … }` + `.dark { … }` | tokens that flip per theme |
-| **Design Tokens** (spacing, type, radius, shadows) | `@theme { --radius-md, --text-base, --shadow-low … }` | `rounded-md`, `text-base`, `shadow-low` |
+| **Colors** (primitives) | `@theme { --color-blue-500 … }` | `bg-blue-500` |
+| **Semantic Theme** (Light/Dark) | `:root { … }` + `.dark { … }` | `bg-surface-canvas`, `text-content-primary` |
+| **Design Tokens** (spacing, type, radius, shadows) | `@theme { --radius-md … }` | `rounded-md`, `text-base`, `shadow-low` |
 
-Your semantic tokens are exposed as utilities too, so you get readable classes such as
-`bg-surface-canvas`, `text-content-primary`, `border-surface-border`, `bg-action-primary-background`.
-Because dark mode is wired to the semantic layer, **you never write a `dark:` variant for color** —
-the token swaps itself.
+`src/styles/theme.css` is **generated — never edit it by hand.** When Figma changes, re-export the
+three JSON files into `tokens/` and run `python3 generate.py`.
 
-## Dark mode
+### The rule for components
 
-Add `class="dark"` to your `<html>` element (or toggle it with JS). Everything using semantic tokens
-updates automatically.
+Style with **semantic** tokens, never primitives or raw colour:
 
-## Using it in a project (setup outline)
+```tsx
+// yes
+<div className="bg-surface-card-primary text-content-primary border-surface-border" />
 
-You don't have this running yet — these are the steps to stand it up. A developer can do this in
-minutes; with an AI coding tool you can follow along.
-
-1. Create a React app with Vite (TypeScript recommended).
-2. Add Tailwind v4: install `tailwindcss` and `@tailwindcss/vite`, and enable the Vite plugin.
-3. Install Base UI: `@base-ui/react` (unstyled, accessible component behavior). Note: v1 renamed
-   the package from `@base-ui-components/react` to `@base-ui/react`.
-4. Put `theme.css` in your `src/` and `import "./theme.css"` at your app entry. The
-   `@import "tailwindcss";` at the top is already included.
-5. Add the **Inter** and **Geist Mono** fonts (your `--font-sans` / `--font-mono`).
-6. Add Storybook to preview components in isolation as you build them.
-
-## Refreshing tokens later
-
-When you change variables in Figma, re-export the three JSON files and run:
-
-```
-python3 generate.py
+// no — primitives are for defining semantics, not for using in components
+<div className="bg-stone-100 text-stone-800" />
 ```
 
-`theme.css` is regenerated. Nothing is hand-edited, so your Figma stays the source of truth.
+### Dark mode
 
-## What's next (the component layer)
+Add `class="dark"` to `<html>`. That's the whole mechanism. Because colour lives in the semantic
+layer, components **never** need a `dark:` variant — the token swaps itself.
 
-Each Figma component becomes a small React component: take the unstyled Base UI primitive
-(Button, Dialog, Tabs, …) and apply Tailwind classes that point at these semantic tokens. Your
-Figma variants (e.g. Button size / variant / state) become the component's props.
+### Colour is OKLCH
+
+Every colour ships as `oklch()`. Figma can only store hex, so the exported values are 8-bit
+roundings of colours that are really defined in OKLCH. Every primitive here is a Tailwind palette
+colour, so `generate.py` reads the installed Tailwind and uses its canonical value:
+
+```css
+--color-red-500: oklch(63.7% 0.237 25.331);
+```
+
+**Tailwind is the source of truth for colour primitives.** A primitive changed in Figma is ignored
+in favour of Tailwind's value — `generate.py` reports any such disagreement rather than discarding
+it silently. Colours that aren't Tailwind values belong in the semantic layer, which is entirely
+Figma-driven.
+
+## Components
+
+| Component | Variants |
+|---|---|
+| **Button** | 6 appearances (primary, secondary, destructive, ghost, overlay, link) × 3 sizes × default/hover/focus/disabled, with icon slots |
+| **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
+
+```tsx
+import { Button, Icon } from './src'
+import { Plus, Star } from 'lucide-react'
+
+<Button appearance="primary" size="large" startIcon={Plus}>Create</Button>
+<Icon icon={Star} size="large" />
+```
+
+Icons take the Lucide component itself (`startIcon={Plus}`, not `<Plus />`) so the design system
+controls size and stroke weight rather than the call site. Lucide icons aren't re-exported from this
+library — import them from `lucide-react` directly so bundlers tree-shake to only what you use.
+
+Still to build: Card, List Item, Table Cell, Tabs, Indicator, Chart Legend Buttons, Carousel
+Pagination Button.
+
+## Project structure
+
+```
+├─ tokens/                  # Figma exports — the input to generate.py
+│  ├─ primitives.json  semantic.json  dimensions.json
+├─ generate.py              # tokens/*.json -> src/styles/theme.css
+├─ .storybook/              # loads theme.css, adds the light/dark toolbar switch
+└─ src/
+   ├─ styles/theme.css      # GENERATED — do not hand-edit
+   ├─ lib/cn.ts             # class-name merge helper
+   ├─ components/           # one folder per component: .tsx, .stories.tsx, index.ts
+   ├─ index.ts              # library barrel export
+   └─ main.tsx  App.tsx     # token playground
+```
