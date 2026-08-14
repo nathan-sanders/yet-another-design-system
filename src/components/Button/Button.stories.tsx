@@ -35,7 +35,7 @@ export const AllVariants: Story = {
     <table className="border-separate border-spacing-x-6 border-spacing-y-3">
       <thead>
         <tr>
-          <th />
+          <th><span className="sr-only">Appearance</span></th>
           {sizes.map((size) => (
             <th key={size} className="text-left text-sm font-normal text-content-subtle capitalize">
               {size}
@@ -69,7 +69,7 @@ export const States: Story = {
     <table className="border-separate border-spacing-x-6 border-spacing-y-3">
       <thead>
         <tr>
-          <th />
+          <th><span className="sr-only">Appearance</span></th>
           <th className="text-left text-sm font-normal text-content-subtle">Default</th>
           <th className="text-left text-sm font-normal text-content-subtle">Disabled</th>
         </tr>
@@ -127,7 +127,7 @@ export const IconOnly: Story = {
     <table className="border-separate border-spacing-x-6 border-spacing-y-3">
       <thead>
         <tr>
-          <th />
+          <th><span className="sr-only">Appearance</span></th>
           {sizes.map((size) => (
             <th key={size} className="text-left text-sm font-normal text-content-subtle capitalize">
               {size}
