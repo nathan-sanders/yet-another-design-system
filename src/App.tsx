@@ -102,12 +102,10 @@ const feedback: [string, string][] = [
   ['bg-feedback-danger-foreground', 'feedback-danger-foreground'],
 ]
 
-// Note: `decorative-oragne-*` is spelled that way in Figma. Left as-is so the
-// code matches the source of truth; rename it in Figma and re-run generate.py.
 const decorative: [string, string][] = [
   ['bg-decorative-stone-background', 'stone'],
   ['bg-decorative-red-background', 'red'],
-  ['bg-decorative-oragne-background', 'oragne [sic]'],
+  ['bg-decorative-orange-background', 'orange'],
   ['bg-decorative-amber-background', 'amber'],
   ['bg-decorative-yellow-background', 'yellow'],
   ['bg-decorative-lime-background', 'lime'],
