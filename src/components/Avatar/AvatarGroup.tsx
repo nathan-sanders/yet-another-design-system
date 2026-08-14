@@ -1,0 +1,115 @@
+import { useMemo } from 'react'
+import type { ComponentPropsWithRef, MouseEventHandler, ReactNode } from 'react'
+
+import { cn } from '../../lib/cn'
+import { AvatarGroupContext, useAvatarGroup } from './context'
+import { avatar, avatarGroup, avatarSurface, type AvatarSize } from './styles'
+
+/**
+ * AvatarGroup — overlapping avatars for a set of people.
+ *
+ * Mirrors the Figma component "Avatar Group" (node 40004113:14594): a row of
+ * avatars, each ringed in the canvas colour so the circles read apart where they
+ * overlap, ending in a `+N` count.
+ *
+ * The API is composed rather than an `items` array, and the group does **not**
+ * count for you — you slice the list and pass the overflow yourself, as Astryx's
+ * AvatarGroup does:
+ *
+ *     <AvatarGroup size="base">
+ *       {people.slice(0, 4).map((p) => (
+ *         <Avatar key={p.id} src={p.photo} name={p.name} />
+ *       ))}
+ *       <AvatarGroup.Overflow count={people.length - 4} />
+ *     </AvatarGroup>
+ *
+ * `size` is set once here and travels to every child through context, so a group
+ * never has to repeat itself. A child that sets its own `size` still wins.
+ *
+ * **The overlap is the ring width.** Figma's group is five 36px avatars at
+ * 164px total — `5 × 36 − 4 × 4` — so each avatar sits 4px into the one before
+ * it, which is exactly the width of the ring. The two of them together leave a
+ * clean band of canvas between neighbouring circles. The ring is an `outline`
+ * rather than a `border` because Figma draws it as an outside stroke: it must
+ * not shrink the photo or take up room in the row.
+ */
+export interface AvatarGroupProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
+  /** `Avatar` elements, optionally ending in one `AvatarGroup.Overflow`. */
+  children: ReactNode
+  /** Size applied to every avatar in the group. A child's own `size` overrides it. */
+  size?: AvatarSize
+}
+
+export interface AvatarGroupOverflowProps
+  extends Omit<ComponentPropsWithRef<'span'>, 'children' | 'onClick'> {
+  /** How many avatars are hidden. Rendered as `+N`. */
+  count: number
+  /** Replaces the default `+N` text — for a capped count like `99+`. */
+  children?: ReactNode
+  /** Makes the count a `<button>`, for opening the full list. */
+  onClick?: MouseEventHandler<HTMLElement>
+  /** Overrides the size inherited from the group. */
+  size?: AvatarSize
+  /** What the count is called out loud. Defaults to "N more". */
+  label?: string
+}
+
+/**
+ * The trailing `+N` circle — Figma's `Content=Overflow` variant of Avatar.
+ *
+ * It is its own component rather than a prop on the group because the group does
+ * not do the counting, and because the count is sometimes clickable and
+ * sometimes not.
+ */
+function AvatarGroupOverflow({
+  count,
+  children,
+  onClick,
+  size,
+  label,
+  className,
+  ...props
+}: AvatarGroupOverflowProps) {
+  const group = useAvatarGroup()
+  const resolvedSize = size ?? group?.size ?? 'base'
+  const interactive = Boolean(onClick)
+  const accessibleName = label ?? `${count} more`
+
+  // Sizing and the group ring come from the same variants the avatars use, so
+  // the count can never drift out of step with the circles beside it.
+  const classes = cn(avatar({ size: resolvedSize, interactive, inGroup: true }), className)
+  const content = <span className={avatarSurface()}>{children ?? `+${count}`}</span>
+
+  if (interactive) {
+    return (
+      <button type="button" onClick={onClick} className={classes} aria-label={accessibleName}>
+        {content}
+      </button>
+    )
+  }
+
+  return (
+    <span className={classes} role="img" aria-label={accessibleName} {...props}>
+      {content}
+    </span>
+  )
+}
+
+AvatarGroupOverflow.displayName = 'AvatarGroup.Overflow'
+
+export function AvatarGroup({ children, size = 'base', className, ...props }: AvatarGroupProps) {
+  // A fresh object every render would re-render every avatar in the group for
+  // nothing, and a group can be long.
+  const context = useMemo(() => ({ size, inGroup: true }), [size])
+
+  return (
+    <AvatarGroupContext.Provider value={context}>
+      <div className={cn(avatarGroup({ size }), className)} {...props}>
+        {children}
+      </div>
+    </AvatarGroupContext.Provider>
+  )
+}
+
+AvatarGroup.Overflow = AvatarGroupOverflow
+AvatarGroup.displayName = 'AvatarGroup'
