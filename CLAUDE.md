@@ -102,6 +102,10 @@ Each component gets its own folder with the component, its story, and a barrel `
    `size`: small (24px) | default (32px) | large (40px); `startIcon`/`endIcon` take a `LucideIcon`.
    Hover/focus/disabled are CSS states, not props. Focus is a 2px inner border + 3px outer ring from
    the focus tokens, on `:focus-visible`. Disabled is `opacity-40`.
+   **Icon-only:** pass `startIcon` with no children and the button becomes a square at the same
+   height as its labelled twin (24/32/40). It is derived from the absence of a label, not a prop, and
+   the props are a union so `aria-label` is *required* in that form — an unlabelled icon button will
+   not compile.
 2. **Icon** — wraps any Lucide glyph. `size`: small 12 | base 16 | large 20 | x-large 24. Colour is
    `currentColor` so it inherits (that is what lets it sit inside a Button correctly). Stroke weight
    uses `--icon-stroke-weight` applied as CSS plus `vector-effect: non-scaling-stroke` — Lucide draws

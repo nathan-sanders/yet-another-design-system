@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef } from 'react'
+import type { ComponentPropsWithRef, ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
@@ -14,6 +14,10 @@ import { Icon, type IconProps } from '../Icon'
  * Every value below comes from a semantic token. There are no hex colours, no
  * primitive utilities (`bg-stone-800`) and no `dark:` variants — dark mode is
  * handled entirely by the token layer swapping under `.dark`.
+ *
+ * Passing a `startIcon` with no children gives the icon-only form: a square
+ * button the same height as its labelled counterpart, with `aria-label`
+ * required to supply the name the missing label would have carried.
  *
  * Figma models hover / focus / disabled as a `State` property. In code those
  * are real CSS states rather than props, so there is no `state` prop: hover and
@@ -67,6 +71,16 @@ const button = tv({
       default: 'h-8 gap-2 px-3 text-base',
       large: 'h-10 gap-2 px-4 text-base',
     },
+
+    /**
+     * Icon-only: no label, just the start icon. Not a prop — it is derived from
+     * the absence of children, so a caller can never set it and the two out of
+     * sync. The button becomes a square the same height as its labelled
+     * counterpart, so a row mixing the two still lines up.
+     */
+    iconOnly: {
+      true: 'px-0',
+    },
   },
 
   compoundVariants: [
@@ -78,6 +92,13 @@ const button = tv({
     { appearance: 'link', size: 'large', class: 'px-1.5' },
     // Everything except link is semibold.
     { appearance: ['primary', 'secondary', 'destructive', 'ghost', 'overlay'], class: 'font-semibold' },
+    // Square: width matches the height of each size (24 / 32 / 40). These come
+    // after the link rules so they also flatten link's tighter padding.
+    { iconOnly: true, size: 'small', class: 'w-6' },
+    { iconOnly: true, size: 'default', class: 'w-8' },
+    { iconOnly: true, size: 'large', class: 'w-10' },
+    // An underline under a bare glyph reads as an artefact rather than a link.
+    { iconOnly: true, appearance: 'link', class: 'no-underline' },
   ],
 
   defaultVariants: {
@@ -100,7 +121,7 @@ const ICON_SIZE: Record<ButtonSize, IconProps['size']> = {
   large: 'base', // 16px
 }
 
-export interface ButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'color'> {
+interface ButtonBaseProps extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'children'> {
   /** Visual appearance. Maps to the Figma `Appearance` property. */
   appearance?: ButtonVariants['appearance']
   /** Control size. Maps to the Figma `Size` property. */
@@ -115,6 +136,29 @@ export interface ButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'colo
   endIcon?: LucideIcon
 }
 
+/**
+ * A Button is either labelled or icon-only, and the two have different rules,
+ * so the props are a union rather than "everything optional".
+ *
+ * Icon-only means exactly what it says: a start icon and no label. Because
+ * there is no visible text, `aria-label` is required — TypeScript will not let
+ * an unlabelled icon button compile, which is the one accessibility mistake
+ * this pattern invites.
+ */
+export type ButtonProps = ButtonBaseProps &
+  (
+    | {
+        children: ReactNode
+        'aria-label'?: string
+      }
+    | {
+        children?: never
+        startIcon: LucideIcon
+        /** Required: the icon carries no accessible name of its own. */
+        'aria-label': string
+      }
+  )
+
 export function Button({
   appearance,
   size = 'default',
@@ -126,9 +170,11 @@ export function Button({
   ...props
 }: ButtonProps) {
   const iconSize = ICON_SIZE[size]
+  // No label to sit beside means the square, icon-only shape.
+  const iconOnly = children == null || children === false
 
   return (
-    <button type={type} className={cn(button({ appearance, size }), className)} {...props}>
+    <button type={type} className={cn(button({ appearance, size, iconOnly }), className)} {...props}>
       {startIcon && <Icon icon={startIcon} size={iconSize} />}
       {children}
       {endIcon && <Icon icon={endIcon} size={iconSize} />}
