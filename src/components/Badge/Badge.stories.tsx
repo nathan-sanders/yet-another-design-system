@@ -50,7 +50,9 @@ export const AllColors: Story = {
     <table className="border-separate border-spacing-x-6 border-spacing-y-3">
       <thead>
         <tr>
-          <th />
+          <th>
+            <span className="sr-only">Color</span>
+          </th>
           <th className="text-left text-sm font-normal text-content-subtle">Label</th>
           <th className="text-left text-sm font-normal text-content-subtle">Start icon</th>
           <th className="text-left text-sm font-normal text-content-subtle">End icon</th>
