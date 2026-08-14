@@ -43,13 +43,20 @@ export default defineConfig({
       // 'elementRoles'" — reporting "no tests" rather than a real failure, which
       // is the part that made it look like nothing was wrong.
       //
-      // Naming them here puts them back in the optimizer's list. It is the two
-      // testing-library packages rather than the individual CJS leaves
-      // (aria-query, lz-string, dom-accessibility-api, …) because including a
-      // package bundles its dependencies along with it — chasing the leaves one
-      // at a time just moves the error to the next one.
+      // Naming it here puts it back in the optimizer's list. It is the parent
+      // package rather than the individual CJS leaves (aria-query, lz-string,
+      // dom-accessibility-api, …) because including a package bundles its
+      // dependencies along with it — chasing the leaves one at a time just moves
+      // the error to the next one.
+      //
+      // @testing-library/dom is a devDependency purely so this line can name it.
+      // It arrives anyway as a transitive dependency of storybook, but
+      // optimizeDeps.include hard-errors on a name it cannot resolve, so relying
+      // on the hoisted copy would make this config depend on npm's layout.
+      // Declared at the same ^10.4.1 storybook asks for, so it still dedupes to
+      // one copy.
       optimizeDeps: {
-        include: ['@testing-library/dom', '@testing-library/jest-dom']
+        include: ['@testing-library/dom']
       },
       test: {
         name: 'storybook',
