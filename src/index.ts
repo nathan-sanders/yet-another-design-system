@@ -2,6 +2,13 @@
 export { Badge } from './components/Badge'
 export type { BadgeProps } from './components/Badge'
 
+export { Breadcrumbs } from './components/Breadcrumbs'
+export type {
+  BreadcrumbsProps,
+  BreadcrumbsItemProps,
+  BreadcrumbSeparator,
+} from './components/Breadcrumbs'
+
 export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
