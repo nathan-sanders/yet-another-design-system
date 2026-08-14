@@ -107,13 +107,22 @@ Each component gets its own folder with the component, its story, and a barrel `
    uses `--icon-stroke-weight` applied as CSS plus `vector-effect: non-scaling-stroke` — Lucide draws
    on a 24×24 viewBox, so without that a 1.5 stroke paints at 1px at 16px size.
 
+3. **Badge** — `color`: all 18 hues of the Decorative ramp — stone first, then red, orange, amber,
+   yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose.
+   (Figma shipped 14; orange/lime/emerald/teal are being added there to match.)
+   `startIcon`/`endIcon` take a `LucideIcon`
+   and render at 12px. One size only — 20px tall, which is exactly the `text-sm` line-height, so the
+   height falls out of the type rather than being set. Not interactive: Figma gives it no hover,
+   focus or disabled state, so it renders as a `<span>`. Uses the ramp's `Background` + `Foreground`;
+   the `Highlight` is unused because Figma's Badge has no border.
+
 **Still to build**, foundational/static first:
 
-3. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-4. **List Item** — variants/states; native, styled.
-5. **Table Cell** — native, styled.
-6. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
-7. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+4. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+5. **List Item** — variants/states; native, styled.
+6. **Table Cell** — native, styled.
+7. **Tab Button / Tabs** — use **Base UI `Tabs`** for behaviour; style with tokens.
+8. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.
