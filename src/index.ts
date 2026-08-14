@@ -1,4 +1,13 @@
 // Public surface of the library. Each component folder exports through here.
+export { Avatar, AvatarGroup } from './components/Avatar'
+export type {
+  AvatarProps,
+  AvatarSize,
+  AvatarStatus,
+  AvatarGroupProps,
+  AvatarGroupOverflowProps,
+} from './components/Avatar'
+
 export { Badge } from './components/Badge'
 export type { BadgeProps } from './components/Badge'
 
