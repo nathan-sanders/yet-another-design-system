@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "yads-storybook",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "storybook"],
+      "port": 6006
     }
   ]
 }
