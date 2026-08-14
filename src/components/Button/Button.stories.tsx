@@ -115,6 +115,53 @@ export const WithIcons: Story = {
 }
 
 /**
+ * Icon-only: a start icon and no label. The button becomes a square at the same
+ * height as the labelled version (24 / 32 / 40), so the two line up in a row.
+ *
+ * There is no visible text, so `aria-label` is what names the button for screen
+ * readers — it is required by the types, and a missing one will not compile.
+ */
+export const IconOnly: Story = {
+  parameters: { controls: { disable: true } },
+  render: ({ children: _label, ...args }) => (
+    <table className="border-separate border-spacing-x-6 border-spacing-y-3">
+      <thead>
+        <tr>
+          <th />
+          {sizes.map((size) => (
+            <th key={size} className="text-left text-sm font-normal text-content-subtle capitalize">
+              {size}
+            </th>
+          ))}
+          <th className="text-left text-sm font-normal text-content-subtle">Disabled</th>
+          <th className="text-left text-sm font-normal text-content-subtle">With label</th>
+        </tr>
+      </thead>
+      <tbody>
+        {appearances.map((appearance) => (
+          <tr key={appearance}>
+            <td className="text-sm text-content-subtle capitalize">{appearance}</td>
+            {sizes.map((size) => (
+              <td key={size}>
+                <Button {...args} appearance={appearance} size={size} startIcon={Plus} aria-label="Create" />
+              </td>
+            ))}
+            <td>
+              <Button {...args} appearance={appearance} startIcon={Plus} aria-label="Create" disabled />
+            </td>
+            <td>
+              <Button {...args} appearance={appearance} startIcon={Plus}>
+                Create
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ),
+}
+
+/**
  * Overlay is designed to sit on top of imagery or a dark scrim, so it is shown
  * here against a filled surface rather than the page background.
  */
