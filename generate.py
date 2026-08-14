@@ -56,8 +56,8 @@ def _fmt(x, nd):
     s = f"{round(x, nd):f}".rstrip("0").rstrip(".")
     return s if s not in ("", "-0") else "0"
 
-def hex_to_oklch(h):
-    """'#rrggbb' or '#rrggbbaa' -> an oklch() string."""
+def hex_to_oklab(h):
+    """'#rrggbb' or '#rrggbbaa' -> (L, a, b, alpha) in OKLab."""
     s = h.lstrip("#")
     a = 1.0
     if len(s) == 8:
@@ -69,9 +69,23 @@ def hex_to_oklch(h):
     m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b
     t = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b
     l_, m_, t_ = l ** (1 / 3), m ** (1 / 3), t ** (1 / 3)
-    L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * t_
-    A = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * t_
-    B = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * t_
+    return (0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * t_,
+            1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * t_,
+            0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * t_,
+            a)
+
+def oklch_str_to_oklab(s):
+    """'oklch(63.7% 0.237 25.331)' -> (L, a, b). Hue may be the keyword `none`."""
+    m = re.match(r"oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+|none)", s)
+    if not m:
+        return None
+    L, C = float(m.group(1)) / 100, float(m.group(2))
+    H = 0.0 if m.group(3) == "none" else float(m.group(3))
+    return L, C * math.cos(math.radians(H)), C * math.sin(math.radians(H))
+
+def hex_to_oklch(h):
+    """'#rrggbb' or '#rrggbbaa' -> an oklch() string."""
+    L, A, B, a = hex_to_oklab(h)
     C = math.hypot(A, B)
     # Achromatic colours get hue `none`, matching how Tailwind writes them.
     if C < 1e-6:
@@ -93,12 +107,28 @@ def load_tailwind_palette():
             for m in re.finditer(r"--color-([a-z]+-\d+):\s*(oklch\([^)]*\))", css)}
 
 TW = load_tailwind_palette()
-stats = {"tailwind": 0, "converted": 0, "unmatched": []}
+stats = {"tailwind": 0, "converted": 0, "unmatched": [], "drifted": []}
+
+# Storing a colour as 8-bit hex moves it slightly; across this whole palette the
+# largest such rounding measured 0.027 in OKLab. Anything past this threshold is
+# too big to be rounding, so it is a real edit made in Figma.
+HEX_ROUNDING_TOLERANCE = 0.05
 
 def primitive_value(name, hexval):
-    """Prefer Tailwind's canonical OKLCH; fall back to converting the hex."""
+    """Tailwind is the source of truth for primitives.
+
+    Figma cannot express OKLCH, so its hex is treated as an approximation and
+    Tailwind's canonical value wins. That means a colour deliberately changed in
+    Figma would be ignored — so any disagreement too large to be hex rounding is
+    reported rather than silently discarded.
+    """
     if name in TW:
         stats["tailwind"] += 1
+        tw_lab, fig_lab = oklch_str_to_oklab(TW[name]), hex_to_oklab(hexval)
+        if tw_lab:
+            d = math.dist(tw_lab, fig_lab[:3])
+            if d > HEX_ROUNDING_TOLERANCE:
+                stats["drifted"].append((name, hexval, TW[name], d))
         return TW[name]
     stats["converted"] += 1
     if re.fullmatch(r"[a-z]+-\d+", name):
@@ -303,6 +333,12 @@ print(f"colours: {stats['tailwind']} from the Tailwind palette, "
 if stats["unmatched"]:
     print("  ! scale-shaped names with no Tailwind counterpart (check the spelling "
           "in Figma): " + ", ".join(sorted(set(stats["unmatched"]))))
+if stats["drifted"]:
+    print(f"  ! {len(stats['drifted'])} primitive(s) differ from Tailwind by more than hex")
+    print("    rounding. Tailwind wins, so the Figma value is NOT being used. Either")
+    print("    set Figma back to match, or move the colour into the semantic layer:")
+    for name, fig, tw, d in sorted(stats["drifted"], key=lambda r: -r[3]):
+        print(f"      {name:16} figma {fig}  ignored in favour of  {tw}")
 print(f"radius:{len(radius)} text:{len(text_fs)} blur:{len(blur)} "
       f"drop-shadows:{len(shadows_drop)} inner-shadows:{len(shadows_inner)}")
 print(f"wrote {out_path} ({len(css)} bytes, {css.count(chr(10))} lines)")
