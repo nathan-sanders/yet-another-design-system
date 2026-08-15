@@ -36,6 +36,16 @@ export type {
   SegmentedControlLayout,
 } from './components/SegmentedControl'
 
+export { Tabs } from './components/Tabs'
+export type {
+  TabsProps,
+  TabsListProps,
+  TabsTabProps,
+  TabsPanelProps,
+  TabsSize,
+  TabsLayout,
+} from './components/Tabs'
+
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps, TooltipPopupProps } from './components/Tooltip'
 

@@ -83,6 +83,7 @@ Figma-driven.
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
+| **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx
@@ -124,7 +125,7 @@ Icons take the Lucide component itself (`startIcon={Plus}`, not `<Plus />`) so t
 controls size and stroke weight rather than the call site. Lucide icons aren't re-exported from this
 library — import them from `lucide-react` directly so bundlers tree-shake to only what you use.
 
-Still to build: Card, List Item, Table Cell, Tabs, Indicator, Chart Legend Buttons, Carousel
+Still to build: Card, List Item, Table Cell, Indicator, Chart Legend Buttons, Carousel
 Pagination Button.
 
 ## Project structure
