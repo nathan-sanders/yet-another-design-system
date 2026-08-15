@@ -46,7 +46,12 @@ export const AllTypes: Story = {
     // A grid, not Badge's <table>. Banner is `w-full` and takes its width from
     // its container, and an auto-layout table cell has no width to give —
     // the banners collapse to the width of their longest word.
-    <div className="grid grid-cols-[auto_repeat(3,20rem)] items-center gap-x-6 gap-y-3">
+    //
+    // The label column is `max-content`, not `auto`: a grid hands leftover space
+    // to its `auto` tracks, so on a wide viewport `auto` stretches the labels
+    // away from the banners instead of hugging them. `w-fit` then stops the grid
+    // itself from filling the canvas.
+    <div className="grid w-fit grid-cols-[max-content_repeat(3,20rem)] items-center gap-x-6 gap-y-3">
       {/* An empty corner cell, not Badge's `sr-only` one: `sr-only` is
           position-absolute, so it would drop out of grid flow and shift every
           row one column left. A grid has no header semantics to preserve. */}
