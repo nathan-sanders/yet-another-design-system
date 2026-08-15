@@ -78,6 +78,7 @@ Figma-driven.
 | **Avatar** | Photo, initials or `+N` at 5 sizes (20/24/36/40/128); online/offline/unavailable status, each with its own shape |
 | **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
 | **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |
+| **Banner** | 4 feedback types (info, success, warning, danger) × inline/floating, with title, description, action and dismiss slots |
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 6 appearances (primary, secondary, destructive, ghost, overlay, link) × 3 sizes × default/hover/focus/disabled, with icon slots |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
@@ -87,12 +88,21 @@ Figma-driven.
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx
-import { Badge, Breadcrumbs, Button, Icon, SegmentedControl, Tooltip } from './src'
+import { Badge, Banner, Breadcrumbs, Button, Icon, SegmentedControl, Tooltip } from './src'
 import { House, LayoutGrid, List, Plus, Star, Trash2 } from 'lucide-react'
 
 <Button appearance="primary" size="large" startIcon={Plus}>Create</Button>
 <Icon icon={Star} size="large" />
 <Badge color="green">Live</Badge>
+
+<Banner
+  type="warning"
+  title="Your trial expires in 3 days"
+  action={<Button appearance="overlay" size="small">Upgrade</Button>}
+  onDismiss={() => setShown(false)}
+>
+  Upgrade now to keep access to all features.
+</Banner>
 
 <Breadcrumbs separator="chevron">
   <Breadcrumbs.Item href="/" startIcon={House}>Home</Breadcrumbs.Item>
@@ -109,6 +119,10 @@ import { House, LayoutGrid, List, Plus, Star, Trash2 } from 'lucide-react'
   <Button appearance="destructive" startIcon={Trash2} aria-label="Delete project" />
 </Tooltip>
 ```
+
+A banner announces itself according to its type: info and success are polite `role="status"`, warning
+and danger interrupt with `role="alert"`. Passing `onDismiss` is what renders the close button — the
+banner never hides itself, so whether it is on screen stays yours.
 
 A segmented control is an *input*, not navigation, so it renders as a radio group: exactly one option
 is always selected, and the arrow keys move between them. Its three heights are Button's, so the two

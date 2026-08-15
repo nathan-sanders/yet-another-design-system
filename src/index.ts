@@ -11,6 +11,9 @@ export type {
 export { Badge } from './components/Badge'
 export type { BadgeProps } from './components/Badge'
 
+export { Banner } from './components/Banner'
+export type { BannerProps, BannerType } from './components/Banner'
+
 export { Breadcrumbs } from './components/Breadcrumbs'
 export type {
   BreadcrumbsProps,
