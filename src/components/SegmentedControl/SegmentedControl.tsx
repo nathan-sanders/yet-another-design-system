@@ -16,7 +16,8 @@ import { Icon, type IconProps } from '../Icon'
  *
  * Mirrors the Figma component sets "Segment Control" (node 40004127:14774,
  * `Appearance`: Secondary | Ghost) and "Segments" (node 40002016:7049,
- * `Active` x `State` x `Size`).
+ * `Active` x `State` x `Size`). The track carries no `Size` of its own — it
+ * takes its height from the segments inside it.
  *
  * It is styled to sit beside a Button: the track uses the same
  * Action/Secondary and Action/Ghost tokens as Button's `secondary` and `ghost`
@@ -82,9 +83,9 @@ const segmentedControl = tv({
 
     /**
      * `hug` sizes segments to their labels; `fill` stretches them to equal
-     * widths across the container. Astryx's `layout` prop. Figma only draws the
-     * hug form, so `fill` is a gap in the file rather than an invention — it is
-     * the shape you need inside a fixed-width panel.
+     * widths across the container. Astryx's `layout` prop, and the one thing
+     * here that Figma does not draw — a gap in the file rather than an
+     * invention, since it is the shape a fixed-width panel needs.
      *
      * Display lives here rather than in `base` so the two never fight: a hug
      * control is inline, a fill control is a block that takes the full width.
@@ -108,7 +109,12 @@ const segment = tv({
     // gap-2 = 8px (spacing/2) at every size — Figma sets it unconditionally, so
     // this does not tighten to gap-1 at small the way Button does.
     'gap-2 rounded-sm font-sans whitespace-nowrap select-none',
-    'cursor-pointer text-action-secondary-foreground',
+    // Labels come from the Content ramp, not the Action one: an unselected
+    // segment is `content-primary` and the selected one darkens to
+    // `content-emphasized`, so selection is carried by colour as well as by
+    // weight and the card. In dark mode that reads as stone-100 -> white.
+    // Hover does not change the colour — only the background does.
+    'cursor-pointer text-content-primary',
     // A 1px border at rest, transparent until selected. Without it, selecting a
     // segment would add a border and grow it by 2px, shoving the whole row.
     'border border-transparent',
@@ -123,7 +129,11 @@ const segment = tv({
     'data-unchecked:hover:bg-surface-canvas-overlay',
     // Selected: the raised white card. Weight goes 400 -> 600, as in Figma.
     'data-checked:bg-surface-card-primary data-checked:border-action-secondary-border',
-    'data-checked:shadow-low data-checked:font-semibold',
+    'data-checked:shadow-low data-checked:font-semibold data-checked:text-content-emphasized',
+    // Focusing an unselected segment darkens its label to the selected colour.
+    // Figma sets this on every Focus variant; it costs nothing on a selected
+    // segment, which is already emphasized.
+    'focus-visible:text-content-emphasized',
     // Focus: the library's 2px inner border + 3px outer ring, on :focus-visible.
     // Figma draws this ring at rounded-xs (4px) on a rounded-sm (6px) segment —
     // an artefact of it being a separate inset overlay layer. Using the
@@ -140,7 +150,9 @@ const segment = tv({
     size: {
       small: 'h-5 px-2 text-sm', // 20px
       default: 'h-7 px-3 text-base', // 28px
-      large: 'h-9 px-4 text-base', // 36px
+      // Large is taller but no wider: Figma gives it the same px-3 as default,
+      // unlike Button, which steps 8 / 12 / 16.
+      large: 'h-9 px-3 text-base', // 36px
     },
 
     layout: {
