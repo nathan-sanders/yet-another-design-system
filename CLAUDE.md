@@ -288,6 +288,10 @@ Each component gets its own folder with the component, its story, and a barrel `
    `ease-standard` crossfading colour, background, border and shadow. Astryx measures at 125ms on
    `cubic-bezier(0.24, 1, 0.4, 1)` — the same curve, and 130ms is the nearest token. No sliding
    indicator: that needs the JS layout library this system deliberately turned down.
+   **A `Tooltip` composes onto a segment** — Tooltip hands `children` to Base UI's `render`, so the
+   segment's own `<button>` becomes the trigger and keeps its roving tabindex and arrow keys. That
+   is what Tooltip's `SharedDelay` story is built from now. A tooltip still only *describes*: an
+   icon-only segment needs its own `aria-label`, which the union prop type requires anyway.
    **`layout="fill"`** is the one thing here Figma does not draw — Astryx's, for a fixed-width
    panel, and a gap in the file rather than an invention. Figma's focus ring is drawn at
    `rounded-xs` on a `rounded-sm` segment — an artefact of it being a separate overlay layer; the
