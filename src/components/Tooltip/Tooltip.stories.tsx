@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Bold, Italic, Link, Trash2, Underline } from 'lucide-react'
+import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Link, Trash2 } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
+import { SegmentedControl } from '../SegmentedControl'
 import { Tooltip } from './Tooltip'
 
 const sides = ['top', 'right', 'bottom', 'left'] as const
@@ -197,30 +198,34 @@ export const Triggers: Story = {
 /**
  * `Tooltip.Provider` shares one delay across a group. The first tooltip waits the
  * full 600ms; while the group stays warm, its neighbours open instantly. Sweep
- * along this toolbar and it reads as one surface rather than four separate waits.
+ * along this control and it reads as one surface rather than four separate waits.
  *
  * The instant ones also skip the transition — Base UI marks them `data-instant`,
  * and the recipe drops the duration to zero for that case. An animation that
  * plays again on every neighbour is what makes a hovered toolbar feel noisy.
+ *
+ * Icon-only segments are the case tooltips exist for. The tooltip *describes*;
+ * `aria-label` still does the naming, which the types require — so each segment
+ * carries both.
  */
 export const SharedDelay: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <Tooltip.Provider>
-      <div className="flex items-center gap-1 rounded-lg border border-surface-border bg-surface-card-primary p-1 shadow-low">
-        <Tooltip label="Bold">
-          <Button appearance="ghost" startIcon={Bold} aria-label="Bold" />
+      <SegmentedControl aria-label="Text alignment" defaultValue="left">
+        <Tooltip label="Align left">
+          <SegmentedControl.Item value="left" startIcon={AlignLeft} aria-label="Align left" />
         </Tooltip>
-        <Tooltip label="Italic">
-          <Button appearance="ghost" startIcon={Italic} aria-label="Italic" />
+        <Tooltip label="Align center">
+          <SegmentedControl.Item value="center" startIcon={AlignCenter} aria-label="Align center" />
         </Tooltip>
-        <Tooltip label="Underline">
-          <Button appearance="ghost" startIcon={Underline} aria-label="Underline" />
+        <Tooltip label="Align right">
+          <SegmentedControl.Item value="right" startIcon={AlignRight} aria-label="Align right" />
         </Tooltip>
-        <Tooltip label="Insert link">
-          <Button appearance="ghost" startIcon={Link} aria-label="Insert link" />
+        <Tooltip label="Justify">
+          <SegmentedControl.Item value="justify" startIcon={AlignJustify} aria-label="Justify" />
         </Tooltip>
-      </div>
+      </SegmentedControl>
     </Tooltip.Provider>
   ),
 }
