@@ -388,8 +388,15 @@ Each component gets its own folder with the component, its story, and a barrel `
     of grid flow and shifts every row one column left.
     Left out of Astryx: `container="section"` (full-bleed, no radius), the collapsible
     `children`/`defaultIsExpanded` detail area, and the four-step `elevation` scale — Figma draws one
-    raised state, so that is the `floating` boolean. Its `icon` override is kept, the same
-    gap-in-the-file call as Divider's `emphasis` and SegmentedControl's `layout="fill"`.
+    raised state, so that is the `floating` boolean. Its `icon` override is kept.
+    **The `icon` override exists in Figma too, as an exposed nested instance** — the mechanism Button
+    and Badge already use for their icon slots. Not an `INSTANCE_SWAP` property: no component set in
+    the file uses one, and a set-level swap property carries a single shared default, which would
+    flatten the four per-type glyphs into one. Exposing the nested instance keeps each variant's own
+    glyph as its default. Seven of the eight variants were already exposed; `Type=Info, Floating=False`
+    — the default variant — was not, which is worth knowing as a shape of bug this file can carry:
+    a property set on every variant *except* the default one reads as fine until someone drops in a
+    fresh instance.
 
 **Still to build**, foundational/static first:
 
