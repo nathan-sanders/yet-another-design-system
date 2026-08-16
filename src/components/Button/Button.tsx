@@ -15,9 +15,10 @@ import { Icon, type IconProps } from '../Icon'
  * primitive utilities (`bg-stone-800`) and no `dark:` variants — dark mode is
  * handled entirely by the token layer swapping under `.dark`.
  *
- * Passing a `startIcon` with no children gives the icon-only form: a square
- * button the same height as its labelled counterpart, with `aria-label`
- * required to supply the name the missing label would have carried.
+ * Passing a `startIcon` with no children gives the icon-only form: same height
+ * and same horizontal padding as its labelled counterpart, just without the
+ * label, with `aria-label` required to supply the name the label would have
+ * carried.
  *
  * Figma models hover / focus / disabled as a `State` property. In code those
  * are real CSS states rather than props, so there is no `state` prop: hover and
@@ -75,11 +76,18 @@ const button = tv({
     /**
      * Icon-only: no label, just the start icon. Not a prop — it is derived from
      * the absence of children, so a caller can never set it and the two out of
-     * sync. The button becomes a square the same height as its labelled
-     * counterpart, so a row mixing the two still lines up.
+     * sync.
+     *
+     * Deliberately carries no padding or width classes. Figma's icon-only
+     * button keeps the *same* horizontal padding as the labelled one and simply
+     * lets the width follow the content: at default size that is
+     * 1 + 12 + 16 + 12 + 1 = 42 wide by 32 tall (node 40002016:6867), not a
+     * 32x32 square. Squaring it off would pull the icon 4px closer to each
+     * edge than the design specifies. This variant exists only to carry the
+     * link fix below.
      */
     iconOnly: {
-      true: 'px-0',
+      true: '',
     },
   },
 
@@ -92,11 +100,6 @@ const button = tv({
     { appearance: 'link', size: 'large', class: 'px-1.5' },
     // Everything except link is semibold.
     { appearance: ['primary', 'secondary', 'destructive', 'ghost', 'overlay'], class: 'font-semibold' },
-    // Square: width matches the height of each size (24 / 32 / 40). These come
-    // after the link rules so they also flatten link's tighter padding.
-    { iconOnly: true, size: 'small', class: 'w-6' },
-    { iconOnly: true, size: 'default', class: 'w-8' },
-    { iconOnly: true, size: 'large', class: 'w-10' },
     // An underline under a bare glyph reads as an artefact rather than a link.
     { iconOnly: true, appearance: 'link', class: 'no-underline' },
   ],
