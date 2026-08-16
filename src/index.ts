@@ -24,6 +24,9 @@ export type {
 export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
+export { Checkbox } from './components/Checkbox'
+export type { CheckboxProps } from './components/Checkbox'
+
 export { Divider } from './components/Divider'
 export type { DividerProps } from './components/Divider'
 
