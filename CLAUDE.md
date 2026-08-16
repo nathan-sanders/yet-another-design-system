@@ -461,12 +461,47 @@ Each component gets its own folder with the component, its story, and a barrel `
     `onHide(reason)`, and anchored toasts — `Toast.Positioner` and `Toast.Arrow` are attached but the
     managed viewport does not use them, and anchored toasts want their own provider.
 
+12. **Checkbox** — a box you tick to turn one thing on or off. Mirrors Figma node `40004007:4067`:
+    `In Container` false | true × `State` default | hover | focus | invalid | disabled ×
+    `Selected State` default | indeterminate | selected, plus the `Label`, `Sub Label` and `Slot`
+    booleans. Twenty-four of the thirty combinations are drawn; the gaps are all "hover or invalid
+    on an already-ticked box", which the CSS covers anyway.
+    **Seventh Base UI component**, first on `Checkbox`. It supplies `role="checkbox"`,
+    `aria-checked` (including `"mixed"`), the hidden `<input type="checkbox">` that makes it submit
+    with a form, and `data-checked` / `data-unchecked` / `data-indeterminate`.
+    **Indeterminate is a prop, not a third value of `checked`** — which matches the DOM, where
+    `input.indeterminate` has always been separate. The glyph is chosen from the prop rather than
+    from Base UI's state, because a box can be indeterminate whether or not it is also checked.
+    Ticked and indeterminate share one fill (`input-selected` for background *and* border) and
+    differ only in the glyph: `Check` or `Minus`, at 14px because Figma binds `width/w-3,5` and
+    Icon's own scale is 12/16/20/24 — the one place a `className` overrides an Icon size.
+    **The row is a real `<label>`**, which is what makes clicking the text toggle the box, and is
+    the path Base UI supports for naming a root that is not a native button. **This is the opposite
+    call from SegmentedControl**, which pairs `nativeButton` with `render={<button>}`: a segment
+    sits in a radiogroup with roving tabindex and no label element around it, so it has to be a
+    button to get `:focus-visible`. A checkbox already has one wrapped round it. Verified in the
+    browser: `aria-labelledby` resolves to the label text, and label-click and box-click both toggle.
+    **The card's line is an `inset-ring`, not a border.** Figma draws the container 40px tall —
+    24 of line-height plus 8 above and below — and a border would add its 2px on top and make it 42.
+    A ring is a shadow, so it costs no layout. That is Avatar's trick, and it settles the focus
+    idiom for the card too: `inset-ring-2` + `ring-3`, Avatar's, while the 20px box keeps Button's
+    `border-2` + `ring-3` because it has a real border and a fixed size the inward border cannot
+    grow. **40 is the number to check**, and 20 for the box.
+    `invalid` is a prop rather than a CSS state, and the one member of Figma's `State` axis that
+    stays one: Base UI publishes `data-invalid` only for a checkbox inside a `Field`, which this
+    library does not have yet. Swap it for `data-invalid:` when Field lands.
+    **Open question for Figma:** the box is centred against the whole label block, which is what
+    Figma's auto-layout does, but most systems top-align once a sub-label makes the text two lines.
+    Figma has a **Checkbox Group** set too (and Base UI a `CheckboxGroup`); neither is built, so the
+    `Parent` story does the indeterminate arithmetic by hand.
+
 **Still to build**, foundational/static first:
 
-12. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-13. **List Item** — variants/states; native, styled.
-14. **Table Cell** — native, styled.
-15. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+13. **Radio** — Figma node `40004007:4096`, the same axes as Checkbox. Then **Menu**, which needs both.
+14. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+15. **List Item** — variants/states; native, styled.
+16. **Table Cell** — native, styled.
+17. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.
