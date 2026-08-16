@@ -55,8 +55,17 @@ export default defineConfig({
       // on the hoisted copy would make this config depend on npm's layout.
       // Declared at the same ^10.4.1 storybook asks for, so it still dedupes to
       // one copy.
+      //
+      // @base-ui/react/toast is here for a different reason with the same shape.
+      // Every other Base UI subpath is reached from a component that some story
+      // imports at module scope, so the scanner finds them on the first pass.
+      // Toast's stories are the first to pull in a subpath the optimizer had not
+      // already seen, so it was discovered mid-run: Vite re-bundled, reloaded the
+      // page under the test, and all eight Toast stories failed with "Failed to
+      // fetch dynamically imported module" — a reload, not a real failure, but an
+      // indistinguishable-looking one. Name any new Base UI subpath here.
       optimizeDeps: {
-        include: ['@testing-library/dom']
+        include: ['@testing-library/dom', '@base-ui/react/toast']
       },
       test: {
         name: 'storybook',

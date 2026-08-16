@@ -85,10 +85,11 @@ Figma-driven.
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
 | **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |
+| **Toast** | 3 types (default, success, danger) with description, action and dismiss slots; fired from a `useToast()` hook into a stack that collapses into one card and expands on hover, in pure CSS |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx
-import { Badge, Banner, Breadcrumbs, Button, Icon, SegmentedControl, Tooltip } from './src'
+import { Badge, Banner, Breadcrumbs, Button, Icon, SegmentedControl, Toast, Tooltip } from './src'
 import { House, LayoutGrid, List, Plus, Star, Trash2 } from 'lucide-react'
 
 <Button appearance="primary" size="large" startIcon={Plus}>Create</Button>
@@ -118,11 +119,32 @@ import { House, LayoutGrid, List, Plus, Star, Trash2 } from 'lucide-react'
 <Tooltip label="Delete project">
   <Button appearance="destructive" startIcon={Trash2} aria-label="Delete project" />
 </Tooltip>
+
+// Toast: a provider and a viewport once at the app root…
+<Toast.Provider>
+  <App />
+  <Toast.Viewport position="bottom-right" />
+</Toast.Provider>
+
+// …then fire one from anywhere.
+const toast = Toast.useToast()
+toast.add({ type: 'success', title: 'Changes saved' })
+toast.add({
+  title: 'Item deleted',
+  description: 'Q3 report',
+  action: { label: 'Undo', onClick: restore },
+})
 ```
 
 A banner announces itself according to its type: info and success are polite `role="status"`, warning
 and danger interrupt with `role="alert"`. Passing `onDismiss` is what renders the close button — the
 banner never hides itself, so whether it is on screen stays yours.
+
+A toast is the banner's transient twin: it interrupts briefly and leaves, where a banner stays. Danger
+toasts are the exception — they wait to be dismissed, because a failure that scrolls past unread is
+the one thing a notification system must not do. Several at once collapse into a single stack that
+expands when you hover it or move the keyboard into it, and the whole animation is a CSS transition on
+the motion tokens.
 
 A segmented control is an *input*, not navigation, so it renders as a radio group: exactly one option
 is always selected, and the arrow keys move between them. Its three heights are Button's, so the two
