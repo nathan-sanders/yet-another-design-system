@@ -80,7 +80,7 @@ Figma-driven.
 | **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |
 | **Banner** | 4 feedback types (info, success, warning, danger) × inline/floating, with title, description, action and dismiss slots |
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
-| **Button** | 6 appearances (primary, secondary, destructive, ghost, overlay, link) × 3 sizes × default/hover/focus/disabled, with icon slots |
+| **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |

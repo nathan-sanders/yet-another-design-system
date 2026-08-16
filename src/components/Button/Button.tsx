@@ -9,15 +9,23 @@ import { Icon, type IconProps } from '../Icon'
  * Button — the reference component for this library.
  *
  * Mirrors the Figma component set "Button" (Yet Another Design System,
- * node 40002008:12837): 6 appearances x 3 sizes x 4 states.
+ * node 40002008:12837): 5 appearances x 3 sizes x 4 states.
+ *
+ * There is deliberately no `link` appearance. A link navigates and belongs in
+ * an <a>; styling a <button> to look like one gives up middle-click, ⌘-click
+ * and "open in new tab", and announces as "button" to a screen reader. It is
+ * also fixed-height and inline-flex, so it could never sit inside a sentence,
+ * which is what a link mostly needs to do. That is a typography concern, and
+ * it will come back as its own Link component.
  *
  * Every value below comes from a semantic token. There are no hex colours, no
  * primitive utilities (`bg-stone-800`) and no `dark:` variants — dark mode is
  * handled entirely by the token layer swapping under `.dark`.
  *
- * Passing a `startIcon` with no children gives the icon-only form: a square
- * button the same height as its labelled counterpart, with `aria-label`
- * required to supply the name the missing label would have carried.
+ * Passing a `startIcon` with no children gives the icon-only form: same height
+ * and same horizontal padding as its labelled counterpart, just without the
+ * label, with `aria-label` required to supply the name the label would have
+ * carried.
  *
  * Figma models hover / focus / disabled as a `State` property. In code those
  * are real CSS states rather than props, so there is no `state` prop: hover and
@@ -26,7 +34,7 @@ import { Icon, type IconProps } from '../Icon'
 const button = tv({
   base: [
     'inline-flex shrink-0 items-center justify-center',
-    'rounded-md border font-sans whitespace-nowrap',
+    'rounded-md border font-sans font-semibold whitespace-nowrap',
     'cursor-pointer transition-colors',
     // Focus: 2px inner border + 3px outer ring, both from the focus tokens.
     // `:focus-visible` so it shows for keyboard users but not on mouse click.
@@ -60,10 +68,6 @@ const button = tv({
         'bg-action-overlay-background text-action-overlay-foreground border-transparent',
         'hover:bg-action-overlay-background-hover',
       ],
-      link: [
-        'bg-transparent text-action-link-foreground border-transparent underline',
-        'hover:text-action-link-foreground-hover',
-      ],
     },
 
     size: {
@@ -71,35 +75,7 @@ const button = tv({
       default: 'h-8 gap-2 px-3 text-base',
       large: 'h-10 gap-2 px-4 text-base',
     },
-
-    /**
-     * Icon-only: no label, just the start icon. Not a prop — it is derived from
-     * the absence of children, so a caller can never set it and the two out of
-     * sync. The button becomes a square the same height as its labelled
-     * counterpart, so a row mixing the two still lines up.
-     */
-    iconOnly: {
-      true: 'px-0',
-    },
   },
-
-  compoundVariants: [
-    // Link is type, not a filled control: weight 400 + underline, and far
-    // tighter horizontal padding than the filled appearances at every size.
-    { appearance: 'link', class: 'font-normal' },
-    { appearance: 'link', size: 'small', class: 'px-0.5' },
-    { appearance: 'link', size: 'default', class: 'px-1' },
-    { appearance: 'link', size: 'large', class: 'px-1.5' },
-    // Everything except link is semibold.
-    { appearance: ['primary', 'secondary', 'destructive', 'ghost', 'overlay'], class: 'font-semibold' },
-    // Square: width matches the height of each size (24 / 32 / 40). These come
-    // after the link rules so they also flatten link's tighter padding.
-    { iconOnly: true, size: 'small', class: 'w-6' },
-    { iconOnly: true, size: 'default', class: 'w-8' },
-    { iconOnly: true, size: 'large', class: 'w-10' },
-    // An underline under a bare glyph reads as an artefact rather than a link.
-    { iconOnly: true, appearance: 'link', class: 'no-underline' },
-  ],
 
   defaultVariants: {
     appearance: 'primary',
@@ -170,11 +146,9 @@ export function Button({
   ...props
 }: ButtonProps) {
   const iconSize = ICON_SIZE[size]
-  // No label to sit beside means the square, icon-only shape.
-  const iconOnly = children == null || children === false
 
   return (
-    <button type={type} className={cn(button({ appearance, size, iconOnly }), className)} {...props}>
+    <button type={type} className={cn(button({ appearance, size }), className)} {...props}>
       {startIcon && <Icon icon={startIcon} size={iconSize} />}
       {children}
       {endIcon && <Icon icon={endIcon} size={iconSize} />}
