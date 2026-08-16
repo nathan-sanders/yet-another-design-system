@@ -137,12 +137,17 @@ Each component gets its own folder with the component, its story, and a barrel `
 
 **Built:**
 
-1. **Button** — `appearance`: primary | secondary | destructive | ghost | overlay | **link**;
+1. **Button** — `appearance`: primary | secondary | destructive | ghost | overlay;
    `size`: small (24px) | default (32px) | large (40px); `startIcon`/`endIcon` take a `LucideIcon`.
+   **No `link` appearance** — it was removed deliberately. A link navigates and belongs in an `<a>`;
+   a `<button>` dressed as one loses middle-click/⌘-click/"open in new tab" and announces as
+   "button". It is also fixed-height `inline-flex`, so it could never sit inside a sentence. Coming
+   back later as its own **Link** component; the `action-link-*` tokens stay in the theme for it.
    Hover/focus/disabled are CSS states, not props. Focus is a 2px inner border + 3px outer ring from
    the focus tokens, on `:focus-visible`. Disabled is `opacity-40`.
-   **Icon-only:** pass `startIcon` with no children and the button becomes a square at the same
-   height as its labelled twin (24/32/40). It is derived from the absence of a label, not a prop, and
+   **Icon-only:** pass `startIcon` with no children. It keeps the same height *and the same
+   horizontal padding* as its labelled twin, so the width follows the icon — 42×32 at default size
+   per Figma (node 40002016:6867), **not** a 32×32 square. It is derived from the absence of a label, not a prop, and
    the props are a union so `aria-label` is *required* in that form — an unlabelled icon button will
    not compile.
 2. **Icon** — wraps any Lucide glyph. `size`: small 12 | base 16 | large 20 | x-large 24. Colour is
@@ -169,7 +174,7 @@ Each component gets its own folder with the component, its story, and a barrel `
    → one `<li>` per crumb, with the separator inside the preceding `<li>` so the list count matches
    the crumb count.
    **Colour trap:** breadcrumb links are `content-subtle` + underline-on-hover, *not* the blue
-   `action-link-foreground` that Button's `link` appearance uses. A trail is navigation chrome.
+   `action-link-foreground`. A trail is navigation chrome.
    **Focus trap:** the ring is an inset `outline` + `ring`, not Button's `border-2` — a crumb has no
    border and no fixed height, so a border would grow the row on focus. Note that `outline-none` sets
    Tailwind's `--tw-outline-style: none`, so `focus-visible:outline-solid` is required or the inner

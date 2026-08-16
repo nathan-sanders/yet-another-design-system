@@ -3,7 +3,7 @@ import { ArrowRight, Plus } from 'lucide-react'
 
 import { Button } from './Button'
 
-const appearances = ['primary', 'secondary', 'destructive', 'ghost', 'overlay', 'link'] as const
+const appearances = ['primary', 'secondary', 'destructive', 'ghost', 'overlay'] as const
 const sizes = ['small', 'default', 'large'] as const
 
 const meta = {
@@ -115,8 +115,9 @@ export const WithIcons: Story = {
 }
 
 /**
- * Icon-only: a start icon and no label. The button becomes a square at the same
- * height as the labelled version (24 / 32 / 40), so the two line up in a row.
+ * Icon-only: a start icon and no label. It keeps the same height *and the same
+ * left/right padding* as the labelled version, so the width simply follows the
+ * icon — 42x32 at default size, matching Figma. It is not squared off.
  *
  * There is no visible text, so `aria-label` is what names the button for screen
  * readers — it is required by the types, and a missing one will not compile.
