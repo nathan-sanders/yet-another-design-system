@@ -495,13 +495,40 @@ Each component gets its own folder with the component, its story, and a barrel `
     Figma has a **Checkbox Group** set too (and Base UI a `CheckboxGroup`); neither is built, so the
     `Parent` story does the indeterminate arithmetic by hand.
 
+13. **Radio** — pick exactly one option from a list you can see all of. Mirrors Figma node
+    `40004007:4096`: `In Container` × `State` (default | hover | focus | invalid | disabled) ×
+    `Selected State`, plus `Label` and `Sub Label`. Composed API: `<Radio.Group>` + `<Radio>`.
+    **Eighth Base UI component**, on the same `RadioGroup` + `Radio` pair SegmentedControl uses.
+    **This is a list; SegmentedControl is a control.** Both are one-of-many on the same primitive,
+    and the difference is presentation, not semantics: a segmented control is a compact strip you
+    put beside a Button, a radio list is a stack of labelled options with room for a sentence under
+    each. Reach for this when the options need explaining.
+    **Selection follows focus**, as in SegmentedControl and as a radiogroup should — verified in the
+    browser: ArrowDown moves *and* selects, and exactly one stays checked.
+    **The selected dial is a flattened vector in Figma** with no variables bound, so its geometry was
+    read off the exported SVG rather than guessed: a 20px circle filled with Input/Selected, and a
+    `r="4"` — 8px across — glyph in Input/Selected Foreground. Measured back at 20×20 and 8×8.
+    The row, card and label column are the same shapes Checkbox draws, and the recipes are a
+    **deliberate copy rather than a shared module**: Figma keeps the two as separate component sets
+    that can drift, and this library's precedent for sharing styles (Avatar/AvatarGroup) is a
+    `styles.ts` inside one folder, not a module spanning two. If a third control needs this row,
+    that is the point to extract it. Card is 40px, dial 20px — **the numbers to check.**
+    `Radio.Group` is **not** Figma's "Radio Group" set, which exists in the file with its own
+    anatomy and belongs in its own PR alongside `Field`. What is here is the minimum Base UI
+    requires — it owns the value, the roving tabindex and the arrow keys — stacked at `gap-3`.
+    Like SegmentedControl, the group needs `aria-label`: Base UI only fills `aria-labelledby` from a
+    surrounding Field or Fieldset.
+
 **Still to build**, foundational/static first:
 
-13. **Radio** — Figma node `40004007:4096`, the same axes as Checkbox. Then **Menu**, which needs both.
-14. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-15. **List Item** — variants/states; native, styled.
-16. **Table Cell** — native, styled.
-17. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+14. **Menu** — Figma nodes `40004146:5575` (Menu), `40004146:5285` (Menu Group), `40004145:4024`
+    (Menu Item), `40004146:4924` / `40004146:5107` (its checkbox and radio items). Needs 12 and 13.
+15. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+16. **List Item** — variants/states; native, styled.
+17. **Table Cell** — native, styled.
+18. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+
+Also in Figma but not built, and each wants its own PR: **Field**, **Checkbox Group**, **Radio Group**.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.
