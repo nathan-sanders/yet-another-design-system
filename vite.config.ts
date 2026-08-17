@@ -69,7 +69,8 @@ export default defineConfig({
           '@testing-library/dom',
           '@base-ui/react/toast',
           '@base-ui/react/checkbox',
-          '@base-ui/react/radio'
+          '@base-ui/react/radio',
+          '@base-ui/react/menu'
         ]
       },
       test: {
