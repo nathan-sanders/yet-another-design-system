@@ -33,6 +33,9 @@ export type { DividerProps } from './components/Divider'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { Link } from './components/Link'
+export type { LinkProps, LinkSize } from './components/Link'
+
 export { Menu } from './components/Menu'
 export type {
   MenuProps,
