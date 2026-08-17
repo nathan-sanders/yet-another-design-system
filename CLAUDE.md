@@ -646,12 +646,101 @@ Each component gets its own folder with the component, its story, and a barrel `
     Left out: `readOnly`, which Base UI has and Figma draws no state for — it passes through the
     spread unstyled rather than being a documented prop.
 
+16. **Slider** — drag a handle along a track to pick a number, or a pair of them to pick a range.
+    Mirrors Figma nodes `40004155:14437` (Slider, `Type` default | range) and its two private
+    sub-components `40004155:14415` (_Slider Track, `Type` Filled | Empty) and `40004155:14467`
+    (_Slider Handle, `State` Default | Hover | Focus).
+    **Reach for it when the number is approximate** — volume, opacity, a price filter. Astryx says
+    outright not to use one for precise numeric entry, and this one does not try.
+    **Eleventh Base UI component**, first on `Slider`. It supplies an `<input type="range">` per
+    thumb (so it submits with a form and announces as a slider), dragging, track presses, arrow
+    keys, Shift and Page Up/Down for the large step, Home/End, and the thumb-collision rules.
+    **`range` is derived, not a prop** — an array `value`/`defaultValue` gives that many thumbs, so
+    Figma's `Type` axis follows from what you pass. Avatar's `Content` and Button's icon-only again.
+    **The bounds labels are `font-mono`**, which is the file's choice and worth keeping: a
+    monospaced digit means the label cannot change width as the number does and shift the track
+    mid-drag. They label the *bounds*, not the value.
+    **The handle grows as you touch it, 16px to 20px** (`width/w-4` → `width/w-5`), in Hover, Focus
+    and while dragging. Switch's knob does the same thing at 14 → 16; this is the second component
+    where the file says so.
+    **Focus is `focusRingWithin`, not `focusRing`, and that is the interesting part.** `Slider.Thumb`
+    renders a div with a visually hidden input *inside* it, so focus lands on a descendant and
+    `focus-visible:` on the thumb fires on nothing. `has-focus-visible:` fires — which is exactly
+    what `focusRingWithin` already is, written for the card around a Checkbox. First component where
+    the ring is on one element and the focus on another, and still no new focus idiom. Per-thumb
+    focus must come from `:focus-visible` rather than Base UI's `data-focused`: that is the *root's*
+    state, so on a range both handles would light up at once.
+    **The hit area is the Control, not the handle's frame.** Figma draws a 24px frame round the disc
+    because on a canvas that is the only place a target can live; Base UI listens on
+    `Slider.Control`, so the height goes there (`h-6`, Figma's 24) with the 4px track centred in it.
+    **`thumbAlignment="edge"`, not Base UI's default `center`.** Figma centres the handle on the end
+    of the filled track, and at `min` that hangs 8px past the control — exactly the row's `gap-2`,
+    which is presumably why the gap is 8. But the disc grows to 20px and the ring adds 5px, and a
+    focused handle at `min` then **painted 7px over the bounds label** (measured). `edge` insets it;
+    the ring lands in the gap with 3px to spare, and nothing is lost visually because the
+    indicator's 8px stub at `min` sits under the handle. Figma cannot settle this one — it draws the
+    handle's focus state in isolation and never on a composed slider.
+    **Marks paint behind the track**, per Figma's z-order, so all you see of a tick is the 2px
+    poking out above and below; the tick uses the same `Surface/Border` as the unfilled track. The
+    marks layer is **`inset-x-2` — the handle's radius, and load-bearing**: `edge` alignment makes a
+    handle travel between points 8px in from the control's edges, so ticks laid across the full
+    width drift from the handle by up to 8px at the ends. `relative z-10` on the track is
+    load-bearing too: an absolutely positioned sibling paints over a static one whatever the DOM
+    order.
+    **Room for the mark labels goes on the root, not the row.** It was on the row first and that is
+    wrong: padding there shrinks the box `items-center` centres the control in, so the track rides
+    4px higher and the labels *still* overflowed, measured at exactly 4px. On the root, 10px
+    (4 under the track + 20 of line-height − the 14 a centred 4px track leaves in a 32px row).
+    **The value tooltip composes `Tooltip`** rather than being a second popup — `sideOffset={8}` is
+    Figma's gap, not Tooltip's default 4 — and it needs no state: `Slider.Value` reads the live value
+    out of the slider's context, which reaches the popup through the portal. Two things verified in
+    the browser rather than assumed: it opens on keyboard focus as well as hover, even though the
+    focus lands inside the trigger; and `aria-describedby` reaches the right element, because Base UI
+    **hoists that attribute off the Thumb and onto its hidden input**. It covers the label while you
+    drag, which no offset avoids — Base UI only flips at the viewport edge, not off a sibling.
+    **`aria-disabled` on the root is not decoration.** `disabled` is the library's `opacity-40`,
+    which drops the bounds labels to 2.33:1. WCAG 1.4.3 exempts inactive components and axe
+    implements that by walking up from the text for a disabled control or `aria-disabled="true"` —
+    so Checkbox, Radio and Switch get it free, their whole row being a `<label>` for a disabled
+    input. A bounds label is a plain `<span>` in a `<div>`, so without this the story suite fails on
+    `color-contrast`. Valid because `Slider.Root` renders `role="group"`.
+    **The props are a union** — `label` or `aria-label`, so an unnamed slider will not compile
+    (Button's icon-only precedent, and Astryx's first rule for this component). With no visible
+    label the `aria-label` reaches **every** thumb, not just a lone one: Base UI only fills
+    `aria-labelledby` when a `Slider.Label` exists, so a range would otherwise carry two unnamed
+    inputs, and `thumbLabels` being optional means the types could not catch it.
+    **Story-typing trap:** this is the one file using `StoryObj<typeof Slider>` instead of
+    `StoryObj<typeof meta>`. Storybook works out which args a story still owes by running `Omit`
+    over the props, and `Omit` does not distribute across a union — it collapses to the shared keys,
+    so the inference either demands `args` on every story or reduces them to `never`. Button has the
+    same union and escapes it because its discriminator (`children`) is already an arg.
+    **Sixth component on the motion tokens**, and the transition is deliberately narrow —
+    `duration-fast-min` on width and height only. **Do not transition the thumb's inset or the
+    indicator's width:** Base UI drives both straight from the pointer, so the handle would drag on
+    elastic behind the cursor, and there is no animating a keyboard step without also animating the
+    drag. Switch's "11px reads as lag" from the other end.
+    **`overflow-clip` not ported, for the sixth time** — the handle overhangs the control by design.
+    **32px row, 4px track, 24px control, 16/20 handle, 2×8 tick nubs, 8px gaps and 10px reserved
+    for mark labels are the numbers to check.**
+    Left out: **the number input Figma draws at the trailing edge** (two for `Type=Range`), which is
+    an instance of an **Input** component that lives elsewhere in the file and is not built here —
+    inventing input styling inside Slider would be a second source of truth days before the real one
+    lands, so it waits for that PR, and `Slider.Value` is attached in the meantime. Also
+    `orientation="vertical"` (Base UI and Astryx have it, Figma draws no vertical variant — omitted
+    from the props rather than left to break quietly, Tabs' call), and `invalid`, which needs the
+    `Field` PR: Base UI publishes `data-invalid` only inside a Field and Figma's Slider has no
+    invalid state to mirror, unlike Checkbox's and Radio's.
+    **Wants adding to Figma:** a disabled state (the handle set is Default | Hover | Focus only), a
+    label on the component (Astryx has one; Figma's slider is just the row), and the tick's
+    `--radius/full` binding, which is the only radius in the file not named
+    `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
+
 **Still to build**, foundational/static first:
 
-16. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-17. **List Item** — variants/states; native, styled.
-18. **Table Cell** — native, styled.
-19. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+17. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+18. **List Item** — variants/states; native, styled.
+19. **Table Cell** — native, styled.
+20. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 Also in Figma but not built, and each wants its own PR: **Field**, **Checkbox Group**, **Radio Group**.
 
