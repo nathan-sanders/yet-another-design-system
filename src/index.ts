@@ -56,6 +56,9 @@ export type {
   SegmentedControlLayout,
 } from './components/SegmentedControl'
 
+export { Switch } from './components/Switch'
+export type { SwitchProps } from './components/Switch'
+
 export { Tabs } from './components/Tabs'
 export type {
   TabsProps,
