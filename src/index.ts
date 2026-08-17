@@ -33,6 +33,9 @@ export type { DividerProps } from './components/Divider'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { Radio } from './components/Radio'
+export type { RadioProps, RadioGroupProps } from './components/Radio'
+
 export { SegmentedControl } from './components/SegmentedControl'
 export type {
   SegmentedControlProps,

@@ -65,7 +65,12 @@ export default defineConfig({
       // fetch dynamically imported module" — a reload, not a real failure, but an
       // indistinguishable-looking one. Name any new Base UI subpath here.
       optimizeDeps: {
-        include: ['@testing-library/dom', '@base-ui/react/toast', '@base-ui/react/checkbox']
+        include: [
+          '@testing-library/dom',
+          '@base-ui/react/toast',
+          '@base-ui/react/checkbox',
+          '@base-ui/react/radio'
+        ]
       },
       test: {
         name: 'storybook',
