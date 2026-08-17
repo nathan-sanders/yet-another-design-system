@@ -4,6 +4,7 @@ import { ArrowRight, ChevronRight, Dot, type LucideIcon } from 'lucide-react'
 import { tv } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
 import { Icon } from '../Icon'
 
 /**
@@ -81,20 +82,10 @@ const breadcrumbItem = tv({
     interactive: {
       true: [
         'cursor-pointer rounded-md hover:underline',
-        // Figma's focus ring is a 2px inner border + 3px outer spread on a
-        // rounded-md box, drawn as an overlay at inset-0 so it costs no layout.
-        //
-        // Button gets there with `border-2` because it already reserves a 1px
-        // border and has a fixed height. A crumb has neither, so the same recipe
-        // would grow the row by 2px on focus and shove the whole trail sideways.
-        // An inset outline paints the identical pixels with no layout effect.
-        //
-        // `outline-solid` is not redundant: `outline-none` sets Tailwind's
-        // --tw-outline-style to none, and `outline-2` only sets the width, so
-        // without it the inner border resolves back to none and never paints.
-        'outline-none focus-visible:outline-solid focus-visible:outline-2',
-        'focus-visible:-outline-offset-2 focus-visible:outline-focus-focus-inner-border',
-        'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+        // Focus is the library's shared ring — see src/lib/focus.ts. A crumb has
+        // no border and no fixed height, so it is the clearest case for a ring
+        // that is pure `box-shadow`: nothing it does can move the trail.
+        ...focusRing,
       ],
     },
 

@@ -8,6 +8,7 @@ import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
 import { Icon, type IconProps } from '../Icon'
 
 /**
@@ -62,9 +63,9 @@ const segmentedControl = tv({
     'rounded-md border p-px font-sans',
     // No `overflow-clip`, even though Figma has it. Figma draws focus as an
     // overlay *inside* the segment, so clipping costs it nothing. Here focus is
-    // a 3px ring that paints outside the segment, and the segment sits only 1px
-    // in from the track edge — clipping would slice the ring off the first and
-    // last segments.
+    // a ring 5px deep that paints outside the segment, and the segment sits only
+    // 1px in from the track edge — clipping would slice the ring off the first
+    // and last segments.
   ],
 
   variants: {
@@ -134,19 +135,18 @@ const segment = tv({
     // Figma sets this on every Focus variant; it costs nothing on a selected
     // segment, which is already emphasized.
     'focus-visible:text-content-emphasized',
-    // Focus: the library's 2px inner border + 3px outer ring, on :focus-visible.
-    // Figma draws this ring at rounded-xs (4px) on a rounded-sm (6px) segment —
-    // an artefact of it being a separate inset overlay layer. Using the
-    // segment's own radius is what Button does and what actually looks right.
-    'outline-none focus-visible:border-2 focus-visible:border-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    // Focus is the library's shared ring — see src/lib/focus.ts. Figma draws it
+    // at rounded-xs (4px) on a rounded-sm (6px) segment, an artefact of it being
+    // a separate inset overlay layer; the segment's own radius is used instead,
+    // as in Button.
+    ...focusRing,
     // Disabled is a flat 40% opacity in Figma (opacity/opacity-40).
     'disabled:pointer-events-none disabled:opacity-40',
   ],
 
   variants: {
-    // Heights are fixed, not min-heights: a fixed height plus border-box is what
-    // keeps `focus-visible:border-2` from resizing the segment.
+    // Heights are fixed, not min-heights, so a segment is the same height
+    // whatever state it is in.
     size: {
       small: 'h-5 px-2 text-sm', // 20px
       default: 'h-7 px-3 text-base', // 28px

@@ -179,13 +179,12 @@ export const Fallbacks: Story = {
 /**
  * Figma gives Avatar no Focus state, so this goes past the file: `href` renders
  * an `<a>`, `onClick` renders a `<button type="button">`, and both take the same
- * 2px inner + 3px outer focus ring the rest of the library uses. Tab through
- * them to see it. Without either prop the avatar stays a static `<span>`, as
- * Badge does.
+ * shared focus ring the rest of the library uses. Tab through them to see it.
+ * Without either prop the avatar stays a static `<span>`, as Badge does.
  *
- * The ring is drawn with `inset-ring` rather than Breadcrumbs' `outline`,
- * because `outline` is already carrying the canvas ring in a group — and a
- * `border` would have shrunk the photo rather than sitting on top of it.
+ * The ring is `box-shadow` rather than `outline`, because `outline` is already
+ * carrying the canvas ring in a group — and a `border` would have shrunk the
+ * photo rather than sitting outside it.
  *
  * An interactive avatar has no visible text, so `name` or `alt` is **required**
  * by the type. An unlabelled link or button will not compile.

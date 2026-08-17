@@ -4,6 +4,7 @@ import { Check, Minus } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing, focusRingWithin } from '../../lib/focus'
 import { Icon } from '../Icon'
 
 /**
@@ -49,10 +50,10 @@ import { Icon } from '../Icon'
 /**
  * The 20px box. Figma's Checkbox frame, and the only part that is not text.
  *
- * Focus is Button's idiom — a 2px inner border plus a 3px outer ring — rather
- * than Breadcrumbs' inset outline, because this box has a real border and a
- * fixed 20px size. `border-box` means the 2px border paints inward, so the box
- * does not grow when it takes focus.
+ * Focus is the shared ring (src/lib/focus.ts), and it matters more here than
+ * most: the old inner border painted 2px of white *inside* the box, which on a
+ * ticked box left a white gutter between the fill and the tick — focus made the
+ * tick look broken rather than making the box look focused.
  */
 const box = tv({
   base: [
@@ -68,14 +69,23 @@ const box = tv({
     'data-indeterminate:bg-input-selected data-indeterminate:border-input-selected',
     // The glyph inherits this as currentColor, the way Icon is built to.
     'text-input-selected-foreground',
-    'outline-none focus-visible:border-2 focus-visible:border-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    'outline-none',
     // Same crossfade SegmentedControl uses for the same reason: the fill and
     // border both change on tick, and 130ms is the shortest motion token.
     'transition-colors duration-fast-min ease-standard',
   ],
 
   variants: {
+    /**
+     * Who draws the focus ring. Standalone, it is the box; inside a card it is
+     * the card, because the box is a descendant of it and two concentric rings
+     * on one control read as a mistake rather than as emphasis.
+     */
+    inContainer: {
+      false: focusRing,
+      true: '',
+    },
+
     /**
      * Figma's `State=Invalid`. Base UI publishes `data-invalid` when a checkbox
      * sits inside a `Field`, but the library has no Field component yet, so this
@@ -87,7 +97,7 @@ const box = tv({
     },
   },
 
-  defaultVariants: { invalid: false },
+  defaultVariants: { invalid: false, inContainer: false },
 })
 
 /**
@@ -96,9 +106,10 @@ const box = tv({
  * The card's line is an `inset-ring` rather than a `border` because Figma draws
  * the container 40px tall: 24 of line-height plus 8 above and below. A border
  * would add its 2px on top of that and make it 42. `inset-ring` is a shadow, so
- * it costs no layout, which is the same reason Avatar uses one. That in turn
- * settles the focus idiom for the card: `inset-ring-2` + `ring-3`, Avatar's,
- * not Button's.
+ * it costs no layout, which is the same reason Avatar uses one.
+ *
+ * The card keeps that 1px line unchanged when the control inside it takes
+ * focus; the shared ring goes round the outside of the card instead.
  */
 const field = tv({
   base: 'font-sans',
@@ -111,8 +122,7 @@ const field = tv({
         'flex w-full flex-col justify-center gap-2 px-3 py-2',
         'rounded-md bg-surface-card-primary inset-ring inset-ring-surface-border',
         'hover:bg-surface-card-subtle',
-        'has-focus-visible:inset-ring-2 has-focus-visible:inset-ring-focus-focus-inner-border',
-        'has-focus-visible:ring-3 has-focus-visible:ring-focus-focus-outer-border',
+        ...focusRingWithin,
         'transition-colors duration-fast-min ease-standard',
       ],
     },
@@ -191,7 +201,7 @@ export function Checkbox({
         disabled={disabled}
         indeterminate={indeterminate}
         aria-invalid={invalid || undefined}
-        className={box({ invalid })}
+        className={box({ invalid, inContainer })}
         {...props}
       >
         <CheckboxPrimitive.Indicator className="flex">

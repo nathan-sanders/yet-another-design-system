@@ -1,5 +1,7 @@
 import { tv, type VariantProps } from 'tailwind-variants'
 
+import { focusRing } from '../../lib/focus'
+
 /**
  * The shared look of a toast, plus the geometry of the stack it sits in.
  *
@@ -151,11 +153,11 @@ export const toastStack = tv({
     // animate rather than vanish.
     'data-[limited]:opacity-0',
 
-    // Focus: Root carries tabIndex=0, so it is a real stop. inset-ring rather
-    // than Button's border-2 — the card has no border, and a border would resize
-    // a box whose height is being animated.
-    'outline-none focus-visible:inset-ring-2 focus-visible:inset-ring-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    // Focus: Root carries tabIndex=0, so it is a real stop. The library's shared
+    // ring (src/lib/focus.ts) is pure `box-shadow`, which matters here more than
+    // anywhere: this card's height is animated, so anything that changed its box
+    // would fight the transition.
+    ...focusRing,
 
     // Bridges the 8px gap between expanded toasts. Base UI collapses the stack
     // on mouseleave, and mouseleave does not fire while the pointer is over a
