@@ -15,6 +15,7 @@ const meta = {
   ],
   argTypes: {
     label: { control: 'text' },
+    description: { control: 'text' },
     bounds: { control: 'boolean' },
     valueTooltip: { control: 'boolean' },
     disabled: { control: 'boolean' },
@@ -83,6 +84,43 @@ export const Types: Story = {
         label="Range"
         defaultValue={[20, 80]}
         thumbLabels={['Minimum', 'Maximum']}
+      />
+    </div>
+  ),
+}
+
+/**
+ * Figma's `Label` frame — its `Label` and `Sub Label` booleans, 8px above the row.
+ * The two stack with no gap between them: 24px of line-height then 20.
+ *
+ * **The sub-label is part of the accessible name, not a description**, because it
+ * sits inside Base UI's `Slider.Label` — which is Figma's structure, and what
+ * Checkbox, Radio and Switch already do with their own `description`. It is also
+ * the only option left here: `aria-describedby` on a thumb is already taken by the
+ * value tooltip, and a second one would overwrite it. So keep a sub-label short
+ * enough to be read out as part of the control's name.
+ *
+ * Both of these arrived in Figma *after* the component was built. The label was
+ * Astryx's addition to a Figma component that was only the row, which makes it the
+ * fourth thing in this library to go code-first and get synced back — after
+ * Divider's `emphasis`, SegmentedControl's `layout` and Badge's four hues.
+ */
+export const Label: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div className="flex flex-col gap-8">
+      <Slider {...args} label="Volume" />
+      <Slider
+        {...args}
+        label="Compression"
+        description="Higher values make quiet passages louder."
+      />
+      <Slider
+        {...args}
+        label="Playback range"
+        description="Trims the clip to the part you want to keep."
+        defaultValue={[20, 80]}
+        thumbLabels={['Start', 'End']}
       />
     </div>
   ),
@@ -210,16 +248,18 @@ export const ValueTooltip: Story = {
 }
 
 /**
- * Hover and focus are the browser's, so this axis is really just the disabled
- * state — which **Figma does not draw at all.** Its handle set is Default | Hover
- * | Focus, so `disabled` goes past the file and wants adding to it: the same
- * build-then-sync-back direction as Divider's `emphasis`, SegmentedControl's
- * `layout` and Switch's `invalid`.
+ * Figma's `State` axis. Hover and focus belong to the browser, so the only state
+ * the file draws here is Disabled — as `opacity/opacity-40` over the whole
+ * component, which is the library's idiom and what this was already built as
+ * before the file had the state at all. Note *where* it lives: on the Slider, not
+ * on `_Slider Handle`, which still has only Default | Hover | Focus. One fade over
+ * everything, rather than a disabled token per part.
  *
- * It is `opacity-40` plus `pointer-events-none`, the library's idiom. Note what
- * that costs: a disabled slider swallows hover, so it cannot explain itself with
- * a Tooltip — Astryx warns about exactly this. Put the reason next to the
- * control.
+ * Note what the fade costs: a disabled slider swallows hover, so it cannot explain
+ * itself with a Tooltip — Astryx warns about exactly this. Put the reason next to
+ * the control. It also drops the bounds labels to 2.33:1, which is why the root
+ * carries `aria-disabled`: WCAG exempts inactive components, and that attribute is
+ * how axe is told so.
  *
  * There is no `invalid` here, unlike Checkbox, Radio and Switch. Base UI only
  * publishes `data-invalid` for a control inside a `Field`, and Figma's Slider has

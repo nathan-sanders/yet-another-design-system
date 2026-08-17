@@ -647,9 +647,16 @@ Each component gets its own folder with the component, its story, and a barrel `
     spread unstyled rather than being a documented prop.
 
 16. **Slider** — drag a handle along a track to pick a number, or a pair of them to pick a range.
-    Mirrors Figma nodes `40004155:14437` (Slider, `Type` default | range) and its two private
-    sub-components `40004155:14415` (_Slider Track, `Type` Filled | Empty) and `40004155:14467`
-    (_Slider Handle, `State` Default | Hover | Focus).
+    Mirrors Figma node `40004155:14437`: `Type` default | range × `State` default | disabled, plus
+    the `Label`, `Sub Label`, `Min Value`, `Max Value`, `Marks` and `Max Number Input` booleans.
+    Built from two private sub-components, `40004155:14415` (_Slider Track, `Type` Filled | Empty)
+    and `40004155:14467` (_Slider Handle, `State` Default | Hover | Focus).
+    **Three of its four decisions went code-first and Figma caught up second**, which is the
+    unusual direction and the reason to read this entry carefully: the label, the disabled state and
+    the marks' 8px inset were all built here against a file that did not have them, then drawn into
+    the file afterwards — and the file drew all three exactly as built. Same direction as Badge's
+    four hues, Divider's `emphasis` and SegmentedControl's `large`. The `Sub Label` came back the
+    other way: Figma added it alongside the label, and it is `description` here.
     **Reach for it when the number is approximate** — volume, opacity, a price filter. Astryx says
     outright not to use one for precise numeric entry, and this one does not try.
     **Eleventh Base UI component**, first on `Slider`. It supplies an `<input type="range">` per
@@ -684,9 +691,10 @@ Each component gets its own folder with the component, its story, and a barrel `
     poking out above and below; the tick uses the same `Surface/Border` as the unfilled track. The
     marks layer is **`inset-x-2` — the handle's radius, and load-bearing**: `edge` alignment makes a
     handle travel between points 8px in from the control's edges, so ticks laid across the full
-    width drift from the handle by up to 8px at the ends. `relative z-10` on the track is
-    load-bearing too: an absolutely positioned sibling paints over a static one whatever the DOM
-    order.
+    width drift from the handle by up to 8px at the ends. Derived by measuring, and **the file now
+    agrees** — the Marks frame is `left: 8px; right: 8px` where it used to be flush. `relative z-10`
+    on the track is load-bearing too: an absolutely positioned sibling paints over a static one
+    whatever the DOM order.
     **Room for the mark labels goes on the root, not the row.** It was on the row first and that is
     wrong: padding there shrinks the box `items-center` centres the control in, so the track rides
     4px higher and the labels *still* overflowed, measured at exactly 4px. On the root, 10px
@@ -698,6 +706,16 @@ Each component gets its own folder with the component, its story, and a barrel `
     focus lands inside the trigger; and `aria-describedby` reaches the right element, because Base UI
     **hoists that attribute off the Thumb and onto its hidden input**. It covers the label while you
     drag, which no offset avoids — Base UI only flips at the viewport edge, not off a sibling.
+    **The label and its sub-label are one block, 8px above the row**, stacked with no gap between
+    them — 24px of line-height then 20 — which is Figma's `Label` frame. `description` is Figma's
+    `Sub Label`, named for Checkbox, Radio and Switch. **It is part of the accessible name, not a
+    description:** it sits inside Base UI's `Slider.Label`, which is both Figma's structure and the
+    only option left, because `aria-describedby` on a thumb is already taken by the value tooltip and
+    a second source would overwrite the first. Keep a sub-label short enough to be read as part of a
+    control's name. Figma's `overflow-clip` on the frame is not ported, the seventh time.
+    **Disabled lives on the Slider, not on the handle** — `_Slider Handle` still has only Default |
+    Hover | Focus — so it is one `opacity/opacity-40` fade over the whole component rather than a
+    disabled token per part. Which is what keeps the next note load-bearing.
     **`aria-disabled` on the root is not decoration.** `disabled` is the library's `opacity-40`,
     which drops the bounds labels to 2.33:1. WCAG 1.4.3 exempts inactive components and axe
     implements that by walking up from the text for a disabled control or `aria-disabled="true"` —
@@ -728,12 +746,20 @@ Each component gets its own folder with the component, its story, and a barrel `
     lands, so it waits for that PR, and `Slider.Value` is attached in the meantime. Also
     `orientation="vertical"` (Base UI and Astryx have it, Figma draws no vertical variant — omitted
     from the props rather than left to break quietly, Tabs' call), and `invalid`, which needs the
-    `Field` PR: Base UI publishes `data-invalid` only inside a Field and Figma's Slider has no
-    invalid state to mirror, unlike Checkbox's and Radio's.
-    **Wants adding to Figma:** a disabled state (the handle set is Default | Hover | Focus only), a
-    label on the component (Astryx has one; Figma's slider is just the row), and the tick's
-    `--radius/full` binding, which is the only radius in the file not named
-    `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
+    `Field` PR: Base UI publishes `data-invalid` only inside a Field and Figma's `State` axis is
+    default | disabled with no invalid, unlike Checkbox's and Radio's.
+    **The label question, settled deliberately.** Base UI's `Field` could own labelling instead —
+    `Field.Label` beats `Slider.Label`, since `SliderRoot` resolves `fieldLabelId ?? localLabelId`,
+    so the two never collide and a slider inside a Field simply stops using its own. The call was to
+    keep the label on the control, matching Astryx and matching what Figma now draws; a Field wrapper
+    is friction for the common case, and a slider almost always needs a name. Note the difference
+    that makes this safe to do here but not a precedent for the other three: Checkbox, Radio and
+    Switch labels are `<label>` elements *wrapping* the control, which is what makes the text a hit
+    target, and they cannot hand that to a Field sitting outside them. A slider's label is not a hit
+    target. **When Field lands it is for `invalid`, `description` and the `data-invalid` family, not
+    for labels** — which is the deferred note in Checkbox, Radio and here.
+    **Wants adding to Figma:** only the tick's `--radius/full` binding now, which is the one radius
+    in the file not named `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
 
 **Still to build**, foundational/static first:
 

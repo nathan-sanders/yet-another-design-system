@@ -11,10 +11,11 @@ import { Tooltip } from '../Tooltip'
  * Slider — drag a handle along a track to pick a number, or a pair of them to
  * pick a range.
  *
- * Mirrors the Figma component set "Slider" (node `40004155:14437`), whose `Type`
- * axis is Default | Range, and its two private sub-components: `_Slider Track`
- * (`40004155:14415`, `Type` Filled | Empty) and `_Slider Handle`
- * (`40004155:14467`, `State` Default | Hover | Focus).
+ * Mirrors the Figma component set "Slider" (node `40004155:14437`): `Type`
+ * Default | Range x `State` Default | Disabled, plus the `Label`, `Sub Label`,
+ * `Min Value`, `Max Value`, `Marks` and `Max Number Input` booleans. Built from
+ * two private sub-components, `_Slider Track` (`40004155:14415`, `Type` Filled |
+ * Empty) and `_Slider Handle` (`40004155:14467`, `State` Default | Hover | Focus).
  *
  *     <Slider label="Volume" defaultValue={40} />
  *     <Slider label="Price range" defaultValue={[20, 80]} />
@@ -50,15 +51,22 @@ import { Tooltip } from '../Tooltip'
  */
 
 /**
- * The outer wrapper. A column, so an optional label can sit above the row.
+ * The outer wrapper: a column holding the label block and the row, `gap-2` apart.
  *
- * Figma draws no label — its component is just the row — so the label is Astryx's
- * addition, and wants adding to the file. Divider's `emphasis`,
- * SegmentedControl's `layout` and Switch's `invalid` are the same
- * build-then-sync-back direction.
+ * **Both of this component's gaps-in-the-file have since been closed**, which is
+ * worth recording because the direction was the unusual one — code first, file
+ * second, as with SegmentedControl's `large`. The label started as Astryx's
+ * addition against a Figma component that was only the row, and disabled started
+ * as the library's `opacity-40` idiom against a handle set that had no disabled
+ * state. Figma now draws both, and drew them the same way: the label is
+ * `text-base` in `Content/Primary` 8px above the row, and `State=Disabled` is
+ * `opacity/opacity-40` over the whole thing. So these classes are the file's now,
+ * not ours — verified against `Type=Default, State=Disabled` (`40004157:15861`).
  *
- * Disabled fades the whole thing at `opacity/opacity-40`, the library's idiom.
- * Figma's handle set has no disabled state at all, which is the second gap here.
+ * Note where disabled is expressed: on the **Slider**, as a `State` axis, and
+ * *not* on `_Slider Handle`, which still has only Default | Hover | Focus. One
+ * fade over the whole component rather than a disabled token per part, which is
+ * why the `aria-disabled` on the root below is still load-bearing.
  */
 const root = tv({
   base: 'flex w-full flex-col gap-2 font-sans',
@@ -219,6 +227,12 @@ type SliderRootProps = ComponentPropsWithRef<typeof SliderPrimitive.Root>
 interface SliderBaseProps
   extends Omit<SliderRootProps, 'className' | 'render' | 'children' | 'orientation'> {
   /**
+   * A second line under the label, at `text-sm` in Content/Subtle. Figma's
+   * `Sub Label`, and named `description` to match Checkbox, Radio and Switch.
+   * Needs a `label` — on its own it would be an unnamed slider with a sentence.
+   */
+  description?: ReactNode
+  /**
    * The bounds labels, in mono either side of the track. Figma's `minValue` and
    * `maxValue` collapse to one knob: showing one bound without the other is not
    * a real case.
@@ -271,6 +285,7 @@ export type SliderProps = SliderBaseProps &
 
 export function Slider({
   label,
+  description,
   bounds = true,
   minLabel,
   maxLabel,
@@ -339,8 +354,23 @@ export function Slider({
       {...props}
     >
       {label != null && (
-        <SliderPrimitive.Label className="text-base font-normal text-content-primary">
-          {label}
+        // Figma's `Label` frame, which stacks the label and its sub-label with no
+        // gap between them (`spacing/0`) — 24px of line-height then 20.
+        //
+        // **The sub-label is inside the label, so it is part of the accessible
+        // name rather than a description**, which is what Figma's structure says
+        // and what Checkbox, Radio and Switch already do with their own
+        // `description`. It is also the only option left: `aria-describedby` on a
+        // thumb is already spoken for by the value tooltip, and a second source
+        // would overwrite the first.
+        //
+        // Figma's `overflow-clip` on this frame is not ported — the seventh time,
+        // and here it would clip nothing but could clip a descender.
+        <SliderPrimitive.Label className="flex w-full flex-col">
+          <span className="text-base font-normal text-content-primary">{label}</span>
+          {description != null && (
+            <span className="text-sm font-normal text-content-subtle">{description}</span>
+          )}
         </SliderPrimitive.Label>
       )}
 
@@ -362,6 +392,11 @@ export function Slider({
             // same 8px puts every tick exactly where its value's handle lands,
             // and the indicator agrees too, because it also ends at the handle's
             // centre.
+            //
+            // This was derived here by measuring, and **Figma has since been
+            // updated to agree**: the Marks frame is now `left: 8px; right: 8px`
+            // where it used to be flush. Same build-then-sync-back direction as
+            // the label and the disabled state above.
             <div className="pointer-events-none absolute inset-x-2 top-1/2 z-0" aria-hidden>
               {resolvedMarks.map((mark) => {
                 const percent = ((mark.value - min) / (max - min)) * 100
