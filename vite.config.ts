@@ -70,7 +70,8 @@ export default defineConfig({
           '@base-ui/react/toast',
           '@base-ui/react/checkbox',
           '@base-ui/react/radio',
-          '@base-ui/react/menu'
+          '@base-ui/react/menu',
+          '@base-ui/react/switch'
         ]
       },
       test: {

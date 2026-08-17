@@ -46,6 +46,10 @@ import { focusRing, focusRingWithin } from '../../lib/focus'
  * and this library's precedent for sharing styles (Avatar/AvatarGroup) is a
  * `styles.ts` inside one folder, not a module spanning two. If a third control
  * needs this row, that is the point to extract it.
+ *
+ * Switch is that third control, and it copied them again rather than extracting:
+ * a module spanning three folders would pin the three together in code while
+ * Figma's three separate sets are free to drift. **A fourth is the point.**
  */
 
 /**
