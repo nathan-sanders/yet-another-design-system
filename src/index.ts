@@ -33,6 +33,17 @@ export type { DividerProps } from './components/Divider'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { Menu } from './components/Menu'
+export type {
+  MenuProps,
+  MenuPopupProps,
+  MenuGroupProps,
+  MenuItemProps,
+  MenuSubmenuProps,
+  MenuCheckboxItemProps,
+  MenuRadioItemProps,
+} from './components/Menu'
+
 export { Radio } from './components/Radio'
 export type { RadioProps, RadioGroupProps } from './components/Radio'
 

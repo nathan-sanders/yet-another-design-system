@@ -57,8 +57,8 @@ import { Icon, type IconProps } from '../Icon'
  * vertical variant, and the underline would have to become a side rule — so it
  * is omitted from the props rather than left to break quietly); Astryx's `href`
  * link tabs, which are a `<nav>` of anchors and a different accessibility
- * contract from `role="tab"`; and its overflow `TabMenu`, which needs a Menu
- * component the library does not have yet.
+ * contract from `role="tab"`; and its overflow `TabMenu`, which is still to
+ * build — `Menu` now exists, so that is a composition rather than a blocker.
  */
 
 /**
