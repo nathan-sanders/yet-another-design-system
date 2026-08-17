@@ -5,6 +5,7 @@ import type { RadioGroupProps as BaseRadioGroupProps } from '@base-ui/react/radi
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing, focusRingWithin } from '../../lib/focus'
 
 /**
  * Radio — pick exactly one option from a list you can see all of.
@@ -48,9 +49,9 @@ import { cn } from '../../lib/cn'
  */
 
 /**
- * The 20px dial. Focus is Button's idiom — a 2px inner border plus a 3px outer
- * ring — because the dial has a real border and a fixed size, so `border-box`
- * paints the extra pixel inward and it does not grow.
+ * The 20px dial. Focus is the shared ring (src/lib/focus.ts), drawn outside the
+ * dial: the selected state is already a disc inside a ring, so anything painted
+ * *inside* the circle competes with the indicator instead of framing it.
  */
 const dial = tv({
   base: [
@@ -64,12 +65,21 @@ const dial = tv({
     // Selected is a solid disc — Figma fills background and stroke with the
     // same token, which is what the exported SVG shows.
     'data-checked:bg-input-selected data-checked:border-input-selected',
-    'outline-none focus-visible:border-2 focus-visible:border-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    'outline-none',
     'transition-colors duration-fast-min ease-standard',
   ],
 
   variants: {
+    /**
+     * Who draws the focus ring, as in Checkbox: standalone it is the dial,
+     * inside a card it is the card. Two concentric rings on one control read as
+     * a mistake rather than as emphasis.
+     */
+    inContainer: {
+      false: focusRing,
+      true: '',
+    },
+
     /**
      * Figma's `State=Invalid`. Base UI publishes `data-invalid` only for a radio
      * inside a `Field`, and the library has no Field component yet, so this is a
@@ -81,7 +91,7 @@ const dial = tv({
     },
   },
 
-  defaultVariants: { invalid: false },
+  defaultVariants: { invalid: false, inContainer: false },
 })
 
 /**
@@ -99,8 +109,7 @@ const field = tv({
         'flex w-full items-center gap-3 px-3 py-2',
         'rounded-md bg-surface-card-primary inset-ring inset-ring-surface-border',
         'hover:bg-surface-card-subtle',
-        'has-focus-visible:inset-ring-2 has-focus-visible:inset-ring-focus-focus-inner-border',
-        'has-focus-visible:ring-3 has-focus-visible:ring-focus-focus-outer-border',
+        ...focusRingWithin,
         'transition-colors duration-fast-min ease-standard',
       ],
     },
@@ -179,7 +188,7 @@ export function Radio({
       <RadioPrimitive.Root
         disabled={disabled}
         aria-invalid={invalid || undefined}
-        className={dial({ invalid })}
+        className={dial({ invalid, inContainer })}
         {...props}
       >
         {/* r="4" in Figma's exported SVG, so 8px across. */}

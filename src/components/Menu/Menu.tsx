@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
 import { Icon } from '../Icon'
 
 /**
@@ -74,7 +75,7 @@ import { Icon } from '../Icon'
  * **`overflow-clip` is not ported, for the fourth time** — but for a new reason.
  * SegmentedControl, Banner and Toast all left it out because it would slice a
  * focus ring; here an item sits 8px in from the popup edge and its ring reaches
- * 3px, so clipping would be safe. It is replaced by `overflow-y-auto` instead,
+ * 5px, so clipping would be safe. It is replaced by `overflow-y-auto` instead,
  * which clips to the radius just the same and lets a long menu scroll rather
  * than run off the screen. Figma draws no long menu; Astryx's guidance ("no
  * more than 10-12 items without sections") assumes the case exists.
@@ -85,6 +86,11 @@ const popup = tv({
     'flex min-w-30 flex-col',
     'rounded-lg border border-surface-border bg-surface-card-primary shadow-medium',
     'font-sans',
+    // Base UI parks focus on the popup itself when a menu is opened by click,
+    // and the browser draws its own focus ring on it — the system accent colour,
+    // which is nothing to do with this theme. The popup is a way-station, not a
+    // stop: the ring belongs on the item you land on.
+    'outline-none',
     // Base UI publishes the room left between the anchor and the viewport edge.
     'max-h-(--available-height) overflow-y-auto',
     // Tooltip's motion, unchanged. Base UI sets --transform-origin to the point
@@ -103,11 +109,11 @@ const popup = tv({
  * and radio — because Figma draws them as one 32px row with one hover and one
  * focus treatment, and only the leading slot differs.
  *
- * Focus is Breadcrumbs' and Tabs' inset `outline` + `ring`, not Button's
- * `border-2`: a row has no border and a fixed 32px height, so a border would
- * grow it. Note `outline-none` sets Tailwind's `--tw-outline-style: none`, so
- * `focus-visible:outline-solid` is required or the inner border silently never
- * paints — the trap Breadcrumbs documented first.
+ * Focus is the library's shared ring (src/lib/focus.ts). It is the one place
+ * that ring is nearly redundant: Base UI highlights the row it moves to, so
+ * `data-highlighted` and `:focus-visible` fire together and the background
+ * already says where you are. The ring stays for the case where they do not —
+ * a menu opened straight onto a focused item.
  *
  * `group` is here so the checkbox box and radio dial can read `data-checked`
  * off the item, which is where Base UI puts it.
@@ -121,9 +127,7 @@ const item = tv({
     'text-content-primary',
     // Hover and keyboard highlight are the same attribute — see the header.
     'data-highlighted:bg-surface-card-subtle',
-    'outline-none focus-visible:outline-solid focus-visible:outline-2',
-    'focus-visible:-outline-offset-2 focus-visible:outline-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    ...focusRing,
     'data-disabled:pointer-events-none data-disabled:opacity-40',
     'transition-colors duration-fast-min ease-standard',
   ],

@@ -1,5 +1,7 @@
 import { tv, type VariantProps } from 'tailwind-variants'
 
+import { focusRing } from '../../lib/focus'
+
 /**
  * The shared look of an avatar-shaped circle.
  *
@@ -41,13 +43,11 @@ export const avatar = tv({
     interactive: {
       true: [
         'cursor-pointer',
-        // Same 2px inner + 3px outer focus ring as the rest of the library, but
-        // drawn with `inset-ring` rather than Breadcrumbs' `outline`: `outline`
-        // is already spoken for by the group's canvas ring below, and a `border`
-        // would shrink the photo. `inset-ring` paints inside the edge with no
-        // layout cost, which is what the inner border needs on a circle.
-        'outline-none focus-visible:inset-ring-2 focus-visible:inset-ring-focus-focus-inner-border',
-        'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+        // The library's shared ring — see src/lib/focus.ts. It is `box-shadow`
+        // rather than `outline` for the reason every ring on this component is:
+        // `outline` is spoken for by the group's canvas ring below, and a
+        // `border` would eat into the photo.
+        ...focusRing,
       ],
     },
 

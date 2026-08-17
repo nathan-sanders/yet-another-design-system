@@ -119,6 +119,29 @@ Inter 400 reads heavier in the app than on the canvas. It lives in the styleshee
 body class would only fix the playground. Windows and Linux ignore both properties and need no
 match; they never applied the extra pass.
 
+### Focus
+
+Every focusable thing in the library uses one ring, exported from `src/lib/focus.ts` as `focusRing`
+(on the element itself) and `focusRingWithin` (on a card that should light up when a control inside
+it takes focus). Import it; do not write focus classes by hand.
+
+It draws two strokes, **both outside the component**: a 2px gap in `focus/focus-inner-border` — the
+canvas colour, white in light mode and stone-900 in dark, so it reads as a gap — then a 3px ring in
+`focus/focus-outer-border`. Nothing is painted on or inside the component, so a focused component is
+pixel-identical to an unfocused one.
+
+**Why it is not `border-2`.** It was, and a 1px border going to 2px grew every hug-width component by
+2px the moment it took focus: the Button grid visibly re-flowed as you tabbed across it. Each
+component then worked round that in its own way — an `inset-ring`, an inset `outline`, a transparent
+1px border at rest — which is how the library ended up with five focus idioms and a white line
+painted *inside* a ticked checkbox. A ring and its offset are both `box-shadow`, so they cost no
+layout anywhere and cannot create a scrollbar either; the problem cannot come back.
+
+`outline` is deliberately left free: Avatar uses it for the canvas ring between overlapping avatars.
+
+Two rings on one control is the thing to watch for. A Checkbox or Radio `inContainer` hands the ring
+to the card and draws none on the box — the box is inside the card, so both would fire at once.
+
 ### Refreshing tokens
 
 Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the
@@ -154,8 +177,8 @@ Each component gets its own folder with the component, its story, and a barrel `
    a `<button>` dressed as one loses middle-click/⌘-click/"open in new tab" and announces as
    "button". It is also fixed-height `inline-flex`, so it could never sit inside a sentence. Coming
    back later as its own **Link** component; the `action-link-*` tokens stay in the theme for it.
-   Hover/focus/disabled are CSS states, not props. Focus is a 2px inner border + 3px outer ring from
-   the focus tokens, on `:focus-visible`. Disabled is `opacity-40`.
+   Hover/focus/disabled are CSS states, not props. Focus is the shared ring (see **Focus** above),
+   on `:focus-visible`. Disabled is `opacity-40`.
    **Icon-only:** pass `startIcon` with no children. It keeps the same height *and the same
    horizontal padding* as its labelled twin, so the width follows the icon — 42×32 at default size
    per Figma (node 40002016:6867), **not** a 32×32 square. It is derived from the absence of a label, not a prop, and
@@ -186,10 +209,9 @@ Each component gets its own folder with the component, its story, and a barrel `
    the crumb count.
    **Colour trap:** breadcrumb links are `content-subtle` + underline-on-hover, *not* the blue
    `action-link-foreground`. A trail is navigation chrome.
-   **Focus trap:** the ring is an inset `outline` + `ring`, not Button's `border-2` — a crumb has no
-   border and no fixed height, so a border would grow the row on focus. Note that `outline-none` sets
-   Tailwind's `--tw-outline-style: none`, so `focus-visible:outline-solid` is required or the inner
-   border silently never paints.
+   **Focus:** the shared ring, like everything else. A crumb has no border and no fixed height, so it
+   was the first component to prove the old `border-2` idiom wrong: anything that changes the box
+   shoves the whole trail sideways.
 
 5. **Divider** — a line separating content. Mirrors Figma node `40002032:610` one-for-one: its three
    properties `Orientation` horizontal | vertical, `Line Style` solid | dashed and `Emphasis`
@@ -232,8 +254,9 @@ Each component gets its own folder with the component, its story, and a barrel `
    canvas rings are `outline` (group) and `ring` (dot), never `border` — a border would eat into
    the circle and shrink the photo. **164px at `base` is the number to check** when this changes.
    The overlap equals the ring width, which is what leaves a clean band of canvas between circles.
-   **Focus trap:** the ring is `inset-ring-2` + `ring-3`, not Breadcrumbs' `outline` — `outline` is
-   already carrying the group ring, and `border` would shrink the photo.
+   **Focus:** the shared ring, which is `box-shadow` — this is the component that decides that for
+   the whole library. `outline` is already carrying the group ring here, and `border` would shrink
+   the photo, so focus had nothing else left to use.
    **The one untokenised value in the library:** x-large initials get `tracking-[-0.02em]`. Figma's
    `text-5xl` style carries −2% letter-spacing, but letter-spacing is not exported by the token
    pipeline at all — no `--text-*--letter-spacing` in `theme.css`, no `letterSpacing` in
@@ -300,11 +323,10 @@ Each component gets its own folder with the component, its story, and a barrel `
    check** when this changes. Horizontal padding does *not* follow Button: it steps 8 / 12 / 12, so
    large is taller but no wider, where Button goes 8 / 12 / 16. The track itself has no `Size`
    property in Figma — it takes its height from the segments inside it.
-   Segments are a fixed `h-*`, not Figma's `min-h`, so
-   `focus-visible:border-2` cannot resize them, and each carries a transparent 1px border at rest so
-   selecting one doesn't grow it.
+   Segments are a fixed `h-*`, not Figma's `min-h`, and each carries a transparent 1px border at rest
+   so selecting one doesn't grow it.
    **Do not add `overflow-clip` to the track**, even though Figma has it. Figma draws focus as an
-   overlay *inside* the segment; here it is a 3px ring painting outside a segment that sits 1px in
+   overlay *inside* the segment; here the shared ring paints 5px outside a segment that sits 1px in
    from the track edge, so clipping would slice the ring off the first and last segments.
    **Second component to use the motion tokens**, after Tooltip: `duration-fast-min` +
    `ease-standard` crossfading colour, background, border and shadow. Astryx measures at 125ms on
@@ -359,8 +381,9 @@ Each component gets its own folder with the component, its story, and a barrel `
    40 and leaving the 2px indicator hovering above the line rather than painting over it.
    **The strip is 40px at `default`** — 4 (py-1) + 32 + 4, and the indicator hangs in that last 4px,
    which is Figma's `bottom-[-4px]`. **40 / 32 / 48 are the numbers to check.**
-   Focus is Breadcrumbs' inset `outline` + `ring`, not Button's `border-2`: a tab has no border and
-   a min-height, so a border would grow it on focus.
+   Focus is the shared ring, which reaches 5px and so covers the strip's rule and the 4px below the
+   tab. The indicator is still visible through it: `Tabs.Indicator` is positioned and comes after the
+   tabs in the DOM, so it paints *over* their box-shadows — verified, not assumed.
    Left out: `orientation="vertical"` (Base UI has it, Figma has no vertical variant, and it is
    omitted from the props rather than left to break quietly); Astryx's `href` link tabs, which are a
    `<nav>` of anchors and a different a11y contract; and its overflow `TabMenu` — `Menu` (14) now
@@ -396,7 +419,7 @@ Each component gets its own folder with the component, its story, and a barrel `
     top-aligns and reads high.
     **Do not port Figma's `overflow-clip`** — nothing overflows, and it is SegmentedControl's
     clipped-focus-ring hazard. Verified `overflow: visible`, with 16px/12px of room between the
-    dismiss button and the banner's edge for its 3px ring.
+    dismiss button and the banner's edge for its 5px ring.
     Width is `w-full`: Figma's 400px is a canvas frame, not a constraint.
     **48 / 72 are the numbers to check** — title-only, and title + description (12 + 24 + 24 + 12).
     **Story trap:** the variant matrix is a grid, not Badge's `<table>`. A `w-full` component in an
@@ -495,10 +518,10 @@ Each component gets its own folder with the component, its story, and a barrel `
     browser: `aria-labelledby` resolves to the label text, and label-click and box-click both toggle.
     **The card's line is an `inset-ring`, not a border.** Figma draws the container 40px tall —
     24 of line-height plus 8 above and below — and a border would add its 2px on top and make it 42.
-    A ring is a shadow, so it costs no layout. That is Avatar's trick, and it settles the focus
-    idiom for the card too: `inset-ring-2` + `ring-3`, Avatar's, while the 20px box keeps Button's
-    `border-2` + `ring-3` because it has a real border and a fixed size the inward border cannot
-    grow. **40 is the number to check**, and 20 for the box.
+    A ring is a shadow, so it costs no layout. That is Avatar's trick, and the card keeps that 1px
+    line unchanged on focus: the shared ring goes round the outside of it, and the box inside draws
+    **no** ring of its own, because two concentric rings on one control read as a mistake.
+    **40 is the number to check**, and 20 for the box.
     `invalid` is a prop rather than a CSS state, and the one member of Figma's `State` axis that
     stays one: Base UI publishes `data-invalid` only for a checkbox inside a `Field`, which this
     library does not have yet. Swap it for `data-invalid:` when Field lands.
@@ -548,6 +571,9 @@ Each component gets its own folder with the component, its story, and a barrel `
     `focusableWhenDisabled`, so Tabs' situation, not SegmentedControl's. And **hover and keyboard
     are one state**: `highlightItemOnHover` defaults true, so Figma's separate Hover and Focus
     collapse to `data-highlighted:` for the background plus `focus-visible:` for the ring.
+    **The popup itself needs `outline-none`.** Base UI parks focus on the popup when a menu is opened
+    by click, and the browser then draws *its own* focus ring on it — the macOS accent colour, which
+    has nothing to do with this theme. The popup is a way-station, not a stop.
     **The separator is a sibling of the group, not a child.** Figma draws a Divider inside every
     group including the first, where it is invisible only because it lands on the popup's border
     and gets clipped. Rendering it as a sibling means `first:hidden` does the job honestly, and puts

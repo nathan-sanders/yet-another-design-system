@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
 import { Icon, type IconProps } from '../Icon'
 
 /**
@@ -140,14 +141,11 @@ const tab = tv({
     // `--ease-standard` exactly, and `duration-fast-min` (130ms) is the nearest
     // token. Same pairing SegmentedControl uses.
     'transition-[color,background-color] duration-fast-min ease-standard',
-    // Focus is Breadcrumbs' inset outline, not Button's border-2: a tab has no
-    // border and a min-height, so a 2px border would grow it on focus. Note
-    // `outline-solid` is not redundant — `outline-none` sets Tailwind's
-    // --tw-outline-style to none, and `outline-2` only sets the width, so
-    // without it the inner border silently never paints.
-    'outline-none focus-visible:outline-solid focus-visible:outline-2',
-    'focus-visible:-outline-offset-2 focus-visible:outline-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    // Focus is the library's shared ring — see src/lib/focus.ts. It paints
+    // outside the tab, over the strip's bottom rule and into the 4px of padding
+    // above and below; nothing clips it, because `Tabs.List` deliberately has no
+    // `overflow-clip` (SegmentedControl's hazard).
+    ...focusRing,
     // Disabled is a flat 40% opacity in Figma (opacity/opacity-40).
     //
     // **It has to hang off `data-disabled`, not `:disabled`.** Base UI builds
@@ -359,9 +357,8 @@ function TabsPanel({ className, ...props }: TabsPanelProps) {
   return (
     <TabsPrimitive.Panel
       className={cn(
-        'rounded-md outline-none focus-visible:outline-solid focus-visible:outline-2',
-        'focus-visible:-outline-offset-2 focus-visible:outline-focus-focus-inner-border',
-        'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+        'rounded-md',
+        ...focusRing,
         className,
       )}
       {...props}

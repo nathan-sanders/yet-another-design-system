@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { cn } from './lib/cn'
+import { focusRing } from './lib/focus'
+
 /**
  * Dev playground. Not part of the published library — it exists to prove the
  * token pipeline works: Figma -> theme.css -> Tailwind utilities -> screen.
@@ -208,7 +211,10 @@ export default function App() {
         <button
           type="button"
           onClick={() => setDark(!dark)}
-          className="inline-flex h-8 items-center justify-center gap-2 rounded-md border border-action-secondary-border bg-action-secondary-background px-3 text-base font-semibold text-action-secondary-foreground hover:bg-action-secondary-background-hover focus-visible:border-2 focus-visible:border-focus-focus-inner-border focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border focus-visible:outline-none"
+          className={cn(
+            'inline-flex h-8 items-center justify-center gap-2 rounded-md border border-action-secondary-border bg-action-secondary-background px-3 text-base font-semibold text-action-secondary-foreground hover:bg-action-secondary-background-hover',
+            focusRing,
+          )}
         >
           {dark ? 'Light mode' : 'Dark mode'}
         </button>

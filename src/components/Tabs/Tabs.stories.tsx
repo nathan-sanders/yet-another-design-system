@@ -85,7 +85,7 @@ export const AllVariants: Story = {
 /**
  * Hover and focus are real browser states, not props — hover any tab (the
  * active one has a hover state too, which is what Figma draws), and press Tab
- * to see the inset focus ring. Tab lands on the *selected* tab only: the strip
+ * to see the shared focus ring. Tab lands on the *selected* tab only: the strip
  * is one tab stop and the arrow keys move within it.
  *
  * A disabled tab sits at 40% opacity and cannot be activated — but the arrow

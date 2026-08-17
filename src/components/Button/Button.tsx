@@ -3,6 +3,7 @@ import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
 import { Icon, type IconProps } from '../Icon'
 
 /**
@@ -36,10 +37,10 @@ const button = tv({
     'inline-flex shrink-0 items-center justify-center',
     'rounded-md border font-sans font-semibold whitespace-nowrap',
     'cursor-pointer transition-colors',
-    // Focus: 2px inner border + 3px outer ring, both from the focus tokens.
-    // `:focus-visible` so it shows for keyboard users but not on mouse click.
-    'outline-none focus-visible:border-2 focus-visible:border-focus-focus-inner-border',
-    'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+    // Focus is the library's shared ring — see src/lib/focus.ts. It paints
+    // entirely outside the button, so a focused button is exactly the size of
+    // an unfocused one and the grid does not re-flow as you tab through it.
+    ...focusRing,
     // Disabled is a flat 40% opacity in Figma (opacity/opacity-40).
     'disabled:pointer-events-none disabled:opacity-40',
   ],
