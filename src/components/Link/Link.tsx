@@ -74,15 +74,36 @@ import { Icon, type IconProps } from '../Icon'
  */
 const link = tv({
   base: [
-    'cursor-pointer rounded-md font-sans',
+    'cursor-pointer font-sans',
     'text-action-link-foreground hover:text-action-link-foreground-hover',
     // Motion tier, as everything built since Switch: 130ms on the standard curve.
     'transition-colors duration-fast-min ease-standard',
+    // The radius the focus ring follows, and the one place this component leaves
+    // the radius scale. Figma binds border-radius/rounded-md — 8px — and 8px is
+    // wrong here twice over.
+    //
+    // An inline element's painted box is the font's *content* box, about 1.21em,
+    // not the line box: 17px at text-base where a blockified link (any Link that
+    // lands in a flex container, which is most standalone ones) gets the full
+    // 24px. 8px on 17px is 0.94 of the half-height, so the ring renders as a
+    // pill on exactly the case this component exists for, while its standalone
+    // twin two lines away is properly rounded. Measured, after Nathan spotted it.
+    //
+    // And a px radius cannot hold its shape across thirteen type steps whose box
+    // heights are all proportional to font-size: 8px is a pill at text-sm and
+    // nearly square at text-4xl.
+    //
+    // 0.4em fixes both, and is derived rather than eyeballed. Figma draws the
+    // corner at 8px on a 24px box — 0.67 of the half-height. Reproducing that
+    // proportion on the inline box gives 0.67 × (1.21em / 2) = 0.403em. So the
+    // inline ring is Figma's corner, and it is the same corner at every step.
+    // The blockified form comes out a little tighter than Figma's 8px, which is
+    // the trade: one value cannot sit on both boxes, and the inline box is the
+    // one to anchor to.
+    'rounded-[0.4em]',
     // Focus is the library's shared ring — see src/lib/focus.ts. It is pure
     // box-shadow, so a focused link is exactly the size of an unfocused one and
-    // the sentence it sits in does not reflow. The ring follows border-radius,
-    // which is why the `rounded-md` above is not decorative: Figma binds
-    // border-radius/rounded-md on the focus state for the same reason.
+    // the sentence it sits in does not reflow.
     ...focusRing,
   ],
 
