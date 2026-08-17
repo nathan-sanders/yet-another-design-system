@@ -56,6 +56,9 @@ export type {
   SegmentedControlLayout,
 } from './components/SegmentedControl'
 
+export { Slider } from './components/Slider'
+export type { SliderProps, SliderMark } from './components/Slider'
+
 export { Switch } from './components/Switch'
 export type { SwitchProps } from './components/Switch'
 
