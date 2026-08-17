@@ -814,8 +814,24 @@ Each component gets its own folder with the component, its story, and a barrel `
     Auto-layout centres it on the line box, which agrees with the text only while the line-height
     does; centring on the x-height keeps it glued to the words at every step and under any leading.
     **12px arrow, 2px gap, 24px line box at `base`, and 1.18px are the numbers to check.**
-    Focus is the shared ring on `rounded-md`, Figma's radius — measured pixel-identical box before
-    and after focus, and the table around it unmoved. Seventh component on the motion tokens:
+    Focus is the shared ring, measured pixel-identical box before and after focus with the table
+    around it unmoved — but on **`rounded-[0.4em]`, the one place this component leaves the radius
+    scale**, and the library's second untokenised value after Avatar's `tracking-[-0.02em]`.
+    Figma binds `border-radius/rounded-md`, and 8px is wrong here twice over. An inline element's
+    painted box is the font's *content* box (~1.21em), not the line box: 17px at `text-base` where
+    a blockified link — any Link that lands in a flex container, which is most standalone ones —
+    gets the full 24px. 8px on 17px is 0.94 of the half-height, so the ring renders as a **pill on
+    exactly the case the component exists for** while its standalone twin two lines away is
+    properly rounded. And a px radius cannot hold its shape across thirteen steps whose box heights
+    are all proportional to font-size — 8px is a pill at `text-sm` and nearly square at `text-4xl`.
+    0.4em is derived, not eyeballed: Figma's corner is 8px on a 24px box, 0.67 of the half-height,
+    and reproducing that proportion on the inline box gives 0.67 × (1.21em / 2) = 0.403em. So the
+    inline ring is Figma's corner, at every step. One value cannot sit on both boxes, and the
+    inline one is what to anchor to; the blockified form comes out slightly tighter than Figma's
+    8px. **0.66 of the half-height on the inline box, at every step, is the number to check.**
+    **Wants adding to Figma:** the focus radius, as an em-relative value or as a per-size binding —
+    the file draws the standalone case only, so it has never had to answer this.
+    Seventh component on the motion tokens:
     `transition-colors duration-fast-min ease-standard`. Button's bare `transition-colors` predates
     the tier and is not the model.
     **Contrast, measured in both themes:** blue-700 on stone-100 is **6.26:1** and hover 8.10:1;
