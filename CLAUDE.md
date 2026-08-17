@@ -108,6 +108,17 @@ so the slide is a CSS transition on `translate` and `width`. Worth remembering a
 of the answer — check whether the headless primitive already measures the thing before assuming the
 animation needs JavaScript.
 
+### Font smoothing
+
+Section 6 of `theme.css` sets `-webkit-font-smoothing: antialiased` +
+`-moz-osx-font-smoothing: grayscale` on `html` — exactly Tailwind's `antialiased` utility, applied
+once at the root rather than as a class on `<body>`. Figma draws text with grayscale antialiasing;
+a browser on macOS defaults to a smoothing pass that thickens every stroke, so without this the same
+Inter 400 reads heavier in the app than on the canvas. It lives in the stylesheet, not in
+`index.html`, because that is the one file the playground, Storybook and consumers all import — a
+body class would only fix the playground. Windows and Linux ignore both properties and need no
+match; they never applied the extra pass.
+
 ### Refreshing tokens
 
 Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the

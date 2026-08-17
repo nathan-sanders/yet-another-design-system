@@ -988,3 +988,16 @@
     transition-duration: 1ms !important;
   }
 }
+
+/* ---- 6. Font smoothing. Figma draws text with grayscale antialiasing; ---- */
+/*    a browser on macOS defaults to a smoothing pass that thickens every   */
+/*    stroke, so the same Inter 400 reads heavier in the app than on the    */
+/*    canvas. These two declarations are exactly Tailwind's `antialiased`   */
+/*    utility, set once on the root instead of per-component, so weights    */
+/*    match Figma everywhere — playground, Storybook and consumers alike.   */
+/*    Windows and Linux ignore both properties; there is nothing to match   */
+/*    there because they never applied the extra pass.                      */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
