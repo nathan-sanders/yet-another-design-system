@@ -72,7 +72,8 @@ export default defineConfig({
           '@base-ui/react/radio',
           '@base-ui/react/menu',
           '@base-ui/react/switch',
-          '@base-ui/react/slider'
+          '@base-ui/react/slider',
+          '@base-ui/react/use-render'
         ]
       },
       test: {

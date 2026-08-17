@@ -175,8 +175,9 @@ Each component gets its own folder with the component, its story, and a barrel `
    `size`: small (24px) | default (32px) | large (40px); `startIcon`/`endIcon` take a `LucideIcon`.
    **No `link` appearance** — it was removed deliberately. A link navigates and belongs in an `<a>`;
    a `<button>` dressed as one loses middle-click/⌘-click/"open in new tab" and announces as
-   "button". It is also fixed-height `inline-flex`, so it could never sit inside a sentence. Coming
-   back later as its own **Link** component; the `action-link-*` tokens stay in the theme for it.
+   "button". It is also fixed-height `inline-flex`, so it could never sit inside a sentence. It
+   came back as its own **Link** component (17), which is what the `action-link-*` tokens were
+   held in the theme for.
    Hover/focus/disabled are CSS states, not props. Focus is the shared ring (see **Focus** above),
    on `:focus-visible`. Disabled is `opacity-40`.
    **Icon-only:** pass `startIcon` with no children. It keeps the same height *and the same
@@ -761,12 +762,83 @@ Each component gets its own folder with the component, its story, and a barrel `
     **Wants adding to Figma:** only the tick's `--radius/full` binding now, which is the one radius
     in the file not named `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
 
+17. **Link** — a styled anchor for inline and standalone text navigation. Mirrors Figma node
+    `40004146:6709` (`State` default | hover | focus | disabled × `External Link`), documented at
+    `40004155:13015`. The component Button has owed the library since its `link` appearance was
+    deleted in #21; that entry's reasoning is this one's spec, and the `action-link-*` tokens
+    finally have a consumer. **The first component that is typography rather than a control**, and
+    the first with a real `text-decoration` — Breadcrumbs' `hover:underline` is deliberately a
+    different treatment, because a trail is chrome and stays `content-subtle`. This is what uses
+    the blue.
+    **It is `inline`, not `inline-flex`, and that is the whole point.** Figma draws the label and
+    the external arrow as an auto-layout row with a 2px gap because a canvas has no other way to
+    put two things side by side. Porting that as `inline-flex gap-0.5` would reintroduce the exact
+    defect that disqualified the Button appearance: an inline-flex box cannot break across lines,
+    so a link mid-paragraph would refuse to wrap. The 2px is `ms-0.5` on the arrow instead.
+    **Measured: a link long enough to need two lines renders as two line fragments** — that is
+    the check when this changes.
+    **`size` has no default, and inherits.** With no `size` the recipe emits no `text-*` class, so
+    the link takes the font-size *and* line-height of the sentence around it — measured at 12/20,
+    14/24 and 16/28 against paragraphs at each. Pass a step to pin it, which is what a standalone
+    link does: Figma draws this at `text-base`, so a nav or footer link wants `size="base"`. All
+    thirteen steps of the scale are variants; Astryx spells the same idea as `size` plus an
+    `isStandalone` boolean, and one prop covers both. Font *weight* inherits for the same reason
+    and is deliberately unset even though Figma binds `font-weight/normal` — a link inside a bold
+    heading that silently dropped to 400 would be a bug. `font-sans` **is** set, as everywhere: the
+    family is a library-wide constant, not typographic context.
+    **The underline is on an inner span, not on the anchor.** Figma underlines the label and not
+    the arrow, and `text-decoration` cannot be turned off for a descendant — it propagates, and the
+    rule is painted straight across an inline-block child's box — so the only way to end it where
+    the label ends is to start it there. Underlined in *every* state including hover; Figma's hover
+    changes colour and nothing else. Figma's text style is ported whole:
+    `decoration-from-font`, `[text-underline-position:from-font]`, `[text-decoration-skip-ink:none]`.
+    **Disabled renders a `<span>`** — `<a>` has no disabled attribute and `pointer-events-none`
+    alone leaves it in the tab order. Breadcrumbs' answer. **`aria-disabled` on it is not
+    decoration:** `opacity-40` measures **1.96:1** light and **2.07:1** dark, and axe only exempts
+    it by walking up from the text looking for a disabled control or `aria-disabled` — Slider's
+    bounds-label situation exactly.
+    **Twelfth Base UI component, and the first that is a hook rather than a component.** There is
+    no Link primitive in Base UI, so this is a native `<a>` like Badge and Banner — but `useRender`
+    (`@base-ui/react/use-render`) supplies `render` for router integration:
+    `<Link render={<NextLink href="/about" />}>`. Same contract `Tooltip.Trigger` and `Menu.Trigger`
+    already expose to callers, so the library still has exactly one polymorphism idiom and no
+    `asChild`. It also picks the tag: `defaultTagName` is `'span'` when disabled and `'a'`
+    otherwise. **`@base-ui/react/use-render` is named in `vite.config.ts`** per the Toast rule.
+    `external` is one prop doing four things — the arrow, `target="_blank"`, `noopener noreferrer`
+    merged (not replaced) into any `rel` passed, and `sr-only` text announcing the new tab, which
+    `newTabLabel` localises. The arrow follows an explicit type-step → Icon-size map the way
+    Button's `ICON_SIZE` does, 12/16/20/24, and **stops growing at `x-large`**: an off-scale icon
+    size would be a second untokenised value in a library trying to keep Avatar's
+    `tracking-[-0.02em]` as its only one.
+    **The arrow is `align-middle`, 1.18px below where Figma puts it**, and that is deliberate.
+    Auto-layout centres it on the line box, which agrees with the text only while the line-height
+    does; centring on the x-height keeps it glued to the words at every step and under any leading.
+    **12px arrow, 2px gap, 24px line box at `base`, and 1.18px are the numbers to check.**
+    Focus is the shared ring on `rounded-md`, Figma's radius — measured pixel-identical box before
+    and after focus, and the table around it unmoved. Seventh component on the motion tokens:
+    `transition-colors duration-fast-min ease-standard`. Button's bare `transition-colors` predates
+    the tier and is not the model.
+    **Contrast, measured in both themes:** blue-700 on stone-100 is **6.26:1** and hover 8.10:1;
+    blue-400 on stone-950 is **7.49:1** and hover 10.91:1. No `dark:` class anywhere.
+    **Storybook trap, worth knowing generally:** `text-action-link-foreground` had never been used
+    by a component, so a dev server already running when the file appeared served CSS without it
+    and the link rendered in the browser's default blue — a component that looks subtly wrong for a
+    reason that is not in its source. Reload before believing a first measurement of a brand-new
+    utility.
+    Left out: `visited` (no token, no Figma state); Astryx's `hasUnderline` (Figma underlines
+    always), `isStandalone` (subsumed by `size`), `tooltip` (composition — Avatar settled it, and
+    `<Tooltip label="…"><Link/></Tooltip>` makes the anchor itself the trigger, verified by the
+    `data-base-ui-tooltip-trigger` landing on the `<a>`), and `label`: `aria-label` arrives through
+    the spread, and on a text link you should not use it — it replaces the visible words for a
+    screen reader, which is the one thing a link's own text is already good at.
+    `lucide-react` also exports a `Link` glyph — a naming collision to alias inside stories.
+
 **Still to build**, foundational/static first:
 
-17. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-18. **List Item** — variants/states; native, styled.
-19. **Table Cell** — native, styled.
-20. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+18. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+19. **List Item** — variants/states; native, styled.
+20. **Table Cell** — native, styled.
+21. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 Also in Figma but not built, and each wants its own PR: **Field**, **Checkbox Group**, **Radio Group**.
 
