@@ -73,6 +73,9 @@ export type {
   SegmentedControlLayout,
 } from './components/SegmentedControl'
 
+export { Select } from './components/Select'
+export type { SelectProps, SelectItemProps, SelectGroupProps, SelectSize } from './components/Select'
+
 export { Slider } from './components/Slider'
 export type { SliderProps, SliderMark } from './components/Slider'
 
