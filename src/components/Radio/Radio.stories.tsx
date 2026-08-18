@@ -237,7 +237,7 @@ export const GroupLayout: Story = {
 export const InField: Story = {
   parameters: { controls: { disable: true } },
   render: function InFieldStory() {
-    const [value, setValue] = useState<string | null>(null)
+    const [value, setValue] = useState<string | undefined>(undefined)
 
     return (
       <Field

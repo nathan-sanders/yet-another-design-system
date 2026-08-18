@@ -84,7 +84,7 @@ Figma-driven.
 | **Checkbox** | Unticked, ticked or indeterminate × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
-| **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Checkbox, Radio |
+| **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
@@ -93,6 +93,7 @@ Figma-driven.
 | **Radio** | Unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Radio.Group** | Vertical or horizontal set owning the value, the roving tabindex and the arrow keys |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
+| **Select** | Pick one value, or several, from a list; 3 sizes (24/32/40) × hug/fill × default/hover/focus/invalid/disabled, with grouped and described items — the popup opens *over* the trigger, macOS-style, with the chosen row landing on the value |
 | **Slider** | One handle, or a pair for a range × default/disabled, with label, sub-label, bounds labels, marks and a value tooltip |
 | **Switch** | Off/on × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label — the knob grows from 14 to 16px as it slides |
 | **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |

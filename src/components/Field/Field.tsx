@@ -99,6 +99,19 @@ export interface FieldProps
   error?: ReactNode
   /** Maps to the control's `State=Invalid`. Also sets `aria-invalid` on it. */
   invalid?: boolean
+  /**
+   * Whether the label is a real `<label>`. Leave it alone for anything built on
+   * an `<input>`; set it **false** when the control is a button, which is what
+   * `Select`, and later Combobox and Autocomplete, put inside a Field.
+   *
+   * A `<button>` is a labelable element, so `htmlFor` really does reach it — and
+   * clicking the label would then fire on the button and open the popup, and
+   * hovering the label would put the trigger in its hover state. Base UI ships
+   * this switch for exactly that case and names `<Select.Trigger>` in the
+   * warning it logs. Turning it off keeps the accessible name (which comes from
+   * `aria-labelledby`, not from `htmlFor`) and drops only the click-through.
+   */
+  nativeLabel?: boolean
   /** Extra classes for the outermost element. */
   className?: string
 }
@@ -109,6 +122,7 @@ export function Field({
   description,
   error,
   invalid = false,
+  nativeLabel = true,
   disabled = false,
   className,
   ...props
@@ -141,7 +155,18 @@ export function Field({
         it. Without the wrapper the root's gap would push them apart.
       */}
       <span className="flex flex-col">
-        <FieldPrimitive.Label className={labelText()}>{label}</FieldPrimitive.Label>
+        {/*
+          Both halves have to move together: Base UI logs an error if
+          `nativeLabel` is false while a real <label> is still rendered, because
+          the two would disagree about whether native label behaviour applies.
+        */}
+        <FieldPrimitive.Label
+          nativeLabel={nativeLabel}
+          render={nativeLabel ? undefined : <div />}
+          className={labelText()}
+        >
+          {label}
+        </FieldPrimitive.Label>
         {description != null && (
           <FieldPrimitive.Description className={descriptionText()}>
             {description}
