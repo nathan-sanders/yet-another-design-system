@@ -29,8 +29,17 @@ Figma, so the code matches Figma and both stay in sync.
 npm run dev          # token playground (localhost:5173)
 npm run storybook    # component library (localhost:6006)
 npm run build        # tsc -b && vite build
+npm run lint         # oxlint
+npm test             # every story, in real Chromium, with axe
 python3 generate.py  # rebuild src/styles/theme.css from tokens/*.json
 ```
+
+`lint`, `build` and `test` run on every pull request and on `main`
+(`.github/workflows/ci.yml`). **`npm run build` is the load-bearing one**, because
+it is the only step that type-checks: Vite strips types without looking at them,
+so Storybook and the story suite both pass happily on code `tsc` rejects. That is
+exactly how a type error reached `main` once — every story green, `npm run build`
+red — and it is the reason the check exists.
 
 ## Design tokens
 
