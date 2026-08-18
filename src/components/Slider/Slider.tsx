@@ -62,6 +62,9 @@ import { Tooltip } from '../Tooltip'
  * `text-base` in `Content/Primary` 8px above the row, and `State=Disabled` is
  * `opacity/opacity-40` over the whole thing. So these classes are the file's now,
  * not ours — verified against `Type=Default, State=Disabled` (`40004157:15861`).
+ * The one later departure is the label's **weight**: semibold here, to match the
+ * Field component that now owns every other field label. That is code-first
+ * again, and the Slider set wants updating from `font-weight/normal` to match.
  *
  * Note where disabled is expressed: on the **Slider**, as a `State` axis, and
  * *not* on `_Slider Handle`, which still has only Default | Hover | Focus. One
@@ -367,7 +370,14 @@ export function Slider({
         // Figma's `overflow-clip` on this frame is not ported — the seventh time,
         // and here it would clip nothing but could clip a descender.
         <SliderPrimitive.Label className="flex w-full flex-col">
-          <span className="text-base font-normal text-content-primary">{label}</span>
+          {/*
+            Semibold, matching Field (19). Slider keeps its own label rather than
+            handing it to a Field — Base UI needs `Slider.Label` to name the
+            thumbs, and it is not in Figma's Field `Type` list — but "keeps its
+            own" is about ownership, not about looking different, so the weight
+            follows the one every other field label in the library now uses.
+          */}
+          <span className="text-base font-semibold text-content-primary">{label}</span>
           {description != null && (
             <span className="text-sm font-normal text-content-subtle">{description}</span>
           )}

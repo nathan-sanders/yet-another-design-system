@@ -779,9 +779,14 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     Switch labels are `<label>` elements *wrapping* the control, which is what makes the text a hit
     target, and they cannot hand that to a Field sitting outside them. A slider's label is not a hit
     target. **Field landed as (19), and it is for `invalid`, `description` and the `data-invalid`
-    family, not for labels** — which is the deferred note in Checkbox, Radio and here. Note the split
-    that makes this consistent: Input handed its label to Field because an input's label is not a hit
-    target either, exactly like a slider's; Checkbox, Radio and Switch keep theirs because theirs is.
+    family, not for labels** — which is the deferred note in Checkbox, Radio and here.
+    **The rule the file settled on, stated once:** a control with no label of its own gets one from
+    Field (Input, Input Group, Select, Autocomplete, Combobox); a control whose label is a *hit
+    target* keeps it, and Field's label names the set above it instead (Checkbox, Radio, Switch).
+    Slider is the single exception in neither camp — its label is not a hit target, but Base UI needs
+    `Slider.Label` to name the thumbs and Figma leaves it out of Field's `Type` list — so it keeps its
+    own. It follows Field on **weight** though: semibold, like every other field label in the
+    library.
     **Wants adding to Figma:** only the tick's `--radius/full` binding now, which is the one radius
     in the file not named `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
 
@@ -879,11 +884,13 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     **Thirteenth Base UI component**, first on `Input`; Link (17) was the twelfth.
     **Base UI has no Input Group** — unlike almost everything else here, it is not in their list and
     `/components/input-group` is a 404. That pattern is shadcn's; the `<input>` is still Base UI's.
-    **Neither of these owns its label.** Figma's Field set (19) nests every control with the
-    control's own `Label` boolean switched *off*, so a labelled field is a Field wrapping an Input,
-    not an Input drawing its own text. These two are the control and nothing else. Standalone, an
-    Input still needs a name — a Field around it, or an `aria-label`, which is the toolbar-search
-    shape.
+    **Neither of these owns its label.** Figma's Field set (19) supplies it, and the Input and Input
+    Group sets have since had their own `Label` / `Sub Label` properties **removed** — along with
+    Select's, Autocomplete's and Combobox's, which carried the same vestigial pair. The label now
+    exists in exactly one component in the file, which is what makes the weight conflict noted under
+    (19) unrepeatable rather than merely fixed. These two are the control and nothing else.
+    Standalone, an Input still needs a name — a Field around it, or an `aria-label`, which is the
+    toolbar-search shape.
     **One folder, two components, sharing `styles.ts`** — Avatar's arrangement, not Checkbox's
     duplication, because these two draw the same box at the same three sizes and Figma keeps them as
     a pair rather than as sets that drift independently.
@@ -943,9 +950,9 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     Left out: `Textarea` (Base UI has no primitive and Figma draws no multi-line variant),
     `type="number"` spinners (`NumberField` is its own component), and Astryx's `loading`, `clearable`
     and `statusVariant` — none are in the file.
-    **Wants changing in Figma:** the Input set draws its own label at `font-weight/normal`, where the
-    Field set draws it at semibold. Field won — see (19) — so the Input set's label wants updating to
-    600, or its Label boolean retiring altogether now that nothing uses it.
+    Figma has since caught up: the Input and Input Group sets' `Label` and `Sub Label` properties
+    are gone, so their frames are the box alone at 24 / 32 / 40 rather than 76 / 84 / 92, and match
+    what the code renders.
 
 19. **Field** — the label, sub-label and validation message around a form control. Mirrors Figma node
     `40004051:15082`, whose `Type` property swaps the control: Input, Input Group, Autocomplete,
@@ -976,10 +983,14 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     exist yet.
     **`error` implies `invalid`.** A danger-red message beside a neutral border would read as a bug.
     **The sub-label defaults off**, as it does in the file — the label is the requirement.
-    **The label is semibold, and the file disagreed with itself about that.** The Input, Input Group
-    and Slider sets draw their labels at `font-weight/normal`; this set draws it at
-    `font-weight/semibold`. Field won, being both the newer set and the one that now owns the label
-    everywhere. **600 is the number to check**, and the other sets want updating to match.
+    **The label is semibold, and the file disagreed with itself about that.** The Input and Input
+    Group sets drew theirs at `font-weight/normal` while Select already drew 600 — so those two were
+    the holdouts, not this. Resolved by deletion rather than by syncing copies: Input, Input Group,
+    Select, Autocomplete and Combobox have all had their own label properties removed, so there is
+    one label in the file and nothing left to disagree. **600 is the number to check.** Slider is the
+    only control still drawing its own, and it moved to semibold to match — code-first, so the Slider
+    set wants updating from `normal`. **Still open:** Slider's label is `Content/Primary` where this
+    one is `Content/Emphasized`. Only the weight was aligned; the colour is left for the file.
     **The validation message is italic** — `text-sm`, Content/Danger. Italic is this system's mark
     for text that is not something the person entered; the placeholder inside a field is italic for
     the same reason, and missing it is easy because a screenshot does not show it.
