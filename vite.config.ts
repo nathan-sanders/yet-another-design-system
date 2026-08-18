@@ -73,7 +73,9 @@ export default defineConfig({
           '@base-ui/react/menu',
           '@base-ui/react/switch',
           '@base-ui/react/slider',
-          '@base-ui/react/use-render'
+          '@base-ui/react/use-render',
+          '@base-ui/react/input',
+          '@base-ui/react/field'
         ]
       },
       test: {
