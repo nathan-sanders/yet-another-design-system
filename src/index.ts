@@ -33,6 +33,17 @@ export type { DividerProps } from './components/Divider'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { Input, InputGroup } from './components/Input'
+export type {
+  InputProps,
+  InputGroupProps,
+  InputGroupInputProps,
+  InputGroupAddonProps,
+  InputGroupTextProps,
+  InputSize,
+  InputGroupAddonAlign,
+} from './components/Input'
+
 export { Link } from './components/Link'
 export type { LinkProps, LinkSize } from './components/Link'
 
