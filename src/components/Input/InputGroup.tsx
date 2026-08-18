@@ -4,12 +4,12 @@ import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
 import { Icon } from '../Icon'
-import { FieldShell } from './FieldShell'
 import { InputGroupContext, useInputGroup } from './context'
 import {
   ICON_SIZE,
   addon,
   addonText,
+  box,
   control,
   type InputGroupAddonAlign,
   type InputSize,
@@ -23,19 +23,23 @@ import {
  * 3 sizes x 5 states as `Input`, plus a Start Slot, an End Slot and a `Display`
  * property that puts them beside the text or stacked around it.
  *
- *     <InputGroup label="Website" description="Include the protocol">
- *       <InputGroup.Addon align="inline-start" icon={Link} />
- *       <InputGroup.Input placeholder="example.com" />
- *       <InputGroup.Addon align="inline-end">
- *         <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy" />
- *       </InputGroup.Addon>
- *     </InputGroup>
+ *     <Field label="Website" description="Include the protocol">
+ *       <InputGroup>
+ *         <InputGroup.Addon align="inline-start" icon={Link} />
+ *         <InputGroup.Input placeholder="example.com" />
+ *         <InputGroup.Addon align="inline-end">
+ *           <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy" />
+ *         </InputGroup.Addon>
+ *       </InputGroup>
+ *     </Field>
  *
  * **Base UI does not have this component**, unlike almost everything else here —
  * it is not in their list, and `/components/input-group` is a 404. The pattern
  * is shadcn's, whose addon `align` values are Figma's `Display` property
- * unrolled per slot. The `<input>` inside is still Base UI's, and the label and
- * error wiring is still Base UI's Field.
+ * unrolled per slot. The `<input>` inside is still Base UI's.
+ *
+ * **The label belongs to `Field`**, as it does for `Input` — Figma's Field set
+ * nests this with its own `Label` switched off.
  *
  * **Why this is not a set of props on `Input`.** Meta's Astryx does merge the
  * two into one `TextInput`, and it works there because its slots are a fixed
@@ -51,22 +55,14 @@ import {
 export interface InputGroupProps {
   /** `InputGroup.Input` and `InputGroup.Addon` elements. */
   children: ReactNode
-  /** The visible label. Figma's `Label` boolean plus its `Label Text`. */
-  label?: ReactNode
-  /** Secondary line under the label. Figma's `Sub Label`. */
-  description?: ReactNode
-  /**
-   * A message shown below the field, in danger red. Providing one puts the field
-   * in the invalid state on its own, exactly as it does on `Input`.
-   */
-  error?: ReactNode
-  /** Maps to Figma's `State=Invalid`. Also sets `aria-invalid`. */
-  invalid?: boolean
   /** Field size. Set once here and read by every part inside. */
   size?: InputSize
-  /** Disables the field and everything in it. */
-  disabled?: boolean
-  /** Extra classes for the outermost element. */
+  /**
+   * Maps to Figma's `State=Invalid`, for a group standing on its own. Inside a
+   * `Field`, set it there instead.
+   */
+  invalid?: boolean
+  /** Extra classes for the outermost element — the bordered box. */
   className?: string
 }
 
@@ -83,6 +79,12 @@ export interface InputGroupInputProps
   className?: string
 }
 
+/**
+ * Disabling: pass `disabled` here, or to the `Field` around the group, and the
+ * box fades and stops taking pointers for itself. A Button sitting in an addon
+ * is **not** disabled by either — nothing reaches into arbitrary children — so
+ * disable it too, or it stays clickable inside a field that looks inert.
+ */
 function InputGroupInput({ className, ...props }: InputGroupInputProps) {
   const { size } = useInputGroup()
 
@@ -156,26 +158,14 @@ InputGroupText.displayName = 'InputGroup.Text'
 
 export function InputGroup({
   children,
-  label,
-  description,
-  error,
-  invalid = false,
   size = 'default',
-  disabled,
+  invalid = false,
   className,
 }: InputGroupProps) {
   return (
-    <FieldShell
-      label={label}
-      description={description}
-      error={error}
-      invalid={invalid}
-      disabled={disabled}
-      size={size}
-      className={className}
-    >
+    <div className={cn(box({ size, invalid }), className)}>
       <InputGroupContext.Provider value={{ size }}>{children}</InputGroupContext.Provider>
-    </FieldShell>
+    </div>
   )
 }
 

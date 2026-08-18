@@ -6,10 +6,14 @@ import type { IconProps } from '../Icon'
 /**
  * The look shared by `Input` and `InputGroup`.
  *
- * These live in their own module because both components draw the same field —
- * the same label block, the same bordered box, the same five states — and a file
- * that exports both a component and constants breaks React Fast Refresh. It is
- * the same reason Avatar and Toast each have a `styles.ts`.
+ * These live in their own module because both components draw the same box at
+ * the same three sizes, and a file that exports both a component and constants
+ * breaks React Fast Refresh. It is the same reason Avatar and Toast each have a
+ * `styles.ts`.
+ *
+ * The label, sub-label and validation message are **not** here — they belong to
+ * `Field`, which is what Figma's Field set says by nesting every control with
+ * its own `Label` boolean switched off.
  *
  * ## The arithmetic that holds the whole file together
  *
@@ -30,50 +34,6 @@ import type { IconProps } from '../Icon'
  *
  * **Those six numbers are the ones to check** when any padding here changes.
  */
-
-/**
- * The outermost element: label block, box, error message, stacked.
- *
- * `w-full` because a text field takes the width it is given rather than hugging
- * its content — the opposite of Button and Badge, and the reason the stories
- * lay their variant matrices out on a grid rather than in Badge's `<table>`.
- */
-export const field = tv({
-  base: 'flex w-full flex-col gap-2 font-sans',
-
-  variants: {
-    /**
-     * Figma fades the whole field, label and message included, at
-     * opacity/opacity-40.
-     */
-    disabled: {
-      true: 'pointer-events-none opacity-40',
-      false: '',
-    },
-  },
-
-  defaultVariants: { disabled: false },
-})
-
-/** Figma's `Label Text` — Content/Emphasized at text-base. */
-export const labelText = tv({
-  base: 'text-base font-normal text-content-emphasized',
-})
-
-/** Figma's `Sub Label Text` — Content/Subtle at text-sm, hard against the label. */
-export const descriptionText = tv({
-  base: 'text-sm font-normal text-content-subtle',
-})
-
-/**
- * The error message. Not in Figma yet — the file draws Invalid as a red border
- * and nothing else, which leaves a screen reader with `aria-invalid` and no
- * explanation. Astryx's own guidance is that "Email must include @" beats
- * turning the border red, so the message is here and the Figma follows.
- */
-export const errorText = tv({
-  base: 'text-sm font-normal text-content-danger',
-})
 
 /**
  * The bordered box.
@@ -105,6 +65,18 @@ export const box = tv({
     // border colour changes on hover and on invalid, and 130ms is the shortest
     // motion token.
     'transition-colors duration-fast-min ease-standard',
+    // Inside a Field, validity arrives as `data-invalid` on the control rather
+    // than as a prop here — so the box reads it off its own descendant, the same
+    // `has-` idiom the focus ring above uses. The `hover` copy is spelled out
+    // because both selectors otherwise land on equal specificity and the winner
+    // would come down to the order Tailwind happens to emit them in.
+    'has-[[data-invalid]]:border-feedback-danger-highlight',
+    'has-[[data-invalid]]:hover:border-feedback-danger-highlight',
+    // Disabled is the one state the box can always see for itself, standalone or
+    // in a Field: Base UI's Field.Root disables the control it wraps, so either
+    // way there is a `:disabled` descendant. Keeping the fade here rather than on
+    // Field.Root is what stops the two compounding to 16% when both apply.
+    'has-[:disabled]:pointer-events-none has-[:disabled]:opacity-40',
   ],
 
   variants: {
@@ -115,9 +87,10 @@ export const box = tv({
     },
 
     /**
-     * Figma's `State=Invalid`. Base UI publishes `data-invalid` on the parts it
-     * renders, but the box is a plain `<div>` it knows nothing about, so this
-     * stays a recipe variant fed from the prop — as it is in Checkbox.
+     * Figma's `State=Invalid` on the Input set — the standalone case, where
+     * there is no Field to inherit validity from. Inside one, the `has-` rule in
+     * the base list above does the same job off `data-invalid`, and the two
+     * compose: either lights the border.
      */
     invalid: {
       true: 'border-feedback-danger-highlight hover:border-feedback-danger-highlight',

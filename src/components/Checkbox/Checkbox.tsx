@@ -88,8 +88,9 @@ const box = tv({
 
     /**
      * Figma's `State=Invalid`. Base UI publishes `data-invalid` when a checkbox
-     * sits inside a `Field`, but the library has no Field component yet, so this
-     * is a plain prop for now. Swap it for `data-invalid:` when Field lands.
+     * sits inside a `Field`, and `Field` now exists — so this prop is the
+     * standalone path, and the `data-invalid:` migration is its own PR rather
+     * than something still waiting on a component.
      */
     invalid: {
       true: 'border-feedback-danger-highlight hover:border-feedback-danger-highlight',

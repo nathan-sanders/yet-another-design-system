@@ -544,7 +544,8 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     **40 is the number to check**, and 20 for the box.
     `invalid` is a prop rather than a CSS state, and the one member of Figma's `State` axis that
     stays one: Base UI publishes `data-invalid` only for a checkbox inside a `Field`, which this
-    library does not have yet. Swap it for `data-invalid:` when Field lands.
+    library does not have yet. **Field landed as (19)**, so this prop is now the standalone path
+    and the `data-invalid:` migration is its own PR rather than a thing still being waited on.
     **Open question for Figma:** the box is centred against the whole label block, which is what
     Figma's auto-layout does, but most systems top-align once a sub-label makes the text two lines.
     Figma has a **Checkbox Group** set too (and Base UI a `CheckboxGroup`); neither is built, so the
@@ -777,8 +778,10 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     that makes this safe to do here but not a precedent for the other three: Checkbox, Radio and
     Switch labels are `<label>` elements *wrapping* the control, which is what makes the text a hit
     target, and they cannot hand that to a Field sitting outside them. A slider's label is not a hit
-    target. **When Field lands it is for `invalid`, `description` and the `data-invalid` family, not
-    for labels** — which is the deferred note in Checkbox, Radio and here.
+    target. **Field landed as (19), and it is for `invalid`, `description` and the `data-invalid`
+    family, not for labels** — which is the deferred note in Checkbox, Radio and here. Note the split
+    that makes this consistent: Input handed its label to Field because an input's label is not a hit
+    target either, exactly like a slider's; Checkbox, Radio and Switch keep theirs because theirs is.
     **Wants adding to Figma:** only the tick's `--radius/full` binding now, which is the one radius
     in the file not named `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
 
@@ -873,28 +876,17 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     it. Mirrors Figma nodes `40004050:14183` (Input, `Size` × `State`) and `40004051:14425`
     (Input Group, which adds a Start Slot, an End Slot and a `Display` property). The component
     Slider (16) has been waiting on, and the reason its trailing number input was left unbuilt.
-    **Thirteenth and fourteenth Base UI components**, first on `Input` and on **`Field`** — Link
-    (17) was the twelfth.
+    **Thirteenth Base UI component**, first on `Input`; Link (17) was the twelfth.
     **Base UI has no Input Group** — unlike almost everything else here, it is not in their list and
-    `/components/input-group` is a 404. That pattern is shadcn's; the `<input>` and all the labelling
-    are still Base UI's.
+    `/components/input-group` is a 404. That pattern is shadcn's; the `<input>` is still Base UI's.
+    **Neither of these owns its label.** Figma's Field set (19) nests every control with the
+    control's own `Label` boolean switched *off*, so a labelled field is a Field wrapping an Input,
+    not an Input drawing its own text. These two are the control and nothing else. Standalone, an
+    Input still needs a name — a Field around it, or an `aria-label`, which is the toolbar-search
+    shape.
     **One folder, two components, sharing `styles.ts`** — Avatar's arrangement, not Checkbox's
-    duplication, because these two share their entire chrome and Figma keeps them as one pair rather
-    than as sets that drift independently. The chrome itself is a third internal component,
-    `FieldShell`, for the `aria-disabled` reason below: it fails the build rather than looking wrong,
-    which is exactly the kind of line that gets fixed in one copy and not the other.
-    **Field does the ARIA, so there is no `useId` here.** `Field.Label` gets `htmlFor` pointed at the
-    control, and `Field.Description` and `Field.Error` are both folded into its `aria-describedby` —
-    verified in the browser: the label resolves as the name and both others as the description.
-    Tooltip had to patch its own; this does not. `Field.Root`'s `invalid` prop is what carries
-    `aria-invalid`, and `Field.Error` takes `match` so the message shows because the caller said so
-    rather than because the browser found a native constraint violation. Field's `validate` /
-    `validationMode` / `validationDebounceTime` are deliberately not surfaced — these are
-    presentational fields, and deciding *when* a value is wrong belongs to a Form component.
-    **`error` goes past Figma**, whose Invalid state is a red border and nothing else. Astryx's own
-    guidance is that "Email must include @" beats turning the border red, so the message is built and
-    the file follows — Divider's `emphasis` and SegmentedControl's `layout` again. Passing `error`
-    sets the invalid state on its own; a red message beside a neutral border would read as a bug.
+    duplication, because these two draw the same box at the same three sizes and Figma keeps them as
+    a pair rather than as sets that drift independently.
     **`align` is per addon, and Figma's `Display` is not.** Figma switches both slots together, so an
     icon beside the text *and* a row of actions underneath is not a variant it can draw. Unrolled
     into `inline-start` / `inline-end` / `block-start` / `block-end`, as shadcn has it.
@@ -906,55 +898,111 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     **The stacked heights are exactly three inline ones, and that falls out of the parts.** An addon
     row is one box-height (its icon plus symmetrical padding); the text row is a box-height *minus
     its two borders*, because the borders are on the box. **24 / 32 / 40 inline and 72 / 96 / 120
-    stacked are the numbers to check**, along with the 44px label block (24 + 20, `gap-0`) and its
-    8px to the box. All measured.
+    stacked are the numbers to check**, and the rows measure 24/22/24, 32/30/32 and 40/38/40, which
+    is Figma's own distribution. All measured.
     `px-3` at **every** size, which is Figma — unlike Button's 8 / 12 / 16, and like
     SegmentedControl's and Tabs' 12 / 12 / 12. Padding is on the control rather than on the box so
     the whole field is a hit target: click anywhere in an empty one and the caret lands.
-    **Focus is `focusRingWithin`, the Slider situation again** — it lands on a descendant `<input>`,
-    so the ring goes on the box and the input draws none of its own. Figma renders it as `border-2`
-    plus a 3px spread shadow, which *is* `ring-offset-2` + `ring-3` rather than a real border change.
-    Measured: the box is pixel-identical focused and unfocused. And unlike a `<button>`, an `<input>`
-    matches `:focus-visible` on a **mouse click** too — verified with a real click, not
-    `element.focus()`, which does not trigger it and will tell you the ring is broken when it is not.
-    **`aria-disabled` on the root is not decoration**, for the third time after Slider and Link.
-    `opacity-40` measures about 2:1, and axe only exempts disabled text by walking up for a disabled
-    control or `aria-disabled="true"`. The label gets that free — it is a `<label>` for a disabled
-    input — but the sub-label and the error message are not labels and fail `color-contrast` without
-    it.
+    **Three things the box reads off its own descendants with `has-`, rather than taking as props.**
+    Focus is `focusRingWithin`, the Slider situation again — it lands on a descendant `<input>`, so
+    the ring goes on the box and the input draws none of its own. Validity is
+    `has-[[data-invalid]]:`, because inside a Field that state arrives on the control rather than
+    here (the `invalid` prop is the standalone path, and the two compose). Disabled is
+    `has-[:disabled]:`, and **keeping the fade on the box rather than on `Field.Root` is what stops
+    the two compounding to 16%** when a disabled Field wraps a disabled control — measured at a clean
+    0.4, not 0.16.
+    Figma renders focus as `border-2` plus a 3px spread shadow, which *is* `ring-offset-2` + `ring-3`
+    rather than a real border change; the box measures pixel-identical focused and unfocused. And
+    unlike a `<button>`, an `<input>` matches `:focus-visible` on a **mouse click** too — verified
+    with a real click, because `element.focus()` does not trigger it at all and will tell you the
+    ring is broken when it is fine.
     **The placeholder is italic.** Figma binds `text-base/italic regular`, not the regular face; it is
-    invisible in a screenshot and only shows up in the variable defs.
+    invisible in a screenshot and only shows up in the variable defs. Italic is this system's mark
+    for text the person did not enter — the validation message is italic for the same reason.
     `InputGroup.Addon` takes `icon` as well as children, which is Button's `startIcon` idiom rather
     than shadcn's: an addon holding arbitrary children cannot size an `<Icon>` for you, and Figma
     wants 12px at small and 16px above it. Pass `icon={Search}` for the common case and children for
     a Button or a chip. **No `InputGroup.Button`**, which shadcn has — it only presets two props, and
     `<Button appearance="ghost" size="small">` already is the right thing. Switch's rule: a later
-    case is the point to extract it.
+    case is the point to extract it. **A Button in an addon is not disabled by a disabled Field** —
+    nothing reaches into arbitrary children, so the box fades and stops taking pointers but the
+    button keeps its place in the tab order unless you disable it too.
     **No new tokens, and no `generate.py` run** — the `input-*` ramp already existed for Checkbox and
-    Radio, and the two values Figma does not name resolve by precedent: `text-content-danger` for the
-    message and `text-content-primary` for the typed value. Also **no untokenised values**: the text
-    row's 22 / 30 / 38 are `min-h-5.5` / `-7.5` / `-9.5`, real half-steps of the 4px spacing scale
-    rather than arbitrary pixels, so Avatar's `tracking-[-0.02em]` and Link's `rounded-[0.4em]` are
-    still the only two.
+    Radio. Also **no untokenised values**: the text row's 22 / 30 / 38 are `min-h-5.5` / `-7.5` /
+    `-9.5`, real half-steps of the 4px spacing scale rather than arbitrary pixels, so Avatar's
+    `tracking-[-0.02em]` and Link's `rounded-[0.4em]` are still the only two in the library.
+    **`Display` stays one property in Figma, settled deliberately.** The code can mix the two — an
+    icon inline while a row of actions sits underneath — and Figma's single property cannot express
+    that. The call was to leave the file documenting the two common cases rather than drawing four
+    `align` values it has no design for. Note this is the *reverse* of Badge's four hues, Divider's
+    `emphasis` and SegmentedControl's `layout`, where the code went past Figma and the file caught
+    up: here it deliberately does not, and the day a mixed layout is actually designed is the day
+    the property splits.
     **Story trap, Banner's:** the variant matrix is a grid, not a `<table>` — both of these are
     `w-full` and would collapse to their longest word in an auto-layout cell.
     Left out: `Textarea` (Base UI has no primitive and Figma draws no multi-line variant),
     `type="number"` spinners (`NumberField` is its own component), and Astryx's `loading`, `clearable`
     and `statusVariant` — none are in the file.
-    **Wants adding to Figma:** the Error layer under the box, and a decision on whether `Display`
-    should split into a per-slot property now that the code can mix the two.
+    **Wants changing in Figma:** the Input set draws its own label at `font-weight/normal`, where the
+    Field set draws it at semibold. Field won — see (19) — so the Input set's label wants updating to
+    600, or its Label boolean retiring altogether now that nothing uses it.
+
+19. **Field** — the label, sub-label and validation message around a form control. Mirrors Figma node
+    `40004051:15082`, whose `Type` property swaps the control: Input, Input Group, Autocomplete,
+    Select, Combobox, Checkbox, Checkbox Group, Radio. **Fourteenth Base UI component.**
+    **This is the set that settled who owns the label**, and it is worth knowing how it was found:
+    Input (18) shipped first with its own label block, matching the Input set, and only then did the
+    Field set turn up — nesting that same Input with `label={false}`. The file had been explicit all
+    along; the Input set's own Label booleans are the vestige, not this. So Input's chrome was pulled
+    back out and moved here, one PR later, while nothing consumed it yet.
+    **`Type` is derived, not declared** — what you pass as children decides it, the way Avatar's
+    content follows from `src`/`name`/`count` and Button's icon-only form from having no label. A
+    Field cannot be wrong about what is inside it.
+    **It labels a group as readily as a control.** Figma's `Type=Checkbox` and `Type=Radio` put this
+    label *above* controls that already have their own — a legend over a set, not a second name for
+    one box. That is what makes it compatible with Checkbox, Radio and Switch keeping their wrapping
+    `<label>`, which is what makes their text a hit target. The split to remember: Input and Slider
+    hand their labels over because their labels are not hit targets; the other three do not.
+    **The ARIA is Base UI's, which is the whole reason not to hand-roll this.** `Field.Label` gets
+    `htmlFor` pointed at the control, and `Field.Description` and `Field.Error` are both folded into
+    its `aria-describedby` — verified in the browser: the label resolves as the name and both others
+    as the description. No `useId` anywhere, unlike Tooltip.
+    `Field.Root`'s `invalid` prop is Base UI's documented path for validity decided outside the
+    component, and it is what puts `aria-invalid` on the control and `data-invalid` on every part —
+    which is what Input's border colour hangs off. `Field.Error` takes `match` so the message shows
+    because the caller said so rather than because the browser found a native constraint violation.
+    `validate` / `validationMode` / `validationDebounceTime` are deliberately **not** surfaced: this
+    is presentational, and deciding *when* a value is wrong belongs to a Form component that does not
+    exist yet.
+    **`error` implies `invalid`.** A danger-red message beside a neutral border would read as a bug.
+    **The sub-label defaults off**, as it does in the file — the label is the requirement.
+    **The label is semibold, and the file disagreed with itself about that.** The Input, Input Group
+    and Slider sets draw their labels at `font-weight/normal`; this set draws it at
+    `font-weight/semibold`. Field won, being both the newer set and the one that now owns the label
+    everywhere. **600 is the number to check**, and the other sets want updating to match.
+    **The validation message is italic** — `text-sm`, Content/Danger. Italic is this system's mark
+    for text that is not something the person entered; the placeholder inside a field is italic for
+    the same reason, and missing it is easy because a screenshot does not show it.
+    **`aria-disabled` on the root is not decoration**, for the third time after Slider and Link.
+    `opacity-40` measures about 2:1, and axe only exempts disabled text by walking up for a disabled
+    control or `aria-disabled="true"`. The label gets that exemption free — it is a `<label>` for a
+    disabled input — but the sub-label and the message are not labels and fail `color-contrast`
+    without it. `a11y.test` is `'error'`, so this breaks the build rather than merely looking wrong.
+    **The disabled fade lives on the control's box, not here**, or the two multiply to 16% when both
+    apply. Only the three text parts fade here, each off its own `data-disabled`.
+    Left out: a `size` axis — Figma's Field has none, and the control carries its own.
+
 
 **Still to build**, foundational/static first:
 
-19. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
-20. **List Item** — variants/states; native, styled.
-21. **Table Cell** — native, styled.
-22. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+20. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+21. **List Item** — variants/states; native, styled.
+22. **Table Cell** — native, styled.
+23. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 Also in Figma but not built, and each wants its own PR: **Checkbox Group** and **Radio Group**.
-**Field** is now used — internally, by Input (18) — but deliberately not exported; the PR that
-exports it is the one that migrates Checkbox, Radio, Switch and Slider onto it and turns their
-`invalid` props into `data-invalid:`.
+With **Field** shipped (19), the other outstanding PR is the migration: moving Checkbox, Radio,
+Switch and Slider onto it and turning their `invalid` props into `data-invalid:`.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.

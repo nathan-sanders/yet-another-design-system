@@ -1,22 +1,28 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import type { ComponentPropsWithRef } from 'react'
 import { Input as InputPrimitive } from '@base-ui/react/input'
 
-import { FieldShell } from './FieldShell'
-import { control, type InputSize } from './styles'
+import { cn } from '../../lib/cn'
+import { box, control, type InputSize } from './styles'
 
 /**
  * Input — a single line of free text.
  *
  * Mirrors the Figma component set "Input" (Yet Another Design System, node
- * 40004050:14183): 3 sizes x 5 states, each drawn as a label, a sub-label and a
- * bordered box.
+ * 40004050:14183): 3 sizes x 5 states.
  *
- *     <Input label="Email" description="We'll never share it" placeholder="you@example.com" />
+ *     <Field label="Email" description="We'll only use it to sign you in">
+ *       <Input type="email" placeholder="ada@example.com" />
+ *     </Field>
  *
- * **Twelfth Base UI component**, and the first built on `Input` and `Field`.
- * Base UI supplies the native `<input>`, and Field supplies the wiring that
- * makes the label and sub-label actually reach a screen reader — see
- * `FieldShell`. All the styling is ours.
+ * **The label belongs to `Field`, not here.** Figma's Field set nests this
+ * component with its own `Label` boolean switched off, so a labelled field is a
+ * Field wrapping an Input rather than an Input drawing its own text. Standalone
+ * it still needs a name — either a Field around it or an `aria-label`.
+ *
+ * **Thirteenth Base UI component**, and the first built on `Input`. It supplies
+ * the native `<input>`, the `data-*` state attributes a surrounding Field feeds
+ * it, and the `aria-describedby` wiring back to Field's sub-label and message.
+ * All the styling is ours.
  *
  * **Reach for this when the answer is not from a known set** — a name, an email,
  * a URL. If the value has to come from a list, the control is a Select (short
@@ -26,10 +32,9 @@ import { control, type InputSize } from './styles'
  * that is not on the list is still allowed.
  *
  * Figma models Hover / Focus / Disabled as a `State` property. In code those are
- * real CSS states rather than props, so there is no `state` prop: hover and
- * focus come from the browser, and `disabled` is the native HTML attribute.
- * `Invalid` is the one member of that axis that is not a browser state, so it
- * stays a prop.
+ * real CSS states rather than props: hover and focus come from the browser, and
+ * `disabled` is the native HTML attribute — which the box notices for itself, so
+ * a disabled Input fades whether the attribute came from here or from a Field.
  *
  * Addons — an icon in the field, a button at its trailing edge, a row of
  * controls underneath — are `InputGroup`, not a set of props here.
@@ -39,50 +44,35 @@ export interface InputProps
     ComponentPropsWithRef<typeof InputPrimitive>,
     // `size` is omitted because the native one is a character count, and this
     // one is the Figma property. `render` is omitted the way it is on every
-    // component here; `className` is re-declared below to point at the root.
+    // component here; `className` is re-declared below to point at the box.
     'className' | 'render' | 'children' | 'size'
   > {
-  /** The visible label. Figma's `Label` boolean plus its `Label Text`. */
-  label?: ReactNode
-  /** Secondary line under the label. Figma's `Sub Label`. */
-  description?: ReactNode
-  /**
-   * A message shown below the field, in danger red. Providing one puts the field
-   * in the invalid state on its own — a red message beside a neutral border
-   * would read as a bug — so `invalid` is only needed to colour the border
-   * without saying anything.
-   */
-  error?: ReactNode
-  /** Maps to Figma's `State=Invalid`. Also sets `aria-invalid`. */
-  invalid?: boolean
   /** Field size. Matches Button's scale: 24 / 32 / 40px tall. */
   size?: InputSize
-  /** Extra classes for the outermost element. */
+  /**
+   * Maps to Figma's `State=Invalid`, for an Input standing on its own. Inside a
+   * `Field`, set it there instead — the border follows the Field's validity
+   * automatically, and only a Field can carry the message explaining it.
+   */
+  invalid?: boolean
+  /** Extra classes for the outermost element — the bordered box. */
   className?: string
 }
 
-export function Input({
-  label,
-  description,
-  error,
-  invalid = false,
-  size = 'default',
-  disabled,
-  className,
-  ...props
-}: InputProps) {
+export function Input({ size = 'default', invalid = false, className, ...props }: InputProps) {
   return (
-    <FieldShell
-      label={label}
-      description={description}
-      error={error}
-      invalid={invalid}
-      disabled={disabled}
-      size={size}
-      className={className}
-    >
-      <InputPrimitive disabled={disabled} className={control({ size })} {...props} />
-    </FieldShell>
+    // The box is a wrapper rather than the <input> itself so that Input and
+    // InputGroup are the same element with the same recipe, and so the focus
+    // ring, the disabled fade and the invalid border can all be read off a
+    // descendant with `has-`. It also means padding sits on the control, which
+    // is what makes the whole width of the field a hit target.
+    <div className={cn(box({ size, invalid }), className)}>
+      <InputPrimitive
+        aria-invalid={invalid || undefined}
+        className={control({ size })}
+        {...props}
+      />
+    </div>
   )
 }
 
