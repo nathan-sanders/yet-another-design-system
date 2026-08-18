@@ -543,9 +543,12 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     **no** ring of its own, because two concentric rings on one control read as a mistake.
     **40 is the number to check**, and 20 for the box.
     `invalid` is a prop rather than a CSS state, and the one member of Figma's `State` axis that
-    stays one: Base UI publishes `data-invalid` only for a checkbox inside a `Field`, which this
-    library does not have yet. **Field landed as (19)**, so this prop is now the standalone path
-    and the `data-invalid:` migration is its own PR rather than a thing still being waited on.
+    stays one. **Migrated onto Field (19):** the box now also carries `data-invalid:` rules, so a
+    Field can drive it — Base UI's `fieldValidityMapping` turns the Field's `valid: false` into
+    `data-invalid` on the checkbox root — and the card, being a plain `<label>` rather than a Base UI
+    part, reads it off the control inside with `has-[[data-invalid]]:`. The prop stays as the
+    standalone path Figma draws, and the two compose: either lights the border. Prefer the Field
+    wherever there is a message, since only it can carry one.
     **Open question for Figma:** the box is centred against the whole label block, which is what
     Figma's auto-layout does, but most systems top-align once a sub-label makes the text two lines.
     Figma has a **Checkbox Group** set too (and Base UI a `CheckboxGroup`); neither is built, so the
@@ -564,6 +567,9 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     **The selected dial is a flattened vector in Figma** with no variables bound, so its geometry was
     read off the exported SVG rather than guessed: a 20px circle filled with Input/Selected, and a
     `r="4"` — 8px across — glyph in Input/Selected Foreground. Measured back at 20×20 and 8×8.
+    Migrated onto Field (19) alongside Checkbox, and by the same two mechanisms — `data-invalid:` on
+    the dial, `has-[[data-invalid]]:` on the card — so a Field can mark a whole group invalid and
+    carry the message, which is what you almost always mean rather than one option being wrong.
     The row, card and label column are the same shapes Checkbox draws, and the recipes are a
     **deliberate copy rather than a shared module**: Figma keeps the two as separate component sets
     that can drift, and this library's precedent for sharing styles (Avatar/AvatarGroup) is a
@@ -656,7 +662,10 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     browser — the two stones are close enough that the wrong one would not have looked wrong.
     **`invalid` goes past Figma** — its Switch `State` axis has no Invalid where Checkbox's and
     Radio's do. Included so the three form controls carry one prop set, and wants adding to the
-    file: Divider's `emphasis` and SegmentedControl's `layout` again.
+    file: Divider's `emphasis` and SegmentedControl's `layout` again. It takes `data-invalid:` from a
+    surrounding Field (19) too, alongside Checkbox and Radio — though Figma's Field does not list
+    Switch among the controls it wraps, so that pairing is one the code allows rather than one the
+    file asks for. Two ways in which this control's invalid state runs ahead of the drawing.
     **`overflow-clip` not ported, for the fifth time** — the knob reaches nothing, and the shared
     ring paints outside the track.
     The row, card and label column are **a third copy** of Checkbox's recipes. Radio's note said a
@@ -766,10 +775,19 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     so this is a Slider follow-up now rather than a blocker — the styling it was waiting for exists,
     and `Slider.Value` is attached in the meantime. Also
     `orientation="vertical"` (Base UI and Astryx have it, Figma draws no vertical variant — omitted
-    from the props rather than left to break quietly, Tabs' call), and `invalid`, which needs the
-    `Field` PR: Base UI publishes `data-invalid` only inside a Field and Figma's `State` axis is
-    default | disabled with no invalid, unlike Checkbox's and Radio's. Input (18) uses Field
-    internally without exporting it, so that migration is still its own PR.
+    from the props rather than left to break quietly, Tabs' call), and `invalid` — **now closed as a
+    deliberate non-change rather than a deferral.** Figma's `State` axis here is default | disabled
+    with no invalid, and Field's `Type` list does not include Slider, so there is no drawn treatment
+    for an invalid slider and inventing one would be the second source of truth this component
+    already refused once over its number input. Checkbox, Radio and Switch were migrated in the same
+    PR precisely because the file *does* draw their invalid state.
+    Worth knowing if that changes: Base UI would already do the labelling half of it —
+    `ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, …)` in `SliderRoot`,
+    read out of `node_modules` — so a Slider inside a Field is named by the Field without needing its
+    own `Slider.Label`. The blocker is the props union: `label` or `aria-label` is *required*, so
+    `<Field label="Volume"><Slider /></Field>` does not compile. Relaxing that to enable an undrawn
+    composition would trade away the guarantee that an unnamed slider cannot ship, which is a bad
+    trade until Figma draws `Type=Slider`.
     **The label question, settled deliberately.** Base UI's `Field` could own labelling instead —
     `Field.Label` beats `Slider.Label`, since `SliderRoot` resolves `fieldLabelId ?? localLabelId`,
     so the two never collide and a slider inside a Field simply stops using its own. The call was to
@@ -982,6 +1000,12 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     is presentational, and deciding *when* a value is wrong belongs to a Form component that does not
     exist yet.
     **`error` implies `invalid`.** A danger-red message beside a neutral border would read as a bug.
+    **The validity reaches the control, which is the point of the whole component.** `Field.Root`'s
+    `invalid` becomes `data-invalid` on whatever is inside — Base UI's `fieldValidityMapping` turns
+    `valid: false` into that attribute — and Input, InputGroup, Checkbox, Radio and Switch all hang
+    their own invalid styling off it. Verified in the browser rather than assumed: one Field marks a
+    checkbox, two radios and a switch at `feedback-danger-highlight` without any of them being passed
+    a prop. Each keeps its own `invalid` prop for standing alone, and the two compose.
     **The sub-label defaults off**, as it does in the file — the label is the requirement.
     **The label is semibold, and the file disagreed with itself about that.** The Input and Input
     Group sets drew theirs at `font-weight/normal` while Select already drew 600 — so those two were
@@ -1012,8 +1036,8 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
 23. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 Also in Figma but not built, and each wants its own PR: **Checkbox Group** and **Radio Group**.
-With **Field** shipped (19), the other outstanding PR is the migration: moving Checkbox, Radio,
-Switch and Slider onto it and turning their `invalid` props into `data-invalid:`.
+The Field story is otherwise complete: Checkbox, Radio and Switch take their validity from a Field as
+well as from their own prop, and Slider is closed as a deliberate non-change (see its entry).
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.

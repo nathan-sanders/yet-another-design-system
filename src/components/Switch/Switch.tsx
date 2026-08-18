@@ -70,6 +70,14 @@ const track = tv({
     'data-checked:bg-input-selected data-checked:border-input-selected',
     'outline-none',
     'transition-colors duration-fast-min ease-standard',
+    // Inside a Field, validity arrives here as `data-invalid` rather than as the
+    // prop below: Base UI's `fieldValidityMapping` puts it on this element when
+    // the surrounding Field is invalid. The two compose — either lights the
+    // border — so the prop stays as the standalone path Figma draws. The `hover`
+    // copy is spelled out because both selectors otherwise land on equal
+    // specificity, leaving the winner to the order Tailwind happens to emit.
+    'data-invalid:border-feedback-danger-highlight',
+    'data-invalid:hover:border-feedback-danger-highlight',
   ],
 
   variants: {
@@ -89,6 +97,11 @@ const track = tv({
      * This is here so the three form controls carry the same prop, and wants
      * adding to the file: the same build-then-sync-back direction as Divider's
      * `emphasis` and SegmentedControl's `layout`.
+     *
+     * A Switch can also take its validity from a surrounding `Field`, through
+     * the `data-invalid:` rules in the base list above — though Figma's Field
+     * does not list Switch among the controls it wraps, so that is a composition
+     * the code allows rather than one the file asks for.
      */
     invalid: {
       true: 'border-feedback-danger-highlight hover:border-feedback-danger-highlight',
@@ -153,6 +166,11 @@ const field = tv({
         'rounded-md bg-surface-card-primary inset-ring inset-ring-surface-border',
         'hover:bg-surface-card-subtle',
         ...focusRingWithin,
+        // The card is a plain <label>, not a Base UI part, so it reads validity
+        // off the control inside it — the same `has-` idiom as focusRingWithin
+        // just above, and as Input's box.
+        'has-[[data-invalid]]:inset-ring-feedback-danger-highlight',
+        'has-[[data-invalid]]:hover:inset-ring-feedback-danger-highlight',
         'transition-colors duration-fast-min ease-standard',
       ],
     },
