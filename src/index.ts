@@ -30,6 +30,9 @@ export type { CheckboxProps } from './components/Checkbox'
 export { Divider } from './components/Divider'
 export type { DividerProps } from './components/Divider'
 
+export { Field } from './components/Field'
+export type { FieldProps } from './components/Field'
+
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 

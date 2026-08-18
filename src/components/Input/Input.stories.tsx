@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { Field } from '../Field'
 import { Input } from './Input'
 
 const sizes = ['small', 'default', 'large'] as const
@@ -18,17 +19,12 @@ const meta = {
   title: 'Components/Input',
   component: Input,
   argTypes: {
-    label: { control: 'text' },
-    description: { control: 'text' },
-    error: { control: 'text' },
     placeholder: { control: 'text' },
     size: { control: 'select', options: sizes },
     invalid: { control: 'boolean' },
     disabled: { control: 'boolean' },
   },
   args: {
-    label: 'Label',
-    description: 'Sub label',
     placeholder: 'Placeholder...',
     size: 'default',
     invalid: false,
@@ -39,8 +35,20 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** One field with controls — use the Theme switch in the toolbar for dark mode. */
-export const Playground: Story = {}
+/**
+ * One field with controls — use the Theme switch in the toolbar for dark mode.
+ *
+ * The label comes from the `Field` around it rather than from the Input, which
+ * is what Figma's Field set says by nesting every control with its own `Label`
+ * switched off. See the Field stories for the text side of this.
+ */
+export const Playground: Story = {
+  render: (args) => (
+    <Field label="Email" description="We'll only use it to sign you in" className="w-80">
+      <Input {...args} />
+    </Field>
+  ),
+}
 
 /**
  * Every size against every state that is not a browser state — the Figma variant
@@ -66,7 +74,9 @@ export const AllVariants: Story = {
               the field rather than with the label above it. */}
           <span className="pt-13 text-sm text-content-subtle capitalize">{size}</span>
           {states.map((state) => (
-            <Input key={state.name} {...args} size={size} {...state.props} />
+            <Field key={state.name} label="Label" description="Sub label">
+              <Input {...args} size={size} {...state.props} />
+            </Field>
           ))}
         </div>
       ))}
@@ -79,95 +89,46 @@ export const AllVariants: Story = {
  * to switch on here — hover the first field with the mouse, and press Tab to see
  * the two-ring focus treatment. The ring paints entirely outside the box, so a
  * focused field is exactly the size of an unfocused one and nothing reflows.
+ *
+ * Note where `invalid` and `disabled` are set. `invalid` goes on the Field,
+ * because only a Field can carry the message that explains it; `disabled` goes
+ * on either, and the box notices for itself.
  */
 export const States: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex w-80 flex-col gap-6">
-      <Input {...args} label="Hover or focus me" description="Both come from the browser" />
-      <Input {...args} label="Invalid" description="Sub label" invalid />
-      <Input {...args} label="Disabled" description="Sub label" disabled />
-      <Input {...args} label="Disabled with a value" defaultValue="Already filled in" disabled />
+      <Field label="Hover or focus me" description="Both come from the browser">
+        <Input {...args} />
+      </Field>
+      <Field label="Invalid" description="Sub label" invalid>
+        <Input {...args} />
+      </Field>
+      <Field label="Disabled" description="Sub label" disabled>
+        <Input {...args} />
+      </Field>
+      <Field label="Disabled with a value" description="Sub label" disabled>
+        <Input {...args} defaultValue="Already filled in" />
+      </Field>
     </div>
   ),
 }
 
 /**
- * The label and its sub-label are one 44px block — 24px of label then 20px of
- * sub-label, hard against each other — sitting 8px above the field. The
- * sub-label is a real description: Base UI folds it into the input's
- * `aria-describedby`, so a screen reader reads the label as the name and this as
- * extra detail.
- */
-export const WithDescription: Story = {
-  parameters: { controls: { disable: true } },
-  render: (args) => (
-    <div className="flex w-80 flex-col gap-6">
-      <Input {...args} label="Display name" description="Shown next to your comments" />
-      <Input {...args} label="Display name" description={undefined} />
-    </div>
-  ),
-}
-
-/**
- * An error message, which the Figma does not draw yet — it stops at a red
- * border, leaving a screen reader with `aria-invalid` and no explanation of what
- * is wrong. Astryx's own guidance is that "Email must include @" beats turning
- * the border red.
+ * Without a Field, an Input still needs a name — `aria-label` is the way to give
+ * it one. This is the shape for a search box in a toolbar, where the surrounding
+ * context already says what the field is for and a visible label would be noise.
  *
- * **Passing `error` is enough.** It puts the field in the invalid state on its
- * own, so `invalid` is only needed for the rarer case of colouring the border
- * without saying anything. Like the sub-label, the message lands in
- * `aria-describedby`.
+ * Everywhere else, prefer the Field: a visible label is the accessible one, and
+ * it is the only route to a sub-label or a validation message.
  */
-export const WithError: Story = {
+export const Standalone: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex w-80 flex-col gap-6">
-      <Input
-        {...args}
-        label="Email"
-        description="We'll only use it to sign you in"
-        defaultValue="nathan.example.com"
-        error="Email must include an @"
-      />
-      <Input {...args} label="Border only" description="`invalid` with no message" invalid />
+      {sizes.map((size) => (
+        <Input key={size} {...args} size={size} aria-label="Search" placeholder="Search..." />
+      ))}
     </div>
-  ),
-}
-
-/**
- * A sign-in form, so the rhythm of label, sub-label and message is visible with
- * several fields stacked rather than one at a time.
- */
-export const InContext: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <form
-      className="flex w-96 flex-col gap-5 rounded-lg bg-surface-card-primary p-6 inset-ring inset-ring-surface-border"
-      onSubmit={(event) => event.preventDefault()}
-    >
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-content-emphasized">Create your account</h2>
-        <p className="text-sm text-content-subtle">Free for 14 days. No card needed.</p>
-      </div>
-
-      <Input label="Full name" placeholder="Ada Lovelace" autoComplete="name" />
-      <Input
-        label="Email"
-        description="We'll only use it to sign you in"
-        type="email"
-        placeholder="ada@example.com"
-        autoComplete="email"
-      />
-      <Input
-        label="Password"
-        description="At least 12 characters"
-        type="password"
-        defaultValue="hunter2"
-        error="Password is too short"
-        autoComplete="new-password"
-      />
-    </form>
   ),
 }

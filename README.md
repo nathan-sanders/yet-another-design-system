@@ -82,8 +82,9 @@ Figma-driven.
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
+| **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
-| **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, with label, sub-label and error message |
+| **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
@@ -167,10 +168,19 @@ library — import them from `lucide-react` directly so bundlers tree-shake to o
 Reach for an `Input` when the answer is not from a known set — a name, an email, a URL. If the value
 has to come from a list, the control is a Select (short list), a Combobox (long list, type to filter)
 or a Radio (few enough to show at once); an Autocomplete looks like a Combobox and differs on the one
-thing that matters, which is that it suggests without constraining. Its label and sub-label are part
-of the component rather than something you wire up: Base UI's Field points the label at the input and
-folds both the sub-label and the error message into `aria-describedby`. Passing `error` is enough to
-put the field in its invalid state — a red message beside a neutral border would be a bug.
+thing that matters, which is that it suggests without constraining.
+
+The text around a control belongs to `Field`, not to the control — so a labelled input is a `Field`
+wrapping an `Input`, and the same `Field` works for a Checkbox or a group of Radios. It wires itself
+up: the label points at whatever is inside it, and the sub-label and validation message both land in
+`aria-describedby`, so they are read out rather than just seen. Passing `error` is enough to put the
+field in its invalid state — a red message beside a neutral border would be a bug.
+
+```tsx
+<Field label="Email" description="We'll only use it to sign you in" error="Email must include an @">
+  <Input type="email" placeholder="ada@example.com" />
+</Field>
+```
 
 An `InputGroup` is the same field with things attached, and each addon picks its own side
 independently, so an icon can sit beside the text while a row of actions sits underneath. Its stacked

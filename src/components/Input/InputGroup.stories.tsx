@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { AtSign, Bold, Copy, Italic, Link as LinkIcon, Paperclip, Search } from 'lucide-react'
 
 import { Button } from '../Button'
+import { Field } from '../Field'
 import { InputGroup } from './InputGroup'
 
 const sizes = ['small', 'default', 'large'] as const
@@ -10,20 +11,13 @@ const meta = {
   title: 'Components/InputGroup',
   component: InputGroup,
   argTypes: {
-    label: { control: 'text' },
-    description: { control: 'text' },
-    error: { control: 'text' },
     size: { control: 'select', options: sizes },
     invalid: { control: 'boolean' },
-    disabled: { control: 'boolean' },
     children: { control: false },
   },
   args: {
-    label: 'Label',
-    description: 'Sub label',
     size: 'default',
     invalid: false,
-    disabled: false,
     children: (
       <>
         <InputGroup.Addon align="inline-start" icon={Search} />
@@ -37,8 +31,17 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** One group with controls — use the Theme switch in the toolbar for dark mode. */
-export const Playground: Story = {}
+/**
+ * One group with controls — use the Theme switch in the toolbar for dark mode.
+ * The label comes from the `Field` around it, as it does for `Input`.
+ */
+export const Playground: Story = {
+  render: (args) => (
+    <Field label="Label" description="Sub label" className="w-80">
+      <InputGroup {...args} />
+    </Field>
+  ),
+}
 
 /**
  * Addons on the same line as the text, which is Figma's `Display=Inline`.
@@ -54,20 +57,24 @@ export const InlineAddons: Story = {
   render: (args) => (
     <div className="flex w-80 flex-col gap-6">
       {sizes.map((size) => (
-        <InputGroup key={size} {...args} size={size} label={size} description="Leading and trailing">
-          <InputGroup.Addon align="inline-start" icon={Search} />
-          <InputGroup.Input placeholder="Search..." />
-          <InputGroup.Addon align="inline-end" icon={AtSign} />
-        </InputGroup>
+        <Field key={size} label={size} description="Leading and trailing">
+          <InputGroup {...args} size={size}>
+            <InputGroup.Addon align="inline-start" icon={Search} />
+            <InputGroup.Input placeholder="Search..." />
+            <InputGroup.Addon align="inline-end" icon={AtSign} />
+          </InputGroup>
+        </Field>
       ))}
 
-      <InputGroup {...args} label="With a button" description="Ghost, so it sits inside the border">
-        <InputGroup.Addon align="inline-start" icon={LinkIcon} />
-        <InputGroup.Input defaultValue="https://yads.example.com/invite/8bRBn0" readOnly />
-        <InputGroup.Addon align="inline-end">
-          <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy link" />
-        </InputGroup.Addon>
-      </InputGroup>
+      <Field label="With a button" description="Ghost, so it sits inside the border">
+        <InputGroup {...args}>
+          <InputGroup.Addon align="inline-start" icon={LinkIcon} />
+          <InputGroup.Input defaultValue="https://yads.example.com/invite/8bRBn0" readOnly />
+          <InputGroup.Addon align="inline-end">
+            <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy link" />
+          </InputGroup.Addon>
+        </InputGroup>
+      </Field>
     </div>
   ),
 }
@@ -85,11 +92,13 @@ export const BlockAddons: Story = {
   render: (args) => (
     <div className="flex w-96 flex-col gap-6">
       {sizes.map((size) => (
-        <InputGroup key={size} {...args} size={size} label={size} description="Above and below">
-          <InputGroup.Addon align="block-start" icon={Search} />
-          <InputGroup.Input placeholder="Placeholder..." />
-          <InputGroup.Addon align="block-end" icon={AtSign} />
-        </InputGroup>
+        <Field key={size} label={size} description="Above and below">
+          <InputGroup {...args} size={size}>
+            <InputGroup.Addon align="block-start" icon={Search} />
+            <InputGroup.Input placeholder="Placeholder..." />
+            <InputGroup.Addon align="block-end" icon={AtSign} />
+          </InputGroup>
+        </Field>
       ))}
     </div>
   ),
@@ -108,20 +117,17 @@ export const BlockAddons: Story = {
 export const MixedAlignment: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
-    <InputGroup
-      {...args}
-      label="Add a comment"
-      description="Markdown is supported"
-      className="w-96"
-    >
-      <InputGroup.Addon align="inline-start" icon={AtSign} />
-      <InputGroup.Input placeholder="Write something..." />
-      <InputGroup.Addon align="block-end">
-        <Button appearance="ghost" size="small" startIcon={Bold} aria-label="Bold" />
-        <Button appearance="ghost" size="small" startIcon={Italic} aria-label="Italic" />
-        <Button appearance="ghost" size="small" startIcon={Paperclip} aria-label="Attach a file" />
-      </InputGroup.Addon>
-    </InputGroup>
+    <Field label="Add a comment" description="Markdown is supported" className="w-96">
+      <InputGroup {...args}>
+        <InputGroup.Addon align="inline-start" icon={AtSign} />
+        <InputGroup.Input placeholder="Write something..." />
+        <InputGroup.Addon align="block-end">
+          <Button appearance="ghost" size="small" startIcon={Bold} aria-label="Bold" />
+          <Button appearance="ghost" size="small" startIcon={Italic} aria-label="Italic" />
+          <Button appearance="ghost" size="small" startIcon={Paperclip} aria-label="Attach a file" />
+        </InputGroup.Addon>
+      </InputGroup>
+    </Field>
   ),
 }
 
@@ -134,67 +140,80 @@ export const TextAddons: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex w-80 flex-col gap-6">
-      <InputGroup {...args} label="Website" description="Include the protocol">
-        <InputGroup.Addon align="inline-start">
-          <InputGroup.Text>https://</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Input placeholder="example.com" />
-      </InputGroup>
+      <Field label="Website" description="Include the protocol">
+        <InputGroup {...args}>
+          <InputGroup.Addon align="inline-start">
+            <InputGroup.Text>https://</InputGroup.Text>
+          </InputGroup.Addon>
+          <InputGroup.Input placeholder="example.com" />
+        </InputGroup>
+      </Field>
 
-      <InputGroup {...args} label="Budget" description="Per month">
-        <InputGroup.Addon align="inline-start">
-          <InputGroup.Text>$</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Input placeholder="0.00" inputMode="decimal" />
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>USD</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
+      <Field label="Budget" description="Per month">
+        <InputGroup {...args}>
+          <InputGroup.Addon align="inline-start">
+            <InputGroup.Text>$</InputGroup.Text>
+          </InputGroup.Addon>
+          <InputGroup.Input placeholder="0.00" inputMode="decimal" />
+          <InputGroup.Addon align="inline-end">
+            <InputGroup.Text>USD</InputGroup.Text>
+          </InputGroup.Addon>
+        </InputGroup>
+      </Field>
     </div>
   ),
 }
 
 /**
- * Invalid, disabled, and an error message — the same three the plain `Input`
- * carries, because the label block and the message belong to the group rather
- * than being reinvented here. Hover and focus are still the browser's: focus the
- * text and the ring goes round the whole group, addons included, because that is
- * the thing you are typing into.
+ * Invalid, disabled and a message all come from the `Field` around the group,
+ * which is where they come from for a plain `Input` too. Hover and focus are
+ * still the browser's: focus the text and the ring goes round the whole group,
+ * addons included, because that is the thing you are typing into.
+ *
+ * **A Button in an addon is not disabled by the Field.** Nothing reaches into
+ * arbitrary children, so the box fades and stops taking pointers but the button
+ * keeps its place in the tab order unless you disable it too — as the last one
+ * here does.
  */
 export const States: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex w-80 flex-col gap-6">
-      <InputGroup {...args} label="Invalid" description="Sub label" invalid>
-        <InputGroup.Addon align="inline-start" icon={Search} />
-        <InputGroup.Input placeholder="Placeholder..." />
-      </InputGroup>
+      <Field label="Invalid" description="Sub label" invalid>
+        <InputGroup {...args}>
+          <InputGroup.Addon align="inline-start" icon={Search} />
+          <InputGroup.Input placeholder="Placeholder..." />
+        </InputGroup>
+      </Field>
 
-      <InputGroup
-        {...args}
+      <Field
         label="With a message"
         description="Sub label"
         error="That handle is already taken"
       >
-        <InputGroup.Addon align="inline-start">
-          <InputGroup.Text>@</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Input defaultValue="nathan" />
-      </InputGroup>
+        <InputGroup {...args}>
+          <InputGroup.Addon align="inline-start">
+            <InputGroup.Text>@</InputGroup.Text>
+          </InputGroup.Addon>
+          <InputGroup.Input defaultValue="nathan" />
+        </InputGroup>
+      </Field>
 
-      <InputGroup {...args} label="Disabled" description="Sub label" disabled>
-        <InputGroup.Addon align="inline-start" icon={Search} />
-        <InputGroup.Input placeholder="Placeholder..." />
-        <InputGroup.Addon align="inline-end">
-          <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy" disabled />
-        </InputGroup.Addon>
-      </InputGroup>
+      <Field label="Disabled" description="Sub label" disabled>
+        <InputGroup {...args}>
+          <InputGroup.Addon align="inline-start" icon={Search} />
+          <InputGroup.Input placeholder="Placeholder..." />
+          <InputGroup.Addon align="inline-end">
+            <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy" disabled />
+          </InputGroup.Addon>
+        </InputGroup>
+      </Field>
     </div>
   ),
 }
 
 /**
- * A filter bar, where the addons are doing real work rather than decorating —
+ * A share panel, where the addons are doing real work rather than decorating —
  * the leading glyph says what the field is for, and the trailing button acts on
  * what you typed.
  */
@@ -204,20 +223,24 @@ export const InContext: Story = {
     <div className="flex w-[28rem] flex-col gap-5 rounded-lg bg-surface-card-primary p-6 inset-ring inset-ring-surface-border">
       <h2 className="text-lg font-semibold text-content-emphasized">Share this file</h2>
 
-      <InputGroup label="Invite by email" description="They'll get a link straight away">
-        <InputGroup.Addon align="inline-start" icon={AtSign} />
-        <InputGroup.Input type="email" placeholder="ada@example.com" />
-        <InputGroup.Addon align="inline-end">
-          <Button appearance="secondary" size="small">
-            Invite
-          </Button>
-        </InputGroup.Addon>
-      </InputGroup>
+      <Field label="Invite by email" description="They'll get a link straight away">
+        <InputGroup>
+          <InputGroup.Addon align="inline-start" icon={AtSign} />
+          <InputGroup.Input type="email" placeholder="ada@example.com" />
+          <InputGroup.Addon align="inline-end">
+            <Button appearance="secondary" size="small">
+              Invite
+            </Button>
+          </InputGroup.Addon>
+        </InputGroup>
+      </Field>
 
-      <InputGroup label="Or copy the link" size="small">
-        <InputGroup.Addon align="inline-start" icon={LinkIcon} />
-        <InputGroup.Input defaultValue="https://yads.example.com/f/8bRBn0" readOnly />
-      </InputGroup>
+      <Field label="Or copy the link">
+        <InputGroup size="small">
+          <InputGroup.Addon align="inline-start" icon={LinkIcon} />
+          <InputGroup.Input defaultValue="https://yads.example.com/f/8bRBn0" readOnly />
+        </InputGroup>
+      </Field>
     </div>
   ),
 }
