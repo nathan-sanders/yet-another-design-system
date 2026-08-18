@@ -4,6 +4,7 @@ import { AtSign, Search } from 'lucide-react'
 import { Checkbox } from '../Checkbox'
 import { Input, InputGroup } from '../Input'
 import { Radio } from '../Radio'
+import { Switch } from '../Switch'
 import { Field } from './Field'
 
 const meta = {
@@ -142,6 +143,48 @@ export const ControlTypes: Story = {
           <Radio value="monthly" label="Monthly" />
           <Radio value="yearly" label="Yearly" />
         </Radio.Group>
+      </Field>
+    </div>
+  ),
+}
+
+/**
+ * **One Field drives the validity of whatever is inside it.** Setting `invalid`
+ * — or just passing `error` — puts `data-invalid` on the control through Base
+ * UI's `fieldValidityMapping`, and each control's own styling hangs off that.
+ * So the red border on a checkbox here is not a prop anyone passed to the
+ * checkbox; it is the Field's state reaching it.
+ *
+ * Each control keeps its own `invalid` prop for standing alone, which is what
+ * Figma draws as `State=Invalid`. The two compose — either lights the border —
+ * but only the Field can carry the message that says what is wrong, so prefer
+ * it whenever there is one.
+ *
+ * Switch is the odd one out: the code lets a Field drive it, but Figma's Field
+ * does not list Switch among the controls it wraps, so that is a composition
+ * the code allows rather than one the file asks for.
+ */
+export const DrivesValidity: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-80 flex-col gap-8">
+      <Field label="Email" error="Email must include an @">
+        <Input defaultValue="nathan.example.com" />
+      </Field>
+
+      <Field label="Terms" error="You'll need to accept these to continue">
+        <Checkbox label="I accept the terms of service" />
+      </Field>
+
+      <Field label="Plan" error="Pick a plan to continue">
+        <Radio.Group aria-label="Plan">
+          <Radio value="monthly" label="Monthly" />
+          <Radio value="yearly" label="Yearly" />
+        </Radio.Group>
+      </Field>
+
+      <Field label="Notifications" error="Turn this on to receive your receipts">
+        <Switch label="Email me receipts" />
       </Field>
     </div>
   ),

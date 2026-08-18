@@ -71,6 +71,14 @@ const dial = tv({
     'data-checked:bg-input-selected data-checked:border-input-selected',
     'outline-none',
     'transition-colors duration-fast-min ease-standard',
+    // Inside a Field, validity arrives here as `data-invalid` rather than as the
+    // prop below: Base UI's `fieldValidityMapping` puts it on this element when
+    // the surrounding Field is invalid. The two compose — either lights the
+    // border — so the prop stays as the standalone path Figma draws. The `hover`
+    // copy is spelled out because both selectors otherwise land on equal
+    // specificity, leaving the winner to the order Tailwind happens to emit.
+    'data-invalid:border-feedback-danger-highlight',
+    'data-invalid:hover:border-feedback-danger-highlight',
   ],
 
   variants: {
@@ -85,10 +93,11 @@ const dial = tv({
     },
 
     /**
-     * Figma's `State=Invalid`. Base UI publishes `data-invalid` only for a radio
-     * inside a `Field`, and `Field` now exists — so this prop is the standalone
-     * path, and the `data-invalid:` migration is its own PR rather than
-     * something still waiting on a component.
+     * Figma's `State=Invalid`, for a radio standing on its own. Inside a
+     * `Field`, validity comes from there instead, through the `data-invalid:`
+     * rules in the base list above — and on a group you almost always want it
+     * there, since one invalid option in a set of three is rarely the thing you
+     * mean.
      */
     invalid: {
       true: 'border-feedback-danger-highlight hover:border-feedback-danger-highlight',
@@ -115,6 +124,11 @@ const field = tv({
         'rounded-md bg-surface-card-primary inset-ring inset-ring-surface-border',
         'hover:bg-surface-card-subtle',
         ...focusRingWithin,
+        // The card is a plain <label>, not a Base UI part, so it reads validity
+        // off the control inside it — the same `has-` idiom as focusRingWithin
+        // just above, and as Input's box.
+        'has-[[data-invalid]]:inset-ring-feedback-danger-highlight',
+        'has-[[data-invalid]]:hover:inset-ring-feedback-danger-highlight',
         'transition-colors duration-fast-min ease-standard',
       ],
     },
