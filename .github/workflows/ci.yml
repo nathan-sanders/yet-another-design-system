@@ -1,0 +1,47 @@
+name: CI
+
+# Runs on every pull request, and on main itself so a merge that goes in by any
+# other route still reports. `npm run build` is the important one: it is the only
+# step that type-checks, because Vite strips types without looking at them — which
+# is how a type error once reached main while every story still passed.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push supersedes the previous run on the same branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, type-check and stories
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Cheap steps first, so an ordinary mistake fails in seconds rather than
+      # after the browser download.
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check and build
+        run: npm run build
+
+      # The story suite runs in real Chromium through Playwright, so the browser
+      # has to be there. Only chromium: vite.config.ts configures no others.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run stories
+        run: npm test

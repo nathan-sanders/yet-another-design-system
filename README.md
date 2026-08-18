@@ -19,7 +19,12 @@ npm run storybook    # component library at localhost:6006
 | `npm run dev` | Playground showing every token, with a dark-mode toggle |
 | `npm run storybook` | Every component, every variant, light and dark |
 | `npm run build` | Type-check and build |
+| `npm run lint` | Lint with oxlint |
+| `npm test` | Run every story in real Chromium, checked with axe |
 | `python3 generate.py` | Rebuild `theme.css` from `tokens/*.json` |
+
+Lint, build and the story suite all run on every pull request — see
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## How it works
 
