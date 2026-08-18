@@ -1,10 +1,12 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox'
+import { CheckboxGroup as CheckboxGroupPrimitive } from '@base-ui/react/checkbox-group'
 import { Check, Minus } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing, focusRingWithin } from '../../lib/focus'
+import { Divider } from '../Divider'
 import { Icon } from '../Icon'
 
 /**
@@ -218,13 +220,23 @@ export function Checkbox({
         className={box({ invalid, inContainer })}
         {...props}
       >
-        <CheckboxPrimitive.Indicator className="flex">
+        <CheckboxPrimitive.Indicator className="group flex">
           {/*
             Figma binds the glyph frame to width/w-3,5 (14px). Icon's own scale
             is 12/16/20/24, so there is no size for it — the className overrides
             the size utility, which is what `cn`'s tailwind-merge is for.
+
+            **Both glyphs are rendered and one is hidden, rather than picking
+            with `indeterminate ? Minus : Check`.** A `parent` checkbox inside a
+            `Checkbox.Group` has its indeterminate state *computed* by Base UI
+            from the values around it — `indeterminate = computedIndeterminate`
+            in CheckboxRoot — so it never arrives as a prop, and a glyph chosen
+            from the prop would show a tick on a half-selected parent. Reading it
+            off `data-indeterminate` covers both the explicit and the computed
+            case with one rule.
           */}
-          <Icon icon={indeterminate ? Minus : Check} className="size-3.5" />
+          <Icon icon={Check} className="size-3.5 group-data-indeterminate:hidden" />
+          <Icon icon={Minus} className="hidden size-3.5 group-data-indeterminate:block" />
         </CheckboxPrimitive.Indicator>
       </CheckboxPrimitive.Root>
 
@@ -262,6 +274,130 @@ export function Checkbox({
 }
 
 Checkbox.displayName = 'Checkbox'
+
+/**
+ * The group's own stack, and the row of items inside it.
+ *
+ * Figma draws the group as two frames: the Select All row and its Divider sit in
+ * the outer one, and the options sit in an inner "Checkbox Items" frame that is
+ * the part which turns into a row. Keeping that split is what lets the divider
+ * stay full-width while the options beside it share the width between them.
+ */
+const group = tv({
+  base: 'flex w-full flex-col gap-2 font-sans',
+})
+
+const groupItems = tv({
+  base: 'flex w-full gap-2',
+
+  variants: {
+    orientation: {
+      vertical: 'flex-col',
+      // Figma gives each option `flex-1` + `min-w-px`, so a row divides the
+      // width evenly rather than hugging the labels. Setting that from the
+      // parent keeps `Checkbox` itself unaware of which direction it is in — the
+      // alternative was a context for one class.
+      //
+      // `flex-wrap` is here and *not* in Figma's checkbox row, which only draws
+      // the three-item case. Astryx's rule for the same component is not to go
+      // horizontal past four options because it wraps awkwardly; wrapping badly
+      // still beats overflowing the container, which is what the file's version
+      // would do.
+      horizontal: 'flex-wrap items-start [&>*]:min-w-px [&>*]:flex-1',
+    },
+  },
+
+  defaultVariants: { orientation: 'vertical' },
+})
+
+export interface CheckboxGroupProps
+  extends Omit<ComponentPropsWithRef<typeof CheckboxGroupPrimitive>, 'className' | 'render'> {
+  /** `Checkbox` elements. */
+  children: ReactNode
+  /**
+   * Maps to Figma's `Layout`. Named for Divider's property rather than Figma's,
+   * because `layout` already means hug-or-fill on SegmentedControl and Tabs.
+   */
+  orientation?: 'vertical' | 'horizontal'
+  /**
+   * The label for a "select all" checkbox above the options, with a Divider
+   * under it — Figma's `Select All Option` boolean plus its text. Omit it for a
+   * plain group.
+   *
+   * **It needs `allValues`.** Base UI derives the parent's checked and
+   * indeterminate states by comparing `value` against every value in the group,
+   * and cannot know the ones nobody has ticked without being told.
+   */
+  selectAll?: ReactNode
+  /** Extra classes for the outermost element. */
+  className?: string
+  /**
+   * Names the group. A surrounding `Field` does this for you and is the better
+   * route — it can carry a sub-label and a validation message too — so reach for
+   * this only when the group stands alone.
+   */
+  'aria-label'?: string
+}
+
+/**
+ * A set of checkboxes that share one value, optionally with a "select all" above
+ * them.
+ *
+ * Mirrors the Figma component set "Checkbox Group" (node 40004010:5118):
+ * `Layout` Vertical | Horizontal, plus the `Select All Option` boolean.
+ *
+ *     <Checkbox.Group
+ *       allValues={['email', 'sms', 'push']}
+ *       value={value}
+ *       onValueChange={setValue}
+ *       selectAll="Select all"
+ *     >
+ *       <Checkbox name="email" label="Email" />
+ *       <Checkbox name="sms" label="SMS" />
+ *       <Checkbox name="push" label="Push" />
+ *     </Checkbox.Group>
+ *
+ * **Fifteenth Base UI component.** `CheckboxGroup` owns the array value and the
+ * parent checkbox's arithmetic — which the `Parent` story used to do by hand,
+ * and no longer does. It renders `role="group"`, which is also why the Divider
+ * is safe here: unlike `tablist`, a group has no required-children rule for a
+ * `role="separator"` to violate. Verified with axe, not assumed — that family of
+ * bug has bitten Tabs and Menu.
+ *
+ * **Options are named by `name`, not `value`.** Base UI's CheckboxGroup matches
+ * each checkbox to the group's array by its `name`, which is the one thing about
+ * this API that reads wrong next to `Radio.Group`, where options carry `value`.
+ */
+function CheckboxGroupComponent({
+  children,
+  orientation = 'vertical',
+  selectAll,
+  className,
+  ...props
+}: CheckboxGroupProps) {
+  return (
+    <CheckboxGroupPrimitive className={cn(group(), className)} {...props}>
+      {selectAll != null && (
+        <>
+          <Checkbox parent label={selectAll} />
+          {/*
+            A real Divider instance, as Figma draws it — the same component, not
+            a hand-rolled line. Full width, and outside the items frame so a
+            horizontal row does not push it into a column.
+          */}
+          <Divider />
+        </>
+      )}
+
+      <div className={groupItems({ orientation })}>{children}</div>
+    </CheckboxGroupPrimitive>
+  )
+}
+
+CheckboxGroupComponent.displayName = 'Checkbox.Group'
+
+Checkbox.Group = CheckboxGroupComponent
+
 
 /**
  * The raw Base UI parts, for a checkbox that needs a different shape than

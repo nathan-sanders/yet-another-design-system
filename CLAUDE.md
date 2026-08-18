@@ -551,8 +551,27 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     wherever there is a message, since only it can carry one.
     **Open question for Figma:** the box is centred against the whole label block, which is what
     Figma's auto-layout does, but most systems top-align once a sub-label makes the text two lines.
-    Figma has a **Checkbox Group** set too (and Base UI a `CheckboxGroup`); neither is built, so the
-    `Parent` story does the indeterminate arithmetic by hand.
+    **`Checkbox.Group`** — Figma's Checkbox Group set (node `40004010:5118`): `Layout` Vertical |
+    Horizontal plus a `Select All Option` boolean. **Fifteenth Base UI component.** The group owns
+    the array value and the parent checkbox's arithmetic, which the `Parent` story used to do by
+    hand and no longer exists to do.
+    **The glyph had to stop being chosen from a prop.** `indeterminate ? Minus : Check` is correct
+    only while a caller sets `indeterminate`; a `parent` checkbox has it *computed* by Base UI from
+    the values around it (`indeterminate = computedIndeterminate` in `CheckboxRoot`), so it never
+    arrives as a prop and a half-selected parent drew a tick. Both glyphs are rendered now and one is
+    hidden off `data-indeterminate`, which covers the explicit and the computed case with one rule.
+    Verified: the parent reports `aria-checked="mixed"` and shows the `-`.
+    **`selectAll` needs `allValues`** — Base UI compares it against the current value to decide the
+    parent's three states, and cannot know the options nobody has ticked without being told.
+    **Options are matched by `name`, not `value`**, which is the one thing about this API that reads
+    wrong beside `Radio.Group`.
+    The **Divider is a real Divider instance**, as Figma draws it, and it is safe here where it was
+    not in Tabs: `CheckboxGroup` renders `role="group"`, which has no required-children rule for a
+    `role="separator"` to violate — checked with axe rather than assumed.
+    **129 and 65 are the numbers to check**, against Figma's 128 and 64. The 1px is the divider, and
+    it is Avatar's outside-stroke trap again: Figma draws the Divider frame 0px tall with its line
+    hanging outside, where a real 1px separator takes 1px of layout. The code is right and the frame
+    is the thing that cannot represent it.
 
 13. **Radio** — pick exactly one option from a list you can see all of. Mirrors Figma node
     `40004007:4096`: `In Container` × `State` (default | hover | focus | invalid | disabled) ×
@@ -575,11 +594,23 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
     that can drift, and this library's precedent for sharing styles (Avatar/AvatarGroup) is a
     `styles.ts` inside one folder, not a module spanning two. If a third control needs this row,
     that is the point to extract it. Card is 40px, dial 20px — **the numbers to check.**
-    `Radio.Group` is **not** Figma's "Radio Group" set, which exists in the file with its own
-    anatomy and belongs in its own PR alongside `Field`. What is here is the minimum Base UI
-    requires — it owns the value, the roving tabindex and the arrow keys — stacked at `gap-3`.
-    Like SegmentedControl, the group needs `aria-label`: Base UI only fills `aria-labelledby` from a
-    surrounding Field or Fieldset.
+    **`Radio.Group`** is now Figma's "Radio Group" set (node `40004010:5003`), whose only property
+    is `Layout` Vertical | Horizontal. It owns the value, the roving tabindex and the arrow keys, so
+    a `Radio` outside one does nothing. The stack is `gap-2`, which is a correction: it was `gap-3`
+    when the group was scaffolding rather than a component, and the file says 8px.
+    **`orientation` is presentation only and deliberately not passed to Base UI.** Its composite
+    defaults to `orientation: 'both'` (read out of `useCompositeRoot`), so all four arrow keys move
+    between options whichever way the row runs — verified in the browser: on a horizontal group
+    ArrowRight steps forward *and* ArrowDown wraps 3 → 1. Constraining it to one axis would take away
+    working keys for nothing.
+    **88 vertical and 24 horizontal are the numbers to check**, with a horizontal row dividing its
+    width evenly (`flex-1` + `min-w-px` per option) rather than hugging the labels.
+    This is Astryx's `RadioList`, and its guidance holds: two to seven options, and not horizontal
+    past four because it wraps awkwardly. Everything else Astryx builds into that component — the
+    group's label, its description, the required marker, the message — is `Field`'s job here, which
+    is what Figma says too by giving Field a `Type=Radio` variant.
+    Naming: Figma calls the property `Layout`, and the prop is `orientation`, after Divider's — the
+    library already spends `layout` on hug-or-fill in SegmentedControl and Tabs.
 
 14. **Menu** — a list of actions in a popup, opened by a button. Mirrors Figma nodes
     `40004146:5575` (Menu), `40004146:5285` (Menu Group), `40004145:4024` (Menu Item,
@@ -1035,9 +1066,11 @@ setting that takes effect the moment you let go, **Slider** for an approximate n
 22. **Table Cell** — native, styled.
 23. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
-Also in Figma but not built, and each wants its own PR: **Checkbox Group** and **Radio Group**.
-The Field story is otherwise complete: Checkbox, Radio and Switch take their validity from a Field as
-well as from their own prop, and Slider is closed as a deliberate non-change (see its entry).
+The form family is complete against the file: **Checkbox Group** and **Radio Group** are built as
+`Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a Field as
+well as from their own prop, and Slider is closed as a deliberate non-change (see its entry). What is
+in Figma and still unbuilt is **Autocomplete**, **Select** and **Combobox** — all three already have
+a `Type` in the Field set, so Field is waiting for them rather than the other way round.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark.

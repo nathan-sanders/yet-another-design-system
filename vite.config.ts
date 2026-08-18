@@ -75,7 +75,8 @@ export default defineConfig({
           '@base-ui/react/slider',
           '@base-ui/react/use-render',
           '@base-ui/react/input',
-          '@base-ui/react/field'
+          '@base-ui/react/field',
+          '@base-ui/react/checkbox-group'
         ]
       },
       test: {

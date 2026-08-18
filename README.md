@@ -82,6 +82,7 @@ Figma-driven.
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
 | **Checkbox** | Unticked, ticked or indeterminate × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
+| **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
@@ -89,7 +90,8 @@ Figma-driven.
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
 | **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labelled groups |
-| **Radio** | Composed group; unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
+| **Radio** | Unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
+| **Radio.Group** | Vertical or horizontal set owning the value, the roving tabindex and the arrow keys |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
 | **Slider** | One handle, or a pair for a range × default/disabled, with label, sub-label, bounds labels, marks and a value tooltip |
 | **Switch** | Off/on × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label — the knob grows from 14 to 16px as it slides |
@@ -190,6 +192,14 @@ field in its invalid state — a red message beside a neutral border would be a 
 An `InputGroup` is the same field with things attached, and each addon picks its own side
 independently, so an icon can sit beside the text while a row of actions sits underneath. Its stacked
 height is exactly three of its inline heights, which falls out of the parts rather than being set.
+
+Groups of either share one value rather than each option holding its own. `Checkbox.Group` takes an
+`allValues` list, which is what lets its optional "select all" work out on its own whether it is
+checked, unchecked or half — you never compute that. `Radio.Group` owns the selected value and the
+arrow keys, and all four of them move between options whichever way the row runs.
+
+Both stay bare: the group's name, its sub-label and its validation message come from a `Field` around
+it, the same way they do for an input.
 
 A checkbox and a switch look like the same control twice, and they are not. A checkbox states an
 intention that a Save button later commits; a switch *is* the commit, taking effect the moment you
