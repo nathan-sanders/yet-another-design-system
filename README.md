@@ -81,12 +81,17 @@ Figma-driven.
 | **Banner** | 4 feedback types (info, success, warning, danger) × inline/floating, with title, description, action and dismiss slots |
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
+| **Checkbox** | Unticked, ticked or indeterminate × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, with label, sub-label and error message |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
+| **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labelled groups |
+| **Radio** | Composed group; unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
+| **Slider** | One handle, or a pair for a range × default/disabled, with label, sub-label, bounds labels, marks and a value tooltip |
+| **Switch** | Off/on × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label — the knob grows from 14 to 16px as it slides |
 | **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |
 | **Toast** | 3 types (default, success, danger) with description, action and dismiss slots; fired from a `useToast()` hook into a stack that collapses into one card and expands on hover, in pure CSS |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
@@ -175,6 +180,12 @@ put the field in its invalid state — a red message beside a neutral border wou
 An `InputGroup` is the same field with things attached, and each addon picks its own side
 independently, so an icon can sit beside the text while a row of actions sits underneath. Its stacked
 height is exactly three of its inline heights, which falls out of the parts rather than being set.
+
+A checkbox and a switch look like the same control twice, and they are not. A checkbox states an
+intention that a Save button later commits; a switch *is* the commit, taking effect the moment you
+let go. So a form full of settings wants checkboxes and a button, and a settings pane with no button
+at the bottom wants switches. Both wrap their label in a real `<label>`, which is what makes the text
+a hit target as well as the accessible name.
 
 Still to build: Card, List Item, Table Cell, Indicator, Chart Legend Buttons, Carousel
 Pagination Button.
