@@ -18,6 +18,9 @@ jobs:
   check:
     name: Lint, type-check and stories
     runs-on: ubuntu-latest
+    # A hung step should fail in minutes, not sit there for six hours. The whole
+    # job takes about a minute.
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v5
@@ -40,8 +43,13 @@ jobs:
 
       # The story suite runs in real Chromium through Playwright, so the browser
       # has to be there. Only chromium: vite.config.ts configures no others.
+      #
+      # **Not `--with-deps`.** That flag shells out to apt-get, which hung for
+      # 20+ minutes on a run where the plain download took seconds. The system
+      # libraries it installs are already on the ubuntu-latest image, so it was
+      # buying nothing and cost the only real flake this workflow has had.
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Run stories
         run: npm test
