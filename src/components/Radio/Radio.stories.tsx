@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { Field } from '../Field'
 import { Radio } from './Radio'
 
 const meta = {
@@ -183,6 +184,74 @@ export const ContainerWithDescription: Story = {
           description="Unlimited editors, SSO, and an audit log."
         />
       </Radio.Group>
+    )
+  },
+}
+
+/**
+ * `Radio.Group`'s two layouts — Figma's Radio Group set, whose only property is
+ * `Layout`. Horizontal divides the width evenly between the options rather than
+ * hugging their labels.
+ *
+ * **`orientation` changes nothing about the keyboard.** Base UI's composite
+ * defaults to `orientation: 'both'`, so all four arrow keys move between options
+ * whichever way the row runs — try Left/Right *and* Up/Down on the horizontal
+ * one. Constraining it to a single axis would take away working keys for no
+ * gain, so the prop is presentation only and is deliberately not passed down.
+ */
+export const GroupLayout: Story = {
+  parameters: { controls: { disable: true } },
+  render: function GroupLayoutStory() {
+    const [vertical, setVertical] = useState('email')
+    const [horizontal, setHorizontal] = useState('m')
+
+    return (
+      <div className="flex w-[400px] flex-col gap-8">
+        <Radio.Group aria-label="Notify me by" value={vertical} onValueChange={setVertical}>
+          <Radio value="email" label="Email" />
+          <Radio value="sms" label="SMS" />
+          <Radio value="push" label="Push notification" />
+        </Radio.Group>
+
+        <Radio.Group
+          orientation="horizontal"
+          aria-label="Size"
+          value={horizontal}
+          onValueChange={setHorizontal}
+        >
+          <Radio value="s" label="Small" />
+          <Radio value="m" label="Medium" />
+          <Radio value="l" label="Large" />
+        </Radio.Group>
+      </div>
+    )
+  },
+}
+
+/**
+ * A group inside a `Field`, which is what Figma draws as `Type=Radio`. The Field
+ * names the set, carries the sub-label and the validation message, and marks
+ * every dial invalid — none of which the group does for itself. This is the
+ * shape Astryx bakes into its `RadioList`; here it is two components.
+ */
+export const InField: Story = {
+  parameters: { controls: { disable: true } },
+  render: function InFieldStory() {
+    const [value, setValue] = useState<string | null>(null)
+
+    return (
+      <Field
+        label="Notification preference"
+        description="Choose how you would like to be notified"
+        error={value == null ? 'Please select a notification method' : undefined}
+        className="w-80"
+      >
+        <Radio.Group value={value} onValueChange={setValue}>
+          <Radio value="email" label="Email" />
+          <Radio value="sms" label="SMS" />
+          <Radio value="push" label="Push notification" />
+        </Radio.Group>
+      </Field>
     )
   },
 }

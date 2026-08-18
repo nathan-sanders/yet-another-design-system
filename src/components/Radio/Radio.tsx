@@ -236,16 +236,42 @@ export function Radio({
 
 Radio.displayName = 'Radio'
 
+/**
+ * The group's stack or row. Figma wraps the options in a "Radio Items" frame
+ * inside an outer one; with no select-all to sit beside — Checkbox Group's
+ * reason for the split — the two are flattened into one element here.
+ */
+const group = tv({
+  base: 'flex w-full gap-2 font-sans',
+
+  variants: {
+    orientation: {
+      vertical: 'flex-col',
+      // Figma gives each option `flex-1` + `min-w-px`, so a row divides the
+      // width evenly rather than hugging the labels. Set from the parent so
+      // `Radio` stays unaware of which direction it is in.
+      horizontal: 'flex-wrap items-start [&>*]:min-w-px [&>*]:flex-1',
+    },
+  },
+
+  defaultVariants: { orientation: 'vertical' },
+})
+
 export interface RadioGroupProps
   extends Omit<BaseRadioGroupProps<string>, 'className' | 'render'> {
   /** `Radio` elements. */
   children: ReactNode
+  /**
+   * Maps to Figma's `Layout`. Named for Divider's property rather than Figma's,
+   * because `layout` already means hug-or-fill on SegmentedControl and Tabs.
+   */
+  orientation?: 'vertical' | 'horizontal'
   className?: string
   /**
-   * Required: names the group, which screen readers announce as
-   * "<label>, radio group". Base UI only fills `aria-labelledby` from a
-   * surrounding Field or Fieldset, so without this the group is unnamed —
-   * the same requirement SegmentedControl carries.
+   * Names the group, which screen readers announce as "<label>, radio group".
+   * A surrounding `Field` does this for you and is the better route — it can
+   * carry a sub-label and a validation message too — so reach for this only when
+   * the group stands alone.
    */
   'aria-label'?: string
 }
@@ -255,14 +281,29 @@ export interface RadioGroupProps
  * selected value, the roving tabindex and the arrow keys, so a `Radio` outside
  * one does nothing.
  *
- * **This is not Figma's "Radio Group" component set.** That set exists in the
- * file and has its own anatomy — a legend, a description, an orientation — and
- * it belongs in its own PR alongside `Field`. What is here is the minimum Base
- * UI requires, stacked at `gap-3`, and `className` overrides it.
+ * Mirrors the Figma component set "Radio Group" (node 40004010:5003), whose only
+ * property is `Layout` Vertical | Horizontal. This is Astryx's `RadioList`, and
+ * its guidance applies: two to seven options, and don't go horizontal past four
+ * because it wraps awkwardly.
+ *
+ * Everything Astryx builds into that component — the group's label, its
+ * description, the required marker, the validation message — is `Field`'s job
+ * here, which is what Figma says too by giving Field a `Type=Radio` variant.
+ *
+ * **`orientation` is presentation only, and deliberately not passed to Base
+ * UI.** Its composite defaults to `orientation: 'both'`, so all four arrow keys
+ * already move between options whichever way the row runs — read out of
+ * `useCompositeRoot`, not assumed. Constraining it to one axis would take away
+ * working keys for no gain.
  */
-function RadioGroupComponent({ children, className, ...props }: RadioGroupProps) {
+function RadioGroupComponent({
+  children,
+  orientation = 'vertical',
+  className,
+  ...props
+}: RadioGroupProps) {
   return (
-    <RadioGroup className={cn('flex flex-col gap-3 font-sans', className)} {...props}>
+    <RadioGroup className={cn(group({ orientation }), className)} {...props}>
       {children}
     </RadioGroup>
   )

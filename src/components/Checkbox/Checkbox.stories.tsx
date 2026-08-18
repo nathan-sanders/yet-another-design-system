@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { Field } from '../Field'
 import { Checkbox } from './Checkbox'
 
 /**
@@ -163,54 +164,98 @@ export const ContainerSlot: Story = {
 }
 
 /**
- * A parent box summarising its children — the case indeterminate exists for.
- * The parent is ticked when every child is, indeterminate when only some are,
- * and unticked when none are.
+ * `Checkbox.Group` — Figma's Checkbox Group set. It owns the array value, so a
+ * checkbox inside one is identified by `name` rather than by holding its own
+ * `checked` state.
  *
- * Base UI has a `CheckboxGroup` that wires this up (and Figma has a Checkbox
- * Group set to match), but neither is built here yet, so this story does the
- * arithmetic by hand to show the state rather than the plumbing.
+ * **The "select all" is the group's, not yours to compute.** This story used to
+ * do the indeterminate arithmetic by hand; Base UI does it now, given
+ * `allValues` — it compares those against the current value to decide whether
+ * the parent is checked, unchecked or half. The `-` glyph you see is read off
+ * `data-indeterminate` rather than a prop, which is what makes the computed case
+ * work at all.
  */
-export const Parent: Story = {
+export const Group: Story = {
   parameters: { controls: { disable: true } },
-  render: function ParentStory(args) {
-    const [items, setItems] = useState([true, false, false])
-    const ticked = items.filter(Boolean).length
+  render: function GroupStory() {
+    const allValues = ['mentions', 'replies', 'messages']
+    const [value, setValue] = useState(['mentions'])
 
     return (
-      <div className="flex flex-col gap-3">
-        <Checkbox
-          {...args}
-          label="Notifications"
-          checked={ticked === items.length}
-          indeterminate={ticked > 0 && ticked < items.length}
-          onCheckedChange={(next) => setItems(items.map(() => next))}
-        />
-        <div className="flex flex-col gap-3 pl-8">
-          {['Mentions', 'Replies', 'Direct messages'].map((name, i) => (
-            <Checkbox
-              {...args}
-              key={name}
-              label={name}
-              checked={items[i]}
-              onCheckedChange={(next) =>
-                setItems(items.map((value, j) => (j === i ? next : value)))
-              }
-            />
-          ))}
-        </div>
-      </div>
+      <Checkbox.Group
+        allValues={allValues}
+        value={value}
+        onValueChange={setValue}
+        selectAll="Select all"
+        aria-label="Notifications"
+        className="w-80"
+      >
+        <Checkbox name="mentions" label="Mentions" />
+        <Checkbox name="replies" label="Replies" />
+        <Checkbox name="messages" label="Direct messages" />
+      </Checkbox.Group>
     )
   },
 }
 
 /**
- * In context — a settings panel, which is where most checkboxes live.
+ * Figma's `Layout=Horizontal`. The options divide the width evenly rather than
+ * hugging their labels, and the Select All row and its Divider stay full-width
+ * above them.
  *
- * The box is centred against the whole label block rather than against its first
- * line, which is what Figma's auto-layout does. Worth a second look with a long
- * description: most systems top-align once the text runs to two lines.
+ * Keep it to four options at most — past that a row wraps awkwardly, which is
+ * Astryx's rule for the same component.
  */
+export const GroupHorizontal: Story = {
+  parameters: { controls: { disable: true } },
+  render: function GroupHorizontalStory() {
+    const allValues = ['s', 'm', 'l']
+    const [value, setValue] = useState(['m'])
+
+    return (
+      <Checkbox.Group
+        orientation="horizontal"
+        allValues={allValues}
+        value={value}
+        onValueChange={setValue}
+        selectAll="Select all"
+        aria-label="Sizes"
+        className="w-[400px]"
+      >
+        <Checkbox name="s" label="Small" />
+        <Checkbox name="m" label="Medium" />
+        <Checkbox name="l" label="Large" />
+      </Checkbox.Group>
+    )
+  },
+}
+
+/**
+ * Without `selectAll` there is no parent row and no Divider — just the options,
+ * sharing one value. And a `Field` around the group is what names it and carries
+ * a message, which is the pairing Figma draws as `Type=Checkbox Group`.
+ */
+export const GroupPlain: Story = {
+  parameters: { controls: { disable: true } },
+  render: function GroupPlainStory() {
+    const [value, setValue] = useState<string[]>([])
+
+    return (
+      <Field
+        label="Notifications"
+        description="Pick at least one"
+        error={value.length === 0 ? 'Choose how you want to hear from us' : undefined}
+        className="w-80"
+      >
+        <Checkbox.Group value={value} onValueChange={setValue}>
+          <Checkbox name="email" label="Email" />
+          <Checkbox name="sms" label="SMS" />
+        </Checkbox.Group>
+      </Field>
+    )
+  },
+}
+
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
