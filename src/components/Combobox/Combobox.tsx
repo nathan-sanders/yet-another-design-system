@@ -204,27 +204,54 @@ const field = tv({
 /**
  * The tokenizer's chip row, inside the box above.
  *
- * **The vertical padding is what keeps the field from growing.** A field's inner
- * height is its box minus two borders — 22 / 30 / 38 — and a Token is 20 at
- * small and 24 above it, so the padding is all the slack there is: 1px at small
- * (20 + 2 = 22, exactly), 2px at default and 4px at large. Get it wrong and
- * adding the first token makes the field taller, which is the one thing Token's
- * whole size scale exists to prevent.
+ * ## The vertical padding is not slack, it is the exact centring gap
  *
- * `flex-wrap` is what lets it grow honestly: the box may only get taller when
- * the tokens run onto a second line.
+ * A field's inner height is its box minus two borders — **22 / 30 / 38** — and a
+ * Token is 20 at small and 24 above it. Half of what is left over is where a
+ * single row of tokens actually sits: **1 / 3 / 7**. Setting the padding to
+ * anything *less* than that still looks right with one row, because
+ * `items-center` makes up the difference — and then betrays itself the moment a
+ * second row arrives and there is no spare height left to centre in. The first
+ * row jerks upwards by the difference.
+ *
+ * Measured before the fix: 4px above the first token at the default size with
+ * one row, 3px with three. Small was already exact and never moved, which is
+ * what made it easy to miss. Making the padding equal the centring gap means
+ * `items-center` has nothing to do in the one-row case, so **the first row never
+ * moves** — the box just grows downwards.
+ *
+ * `flex-wrap` is what lets it grow at all: the box may only get taller when the
+ * tokens run onto a second line, never for the first one.
+ *
+ * ## And the left inset is the same number
+ *
+ * A token 12px from the left edge but 3px from the top reads as misaligned,
+ * because it is — so once there are tokens, the left padding drops to match the
+ * vertical one and the first token sits the same distance from all three edges.
+ *
+ * **Only once there are tokens.** With an empty field the caret is the first
+ * thing in the row, and its placeholder belongs at the same 12px as every other
+ * field in the library. `role="toolbar"` is the hook: Base UI puts it on this
+ * element exactly when the selection is non-empty, which is exactly when a token
+ * is drawn. The trailing 12px is left alone — it is what keeps the caret's text
+ * off the right border.
  *
  * `gap-1` is Figma's 4px, measured between the two tokens and between the last
  * token and the placeholder.
  */
 const chips = tv({
-  base: 'flex min-w-0 flex-1 flex-wrap items-center gap-1 self-stretch px-3',
+  base: [
+    'flex min-w-0 flex-1 flex-wrap items-center gap-1 self-stretch',
+    'pr-3 pl-3',
+  ],
 
   variants: {
+    // Each pair is the same number twice: half of the field's inner height less
+    // the token's, which is where one row centres itself anyway.
     size: {
-      small: 'py-px', // 20 + 2 = 22
-      default: 'py-0.5', // 24 + 4 = 28, in 30
-      large: 'py-1', // 24 + 8 = 32, in 38
+      small: 'py-px [&[role=toolbar]]:pl-px', // (22 − 20) / 2 = 1
+      default: 'py-0.75 [&[role=toolbar]]:pl-0.75', // (30 − 24) / 2 = 3
+      large: 'py-1.75 [&[role=toolbar]]:pl-1.75', // (38 − 24) / 2 = 7
     },
   },
 

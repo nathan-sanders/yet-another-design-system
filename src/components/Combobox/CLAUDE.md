@@ -51,6 +51,19 @@ in it: measured 20 / 24 / 24 inside an inner box of 22 / 30 / 38, which is the a
 down in Token's own record. The field may only grow when the tokens **wrap**. The caret's
 `min-w-16` is what decides when that happens — smaller and the field wraps with room plainly left,
 larger and it wraps too eagerly. 64px was measured against a 320px field.
+**The chip row's padding is the centring gap, not slack — 1 / 3 / 7.** Half of the field's inner
+height less the token's is where one row of tokens sits anyway; set the padding to anything less and
+`items-center` quietly makes up the difference, until a second row arrives and there is nothing
+spare left to centre in. The first row then jerks upwards by exactly the shortfall. Measured before
+the fix: 4px above the first token at the default size with one row, 3px with three. **Small was
+already exact and never moved**, which is what made it easy to miss.
+**And the same number is the left inset, once there are tokens.** A token 12px from the left edge
+and 3px from the top is misaligned, so with a selection the left padding drops to match the vertical
+one and the first token sits equidistant from three edges — measured 2 / 4 / 8 from the border box.
+With an *empty* field the caret is first in the row and its placeholder stays at the library's 12px,
+level with a Select's value and an Input's text. `role="toolbar"` is the hook that tells the two
+apart: Base UI puts it on the chips container exactly when the selection is non-empty. The trailing
+12px is left alone — it is what keeps the caret's own text off the right border.
 **The chips are `Token`s driven by Base UI**, the shape Token was built for:
 `<Combobox.Chip render={<Token />}>` merges onto the pill and
 `<Combobox.ChipRemove render={<Token.Remove />} />` takes the `x` over. It goes in Token's
