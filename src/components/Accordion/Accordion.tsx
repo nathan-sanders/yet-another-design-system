@@ -300,8 +300,19 @@ export interface AccordionPanelProps
 function AccordionPanel({ children, contentClassName, className, ...props }: AccordionPanelProps) {
   return (
     <AccordionPrimitive.Panel className={cn(panel(), className)} {...props}>
-      {/* px-4 pt-2 pb-4 = spacing/4, /2, /4 — Figma's Panel frame. */}
-      <div className={cn('flex flex-col gap-2 px-4 pt-2 pb-4', contentClassName)}>{children}</div>
+      {/*
+        px-4 pb-4 = spacing/4 — Figma's Panel frame, minus its top padding.
+        Figma draws spacing/2 (8px) at the top and Nathan asked for none: the
+        header already leaves 4px under the trigger, so the panel's own 8 read
+        as a gap between the label and its content rather than as one block.
+
+        **The cost is at the top edge, and it is real.** The panel is the one
+        element here that clips, so a focusable child on the first line loses
+        the top of its ring — 5px of gap-plus-ring against 0px of padding.
+        Anything below the first line is fine, and the sides and bottom keep
+        their 16. Worth knowing before putting a Link or a Button first.
+      */}
+      <div className={cn('flex flex-col gap-2 px-4 pb-4', contentClassName)}>{children}</div>
     </AccordionPrimitive.Panel>
   )
 }
