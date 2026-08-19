@@ -268,9 +268,11 @@ component usually has fewer decisions in it than it looks.
   Combobox is the case that shows the two are independent — the same component, `false` in its
   single-select shape and `true` as a tokenizer.
 - **Code sometimes goes first and Figma catches up.** Badge's four extra hues, Divider's `emphasis`,
-  SegmentedControl's `large` and three of Slider's four decisions were built here against a file that
-  did not have them, then drawn into the file afterwards. The direction is unusual but it is allowed —
-  what is not allowed is leaving the file behind.
+  SegmentedControl's `large`, three of Slider's four decisions and Accordion's `container` were built
+  here against a file that did not have them, then drawn into the file afterwards. The direction is
+  unusual but it is allowed — what is not allowed is leaving the file behind. Accordion is the one to
+  copy: its row went 32 → 40 in code and the Figma variants followed within the day, so the two never
+  drifted far enough to argue about.
 - **Each entry records which Base UI component it was.** Eighteen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **Application stories use the default size.** A story that shows a component *in use* — the
