@@ -72,6 +72,17 @@ property, so anything adding to it has to be inside the measured element.
   `[hidden] { display: none }`. This panel sets no display, so the browser already handles it —
   measured both ways: a bare `hidden` computes to `none`, `until-found` stays `block`.
 
+## Row height: 40, where Figma draws 32
+
+The trigger is `min-h-10` (`height/h-10`), not the `height/h-8` Figma specifies — Nathan asked for
+40 after seeing it built. It is Tabs' `large`, and it puts the whole item at 48 with the header's
+4px either side.
+
+This is the "code goes first and Figma catches up" case the root `CLAUDE.md` allows. **The file is
+currently behind on this one value**, and the Accordion Trigger component set is what needs
+updating. Nothing else moves with it: the radius nesting is a function of the header's padding, not
+the row height, so 12 − 4 = 8 still holds.
+
 ## Our two props
 
 **`container`** — Figma draws the accordion as a card, and that is the default. `false` drops the
@@ -102,8 +113,8 @@ browser margin would push every row apart.
 In Storybook at 1440×900, light and dark:
 
 - Root radius 12px, 1px `surface-border`, `overflow: visible`; item divider 1px, last item 0.
-- Header `<h3>`, padding 4px, margin 0. Trigger min-height 32px (renders at 32), radius 8px,
-  padding-inline 12px, gap 8px, 14/24 at weight 600, `content-emphasized`.
+- Header `<h3>`, padding 4px, margin 0. Trigger min-height 40px (renders at 40), radius 8px,
+  padding-inline 12px, gap 8px, 14/24 at weight 600, `content-emphasized`. Row is 48 overall.
 - Panel `overflow: hidden`, inner padding 8/16/16, gap 8; `--accordion-panel-height` 96px on a
   two-line panel, and the height interpolates 0 → 96 over `height 0.175s cubic-bezier(0.24,1,0.4,1)`.
 - Chevron 16px, `rotate` 0 → 180deg, same 175ms and curve. Note Tailwind v4 compiles `rotate-180` to

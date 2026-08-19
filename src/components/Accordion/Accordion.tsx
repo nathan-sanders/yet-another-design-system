@@ -111,9 +111,15 @@ const trigger = tv({
     // `group` so the chevron can read the open state off this element — Base
     // UI puts `data-panel-open` on the trigger, not on the icon.
     'group flex w-full items-center gap-2',
-    // min-h-8 = height/h-8 (32px), px-3 = spacing/3 (12px). A min-height rather
-    // than a height, so a label that wraps grows the row instead of spilling.
-    'min-h-8 rounded-md px-3',
+    // min-h-10 = height/h-10 (40px), px-3 = spacing/3 (12px). A min-height
+    // rather than a height, so a label that wraps grows the row instead of
+    // spilling.
+    //
+    // **Figma draws 32 here (height/h-8) and the code is ahead of it.** Nathan
+    // asked for 40 — it is Tabs' `large`, and it puts the whole item at 48 with
+    // the header's 4px either side. The file needs to catch up: code going
+    // first is allowed, leaving the file behind is not.
+    'min-h-10 rounded-md px-3',
     'cursor-pointer text-left font-sans text-base font-semibold text-content-emphasized select-none',
     'hover:bg-surface-card-subtle',
     'transition-colors duration-fast-min ease-standard',
