@@ -52,6 +52,10 @@ the overlay stopped 1px short all round and the border was not clickable — `-i
 the border box. And a positioned element only paints over *static* siblings: `Avatar`'s root is
 `relative`, so clicking a token's avatar did nothing while clicking its label worked. The overlay
 is `z-1`, `Token.Remove` is `z-10`, above both.
+**And `z-10` reaches further than it looks.** A positive z-index beats every positioned element left
+on `auto`, wherever it sits in the document — so the crosses on a row of tokens punched straight
+through an open Combobox menu portalled to `<body>`. The token is not wrong; the popups were, and
+they now take `overlayLayer` from `src/lib/layers.ts`. Worth knowing before this number changes.
 **Focus: the shared ring on the root, via `focusRingWithin`.** Figma draws it around the whole
 token and both focusable things live inside, so neither draws one of its own — the
 two-rings-on-one-control case, answered as Input and Checkbox `inContainer` answer it. The

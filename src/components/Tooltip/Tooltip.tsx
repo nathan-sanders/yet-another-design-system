@@ -4,6 +4,7 @@ import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
 import { tv } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { overlayLayer } from '../../lib/layers'
 
 /**
  * Tooltip — a short label describing the thing you are pointing at.
@@ -147,7 +148,12 @@ export function Tooltip({
         aria-describedby={open ? popupId : undefined}
       />
       <TooltipPrimitive.Portal>
-        <TooltipPrimitive.Positioner side={side} align={align} sideOffset={sideOffset}>
+        <TooltipPrimitive.Positioner
+          className={overlayLayer}
+          side={side}
+          align={align}
+          sideOffset={sideOffset}
+        >
           <TooltipPopup id={popupId} className={className}>
             {label}
           </TooltipPopup>

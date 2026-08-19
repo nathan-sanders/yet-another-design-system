@@ -6,6 +6,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
+import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 
 /**
@@ -215,6 +216,7 @@ function MenuPopup({
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
+        className={overlayLayer}
         side={side}
         align={align}
         sideOffset={sideOffset}

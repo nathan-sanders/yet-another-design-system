@@ -71,6 +71,11 @@ focus to have come from.
 to the `<input>` — which is only the strip left over after the tokens, so the panel drifted right
 and narrowed as values were added. Pointing `anchor` at the field puts it under the whole control
 and makes `--anchor-width` the field's width, which is what Figma draws.
+**The popup needed a `z-index`, and so did the other three.** Portalling to `<body>` last does not
+settle painting order — a positive `z-index` anywhere on the page beats a popup left on `auto` — so
+the `x` on every Token in the fields *below* an open Combobox floated over its menu. `Token.Remove`
+is `relative z-10` and has to be. Fixed for all four portalled components at once through
+`overlayLayer` in `src/lib/layers.ts`; the reasoning, and why 40 rather than 50, is written there.
 **No scroll arrows, unlike Select.** They were the cost of overlapping the trigger; this hangs 4px
 below its anchor, so the list simply scrolls inside the panel. Base UI ships none for Combobox
 either.

@@ -7,6 +7,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
+import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 import { SelectContext, useSelect } from './context'
 
@@ -557,6 +558,7 @@ export function Select({
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner
+            className={overlayLayer}
             // The macOS behaviour, and Base UI's default — see the header. It
             // cannot mean anything with several values selected, so `multiple`
             // falls back to a conventional dropdown 4px below the trigger,
