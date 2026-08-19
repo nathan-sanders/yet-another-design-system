@@ -258,10 +258,10 @@ export const InContext: Story = {
 
         <div className="flex items-center gap-2">
           <Tooltip label="Ada Lovelace — Engineering">
-            <Avatar name="Ada Lovelace" size="small" onClick={() => {}} />
+            <Avatar name="Ada Lovelace" onClick={() => {}} />
           </Tooltip>
           <Tooltip label="Grace Hopper — Design">
-            <Avatar name="Grace Hopper" size="small" onClick={() => {}} />
+            <Avatar name="Grace Hopper" onClick={() => {}} />
           </Tooltip>
 
           <div className="ml-auto flex items-center gap-1">

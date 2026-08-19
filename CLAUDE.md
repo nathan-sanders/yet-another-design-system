@@ -253,6 +253,13 @@ component usually has fewer decisions in it than it looks.
   what is not allowed is leaving the file behind.
 - **Each entry records which Base UI component it was.** Sixteen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
+- **Application stories use the default size.** A story that shows a component *in use* — the
+  `InContext` family, and anything else standing in for a real screen — takes the default of every
+  size scale in it, so the composition reads as the ordinary case rather than a styled one. `small`
+  and `large` belong in the stories that exist to show the scale, or where something genuinely calls
+  for them: a Button inside an addon is `small` because it has to fit inside a 32px field, and that
+  is a reason. "It looked better" is not, and it is how a library ends up with no default anybody
+  recognises.
 
 ## Still to build
 
