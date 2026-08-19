@@ -50,8 +50,9 @@ is `z-1`, `Token.Remove` is `z-10`, above both.
 token and both focusable things live inside, so neither draws one of its own — the
 two-rings-on-one-control case, answered as Input and Checkbox `inContainer` answer it. The
 consequence to know: a token that is both clickable *and* removable has two tab stops lighting
-the same ring, so `Token.Remove` gets its own round `action-ghost-background-hover` wash to tell
-them apart. Goes past the file, which draws no state on the `x`; wants adding there, like
+the same ring, so `Token.Remove` gets its own `action-ghost-background-hover` wash to tell them
+apart — at `rounded-md`, the token's own radius, since the button reaches over the border and its
+outer corners sit exactly on the pill's. Goes past the file, which draws no state on the `x`; wants adding there, like
 Divider's `emphasis`.
 **The remove target is 28×24 (28×20 at small), and the drawn geometry did not move.** Figma
 draws a bare 12×12 `x` — a 12px target, well under WCAG 2.5.8's 24×24. Fixed the way Input fixed

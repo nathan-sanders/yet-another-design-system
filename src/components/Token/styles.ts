@@ -131,10 +131,14 @@ export const tokenRemove = tv({
     'cursor-pointer text-content-primary',
     // Its own wash, so that a token which is *both* clickable and removable has
     // two tab stops you can tell apart — the shared ring is on the root and
-    // fires identically for either. Rounded so it reads as its own target rather
-    // than a slice of the pill. Goes past the Figma file, which draws no state
-    // on the `x`; wants adding there, the way Divider's `emphasis` did.
-    'rounded-full transition-colors duration-fast-min ease-standard',
+    // fires identically for either. Goes past the Figma file, which draws no
+    // state on the `x`; wants adding there, the way Divider's `emphasis` did.
+    //
+    // `rounded-md` — the token's own radius, not a pill. The button reaches over
+    // the token's border to take the full height, so its right-hand corners sit
+    // exactly on the token's; matching the radius is what makes the wash read as
+    // the trailing end of the pill rather than a circle floating inside it.
+    'rounded-md transition-colors duration-fast-min ease-standard',
     'hover:bg-action-ghost-background-hover focus-visible:bg-action-ghost-background-hover',
     'outline-none disabled:cursor-not-allowed',
   ],
