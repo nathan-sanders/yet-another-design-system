@@ -767,6 +767,10 @@ export function Combobox({
                           // outside its own props.
                           <Token
                             size={size === 'small' ? 'small' : 'default'}
+                            // 6px inside the field's 8px box. Concentric corners
+                            // of the same radius never read as parallel; see the
+                            // `radius` variant in Token's `styles.ts`.
+                            radius="sm"
                             interactive
                             endSlot={
                               <ComboboxPrimitive.ChipRemove
