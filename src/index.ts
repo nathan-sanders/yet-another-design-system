@@ -27,6 +27,18 @@ export type { ButtonProps } from './components/Button'
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps, CheckboxGroupProps } from './components/Checkbox'
 
+export { Combobox } from './components/Combobox'
+export type {
+  ComboboxProps,
+  ComboboxItemProps,
+  ComboboxGroupProps,
+  ComboboxItemData,
+  ComboboxItemGroup,
+  ComboboxValue,
+  ComboboxSize,
+  ComboboxIndicator,
+} from './components/Combobox'
+
 export { Divider } from './components/Divider'
 export type { DividerProps } from './components/Divider'
 

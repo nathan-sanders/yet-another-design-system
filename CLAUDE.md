@@ -195,7 +195,8 @@ The deciding question is **whether the value has to come from a known set**, not
   - too many to scroll: **Combobox** — typing filters, but the value must come from the list.
 
 **Autocomplete and Combobox look identical and differ on exactly one thing:** whether off-list input
-is allowed. That is the distinction to keep hold of. Base UI ships both, and neither is built here.
+is allowed. That is the distinction to keep hold of. Base UI ships both; Combobox is built,
+Autocomplete is not.
 
 Orthogonal to all of it: **Checkbox** for an intention a Save button later commits, **Switch** for a
 setting that takes effect the moment you let go, **Slider** for an approximate number.
@@ -230,6 +231,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
 | [Token](src/components/Token/CLAUDE.md) | one chosen value as a pill | 20 / 24 tall, so a field full of them never grows |
+| [Combobox](src/components/Combobox/CLAUDE.md) | a long list, filtered by typing | a trigger with a searchable popup, or a tokenizer |
 
 ### Patterns that recur across components
 
@@ -241,21 +243,27 @@ component usually has fewer decisions in it than it looks.
   page all follow from what you pass. A prop that can contradict the children is a prop that will.
 - **Focus is `focusRing` or `focusRingWithin` from `src/lib/focus.ts`, never hand-written.** Use
   `focusRingWithin` when focus lands on a descendant — a card around a Checkbox, or Slider's thumb
-  with its visually hidden input inside it. Watch for two rings on one control.
-- **Figma's `overflow-clip` is not ported** — seven times now, across SegmentedControl, Banner, Toast,
-  Menu, Switch and Slider. A canvas has no other way to bound a frame; here the focus ring paints
+  with its visually hidden input inside it. Watch for two rings on one control, and for the opposite
+  failure: a container that rings identically wherever focus is inside it says nothing. Combobox's
+  tokenizer has several focusable descendants, so its box scopes the ring to the caret and each chip
+  carries its own. **One ring at a time, always on the thing that has focus.**
+- **Figma's `overflow-clip` is not ported** — nine times now, across SegmentedControl, Banner, Toast,
+  Menu, Switch, Slider, Select and Combobox. A canvas has no other way to bound a frame; here the focus ring paints
   outside the component on purpose, and clipping would slice it off.
 - **Controls grow as you touch them.** Switch's knob 14 → 16 as it slides, Slider's handle 16 → 20 on
   hover, focus and drag.
 - **Field owns the label — unless the label is a hit target.** A control with nothing to name itself
-  gets its label from Field (Input, InputGroup, Select, and Autocomplete/Combobox when they land).
+  gets its label from Field (Input, InputGroup, Select, Combobox, and Autocomplete when it lands).
   Checkbox, Radio and Switch keep their own, because their `<label>` wraps the control and that is
-  what makes the text clickable.
+  what makes the text clickable. **Whether the label is a real `<label>` is a third question**, and
+  Field's `nativeLabel` is where it is answered: a `<button>` control wants it off, an `<input>` on.
+  Combobox is the case that shows the two are independent — the same component, `false` in its
+  single-select shape and `true` as a tokenizer.
 - **Code sometimes goes first and Figma catches up.** Badge's four extra hues, Divider's `emphasis`,
   SegmentedControl's `large` and three of Slider's four decisions were built here against a file that
   did not have them, then drawn into the file afterwards. The direction is unusual but it is allowed —
   what is not allowed is leaving the file behind.
-- **Each entry records which Base UI component it was.** Sixteen so far, Divider first. Worth keeping
+- **Each entry records which Base UI component it was.** Seventeen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **Application stories use the default size.** A story that shows a component *in use* — the
   `InContext` family, and anything else standing in for a real screen — takes the default of every
@@ -274,14 +282,14 @@ Foundational and static first:
 3. **Table Cell** — native, styled.
 4. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
-The form family is complete against the file: **Checkbox Group** and **Radio Group** are built as
-`Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a Field as
-well as from their own prop, and Slider is closed as a deliberate non-change (see its entry). What is
-in Figma and still unbuilt is **Autocomplete** and **Combobox** — both already have a `Type` in the
-Field set, so Field is waiting for them rather than the other way round. **Token is built and
-waiting for Combobox too**: Base UI's `Combobox.Chips` / `Chip` / `ChipRemove` supply the
-behaviour, Token supplies the look, and the heights that keep a field from growing are recorded
-in Token's `CLAUDE.md` as 20 / 24 against a field's inner 22 / 30 / 38.
+The form family is complete against the file bar one: **Checkbox Group** and **Radio Group** are
+built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a
+Field as well as from their own prop, and Slider is closed as a deliberate non-change (see its
+entry). Combobox landed and took Token with it — `Combobox.Chips` / `Chip` / `ChipRemove` supply
+the behaviour, Token supplies the look, and the 20 / 24 against a field's inner 22 / 30 / 38 held
+when measured. What is in Figma and still unbuilt is **Autocomplete**, which already has a `Type` in
+the Field set. It is Combobox with one rule removed — a value that is not on the list is still
+allowed — and Base UI ships it as a separate component.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's
