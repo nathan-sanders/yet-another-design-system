@@ -247,6 +247,13 @@ component usually has fewer decisions in it than it looks.
   failure: a container that rings identically wherever focus is inside it says nothing. Combobox's
   tokenizer has several focusable descendants, so its box scopes the ring to the caret and each chip
   carries its own. **One ring at a time, always on the thing that has focus.**
+- **A portalled popup needs a `z-index`, and gets it from `src/lib/layers.ts`.** Being appended to
+  `<body>` last does not settle painting order: every positioned element with a positive `z-index`
+  paints above every one left on `auto`, whatever the document order. So a popup on `auto` is
+  punched through by any `z-10` on the page — which is not hypothetical, since `Token.Remove` is
+  `relative z-10` and its crosses floated over an open Combobox menu. `overlayLayer` goes on the
+  **Positioner**, which is the element Base UI positions, and sits at 40 so `Toast`'s `z-50` stays
+  the top of the library.
 - **Figma's `overflow-clip` is not ported** — nine times now, across SegmentedControl, Banner, Toast,
   Menu, Switch, Slider, Select and Combobox. A canvas has no other way to bound a frame; here the focus ring paints
   outside the component on purpose, and clipping would slice it off.

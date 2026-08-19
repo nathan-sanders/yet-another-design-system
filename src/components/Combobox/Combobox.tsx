@@ -7,6 +7,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
+import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 import { Token } from '../Token'
 import { ComboboxContext, useCombobox } from './context'
@@ -780,6 +781,7 @@ export function Combobox({
 
         <ComboboxPrimitive.Portal>
           <ComboboxPrimitive.Positioner
+            className={overlayLayer}
             anchor={multiple ? fieldRef : undefined}
             side="bottom"
             align="start"
