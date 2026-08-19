@@ -72,22 +72,26 @@ property, so anything adding to it has to be inside the measured element.
   `[hidden] { display: none }`. This panel sets no display, so the browser already handles it —
   measured both ways: a bare `hidden` computes to `none`, `until-found` stays `block`.
 
-## Row height: 40, where Figma draws 32
+## Two things the code decided first, and Figma then adopted
 
-The trigger is `min-h-10` (`height/h-10`), not the `height/h-8` Figma specifies — Nathan asked for
-40 after seeing it built. It is Tabs' `large`, and it puts the whole item at 48 with the header's
-4px either side.
+Both are settled — the file matches the code again. Recorded because the reasoning is not visible
+from either side on its own.
 
-This is the "code goes first and Figma catches up" case the root `CLAUDE.md` allows. **The file is
-currently behind on this one value**, and the Accordion Trigger component set is what needs
-updating. Nothing else moves with it: the radius nesting is a function of the header's padding, not
-the row height, so 12 − 4 = 8 still holds.
+**Row height 40.** The trigger is `min-h-10` (`height/h-10`), and the whole item is 48 with the
+header's 4px either side — the same row Tabs uses for `large`. It shipped at 32 (`height/h-8`,
+which is what Figma drew), went to 40 at Nathan's request, and Figma was updated to match: the
+Accordion Trigger variants are now 40 tall and bind `height/h-10`.
 
-## Our two props
+Nothing else moved with it, and that is the thing to hold on to: **the radius nesting is a function
+of the header's padding, not the row height**, so the root's 12 less the header's 4 is still the
+trigger's 8 at any row height.
 
-**`container`** — Figma draws the accordion as a card, and that is the default. `false` drops the
-border and radius so items sit flush inside something that draws its own frame. Tabs' `divider` is
-the same idea. Will matter as soon as Card lands.
+**`container`.** Built here against a file that drew only the card, and now a real variant property
+on the Accordion set — `Container=True` / `Container=False`, matching the prop name. `false` drops
+the border and radius so items sit flush inside something that draws its own frame. Tabs' `divider`
+is the same idea. Will matter as soon as Card lands.
+
+## Our remaining prop
 
 **`headingLevel`** (2–6, default 3) — set once on the root and read through context, so two sections
 of one accordion cannot disagree. An accordion is a set of sections and its triggers belong in the
