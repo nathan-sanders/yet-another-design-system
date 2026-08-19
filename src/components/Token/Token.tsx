@@ -12,6 +12,7 @@ import {
   tokenOverlay,
   tokenRemove,
   TOKEN_AVATAR_SIZE,
+  type TokenRadius,
   type TokenSize,
 } from './styles'
 
@@ -21,6 +22,13 @@ interface TokenBaseProps
   children?: ReactNode
   /** Token size. Maps to the Figma `Size` property: Default 24 · Small 20. */
   size?: TokenSize
+  /**
+   * Corner radius: `md` (8px) standing on its own, `sm` (6px) nested inside a
+   * field. `Combobox` passes `sm` for its chips, because concentric corners of
+   * the same radius do not read as parallel — see `styles.ts`. Nothing else
+   * should need it.
+   */
+  radius?: TokenRadius
   /**
    * Lucide icon before the label — Figma's Icon slot. Pass the component itself:
    * `startIcon={Tag}`, not `<Tag />`. Rendered at 12px at both sizes, as Figma
@@ -96,8 +104,16 @@ export type TokenProps = TokenBaseProps &
  * will drive it.
  */
 function TokenRemove({ className, ...props }: ComponentPropsWithRef<'button'>) {
+  // Read rather than passed: this is rendered by `Combobox.ChipRemove` as often
+  // as by `Token` itself, and its corners have to sit on the pill's either way.
+  const context = useToken()
+
   return (
-    <button type="button" className={cn(tokenRemove(), className)} {...props}>
+    <button
+      type="button"
+      className={cn(tokenRemove({ radius: context?.radius ?? 'md' }), className)}
+      {...props}
+    >
       <Icon icon={X} size="small" />
     </button>
   )
@@ -159,6 +175,7 @@ TokenAvatar.displayName = 'Token.Avatar'
 export function Token({
   children,
   size = 'default',
+  radius = 'md',
   startIcon,
   avatar,
   endSlot,
@@ -183,8 +200,8 @@ export function Token({
     removeLabel ?? (typeof children === 'string' ? `Remove ${children}` : 'Remove')
 
   return (
-    <TokenContext.Provider value={{ size }}>
-      <span className={cn(token({ size, interactive, disabled }), className)} {...props}>
+    <TokenContext.Provider value={{ size, radius }}>
+      <span className={cn(token({ size, radius, interactive, disabled }), className)} {...props}>
         {clickable &&
           (href ? (
             <a
@@ -193,7 +210,7 @@ export function Token({
               rel={rel}
               onClick={onClick}
               aria-labelledby={labelId}
-              className={tokenOverlay()}
+              className={tokenOverlay({ radius })}
             />
           ) : (
             <button
@@ -201,7 +218,7 @@ export function Token({
               onClick={onClick}
               disabled={disabled}
               aria-labelledby={labelId}
-              className={tokenOverlay()}
+              className={tokenOverlay({ radius })}
             />
           ))}
 

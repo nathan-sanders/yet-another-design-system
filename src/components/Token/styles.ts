@@ -47,7 +47,7 @@ export const token = tv({
     // `max-w-full` so a token can shrink inside a field rather than widening it.
     'relative inline-flex max-w-full shrink-0 items-center',
     'gap-2 px-2',
-    'rounded-md border border-surface-border bg-surface-card-primary',
+    'border border-surface-border bg-surface-card-primary',
     'font-sans text-sm font-normal text-content-primary',
     // Focus lands on a control *inside* the token — the remove button, or the
     // overlay that makes the whole pill clickable — and Figma draws the ring
@@ -64,6 +64,28 @@ export const token = tv({
     size: {
       default: 'min-h-6', // 24px — 20px line box centred, 2px of slack
       small: 'min-h-5 leading-4.5', // 20px — 18px line box + 2px border
+    },
+
+    /**
+     * **Concentric corners.** A token standing on its own is `rounded-md`, the
+     * radius every other card and field in the library uses. A token *inside* a
+     * field — a Combobox's chips — takes the step down to `rounded-sm`, because
+     * an 8px pill sitting a few pixels inside an 8px box reads as a mistake:
+     * two curves of the same radius on different centres never look parallel.
+     * Subtracting the gap is the usual rule of thumb, and 8 − 3 lands almost
+     * exactly on the 6px the scale already has.
+     *
+     * **Code first here, and the file wants catching up** — Figma binds
+     * `border-radius/rounded-md` on the Token instances inside its Multi Select
+     * Combobox Value. Divider's `emphasis` and Badge's extra hues went the same
+     * way round.
+     *
+     * A prop rather than a derivation, because a token cannot see what it is
+     * sitting in: `Combobox` passes it, and nothing else needs to.
+     */
+    radius: {
+      md: 'rounded-md', // 8px — standing on its own
+      sm: 'rounded-sm', // 6px — nested inside a field
     },
 
     /**
@@ -93,7 +115,7 @@ export const token = tv({
     },
   },
 
-  defaultVariants: { size: 'default', interactive: false, disabled: false },
+  defaultVariants: { size: 'default', radius: 'md', interactive: false, disabled: false },
 })
 
 /**
@@ -123,6 +145,11 @@ export const tokenLabel = tv({
  * `relative z-10` keeps it above the clickable overlay: an absolutely positioned
  * sibling paints over static content, so without this the overlay would swallow
  * the remove button's own 28px.
+ *
+ * **Its radius is the token's, read off context rather than passed** — the
+ * button reaches over the pill's border to take the full height, so its outer
+ * corners sit exactly on the pill's and any mismatch shows as a sliver of wash
+ * outside the curve.
  */
 export const tokenRemove = tv({
   base: [
@@ -134,14 +161,23 @@ export const tokenRemove = tv({
     // fires identically for either. Goes past the Figma file, which draws no
     // state on the `x`; wants adding there, the way Divider's `emphasis` did.
     //
-    // `rounded-md` — the token's own radius, not a pill. The button reaches over
-    // the token's border to take the full height, so its right-hand corners sit
-    // exactly on the token's; matching the radius is what makes the wash read as
-    // the trailing end of the pill rather than a circle floating inside it.
-    'rounded-md transition-colors duration-fast-min ease-standard',
+    // The radius is the token's own, not a pill: the button reaches over the
+    // token's border to take the full height, so its right-hand corners sit
+    // exactly on the token's, and matching makes the wash read as the trailing
+    // end of the pill rather than a circle floating inside it.
+    'transition-colors duration-fast-min ease-standard',
     'hover:bg-action-ghost-background-hover focus-visible:bg-action-ghost-background-hover',
     'outline-none disabled:cursor-not-allowed',
   ],
+
+  variants: {
+    radius: {
+      md: 'rounded-md',
+      sm: 'rounded-sm',
+    },
+  },
+
+  defaultVariants: { radius: 'md' },
 })
 
 /**
@@ -167,7 +203,17 @@ export const tokenRemove = tv({
  * clicking its label worked. `Token.Remove` sits at `z-10`, above both.
  */
 export const tokenOverlay = tv({
-  base: 'absolute -inset-px z-1 cursor-pointer rounded-md outline-none',
+  base: 'absolute -inset-px z-1 cursor-pointer outline-none',
+
+  variants: {
+    /** The pill's, for the same reason `tokenRemove` takes it: it covers it. */
+    radius: {
+      md: 'rounded-md',
+      sm: 'rounded-sm',
+    },
+  },
+
+  defaultVariants: { radius: 'md' },
 })
 
 type TokenVariants = VariantProps<typeof token>
@@ -178,6 +224,12 @@ type TokenVariants = VariantProps<typeof token>
  * token; there is nothing between 24 and a field's 38px of room worth drawing.
  */
 export type TokenSize = NonNullable<TokenVariants['size']>
+
+/**
+ * Which corner radius a token wears — `md` (8px) standing on its own, `sm`
+ * (6px) nested inside a field. See the `radius` variant above for why.
+ */
+export type TokenRadius = NonNullable<TokenVariants['radius']>
 
 /**
  * How big the avatar in the leading slot is at each token size.

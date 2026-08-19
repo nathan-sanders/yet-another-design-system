@@ -6,18 +6,21 @@ import { Icon } from '../Icon'
 import { Token } from './Token'
 
 const sizes = ['default', 'small'] as const
+const radii = ['md', 'sm'] as const
 
 const meta = {
   title: 'Components/Token',
   component: Token,
   argTypes: {
     size: { control: 'inline-radio', options: sizes },
+    radius: { control: 'inline-radio', options: radii },
     children: { control: 'text' },
     disabled: { control: 'boolean' },
   },
   args: {
     children: 'Label',
     size: 'default',
+    radius: 'md',
     disabled: false,
   },
 } satisfies Meta<typeof Token>
@@ -203,6 +206,50 @@ export const Clickable: Story = {
       >
         Jordan Lee
       </Token>
+    </div>
+  ),
+}
+
+/**
+ * The two corner radii, and why there are two.
+ *
+ * `md` (8px) is a token standing on its own, and the radius every card and field
+ * in the library uses. `sm` (6px) is a token **nested inside a field** — what a
+ * `Combobox` passes for its chips — because two curves of the same radius on
+ * different centres never read as parallel. Subtracting the gap between them is
+ * the usual rule of thumb, and 8 − 3 lands almost exactly on the 6 the scale
+ * already has.
+ *
+ * The boxes here are the field: `rounded-md` with the tokenizer's own 3px of
+ * padding, so the difference is the one you would actually see. It is easiest to
+ * spot at the corner nearest the box.
+ *
+ * A prop rather than something derived, because a token cannot see what it is
+ * sitting in — and **Figma still draws 8px inside the Combobox**, so this is a
+ * case of code going first, like Divider's `emphasis`.
+ */
+export const Radius: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div className="flex flex-col gap-6">
+      {(
+        [
+          { radius: 'md', label: 'md — 8px, standing on its own' },
+          { radius: 'sm', label: 'sm — 6px, nested in a field' },
+        ] as const
+      ).map(({ radius, label }) => (
+        <div key={radius} className="flex flex-col gap-2">
+          <span className="text-sm text-content-subtle">{label}</span>
+          <div className="flex w-80 flex-wrap items-center gap-1 rounded-md border border-input-border bg-input-background p-[3px]">
+            <Token {...args} radius={radius} onRemove={() => {}}>
+              Ada Lovelace
+            </Token>
+            <Token {...args} radius={radius} onRemove={() => {}}>
+              Grace Hopper
+            </Token>
+          </div>
+        </div>
+      ))}
     </div>
   ),
 }

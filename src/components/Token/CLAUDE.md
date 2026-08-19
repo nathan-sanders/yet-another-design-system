@@ -47,6 +47,19 @@ a removable one would nest a button in a button. Astryx hits the same wall and a
 same way; done for *every* clickable token, not only removable ones, so there is one code path
 and one focus idiom. The overlay takes its name from the label by `aria-labelledby`, so the label
 stays a `ReactNode` instead of becoming a required string prop.
+**Two radii, and the second is a nesting rule.** `md` (8px) is a token standing on its own — the
+radius every card and field in the library uses. `sm` (6px) is a token **inside** a field, which is
+what `Combobox` passes for its chips: two curves of the same radius on different centres never read
+as parallel, and subtracting the gap between them (8 − 3) lands almost exactly on the 6 the scale
+already has. A prop, not a derivation, because a token cannot see what it is sitting in — and one
+nothing but Combobox should ever pass.
+**`Token.Remove` and the click overlay follow it, and `Token.Remove` reads it off context**, because
+it is rendered by `Combobox.ChipRemove` as often as by Token itself. Both reach over the pill's
+border, so their outer corners land exactly on its; a mismatch shows as a sliver of hover wash
+outside the curve.
+**Code first here — Figma binds `border-radius/rounded-md` on the Token instances inside its Multi
+Select Combobox Value**, so the file wants the 6px drawing in. Divider's `emphasis` and Badge's four
+extra hues went the same way round.
 **Two stacking bugs, both found by measuring.** `inset-0` positions against the *padding* box, so
 the overlay stopped 1px short all round and the border was not clickable — `-inset-px` puts it on
 the border box. And a positioned element only paints over *static* siblings: `Avatar`'s root is

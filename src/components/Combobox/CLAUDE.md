@@ -72,6 +72,10 @@ gained an `interactive` prop**: it derives `Usage=Interactive` from having a han
 handler is Base UI's, one level out of sight. Measured, the remove target is still 28×24.
 `Combobox.Chip` is a `<div>` at `tabIndex={-1}` inside a `role="toolbar"`, so the chips are **one**
 tab stop between them, not one each.
+**And they take Token's `radius="sm"`** — 6px inside the field's 8px box, the only place in the
+library that passes it. Concentric corners of the same radius do not read as parallel; the reasoning
+and the 8 − 3 arithmetic are in Token's `styles.ts`. Figma still draws 8px there, so this is code
+first and the file wants catching up.
 **The popup's search row has no box of its own** — the header's variable defs bind no
 `Input/Border` and no `Input/Background` at all, only the rule beneath. Geometry is Figma's and
 measured: header 48 + 1px rule, magnifier 20px from the panel edge, text 12px after it, rows 32px
