@@ -213,6 +213,79 @@ export const States: Story = {
 }
 
 /**
+ * **The ghost appearance, and the case it exists for.** A global search entry
+ * that should sit quieter than a form field: no fill and no stroke at rest, the
+ * translucent wash from Button's ghost on hover, and the whole chrome back on
+ * focus — so from the moment you are typing it looks like any other field.
+ *
+ * The magnifier is what makes this safe. A borderless box has no 3:1 boundary
+ * identifying it as a control, so the icon and the placeholder carry that job
+ * instead; Astryx's rule for hiding a search label is the same one. Reach for
+ * `ghost` where there is an icon, a `Field` label or a placeholder doing that
+ * work, and not otherwise.
+ *
+ * Shown on a card so the "no fill" reads honestly — against the story canvas a
+ * transparent field and a white one look the same.
+ */
+export const GhostSearch: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-[32rem] flex-col gap-4 rounded-lg bg-surface-card-primary p-4 inset-ring inset-ring-surface-border">
+      <div className="flex items-center gap-3">
+        <InputGroup appearance="ghost" size="small" className="flex-1">
+          <InputGroup.Addon align="inline-start" icon={Search} />
+          <InputGroup.Input aria-label="Search" placeholder="Search everything..." />
+        </InputGroup>
+        <Button appearance="secondary" size="small">
+          New
+        </Button>
+      </div>
+
+      <p className="text-sm text-content-subtle">
+        Hover the field for the wash, then click into it for the full chrome.
+      </p>
+    </div>
+  ),
+}
+
+/**
+ * Ghost against default, at all three sizes, so the difference at rest is
+ * visible side by side. The invalid row is the one to look at: a ghost field
+ * keeps its red border **at rest**, because validity is the one state that must
+ * never be the thing you have to hover to discover.
+ */
+export const GhostVsDefault: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid w-fit grid-cols-[auto_18rem_18rem] items-center gap-x-6 gap-y-4 rounded-lg bg-surface-card-primary p-6 inset-ring inset-ring-surface-border">
+      <span aria-hidden />
+      <span className="text-sm text-content-subtle">Default</span>
+      <span className="text-sm text-content-subtle">Ghost</span>
+
+      {sizes.map((size) => (
+        <div key={size} className="contents">
+          <span className="text-sm text-content-subtle capitalize">{size}</span>
+          {(['default', 'ghost'] as const).map((appearance) => (
+            <InputGroup key={appearance} appearance={appearance} size={size}>
+              <InputGroup.Addon align="inline-start" icon={Search} />
+              <InputGroup.Input aria-label={`Search ${size} ${appearance}`} placeholder="Search..." />
+            </InputGroup>
+          ))}
+        </div>
+      ))}
+
+      <span className="text-sm text-content-subtle">Invalid</span>
+      {(['default', 'ghost'] as const).map((appearance) => (
+        <InputGroup key={appearance} appearance={appearance} invalid>
+          <InputGroup.Addon align="inline-start" icon={Search} />
+          <InputGroup.Input aria-label={`Invalid ${appearance}`} placeholder="Search..." />
+        </InputGroup>
+      ))}
+    </div>
+  ),
+}
+
+/**
  * A share panel, where the addons are doing real work rather than decorating —
  * the leading glyph says what the field is for, and the trailing button acts on
  * what you typed.

@@ -11,6 +11,7 @@ import {
   addonText,
   box,
   control,
+  type InputAppearance,
   type InputGroupAddonAlign,
   type InputSize,
 } from './styles'
@@ -57,6 +58,12 @@ export interface InputGroupProps {
   children: ReactNode
   /** Field size. Set once here and read by every part inside. */
   size?: InputSize
+  /**
+   * `ghost` drops the fill and the stroke until you go near the field. The
+   * addons stay visible throughout, which is what makes this the shape a global
+   * search entry wants: the magnifier says "field" while the box says nothing.
+   */
+  appearance?: InputAppearance
   /**
    * Maps to Figma's `State=Invalid`, for a group standing on its own. Inside a
    * `Field`, set it there instead.
@@ -159,11 +166,12 @@ InputGroupText.displayName = 'InputGroup.Text'
 export function InputGroup({
   children,
   size = 'default',
+  appearance = 'default',
   invalid = false,
   className,
 }: InputGroupProps) {
   return (
-    <div className={cn(box({ size, invalid }), className)}>
+    <div className={cn(box({ size, appearance, invalid }), className)}>
       <InputGroupContext.Provider value={{ size }}>{children}</InputGroupContext.Provider>
     </div>
   )

@@ -53,8 +53,10 @@ import type { IconProps } from '../Icon'
 export const box = tv({
   base: [
     'flex w-full flex-wrap items-center',
-    'rounded-md border border-input-border bg-input-background',
-    'hover:border-input-border-hover',
+    // `border` with no colour: the width is constant so the box never changes
+    // size, and which colour it takes is the `appearance` variant's business.
+    // Button's ghost does the same thing with a fully transparent border.
+    'rounded-md border',
     // Focus lands on the <input> inside, so the ring goes on the box and the
     // input draws none of its own — the Checkbox `inContainer` case, and the
     // reason CLAUDE.md warns about two rings on one control. Unlike a <button>,
@@ -80,6 +82,43 @@ export const box = tv({
   ],
 
   variants: {
+    /**
+     * **Not a Figma property — this one goes past the file**, the way Divider's
+     * `emphasis` and SegmentedControl's `layout` did, and wants an `Appearance`
+     * axis adding to the Input and Input Group sets afterwards.
+     *
+     * `ghost` is a field with no fill and no stroke until you go near it, for a
+     * global search entry that should sit quieter than a form field. Hovering
+     * paints the same translucent wash Button's ghost appearance uses; focusing
+     * brings the whole chrome back, so the field looks exactly like a default
+     * one from the moment you are typing in it.
+     *
+     * **What keeps it findable.** A borderless field has a real problem under
+     * WCAG 1.4.11 — there is no 3:1 boundary identifying it as a control — so a
+     * ghost input leans on the things beside it instead: a leading icon in an
+     * `InputGroup`, the label from a `Field`, or the placeholder. That is
+     * Astryx's own rule for hiding a search field's label, and it is why the
+     * search case is the safe case and a bare ghost field is not. The hover wash
+     * is the third leg: it answers "is this interactive?" before you commit.
+     *
+     * Deliberately **not** enforced with a props union, unlike Button's
+     * icon-only `aria-label`. Those unions enforce an accessible *name*, which
+     * is a hard requirement; a placeholder is a visual affordance and requiring
+     * one would nudge people towards placeholder-as-label, which Astryx warns
+     * against in the same breath.
+     */
+    appearance: {
+      default: 'border-input-border bg-input-background hover:border-input-border-hover',
+      ghost: [
+        'border-transparent bg-transparent',
+        // The 10% wash from Button's ghost — same token, same reason.
+        'hover:bg-action-ghost-background-hover',
+        // Focus lands on the <input>, so the reveal rides the same `has-` idiom
+        // as the ring rather than a second mechanism.
+        'has-focus-visible:border-input-border has-focus-visible:bg-input-background',
+      ],
+    },
+
     size: {
       small: 'min-h-6', // 24px
       default: 'min-h-8', // 32px
@@ -98,7 +137,11 @@ export const box = tv({
     },
   },
 
-  defaultVariants: { size: 'default', invalid: false },
+  // `appearance` is declared before `invalid` on purpose: tailwind-variants
+  // applies variants in the order their keys appear, and tailwind-merge keeps the
+  // last of two conflicting border colours — so an invalid ghost field keeps its
+  // red border at rest rather than hiding the one state that must never hide.
+  defaultVariants: { appearance: 'default', size: 'default', invalid: false },
 })
 
 /**
@@ -182,6 +225,9 @@ type AddonVariants = VariantProps<typeof addon>
 
 /** Maps to the Figma `Size` property: Small 24 · Default 32 · Large 40. */
 export type InputSize = NonNullable<BoxVariants['size']>
+
+/** Not in Figma yet — see the `appearance` variant on `box`. */
+export type InputAppearance = NonNullable<BoxVariants['appearance']>
 
 /**
  * Where an addon sits. Figma models this as one `Display` property for the whole

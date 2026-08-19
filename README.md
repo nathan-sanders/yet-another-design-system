@@ -91,7 +91,7 @@ Figma-driven.
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
-| **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled |
+| **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, in a default or ghost appearance |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
 | **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labelled groups |
@@ -194,6 +194,11 @@ field in its invalid state — a red message beside a neutral border would be a 
   <Input type="email" placeholder="ada@example.com" />
 </Field>
 ```
+
+A ghost input has no fill and no stroke until you go near it — a wash on hover, the full chrome on
+focus — for a global search entry that should sit quieter than a form field. Give it something to be
+found by, though: a leading icon, a label, or a placeholder. A borderless box with nothing in it is
+invisible, and whatever sits beside it is doing the work the border used to.
 
 An `InputGroup` is the same field with things attached, and each addon picks its own side
 independently, so an icon can sit beside the text while a row of actions sits underneath. Its stacked

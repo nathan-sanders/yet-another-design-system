@@ -2,7 +2,7 @@ import type { ComponentPropsWithRef } from 'react'
 import { Input as InputPrimitive } from '@base-ui/react/input'
 
 import { cn } from '../../lib/cn'
-import { box, control, type InputSize } from './styles'
+import { box, control, type InputAppearance, type InputSize } from './styles'
 
 /**
  * Input — a single line of free text.
@@ -50,6 +50,16 @@ export interface InputProps
   /** Field size. Matches Button's scale: 24 / 32 / 40px tall. */
   size?: InputSize
   /**
+   * `ghost` drops the fill and the stroke until you go near the field — a hover
+   * wash, then the full chrome on focus. For a global search entry that should
+   * sit quieter than a form field. Not a Figma property yet.
+   *
+   * Give it something to be found by: a leading icon (use `InputGroup`), a
+   * `Field` label, or a placeholder. A ghost field with none of the three is
+   * invisible.
+   */
+  appearance?: InputAppearance
+  /**
    * Maps to Figma's `State=Invalid`, for an Input standing on its own. Inside a
    * `Field`, set it there instead — the border follows the Field's validity
    * automatically, and only a Field can carry the message explaining it.
@@ -59,14 +69,20 @@ export interface InputProps
   className?: string
 }
 
-export function Input({ size = 'default', invalid = false, className, ...props }: InputProps) {
+export function Input({
+  size = 'default',
+  appearance = 'default',
+  invalid = false,
+  className,
+  ...props
+}: InputProps) {
   return (
     // The box is a wrapper rather than the <input> itself so that Input and
     // InputGroup are the same element with the same recipe, and so the focus
     // ring, the disabled fade and the invalid border can all be read off a
     // descendant with `has-`. It also means padding sits on the control, which
     // is what makes the whole width of the field a hit target.
-    <div className={cn(box({ size, invalid }), className)}>
+    <div className={cn(box({ size, appearance, invalid }), className)}>
       <InputPrimitive
         aria-invalid={invalid || undefined}
         className={control({ size })}
