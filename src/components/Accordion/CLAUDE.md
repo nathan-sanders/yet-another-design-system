@@ -46,9 +46,14 @@ draw no background of their own, and the trigger's hover fill nests exactly, bec
 in Figma are for, and it is the thing to preserve if any of them change.
 
 The Panel is the standing exception, and the one place the clip does real work: without it the
-content is visible outside a collapsing box and there is no animation to see. Measured: a Link
-inside an open panel keeps its full focus ring, because the panel is at its measured height by then
-and the 16/8/16 padding is wider than the ring's 5px.
+content is visible outside a collapsing box and there is no animation to see.
+
+**Which means the panel's padding is also its focus-ring clearance.** The ring needs 5px — 2px gap
+plus 3px — and the sides and bottom have 16, so anything in there keeps its ring. The **top has 0**
+since the padding change below, so a focusable element as the panel's genuine first child loses all
+5px of its ring. Measured with a probe `<a>` inserted as `firstChild`: `ringClippedAtTop: true`,
+`pixelsOfRingLost: 5`. Anything past the first line is fine. This is the trade the top padding
+bought, and the thing to reconsider if a panel ever leads with a Link or a Button.
 
 **The panel's padding is on an inner box, not on the panel.** The panel's height is the animated
 property, so anything adding to it has to be inside the measured element.
@@ -72,10 +77,10 @@ property, so anything adding to it has to be inside the measured element.
   `[hidden] { display: none }`. This panel sets no display, so the browser already handles it —
   measured both ways: a bare `hidden` computes to `none`, `until-found` stays `block`.
 
-## Two things the code decided first, and Figma then adopted
+## Three things the code decided first
 
-Both are settled — the file matches the code again. Recorded because the reasoning is not visible
-from either side on its own.
+Two are settled and one is outstanding. Recorded because the reasoning is not visible from either
+side on its own.
 
 **Row height 40.** The trigger is `min-h-10` (`height/h-10`), and the whole item is 48 with the
 header's 4px either side — the same row Tabs uses for `large`. It shipped at 32 (`height/h-8`,
@@ -85,6 +90,11 @@ Accordion Trigger variants are now 40 tall and bind `height/h-10`.
 Nothing else moved with it, and that is the thing to hold on to: **the radius nesting is a function
 of the header's padding, not the row height**, so the root's 12 less the header's 4 is still the
 trigger's 8 at any row height.
+
+**Panel top padding 0.** Figma draws `spacing/2` (8px) above the panel content; Nathan asked for
+none. The header already leaves 4px under the trigger, so the panel's own 8 read as a gap between a
+label and its own content rather than as one block. Sides and bottom keep their 16. **Figma is
+behind on this one** — the Accordion Item set still draws 8.
 
 **`container`.** Built here against a file that drew only the card, and now a real variant property
 on the Accordion set — `Container=True` / `Container=False`, matching the prop name. `false` drops
@@ -119,8 +129,10 @@ In Storybook at 1440×900, light and dark:
 - Root radius 12px, 1px `surface-border`, `overflow: visible`; item divider 1px, last item 0.
 - Header `<h3>`, padding 4px, margin 0. Trigger min-height 40px (renders at 40), radius 8px,
   padding-inline 12px, gap 8px, 14/24 at weight 600, `content-emphasized`. Row is 48 overall.
-- Panel `overflow: hidden`, inner padding 8/16/16, gap 8; `--accordion-panel-height` 96px on a
+- Panel `overflow: hidden`, inner padding 0/16/16, gap 8; `--accordion-panel-height` 96px on a
   two-line panel, and the height interpolates 0 → 96 over `height 0.175s cubic-bezier(0.24,1,0.4,1)`.
+  4px still separates the trigger from the panel's first line — the header's own padding, not the
+  panel's.
 - Chevron 16px, `rotate` 0 → 180deg, same 175ms and curve. Note Tailwind v4 compiles `rotate-180` to
   the **`rotate` property, not `transform`** — reading `transform` shows `none` on a working
   chevron, exactly as it compiles `translate-x-*` to `translate` for the Tabs indicator.
