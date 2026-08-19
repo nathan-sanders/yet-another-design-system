@@ -67,6 +67,7 @@ export default defineConfig({
       optimizeDeps: {
         include: [
           '@testing-library/dom',
+      '@base-ui/react/accordion',
           '@base-ui/react/toast',
           '@base-ui/react/checkbox',
           '@base-ui/react/radio',
