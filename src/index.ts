@@ -104,6 +104,9 @@ export type {
   ToastPosition,
 } from './components/Toast'
 
+export { Token } from './components/Token'
+export type { TokenProps, TokenSize } from './components/Token'
+
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps, TooltipPopupProps } from './components/Tooltip'
 

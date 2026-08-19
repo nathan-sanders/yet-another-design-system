@@ -7,6 +7,17 @@ for image-loading state and the delayed fallback; all styling is ours, in `style
 the group's overflow circle draws the same shape.
 `size`: x-small 20 | small 24 | base 36 | large 40 | x-large 128 — Icon's names, Figma's
 XS/S/M/L/XL. Initials scale 10 / 10 / 12 / 14 / 48px.
+**`size` also takes a number of pixels**, as an escape hatch for a component that has to draw
+an avatar at a size the scale does not have. Token is the first and so far only caller: Figma
+puts a 16px avatar in its default token and a 12px one in its small token, and *neither is a
+variant here or in the Figma Avatar set* — they are resized instances on the canvas. The box
+takes the number through an inline `width`/`height`, which beats the `size-*` class on
+specificity. Everything **derived** from the size — the initials type scale, the fallback glyph,
+the status dot, the group ring — snaps to the nearest named step via `nearestAvatarSize`, because
+those scales are tokenised and there is nothing continuous between their steps to interpolate to.
+So a 16px avatar draws 10px initials, `x-small`'s. `AvatarGroup`'s `size` stays named-only: the
+overlap is keyed to the ring width at each step, and a custom size is for one avatar whose box
+something else owns, not for a row of them.
 **Content is derived, not a prop.** Figma's `Content` (Image | Initials | Overflow) follows from
 what you pass: `src` → photo, `name` → initials, `count` → `+N`, none → a `User` glyph. Same
 move as Button deriving icon-only from having no label.
