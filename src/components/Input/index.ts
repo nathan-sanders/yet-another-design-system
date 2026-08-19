@@ -9,4 +9,4 @@ export type {
   InputGroupTextProps,
 } from './InputGroup'
 
-export type { InputSize, InputGroupAddonAlign } from './styles'
+export type { InputSize, InputAppearance, InputGroupAddonAlign } from './styles'

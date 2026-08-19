@@ -44,6 +44,7 @@ export type {
   InputGroupAddonProps,
   InputGroupTextProps,
   InputSize,
+  InputAppearance,
   InputGroupAddonAlign,
 } from './components/Input'
 

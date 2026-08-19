@@ -68,6 +68,33 @@ that. The call was to leave the file documenting the two common cases rather tha
 `emphasis` and SegmentedControl's `layout`, where the code went past Figma and the file caught
 up: here it deliberately does not, and the day a mixed layout is actually designed is the day
 the property splits.
+**`appearance="ghost"` goes past Figma**, the way Divider's `emphasis` and SegmentedControl's
+`layout` did, and wants an `Appearance` axis adding to both sets. It is a field with no fill and no
+stroke at rest, for a **global search entry** that should sit quieter than a form field: hovering
+paints the same 10% wash Button's ghost uses, and focus brings the whole chrome back, so from the
+moment you are typing it is indistinguishable from a default field. The border stays 1px and merely
+turns transparent — Button's trick — so nothing resizes. Measured at 24 / 32 / 40 in both
+appearances, with hover landing exactly on `action-ghost-background-hover`.
+**The reason it is safe here and not everywhere.** A borderless box has no 3:1 boundary identifying
+it as a control, which is WCAG 1.4.11's concern, so a ghost field leans on what sits beside it: a
+leading icon in an `InputGroup`, a `Field` label, or the placeholder. That is Astryx's own condition
+for hiding a search field's label, and it is why the search case is the safe case. The hover wash is
+the third leg — it answers "is this interactive?" before you commit.
+**Invalid stays visible at rest on a ghost field**, which is the one state that must not wait for a
+hover. It works because `appearance` is declared *before* `invalid` in the recipe: tailwind-variants
+applies variants in key order and tailwind-merge keeps the last of two conflicting border colours.
+Verified in the browser, because that is a silent failure if the order ever flips.
+Deliberately **not** enforced with a props union, unlike Button's icon-only `aria-label`: those
+unions enforce an accessible *name*, and a placeholder is a visual affordance — requiring one would
+nudge towards placeholder-as-label, which Astryx warns against in the same breath.
+**`--surface-border-ghost` is still unused, and is not this.** It is `white` in light and `stone-700`
+in dark, so it means "a border that disappears into a card", not "no border" — on the stone-100
+canvas it would paint a visible white outline. Ghost uses a transparent border instead. That token is
+still looking for its consumer, as `feedback-*` was before Banner.
+**Select (19) does not get this for free.** It carries its own copy of the input chrome rather than
+importing this folder's `box`, so a ghost Select means adding the variant there too — worth deciding
+before a third copy appears.
+
 **Story trap, Banner's:** the variant matrix is a grid, not a `<table>` — both of these are
 `w-full` and would collapse to their longest word in an auto-layout cell.
 Left out: `Textarea` (Base UI has no primitive and Figma draws no multi-line variant),
