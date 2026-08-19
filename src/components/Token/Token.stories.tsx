@@ -176,7 +176,7 @@ export const Slots: Story = {
  * `<span>` with an invisible button stretched across it, because a removable
  * token would otherwise nest one button inside another. The last two here have
  * both, which is the case that needs it: tab through them and you get two stops,
- * the ring around the token for the click target and the round wash on the `x`
+ * the ring around the token for the click target and the wash on the `x`
  * for the remove.
  */
 export const Clickable: Story = {
