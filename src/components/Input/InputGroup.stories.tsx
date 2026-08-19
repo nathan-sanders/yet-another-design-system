@@ -232,13 +232,11 @@ export const GhostSearch: Story = {
   render: () => (
     <div className="flex w-[32rem] flex-col gap-4 rounded-lg bg-surface-card-primary p-4 inset-ring inset-ring-surface-border">
       <div className="flex items-center gap-3">
-        <InputGroup appearance="ghost" size="small" className="flex-1">
+        <InputGroup appearance="ghost" className="flex-1">
           <InputGroup.Addon align="inline-start" icon={Search} />
           <InputGroup.Input aria-label="Search" placeholder="Search everything..." />
         </InputGroup>
-        <Button appearance="secondary" size="small">
-          New
-        </Button>
+        <Button appearance="secondary">New</Button>
       </div>
 
       <p className="text-sm text-content-subtle">
@@ -309,7 +307,7 @@ export const InContext: Story = {
       </Field>
 
       <Field label="Or copy the link">
-        <InputGroup size="small">
+        <InputGroup>
           <InputGroup.Addon align="inline-start" icon={LinkIcon} />
           <InputGroup.Input defaultValue="https://yads.example.com/f/8bRBn0" readOnly />
         </InputGroup>

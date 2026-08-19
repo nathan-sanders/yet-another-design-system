@@ -158,7 +158,7 @@ export const InContext: Story = {
         <span className="text-sm text-content-subtle">{team.length} people</span>
       </div>
 
-      <AvatarGroup size="small">
+      <AvatarGroup>
         {team.slice(0, 4).map((person) => (
           <Avatar key={person.id} src={person.src} name={person.name} />
         ))}
