@@ -46,6 +46,16 @@ interface TokenBaseProps
    * nothing about which token it removes.
    */
   removeLabel?: string
+  /**
+   * Figma's `Usage=Interactive`, which is otherwise **derived** from having an
+   * `onRemove`, an `onClick` or an `href` — and stays derived for every ordinary
+   * caller. This is the escape hatch for a token whose interactive control is
+   * not one of Token's own props: a `Combobox` chip drives its remove button
+   * through `Combobox.ChipRemove`, handed in via `endSlot`, so the derivation
+   * cannot see it. It can only turn the hover on; a token with a real handler is
+   * interactive whatever this says.
+   */
+  interactive?: boolean
   /** Figma's `State=Disabled`. Fades the token and stops both inner buttons. */
   disabled?: boolean
   /** Extra classes for the outermost element — the pill. */
@@ -154,6 +164,7 @@ export function Token({
   endSlot,
   onRemove,
   removeLabel,
+  interactive: interactiveProp = false,
   disabled = false,
   href,
   target,
@@ -164,7 +175,7 @@ export function Token({
 }: TokenProps) {
   const labelId = useId()
   const clickable = Boolean(href) || Boolean(onClick)
-  const interactive = clickable || Boolean(onRemove)
+  const interactive = clickable || Boolean(onRemove) || interactiveProp
 
   // "Remove Design" rather than a bare "Remove", when the label is something we
   // can read. Astryx names its own remove button the same way.
