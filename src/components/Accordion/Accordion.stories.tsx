@@ -45,9 +45,16 @@ const meta = {
   },
   // Figma draws the accordion 400px wide. Everything is fluid, so the frame is
   // the story's job rather than the component's.
+  //
+  // `text-base` is here rather than on each panel for the same reason: the
+  // component sets no typography on its panel (see its CLAUDE.md — what goes in
+  // a panel is the caller's content), so without this the stories render panel
+  // text at the browser's 16px next to a 14/24 trigger, which is a story
+  // artefact rather than the design. Triggers set their own `text-base`, so
+  // nothing inherits past them.
   decorators: [
     (Story) => (
-      <div className="w-100">
+      <div className="w-100 text-base text-content-primary">
         <Story />
       </div>
     ),
