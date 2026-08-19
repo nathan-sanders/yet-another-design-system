@@ -20,11 +20,11 @@ a stroke that adds nothing to the frame; a CSS border adds, so `min-h-5` + `bord
 line-height 20 renders **22**. Select's padding-block trap arriving from the opposite direction.
 The line box gives up the 2px: `small` sets `leading-4.5` (18px), keeps the 12px type, 18 + 2 = 20.
 The default size already has 2px of block padding to absorb it and needs nothing.
-**Why 20 and 24 are load-bearing beyond this component.** A Combobox will show tokens inside the
-same bordered box Input, InputGroup and Select draw, and adding one must not change the field's
-height — it may only grow when tokens wrap. The field's *inner* height is its box minus two
-borders: **22 / 30 / 38**, against **20 / 24 / 24**. A 22px small token would fill a small field
-edge to edge, which is what the `leading-4.5` fix buys. Input's `box` is already `flex-wrap` with
+**Why 20 and 24 are load-bearing beyond this component.** A Combobox shows tokens inside the same
+bordered box Input, InputGroup and Select draw, and adding one must not change the field's height:
+it may only grow when tokens wrap. The field's *inner* height is its box minus two borders:
+**22 / 30 / 38**, against **20 / 24 / 24** — and all six measured true when Combobox landed.
+A 22px small token would fill a small field edge to edge, which is what the `leading-4.5` fix buys. Input's `box` is already `flex-wrap` with
 `min-h-*`, so the wrap case needs nothing from it.
 **The end slot is the one thing that can break that**, because it is caller content. A small
 token has 18px of content box and a Badge is 20px tall by its own spec, so a Badge in a small
@@ -36,6 +36,12 @@ contract.
 whole of what `Interactive` buys: Figma's Hover state adds `Elevation/Drop Shadow/Low` and
 changes nothing else. `State` is not a prop either — except `disabled`, because a `<span>` has no
 attribute to read it off, unlike Input's box.
+**Except that `interactive` now *is* a prop, as an escape hatch.** Combobox's chips are
+`<Combobox.Chip render={<Token />}>` with `<Combobox.ChipRemove render={<Token.Remove />} />` handed
+in through `endSlot` — so the button is real, but the *handler* is Base UI's and lives a level out
+of sight, the derivation could not see it, and the pill lost its hover. The rule the library keeps
+is "derive where the value already says it"; here the value does not say it. The prop can only turn
+the hover on, never off: a token with a real handler is interactive whatever it says.
 **A clickable token is a span with an invisible button stretched across it**, never a `<button>`:
 a removable one would nest a button in a button. Astryx hits the same wall and answers it the
 same way; done for *every* clickable token, not only removable ones, so there is one code path
