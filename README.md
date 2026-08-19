@@ -80,6 +80,7 @@ Figma-driven.
 
 | Component | Variants |
 |---|---|
+| **Accordion** | A stack of sections, single- or multi-open (`multiple`); card or flush (`container`); optional leading icon, heading level 2–6 |
 | **Avatar** | Photo, initials or `+N` at 5 sizes (20/24/36/40/128); online/offline/unavailable status, each with its own shape |
 | **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
 | **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |

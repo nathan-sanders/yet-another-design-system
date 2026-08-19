@@ -210,6 +210,7 @@ settled once, against the Figma file, for a reason that is written down.
 
 | Component | | |
 |---|---|---|
+| [Accordion](src/components/Accordion/CLAUDE.md) | a stack of sections, one open at a time | height animated off a measurement Base UI publishes |
 | [Button](src/components/Button/CLAUDE.md) | the action control | five appearances, three sizes, icon-only derived from the absence of a label |
 | [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, colour inherited via `currentColor` |
 | [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size |
@@ -270,7 +271,7 @@ component usually has fewer decisions in it than it looks.
   SegmentedControl's `large` and three of Slider's four decisions were built here against a file that
   did not have them, then drawn into the file afterwards. The direction is unusual but it is allowed —
   what is not allowed is leaving the file behind.
-- **Each entry records which Base UI component it was.** Seventeen so far, Divider first. Worth keeping
+- **Each entry records which Base UI component it was.** Eighteen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **Application stories use the default size.** A story that shows a component *in use* — the
   `InContext` family, and anything else standing in for a real screen — takes the default of every

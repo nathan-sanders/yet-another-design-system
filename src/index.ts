@@ -1,4 +1,13 @@
 // Public surface of the library. Each component folder exports through here.
+export { Accordion } from './components/Accordion'
+export type {
+  AccordionProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionPanelProps,
+  AccordionHeadingLevel,
+} from './components/Accordion'
+
 export { Avatar, AvatarGroup } from './components/Avatar'
 export type {
   AvatarProps,
