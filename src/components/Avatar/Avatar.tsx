@@ -10,6 +10,7 @@ import {
   avatarSurface,
   statusBar,
   statusDot,
+  nearestAvatarSize,
   FALLBACK_GLYPH_SIZE,
   STATUS_LABEL,
   type AvatarSize,
@@ -18,8 +19,20 @@ import {
 
 interface AvatarBaseProps
   extends Omit<ComponentPropsWithRef<'span'>, 'children' | 'color' | 'onClick'> {
-  /** Box size. Maps to the Figma `Size` property. An AvatarGroup sets this for its children. */
-  size?: AvatarSize
+  /**
+   * Box size. Maps to the Figma `Size` property. An AvatarGroup sets this for
+   * its children.
+   *
+   * A **number of pixels** is accepted as an escape hatch, for a component that
+   * has to draw an avatar at a size the scale does not have — Token's leading
+   * avatar is 16px at its default size and 12px at small, neither of which is a
+   * variant here or in the Figma Avatar set. The box takes the number; the type
+   * scale, the fallback glyph, the status dot and the group ring snap to the
+   * nearest named step, because those are tokenised and there is nothing
+   * continuous to interpolate. Reach for a name unless something else owns the
+   * box.
+   */
+  size?: AvatarSize | number
   /** Photo URL. Present and loading cleanly, this is Figma's `Content=Image`. */
   src?: string
   /** Alt text for the photo. Falls back to `name`. */
@@ -144,13 +157,21 @@ export function Avatar({
   rel,
   onClick,
   className,
+  style,
   ...props
 }: AvatarProps) {
   // A group sets the size for everything inside it, but an explicit size on the
   // avatar still wins — the group is a default, not a lock.
   const group = useAvatarGroup()
-  const resolvedSize = size ?? group?.size ?? 'base'
+  const requestedSize = size ?? group?.size ?? 'base'
   const inGroup = group?.inGroup ?? false
+
+  // A custom size draws its own box and borrows the rest of the scale from the
+  // step it sits closest to — see `nearestAvatarSize`. Inline width/height beats
+  // the `size-*` class on specificity, so no custom property is needed to get
+  // past it.
+  const customSize = typeof requestedSize === 'number' ? requestedSize : undefined
+  const resolvedSize = customSize === undefined ? (requestedSize as AvatarSize) : nearestAvatarSize(customSize)
 
   const interactive = Boolean(href) || Boolean(onClick)
 
@@ -187,6 +208,7 @@ export function Avatar({
   return (
     <AvatarPrimitive.Root
       className={classes}
+      style={customSize === undefined ? style : { width: customSize, height: customSize, ...style }}
       render={render}
       onClick={onClick}
       // A link or a button already has a role; only the static form needs one.

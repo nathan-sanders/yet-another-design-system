@@ -151,6 +151,9 @@ layout anywhere and cannot create a scrollbar either; the problem cannot come ba
 Two rings on one control is the thing to watch for. A Checkbox or Radio `inContainer` hands the ring
 to the card and draws none on the box — the box is inside the card, so both would fire at once.
 
+**Not to be confused with the `Token` component.** `tokens/` here is the Figma export;
+`src/components/Token/` is the pill that shows one chosen value. Same word, unrelated things.
+
 ### Refreshing tokens
 
 Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the
@@ -226,6 +229,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Input](src/components/Input/CLAUDE.md) | a line of free text | plus `InputGroup` for attachments |
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
+| [Token](src/components/Token/CLAUDE.md) | one chosen value as a pill | 20 / 24 tall, so a field full of them never grows |
 
 ### Patterns that recur across components
 
@@ -274,7 +278,10 @@ The form family is complete against the file: **Checkbox Group** and **Radio Gro
 `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a Field as
 well as from their own prop, and Slider is closed as a deliberate non-change (see its entry). What is
 in Figma and still unbuilt is **Autocomplete** and **Combobox** — both already have a `Type` in the
-Field set, so Field is waiting for them rather than the other way round.
+Field set, so Field is waiting for them rather than the other way round. **Token is built and
+waiting for Combobox too**: Base UI's `Combobox.Chips` / `Chip` / `ChipRemove` supply the
+behaviour, Token supplies the look, and the heights that keep a field from growing are recorded
+in Token's `CLAUDE.md` as 20 / 24 against a field's inner 22 / 30 / 38.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's

@@ -179,6 +179,37 @@ type AvatarVariants = VariantProps<typeof avatar>
 /** Maps to the Figma `Size` property: XS 20 · S 24 · M 36 · L 40 · XL 128. */
 export type AvatarSize = NonNullable<AvatarVariants['size']>
 
+/**
+ * The pixel box each named step draws. Only used to answer "which step is this
+ * custom size closest to?" — the classes above stay the source of truth for the
+ * box itself.
+ */
+const AVATAR_SIZE_PX: Record<AvatarSize, number> = {
+  'x-small': 20,
+  small: 24,
+  base: 36,
+  large: 40,
+  'x-large': 128,
+}
+
+/**
+ * The named step closest to a custom pixel size.
+ *
+ * `<Avatar size={16}>` sets its own box, but everything *derived* from the size —
+ * the initials type scale, the fallback glyph, the status dot, the group ring —
+ * comes from a tokenised scale with nothing continuous between its steps. There
+ * is no 16px type token to interpolate to, so those snap to the nearest step
+ * instead of being scaled by hand. The one deliberate consequence: a custom size
+ * far from any step draws slightly large or small glyphs, which is the trade for
+ * not inventing untokenised values.
+ */
+export function nearestAvatarSize(px: number): AvatarSize {
+  const names = Object.keys(AVATAR_SIZE_PX) as AvatarSize[]
+  return names.reduce((closest, name) =>
+    Math.abs(AVATAR_SIZE_PX[name] - px) < Math.abs(AVATAR_SIZE_PX[closest] - px) ? name : closest,
+  )
+}
+
 /** Maps to the Figma Avatar Status `Status` property. */
 export type AvatarStatus = 'online' | 'offline' | 'unavailable'
 
