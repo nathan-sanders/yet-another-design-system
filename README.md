@@ -6,6 +6,8 @@ Figma — so the code and the design file stay in sync, and dark mode costs noth
 Built with React 19, TypeScript, Vite, Tailwind CSS v4, and [Base UI](https://base-ui.com).
 Previewed in Storybook.
 
+**[Browse the components →](https://nathan-sanders.github.io/yet-another-design-system/)**
+
 ## Quick start
 
 ```bash
@@ -24,7 +26,9 @@ npm run storybook    # component library at localhost:6006
 | `python3 generate.py` | Rebuild `theme.css` from `tokens/*.json` |
 
 Lint, build and the story suite all run on every pull request — see
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml). Every push to `main` also
+publishes Storybook to GitHub Pages — see
+[`.github/workflows/deploy-storybook.yml`](.github/workflows/deploy-storybook.yml).
 
 ## How it works
 

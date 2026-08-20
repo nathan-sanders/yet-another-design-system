@@ -1,0 +1,59 @@
+name: Deploy Storybook
+
+# Publishes the built Storybook to GitHub Pages at
+# https://nathan-sanders.github.io/yet-another-design-system/ so the library can
+# be shared with a link. Only main deploys; pull requests are covered by ci.yml,
+# which already builds and runs every story.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pages needs to read the repo, mint an id-token for the deploy, and write the
+# site itself. Nothing else.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one mid-flight — a cancelled deploy can
+# leave the site on the previous build with no run to explain why.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy to Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # No `base` config anywhere: Storybook's static build already references
+      # every asset relatively, so it works unchanged under the /repo-name/ path
+      # a project Pages site is served from.
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: storybook-static
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
