@@ -52,6 +52,10 @@ library allows so long as the file catches up.
   already sits above it. A block with no header has to put the 16 back, and the body knows it is
   first from its position rather than from a `hasHeader` prop the caller could contradict. No
   JavaScript, and measured: 0/16/16/16 with a header, 16/16/16/16 without.
+- **Actions take the default Button size, not `small`.** The row is `min-h-12` with 8px of padding
+  above and below, so it has exactly 32px of room — which is what a default Button is. They were
+  `small` when this first landed, on an assumed constraint that turned out not to exist. The
+  library's rule is that default comes first and a smaller size needs a measured reason.
 - **The header's padding is asymmetric on purpose** — `pl-4 pr-2`, straight from Figma. The 8 on the
   right is there because a 32px ghost Button carries its own 12px, so an icon-only action lands 16px
   off the edge like everything else. A header with no actions does sit 8px short on the right; that

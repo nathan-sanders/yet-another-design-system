@@ -225,7 +225,9 @@ export interface ContentBlockHeaderProps extends ComponentPropsWithRef<'div'> {
   titleSlot?: ReactNode
   /**
    * The Figma "Actions Items" — controls for the block, pushed to the right
-   * edge. Usually one icon-only `<Button size="small">`; use
+   * edge. Usually one icon-only Button at the **default** size: the header is
+   * `min-h-12` with 8px of padding above and below, which leaves exactly the
+   * 32px a default Button is, so nothing here has to shrink to fit. Use
    * `appearance="overlay"` when the block is `emphasis="accent"`.
    */
   actions?: ReactNode

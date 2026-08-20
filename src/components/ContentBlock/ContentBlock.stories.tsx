@@ -46,7 +46,6 @@ export const Playground: Story = {
           actions={
             <Button
               appearance={args.emphasis === 'accent' ? 'overlay' : 'ghost'}
-              size="small"
               startIcon={Ellipsis}
               aria-label="Block options"
             />
@@ -147,7 +146,6 @@ export const HeaderAnatomy: Story = {
           actions={
             <Button
               appearance="ghost"
-              size="small"
               startIcon={ArrowUpRight}
               aria-label="Open engagement report"
             />
@@ -168,7 +166,6 @@ export const HeaderAnatomy: Story = {
           actions={
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Ellipsis}
               aria-label="Block options"
             />
@@ -209,7 +206,6 @@ export const LongTitle: Story = {
               actions={
                 <Button
                   appearance="ghost"
-                  size="small"
                   startIcon={Ellipsis}
                   aria-label="Block options"
                 />
@@ -305,7 +301,6 @@ export const ActionsOnAccent: Story = {
               actions={
                 <Button
                   appearance={appearance}
-                  size="small"
                   startIcon={Ellipsis}
                   aria-label={`Block options (${appearance})`}
                 />
