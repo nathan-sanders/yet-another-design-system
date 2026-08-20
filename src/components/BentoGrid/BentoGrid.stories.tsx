@@ -175,9 +175,10 @@ export const Spans: Story = {
  *   cell each, because they answer the same question.
  * - **Restraint** — seven cells, one accent, one chart.
  *
- * Application stories take the default size of every scale in them, per the
- * house rule. The icon-only Buttons are `small` because they have to fit inside
- * a 48px header row, which is a reason.
+ * Every scale in here is at its default, per the house rule — including the
+ * icon-only Buttons, which were `small` at first on the assumption that a 48px
+ * header row was tight. It is not: the row is `min-h-12` with 8px of padding
+ * either side, so it has exactly 32px of room, and a default Button is `h-8`.
  */
 export const Dashboard: Story = {
   parameters: { controls: { disable: true } },
@@ -193,7 +194,6 @@ export const Dashboard: Story = {
               actions={
                 <Button
                   appearance="overlay"
-                  size="small"
                   startIcon={ArrowUpRight}
                   aria-label="Open the sales report"
                 />
@@ -274,7 +274,6 @@ export const Dashboard: Story = {
               actions={
                 <Button
                   appearance="ghost"
-                  size="small"
                   startIcon={Ellipsis}
                   aria-label="Chart options"
                 />

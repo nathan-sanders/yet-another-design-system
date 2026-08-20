@@ -283,13 +283,16 @@ component usually has fewer decisions in it than it looks.
   ones to watch.
 - **Each entry records which Base UI component it was.** Eighteen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
-- **Application stories use the default size.** A story that shows a component *in use* — the
-  `InContext` family, and anything else standing in for a real screen — takes the default of every
-  size scale in it, so the composition reads as the ordinary case rather than a styled one. `small`
-  and `large` belong in the stories that exist to show the scale, or where something genuinely calls
-  for them: a Button inside an addon is `small` because it has to fit inside a 32px field, and that
-  is a reason. "It looked better" is not, and it is how a library ends up with no default anybody
-  recognises.
+- **The default size is the first option, everywhere.** Reach for it in application stories — the
+  `InContext` family, and anything standing in for a real screen — and in composition generally, so
+  what gets built reads as the ordinary case rather than a styled one. `small` and `large` belong in
+  the stories that exist to show the scale, or where something genuinely calls for them: a Button
+  inside an addon is `small` because it has to fit inside a 32px field, and that is a reason. "It
+  looked better" is not, and it is how a library ends up with no default anybody recognises.
+  **Check the reason before believing it.** ContentBlock's header actions were `small` on the
+  assumption that a 48px row was tight; it is `min-h-12` with 8px of padding either side, so it has
+  exactly the 32px a default Button is, and the constraint was imagined. A tight fit is easy to
+  assume and quick to measure.
 
 ## Still to build
 
