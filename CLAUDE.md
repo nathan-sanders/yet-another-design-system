@@ -233,6 +233,8 @@ settled once, against the Figma file, for a reason that is written down.
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
 | [Token](src/components/Token/CLAUDE.md) | one chosen value as a pill | 20 / 24 tall, so a field full of them never grows |
 | [Combobox](src/components/Combobox/CLAUDE.md) | a long list, filtered by typing | a trigger with a searchable popup, or a tokenizer |
+| [ContentBlock](src/components/ContentBlock/CLAUDE.md) | a card that owns one region of a page | header slots, three emphases, the part a bento view is made of |
+| [BentoGrid](src/components/BentoGrid/CLAUDE.md) | the mosaic those blocks sit in | columns, spans, and one breakpoint doing all the collapsing |
 
 ### Patterns that recur across components
 
@@ -255,8 +257,8 @@ component usually has fewer decisions in it than it looks.
   `relative z-10` and its crosses floated over an open Combobox menu. `overlayLayer` goes on the
   **Positioner**, which is the element Base UI positions, and sits at 40 so `Toast`'s `z-50` stays
   the top of the library.
-- **Figma's `overflow-clip` is not ported** — nine times now, across SegmentedControl, Banner, Toast,
-  Menu, Switch, Slider, Select and Combobox. A canvas has no other way to bound a frame; here the focus ring paints
+- **Figma's `overflow-clip` is not ported** — ten times now, across SegmentedControl, Banner, Toast,
+  Menu, Switch, Slider, Select, Combobox and ContentBlock. A canvas has no other way to bound a frame; here the focus ring paints
   outside the component on purpose, and clipping would slice it off.
 - **Controls grow as you touch them.** Switch's knob 14 → 16 as it slides, Slider's handle 16 → 20 on
   hover, focus and drag.
@@ -273,6 +275,12 @@ component usually has fewer decisions in it than it looks.
   unusual but it is allowed — what is not allowed is leaving the file behind. Accordion is the one to
   copy: its row went 32 → 40 in code and the Figma variants followed within the day, so the two never
   drifted far enough to argue about.
+- **A prop named after a DOM attribute has to give way, one side or the other.** Three now, and each
+  was found by the same `Omit`-or-rename type error: Divider's `style` became `lineStyle`, Banner's
+  `title` kept the prop name and `Omit`ed the attribute, and ContentBlock's header slot was named
+  `titleSlot` before it could collide with `slot`. The rule that decides it is whether the prop name
+  is the one a caller would reach for first. `slot`, `title`, `style`, `color` and `content` are the
+  ones to watch.
 - **Each entry records which Base UI component it was.** Eighteen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **Application stories use the default size.** A story that shows a component *in use* — the
@@ -287,10 +295,17 @@ component usually has fewer decisions in it than it looks.
 
 Foundational and static first:
 
-1. **Card** — native container using `bg-surface-card-primary`, `border-surface-border`, elevation.
+1. **Card** — the plain container, with no header. **ContentBlock is not it**: that one is Figma's
+   Content Block, and its header is the whole point of it. If a caller only ever wants the frame,
+   this is a smaller component; if nobody asks for it, it is a `ContentBlock` with no
+   `ContentBlock.Header`, and the roadmap entry should be closed rather than built.
 2. **List Item** — variants/states; native, styled.
 3. **Table Cell** — native, styled.
 4. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+
+`ContentBlock` and `BentoGrid` landed together, because a block on its own does not show what it is
+for. **BentoGrid is the first component in the library with no Figma node behind it at all** — not a
+variant added ahead of the file, but a whole component. It owes the file a drawing.
 
 The form family is complete against the file bar one: **Checkbox Group** and **Radio Group** are
 built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a
