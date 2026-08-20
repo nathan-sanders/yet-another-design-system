@@ -98,9 +98,21 @@ const tabsList = tv({
      * also keeps the strip 40px tall: a real `border-b` would sit *outside* the
      * padding box, adding a 41st pixel and leaving the 2px indicator hovering
      * above the line instead of painting over it.
+     *
+     * **`before:`, not `after:`, and that is the whole of it.** The rule and the
+     * indicator both sit at `bottom-0`, both are positioned, and neither carries
+     * a `z-index` — so painting order is tree order, and a `::after` is generated
+     * *last*, after the indicator element. The rule was covering the bottom 1px
+     * of the 2px indicator, which read as the active tab's underline sitting
+     * behind the group's line and being half as thick as it should be. A
+     * `::before` is generated first, so the indicator paints over it, as the 2px
+     * over 1px was always meant to. No `z-index` is needed and none is added:
+     * one would open a stacking context here for a problem tree order already
+     * answers. Both are `absolute`, so which pseudo-element it is changes nothing
+     * about the flex layout.
      */
     divider: {
-      true: 'after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-surface-border',
+      true: 'before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-surface-border',
       false: '',
     },
 

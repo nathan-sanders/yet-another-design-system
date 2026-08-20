@@ -31,9 +31,15 @@ attribute. SegmentedControl's `disabled:` classes work because its Radio takes t
 same classes here fire on nothing, silently.
 **The bottom rule cannot be the Divider component**, even though Figma draws it as one: `Divider`
 renders `role="separator"`, and a `tablist` may only contain tabs — axe fails the story suite on
-`aria-required-children`. It is an `after:` pseudo-element on the same `surface-border` token.
+`aria-required-children`. It is a `before:` pseudo-element on the same `surface-border` token.
 Nor can it be `border-b`: a border sits outside the padding box, making the strip 41px instead of
 40 and leaving the 2px indicator hovering above the line rather than painting over it.
+**`before:` and not `after:` is load-bearing.** The rule and the indicator both sit at `bottom-0`,
+both are positioned, and neither has a `z-index`, so painting order is tree order — and an
+`::after` is generated *after* the indicator element, so the 1px rule was covering the bottom half
+of the 2px indicator. The active tab's underline read as half-thickness and tucked behind the
+group's line. A `::before` is generated first and the indicator paints over it. No `z-index`: tree
+order already answers it, and one here would open a stacking context for nothing.
 **The strip is 40px at `default`** — 4 (py-1) + 32 + 4, and the indicator hangs in that last 4px,
 which is Figma's `bottom-[-4px]`. **40 / 32 / 48 are the numbers to check.**
 Focus is the shared ring, which reaches 5px and so covers the strip's rule and the 4px below the
