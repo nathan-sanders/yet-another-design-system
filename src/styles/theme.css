@@ -396,6 +396,7 @@
   --surface-canvas-transparent: oklch(97% 0 none / 0);
   --surface-card-primary: var(--color-white);
   --surface-card-subtle: var(--color-stone-100);
+  --surface-card-emphasized: var(--color-stone-800);
   --surface-canvas-overlay: oklch(26.5% 0.0078 31.124 / 0.1);
   --surface-border: var(--color-stone-200);
   --surface-border-emphasized: var(--color-stone-800);
@@ -579,6 +580,7 @@
   --surface-canvas-transparent: oklch(13.7% 0.0046 51.051 / 0);
   --surface-card-primary: var(--color-stone-900);
   --surface-card-subtle: var(--color-stone-950);
+  --surface-card-emphasized: var(--color-stone-100);
   --surface-canvas-overlay: oklch(97% 0 none / 0.1);
   --surface-border: var(--color-stone-700);
   --surface-border-emphasized: var(--color-stone-100);
@@ -764,6 +766,7 @@
   --color-surface-canvas-transparent: var(--surface-canvas-transparent);
   --color-surface-card-primary: var(--surface-card-primary);
   --color-surface-card-subtle: var(--surface-card-subtle);
+  --color-surface-card-emphasized: var(--surface-card-emphasized);
   --color-surface-canvas-overlay: var(--surface-canvas-overlay);
   --color-surface-border: var(--surface-border);
   --color-surface-border-emphasized: var(--surface-border-emphasized);

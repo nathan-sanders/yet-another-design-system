@@ -33,9 +33,18 @@ from below which surface the root chose.
 Figma draws `default` only. `subtle` and `accent` are code-first — the Accordion route, which this
 library allows so long as the file catches up.
 
-- **`accent` is the anchor cell.** It uses the Action/Primary pair because that is the only ramp in
-  the theme with a foreground already tuned for contrast on its background in both themes, so there
-  is no `dark:` class here — Banner's finding, reached the same way.
+- **`accent` is the anchor cell.** Surface/Card Emphasized on Surface/Border Emphasized, with
+  Content/Inverse on top — each tier's own inverted value, and a foreground already tuned for
+  contrast on that background in both themes, so there is no `dark:` class here — Banner's finding,
+  reached the same way.
+- **It used to be the Action/Primary pair, and that was the wrong tier.** Action/Primary was the only
+  ramp that shipped a matched foreground/background/border, so the accent borrowed it. Surface/Card
+  Emphasized (2026-08-20, and the file's half of the catching-up above) closed that gap: same
+  stone-800 / stone-100, no pixel moved, but the block no longer takes its colour from the button
+  ramp — restyling the primary Button would have dragged the bento anchor along with it. **The
+  general shape: when a component borrows a token from a tier it does not belong to, the borrowing is
+  the bug even while the value is right.** The `Dashboard` story's stat divider went the same way,
+  from `border-action-primary-foreground/20` to `border-current/20`.
 - **A ghost Button on the accent is invisible.** Action/Ghost's foreground is the same stone as the
   accent's background. Use `appearance="overlay"` in `actions`, which is what Banner does for its
   four feedback backgrounds. The `ActionsOnAccent` story shows both, side by side, so the failure is
