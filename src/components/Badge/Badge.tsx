@@ -35,15 +35,20 @@ const badge = tv({
   ],
 
   variants: {
-    // All 18 hues of the Decorative ramp: neutral Stone first (as Figma lists
+    // All 18 hues of the Decorative ramp: the neutral first (as Figma lists
     // it), then the spectrum in ramp order.
+    //
+    // `neutral` is the one hue that is not fixed — it follows the ramp chosen
+    // by <html data-neutral>, so a neutral badge sits in the same family as the
+    // page around it instead of staying stone on a taupe canvas. Figma still
+    // spells the role "Stone"; generate.py renames it.
     //
     // Figma's component set currently ships 14 of these — Orange, Lime, Emerald
     // and Teal are missing there and are being added to the file to match. They
     // are included here because the tokens already exist for all 18, so leaving
     // them out was a gap in the design rather than a decision.
     color: {
-      stone: 'bg-decorative-stone-background text-decorative-stone-foreground',
+      neutral: 'bg-decorative-neutral-background text-decorative-neutral-foreground',
       red: 'bg-decorative-red-background text-decorative-red-foreground',
       orange: 'bg-decorative-orange-background text-decorative-orange-foreground',
       amber: 'bg-decorative-amber-background text-decorative-amber-foreground',
@@ -65,7 +70,7 @@ const badge = tv({
   },
 
   defaultVariants: {
-    color: 'stone',
+    color: 'neutral',
   },
 })
 

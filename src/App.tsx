@@ -20,6 +20,23 @@ function useDarkMode() {
   return [dark, setDark] as const
 }
 
+/** The nine neutral ramps, stone first — the same list and order as generate.py. */
+const NEUTRALS = ['stone', 'taupe', 'mauve', 'mist', 'olive',
+                  'slate', 'gray', 'zinc', 'neutral'] as const
+
+/**
+ * Which primitive ramp the semantic neutrals resolve to. Orthogonal to dark
+ * mode: the ramp is theme-independent, and the semantic layer picks which of
+ * its eleven steps each theme uses. Same public mechanism a consumer gets.
+ */
+function useNeutral() {
+  const [neutral, setNeutral] = useState<string>(NEUTRALS[0])
+  useEffect(() => {
+    document.documentElement.dataset.neutral = neutral
+  }, [neutral])
+  return [neutral, setNeutral] as const
+}
+
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
@@ -107,7 +124,7 @@ const feedback: [string, string][] = [
 ]
 
 const decorative: [string, string][] = [
-  ['bg-decorative-stone-background', 'stone'],
+  ['bg-decorative-neutral-background', 'neutral'],
   ['bg-decorative-red-background', 'red'],
   ['bg-decorative-orange-background', 'orange'],
   ['bg-decorative-amber-background', 'amber'],
@@ -201,6 +218,7 @@ const shadows: [string, string][] = [
 
 export default function App() {
   const [dark, setDark] = useDarkMode()
+  const [neutral, setNeutral] = useNeutral()
 
   return (
     <div className="min-h-screen bg-surface-canvas font-sans text-content-primary">
@@ -209,16 +227,36 @@ export default function App() {
           <h1 className="text-xl font-bold text-content-emphasized">Yet Another Design System</h1>
           <p className="text-sm text-content-subtle">Token playground — every swatch is a semantic token</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setDark(!dark)}
-          className={cn(
-            'inline-flex h-8 items-center justify-center gap-2 rounded-md border border-action-secondary-border bg-action-secondary-background px-3 text-base font-semibold text-action-secondary-foreground hover:bg-action-secondary-background-hover',
-            focusRing,
-          )}
-        >
-          {dark ? 'Light mode' : 'Dark mode'}
-        </button>
+        <div className="flex items-center gap-2">
+          <label className="sr-only" htmlFor="neutral-ramp">
+            Neutral ramp
+          </label>
+          <select
+            id="neutral-ramp"
+            value={neutral}
+            onChange={(e) => setNeutral(e.target.value)}
+            className={cn(
+              'h-8 rounded-md border border-input-border bg-input-background px-2 text-base font-semibold text-content-primary hover:border-input-border-hover',
+              focusRing,
+            )}
+          >
+            {NEUTRALS.map((n) => (
+              <option key={n} value={n}>
+                {n[0].toUpperCase() + n.slice(1)}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => setDark(!dark)}
+            className={cn(
+              'inline-flex h-8 items-center justify-center gap-2 rounded-md border border-action-secondary-border bg-action-secondary-background px-3 text-base font-semibold text-action-secondary-foreground hover:bg-action-secondary-background-hover',
+              focusRing,
+            )}
+          >
+            {dark ? 'Light mode' : 'Dark mode'}
+          </button>
+        </div>
       </header>
 
       <main className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">

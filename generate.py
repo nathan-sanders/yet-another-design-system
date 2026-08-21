@@ -13,6 +13,24 @@ HERE = os.path.dirname(__file__)
 T = os.path.join(HERE, "tokens")
 TW_THEME = os.path.join(HERE, "node_modules", "tailwindcss", "theme.css")
 
+# ---------- the neutral role ----------
+# Nine ramps in the palette are neutrals. The semantic layer never names one of
+# them directly: it goes through an eleven-step alias tier, --neutral-*, so the
+# whole system's neutral is one attribute on <html>. Which ramps count as
+# neutral is a policy, not a Figma value, so the list lives here.
+NEUTRAL_SCALES = ["stone", "taupe", "mauve", "mist", "olive",
+                  "slate", "gray", "zinc", "neutral"]
+NEUTRAL_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+
+# Figma spells the neutral role "Stone" — the collection was drawn before the
+# role existed, and Stone is still the default ramp. Translating the name here
+# rather than editing semantic.json keeps that file a pure Figma export: a
+# re-export cannot undo this, and the day the file renames these itself both
+# rules below quietly become no-ops. Same shape as the border-radius/rounded-md
+# -> --radius-md translation further down.
+NEUTRAL_ROLE = "Stone"
+NEUTRAL_ROLE_RENAME = {"Decorative/Stone": "Decorative/Neutral"}
+
 def load(name):
     with open(os.path.join(T, name)) as f:
         return json.load(f)
@@ -154,20 +172,75 @@ def px2rem(v):
     s = ("%f" % r).rstrip("0").rstrip(".")
     return f"{s}rem"
 
+# ---- the neutral role: Figma's "Stone" is the alias tier, not the ramp ----
+def sem_name(name):
+    """Semantic token name, with the neutral role renamed out of Figma's spelling.
+
+    Only the group prefix moves: "Decorative/Stone/Background" ->
+    "Decorative/Neutral/Background". The badge painted with it is the neutral
+    chip, and it has to follow a neutral swap or a stone badge sits dirty on a
+    taupe page.
+    """
+    for figma, role in NEUTRAL_ROLE_RENAME.items():
+        if name == figma or name.startswith(figma + "/"):
+            return role + name[len(figma):]
+    return name
+
+# '#rrggbb' (lowercase, no alpha) -> step, for the default ramp only. Used to
+# recognise the alpha variants the semantic layer stores as raw hex.
+NEUTRAL_ROLE_HEX = {p["v"].lower(): p["n"].split("/", 1)[1]
+                    for p in prims
+                    if p["n"].startswith(NEUTRAL_ROLE + "/")}
+
+stats["neutralised"] = []
+
+def neutral_step(target):
+    """'Stone/800' -> '800', else None."""
+    head, _, step = target.partition("/")
+    return step if head == NEUTRAL_ROLE and step else None
+
+def neutral_alpha(hexval):
+    """A raw hex that is a neutral-role step with an alpha -> a color-mix on the tier.
+
+    Ten of the eleven raw colours in the semantic layer are exactly this: ghost
+    backgrounds, both overlays and both shadows are the neutral at some alpha.
+    Emitted as oklch() they would freeze at Stone and stay stone-tinted on every
+    other ramp — which is what makes a swap look half-applied. white, black and
+    the Data Viz accessibility border do not match and stay literal.
+    """
+    h = hexval.lstrip("#").lower()
+    if len(h) != 8:
+        return None
+    step = NEUTRAL_ROLE_HEX.get("#" + h[:6])
+    if step is None:
+        return None
+    # Alpha is stored 8-bit in Figma, so 10% arrives as 26/255; round to 2dp to
+    # give back the round number that was designed, exactly as hex_to_oklch does.
+    pct = _fmt(round(int(h[6:8], 16) / 255, 2) * 100, 1)
+    return f"color-mix(in oklab, var(--neutral-{step}) {pct}%, transparent)"
+
 # ---- global alias map: original figma name -> css var() reference ----
 ref = {}
 for p in prims:
     ref[p["n"]] = f"var(--color-{slug(p['n'])})"
 for s in sem:
-    ref[s["n"]] = f"var(--{slug(s['n'])})"
+    ref[s["n"]] = f"var(--{slug(sem_name(s['n']))})"
 
 def resolve(val):
     if isinstance(val, str) and val.startswith("@"):
         target = val[1:]
+        # A semantic token names a *step of the neutral*, never a step of Stone.
+        step = neutral_step(target)
+        if step:
+            return f"var(--neutral-{step})"
         return ref.get(target, f"/* unresolved: {target} */")
     # Raw colours in the semantic layer are alpha variants of the palette; they
     # get the same OKLCH treatment so no hex survives into the output.
     if isinstance(val, str) and val.startswith("#"):
+        mixed = neutral_alpha(val)
+        if mixed:
+            stats["neutralised"].append((val, mixed))
+            return mixed
         return hex_to_oklch(val)
     return val
 
@@ -177,11 +250,11 @@ prim_lines = [f"  --color-{slug(p['n'])}: {primitive_value(slug(p['n']), p['v'])
 # ---- 2. semantic (theme-aware -> :root / .dark) ----
 light_lines, dark_lines = [], []
 for s in sem:
-    v = slug(s["n"])
+    v = slug(sem_name(s["n"]))
     light_lines.append(f"  --{v}: {resolve(s['light'])};")
     dark_lines.append(f"  --{v}: {resolve(s['dark'])};")
 # expose semantics as color utilities via @theme inline
-sem_theme_lines = [f"  --color-{slug(s['n'])}: var(--{slug(s['n'])});" for s in sem]
+sem_theme_lines = [f"  --color-{slug(sem_name(s['n']))}: var(--{slug(sem_name(s['n']))});" for s in sem]
 
 # ---- 3. dimensions ----
 radius, text_fs, text_lh, blur, fweight = {}, {}, {}, {}, {}
@@ -292,6 +365,17 @@ for name, val in sorted(opacity.items(), key=lambda x: int(x[0].split('-')[-1]))
 for k, v in extras.items():
     extra_lines.append(f"  {k}: {v};")
 
+# ---- 1b. the neutral alias tier ----
+def neutral_block(selector, scale):
+    return ([f"{selector} {{"]
+            + [f"  --neutral-{n}: var(--color-{scale}-{n});" for n in NEUTRAL_STEPS]
+            + ["}"])
+
+neutral_lines = neutral_block(":root", NEUTRAL_SCALES[0])
+for scale in NEUTRAL_SCALES:
+    neutral_lines.append("")
+    neutral_lines += neutral_block(f':root[data-neutral="{scale}"]', scale)
+
 # ---- write file ----
 out = []
 out.append("/* ============================================================")
@@ -311,6 +395,18 @@ out += prim_lines
 out.append("")
 out += theme
 out.append("}")
+out.append("")
+out.append("/* ---- 1b. The neutral ramp. Every neutral in the semantic layer goes through ---- */")
+out.append("/*    these eleven steps rather than naming a scale, so swapping the whole      */")
+out.append("/*    system's neutral is one attribute: <html data-neutral=\"taupe\">. Stone is   */")
+out.append("/*    the default, and also has its own block so the attribute is never a lie.  */")
+out.append("/*                                                                             */")
+out.append("/*    Deliberately NOT in @theme: there it would generate bg-neutral-* and      */")
+out.append("/*    shadow the real Neutral primitive scale's utilities. The tier is an       */")
+out.append("/*    indirection for the semantic layer, not a palette anyone paints with.     */")
+out.append("/*    :root[data-neutral=…] is (0,2,0) so it beats bare :root whatever the      */")
+out.append("/*    source order — both land on the same <html> element.                      */")
+out += neutral_lines
 out.append("")
 out.append("/* ---- 2. Semantic tokens (theme-aware). Light is default; .dark overrides. ---- */")
 out.append(":root {")
@@ -390,6 +486,12 @@ print(f"colours: {stats['tailwind']} from the Tailwind palette, "
 if stats["unmatched"]:
     print("  ! scale-shaped names with no Tailwind counterpart (check the spelling "
           "in Figma): " + ", ".join(sorted(set(stats["unmatched"]))))
+print(f"neutral ramp: {len(NEUTRAL_SCALES)} scales x {len(NEUTRAL_STEPS)} steps "
+      f"(default {NEUTRAL_SCALES[0]}), via --neutral-*")
+if stats["neutralised"]:
+    print(f"  {len(stats['neutralised'])} raw alpha colour(s) re-pointed onto the neutral tier:")
+    for hexval, mixed in stats["neutralised"]:
+        print(f"      {hexval}  ->  {mixed}")
 if stats["drifted"]:
     print(f"  ! {len(stats['drifted'])} primitive(s) differ from Tailwind by more than hex")
     print("    rounding. Tailwind wins, so the Figma value is NOT being used. Either")

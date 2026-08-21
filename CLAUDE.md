@@ -48,6 +48,8 @@ red — and it is the reason the check exists.
 - `@theme { --color-* … }` — the **primitive** palette → utilities like `bg-blue-500`. Also static
   dimensions: `--spacing: 0.25rem`, `--radius-*`, `--text-*` (+ `--text-*--line-height`), `--blur-*`,
   `--shadow-*`, `--inset-shadow-*`, `--font-sans/-mono`, `--font-weight-*`.
+- `:root { --neutral-50 … --neutral-950 }` plus one `:root[data-neutral="…"]` block per ramp — the
+  **neutral tier**, see below.
 - `:root { --surface-canvas … }` and `.dark { … }` — the **semantic** tokens (role-based, theme-aware).
 - `@theme inline { --color-surface-canvas: var(--surface-canvas) … }` — exposes semantic tokens as
   colour utilities.
@@ -67,12 +69,65 @@ not for use inside components.
 Toggled by `class="dark"` on `<html>`. Because colour lives in the semantic layer, **do not write
 `dark:` variants for colour** — the token swaps itself. A theme toggle just adds/removes that class.
 
+### The neutral is swappable
+
+Nine ramps are neutrals — **Stone** (default), Taupe, Mauve, Mist, Olive, Slate, Gray, Zinc,
+Neutral. Choosing one is `<html data-neutral="taupe">`, and it moves every surface, border, text
+colour, action, input, focus ring, shadow and neutral badge in both themes at once.
+
+The seam is an eleven-step alias tier between primitives and semantics. **No semantic token names a
+ramp** — `--surface-card-emphasized: var(--neutral-800)`, never `var(--color-stone-800)`. Because no
+component reads a primitive either, the semantic layer is a complete choke point and the swap is
+total with zero per-component work. That property is worth protecting: a component that reaches for
+`bg-stone-200` would be the one thing on the page that does not follow.
+
+Three things that are easy to get wrong:
+
+- **`--neutral-800` ≠ `--color-neutral-800`.** The first is the tier, the second is Tailwind's
+  Neutral ramp. `--color-` marks a primitive everywhere in this system, and that prefix is the whole
+  distinction. The tier is deliberately **not** in `@theme`: there it would generate `bg-neutral-*`
+  and shadow the real scale's utilities.
+- **`:root[data-neutral=…]` is (0,2,0)**, so it beats bare `:root` (0,1,0) regardless of source
+  order. Both selectors land on the same `<html>` element, so specificity is doing real work here.
+- **The ramp is orthogonal to the theme.** It composes with `.dark` instead of multiplying against
+  it — the semantic layer already decides which step each theme uses.
+
+**Figma spells the role "Stone", and `generate.py` translates.** `tokens/semantic.json` is a pure
+Figma export, so the policy lives in the generator instead: `@Stone/N` becomes `var(--neutral-N)`,
+and `Decorative/Stone/*` is renamed to `decorative-neutral-*`. Editing the JSON would have worked
+until the next re-export undid it. The day Figma renames these itself, both rules become no-ops.
+
+The generator also re-points the **alpha variants**. Ten of the raw hex values in the semantic layer
+are the neutral at some alpha — ghost backgrounds, both overlays, both shadows. Left as `oklch()`
+literals they freeze at Stone and stay stone-tinted on every other ramp, which is exactly what makes
+a swap look half-applied. They are matched by RGB against the default ramp and emitted as
+`color-mix(in oklab, var(--neutral-800) 10%, transparent)`; the run prints every one it re-points.
+`#ffffff99`, `#00000080` and the Data Viz accessibility border do not match and stay literal, which
+is right — white and black are not neutrals in the swappable sense.
+
+**Contrast is not automatic.** The ramps differ in lightness at the same step, so a pair that clears
+4.5:1 on Stone is not guaranteed to on Olive. `npm test` runs axe on every story but only at the
+default ramp, so a non-default ramp wants a manual sweep of `content-subtle` on `surface-canvas`
+and the secondary action pair.
+
+**What stays pinned, on purpose.** The four `Data Viz` `@Neutral/*` tokens do not follow the ramp:
+a chart benchmark wants a chromaless grey whatever the UI neutral is. They are now the *only*
+`@Neutral/*` references left in the semantic layer, which is the invariant to keep — a fifth one
+appearing is a Figma slip, not a decision. `Action/Overlay/Foreground` was exactly that: `@Neutral/950`
+in dark among an otherwise all-Stone family, caught when the tier was built and fixed in Figma to
+`@Black`, which is the symmetric partner of the `@White` it already had in light.
+
 ### Colour is OKLCH, and Tailwind owns the primitives
 
 Every colour is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
-roundings; all 288 primitives are Tailwind palette colours, so `generate.py` reads
+roundings; nearly all 288 primitives are Tailwind palette colours, so `generate.py` reads
 `node_modules/tailwindcss/theme.css` and uses Tailwind's canonical value, falling back to converting
-the Figma hex only when there is no counterpart (just `white` and `black`).
+the Figma hex only when there is no counterpart.
+
+The exceptions are the four **custom neutral ramps — Taupe, Mauve, Mist and Olive** — which Tailwind
+has no counterpart for, so their 44 values are converted from hex. Because they are scale-shaped
+names, `generate.py` lists all 44 under "scale-shaped names with no Tailwind counterpart" on every
+run. That warning exists to catch a *misspelling* in Figma; for these four it is expected.
 
 **Consequence:** a primitive changed in Figma is ignored. `generate.py` reports any primitive that
 differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A colour
@@ -213,7 +268,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Accordion](src/components/Accordion/CLAUDE.md) | a stack of sections, one open at a time | height animated off a measurement Base UI publishes |
 | [Button](src/components/Button/CLAUDE.md) | the action control | five appearances, three sizes, icon-only derived from the absence of a label |
 | [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, colour inherited via `currentColor` |
-| [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size |
+| [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size; `neutral` follows the swappable ramp |
 | [Breadcrumbs](src/components/Breadcrumbs/CLAUDE.md) | a trail to the current page | four separators, last child is current automatically |
 | [Divider](src/components/Divider/CLAUDE.md) | a line separating content | orientation × emphasis, optional label |
 | [Avatar](src/components/Avatar/CLAUDE.md) | a person, and a stack of them | photo, initials or `+N`; `AvatarGroup` overlaps |

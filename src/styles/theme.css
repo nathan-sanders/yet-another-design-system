@@ -390,55 +390,205 @@
   --ease-standard: cubic-bezier(0.24, 1, 0.4, 1);
 }
 
+/* ---- 1b. The neutral ramp. Every neutral in the semantic layer goes through ---- */
+/*    these eleven steps rather than naming a scale, so swapping the whole      */
+/*    system's neutral is one attribute: <html data-neutral="taupe">. Stone is   */
+/*    the default, and also has its own block so the attribute is never a lie.  */
+/*                                                                             */
+/*    Deliberately NOT in @theme: there it would generate bg-neutral-* and      */
+/*    shadow the real Neutral primitive scale's utilities. The tier is an       */
+/*    indirection for the semantic layer, not a palette anyone paints with.     */
+/*    :root[data-neutral=…] is (0,2,0) so it beats bare :root whatever the      */
+/*    source order — both land on the same <html> element.                      */
+:root {
+  --neutral-50: var(--color-stone-50);
+  --neutral-100: var(--color-stone-100);
+  --neutral-200: var(--color-stone-200);
+  --neutral-300: var(--color-stone-300);
+  --neutral-400: var(--color-stone-400);
+  --neutral-500: var(--color-stone-500);
+  --neutral-600: var(--color-stone-600);
+  --neutral-700: var(--color-stone-700);
+  --neutral-800: var(--color-stone-800);
+  --neutral-900: var(--color-stone-900);
+  --neutral-950: var(--color-stone-950);
+}
+
+:root[data-neutral="stone"] {
+  --neutral-50: var(--color-stone-50);
+  --neutral-100: var(--color-stone-100);
+  --neutral-200: var(--color-stone-200);
+  --neutral-300: var(--color-stone-300);
+  --neutral-400: var(--color-stone-400);
+  --neutral-500: var(--color-stone-500);
+  --neutral-600: var(--color-stone-600);
+  --neutral-700: var(--color-stone-700);
+  --neutral-800: var(--color-stone-800);
+  --neutral-900: var(--color-stone-900);
+  --neutral-950: var(--color-stone-950);
+}
+
+:root[data-neutral="taupe"] {
+  --neutral-50: var(--color-taupe-50);
+  --neutral-100: var(--color-taupe-100);
+  --neutral-200: var(--color-taupe-200);
+  --neutral-300: var(--color-taupe-300);
+  --neutral-400: var(--color-taupe-400);
+  --neutral-500: var(--color-taupe-500);
+  --neutral-600: var(--color-taupe-600);
+  --neutral-700: var(--color-taupe-700);
+  --neutral-800: var(--color-taupe-800);
+  --neutral-900: var(--color-taupe-900);
+  --neutral-950: var(--color-taupe-950);
+}
+
+:root[data-neutral="mauve"] {
+  --neutral-50: var(--color-mauve-50);
+  --neutral-100: var(--color-mauve-100);
+  --neutral-200: var(--color-mauve-200);
+  --neutral-300: var(--color-mauve-300);
+  --neutral-400: var(--color-mauve-400);
+  --neutral-500: var(--color-mauve-500);
+  --neutral-600: var(--color-mauve-600);
+  --neutral-700: var(--color-mauve-700);
+  --neutral-800: var(--color-mauve-800);
+  --neutral-900: var(--color-mauve-900);
+  --neutral-950: var(--color-mauve-950);
+}
+
+:root[data-neutral="mist"] {
+  --neutral-50: var(--color-mist-50);
+  --neutral-100: var(--color-mist-100);
+  --neutral-200: var(--color-mist-200);
+  --neutral-300: var(--color-mist-300);
+  --neutral-400: var(--color-mist-400);
+  --neutral-500: var(--color-mist-500);
+  --neutral-600: var(--color-mist-600);
+  --neutral-700: var(--color-mist-700);
+  --neutral-800: var(--color-mist-800);
+  --neutral-900: var(--color-mist-900);
+  --neutral-950: var(--color-mist-950);
+}
+
+:root[data-neutral="olive"] {
+  --neutral-50: var(--color-olive-50);
+  --neutral-100: var(--color-olive-100);
+  --neutral-200: var(--color-olive-200);
+  --neutral-300: var(--color-olive-300);
+  --neutral-400: var(--color-olive-400);
+  --neutral-500: var(--color-olive-500);
+  --neutral-600: var(--color-olive-600);
+  --neutral-700: var(--color-olive-700);
+  --neutral-800: var(--color-olive-800);
+  --neutral-900: var(--color-olive-900);
+  --neutral-950: var(--color-olive-950);
+}
+
+:root[data-neutral="slate"] {
+  --neutral-50: var(--color-slate-50);
+  --neutral-100: var(--color-slate-100);
+  --neutral-200: var(--color-slate-200);
+  --neutral-300: var(--color-slate-300);
+  --neutral-400: var(--color-slate-400);
+  --neutral-500: var(--color-slate-500);
+  --neutral-600: var(--color-slate-600);
+  --neutral-700: var(--color-slate-700);
+  --neutral-800: var(--color-slate-800);
+  --neutral-900: var(--color-slate-900);
+  --neutral-950: var(--color-slate-950);
+}
+
+:root[data-neutral="gray"] {
+  --neutral-50: var(--color-gray-50);
+  --neutral-100: var(--color-gray-100);
+  --neutral-200: var(--color-gray-200);
+  --neutral-300: var(--color-gray-300);
+  --neutral-400: var(--color-gray-400);
+  --neutral-500: var(--color-gray-500);
+  --neutral-600: var(--color-gray-600);
+  --neutral-700: var(--color-gray-700);
+  --neutral-800: var(--color-gray-800);
+  --neutral-900: var(--color-gray-900);
+  --neutral-950: var(--color-gray-950);
+}
+
+:root[data-neutral="zinc"] {
+  --neutral-50: var(--color-zinc-50);
+  --neutral-100: var(--color-zinc-100);
+  --neutral-200: var(--color-zinc-200);
+  --neutral-300: var(--color-zinc-300);
+  --neutral-400: var(--color-zinc-400);
+  --neutral-500: var(--color-zinc-500);
+  --neutral-600: var(--color-zinc-600);
+  --neutral-700: var(--color-zinc-700);
+  --neutral-800: var(--color-zinc-800);
+  --neutral-900: var(--color-zinc-900);
+  --neutral-950: var(--color-zinc-950);
+}
+
+:root[data-neutral="neutral"] {
+  --neutral-50: var(--color-neutral-50);
+  --neutral-100: var(--color-neutral-100);
+  --neutral-200: var(--color-neutral-200);
+  --neutral-300: var(--color-neutral-300);
+  --neutral-400: var(--color-neutral-400);
+  --neutral-500: var(--color-neutral-500);
+  --neutral-600: var(--color-neutral-600);
+  --neutral-700: var(--color-neutral-700);
+  --neutral-800: var(--color-neutral-800);
+  --neutral-900: var(--color-neutral-900);
+  --neutral-950: var(--color-neutral-950);
+}
+
 /* ---- 2. Semantic tokens (theme-aware). Light is default; .dark overrides. ---- */
 :root {
-  --surface-canvas: var(--color-stone-100);
-  --surface-canvas-transparent: oklch(97% 0 none / 0);
+  --surface-canvas: var(--neutral-100);
+  --surface-canvas-transparent: color-mix(in oklab, var(--neutral-100) 0%, transparent);
   --surface-card-primary: var(--color-white);
-  --surface-card-subtle: var(--color-stone-100);
-  --surface-card-emphasized: var(--color-stone-800);
-  --surface-canvas-overlay: oklch(26.5% 0.0078 31.124 / 0.1);
-  --surface-border: var(--color-stone-200);
-  --surface-border-emphasized: var(--color-stone-800);
+  --surface-card-subtle: var(--neutral-100);
+  --surface-card-emphasized: var(--neutral-800);
+  --surface-canvas-overlay: color-mix(in oklab, var(--neutral-800) 10%, transparent);
+  --surface-border: var(--neutral-200);
+  --surface-border-emphasized: var(--neutral-800);
   --surface-border-ghost: var(--color-white);
-  --content-emphasized: var(--color-stone-950);
+  --content-emphasized: var(--neutral-950);
   --action-primary-foreground: var(--color-white);
-  --action-primary-background: var(--color-stone-800);
-  --action-primary-background-hover: var(--color-stone-950);
-  --action-primary-border: var(--color-stone-800);
-  --action-primary-border-hover: var(--color-stone-950);
-  --action-secondary-foreground: var(--color-stone-800);
-  --action-secondary-background: var(--color-stone-200);
-  --action-secondary-background-hover: var(--color-stone-200);
-  --action-secondary-border: var(--color-stone-300);
-  --action-secondary-border-hover: var(--color-stone-500);
+  --action-primary-background: var(--neutral-800);
+  --action-primary-background-hover: var(--neutral-950);
+  --action-primary-border: var(--neutral-800);
+  --action-primary-border-hover: var(--neutral-950);
+  --action-secondary-foreground: var(--neutral-800);
+  --action-secondary-background: var(--neutral-200);
+  --action-secondary-background-hover: var(--neutral-200);
+  --action-secondary-border: var(--neutral-300);
+  --action-secondary-border-hover: var(--neutral-500);
   --action-destructive-foreground: var(--color-red-900);
   --action-destructive-background: var(--color-red-200);
-  --action-ghost-foreground: var(--color-stone-800);
-  --action-ghost-background: oklch(26.5% 0.0078 31.124 / 0);
+  --action-ghost-foreground: var(--neutral-800);
+  --action-ghost-background: color-mix(in oklab, var(--neutral-800) 0%, transparent);
   --action-overlay-foreground: var(--color-white);
-  --action-overlay-background: oklch(13.7% 0.0046 51.051 / 0.6);
-  --action-overlay-background-hover: oklch(13.7% 0.0046 51.051 / 0.75);
-  --action-ghost-background-hover: oklch(26.5% 0.0078 31.124 / 0.1);
-  --action-ghost-border: oklch(26.5% 0.0078 31.124 / 0);
-  --action-ghost-border-hover: oklch(26.5% 0.0078 31.124 / 0);
+  --action-overlay-background: color-mix(in oklab, var(--neutral-950) 60%, transparent);
+  --action-overlay-background-hover: color-mix(in oklab, var(--neutral-950) 75%, transparent);
+  --action-ghost-background-hover: color-mix(in oklab, var(--neutral-800) 10%, transparent);
+  --action-ghost-border: color-mix(in oklab, var(--neutral-800) 0%, transparent);
+  --action-ghost-border-hover: color-mix(in oklab, var(--neutral-800) 0%, transparent);
   --action-destructive-background-hover: var(--color-red-200);
   --action-destructive-border: var(--color-red-300);
   --action-destructive-border-hover: var(--color-red-500);
   --action-link-foreground: var(--color-blue-700);
   --action-link-foreground-hover: var(--color-blue-800);
   --input-background: var(--color-white);
-  --input-border: var(--color-stone-500);
-  --input-border-hover: var(--color-stone-700);
-  --input-selected: var(--color-stone-600);
+  --input-border: var(--neutral-500);
+  --input-border-hover: var(--neutral-700);
+  --input-selected: var(--neutral-600);
   --input-selected-foreground: var(--color-white);
-  --content-primary: var(--color-stone-800);
-  --content-subtle: var(--color-stone-600);
+  --content-primary: var(--neutral-800);
+  --content-subtle: var(--neutral-600);
   --content-inverse: var(--color-white);
   --content-danger: var(--color-red-700);
   --feedback-success-background: var(--decorative-green-background);
   --focus-focus-inner-border: var(--color-white);
-  --focus-focus-outer-border: var(--color-stone-600);
+  --focus-focus-outer-border: var(--neutral-600);
   --feedback-success-highlight: var(--decorative-green-highlight);
   --feedback-success-foreground: var(--decorative-green-foreground);
   --feedback-info-background: var(--decorative-blue-background);
@@ -501,11 +651,11 @@
   --decorative-rose-background: var(--color-rose-300);
   --decorative-rose-highlight: var(--color-rose-600);
   --decorative-rose-foreground: var(--color-rose-950);
-  --decorative-stone-background: var(--color-stone-300);
-  --decorative-stone-highlight: var(--color-stone-500);
-  --decorative-stone-foreground: var(--color-stone-900);
-  --surface-drop-shadow: oklch(26.5% 0.0078 31.124 / 0.25);
-  --surface-inner-shadow: oklch(26.5% 0.0078 31.124 / 0.1);
+  --decorative-neutral-background: var(--neutral-300);
+  --decorative-neutral-highlight: var(--neutral-500);
+  --decorative-neutral-foreground: var(--neutral-900);
+  --surface-drop-shadow: color-mix(in oklab, var(--neutral-800) 25%, transparent);
+  --surface-inner-shadow: color-mix(in oklab, var(--neutral-800) 10%, transparent);
   --data-viz-categorical-01: var(--color-cyan-700);
   --data-viz-categorical-02: var(--color-purple-600);
   --data-viz-categorical-03: var(--color-pink-500);
@@ -576,53 +726,53 @@
 }
 
 .dark {
-  --surface-canvas: var(--color-stone-950);
-  --surface-canvas-transparent: oklch(13.7% 0.0046 51.051 / 0);
-  --surface-card-primary: var(--color-stone-900);
-  --surface-card-subtle: var(--color-stone-950);
-  --surface-card-emphasized: var(--color-stone-100);
-  --surface-canvas-overlay: oklch(97% 0 none / 0.1);
-  --surface-border: var(--color-stone-700);
-  --surface-border-emphasized: var(--color-stone-100);
-  --surface-border-ghost: var(--color-stone-700);
+  --surface-canvas: var(--neutral-950);
+  --surface-canvas-transparent: color-mix(in oklab, var(--neutral-950) 0%, transparent);
+  --surface-card-primary: var(--neutral-900);
+  --surface-card-subtle: var(--neutral-950);
+  --surface-card-emphasized: var(--neutral-100);
+  --surface-canvas-overlay: color-mix(in oklab, var(--neutral-100) 10%, transparent);
+  --surface-border: var(--neutral-700);
+  --surface-border-emphasized: var(--neutral-100);
+  --surface-border-ghost: var(--neutral-700);
   --content-emphasized: var(--color-white);
   --action-primary-foreground: var(--color-black);
-  --action-primary-background: var(--color-stone-100);
-  --action-primary-background-hover: var(--color-stone-50);
-  --action-primary-border: var(--color-stone-100);
-  --action-primary-border-hover: var(--color-stone-50);
-  --action-secondary-foreground: var(--color-stone-100);
-  --action-secondary-background: var(--color-stone-800);
-  --action-secondary-background-hover: var(--color-stone-800);
-  --action-secondary-border: var(--color-stone-700);
-  --action-secondary-border-hover: var(--color-stone-600);
+  --action-primary-background: var(--neutral-100);
+  --action-primary-background-hover: var(--neutral-50);
+  --action-primary-border: var(--neutral-100);
+  --action-primary-border-hover: var(--neutral-50);
+  --action-secondary-foreground: var(--neutral-100);
+  --action-secondary-background: var(--neutral-800);
+  --action-secondary-background-hover: var(--neutral-800);
+  --action-secondary-border: var(--neutral-700);
+  --action-secondary-border-hover: var(--neutral-600);
   --action-destructive-foreground: var(--color-red-100);
   --action-destructive-background: var(--color-red-900);
-  --action-ghost-foreground: var(--color-stone-100);
-  --action-ghost-background: oklch(97% 0 none / 0);
-  --action-overlay-foreground: var(--color-neutral-950);
+  --action-ghost-foreground: var(--neutral-100);
+  --action-ghost-background: color-mix(in oklab, var(--neutral-100) 0%, transparent);
+  --action-overlay-foreground: var(--color-black);
   --action-overlay-background: oklch(100% 0 none / 0.6);
   --action-overlay-background-hover: oklch(100% 0 none / 0.75);
-  --action-ghost-background-hover: oklch(97% 0 none / 0.1);
-  --action-ghost-border: oklch(97% 0 none / 0);
-  --action-ghost-border-hover: oklch(97% 0 none / 0.1);
+  --action-ghost-background-hover: color-mix(in oklab, var(--neutral-100) 10%, transparent);
+  --action-ghost-border: color-mix(in oklab, var(--neutral-100) 0%, transparent);
+  --action-ghost-border-hover: color-mix(in oklab, var(--neutral-100) 10%, transparent);
   --action-destructive-background-hover: var(--color-red-900);
   --action-destructive-border: var(--color-red-800);
   --action-destructive-border-hover: var(--color-red-600);
   --action-link-foreground: var(--color-blue-400);
   --action-link-foreground-hover: var(--color-blue-300);
-  --input-background: var(--color-stone-900);
-  --input-border: var(--color-stone-500);
-  --input-border-hover: var(--color-stone-400);
-  --input-selected: var(--color-stone-100);
+  --input-background: var(--neutral-900);
+  --input-border: var(--neutral-500);
+  --input-border-hover: var(--neutral-400);
+  --input-selected: var(--neutral-100);
   --input-selected-foreground: var(--color-black);
-  --content-primary: var(--color-stone-100);
-  --content-subtle: var(--color-stone-400);
-  --content-inverse: var(--color-stone-950);
+  --content-primary: var(--neutral-100);
+  --content-subtle: var(--neutral-400);
+  --content-inverse: var(--neutral-950);
   --content-danger: var(--color-red-500);
   --feedback-success-background: var(--decorative-green-background);
-  --focus-focus-inner-border: var(--color-stone-900);
-  --focus-focus-outer-border: var(--color-stone-400);
+  --focus-focus-inner-border: var(--neutral-900);
+  --focus-focus-outer-border: var(--neutral-400);
   --feedback-success-highlight: var(--decorative-green-highlight);
   --feedback-success-foreground: var(--decorative-green-foreground);
   --feedback-info-background: var(--decorative-blue-background);
@@ -685,9 +835,9 @@
   --decorative-rose-background: var(--color-rose-900);
   --decorative-rose-highlight: var(--color-rose-600);
   --decorative-rose-foreground: var(--color-rose-200);
-  --decorative-stone-background: var(--color-stone-800);
-  --decorative-stone-highlight: var(--color-stone-600);
-  --decorative-stone-foreground: var(--color-stone-300);
+  --decorative-neutral-background: var(--neutral-800);
+  --decorative-neutral-highlight: var(--neutral-600);
+  --decorative-neutral-foreground: var(--neutral-300);
   --surface-drop-shadow: oklch(0% 0 none / 0.5);
   --surface-inner-shadow: oklch(0% 0 none / 0.1);
   --data-viz-categorical-01: var(--color-cyan-500);
@@ -871,9 +1021,9 @@
   --color-decorative-rose-background: var(--decorative-rose-background);
   --color-decorative-rose-highlight: var(--decorative-rose-highlight);
   --color-decorative-rose-foreground: var(--decorative-rose-foreground);
-  --color-decorative-stone-background: var(--decorative-stone-background);
-  --color-decorative-stone-highlight: var(--decorative-stone-highlight);
-  --color-decorative-stone-foreground: var(--decorative-stone-foreground);
+  --color-decorative-neutral-background: var(--decorative-neutral-background);
+  --color-decorative-neutral-highlight: var(--decorative-neutral-highlight);
+  --color-decorative-neutral-foreground: var(--decorative-neutral-foreground);
   --color-surface-drop-shadow: var(--surface-drop-shadow);
   --color-surface-inner-shadow: var(--surface-inner-shadow);
   --color-data-viz-categorical-01: var(--data-viz-categorical-01);

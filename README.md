@@ -41,6 +41,7 @@ Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css
 | Figma collection | Becomes | Gives you |
 |---|---|---|
 | **Colors** (primitives) | `@theme { --color-blue-500 … }` | `bg-blue-500` |
+| — (a code-side tier) | `:root { --neutral-800 … }` | the ramp `data-neutral` chooses |
 | **Semantic Theme** (Light/Dark) | `:root { … }` + `.dark { … }` | `bg-surface-canvas`, `text-content-primary` |
 | **Design Tokens** (spacing, type, radius, shadows) | `@theme { --radius-md … }` | `rounded-md`, `text-base`, `shadow-low` |
 | **Motion** (durations, easing) | `@theme { --transition-duration-fast … }` | `duration-fast`, `ease-standard` |
@@ -65,11 +66,47 @@ Style with **semantic** tokens, never primitives or raw colour:
 Add `class="dark"` to `<html>`. That's the whole mechanism. Because colour lives in the semantic
 layer, components **never** need a `dark:` variant — the token swaps itself.
 
+### Neutral scales
+
+The neutral is swappable. Nine ramps ship — **Stone** (the default), Taupe, Mauve, Mist, Olive,
+Slate, Gray, Zinc and Neutral — and picking one is a single attribute:
+
+```html
+<html data-neutral="taupe">
+```
+
+That changes every surface, border, text colour, button, input, focus ring, shadow and neutral badge
+at once, in both light and dark. Nothing else has to know.
+
+It works because the semantic layer never names a ramp. It goes through an eleven-step alias tier:
+
+```
+--color-stone-800   primitive     nine ramps, unchanged
+      ↓
+--neutral-800       the tier      re-pointed by [data-neutral]
+      ↓
+--surface-card-emphasized: var(--neutral-800)
+      ↓
+bg-surface-card-emphasized
+```
+
+Two things worth knowing:
+
+- `--neutral-800` (the tier) and `--color-neutral-800` (Tailwind's Neutral ramp) are different
+  things. The `--color-` prefix is what marks a primitive throughout this system. The tier is
+  deliberately **not** in `@theme`, so it generates no `bg-neutral-*` utilities and cannot shadow
+  the real Neutral scale.
+- It composes with dark mode rather than multiplying against it. The ramp is theme-independent; the
+  semantic layer decides which of its steps each theme uses.
+
+Contrast is not automatic. The ramps differ slightly in lightness at the same step, so a pair that
+clears 4.5:1 on Stone is not guaranteed to on Olive. Check before shipping a non-default ramp.
+
 ### Colour is OKLCH
 
 Every colour ships as `oklch()`. Figma can only store hex, so the exported values are 8-bit
-roundings of colours that are really defined in OKLCH. Every primitive here is a Tailwind palette
-colour, so `generate.py` reads the installed Tailwind and uses its canonical value:
+roundings of colours that are really defined in OKLCH. Nearly every primitive here is a Tailwind
+palette colour, so `generate.py` reads the installed Tailwind and uses its canonical value:
 
 ```css
 --color-red-500: oklch(63.7% 0.237 25.331);
@@ -79,6 +116,10 @@ colour, so `generate.py` reads the installed Tailwind and uses its canonical val
 in favour of Tailwind's value — `generate.py` reports any such disagreement rather than discarding
 it silently. Colours that aren't Tailwind values belong in the semantic layer, which is entirely
 Figma-driven.
+
+The four custom neutral ramps — **Taupe, Mauve, Mist and Olive** — are the exception: they have no
+Tailwind counterpart, so their 44 values are converted from the Figma hex. `generate.py` lists them
+on every run under "scale-shaped names with no Tailwind counterpart", which is expected, not a fault.
 
 ## Components
 

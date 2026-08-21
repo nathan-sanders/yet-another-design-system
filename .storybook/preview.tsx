@@ -8,6 +8,10 @@ import '@fontsource/inter/700.css'
 import '@fontsource-variable/geist-mono'
 import '../src/styles/theme.css'
 
+/** The nine neutral ramps, stone first — the same list and order as generate.py. */
+const NEUTRALS = ['stone', 'taupe', 'mauve', 'mist', 'olive',
+                  'slate', 'gray', 'zinc', 'neutral']
+
 const preview: Preview = {
   globalTypes: {
     theme: {
@@ -22,20 +26,39 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    neutral: {
+      description: 'Which primitive ramp the semantic neutrals resolve to',
+      toolbar: {
+        title: 'Neutral',
+        icon: 'paintbrush',
+        items: NEUTRALS.map((value) => ({
+          value,
+          title: value[0].toUpperCase() + value.slice(1),
+        })),
+        dynamicTitle: true,
+      },
+    },
   },
 
   initialGlobals: {
     theme: 'light',
+    neutral: 'stone',
   },
 
   decorators: [
-    // Dark mode is a class on <html>, exactly as it is in a real app — so
-    // stories exercise the same mechanism the library ships with.
+    // Both switches are attributes on <html>, exactly as they are in a real app
+    // — so stories exercise the same mechanism the library ships with. They are
+    // orthogonal: the ramp is theme-independent, and the semantic layer picks
+    // which of its steps each theme uses.
     (Story, context) => {
       const dark = context.globals.theme === 'dark'
+      const neutral = context.globals.neutral as string
       useEffect(() => {
         document.documentElement.classList.toggle('dark', dark)
       }, [dark])
+      useEffect(() => {
+        document.documentElement.dataset.neutral = neutral
+      }, [neutral])
       return (
         // min-h-dvh so the canvas background fills the frame rather than hugging
         // the story — otherwise a short story leaves the browser's own white
