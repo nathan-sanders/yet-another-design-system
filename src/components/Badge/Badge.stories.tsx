@@ -4,7 +4,7 @@ import { Check, Circle, X } from 'lucide-react'
 import { Badge } from './Badge'
 
 const colors = [
-  'stone',
+  'neutral',
   'red',
   'orange',
   'amber',
@@ -33,7 +33,7 @@ const meta = {
   },
   args: {
     children: 'Badge',
-    color: 'stone',
+    color: 'neutral',
   },
 } satisfies Meta<typeof Badge>
 
@@ -43,7 +43,7 @@ type Story = StoryObj<typeof meta>
 /** Single badge with controls — use the Theme switch in the toolbar for dark mode. */
 export const Playground: Story = {}
 
-/** All 18 Decorative hues — neutral Stone first, then the spectrum in ramp order. */
+/** All 18 Decorative hues — the neutral first, then the spectrum in ramp order. */
 export const AllColors: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (

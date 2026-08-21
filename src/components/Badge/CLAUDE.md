@@ -1,6 +1,6 @@
 # Badge
 
-`color`: all 18 hues of the Decorative ramp — stone first, then red, orange, amber,
+`color`: all 18 hues of the Decorative ramp — neutral first, then red, orange, amber,
 yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose.
 (Figma shipped 14; orange/lime/emerald/teal are being added there to match.)
 `startIcon`/`endIcon` take a `LucideIcon`
