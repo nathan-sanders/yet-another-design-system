@@ -750,7 +750,7 @@
   --action-destructive-background: var(--color-red-900);
   --action-ghost-foreground: var(--neutral-100);
   --action-ghost-background: color-mix(in oklab, var(--neutral-100) 0%, transparent);
-  --action-overlay-foreground: var(--color-neutral-950);
+  --action-overlay-foreground: var(--color-black);
   --action-overlay-background: oklch(100% 0 none / 0.6);
   --action-overlay-background-hover: oklch(100% 0 none / 0.75);
   --action-ghost-background-hover: color-mix(in oklab, var(--neutral-100) 10%, transparent);

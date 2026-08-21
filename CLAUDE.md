@@ -110,11 +110,12 @@ is right — white and black are not neutrals in the swappable sense.
 default ramp, so a non-default ramp wants a manual sweep of `content-subtle` on `surface-canvas`
 and the secondary action pair.
 
-**Two known pins, left deliberately.** `Action/Overlay/Foreground` is `@Neutral/950` in dark while
-its whole family is Stone (`tokens/semantic.json:26`) — it stays on the Tailwind primitive while
-everything around it moves, which looks like a Figma slip and is worth raising rather than silently
-changing. The four `Data Viz` `@Neutral/*` tokens are pinned on purpose: a chart benchmark wants a
-chromaless grey whatever the UI neutral is.
+**What stays pinned, on purpose.** The four `Data Viz` `@Neutral/*` tokens do not follow the ramp:
+a chart benchmark wants a chromaless grey whatever the UI neutral is. They are now the *only*
+`@Neutral/*` references left in the semantic layer, which is the invariant to keep — a fifth one
+appearing is a Figma slip, not a decision. `Action/Overlay/Foreground` was exactly that: `@Neutral/950`
+in dark among an otherwise all-Stone family, caught when the tier was built and fixed in Figma to
+`@Black`, which is the symmetric partner of the `@White` it already had in light.
 
 ### Colour is OKLCH, and Tailwind owns the primitives
 

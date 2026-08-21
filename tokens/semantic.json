@@ -23,7 +23,7 @@
 {"n":"Action/Destructive/Background","light":"@Red/200","dark":"@Red/900"},
 {"n":"Action/Ghost/Foreground","light":"@Stone/800","dark":"@Stone/100"},
 {"n":"Action/Ghost/Background","light":"#29242300","dark":"#f5f5f500"},
-{"n":"Action/Overlay/Foreground","light":"@White","dark":"@Neutral/950"},
+{"n":"Action/Overlay/Foreground","light":"@White","dark":"@Black"},
 {"n":"Action/Overlay/Background","light":"#0a080799","dark":"#ffffff99"},
 {"n":"Action/Overlay/Background Hover","light":"#0a0807bf","dark":"#ffffffbf"},
 {"n":"Action/Ghost/Background Hover","light":"#2924231a","dark":"#f5f5f51a"},
