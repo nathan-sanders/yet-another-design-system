@@ -22,14 +22,15 @@ NEUTRAL_SCALES = ["stone", "taupe", "mauve", "mist", "olive",
                   "slate", "gray", "zinc", "neutral"]
 NEUTRAL_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
-# Figma spells the neutral role "Stone" — the collection was drawn before the
-# role existed, and Stone is still the default ramp. Translating the name here
-# rather than editing semantic.json keeps that file a pure Figma export: a
-# re-export cannot undo this, and the day the file renames these itself both
-# rules below quietly become no-ops. Same shape as the border-radius/rounded-md
-# -> --radius-md translation further down.
+# The ramp a semantic alias means when it says "Stone". Figma has no Neutral
+# collection — a semantic token aliases the *primitive* Stone scale — so the
+# reinterpretation happens here: @Stone/N resolves to the tier, not the ramp.
+# Same shape as the border-radius/rounded-md -> --radius-md translation below.
+# This one retires only if Figma grows a real neutral collection of its own.
+#
+# There was a second rule beside it, renaming Decorative/Stone to
+# Decorative/Neutral. Figma has since renamed it at source, so it is gone.
 NEUTRAL_ROLE = "Stone"
-NEUTRAL_ROLE_RENAME = {"Decorative/Stone": "Decorative/Neutral"}
 
 def load(name):
     with open(os.path.join(T, name)) as f:
@@ -173,19 +174,6 @@ def px2rem(v):
     return f"{s}rem"
 
 # ---- the neutral role: Figma's "Stone" is the alias tier, not the ramp ----
-def sem_name(name):
-    """Semantic token name, with the neutral role renamed out of Figma's spelling.
-
-    Only the group prefix moves: "Decorative/Stone/Background" ->
-    "Decorative/Neutral/Background". The badge painted with it is the neutral
-    chip, and it has to follow a neutral swap or a stone badge sits dirty on a
-    taupe page.
-    """
-    for figma, role in NEUTRAL_ROLE_RENAME.items():
-        if name == figma or name.startswith(figma + "/"):
-            return role + name[len(figma):]
-    return name
-
 # '#rrggbb' (lowercase, no alpha) -> step, for the default ramp only. Used to
 # recognise the alpha variants the semantic layer stores as raw hex.
 NEUTRAL_ROLE_HEX = {p["v"].lower(): p["n"].split("/", 1)[1]
@@ -224,7 +212,7 @@ ref = {}
 for p in prims:
     ref[p["n"]] = f"var(--color-{slug(p['n'])})"
 for s in sem:
-    ref[s["n"]] = f"var(--{slug(sem_name(s['n']))})"
+    ref[s["n"]] = f"var(--{slug(s['n'])})"
 
 def resolve(val):
     if isinstance(val, str) and val.startswith("@"):
@@ -250,11 +238,11 @@ prim_lines = [f"  --color-{slug(p['n'])}: {primitive_value(slug(p['n']), p['v'])
 # ---- 2. semantic (theme-aware -> :root / .dark) ----
 light_lines, dark_lines = [], []
 for s in sem:
-    v = slug(sem_name(s["n"]))
+    v = slug(s["n"])
     light_lines.append(f"  --{v}: {resolve(s['light'])};")
     dark_lines.append(f"  --{v}: {resolve(s['dark'])};")
 # expose semantics as color utilities via @theme inline
-sem_theme_lines = [f"  --color-{slug(sem_name(s['n']))}: var(--{slug(sem_name(s['n']))});" for s in sem]
+sem_theme_lines = [f"  --color-{slug(s['n'])}: var(--{slug(s['n'])});" for s in sem]
 
 # ---- 3. dimensions ----
 radius, text_fs, text_lh, blur, fweight = {}, {}, {}, {}, {}

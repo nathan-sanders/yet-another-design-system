@@ -41,7 +41,7 @@ const badge = tv({
     // `neutral` is the one hue that is not fixed — it follows the ramp chosen
     // by <html data-neutral>, so a neutral badge sits in the same family as the
     // page around it instead of staying stone on a taupe canvas. Figma still
-    // spells the role "Stone"; generate.py renames it.
+    // spells the role "Stone" for the ramp it aliases; the tier reinterprets it.
     //
     // Figma's component set currently ships 14 of these — Orange, Lime, Emerald
     // and Teal are missing there and are being added to the file to match. They

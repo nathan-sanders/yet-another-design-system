@@ -44,7 +44,7 @@ import { focusRing } from '../../lib/focus'
  * The card itself — Figma node `40004135:15969`, 400x72.
  *
  * `Type` is the only variant the file draws. Note that **Default is the
- * Decorative/Stone ramp, not Banner's blue `feedback-info`**: a toast that just
+ * Decorative/Neutral ramp, not Banner's blue `feedback-info`**: a toast that just
  * confirms something happened is neutral, and the file says so. Success and
  * danger are the same `feedback-*` pairs Banner uses, each a background with a
  * foreground already tuned for contrast on it in both themes — so, as in Banner,
@@ -70,7 +70,7 @@ export const toastCard = tv({
   variants: {
     /** Figma's `Type`. The foreground lands on the root so both rows inherit it. */
     type: {
-      default: 'bg-decorative-stone-background text-decorative-stone-foreground',
+      default: 'bg-decorative-neutral-background text-decorative-neutral-foreground',
       success: 'bg-feedback-success-background text-feedback-success-foreground',
       danger: 'bg-feedback-danger-background text-feedback-danger-foreground',
     },
