@@ -8,6 +8,7 @@ import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
 import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
+import { popup } from './styles'
 
 /**
  * Menu — a list of actions in a popup, opened by a button.
@@ -66,44 +67,15 @@ import { Icon } from '../Icon'
  * **What is left out.** `Menu.LinkItem`: Astryx says outright not to use a
  * dropdown for navigation, and Tabs already left `href` tabs out for the same
  * reason — a link is a different a11y contract. Also `Arrow` (Figma draws
- * none), `Backdrop`, `Viewport`, `Menubar`, `ContextMenu`, and the
- * `Handle`/`createHandle` detached-trigger system.
- */
-
-/**
- * The popup. Figma's Menu frame: a card with the Medium elevation.
+ * none), `Backdrop`, `Viewport`, `Menubar`, and the `Handle`/`createHandle`
+ * detached-trigger system.
  *
- * **`overflow-clip` is not ported, for the fourth time** — but for a new reason.
- * SegmentedControl, Banner and Toast all left it out because it would slice a
- * focus ring; here an item sits 8px in from the popup edge and its ring reaches
- * 5px, so clipping would be safe. It is replaced by `overflow-y-auto` instead,
- * which clips to the radius just the same and lets a long menu scroll rather
- * than run off the screen. Figma draws no long menu; Astryx's guidance ("no
- * more than 10-12 items without sections") assumes the case exists.
+ * `ContextMenu` used to be on that list and is now its own component. It shares
+ * this file's rows wholesale — Base UI's context-menu subpath re-exports Menu's
+ * `Item`, `Group`, `SubmenuRoot` and the rest as the same component objects — so
+ * a change made to a row here changes both menus. The popup recipe they both use
+ * lives in `./styles.ts` for that reason.
  */
-const popup = tv({
-  base: [
-    // min-w-30 = 120px, the min-width Figma sets on Menu Group.
-    'flex min-w-30 flex-col',
-    'rounded-lg border border-surface-border bg-surface-card-primary shadow-medium',
-    'font-sans',
-    // Base UI parks focus on the popup itself when a menu is opened by click,
-    // and the browser draws its own focus ring on it — the system accent colour,
-    // which is nothing to do with this theme. The popup is a way-station, not a
-    // stop: the ring belongs on the item you land on.
-    'outline-none',
-    // Base UI publishes the room left between the anchor and the viewport edge.
-    'max-h-(--available-height) overflow-y-auto',
-    // Tooltip's motion, unchanged. Base UI sets --transform-origin to the point
-    // nearest the trigger, so the popup grows out of its own trigger.
-    'transition-[opacity,scale] duration-fast ease-standard origin-(--transform-origin)',
-    'data-[starting-style]:scale-95 data-[starting-style]:opacity-0',
-    'data-[ending-style]:scale-95 data-[ending-style]:opacity-0',
-    // Base UI sets data-instant when animating would be wrong — dismissal, and
-    // moving between triggers in the same group.
-    'data-[instant]:duration-0',
-  ],
-})
 
 /**
  * A row. One recipe for every kind of item — action, submenu trigger, checkbox

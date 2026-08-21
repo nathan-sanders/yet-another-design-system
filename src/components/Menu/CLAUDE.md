@@ -47,7 +47,15 @@ is theirs, but the state arrives from the item rather than the control, so these
 `group-data-checked:`. A shared recipe would need a variant for where its own state comes from,
 which is worse than two short lists of classes.
 Left out: `Menu.LinkItem` (Astryx says outright not to use a dropdown for navigation, and Tabs
-left `href` tabs out for the same reason), `Arrow`, `Backdrop`, `Viewport`, `Menubar`,
-`ContextMenu`, and the `Handle`/`createHandle` detached-trigger system.
+left `href` tabs out for the same reason), `Arrow`, `Backdrop`, `Viewport`, `Menubar`, and the
+`Handle`/`createHandle` detached-trigger system.
+**`ContextMenu` was on that list and is now [its own component](../ContextMenu/CLAUDE.md)**, which
+shares these rows wholesale — Base UI's context-menu subpath re-exports `Item`, `Group`,
+`SubmenuRoot` and the rest as the same component objects, so a change to a row here changes both
+menus. The popup recipe they both use moved to `./styles.ts` for that reason. Two things it found
+that reflect back here: the popup's accessible name comes from the trigger, which a context menu
+has none of (so Menu's "no ARIA to patch" is true of Menu only), and **Figma's `Context Menu Item`
+has a `Danger` type that `Menu Item` still does not** — the file half caught up with `destructive`
+and owes this set the other half.
 **Story trap:** a closed menu has no popup in the DOM, so the suite's axe run would pass by
 looking at nothing. The `Open` and `Groups` stories start open on purpose — Toast's lesson.

@@ -81,6 +81,7 @@ export default defineConfig({
           '@base-ui/react/checkbox',
           '@base-ui/react/radio',
           '@base-ui/react/menu',
+          '@base-ui/react/context-menu',
           '@base-ui/react/switch',
           '@base-ui/react/slider',
           '@base-ui/react/use-render',

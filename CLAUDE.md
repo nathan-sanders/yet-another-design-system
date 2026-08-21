@@ -293,6 +293,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Checkbox](src/components/Checkbox/CLAUDE.md) | tick one thing on or off | plus `Checkbox.Group`, and `inContainer` |
 | [Radio](src/components/Radio/CLAUDE.md) | exactly one of a visible list | plus `Radio.Group` |
 | [Menu](src/components/Menu/CLAUDE.md) | actions in a popup | items, separators, submenus |
+| [ContextMenu](src/components/ContextMenu/CLAUDE.md) | the same actions, on right-click | Menu's rows re-attached, not copied; opens at the pointer |
 | [Switch](src/components/Switch/CLAUDE.md) | a setting that applies at once | knob grows 14 → 16 as it slides |
 | [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value |
 | [Link](src/components/Link/CLAUDE.md) | inline and standalone navigation | what Button's removed `link` appearance became |
@@ -318,6 +319,13 @@ component usually has fewer decisions in it than it looks.
   failure: a container that rings identically wherever focus is inside it says nothing. Combobox's
   tokenizer has several focusable descendants, so its box scopes the ring to the caret and each chip
   carries its own. **One ring at a time, always on the thing that has focus.**
+- **When Base UI hands over the same component object, share it rather than copy it.**
+  `ContextMenu` is `Menu` opened by right-click — Base UI's `context-menu` subpath re-exports
+  Menu's `Item`, `Group`, `SubmenuRoot` and `Popup` as the *same objects*, and Figma draws the two
+  sets identically. So ContextMenu writes a Root, a Trigger and a Popup, and re-attaches the rest
+  under its own namespace; the recipe they share sits in `Menu/styles.ts`. The test for this is
+  not "do they look alike" but "is it the same primitive underneath" — Combobox looks like Select
+  and is a different component, so it duplicates, correctly.
 - **A portalled popup needs a `z-index`, and gets it from `src/lib/layers.ts`.** Being appended to
   `<body>` last does not settle painting order: every positioned element with a positive `z-index`
   paints above every one left on `auto`, whatever the document order. So a popup on `auto` is
@@ -349,7 +357,7 @@ component usually has fewer decisions in it than it looks.
   `titleSlot` before it could collide with `slot`. The rule that decides it is whether the prop name
   is the one a caller would reach for first. `slot`, `title`, `style`, `color` and `content` are the
   ones to watch.
-- **Each entry records which Base UI component it was.** Eighteen so far, Divider first. Worth keeping
+- **Each entry records which Base UI component it was.** Nineteen so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **The default size is the first option, everywhere.** Reach for it in application stories — the
   `InContext` family, and anything standing in for a real screen — and in composition generally, so
