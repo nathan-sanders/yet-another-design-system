@@ -350,7 +350,16 @@ component usually has fewer decisions in it than it looks.
   here against a file that did not have them, then drawn into the file afterwards. The direction is
   unusual but it is allowed — what is not allowed is leaving the file behind. Accordion is the one to
   copy: its row went 32 → 40 in code and the Figma variants followed within the day, so the two never
-  drifted far enough to argue about.
+  drifted far enough to argue about. **Menu's `destructive` is the longest-running case and it closed
+  the same way**: built against a `Menu Item` whose `Type` was Action | Nested only, and drawn into
+  the file as `Type=Danger` the day ContextMenu landed. Nothing in the code changed when it arrived,
+  which is the test of whether a catch-up was really a catch-up.
+- **Catching up can mean the file deleting something, not adding it.** ContextMenu shipped sharing
+  Menu's rows, on the grounds that Base UI hands over the same component objects and Figma drew the
+  two identically. Figma then retired its own `Context Menu Item` and `Context Menu Group` sets so
+  that `Context Menu` instances `Menu Group` and `Menu Item` directly. Both sides reached one shared
+  row from opposite directions — which is a stronger signal than either one alone, and the reason to
+  say out loud when a component is a *reuse* rather than a resemblance.
 - **A prop named after a DOM attribute has to give way, one side or the other.** Three now, and each
   was found by the same `Omit`-or-rename type error: Divider's `style` became `lineStyle`, Banner's
   `title` kept the prop name and `Omit`ed the attribute, and ContentBlock's header slot was named

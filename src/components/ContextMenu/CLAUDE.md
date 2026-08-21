@@ -1,18 +1,23 @@
 # ContextMenu
 
-The same menu, opened by right-click or long press at the pointer. Mirrors Figma nodes
-`40004155:13536` (Context Menu), `40004155:13278` (Context Menu Group) and `40004155:13195`
-(Context Menu Item, `Type` action | danger | nested × `State` default | hover | focus | disabled).
+The same menu, opened by right-click or long press at the pointer. Mirrors Figma node
+`40004155:13536` (Context Menu) — which is a frame around Menu's own `Menu Group` and `Menu Item`,
+the file having no context-menu-specific row of its own.
 Compound API: `<ContextMenu>` + `Trigger` + `Popup` + `Group` + `Item` / `Submenu` /
 `CheckboxItem` / `RadioGroup` + `RadioItem`.
 **This component is `Menu`, and that is not a figure of speech.** Base UI's `context-menu`
 subpath re-exports Menu's parts — `Item`, `Group`, `Popup`, `SubmenuRoot`, `CheckboxItem`,
 `Separator` — as literally the same component objects, and `ContextMenu.Root` renders a
-`Menu.Root` underneath with a virtual anchor at the cursor. Figma draws the two identically:
-the same 32px row with a hidden leading icon and a hidden sub-label, the same group with its
-divider and 20px header, the same card on Elevation/Drop Shadow/Medium. So the rows here are
-**re-attached, not copied**, and a fix to a menu row fixes both menus at once. Only three things
-are new: Root, Trigger, and a Popup that hands the positioner different arguments.
+`Menu.Root` underneath with a virtual anchor at the cursor. So the rows here are **re-attached,
+not copied**, and a fix to a menu row fixes both menus at once. Only three things are new: Root,
+Trigger, and a Popup that hands the positioner different arguments.
+**Figma is built the same way, and now says so.** It used to carry its own `Context Menu Item`
+(`40004155:13195`) and `Context Menu Group` (`40004155:13278`) sets, drawn identically to Menu's
+down to the hidden icon slot and the 20px header. Both were retired the day this landed and
+`Context Menu` now instances `Menu Group` and `Menu Item` directly. Worth knowing if you meet
+those node ids in an old commit message: they are gone, not moved, and the change was a
+simplification in the same direction the code had already taken. Two independent readings of the
+same component arriving at one shared row is the strongest evidence the call was right.
 **The shared popup recipe moved to `Menu/styles.ts`** for that reason — Select, Combobox and
 Toast already use that filename for the same job. `item`, `indicatorBox` and `ItemLabel` stayed
 in `Menu.tsx`: ContextMenu reaches them through `Menu.Item` and friends, so moving them would
@@ -32,11 +37,14 @@ the `role="menu"` arrives with no accessible name at all.** `Popup` takes a `lab
 `'Context menu'`, which is Astryx's default wording for the same patch. It is spread **only when
 set**, never as `undefined`, because forwarding an `aria-*` prop as `undefined` deletes what Base
 UI computed. A submenu is unaffected and correctly keeps `aria-labelledby` to its trigger row.
-**Danger is Figma's word, `destructive` is the code's.** `Context Menu Item` has a third `Type`
-that `Menu Item` does not. Menu's `destructive` was built ahead of the file on Astryx's guidance
-and the file has since drawn it — but only on this set. One name for one thing across both menus
-beats matching the axis, so the prop stays `destructive` and **Figma owes `Menu Item` a `Danger`
-type**. Code went first and Figma half caught up; this is the half that is still owed.
+**`destructive` is Figma's `Type=Danger`, and that debt is settled.** It was built here first,
+on Astryx's guidance, against a `Menu Item` that had only Action and Nested. Figma then drew
+Danger onto the retired `Context Menu Item` set only — half a catch-up — and, when that set was
+folded into `Menu Item`, onto `Menu Item` itself (`40004149:7376` and its hover/focus/disabled
+siblings, on `Content/Danger` `#c10006`, which is what `text-content-danger` already painted).
+**Nothing in the code changed for any of it**, which is the point: the prop stays a boolean
+rather than becoming a third `type`, because that is how it reads at a call site, and the axis
+and the prop now name the same thing. Accordion's clean-closure pattern, on a shorter clock.
 **Submenus need nothing.** Base UI types a `SubmenuRoot`'s parent as `menu` even inside a context
 menu, so the cursor-anchoring rule never reaches it. Measured with both open: the flyout's left
 edge meets the trigger row's right edge to within 0.2px, sits 9.2px over the parent's border box,

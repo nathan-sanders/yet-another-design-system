@@ -107,11 +107,13 @@ const item = tv({
 
   variants: {
     /**
-     * Not in Figma's `Type` axis, which is Action | Nested only — but Astryx's
-     * own Actions example separates destructive operations, and a Delete row
-     * that looks identical to Rename is a real gap. The same call as Divider's
-     * `emphasis` and SegmentedControl's `layout`: build it, then add it to
-     * Figma. The leading icon inherits the colour, as Icon is built to.
+     * Figma's `Type=Danger`, but built here first: the axis was Action | Nested
+     * only, while Astryx's own Actions example separates destructive operations
+     * and a Delete row that looks identical to Rename is a real gap. The same
+     * call as Divider's `emphasis` and SegmentedControl's `layout` — build it,
+     * then add it to Figma — and the file caught up when ContextMenu landed. It
+     * stays a boolean rather than a third `type`, because that is how it reads
+     * at a call site. The leading icon inherits the colour, as Icon is built to.
      */
     destructive: {
       true: 'text-content-danger',

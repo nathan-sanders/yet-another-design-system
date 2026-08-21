@@ -8,10 +8,9 @@ import { popup } from '../Menu/styles'
 
 /**
  * ContextMenu — the same menu, opened by right-click or long press at the
- * pointer. Mirrors the Figma component sets "Context Menu" (node
- * 40004155:13536), "Context Menu Group" (40004155:13278) and "Context Menu Item"
- * (40004155:13195, `Type` Action | Danger | Nested x `State` Default | Hover |
- * Focus | Disabled).
+ * pointer. Mirrors the Figma component "Context Menu" (node 40004155:13536),
+ * which is a frame around Menu's own "Menu Group" and "Menu Item" — the file
+ * has no context-menu-specific row of its own, by design.
  *
  *     <ContextMenu>
  *       <ContextMenu.Trigger render={<Card />} />
@@ -29,19 +28,22 @@ import { popup } from '../Menu/styles'
  * `@base-ui/react/context-menu` re-exports Menu's parts — `Item`, `Group`,
  * `Popup`, `SubmenuRoot`, `CheckboxItem`, `Separator` — as literally the same
  * component objects, and `ContextMenu.Root` renders a `Menu.Root` underneath
- * with a virtual anchor at the cursor. Figma draws the two identically: the same
- * 32px row with a hidden leading icon and a hidden sub-label, the same group with
- * its divider and 20px header, the same card on Elevation/Drop Shadow/Medium.
- * So the rows below are `Menu`'s rows, re-attached under this namespace rather
- * than copied. Only three things are new: the Root, the Trigger, and a Popup
- * that hands the positioner different arguments.
+ * with a virtual anchor at the cursor. So the rows below are `Menu`'s rows,
+ * re-attached under this namespace rather than copied. Only three things are
+ * new: the Root, the Trigger, and a Popup that hands the positioner different
+ * arguments.
  *
- * **Danger is Figma's word, `destructive` is the code's.** `Context Menu Item`
- * has a third `Type` that `Menu Item` does not — Menu's `destructive` prop was
- * built ahead of the file on Astryx's guidance, and the file has since drawn it,
- * but only on this set. One name for one thing across both menus is worth more
- * than matching the axis, so the prop stays `destructive` and Figma owes
- * `Menu Item` a `Danger` type.
+ * **Figma is built the same way, and now says so.** The file used to carry its
+ * own `Context Menu Item` and `Context Menu Group` sets, drawn identically to
+ * Menu's; those were retired and `Context Menu` now instances `Menu Group` and
+ * `Menu Item` directly. Code and canvas agree on the same three-layer story:
+ * one row, one group, two frames around them.
+ *
+ * **`destructive` is Figma's `Type=Danger`.** It was built here first, on
+ * Astryx's guidance, against a `Menu Item` that had only Action and Nested. The
+ * file has since drawn the Danger variant onto `Menu Item` itself, so the prop
+ * and the axis now name the same thing — one boolean rather than a third `type`,
+ * because that is how it reads at a call site.
  *
  * **There is no keyboard way in, and there should not be.** Base UI renders the
  * trigger as a plain `<div>` with no `tabIndex`, which is right — giving it one
