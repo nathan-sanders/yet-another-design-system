@@ -137,6 +137,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
 | **Combobox** | A list too long to scroll, filtered by typing; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled — a trigger with a searchable popup, or a tokenizer whose chosen values sit in front of the caret as `Token`s |
 | **ContentBlock** | A card owning one titled region of a page; composed header (title, icon, title slot, actions) + body, 3 emphases (default, subtle, accent) × flat/floating, heading level 2–6 |
+| **ContextMenu** | The same popup as Menu, opened by right-click or long press at the pointer — action, submenu, checkbox and radio items, destructive items and labelled groups. Base UI hands over Menu's own parts, so these are literally the same rows |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |

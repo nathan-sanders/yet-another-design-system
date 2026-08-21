@@ -67,6 +67,13 @@ export type {
   ContentBlockHeadingLevel,
 } from './components/ContentBlock'
 
+export { ContextMenu } from './components/ContextMenu'
+export type {
+  ContextMenuProps,
+  ContextMenuPopupProps,
+  ContextMenuTriggerProps,
+} from './components/ContextMenu'
+
 export { Divider } from './components/Divider'
 export type { DividerProps } from './components/Divider'
 
