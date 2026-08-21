@@ -15,6 +15,15 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     projects: [{
+      // A plain node project for checks that are about the source text rather
+      // than a rendered component — no browser, so it costs nothing.
+      extends: true,
+      test: {
+        name: 'tokens',
+        environment: 'node',
+        include: ['src/**/*.test.ts'],
+      }
+    }, {
       extends: true,
       plugins: [
       // The plugin will run tests for the stories defined in your Storybook config
@@ -83,6 +92,7 @@ export default defineConfig({
       },
       test: {
         name: 'storybook',
+        exclude: ['**/*.test.ts'],
         browser: {
           enabled: true,
           headless: true,

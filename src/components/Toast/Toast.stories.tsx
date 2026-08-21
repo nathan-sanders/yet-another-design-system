@@ -48,7 +48,7 @@ export const Playground: Story = {
  * Figma's whole variant set: three types across the Description / Has Action /
  * Is Dismissable slots.
  *
- * **Default is the Decorative/Stone ramp, not Banner's blue `feedback-info`.** A
+ * **Default is the Decorative/Neutral ramp, not Banner's blue `feedback-info`.** A
  * toast that just confirms something happened is neutral; the file says so, and
  * Astryx agrees — it has only info and error. Success and danger are the same
  * `feedback-*` pairs Banner draws from, each background already carrying a

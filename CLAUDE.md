@@ -92,10 +92,14 @@ Three things that are easy to get wrong:
 - **The ramp is orthogonal to the theme.** It composes with `.dark` instead of multiplying against
   it — the semantic layer already decides which step each theme uses.
 
-**Figma spells the role "Stone", and `generate.py` translates.** `tokens/semantic.json` is a pure
-Figma export, so the policy lives in the generator instead: `@Stone/N` becomes `var(--neutral-N)`,
-and `Decorative/Stone/*` is renamed to `decorative-neutral-*`. Editing the JSON would have worked
-until the next re-export undid it. The day Figma renames these itself, both rules become no-ops.
+**A semantic alias to `@Stone/N` means the tier, not the ramp.** Figma has no neutral collection —
+a semantic token aliases the *primitive* Stone scale — so `generate.py` reinterprets it and emits
+`var(--neutral-N)`. That rule retires only if Figma grows a collection of its own.
+
+There was a second rule beside it renaming `Decorative/Stone` to `Decorative/Neutral`, written into
+the generator rather than the JSON so a re-export could not undo it. Figma has since renamed it at
+source and the rule is gone — the regenerated `theme.css` came out byte-identical, which is what a
+clean retirement looks like.
 
 The generator also re-points the **alpha variants**. Ten of the raw hex values in the semantic layer
 are the neutral at some alpha — ghost backgrounds, both overlays, both shadows. Left as `oklch()`
@@ -217,6 +221,15 @@ three JSON files and run `python3 generate.py`. Never hand-edit the generated `t
 `generate.py` refuses to write if it would emit an invalid CSS custom property name. This matters:
 an invalid name is dropped **silently** by the browser, which is how eight diverging colours once
 went missing. Figma's `+`/`-` sign prefixes become `pos-`/`neg-` (`--data-viz-diverging-neg-08`).
+
+**`src/styles/tokens.test.ts` is the same guard one layer up**, and it runs in CI. Tailwind builds
+utilities from what it finds in `@theme`, so a class naming a token that does not exist generates
+*nothing* — the element simply paints unstyled. Nothing else catches it: `tsc` sees a string, the
+stories still render, and axe passes because transparent-on-canvas has fine contrast. That is
+exactly how renaming `decorative-stone` reached `main` with Avatar's initials fallback and Toast's
+default variant silently unpainted. **When a token is renamed, grep the whole of `src` for the old
+name — and do not pipe that grep through `head`, because `theme.css` will fill the output before a
+component does.** That is precisely how those two were missed.
 
 ## Figma is the source of truth
 

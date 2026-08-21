@@ -4,7 +4,7 @@ A brief notification that confirms something happened and then leaves. Mirrors F
 node `40004135:15969`: `Type` default | success | danger, plus the Description / Has Action /
 Is Dismissable booleans, which become slots as Banner's do. Banner's transient twin, and the two
 should be described against each other: a banner stays, a toast interrupts and goes.
-**Default is the Decorative/Stone ramp, not `feedback-info`.** A toast that only confirms
+**Default is the Decorative/Neutral ramp, not `feedback-info`.** A toast that only confirms
 something is neutral; the file says so, and Astryx agrees (it has just info and error). Success
 and danger are Banner's `feedback-*` pairs, so again no `dark:` class anywhere.
 **No icon rail** — Banner centres a glyph in a 16px column, Toast's text starts flush against the

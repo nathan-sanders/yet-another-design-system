@@ -82,7 +82,7 @@ export const avatar = tv({
 export const avatarSurface = tv({
   base: [
     'flex size-full items-center justify-center overflow-hidden rounded-full',
-    'bg-decorative-stone-background text-decorative-stone-foreground',
+    'bg-decorative-neutral-background text-decorative-neutral-foreground',
   ],
 })
 
