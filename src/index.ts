@@ -23,6 +23,16 @@ export type { BadgeProps } from './components/Badge'
 export { Banner } from './components/Banner'
 export type { BannerProps, BannerType } from './components/Banner'
 
+export { BentoGrid } from './components/BentoGrid'
+export type {
+  BentoGridProps,
+  BentoGridCellProps,
+  BentoGridColumns,
+  BentoGridGap,
+  BentoCellColSpan,
+  BentoCellRowSpan,
+} from './components/BentoGrid'
+
 export { Breadcrumbs } from './components/Breadcrumbs'
 export type {
   BreadcrumbsProps,
@@ -47,6 +57,15 @@ export type {
   ComboboxSize,
   ComboboxIndicator,
 } from './components/Combobox'
+
+export { ContentBlock } from './components/ContentBlock'
+export type {
+  ContentBlockProps,
+  ContentBlockHeaderProps,
+  ContentBlockContentProps,
+  ContentBlockEmphasis,
+  ContentBlockHeadingLevel,
+} from './components/ContentBlock'
 
 export { Divider } from './components/Divider'
 export type { DividerProps } from './components/Divider'
