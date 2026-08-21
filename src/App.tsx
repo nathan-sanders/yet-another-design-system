@@ -58,6 +58,7 @@ const surfaces: [string, string][] = [
   ['bg-surface-canvas', 'surface-canvas'],
   ['bg-surface-card-primary', 'surface-card-primary'],
   ['bg-surface-card-subtle', 'surface-card-subtle'],
+  ['bg-surface-card-emphasized', 'surface-card-emphasized'],
   ['bg-surface-canvas-overlay', 'surface-canvas-overlay'],
   ['bg-surface-border', 'surface-border'],
   ['bg-surface-border-emphasized', 'surface-border-emphasized'],

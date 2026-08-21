@@ -204,7 +204,7 @@ export const Dashboard: Story = {
             <ContentBlock.Content>
               <p className="text-5xl font-semibold">12,847</p>
               <p className="text-sm opacity-70">+8.2% vs. last week</p>
-              <div className="mt-4 flex gap-6 border-t border-action-primary-foreground/20 pt-4">
+              <div className="mt-4 flex gap-6 border-t border-current/20 pt-4">
                 <div>
                   <p className="text-xl font-semibold">308</p>
                   <p className="text-sm opacity-70">Shopify</p>
