@@ -130,10 +130,13 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
 | **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |
 | **Banner** | 4 feedback types (info, success, warning, danger) × inline/floating, with title, description, action and dismiss slots |
+| **BentoGrid** | The mosaic a set of `ContentBlock`s sits in; 2/3/4 columns × default/loose gutter, with a `BentoGrid.Cell` spanning 1–4 columns and 1–3 rows — one breakpoint collapses the grid to a single column and drops every span with it |
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
 | **Checkbox** | Unticked, ticked or indeterminate × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
+| **Combobox** | A list too long to scroll, filtered by typing; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled — a trigger with a searchable popup, or a tokenizer whose chosen values sit in front of the caret as `Token`s |
+| **ContentBlock** | A card owning one titled region of a page; composed header (title, icon, title slot, actions) + body, 3 emphases (default, subtle, accent) × flat/floating, heading level 2–6 |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
@@ -149,6 +152,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Switch** | Off/on × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label — the knob grows from 14 to 16px as it slides |
 | **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |
 | **Toast** | 3 types (default, success, danger) with description, action and dismiss slots; fired from a `useToast()` hook into a stack that collapses into one card and expands on hover, in pure CSS |
+| **Token** | One chosen value as a pill; view-only or interactive × 2 sizes (24/20) × default/hover/focus/disabled, with icon, avatar and remove slots |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx
