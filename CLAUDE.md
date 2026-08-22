@@ -313,7 +313,17 @@ component usually has fewer decisions in it than it looks.
 - **Derive a variant instead of adding a prop, where the value already says it.** Figma models these
   as axes, but Avatar's `Content`, Button's icon-only form, Slider's `range` and Breadcrumbs' current
   page all follow from what you pass. A prop that can contradict the children is a prop that will.
-- **Focus is `focusRing` or `focusRingWithin` from `src/lib/focus.ts`, never hand-written.** Use
+- **Focus is `focusRing`, `focusRingUnhovered` or `focusRingWithin` from `src/lib/focus.ts`, never
+  hand-written.** Reach for `focusRingUnhovered` in a list whose rows **take focus because you
+  pointed at them** — anything on Base UI's `highlightItemOnHover`. There `:focus-visible` is not a
+  safe proxy for "the keyboard put you here": Chrome decides it for a scripted `.focus()` by asking
+  what the last interaction was, so hovering a menu row after any keypress paints a full keyboard
+  ring under the cursor. Both menus had it; `ContextMenu` had it on *every* hover, because its
+  trigger is a `<div>` that never takes focus, so nothing ever sets the pointer modality at all.
+  The ring is scoped off the hovered row rather than removed — the hover background still marks it,
+  and arrowing away from a parked mouse rings the row you moved to. Do **not** fold that scoping
+  into `focusRing`: on a Button a mouse resting over something you tabbed to should not swallow the
+  ring, because there the hover did not cause the focus. Use
   `focusRingWithin` when focus lands on a descendant — a card around a Checkbox, or Slider's thumb
   with its visually hidden input inside it. Watch for two rings on one control, and for the opposite
   failure: a container that rings identically wherever focus is inside it says nothing. Combobox's

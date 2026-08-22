@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
-import { focusRing } from '../../lib/focus'
+import { focusRingUnhovered } from '../../lib/focus'
 import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 import { popup } from './styles'
@@ -82,11 +82,16 @@ import { popup } from './styles'
  * and radio — because Figma draws them as one 32px row with one hover and one
  * focus treatment, and only the leading slot differs.
  *
- * Focus is the library's shared ring (src/lib/focus.ts). It is the one place
- * that ring is nearly redundant: Base UI highlights the row it moves to, so
- * `data-highlighted` and `:focus-visible` fire together and the background
- * already says where you are. The ring stays for the case where they do not —
- * a menu opened straight onto a focused item.
+ * Focus is the library's shared ring, in its `focusRingUnhovered` form
+ * (src/lib/focus.ts) — the ring, suppressed on the row the pointer is resting
+ * on. Base UI focuses the row you hover, and Chrome will call a scripted
+ * `.focus()` `:focus-visible` whenever the last interaction was a keypress, so
+ * the plain ring follows the mouse: measured in `Menu` after opening it with
+ * Tab then ArrowDown, and in `ContextMenu` on *every* hover, because a
+ * right-click leaves focus on `<body>` and nothing ever sets the pointer
+ * modality at all. The hovered row is not left unmarked — `data-highlighted`
+ * paints it — and arrowing away from a parked mouse still rings the row you
+ * moved to.
  *
  * `group` is here so the checkbox box and radio dial can read `data-checked`
  * off the item, which is where Base UI puts it.
@@ -100,7 +105,7 @@ const item = tv({
     'text-content-primary',
     // Hover and keyboard highlight are the same attribute — see the header.
     'data-highlighted:bg-surface-card-subtle',
-    ...focusRing,
+    ...focusRingUnhovered,
     'data-disabled:pointer-events-none data-disabled:opacity-40',
     'transition-colors duration-fast-min ease-standard',
   ],
