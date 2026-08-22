@@ -45,6 +45,15 @@ first — Divider's `emphasis` and SegmentedControl's `layout` again — and the
 ContextMenu landed (`40004149:7376` and siblings, on `Content/Danger`). The prop stays a boolean
 rather than becoming a third `type`, because that is how it reads at a call site. No code changed
 when the variants arrived, which is what a clean catch-up looks like.
+**The ring is `focusRingUnhovered`, not `focusRing`, and that was a real bug.** Base UI focuses the
+row you point at, and Chrome calls a scripted `.focus()` `:focus-visible` whenever the last
+interaction was a keypress — so the plain ring followed the mouse. Reproduced here by opening the
+menu with Tab then ArrowDown and hovering a row; `ContextMenu` had it on *every* hover, which is how
+it was noticed. The fix scopes the ring off the hovered row (`:focus-visible:not(:hover)`) rather
+than removing it: `data-highlighted` still paints the row under the cursor, and arrowing away from a
+parked mouse rings the row you moved to. The earlier note here — that the ring was "nearly
+redundant" because highlight and focus fire together — was the bug being rationalised rather than
+measured, which is worth remembering as a failure mode.
 The checkbox box and radio dial **deliberately do not reuse `Checkbox` or `Radio`**: the visual
 is theirs, but the state arrives from the item rather than the control, so these read it with
 `group-data-checked:`. A shared recipe would need a variant for where its own state comes from,

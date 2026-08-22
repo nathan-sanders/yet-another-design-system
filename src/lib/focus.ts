@@ -43,6 +43,45 @@ export const focusRing = [
 ]
 
 /**
+ * The same ring, suppressed on the element the pointer is resting on.
+ *
+ * For a list whose rows **take focus because you pointed at them** — a menu, and
+ * anything else built on Base UI's `highlightItemOnHover`. There, `:focus-visible`
+ * alone is not a safe proxy for "the keyboard put you here".
+ *
+ * ## The bug this exists to stop
+ *
+ * Chrome decides `:focus-visible` for a *scripted* `.focus()` by asking what the
+ * last user interaction was. Hovering a menu row calls `.focus()` on it, so the
+ * answer is whatever happened before the mouse moved — and if that was a
+ * keypress, the row lights up with a full keyboard focus ring under the cursor.
+ * Measured in both menus: open a `Menu` with Tab then ArrowDown and hover a row,
+ * and the ring follows the mouse.
+ *
+ * `ContextMenu` has it on *every* hover rather than only after a keypress,
+ * because its trigger is a plain `<div>` that never takes focus — so a
+ * right-click leaves focus on `<body>`, no pointer interaction ever moves it,
+ * and every scripted focus afterwards reads as keyboard.
+ *
+ * ## Why `:not(:hover)` is the rule and not a workaround
+ *
+ * The ring means "the keyboard put you here". On the row the pointer is already
+ * on, that is not what it means, and the row is not left unmarked either — the
+ * hover background says where you are. Arrow away from a parked mouse and the
+ * ring appears on the row you moved to, correctly, because that row is not the
+ * hovered one.
+ *
+ * Do not fold this into `focusRing`. On a Button the two are independent: a mouse
+ * that happens to rest over a button you tabbed to should not swallow its ring,
+ * because the hover did not cause the focus. Here it did.
+ */
+export const focusRingUnhovered = [
+  'outline-none',
+  'focus-visible:not-hover:ring-3 focus-visible:not-hover:ring-focus-focus-outer-border',
+  'focus-visible:not-hover:ring-offset-2 focus-visible:not-hover:ring-offset-focus-focus-inner-border',
+]
+
+/**
  * The ring on an ancestor — the card round a Checkbox or Radio — when the
  * control inside it takes focus.
  */

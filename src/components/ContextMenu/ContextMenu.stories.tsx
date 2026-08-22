@@ -135,7 +135,31 @@ export const Open: Story = {
     const trigger = within(canvasElement).getByText('Opened for you')
     await userEvent.pointer({ target: trigger, keys: '[MouseRight]' })
     // The popup is portalled to <body>, so it is not inside the canvas element.
-    await expect(await within(document.body).findByRole('menu')).toBeVisible()
+    const menu = await within(document.body).findByRole('menu')
+    await expect(menu).toBeVisible()
+
+    // Pointing at a row focuses it. That is the mechanism behind the ring bug:
+    // Chrome calls this scripted focus `:focus-visible`, because a right-click
+    // on a non-focusable trigger never sets the pointer modality, so the plain
+    // focus ring would paint under the cursor.
+    const rename = within(menu).getByRole('menuitem', { name: 'Rename' })
+    await userEvent.hover(rename)
+    await expect(rename).toHaveFocus()
+
+    // The suppression itself cannot be asserted from here, and it is worth
+    // saying why rather than writing a test that passes for the wrong reason:
+    // a synthesised hover dispatches mouse events but never moves the real
+    // pointer, so CSS `:hover` stays false and the bug cannot reproduce in this
+    // runner. That is checked by hand in a browser.
+    //
+    // What these two do catch is the silent half. The row has to carry the
+    // *scoped* utility rather than the plain ring — and because `:hover` is
+    // false here, the ring must still paint, which is only true if Tailwind
+    // actually emitted a rule for `not-hover`. A class that generates nothing
+    // paints nothing and says so nowhere, which is exactly how the ring would
+    // quietly come back.
+    await expect(rename.className).toContain('focus-visible:not-hover:ring-3')
+    await expect(getComputedStyle(rename).boxShadow).toContain('0px 0px 0px 5px')
   },
 }
 

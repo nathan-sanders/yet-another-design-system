@@ -53,6 +53,21 @@ correct here unchanged.
 **`disabled` gives the browser's own menu back**, and that is the right behaviour rather than
 swallowing the gesture: measured, the `contextmenu` event comes back with `defaultPrevented`
 false. Astryx's `isDisabled` means exactly this.
+**The focus ring showed on hover, and it was this component that exposed it.** Base UI focuses the
+row you point at; Chrome decides `:focus-visible` for a scripted `.focus()` by asking what the last
+user interaction was. A right-click on a `<div>` trigger focuses nothing, so after opening a context
+menu **focus is still on `<body>`** — measured — no pointer interaction has ever moved it, and every
+scripted focus afterwards reads as keyboard. Result: a full keyboard ring under the cursor on every
+hover. `Menu` has the identical defect and only shows it after a keypress (open with Tab then
+ArrowDown, then hover), which is why the fix is in the shared row recipe rather than here:
+`focusRingUnhovered` scopes the ring off the hovered row. The row is not left unmarked —
+`data-highlighted` paints it — and arrowing away from a parked mouse rings the row you moved to.
+**The suite cannot test it, and the story says so instead of pretending.** A synthesised hover
+dispatches mouse events but never moves the real pointer, so CSS `:hover` stays false and the bug
+does not reproduce in the runner — an assertion on the painted ring would have passed for the wrong
+reason. `Open` guards the two halves that *are* checkable: the row carries the scoped utility, and
+the ring still paints when nothing is hovered, which is only true if Tailwind emitted a rule for
+`not-hover` at all. Both were verified by breaking them on purpose.
 **There is no keyboard way in, and there should not be.** Base UI renders the trigger as a plain
 `<div>` with no `tabIndex`; giving it one would make an interactive element with no role. Both
 Base UI and Astryx say the same thing instead — a context menu must never be the only route to
