@@ -31,7 +31,7 @@ using a real Divider inside its `tablist`. Figma puts the padding there rather t
 because the header sits outside it: `px-5` on the header and `p-2` + `px-3` on the items both
 land text **21px** from the popup edge (Figma's 20, plus the 1px border it does not draw).
 **`overflow-clip` not ported for the fourth time, but for a new reason** — here it would be
-safe (an item sits 8px in, its ring reaches 3px, measured). It is `overflow-y-auto` instead,
+safe (an item sits 8px in and its 4px ring stops 4px short of the edge, measured). It is `overflow-y-auto` instead,
 which clips to the radius just the same and lets a long menu scroll via
 `max-h-(--available-height)` rather than run off screen. Figma draws no long menu.
 **Submenus anchor to the trigger row, not the parent popup** — found by measuring: Figma's

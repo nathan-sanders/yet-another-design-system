@@ -169,7 +169,7 @@ const field = tv({
     'rounded-md border border-input-border bg-input-background',
     'hover:border-input-border-hover',
     // `focusRing`'s two strokes, fired by the caret rather than by the box.
-    'has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-focus-focus-outer-border',
+    'has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus-focus-outer-border',
     'has-[input:focus-visible]:ring-offset-2',
     'has-[input:focus-visible]:ring-offset-focus-focus-inner-border',
     // Inside a Field, validity arrives as `data-invalid` on the control, so the

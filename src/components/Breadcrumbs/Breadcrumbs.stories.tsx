@@ -78,7 +78,7 @@ export const Separators: Story = {
 /**
  * The Figma state table. Hover and focus are real CSS states rather than props,
  * so these are live: hover the first crumb to see the underline, and tab to it
- * to see the focus ring (a 2px gap and a 3px ring, rounded-md). It is drawn
+ * to see the focus ring (a 2px gap and a 2px ring, rounded-md). It is drawn
  * with `box-shadow` outside the crumb, so nothing shifts when it appears.
  *
  * The current page has no states at all — Figma gives Type=Current Page only a

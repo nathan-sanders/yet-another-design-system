@@ -194,7 +194,7 @@ Every focusable thing in the library uses one ring, exported from `src/lib/focus
 it takes focus). Import it; do not write focus classes by hand.
 
 It draws two strokes, **both outside the component**: a 2px gap in `focus/focus-inner-border` — the
-canvas colour, white in light mode and stone-900 in dark, so it reads as a gap — then a 3px ring in
+canvas colour, white in light mode and stone-900 in dark, so it reads as a gap — then a 2px ring in
 `focus/focus-outer-border`. Nothing is painted on or inside the component, so a focused component is
 pixel-identical to an unfocused one.
 

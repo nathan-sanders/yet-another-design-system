@@ -41,7 +41,7 @@ here (the `invalid` prop is the standalone path, and the two compose). Disabled 
 `has-[:disabled]:`, and **keeping the fade on the box rather than on `Field.Root` is what stops
 the two compounding to 16%** when a disabled Field wraps a disabled control — measured at a clean
 0.4, not 0.16.
-Figma renders focus as `border-2` plus a 3px spread shadow, which *is* `ring-offset-2` + `ring-3`
+Focus is `ring-offset-2` + `ring-2` — a gap and a stroke, both painted outside the box —
 rather than a real border change; the box measures pixel-identical focused and unfocused. And
 unlike a `<button>`, an `<input>` matches `:focus-visible` on a **mouse click** too — verified
 with a real click, because `element.focus()` does not trigger it at all and will tell you the
