@@ -36,9 +36,9 @@ because on a canvas that is the only place a target can live; Base UI listens on
 `Slider.Control`, so the height goes there (`h-6`, Figma's 24) with the 4px track centred in it.
 **`thumbAlignment="edge"`, not Base UI's default `center`.** Figma centres the handle on the end
 of the filled track, and at `min` that hangs 8px past the control — exactly the row's `gap-2`,
-which is presumably why the gap is 8. But the disc grows to 20px and the ring adds 5px, and a
-focused handle at `min` then **painted 7px over the bounds label** (measured). `edge` insets it;
-the ring lands in the gap with 3px to spare, and nothing is lost visually because the
+which is presumably why the gap is 8. But the disc grows to 20px and the ring adds 4px, and a
+focused handle at `min` then **paints 6px over the bounds label**. `edge` insets it;
+the ring lands in the gap with 4px to spare, and nothing is lost visually because the
 indicator's 8px stub at `min` sits under the handle. Figma cannot settle this one — it draws the
 handle's focus state in isolation and never on a composed slider.
 **Marks paint behind the track**, per Figma's z-order, so all you see of a tick is the 2px

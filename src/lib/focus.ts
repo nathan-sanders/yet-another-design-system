@@ -5,7 +5,7 @@
  *
  * Two concentric strokes, **both outside the component**: a 2px gap in
  * `focus/focus-inner-border` (white in light mode, stone-900 in dark — the
- * canvas colour, so it reads as a gap), then a 3px ring in
+ * canvas colour, so it reads as a gap), then a 2px ring in
  * `focus/focus-outer-border`. Nothing is drawn on or inside the component
  * itself, so the thing you focused looks exactly the same as it did before.
  *
@@ -38,7 +38,7 @@
 /** The ring on the focused element itself, keyboard-only. */
 export const focusRing = [
   'outline-none',
-  'focus-visible:ring-3 focus-visible:ring-focus-focus-outer-border',
+  'focus-visible:ring-2 focus-visible:ring-focus-focus-outer-border',
   'focus-visible:ring-offset-2 focus-visible:ring-offset-focus-focus-inner-border',
 ]
 
@@ -77,7 +77,7 @@ export const focusRing = [
  */
 export const focusRingUnhovered = [
   'outline-none',
-  'focus-visible:not-hover:ring-3 focus-visible:not-hover:ring-focus-focus-outer-border',
+  'focus-visible:not-hover:ring-2 focus-visible:not-hover:ring-focus-focus-outer-border',
   'focus-visible:not-hover:ring-offset-2 focus-visible:not-hover:ring-offset-focus-focus-inner-border',
 ]
 
@@ -86,6 +86,6 @@ export const focusRingUnhovered = [
  * control inside it takes focus.
  */
 export const focusRingWithin = [
-  'has-focus-visible:ring-3 has-focus-visible:ring-focus-focus-outer-border',
+  'has-focus-visible:ring-2 has-focus-visible:ring-focus-focus-outer-border',
   'has-focus-visible:ring-offset-2 has-focus-visible:ring-offset-focus-focus-inner-border',
 ]

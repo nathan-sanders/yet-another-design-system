@@ -176,11 +176,11 @@ const indicator = tv({
  * `min` that hangs half a handle past the control. Measured: a resting 16px disc
  * overhangs by 8px, which is exactly the row's `gap-2` and is presumably why
  * Figma's gap is 8. But the disc grows to 20px the moment you touch it, and then
- * the focus ring adds 5px more, so a focused handle at `min` **painted 7px over
- * the bounds label** — measured, not guessed.
+ * the focus ring adds 4px more, so a focused handle at `min` **paints 6px over
+ * the bounds label**.
  *
  * So it is `edge`, which insets the handle to sit fully inside the control at both
- * ends. The ring then lands in the gap with 3px to spare. Figma cannot settle this
+ * ends. The ring then lands in the gap with 4px to spare. Figma cannot settle this
  * one, because it draws the handle's focus state in isolation and never on a
  * composed slider; the canvas has no opinion about a collision it does not draw.
  * Nothing is given up visually — at `min` the indicator's 8px stub sits entirely

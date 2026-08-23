@@ -95,9 +95,9 @@ const trigger = tv({
     'hover:border-input-border-hover',
     // The trigger is the focusable element itself — a <button> — so this is the
     // ring on the element, not `focusRingWithin` as on Input's box, where focus
-    // lands on a descendant <input>. Figma draws it as a 2px inner gap plus a
-    // 3px outer stroke at inset -1px, which is exactly what these two classes
-    // are; the box measures pixel-identical focused and unfocused.
+    // lands on a descendant <input>. It draws a 2px inner gap plus a 2px outer
+    // stroke, both outside the box, so the trigger measures pixel-identical
+    // focused and unfocused.
     ...focusRing,
     // Inside a Field, validity arrives as `data-invalid` on the control rather
     // than as a prop here. The `hover` copy is spelled out because both

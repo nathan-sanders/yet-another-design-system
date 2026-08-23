@@ -158,8 +158,8 @@ export const Open: Story = {
     // actually emitted a rule for `not-hover`. A class that generates nothing
     // paints nothing and says so nowhere, which is exactly how the ring would
     // quietly come back.
-    await expect(rename.className).toContain('focus-visible:not-hover:ring-3')
-    await expect(getComputedStyle(rename).boxShadow).toContain('0px 0px 0px 5px')
+    await expect(rename.className).toContain('focus-visible:not-hover:ring-2')
+    await expect(getComputedStyle(rename).boxShadow).toContain('0px 0px 0px 4px')
   },
 }
 

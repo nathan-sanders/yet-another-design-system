@@ -42,8 +42,8 @@ group's line. A `::before` is generated first and the indicator paints over it. 
 order already answers it, and one here would open a stacking context for nothing.
 **The strip is 40px at `default`** — 4 (py-1) + 32 + 4, and the indicator hangs in that last 4px,
 which is Figma's `bottom-[-4px]`. **40 / 32 / 48 are the numbers to check.**
-Focus is the shared ring, which reaches 5px and so covers the strip's rule and the 4px below the
-tab. The indicator is still visible through it: `Tabs.Indicator` is positioned and comes after the
+Focus is the shared ring, which reaches 4px — exactly the gap below the tab, so it spans that gap
+and meets the strip's rule (measured). The indicator is still visible through it: `Tabs.Indicator` is positioned and comes after the
 tabs in the DOM, so it paints *over* their box-shadows — verified, not assumed.
 Left out: `orientation="vertical"` (Base UI has it, Figma has no vertical variant, and it is
 omitted from the props rather than left to break quietly); Astryx's `href` link tabs, which are a

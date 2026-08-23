@@ -308,7 +308,7 @@ function AccordionPanel({ children, contentClassName, className, ...props }: Acc
 
         **The cost is at the top edge, and it is real.** The panel is the one
         element here that clips, so a focusable child on the first line loses
-        the top of its ring — 5px of gap-plus-ring against 0px of padding.
+        the top of its ring — 4px of gap-plus-ring against 0px of padding.
         Anything below the first line is fine, and the sides and bottom keep
         their 16. Worth knowing before putting a Link or a Button first.
       */}

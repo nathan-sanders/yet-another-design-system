@@ -30,7 +30,7 @@ line-height of the title beside it. Measured at exactly 0.0px offset; drop it an
 top-aligns and reads high.
 **Do not port Figma's `overflow-clip`** — nothing overflows, and it is SegmentedControl's
 clipped-focus-ring hazard. Verified `overflow: visible`, with 16px/12px of room between the
-dismiss button and the banner's edge for its 5px ring.
+dismiss button and the banner's edge for its 4px ring.
 Width is `w-full`: Figma's 400px is a canvas frame, not a constraint.
 **48 / 72 are the numbers to check** — title-only, and title + description (12 + 24 + 24 + 12).
 **Story trap:** the variant matrix is a grid, not Badge's `<table>`. A `w-full` component in an

@@ -88,7 +88,7 @@ export const AllSizes: Story = {
  * The Figma state table. Hover and focus are real CSS states rather than props,
  * so the middle rows are live: hover to see the colour move from blue-700 to
  * blue-800, and tab to see the focus ring — a 2px gap in the canvas colour then
- * a 3px ring, both drawn outside the link with `box-shadow`, so the line of text
+ * a 2px ring, both drawn outside the link with `box-shadow`, so the line of text
  * does not shift when it appears.
  *
  * Note the underline is present in every state, hover included. Figma's hover

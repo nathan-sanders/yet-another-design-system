@@ -14,7 +14,7 @@ import { tv } from 'tailwind-variants'
  * **`overflow-clip` is not ported, for the fourth time** — but for a new reason.
  * SegmentedControl, Banner and Toast all left it out because it would slice a
  * focus ring; here an item sits 8px in from the popup edge and its ring reaches
- * 5px, so clipping would be safe. It is replaced by `overflow-y-auto` instead,
+ * 4px, so clipping would be safe. It is replaced by `overflow-y-auto` instead,
  * which clips to the radius just the same and lets a long menu scroll rather
  * than run off the screen. Figma draws no long menu; Astryx's guidance ("no
  * more than 10-12 items without sections") assumes the case exists.

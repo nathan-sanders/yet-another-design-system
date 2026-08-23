@@ -43,7 +43,7 @@ type Story = StoryObj<typeof meta>
  * mode. Click the *label* as well as the box: the row is a real `<label>`, so
  * the text is part of the hit target, which is what a checkbox this size needs.
  *
- * Press Tab to see the focus ring: a 2px gap and a 3px ring, both drawn outside
+ * Press Tab to see the focus ring: a 2px gap and a 2px ring, both drawn outside
  * the box. Inside a container the card takes the ring instead, so a focused
  * option is never circled twice.
  */

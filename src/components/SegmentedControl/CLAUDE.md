@@ -32,7 +32,7 @@ property in Figma — it takes its height from the segments inside it.
 Segments are a fixed `h-*`, not Figma's `min-h`, and each carries a transparent 1px border at rest
 so selecting one doesn't grow it.
 **Do not add `overflow-clip` to the track**, even though Figma has it. Figma draws focus as an
-overlay *inside* the segment; here the shared ring paints 5px outside a segment that sits 1px in
+overlay *inside* the segment; here the shared ring paints 4px outside a segment that sits 1px in
 from the track edge, so clipping would slice the ring off the first and last segments.
 **Second component to use the motion tokens**, after Tooltip: `duration-fast-min` +
 `ease-standard` crossfading colour, background, border and shadow. Astryx measures at 125ms on

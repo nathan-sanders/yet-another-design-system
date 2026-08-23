@@ -48,11 +48,11 @@ in Figma are for, and it is the thing to preserve if any of them change.
 The Panel is the standing exception, and the one place the clip does real work: without it the
 content is visible outside a collapsing box and there is no animation to see.
 
-**Which means the panel's padding is also its focus-ring clearance.** The ring needs 5px — 2px gap
-plus 3px — and the sides and bottom have 16, so anything in there keeps its ring. The **top has 0**
+**Which means the panel's padding is also its focus-ring clearance.** The ring needs 4px — 2px gap
+plus 2px — and the sides and bottom have 16, so anything in there keeps its ring. The **top has 0**
 since the padding change below, so a focusable element as the panel's genuine first child loses all
-5px of its ring. Measured with a probe `<a>` inserted as `firstChild`: `ringClippedAtTop: true`,
-`pixelsOfRingLost: 5`. Anything past the first line is fine. This is the trade the top padding
+4px of its ring. Measured with a probe `<a>` inserted as `firstChild`: `ringClippedAtTop: true`,
+`pixelsOfRingLost: 4`. Anything past the first line is fine. This is the trade the top padding
 bought, and the thing to reconsider if a panel ever leads with a Link or a Button.
 
 **The panel's padding is on an inner box, not on the panel.** The panel's height is the animated
@@ -137,7 +137,7 @@ In Storybook at 1440×900, light and dark:
   the **`rotate` property, not `transform`** — reading `transform` shows `none` on a working
   chevron, exactly as it compiles `translate-x-*` to `translate` for the Tabs indicator.
 - Focus ring on a real Tab press: `:focus-visible` matches, `box-shadow` is white at 2px then
-  `oklch(0.444 …)` at 5px — the 2px gap plus 3px ring — following the trigger's 8px radius, unclipped.
+  `oklch(0.444 …)` at 4px — the 2px gap plus 2px ring — following the trigger's 8px radius, unclipped.
 - Disabled trigger at `opacity: 0.4`, `pointer-events: none`.
 - `hiddenUntilFound`: all panels in the DOM with `hidden="until-found"` and
   `content-visibility: hidden`, their text still findable.

@@ -50,7 +50,7 @@ type Story = StoryObj<typeof meta>
  * The whole move is one 130ms transition on `translate`, `width`, `height` and
  * `background-color`.
  *
- * Press Tab to see the focus ring: a 2px gap and a 3px ring, both outside the
+ * Press Tab to see the focus ring: a 2px gap and a 2px ring, both outside the
  * pill. Inside a container the card takes the ring instead, so a focused option
  * is never circled twice.
  */

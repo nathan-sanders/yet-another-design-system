@@ -63,7 +63,7 @@ const segmentedControl = tv({
     'rounded-md border p-px font-sans',
     // No `overflow-clip`, even though Figma has it. Figma draws focus as an
     // overlay *inside* the segment, so clipping costs it nothing. Here focus is
-    // a ring 5px deep that paints outside the segment, and the segment sits only
+    // a ring 4px deep that paints outside the segment, and the segment sits only
     // 1px in from the track edge — clipping would slice the ring off the first
     // and last segments.
   ],

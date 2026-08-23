@@ -63,7 +63,7 @@ export const toastCard = tv({
     // 14/24 body type, inherited by both rows.
     'font-sans text-base [word-break:break-word]',
     // Figma has overflow-clip on the frame. Not ported, for the third time in
-    // this library: nothing overflows, and it would slice the 3px focus ring off
+    // this library: nothing overflows, and it would slice the 2px focus ring off
     // the dismiss button sitting 16px from the edge.
   ],
 
