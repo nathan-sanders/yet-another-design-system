@@ -304,7 +304,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Combobox](src/components/Combobox/CLAUDE.md) | a long list, filtered by typing | a trigger with a searchable popup, or a tokenizer |
 | [ContentBlock](src/components/ContentBlock/CLAUDE.md) | a card that owns one region of a page | header slots, three emphases, the part a bento view is made of |
 | [BentoGrid](src/components/BentoGrid/CLAUDE.md) | the mosaic those blocks sit in | columns, spans, and one breakpoint doing all the collapsing |
-| [Kbd](src/components/Kbd/CLAUDE.md) | a keyboard shortcut | Figma draws the key, Astryx's `keys` string API; the group still owes the file a drawing |
+| [Kbd](src/components/Kbd/CLAUDE.md) | a keyboard shortcut | Figma draws the key and the group, Astryx's `keys` string API; `mod` resolves per platform |
 
 ### Patterns that recur across components
 

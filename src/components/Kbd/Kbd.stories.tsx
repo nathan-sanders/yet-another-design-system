@@ -1,18 +1,17 @@
 import type { ReactNode } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Search } from 'lucide-react'
+import { ChevronDown, Search } from 'lucide-react'
 
 import { Kbd } from './Kbd'
 import { parseKeys } from './keys'
 import { Button } from '../Button'
+import { Menu } from '../Menu'
 import { Tooltip } from '../Tooltip'
 
 /**
- * Every story sits on a card, and that is not decoration.
- * `Surface/Card Subtle` — the key's own fill — is the same value as
- * `Surface/Canvas` in both light and dark, so a Kbd on the bare Storybook
- * background would be held only by its shadow. The token is telling the truth
- * about where the component belongs.
+ * A card, for the stories that want to show a Kbd sitting on one. The fill is
+ * translucent, so it reads on the bare canvas too — the scale stories are left
+ * out there on purpose, as the check that it does.
  */
 function Card({ children }: { children: ReactNode }) {
   return (
@@ -63,13 +62,7 @@ type Story = StoryObj<typeof meta>
  * One shortcut with controls. Type any `+`-separated string into `keys` — a
  * token the table does not know is drawn as typed, so `mod+F5` works.
  */
-export const Playground: Story = {
-  render: (args) => (
-    <Card>
-      <Kbd {...args} />
-    </Card>
-  ),
-}
+export const Playground: Story = {}
 
 /**
  * Every token the parser knows, with the glyph it draws and the name a screen
@@ -81,61 +74,59 @@ export const Playground: Story = {
 export const Keys: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <Card>
-      <table className="border-separate border-spacing-x-6 border-spacing-y-3">
-        <thead>
-          <tr>
-            <th className="text-left text-sm font-normal text-content-subtle">Token</th>
-            <th className="text-left text-sm font-normal text-content-subtle">Key</th>
-            <th className="text-left text-sm font-normal text-content-subtle">Announced as</th>
+    <table className="border-separate border-spacing-x-6 border-spacing-y-3">
+      <thead>
+        <tr>
+          <th className="text-left text-sm font-normal text-content-subtle">Token</th>
+          <th className="text-left text-sm font-normal text-content-subtle">Key</th>
+          <th className="text-left text-sm font-normal text-content-subtle">Announced as</th>
+        </tr>
+      </thead>
+      <tbody>
+        {tokens.map((token) => (
+          <tr key={token}>
+            <td className="font-mono text-sm text-content-subtle">{token}</td>
+            <td>
+              <Kbd keys={token} />
+            </td>
+            <td className="text-sm text-content-subtle">
+              {parseKeys(token, true)
+                .map((k) => k.label)
+                .join(' + ')}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {tokens.map((token) => (
-            <tr key={token}>
-              <td className="font-mono text-sm text-content-subtle">{token}</td>
-              <td>
-                <Kbd keys={token} />
-              </td>
-              <td className="text-sm text-content-subtle">
-                {parseKeys(token, true)
-                  .map((k) => k.label)
-                  .join(' + ')}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </Card>
+        ))}
+      </tbody>
+    </table>
   ),
 }
 
 /**
  * Modifiers combine by joining tokens with `+`. Each keystroke gets its own
- * key, 4px apart, and the whole group is announced as a single label —
- * "Command + Shift + P" — rather than three separate glyphs.
+ * key, 4px apart — Figma's `Kbd Group` — and the whole group is announced as a
+ * single label, "Command + Shift + P", rather than three separate glyphs.
  */
 export const Combinations: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <Card>
-      <div className="flex flex-wrap items-center gap-4">
-        <Kbd keys="mod+k" />
-        <Kbd keys="mod+shift+p" />
-        <Kbd keys="shift+enter" />
-        <Kbd keys="ctrl+alt+delete" />
-        <Kbd keys="alt+tab" />
-        <Kbd keys="mod+shift+z" />
-      </div>
-    </Card>
+    <div className="flex flex-wrap items-center gap-4">
+      <Kbd keys="mod+k" />
+      <Kbd keys="mod+shift+p" />
+      <Kbd keys="shift+enter" />
+      <Kbd keys="ctrl+alt+delete" />
+      <Kbd keys="alt+tab" />
+      <Kbd keys="mod+shift+z" />
+    </div>
   ),
 }
 
 /**
- * The three places a shortcut actually shows up: inline in a sentence, paired
- * with the action it triggers, and inside a tooltip on the control it belongs
- * to. All three are card surfaces, which is the point — and the Tooltip popup
- * is already one, so a Kbd needs nothing extra to sit in it.
+ * The three places a shortcut actually shows up: inline in a sentence, inside a
+ * tooltip on the control it belongs to, and in a menu row's `endSlot` — Figma's
+ * `End Slot`, which the file draws holding exactly this.
+ *
+ * The menu is last because its popup is portalled and drops downward; putting
+ * it above the others would land it on top of them.
  */
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
@@ -150,26 +141,6 @@ export const InContext: Story = {
       </Card>
 
       <Card>
-        <div className="flex flex-col">
-          {[
-            ['Cut', 'mod+x'],
-            ['Copy', 'mod+c'],
-            ['Paste', 'mod+v'],
-            ['Undo', 'mod+z'],
-            ['Redo', 'mod+shift+z'],
-          ].map(([action, keys]) => (
-            <div
-              key={action}
-              className="flex items-center justify-between gap-6 px-2 py-1.5 text-base text-content-primary"
-            >
-              <span>{action}</span>
-              <Kbd keys={keys} />
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <Card>
         <Tooltip
           label={
             <span className="flex items-center gap-2">
@@ -180,6 +151,27 @@ export const InContext: Story = {
           <Button startIcon={Search} aria-label="Search" />
         </Tooltip>
       </Card>
+
+      <Menu.Root open>
+        {/* self-start: Menu.Root renders no element, so the Button is the
+            column's flex item and would otherwise stretch to its width. */}
+        <Menu.Trigger
+          render={
+            <Button className="self-start" endIcon={ChevronDown}>
+              Edit
+            </Button>
+          }
+        />
+        <Menu.Popup className="min-w-56">
+          <Menu.Group>
+            <Menu.Item endSlot={<Kbd keys="mod+x" />}>Cut</Menu.Item>
+            <Menu.Item endSlot={<Kbd keys="mod+c" />}>Copy</Menu.Item>
+            <Menu.Item endSlot={<Kbd keys="mod+v" />}>Paste</Menu.Item>
+            <Menu.Item endSlot={<Kbd keys="mod+z" />}>Undo</Menu.Item>
+            <Menu.Item endSlot={<Kbd keys="mod+shift+z" />}>Redo</Menu.Item>
+          </Menu.Group>
+        </Menu.Popup>
+      </Menu.Root>
     </div>
   ),
 }
