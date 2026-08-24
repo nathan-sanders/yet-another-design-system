@@ -46,8 +46,9 @@ export interface CardProps extends ComponentPropsWithRef<'div'> {
   /** Raise the card off its surface with the low drop shadow. Figma's `Floating`. */
   floating?: boolean
   /**
-   * Inner padding. `default` is Figma's 12px. Use `none` for content that has to
-   * reach the border — an image, a chart.
+   * Inner padding, as a spacing token step — the same names the file binds, so
+   * `padding={4}` is `spacing/4`. `3` is what Figma draws. Use `0` for content
+   * that has to reach the border: an image, a chart.
    */
   padding?: CardPadding
 }
@@ -56,7 +57,7 @@ export function Card({
   children,
   emphasis = 'default',
   floating = false,
-  padding = 'default',
+  padding = 3,
   className,
   ...props
 }: CardProps) {

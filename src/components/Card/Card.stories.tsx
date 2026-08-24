@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Ellipsis, TrendingDown, TrendingUp } from 'lucide-react'
 
 import { Card } from './Card'
-import type { CardEmphasis, CardPadding } from './styles'
+import type { CardEmphasis } from './styles'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
 import { ContentBlock } from '../ContentBlock'
 
 const emphases = ['default', 'subtle', 'accent'] as const
-const paddings = ['none', 'tight', 'default', 'loose'] as const
+const paddings = [0, 2, 3, 4] as const
 
 const meta = {
   title: 'Components/Card',
@@ -21,7 +21,7 @@ const meta = {
   args: {
     emphasis: 'default',
     floating: false,
-    padding: 'default',
+    padding: 3,
     // `children` is required on the component, so the meta has to carry one for
     // `satisfies Meta` to hold. Every story below renders its own.
     children: null,
@@ -100,9 +100,13 @@ export const Floating: Story = {
 }
 
 /**
- * The padding scale. `default` is Figma's 12px; the rest are code-first, and
- * exist because this div was hand-rolled at three different paddings across
- * sixteen story files before the component did.
+ * The padding scale, named by the spacing token step — `padding={4}` binds what
+ * `spacing/4` binds, so a designer overriding an instance in Figma and a caller
+ * writing this prop are saying the same word.
+ *
+ * `3` is what the file draws. Figma gets no `Padding` variant: it has no numeric
+ * property kind, and a string axis would take this set from 6 variants to 24.
+ * The override lives on the instance and is always a token rebind.
  */
 export const Padding: Story = {
   parameters: { controls: { disable: true } },
@@ -110,11 +114,11 @@ export const Padding: Story = {
     <div className="grid max-w-200 gap-4 sm:grid-cols-2">
       {paddings.map((padding) => (
         <Card key={padding} padding={padding}>
-          <p className="font-semibold">padding="{padding}"</p>
+          <p className="font-semibold">padding={`{${padding}}`}</p>
           <p className="text-content-subtle">
-            {padding === 'none'
-              ? 'Content reaches the border — see FullBleed below.'
-              : `${{ tight: 8, default: 12, loose: 16 }[padding as Exclude<CardPadding, 'none'>]}px on every side.`}
+            {padding === 0
+              ? 'spacing/0 — content reaches the border. See FullBleed below.'
+              : `spacing/${padding} — ${padding * 4}px on every side.`}
           </p>
         </Card>
       ))}
@@ -123,7 +127,7 @@ export const Padding: Story = {
 }
 
 /**
- * `padding="none"` is the one step with a structural job: content that has to
+ * `padding={0}` is the one step with a structural job: content that has to
  * reach the card's edges. `ContentBlock` solves this by letting you leave out
  * `ContentBlock.Content`; a single-slot card has no such seam, so it needs the
  * value.
@@ -136,7 +140,7 @@ export const FullBleed: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="max-w-80">
-      <Card padding="none">
+      <Card padding={0}>
         <div className="bg-surface-card-emphasized text-content-inverse flex h-32 items-center justify-center rounded-t-md">
           Media
         </div>

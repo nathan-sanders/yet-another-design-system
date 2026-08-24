@@ -19,7 +19,7 @@ import { Divider } from '../Divider'
 import { Token } from '../Token'
 
 const emphases = ['default', 'ghost'] as const
-const paddings = ['none', 'tight', 'default', 'loose'] as const
+const paddings = [0, 2, 3, 4] as const
 
 const meta = {
   title: 'Components/ClickableCard',
@@ -33,7 +33,7 @@ const meta = {
   },
   args: {
     emphasis: 'default',
-    padding: 'default',
+    padding: 3,
     selected: false,
     disabled: false,
     // `children` is required on the component, so the meta has to carry one for

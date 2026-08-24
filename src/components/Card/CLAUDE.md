@@ -71,11 +71,12 @@ and is a white block on the canvas: check what is behind it.
   file models the card as one `Content` slot, so the frame has nothing to space — the 8px between a
   KPI card's title and its value lives *inside* the slot. In code there is no separate Content part
   to carry it, so the root does, at `ContentBlock.Content`'s value. Override with `className`.
-- **The padding scale is code-first and `none` is the only step with a structural job.** Figma draws
-  one padding, `spacing/3`. `none` exists because content that must reach the border — an image, a
-  chart — is what `ContentBlock` solves by letting you omit `ContentBlock.Content`, and a
-  single-slot card has no such seam. `tight`/`loose` settle the `p-4`/`p-5`/`p-6` drift the stories
-  had. **Owed to Figma as a `Padding` property on both sets.**
+- **`padding` is a spacing token step, not a size word** — `padding={3}`, `padding={4}`. See "Why
+  padding is not a variant" below; the short version is that the token is already the shared name
+  and a second one would only be a translation table. `0` is the step with a structural job: content
+  that must reach the border, which `ContentBlock` solves by letting you omit
+  `ContentBlock.Content` and a single-slot card cannot. The set is four because that is what a card
+  wants; a fifth is a one-line addition and not a new concept.
 - **No `h-full` on the root**, unlike ContentBlock. That is a bento tile's answer to ending level
   with its row; flex and grid children already stretch by default, which is what makes the KPI row
   even without it. Measured on that story.
@@ -100,11 +101,47 @@ and is a white block on the canvas: check what is behind it.
   `SelectableCard`), and nothing in the file or the compositions asks for one. Drawn as the subtle
   fill *plus* the emphasized border, repeated under `hover:` so the pointer cannot wash the outline
   off the selected row — otherwise "selected" and "the pointer is here" are the same pixel.
-  **Code-first: the file owes `Clickable Card` a `Selected` state.**
+  **Drawn in the file now** — `State=Selected` on both emphases, Surface/Card Subtle on
+  Surface/Border Emphasized, which is what the code already had. Nothing changed here when it
+  landed, which is the test of whether a catch-up was really a catch-up.
 - **Link's motion, not Button's.** `transition-colors duration-fast-min ease-standard`; Button's
   bare `transition-colors` predates the motion tier and is not the model.
 - **`text-left` and `cursor-pointer` are both said out loud**, because a `<button>` centres its text
   and Tailwind's preflight gives it `cursor: default`.
+
+## Why padding is not a variant
+
+Worth writing down, because it is the first axis in this library that **could not** become a Figma
+property, and the reasoning generalises.
+
+Figma has exactly four component-property kinds — VARIANT, BOOLEAN, TEXT, INSTANCE_SWAP — and
+**none of them is a number.** Read the Card set's own `componentPropertyDefinitions` and you get
+`Content` (SLOT), `Emphasis` (VARIANT), `Floating` (VARIANT); there is no numeric field to expose.
+So a `Padding` property could only have been a string variant axis, which multiplies: Card 6 → 24
+variants, Clickable Card 10 → 40. Sixty-four frames to draw and keep in step, for one value.
+
+**The override lives on the instance instead, and it is always a token rebind.** Verified on a
+throwaway instance: `paddingTop` is writable (12 → 24, no error), and — the part that matters —
+`setBoundVariable('paddingTop', spacing/4)` also works, moving it 12 → 16 while keeping the value
+bound to a variable. So a designer picks from the token picker rather than typing a number, and the
+padding stays inside the system. **Typing a raw number is the thing to catch in review**: it leaves
+the token layer and has no counterpart in code.
+
+**That is why the prop is numeric.** When the shared vocabulary between file and code is the token,
+naming the same value `tight` / `default` / `loose` puts a four-row lookup between a designer saying
+`spacing/4` and a caller writing the prop. `padding={4}` binds what `spacing/4` binds. The four
+steps that round-trip:
+
+| Figma instance override | Code |
+|---|---|
+| `spacing/0` | `padding={0}` |
+| `spacing/2` | `padding={2}` |
+| `spacing/3` — what the set draws | `padding={3}` (default) |
+| `spacing/4` | `padding={4}` |
+
+Any other spacing token has no prop value and is a deliberate `className`. Widening the set is
+cheap if a card ever wants `spacing/6`; the reason not to widen it pre-emptively is the drift this
+component exists to stop.
 
 ## When to reach for which
 
@@ -117,7 +154,7 @@ mail list is one list, so the rows should not (`ghost`).
 
 ## Measurements to check if this changes
 
-Radius **8px**, border **1px**, padding **12px** at `default` (0/8/12/16 across the scale), **8px**
+Radius **8px**, border **1px**, padding **12px** at `padding={3}` (0/8/12/16 across the four steps), **8px**
 gap between children, 14/24 type, `overflow: visible`. `shadow-low` (0 2px 4px, 25% neutral-800)
 present only when `floating`. Subtle and accent have border-colour **equal to** their background;
 default and ghost do not. Focused ClickableCard is pixel-identical to unfocused — measured 375×82
@@ -128,6 +165,6 @@ Contrast, measured across Stone / Olive / Mauve / Slate in both themes: the lowe
 `content-subtle` on `surface-card-subtle` at **6.26:1** (Olive light). Every pair clears AA.
 
 **Storybook trap.** A server left running from an earlier session serves a stale Tailwind scan, so
-classes new to the repo — here `p-3`, `border-surface-card-primary`,
+classes new to the repo — here `border-surface-card-primary`,
 `hover:border-surface-card-subtle` — are simply absent and a correct component measures wrong. A
 reload does not fix it. Restart before believing any measurement.

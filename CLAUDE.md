@@ -425,10 +425,24 @@ something has already been reinvented in its absence.
 for. **BentoGrid is the first component in the library with no Figma node behind it at all** — not a
 variant added ahead of the file, but a whole component. It owes the file a drawing.
 
-**What Card owes Figma**, in the same ledger: a `Padding` property on both card sets (the file draws
-one value, `spacing/3`, and the code has a four-step scale), and a `Selected` state on
-`Clickable Card` (its `State` axis stops at Disabled, and a mail list needs to mark the row you are
-reading). Both are the Accordion route — code first, file catches up.
+**Card's two debts are both settled, and only one of them by drawing.** `Clickable Card` gained a
+`State=Selected` for both emphases the day after it shipped — Surface/Card Subtle on Surface/Border
+Emphasized, exactly what the code had, so nothing changed here. That is the Accordion route working.
+
+The `Padding` one closed the other way, and it is the more useful precedent: **not every code axis
+can become a Figma property, and the answer is sometimes an instance override rather than a
+variant.** Figma's four property kinds are VARIANT, BOOLEAN, TEXT and INSTANCE_SWAP — *none of them
+is a number* — so padding could only ever have been a string axis, taking Card from 6 variants to 24
+and Clickable Card from 10 to 40. Sixty-four frames for one value. Instead the override lives on the
+instance, where it is verified to work, and **it must always be a token rebind** — repoint the
+instance's padding at a different `spacing/N` variable, never type a raw number, or the value leaves
+the system and has no counterpart in code.
+
+That is also why the code prop is `padding={3}` and not `padding="default"`. When the shared
+vocabulary is the token, a second set of size words is a translation table between a designer saying
+`spacing/4` and a caller writing the prop. **The general rule: before adding a variant axis to the
+file, check whether the property is one Figma can actually express — and if the value is a token,
+let the prop say the token.**
 
 The form family is complete against the file bar one: **Checkbox Group** and **Radio Group** are
 built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a
