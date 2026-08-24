@@ -83,6 +83,9 @@ export type { FieldProps } from './components/Field'
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
+export { Kbd } from './components/Kbd'
+export type { KbdProps } from './components/Kbd'
+
 export { Input, InputGroup } from './components/Input'
 export type {
   InputProps,
