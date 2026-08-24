@@ -21,20 +21,14 @@ import { parseKeys } from './keys'
  * it, but a shortcut is not code — Figma and Astryx both draw these in the body
  * face, and a mono ⌘ is a worse ⌘.
  *
- * **The fill is translucent, and Figma's is not.** Figma fills the key with
- * `Surface/Card Subtle` — which is byte-identical to `Surface/Canvas` *and* to
- * the menu row's `data-highlighted` background, both measured. So an opaque key
- * vanishes on the page canvas and vanishes again the moment you hover the menu
- * row it is sitting in, surviving only on its drop shadow. `surface-canvas-overlay`
- * is 10% of the neutral over whatever is behind it, so it reads on the canvas, on
- * a card, and on a highlighted row without knowing which one it is on. Astryx
- * reaches for a translucent fill for the same reason.
- *
- * **The token name is the compromise, not the value.** `surface-canvas-overlay`
- * is named for scrims; what this wants is a `Surface/Overlay Subtle` that does
- * not exist yet. It has to start in Figma, since `tokens/*.json` is an export.
- * Until then this is the only translucent neutral in the theme that is correct
- * in both modes.
+ * **The fill is translucent, on its own token.** The key was first drawn on
+ * `Surface/Card Subtle`, which is byte-identical to `Surface/Canvas` *and* to
+ * the menu row's `data-highlighted` background — both measured. So an opaque key
+ * vanished on the page canvas, and vanished again the moment you hovered the
+ * menu row it was sitting in, surviving only on its drop shadow.
+ * `Surface/Overlay Subtle` is 10% of the neutral over whatever is behind it, so
+ * it reads on the canvas, on a card and on a highlighted row without knowing
+ * which one it is on. Astryx reaches for a translucent fill for the same reason.
  *
  * Do not reach for a border instead — besides not being drawn, a CSS border adds
  * height a Figma stroke does not, which is the trap Token already walked into.
@@ -62,10 +56,10 @@ const key = tv({
     // something lands in one that has no line box of its own.
     'min-h-5 min-w-5 px-1',
     'rounded-xs',
-    // Figma fills the key with Surface/Card Subtle, and this deliberately does
-    // not — see the docblock. A translucent neutral reads on every surface the
-    // key actually lands on; the opaque one is invisible on two of them.
-    'bg-surface-canvas-overlay text-content-primary',
+    // Surface/Overlay Subtle — a translucent neutral, 10% over whatever is
+    // behind it. See the docblock for why the key is not the opaque fill it
+    // was first drawn with.
+    'bg-surface-overlay-subtle text-content-primary',
     // 0px 1px 2px var(--surface-drop-shadow) — Figma's Elevation/Drop Shadow/Extra Low.
     'shadow-extra-low',
     // font-sans is repeated here rather than inherited from the group, and it

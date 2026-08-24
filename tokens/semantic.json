@@ -5,6 +5,7 @@
 {"n":"Surface/Card Subtle","light":"@Stone/100","dark":"@Stone/950"},
 {"n":"Surface/Card Emphasized","light":"@Stone/800","dark":"@Stone/100"},
 {"n":"Surface/Canvas Overlay","light":"#2924231a","dark":"#f5f5f51a"},
+{"n":"Surface/Overlay Subtle","light":"#2924231a","dark":"#f5f5f51a"},
 {"n":"Surface/Border","light":"@Stone/200","dark":"@Stone/700"},
 {"n":"Surface/Border Emphasized","light":"@Stone/800","dark":"@Stone/100"},
 {"n":"Surface/Border Ghost","light":"@White","dark":"@Stone/700"},

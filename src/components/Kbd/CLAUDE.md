@@ -14,19 +14,23 @@ type. Figma sets no height at all. `min-h-5` holds it anyway, the Badge preceden
 Astryx both draw these in the body face, and a mono ⌘ is a worse ⌘. The deliberate non-use is the
 decision here, not an oversight.
 
-**The fill is translucent, and Figma's is not — the one deliberate deviation here.** Figma fills the
-key with `Surface/Card Subtle`, which is byte-identical to `Surface/Canvas` *and* to the menu row's
-`data-highlighted` background (`oklch(0.97 0.001 106.424)` light, both measured). So an opaque key is
-invisible on the page canvas, and invisible again the moment you hover the menu row it is sitting in
-— surviving only on its drop shadow. Nathan called it on 2026-08-24, after the End Slot landed and
-the hover collision showed up: `bg-surface-canvas-overlay`, 10% of the neutral over whatever is
-behind it, which reads on the canvas, on a card and on a highlighted row without knowing which one
-it is on. Astryx reaches for a translucent fill for the same reason.
+**The fill is translucent, on a token of its own.** The key was first drawn on `Surface/Card Subtle`,
+which is byte-identical to `Surface/Canvas` *and* to the menu row's `data-highlighted` background
+(`oklch(0.97 0.001 106.424)` light — all three measured, not assumed). So an opaque key was invisible
+on the page canvas, and invisible again the moment you hovered the menu row it was sitting in,
+surviving only on its drop shadow. Nathan called it on 2026-08-24 once the End Slot landed and the
+hover collision showed up. Astryx reaches for a translucent fill for the same reason.
 
-**The token name is the compromise, not the value.** `surface-canvas-overlay` is named for scrims;
-what this wants is a `Surface/Overlay Subtle` that does not exist. It has to start in Figma, since
-`tokens/*.json` is an export — **this is the open loop on this component.** Until then it is the only
-translucent neutral in the theme that is right in both modes.
+It shipped for a few hours on `surface-canvas-overlay`, which had the right *value* and the wrong
+*name* — that token is for scrims. Nathan added **`Surface/Overlay Subtle`** to Figma the same day,
+so the borrowed name is gone and the component sits on a token that means what it is for. The two
+are still byte-identical (`#2924231a` / `#f5f5f51a`), and that is fine: they are one value serving
+two roles, and the roles are what the names are for. **Nothing rendered differently when it
+landed** — which is the test of whether a catch-up was really a catch-up, the same test the Kbd
+Group passed.
+
+`generate.py` re-points it onto the neutral tier automatically, like the other seventeen raw alpha
+colours, so the key follows a swapped ramp instead of staying stone-tinted.
 
 **Do not reach for a border instead.** Besides not being drawn, a CSS border adds height a Figma
 stroke does not — the trap Token already walked into, which needed `leading-4.5` to climb back out
