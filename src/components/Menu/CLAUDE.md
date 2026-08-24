@@ -72,3 +72,12 @@ whichever trigger opened it, and a context menu has no such trigger — so **Men
 patch" is true of Menu only**, and ContextMenu supplies its own `aria-label`.
 **Story trap:** a closed menu has no popup in the DOM, so the suite's axe run would pass by
 looking at nothing. The `Open` and `Groups` stories start open on purpose — Toast's lesson.
+**`endSlot` is Figma's `End Slot`** (`40004278:7481`, and `40004278:7705` on `Type=Danger`), added
+to the file the day after `Kbd` landed and drawn holding a Kbd. It is a sibling of the label rather
+than part of it, which is what lets the label's existing `flex-1` push it to the trailing edge; the
+row's own `gap-3` is the 12px between them. `Type=Nested` deliberately has no slot — a submenu
+trigger already spends its trailing edge on a chevron — and neither do the checkbox and radio rows,
+which Figma does not draw one for either. The prop takes any node, so a Badge or a count fits, but a
+keyboard shortcut is what it is for.
+A destructive row keeps its Kbd in `Content/Primary` rather than following the red: the key is a key
+on every row, and it is the label that is dangerous.

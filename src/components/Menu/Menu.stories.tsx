@@ -3,17 +3,21 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
   Archive,
   ChevronDown,
+  ClipboardPaste,
   Copy,
   Ellipsis,
   FolderInput,
   Pencil,
+  Scissors,
   Share2,
   Star,
   Trash,
+  Undo2,
 } from 'lucide-react'
 
 import { Menu } from './Menu'
 import { Button } from '../Button'
+import { Kbd } from '../Kbd'
 
 const sides = ['top', 'right', 'bottom', 'left'] as const
 
@@ -238,6 +242,46 @@ export const WithDescriptions: Story = {
           <Menu.Item description="Vector, for print and further editing.">SVG</Menu.Item>
           <Menu.Item description="One page per artboard." disabled>
             PDF
+          </Menu.Item>
+        </Menu.Group>
+      </Menu.Popup>
+    </Menu.Root>
+  ),
+}
+
+/**
+ * `endSlot` — Figma's `End Slot`, which the file draws holding a `Kbd`. The
+ * label column has `flex-1`, so the slot is pushed to the trailing edge and the
+ * row's own `gap-3` keeps it 12px clear of the longest label.
+ *
+ * The slot takes any node, but a keyboard shortcut is what it is for. Note the
+ * destructive row: `Kbd` stays `Content/Primary` rather than following the red,
+ * because the key is a key on every row — it is the label that is dangerous.
+ */
+export const Shortcuts: Story = {
+  render: () => (
+    <Menu.Root open>
+      <Menu.Trigger render={<Button endIcon={ChevronDown}>Edit</Button>} />
+      <Menu.Popup className="min-w-56">
+        <Menu.Group>
+          <Menu.Item startIcon={Undo2} endSlot={<Kbd keys="mod+z" />}>
+            Undo
+          </Menu.Item>
+        </Menu.Group>
+        <Menu.Group>
+          <Menu.Item startIcon={Scissors} endSlot={<Kbd keys="mod+x" />}>
+            Cut
+          </Menu.Item>
+          <Menu.Item startIcon={Copy} endSlot={<Kbd keys="mod+c" />}>
+            Copy
+          </Menu.Item>
+          <Menu.Item startIcon={ClipboardPaste} endSlot={<Kbd keys="mod+shift+v" />}>
+            Paste and Match Style
+          </Menu.Item>
+        </Menu.Group>
+        <Menu.Group>
+          <Menu.Item startIcon={Trash} destructive endSlot={<Kbd keys="mod+backspace" />}>
+            Delete
           </Menu.Item>
         </Menu.Group>
       </Menu.Popup>

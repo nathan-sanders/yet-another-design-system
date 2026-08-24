@@ -265,6 +265,16 @@ export interface MenuItemProps
   startIcon?: LucideIcon
   /** Secondary line under the label. Figma's `Sub label`. */
   description?: ReactNode
+  /**
+   * Content pinned to the trailing edge of the row, 12px past the label.
+   * Figma's `End Slot`, which it draws holding a `Kbd` — a keyboard shortcut is
+   * what this is for, and `<Kbd keys="mod+x" />` is the expected occupant. It
+   * takes any node, so a Badge or a count works too.
+   *
+   * The label column already has `flex-1`, so whatever goes here is pushed
+   * right and never squeezes the label — the row's own `gap-3` is the spacing.
+   */
+  endSlot?: ReactNode
   /** Colours the row for a destructive action. */
   destructive?: ItemVariants['destructive']
   className?: string
@@ -274,6 +284,7 @@ function MenuItem({
   children,
   startIcon,
   description,
+  endSlot,
   destructive,
   className,
   ...props
@@ -282,6 +293,13 @@ function MenuItem({
     <MenuPrimitive.Item className={cn(item({ destructive }), className)} {...props}>
       {startIcon && <Icon icon={startIcon} />}
       <ItemLabel description={description}>{children}</ItemLabel>
+      {/*
+        Figma's `Slot Items` frame: `flex items-center`, hugging, and only
+        present when the slot is filled. It is a sibling of the label rather
+        than part of it, which is what lets the label's flex-1 push it to the
+        trailing edge.
+      */}
+      {endSlot != null && <span className="flex shrink-0 items-center">{endSlot}</span>}
     </MenuPrimitive.Item>
   )
 }

@@ -14,13 +14,23 @@ type. Figma sets no height at all. `min-h-5` holds it anyway, the Badge preceden
 Astryx both draw these in the body face, and a mono ⌘ is a worse ⌘. The deliberate non-use is the
 decision here, not an oversight.
 
-**`Surface/Card Subtle` is the same value as `Surface/Canvas`** — `neutral-100` light,
-`neutral-950` dark — so a Kbd on the bare page canvas is held only by its shadow. That is not a
-token bug. It says Kbd is a **card-surface component**, which is also where it really lives: menu
-rows, tooltips, command palettes, help text on a card. Every story sits on
-`bg-surface-card-primary` for that reason. **Do not add a border to "fix" it.** Besides deviating
-from the file, a CSS border adds height a Figma stroke does not — the trap Token already walked
-into, which needed `leading-4.5` to climb back out of.
+**The fill is translucent, and Figma's is not — the one deliberate deviation here.** Figma fills the
+key with `Surface/Card Subtle`, which is byte-identical to `Surface/Canvas` *and* to the menu row's
+`data-highlighted` background (`oklch(0.97 0.001 106.424)` light, both measured). So an opaque key is
+invisible on the page canvas, and invisible again the moment you hover the menu row it is sitting in
+— surviving only on its drop shadow. Nathan called it on 2026-08-24, after the End Slot landed and
+the hover collision showed up: `bg-surface-canvas-overlay`, 10% of the neutral over whatever is
+behind it, which reads on the canvas, on a card and on a highlighted row without knowing which one
+it is on. Astryx reaches for a translucent fill for the same reason.
+
+**The token name is the compromise, not the value.** `surface-canvas-overlay` is named for scrims;
+what this wants is a `Surface/Overlay Subtle` that does not exist. It has to start in Figma, since
+`tokens/*.json` is an export — **this is the open loop on this component.** Until then it is the only
+translucent neutral in the theme that is right in both modes.
+
+**Do not reach for a border instead.** Besides not being drawn, a CSS border adds height a Figma
+stroke does not — the trap Token already walked into, which needed `leading-4.5` to climb back out
+of.
 
 **The wrapper carries the accessible name, and needs `role="img"` to do it.** `<kbd>` has no
 implicit ARIA role, so an `aria-label` on a bare one is not reliably announced; the role makes the
@@ -52,11 +62,13 @@ when a single character — so `k` draws `K` and `F5` is left alone.
 **Not a Base UI component.** A plain nested `<kbd>`, like Badge's `<span>`. Nothing here needs
 state, positioning or focus management.
 
-**Figma owes this one a drawing.** The node covers the *single key*. The group — the 4px gap between
-keys, and the `keys` string API itself — is code-first, the way BentoGrid and Accordion's row height
-were. The 4px is `spacing/1`, the same token as the key's own padding, and the value Astryx measures
-at. It should be drawn into the file as a component with a key-count property.
+**Figma caught up the next day, and nothing in the code changed** — which is the test of whether a
+catch-up was really a catch-up. `Kbd Group` (`40004278:7480`) is a slot with `flex`, `items-center`
+and `gap: spacing/1`, holding Kbd instances 4px apart; the component already read `inline-flex
+items-center gap-1`. The group shipped code-first the way BentoGrid and Accordion's row height did,
+and the file closed the gap rather than the code moving.
 
-**`Menu` has no shortcut slot**, so the menu-style example in `InContext` is a plain card list rather
-than real `Menu.Item`s. Worth closing: `Menu.Item` renders `ItemLabel` and nothing after it, so a
-trailing slot is a small change to `Menu.tsx`.
+The same day, `Menu Item` gained an `End Slot` property (`40004278:7481`, and `40004278:7705` on
+`Type=Danger`) drawn holding a Kbd — so the menu-shortcuts case is now real `Menu.Item`s with
+`endSlot`, not a mocked-up card list. `Type=Nested` deliberately has no slot: a submenu trigger
+already spends its trailing edge on a chevron.
