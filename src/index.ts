@@ -43,6 +43,15 @@ export type {
 export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
+export { Card, ClickableCard } from './components/Card'
+export type {
+  CardProps,
+  ClickableCardProps,
+  CardEmphasis,
+  ClickableCardEmphasis,
+  CardPadding,
+} from './components/Card'
+
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps, CheckboxGroupProps } from './components/Checkbox'
 

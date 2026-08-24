@@ -316,6 +316,8 @@ settled once, against the Figma file, for a reason that is written down.
 | [ContentBlock](src/components/ContentBlock/CLAUDE.md) | a card that owns one region of a page | header slots, three emphases, the part a bento view is made of |
 | [BentoGrid](src/components/BentoGrid/CLAUDE.md) | the mosaic those blocks sit in | columns, spans, and one breakpoint doing all the collapsing |
 | [Kbd](src/components/Kbd/CLAUDE.md) | a keyboard shortcut | Figma draws the key and the group, Astryx's `keys` string API; `mod` resolves per platform |
+| [Card](src/components/Card/CLAUDE.md) | the plain container | `rounded-md` inside ContentBlock's `rounded-lg`; the border tracks the fill unless the file says otherwise |
+| [ClickableCard](src/components/Card/CLAUDE.md) | the same card as a hit target | `href` picks the element; `ghost` is the list row, `selected` is `aria-current` |
 
 ### Patterns that recur across components
 
@@ -405,17 +407,28 @@ component usually has fewer decisions in it than it looks.
 
 Foundational and static first:
 
-1. **Card** — the plain container, with no header. **ContentBlock is not it**: that one is Figma's
-   Content Block, and its header is the whole point of it. If a caller only ever wants the frame,
-   this is a smaller component; if nobody asks for it, it is a `ContentBlock` with no
-   `ContentBlock.Header`, and the roadmap entry should be closed rather than built.
-2. **List Item** — variants/states; native, styled.
-3. **Table Cell** — native, styled.
-4. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+1. **List Item** — variants/states; native, styled.
+2. **Table Cell** — native, styled.
+3. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+
+**Card is built, and the entry it closes is worth keeping.** It asked whether a card was anything
+more than a `ContentBlock` with no `ContentBlock.Header`, and said to close the entry rather than
+build if nobody asked. The file answered in geometry: a card is `rounded-md` (8px) on 12px of
+padding where a block is `rounded-lg` (12px) on 16, and the compositions nest one inside the other.
+So they are different objects that compose, not one component and its degenerate case. The
+corroboration was already in the repo — sixteen story files had hand-rolled the div, at three
+different paddings, one of them as a literal `function Card()`. **That is the shape of evidence to
+look for on the entries above**: a roadmap item earns its build when the file draws it *and*
+something has already been reinvented in its absence.
 
 `ContentBlock` and `BentoGrid` landed together, because a block on its own does not show what it is
 for. **BentoGrid is the first component in the library with no Figma node behind it at all** — not a
 variant added ahead of the file, but a whole component. It owes the file a drawing.
+
+**What Card owes Figma**, in the same ledger: a `Padding` property on both card sets (the file draws
+one value, `spacing/3`, and the code has a four-step scale), and a `Selected` state on
+`Clickable Card` (its `State` axis stops at Disabled, and a mail list needs to mark the row you are
+reading). Both are the Accordion route — code first, file catches up.
 
 The form family is complete against the file bar one: **Checkbox Group** and **Radio Group** are
 built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a
