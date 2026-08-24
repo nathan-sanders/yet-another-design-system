@@ -42,25 +42,37 @@ const box = [
 ]
 
 /**
- * Figma draws one padding, `spacing/3` (12px), on all four sides of both sets.
+ * Padding, named by the **spacing token step** rather than by a size word.
  *
- * The scale around it is code-first, and it is settling a real inconsistency
- * rather than inventing an axis: this div was hand-rolled in sixteen story files
- * at `p-4`, `p-5` *and* `p-6` before the component existed. `none` is the one
- * value with a structural job — content that has to reach the border, an image
- * or a chart, which `ContentBlock` handles by letting you omit
- * `ContentBlock.Content` and a single-slot card cannot.
+ * Figma binds `spacing/3` on all four sides of both sets and does not expose an
+ * axis for it — it cannot, because Figma's four component-property kinds are
+ * VARIANT, BOOLEAN, TEXT and INSTANCE_SWAP, and none of them is a number. A
+ * `Padding` variant would therefore have to be a string axis, taking Card from
+ * 6 variants to 24 and Clickable Card from 10 to 40.
  *
- * Owed to Figma as a `Padding` property on both sets.
+ * **So the override lives on the instance, and it is always a token rebind** —
+ * a designer repoints the instance's padding at a different `spacing/N`
+ * variable, never types a raw number. Verified: rebinding `spacing/3` to
+ * `spacing/4` on an instance moves it 12 → 16.
+ *
+ * That is why these are numbers and not `tight` / `default` / `loose`. The value
+ * already has a name in the system — the token's — and inventing a second one
+ * would put a four-row translation table between a designer saying `spacing/4`
+ * and a caller writing this prop. `padding={4}` binds what Figma binds.
+ *
+ * The four here are the steps a card actually wants; a fifth is a one-line
+ * addition and not a new concept, which is the other thing the numeric form
+ * buys. Anything outside the set is a deliberate `className`.
  */
 const padding = {
-  none: 'p-0',
+  /** spacing/0 — content reaches the border. */
+  0: 'p-0',
   /** spacing/2 */
-  tight: 'p-2',
-  /** spacing/3 — Figma's value. */
-  default: 'p-3',
+  2: 'p-2',
+  /** spacing/3 — what Figma draws. */
+  3: 'p-3',
   /** spacing/4 — ContentBlock's body padding. */
-  loose: 'p-4',
+  4: 'p-4',
 }
 
 export const card = tv({
@@ -119,7 +131,7 @@ export const card = tv({
   defaultVariants: {
     emphasis: 'default',
     floating: false,
-    padding: 'default',
+    padding: 3,
   },
 })
 
@@ -214,7 +226,7 @@ export const clickableCard = tv({
 
   defaultVariants: {
     emphasis: 'default',
-    padding: 'default',
+    padding: 3,
     selected: false,
     disabled: false,
   },
@@ -229,5 +241,5 @@ export type CardEmphasis = NonNullable<CardVariants['emphasis']>
 /** `default` | `ghost` — the clickable card's two. */
 export type ClickableCardEmphasis = NonNullable<ClickableCardVariants['emphasis']>
 
-/** Shared by both: `none` | `tight` | `default` | `loose` (0 / 8 / 12 / 16). */
+/** Shared by both: the spacing token step — `0` | `2` | `3` | `4` (0 / 8 / 12 / 16px). */
 export type CardPadding = NonNullable<CardVariants['padding']>

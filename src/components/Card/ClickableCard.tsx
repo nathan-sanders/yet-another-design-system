@@ -42,8 +42,9 @@ export interface ClickableCardProps
    */
   emphasis?: ClickableCardEmphasis
   /**
-   * Inner padding. `default` is Figma's 12px. Use `none` for content that has to
-   * reach the border.
+   * Inner padding, as a spacing token step — the same names the file binds, so
+   * `padding={4}` is `spacing/4`. `3` is what Figma draws. Use `0` for content
+   * that has to reach the border.
    */
   padding?: CardPadding
   /** Makes the card an `<a>`. Without it, it is a `<button type="button">`. */
@@ -71,7 +72,7 @@ export interface ClickableCardProps
 export function ClickableCard({
   children,
   emphasis = 'default',
-  padding = 'default',
+  padding = 3,
   href,
   disabled = false,
   selected = false,
