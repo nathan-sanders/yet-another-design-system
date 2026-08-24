@@ -243,6 +243,17 @@ component does.** That is precisely how those two were missed.
   available here. Read variants with `get_metadata` + `get_variable_defs` instead.
 - Icon instances inside components are hidden by default, and hidden nodes report unreliable
   geometry — trust `get_variable_defs` over measured sizes.
+- **`get_variable_defs` on a parent silently omits the variables of hidden children.** It does not
+  report them as unset; it does not mention them at all — so a hidden slot reads exactly like a slot
+  with no token bound. `Menu Item`'s `Slot Items` is hidden by default, and querying the variant
+  returned no surface fill whatsoever, which looked like the Kbd inside it had been left on the old
+  token. It had not. **Query the hidden node by its own id** (`40004278:7482` for the Action slot's
+  Kbd, `40004278:7706` for Danger) and the bindings are all there. The general rule: an absent token
+  in a parent's output is not evidence of anything until you have checked whether the node that
+  would carry it is visible.
+- **An instance inherits its main component's bindings**, so retokenising a component updates every
+  instance without touching them. Worth remembering before raising "the instances still point at the
+  old token" — check one by id first.
 - Colours come back as `{r,g,b,a}` 0–1 floats — convert to hex.
 
 ## Components
