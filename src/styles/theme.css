@@ -301,8 +301,8 @@
   --color-olive-950: oklch(15.3% 0.006 107.1);
 
   /* fonts */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Variable", ui-monospace, SFMono-Regular, monospace;
 
   /* font weights */
   --font-weight-normal: 400;
