@@ -104,6 +104,15 @@ polite live region, and recorded as a gap in the file like Select's scroll arrow
 trailing 16px tick, `radio` a leading 20px circle with an 8px dot, and `multiple` always draws its
 own leading 20px square with a 14px tick. A prop rather than a derivation because, unlike
 `multiple`, nothing in the values says which one you want.
+**Half the recipes moved to `styles.ts` when `Autocomplete` landed**, and this is the sharing rule
+running through one component rather than between two. Base UI's `autocomplete` subpath re-exports
+this component's `Popup`, `Positioner`, `List`, `Group`, `GroupLabel`, `Collection`, `Empty` and
+`Input` as the **same component objects**, and Figma draws the two menus identically — so `popup`,
+`list`, `item`, `itemLabel`, `groupLabel`, `separator` and `empty` are shared, the way ContextMenu
+reaches Menu's rows. The field half — `trigger`, `value`, `field`, `chips`, `chipsInput`, `search`,
+`searchInput`, `indicatorBox` — stayed here, because `Root`, `Item`, `Trigger`, `Value` and
+`Separator` really are different components in the two namespaces. Nothing about this component
+changed; the story suite passing unchanged is what says so.
 **`overflow-clip` is not ported** — ninth time.
 **No new tokens and no `generate.py` run** — `input-*`, `surface-card-*`, `surface-border`,
 `feedback-danger-highlight` and `shadow-medium` all existed.

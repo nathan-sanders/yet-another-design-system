@@ -11,6 +11,7 @@ import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 import { Token } from '../Token'
 import { ComboboxContext, useCombobox } from './context'
+import { empty, groupLabel, item, itemLabel, list, popup, separator } from './styles'
 
 /**
  * Combobox — pick from a list too long to scroll, by typing to filter it.
@@ -69,6 +70,14 @@ import { ComboboxContext, useCombobox } from './context'
  * `hasCreate`, `status`, `+N more` overflow, `endContent`, `isLabelHidden` and
  * `disabledMessage`. None of them are in the file. Figma has no `Hug` property
  * on this set either, unlike Select — a combobox fills its container.
+ *
+ * ## Half the recipes live in `styles.ts`
+ *
+ * The popup, the list, the row and the group's furniture are in `./styles`,
+ * because Base UI's `autocomplete` subpath re-exports those parts as **the same
+ * component objects** and `Autocomplete` draws them identically. The field half
+ * — trigger, value, tokenizer, popup search — stays here, where only a Combobox
+ * can reach it. The line between the two is the note at the top of that file.
  */
 
 /**
@@ -289,36 +298,6 @@ const chipsInput = tv({
 })
 
 /**
- * The popup. Figma's Combobox Menu: a card on the Medium elevation, `rounded-lg`.
- *
- * Select's block, for the same reasons — `outline-none` because Base UI parks
- * focus inside and the browser would otherwise paint its own system ring on the
- * panel, and Tooltip's motion off `--transform-origin` so it grows out of its
- * anchor.
- *
- * **`overflow-clip` is not ported, for the ninth time.** Figma sets it on the
- * menu frame; here it would slice the focus ring off the first and last rows.
- *
- * Unlike Select this hangs *below* its anchor rather than overlapping it —
- * `alignItemWithTrigger` has no meaning when the popup carries a search field —
- * so there are no scroll arrows to build. Base UI ships none for Combobox
- * either. The list scrolls inside the panel instead.
- */
-const popup = tv({
-  base: [
-    'flex flex-col',
-    'rounded-lg border border-surface-border bg-surface-card-primary shadow-medium',
-    'font-sans',
-    'outline-none',
-    'min-w-(--anchor-width) max-h-(--available-height)',
-    'transition-[opacity,scale] duration-fast ease-standard origin-(--transform-origin)',
-    'data-[starting-style]:scale-95 data-[starting-style]:opacity-0',
-    'data-[ending-style]:scale-95 data-[ending-style]:opacity-0',
-    'data-[instant]:duration-0',
-  ],
-})
-
-/**
  * The popup's search row — Figma's 48px Span holding an Input Group with a
  * magnifier in its start slot.
  *
@@ -356,40 +335,6 @@ const searchInput = tv({
 })
 
 /**
- * The scrolling list. The panel caps its own height at `--available-height`, so
- * this is what actually scrolls inside it.
- */
-const list = tv({
-  base: 'flex min-h-0 flex-1 flex-col overflow-y-auto',
-})
-
-/**
- * A row. Figma's Combobox Menu Item, which is the same 32px row as Select's and
- * Menu's, with the same padding and the same hover — so this is that recipe,
- * unchanged.
- *
- * Hover and keyboard highlight are one attribute: `highlightItemOnHover`
- * defaults true, so Figma's separate Hover and Focus states collapse to
- * `data-highlighted` for the background plus the shared ring for the outline.
- *
- * `group` is here so the multi-select box and the radio dot can read
- * `data-selected` off the item, which is where Base UI puts it.
- */
-const item = tv({
-  base: [
-    'group flex w-full items-center gap-3',
-    // px-3 = spacing/3 (12px), py-1 = spacing/1 (4px), so 24 + 8 = 32px tall.
-    'rounded-md px-3 py-1',
-    'cursor-pointer text-base select-none',
-    'text-content-primary',
-    'data-highlighted:bg-surface-card-subtle',
-    ...focusRing,
-    'data-disabled:pointer-events-none data-disabled:opacity-40',
-    'transition-colors duration-fast-min ease-standard',
-  ],
-})
-
-/**
  * The 20px mark at the start of a row, in both of its shapes.
  *
  * Deliberately *not* reusing `Checkbox` or `Radio`, for the reason Select's and
@@ -417,16 +362,6 @@ const indicatorBox = tv({
   },
 
   defaultVariants: { shape: 'check' },
-})
-
-/** The label column of a row, with Figma's optional Sub Label under it. */
-const itemLabel = tv({
-  base: 'flex min-w-px flex-1 flex-col items-start',
-})
-
-/** The "nothing matched" line. Figma draws no such state — see CLAUDE.md. */
-const empty = tv({
-  base: 'px-5 py-3 text-base italic text-content-subtle',
 })
 
 type TriggerVariants = VariantProps<typeof trigger>
@@ -588,10 +523,10 @@ export interface ComboboxGroupProps {
 function ComboboxGroup({ label, items, children, className }: ComboboxGroupProps) {
   return (
     <>
-      <ComboboxPrimitive.Separator className="h-px shrink-0 bg-surface-border first:hidden" />
+      <ComboboxPrimitive.Separator className={separator()} />
       <ComboboxPrimitive.Group items={items} className={cn('flex flex-col', className)}>
         {label != null && (
-          <ComboboxPrimitive.GroupLabel className="px-5 pt-3 text-sm text-content-subtle">
+          <ComboboxPrimitive.GroupLabel className={groupLabel()}>
             {label}
           </ComboboxPrimitive.GroupLabel>
         )}

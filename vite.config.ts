@@ -77,6 +77,7 @@ export default defineConfig({
         include: [
           '@testing-library/dom',
       '@base-ui/react/accordion',
+          '@base-ui/react/autocomplete',
           '@base-ui/react/toast',
           '@base-ui/react/checkbox',
           '@base-ui/react/radio',
