@@ -425,6 +425,13 @@ something has already been reinvented in its absence.
 for. **BentoGrid is the first component in the library with no Figma node behind it at all** — not a
 variant added ahead of the file, but a whole component. It owes the file a drawing.
 
+**The Content Block header's right padding is a third debt, and it is code correcting the file.**
+`_Content Block Header` draws `pl-4 pr-2`, which only reads as 16 both sides when the actions slot
+is filled — a 32px ghost Button's own 12px covers the missing 8. Empty, the header sits 8px short on
+the right. Code is now `px-4`, symmetric always, at the cost of an icon-only action reading
+optically inset (16 + the Button's 12). Figma should follow: set the header's right padding to
+`spacing/4` and let the Button's padding fall where it does.
+
 **Card's two debts are both settled, and only one of them by drawing.** `Clickable Card` gained a
 `State=Selected` for both emphases the day after it shipped — Surface/Card Subtle on Surface/Border
 Emphasized, exactly what the code had, so nothing changed here. That is the Accordion route working.

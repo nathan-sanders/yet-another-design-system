@@ -176,12 +176,15 @@ export function ContentBlock({
 const header = tv({
   base: [
     'flex items-center gap-2',
-    // min-h-12 = height/h-12 (48px), pl-4 = spacing/4, pr-2 / py-2 = spacing/2.
-    // The right side is 8 rather than 16 because Figma expects a button there,
-    // and a 32px ghost button carries its own 12px of padding. A header with no
-    // actions therefore sits 8px off the right edge, which is Figma's drawing
-    // and not an oversight.
-    'min-h-12 pt-2 pr-2 pb-2 pl-4',
+    // min-h-12 = height/h-12 (48px), px-4 = spacing/4, py-2 = spacing/2.
+    // Symmetric left and right, so the title and the right edge sit the same
+    // 16 off the block's border whether or not there are actions. Figma draws 8
+    // on the right instead, betting there is always a button there: a 32px
+    // ghost Button carries its own 12px, which lands the glyph at 16 and the
+    // box at 8. That bet costs a header with no actions 8px of its right
+    // margin, and this library would rather the empty case be right — an
+    // icon-only action now sits optically inset, at 16 + the Button's 12.
+    'min-h-12 px-4 py-2',
     // A min-height rather than a height: a title that wraps grows the row
     // instead of spilling out of it. Accordion's trigger makes the same call.
   ],

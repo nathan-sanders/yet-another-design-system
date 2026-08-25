@@ -65,10 +65,12 @@ library allows so long as the file catches up.
   above and below, so it has exactly 32px of room — which is what a default Button is. They were
   `small` when this first landed, on an assumed constraint that turned out not to exist. The
   library's rule is that default comes first and a smaller size needs a measured reason.
-- **The header's padding is asymmetric on purpose** — `pl-4 pr-2`, straight from Figma. The 8 on the
-  right is there because a 32px ghost Button carries its own 12px, so an icon-only action lands 16px
-  off the edge like everything else. A header with no actions does sit 8px short on the right; that
-  is the file's drawing, not an oversight.
+- **The header's padding is symmetric — `px-4` — and Figma's is not.** Figma draws `pl-4 pr-2`,
+  betting a 32px ghost Button is always in the actions slot: the Button's own 12px lands its glyph
+  at 16 off the edge, with the box at 8. The bet fails on a header with no actions, which then sits
+  8px short on the right. Code takes the other side: 16 both sides always, and an icon-only action
+  reads optically inset because the Button's 12px stacks on top of it. Figma is the debt here, not
+  the code.
 - **`min-h-12`, not `h-12`.** A title that wraps grows the row instead of spilling — the
   `LongTitle` story. Measured at exactly 48px in the ordinary case.
 - **`h-full` on the root** so tiles in one `BentoGrid` row end level whatever each holds. In
