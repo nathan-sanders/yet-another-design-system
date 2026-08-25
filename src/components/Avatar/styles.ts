@@ -116,19 +116,16 @@ export const avatar = tv({
   },
 
   compoundVariants: [
-    // The overlap is the ring width, so these numbers are paired with
-    // `avatarGroup` below and only ever move together.
+    // Ring width per size, read off the `Avatar Group` set (`40004297:11406`)
+    // as the OUTSIDE stroke weight on each variant's avatars.
     //
-    // Figma's `Avatar Group` symbol has no Size axis — it is five 36px avatars
-    // at 164px and nothing else — so the small end was once a guess, on the
-    // grounds that a 4px ring leaves very little of a small avatar. The kanban
-    // composition (`40004271:6439`) has since drawn one: three 24px avatars at
-    // 64px, which is `3 × 24 − 2 × 4`. So `small` is 4px on the file's
-    // evidence. `x-small` is still unevidenced and stays at 2px, because 4px on
-    // a 20px avatar leaves 12px of photo. Do not "fix" that asymmetry for
-    // symmetry's sake — widen it when the file draws a 20px group.
+    // **This is not the same number as the overlap**, and the two are set
+    // independently — see the note on `avatarGroup` below. They happen to
+    // coincide at three of the five sizes, which is exactly why it looked like
+    // an identity when only `base` existed.
     { inGroup: true, size: 'x-small', class: 'outline-2' },
-    { inGroup: true, size: ['small', 'base', 'large', 'x-large'], class: 'outline-4' },
+    { inGroup: true, size: ['small', 'base', 'large'], class: 'outline-4' },
+    { inGroup: true, size: 'x-large', class: 'outline-8' },
   ],
 
   defaultVariants: {
@@ -236,13 +233,29 @@ export const statusBar = tv({
  * The negative margin that overlaps the circles in a group, matched to the ring
  * width the avatar draws at each size.
  *
- * **The overlap is the ring width.** Figma's group is five 36px avatars at 164px
- * total, so each circle sits 4px into the one before it — exactly as wide as its
- * ring. The two cancel out and leave a clean band of the surface between
- * neighbours. Three `small` avatars are 64px for the same reason.
+ * **The overlap and the ring width are two different numbers.** It is tempting
+ * to read them as one — at `base` both are 4px, and while `base` was the only
+ * variant Figma drew, that coincidence was the whole model. The full Size axis
+ * (`40004297:11406`) shows they are set independently:
  *
- * These numbers only ever move together with the `outline-*` compound variants
- * on `avatar`. Change one without the other and the band stops being clean.
+ * | size | avatar | ring | overlap | group width |
+ * |---|---|---|---|---|
+ * | x-small | 20 | 2 | 4 | 84 |
+ * | small | 24 | 4 | 4 | 104 |
+ * | base | 36 | 4 | 4 | 164 |
+ * | large | 40 | 4 | 4 | 184 |
+ * | x-large | 128 | 8 | 24 | 544 |
+ *
+ * What each one does: the **ring** is the band of background between two
+ * photos, so it is the ring width you see. The **overlap** is how far the next
+ * circle sits into the previous one, so `overlap + ring` is how much of a
+ * neighbour gets covered. x-large stacks much harder — 24px into a 128px
+ * circle — because 4px on a circle that size would not read as a stack at all.
+ *
+ * The negative margin here is the *overlap*. The `outline` costs no layout, so
+ * the two compose exactly as they do on the canvas.
+ *
+ * Group width is `5 × size − 4 × overlap`, which is the number to check.
  */
 export const avatarGroup = tv({
   // inline-flex rather than flex so the group's box is the width of the row of
@@ -252,11 +265,11 @@ export const avatarGroup = tv({
 
   variants: {
     size: {
-      'x-small': '-space-x-0.5', // 2px
-      small: '-space-x-1', // 4px — see the compound variants on `avatar`
+      'x-small': '-space-x-1', // 4px
+      small: '-space-x-1', // 4px
       base: '-space-x-1', // 4px
       large: '-space-x-1', // 4px
-      'x-large': '-space-x-1', // 4px
+      'x-large': '-space-x-6', // 24px
     },
   },
 

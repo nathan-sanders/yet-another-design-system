@@ -1,7 +1,8 @@
 # Avatar / AvatarGroup
 
 A person as a photo, initials, or a `+N` count. Mirrors Figma nodes
-`40004102:5483` (Avatar), `40004102:5619` (Avatar Status) and `40004113:14594` (Avatar Group).
+`40004102:5483` (Avatar), `40004102:5619` (Avatar Status) and `40004297:11406` (Avatar Group,
+which gained its Size axis after this component was first built — see the ring/overlap note below).
 Second Base UI component: wraps `Avatar` (Root / Image / Fallback) from `@base-ui/react/avatar`
 for image-loading state and the delayed fallback; all styling is ours, in `styles.ts` because
 the group's overflow circle draws the same shape.
@@ -27,10 +28,9 @@ the avatar (8 / 8 / 12 / 12 / 20), not exposed as a second knob.
 Group: `<AvatarGroup size>` + `<AvatarGroup.Overflow count>`. It does **not** count for you —
 you slice the list, as Astryx does.
 **The trap: Figma's strokes here are *outside* strokes.** The Status "S" symbol is an 8px frame
-that renders 12×12, and the group's five 36px avatars measure 164px (`5 × 36 − 4 × 4`). So the
+that renders 12×12, and the group's five 36px avatars measure 164px. So the
 rings are `outline` (group) and `ring` (dot), never `border` — a border would eat into
 the circle and shrink the photo. **164px at `base` is the number to check** when this changes.
-The overlap equals the ring width, which is what leaves a clean band of background between circles.
 
 **Focus:** the shared ring, which is `box-shadow` — this is the component that decides that for
 the whole library. `outline` is already carrying the group ring here, and `border` would shrink
@@ -70,23 +70,42 @@ The `Surfaces` story draws all four, and deliberately keeps one group with the p
 card so the failure is on the record rather than in a sentence. Check it in **dark**, where the two
 tokens are two different near-blacks and the mismatch is unmistakable.
 
-## The ring width at `small` is 4px, and at `x-small` it is not
+## The ring width and the overlap are two different numbers
 
-Worth writing down, because the asymmetry looks like an oversight and is not.
+The single most misleading thing about this component, and it cost two rounds to get right.
 
-The `Avatar Group` symbol (`40004113:14594`) **has no Size axis** — it is five 36px avatars at
-164px and nothing else. So the small end of the scale was originally a guess made in the file's
-absence, on the reasonable grounds that a 4px ring leaves very little of a small avatar.
+For as long as `Avatar Group` was one frame — five 36px avatars at 164px — ring and overlap were
+both 4px, and the obvious reading was that they are the same quantity: *the overlap is the ring
+width, so the two cancel and leave a clean band.* That sentence was in this file, in
+`AvatarGroup.tsx` and in `styles.ts`, and it is **wrong**. It was one data point fitted with a
+straight line.
 
-The kanban composition (`40004271:6439`) has since drawn one: three 24px avatars at **64px**, which
-is `3 × 24 − 2 × 4`. That is the only place the file draws a small group and it kept 4px, so
-`small` follows the file — the Accordion route, where the drawing arrives and the code moves to
-meet it. `x-small` stays at 2px because nothing draws a 20px group, and 4px on a 20px avatar leaves
-12px of photo. **Do not widen it for symmetry.** Widen it when the file draws one.
+The set now has a full Size axis (`40004297:11406`), read off the OUTSIDE stroke weights:
 
-**The overlap and the outline only ever move together** — they are the same number, and that
-identity is what leaves a clean band. Check numbers: three `small` avatars **64px**, five `base`
-**164px**.
+| size | avatar | ring | overlap | group width |
+|---|---|---|---|---|
+| x-small | 20 | 2 | 4 | 84 |
+| small | 24 | 4 | 4 | 104 |
+| base | 36 | 4 | 4 | 164 |
+| large | 40 | 4 | 4 | 184 |
+| x-large | 128 | 8 | 24 | 544 |
 
-**The debt this leaves Figma:** the group needs a Size axis. Right now the only small group in the
-file is a resized instance inside a composition, which is evidence but not a drawing.
+They coincide at three of five sizes, which is exactly why the coincidence was convincing.
+
+**What each one actually does.** The **ring** is the band of background between two photos — it is
+what you see. The **overlap** is how far the next circle sits into the previous one, so
+`overlap + ring` is how much of a neighbour is covered. x-large stacks far harder (24 into 128)
+because a 4px overlap on a circle that size would not read as a stack at all; its ring is 8px for
+the same reason of scale. x-small goes the other way: a 4px overlap, but only a 2px ring, because
+4px of ring on a 20px circle would eat the photo.
+
+In CSS the negative margin is the **overlap** and the `outline` is the **ring**. `outline` costs no
+layout, so the two compose exactly as they do on the canvas.
+
+**Check number: `5 × size − 4 × overlap`** — 84 / 104 / 164 / 184 / 544. Note this is *not*
+`5 × size − 4 × ring`; that only works where the two happen to be equal.
+
+**The general lesson, which is the reason this section is long:** a component modelled off a single
+Figma variant will encode coincidences as rules, and they are invisible until the axis is drawn.
+When the file has one variant, say so in the comment — "this is the only size drawn" — rather than
+writing the inferred relationship as though it were the design.

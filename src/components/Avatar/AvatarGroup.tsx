@@ -15,7 +15,7 @@ import {
 /**
  * AvatarGroup — overlapping avatars for a set of people.
  *
- * Mirrors the Figma component "Avatar Group" (node 40004113:14594): a row of
+ * Mirrors the Figma component "Avatar Group" (node 40004297:11406): a row of
  * avatars, each ringed in the canvas colour so the circles read apart where they
  * overlap, ending in a `+N` count.
  *
@@ -33,12 +33,13 @@ import {
  * `size` is set once here and travels to every child through context, so a group
  * never has to repeat itself. A child that sets its own `size` still wins.
  *
- * **The overlap is the ring width.** Figma's group is five 36px avatars at
- * 164px total — `5 × 36 − 4 × 4` — so each avatar sits 4px into the one before
- * it, which is exactly the width of the ring. The two of them together leave a
- * clean band of the background between neighbouring circles. The ring is an
- * `outline` rather than a `border` because Figma draws it as an outside stroke:
- * it must not shrink the photo or take up room in the row.
+ * **The overlap and the ring width are two different numbers**, set per size
+ * off Figma's Size axis — see the table on `avatarGroup` in `styles.ts`. The
+ * ring is the band of background you see between two photos; the overlap is how
+ * far the next circle sits into the previous one. They coincide at `base` and
+ * that is all it is, a coincidence. The ring is an `outline` rather than a
+ * `border` because Figma draws it as an outside stroke: it must not shrink the
+ * photo or take up room in the row.
  *
  * **Which background is a prop, not a guess.** That band only disappears if it
  * is painted in the colour behind the group, and CSS has no way to ask what

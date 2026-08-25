@@ -59,7 +59,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * The Figma component (node 40004113:14594): four avatars and a `+1`.
+ * The Figma component (node 40004297:11406): four avatars and a `+1`.
  *
  * `size` is set once on the group and reaches every child through context, so
  * change it here and the whole row moves together. A child that sets its own
@@ -68,21 +68,30 @@ type Story = StoryObj<typeof meta>
 export const Playground: Story = {}
 
 /**
- * The group at every size.
+ * The group at every size, off Figma's Size axis (`40004297:11406`).
  *
- * **The overlap is the ring width.** Figma's group is five 36px avatars at 164px
- * total — `5 × 36 − 4 × 4` — so each circle sits 4px into the one before it,
- * exactly as wide as the canvas ring it carries. The two cancel out and leave a
- * clean band of canvas between neighbours.
+ * **The ring and the overlap are two different numbers**, and this story is
+ * where that is visible:
  *
- * That ring is an `outline`, not a `border`, because Figma draws it as an
- * outside stroke: it must not shrink the photo or take up room in the row. It is
- * also why the row measures 164px rather than 180px, and why the group's total
- * width is the number worth checking when this component changes.
+ * | size | avatar | ring | overlap | width |
+ * |---|---|---|---|---|
+ * | x-small | 20 | 2 | 4 | 84 |
+ * | small | 24 | 4 | 4 | 104 |
+ * | base | 36 | 4 | 4 | 164 |
+ * | large | 40 | 4 | 4 | 184 |
+ * | x-large | 128 | 8 | 24 | 544 |
  *
- * Figma specifies the group only at `base`, where the ring is 4px. The two small
- * sizes step down to 2px here, which is how Figma scales the status dot's ring
- * over the same range — a 4px ring on a 20px avatar leaves very little avatar.
+ * The **ring** is the band of background you see between two photos. The
+ * **overlap** is how far the next circle sits into the previous one. They are
+ * equal at three of five sizes, which is a coincidence rather than a rule —
+ * look at `x-large`, which stacks 24px into a 128px circle because 4px would
+ * not read as a stack, and at `x-small`, which keeps the 4px overlap but rings
+ * at 2px because 4px would eat a 20px photo.
+ *
+ * The ring is an `outline`, not a `border`, because Figma draws it as an
+ * outside stroke: it must not shrink the photo or take up room in the row. That
+ * is why a row of five `base` avatars measures 164px rather than 180px. The
+ * width to check is `5 × size − 4 × overlap`.
  */
 export const Sizes: Story = {
   parameters: { controls: { disable: true } },
