@@ -126,6 +126,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | Component | Variants |
 |---|---|
 | **Accordion** | A stack of sections, single- or multi-open (`multiple`); card or flush (`container`); optional leading icon, heading level 2–6 |
+| **Autocomplete** | Free text with suggestions that do not constrain it; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, a magnifier in the start slot, and rows that can carry an avatar or a sub-label. Looks like a Combobox and differs on the one rule: an off-list value stands |
 | **Avatar** | Photo, initials or `+N` at 5 sizes (20/24/36/40/128); online/offline/unavailable status, each with its own shape |
 | **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
 | **Badge** | 18 Decorative hues, one size (20px), with icon slots — static, no states |
@@ -231,8 +232,9 @@ library — import them from `lucide-react` directly so bundlers tree-shake to o
 
 Reach for an `Input` when the answer is not from a known set — a name, an email, a URL. If the value
 has to come from a list, the control is a Select (short list), a Combobox (long list, type to filter)
-or a Radio (few enough to show at once); an Autocomplete looks like a Combobox and differs on the one
-thing that matters, which is that it suggests without constraining.
+or a Radio (few enough to show at once); an `Autocomplete` looks like a Combobox and differs on the
+one thing that matters, which is that it suggests without constraining — type something nobody
+thought of and the value stands.
 
 The text around a control belongs to `Field`, not to the control — so a labelled input is a `Field`
 wrapping an `Input`, and the same `Field` works for a Checkbox or a group of Radios. It wires itself

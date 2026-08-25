@@ -8,6 +8,18 @@ export type {
   AccordionHeadingLevel,
 } from './components/Accordion'
 
+export { Autocomplete } from './components/Autocomplete'
+export type {
+  AutocompleteProps,
+  AutocompleteItemProps,
+  AutocompleteGroupProps,
+  AutocompleteItemData,
+  AutocompleteItemGroup,
+  AutocompleteItemAvatar,
+  AutocompleteSize,
+  AutocompleteAppearance,
+} from './components/Autocomplete'
+
 export { Avatar, AvatarGroup } from './components/Avatar'
 export type {
   AvatarProps,
