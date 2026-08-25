@@ -1,10 +1,28 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { cn } from '../../lib/cn'
 import { Avatar } from './Avatar'
 import { AvatarGroup } from './AvatarGroup'
 import samplePhoto from './sample-photo.png'
 
 const sizes = ['x-small', 'small', 'base', 'large', 'x-large'] as const
+const surfaces = ['canvas', 'card-primary', 'card-subtle', 'card-emphasized'] as const
+
+/** The fill each `surface` value names, so a story can sit a group on its own surface. */
+const SURFACE_CLASS: Record<(typeof surfaces)[number], string> = {
+  canvas: 'bg-surface-canvas',
+  'card-primary': 'bg-surface-card-primary',
+  'card-subtle': 'bg-surface-card-subtle',
+  'card-emphasized': 'bg-surface-card-emphasized',
+}
+
+/** `card-emphasized` is the dark one, so its label has to flip. */
+const SURFACE_LABEL_CLASS: Record<(typeof surfaces)[number], string> = {
+  canvas: 'text-content-subtle',
+  'card-primary': 'text-content-subtle',
+  'card-subtle': 'text-content-subtle',
+  'card-emphasized': 'text-content-inverse',
+}
 
 const team = [
   { id: 'ns', name: 'Nathan Sanders', src: samplePhoto },
@@ -19,9 +37,11 @@ const meta = {
   component: AvatarGroup,
   argTypes: {
     size: { control: 'inline-radio', options: sizes },
+    surface: { control: 'inline-radio', options: surfaces },
   },
   args: {
     size: 'base',
+    surface: 'canvas',
     // `children` is required on the group, so it has to be in the default args
     // even though every story below renders its own.
     children: (
@@ -148,6 +168,11 @@ export const Overflow: Story = {
  * Status dots are left off inside a group on purpose — at this overlap a dot
  * lands underneath the next circle, and availability is a per-person fact that a
  * stacked row is the wrong place to read.
+ *
+ * **Note `surface="card-primary"`.** The card is white and the page is not, so
+ * without it the rings would be painted in the canvas colour and read as grey
+ * halos rather than as the gap they are. This story had exactly that bug until
+ * the prop existed. Compare with `Surfaces` below.
  */
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
@@ -158,12 +183,66 @@ export const InContext: Story = {
         <span className="text-sm text-content-subtle">{team.length} people</span>
       </div>
 
-      <AvatarGroup>
+      <AvatarGroup surface="card-primary">
         {team.slice(0, 4).map((person) => (
           <Avatar key={person.id} src={person.src} name={person.name} />
         ))}
         <AvatarGroup.Overflow count={team.length - 4} />
       </AvatarGroup>
+    </div>
+  ),
+}
+
+/**
+ * The four surfaces, each group sitting on the one it names.
+ *
+ * The ring between overlapping avatars is not a colour — it is a band of
+ * whatever is behind the group, showing through. CSS has no way to ask what
+ * that is, so `surface` tells it, and every row here is correct because the
+ * prop and the background agree.
+ *
+ * **The bottom row is the same group with the prop left at its default**, on a
+ * card. That is what the mismatch looks like: a grey outline drawn around each
+ * circle instead of a gap between them. Worth seeing once, because it is subtle
+ * enough in light mode to survive review — flip the toolbar to dark, where
+ * `surface-canvas` and `surface-card-primary` are two different near-blacks,
+ * and it is unmistakable.
+ */
+export const Surfaces: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {surfaces.map((surface) => (
+        <div
+          key={surface}
+          className={cn(
+            'flex items-center justify-between gap-4 rounded-lg p-4',
+            SURFACE_CLASS[surface],
+          )}
+        >
+          <span className={cn('font-mono text-sm', SURFACE_LABEL_CLASS[surface])}>
+            surface="{surface}"
+          </span>
+          <AvatarGroup surface={surface}>
+            {team.slice(0, 4).map((person) => (
+              <Avatar key={person.id} src={person.src} name={person.name} />
+            ))}
+            <AvatarGroup.Overflow count={team.length - 4} />
+          </AvatarGroup>
+        </div>
+      ))}
+
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-feedback-danger-highlight bg-surface-card-primary p-4">
+        <span className="font-mono text-sm text-content-subtle">
+          the default, on a card — wrong
+        </span>
+        <AvatarGroup>
+          {team.slice(0, 4).map((person) => (
+            <Avatar key={person.id} src={person.src} name={person.name} />
+          ))}
+          <AvatarGroup.Overflow count={team.length - 4} />
+        </AvatarGroup>
+      </div>
     </div>
   ),
 }

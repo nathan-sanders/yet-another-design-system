@@ -17,6 +17,55 @@ import { focusRing } from '../../lib/focus'
  * is an `outline` or a `ring`, both of which paint outside the box and cost no
  * layout. A CSS `border` would eat into the circle and shrink the photo instead.
  */
+/**
+ * Which surface an avatar is drawn on, as the four `--surface-*` fills that
+ * exist in the theme.
+ *
+ * The group ring is a band of the background showing between overlapping
+ * circles, and the status dot's ring is the same trick — so both have to name
+ * the colour behind the avatar, and neither can work it out for itself. CSS has
+ * no "the background of whatever contains me", so it is a prop.
+ *
+ * It names the token rather than inventing a second vocabulary — Card's
+ * `padding={3}` precedent. `canvas` is the default, so an avatar on the page
+ * needs no prop and every call site that predates this keeps what it had.
+ *
+ * The border tokens are not offered: `surface-border` is a line, not a fill,
+ * and nothing is ever drawn on top of one.
+ */
+export type AvatarSurface = 'canvas' | 'card-primary' | 'card-subtle' | 'card-emphasized'
+
+export const DEFAULT_AVATAR_SURFACE: AvatarSurface = 'canvas'
+
+/** The group ring, painted as an `outline` so it costs no layout. */
+const avatarSurfaceRing = {
+  canvas: 'outline-surface-canvas',
+  'card-primary': 'outline-surface-card-primary',
+  'card-subtle': 'outline-surface-card-subtle',
+  'card-emphasized': 'outline-surface-card-emphasized',
+} as const satisfies Record<AvatarSurface, string>
+
+/** The status dot's ring, painted as a `ring` for the same reason. */
+const statusSurfaceRing = {
+  canvas: 'ring-surface-canvas',
+  'card-primary': 'ring-surface-card-primary',
+  'card-subtle': 'ring-surface-card-subtle',
+  'card-emphasized': 'ring-surface-card-emphasized',
+} as const satisfies Record<AvatarSurface, string>
+
+/**
+ * The same colour as a *fill*, for the two status shapes that reveal the
+ * background rather than ring it: `offline` is a stroked circle with the
+ * surface showing through, and `unavailable`'s bar is drawn in the surface
+ * colour rather than punched out.
+ */
+const statusSurfaceFill = {
+  canvas: 'bg-surface-canvas',
+  'card-primary': 'bg-surface-card-primary',
+  'card-subtle': 'bg-surface-card-subtle',
+  'card-emphasized': 'bg-surface-card-emphasized',
+} as const satisfies Record<AvatarSurface, string>
+
 export const avatar = tv({
   base: [
     'relative inline-flex shrink-0 items-center justify-center',
@@ -52,21 +101,34 @@ export const avatar = tv({
     },
 
     /**
-     * The canvas ring that separates overlapping avatars in a group. Set from
-     * context by AvatarGroup, never by hand.
+     * The ring that separates overlapping avatars in a group. Set from context
+     * by AvatarGroup, never by hand — an avatar cannot be wrong about whether
+     * it is in a group. What *colour* the ring is comes from `surface` below.
      */
     inGroup: {
-      true: 'outline-solid outline-surface-canvas',
+      true: 'outline-solid',
     },
+
+    /**
+     * Which surface the ring has to disappear into. See `avatarSurfaceRing`.
+     */
+    surface: avatarSurfaceRing,
   },
 
   compoundVariants: [
-    // Figma specifies the group only at `base`, where the ring is 4px. The two
-    // small sizes step down to 2px, which is how Figma scales the status dot's
-    // ring across the same range — a 4px ring on a 20px avatar leaves very
-    // little avatar.
-    { inGroup: true, size: ['x-small', 'small'], class: 'outline-2' },
-    { inGroup: true, size: ['base', 'large', 'x-large'], class: 'outline-4' },
+    // The overlap is the ring width, so these numbers are paired with
+    // `avatarGroup` below and only ever move together.
+    //
+    // Figma's `Avatar Group` symbol has no Size axis — it is five 36px avatars
+    // at 164px and nothing else — so the small end was once a guess, on the
+    // grounds that a 4px ring leaves very little of a small avatar. The kanban
+    // composition (`40004271:6439`) has since drawn one: three 24px avatars at
+    // 64px, which is `3 × 24 − 2 × 4`. So `small` is 4px on the file's
+    // evidence. `x-small` is still unevidenced and stays at 2px, because 4px on
+    // a 20px avatar leaves 12px of photo. Do not "fix" that asymmetry for
+    // symmetry's sake — widen it when the file draws a 20px group.
+    { inGroup: true, size: 'x-small', class: 'outline-2' },
+    { inGroup: true, size: ['small', 'base', 'large', 'x-large'], class: 'outline-4' },
   ],
 
   defaultVariants: {
@@ -97,9 +159,12 @@ export const avatarSurface = tv({
  * separate green from red.
  */
 export const statusDot = tv({
-  base: 'absolute flex items-center justify-center rounded-full ring-surface-canvas',
+  base: 'absolute flex items-center justify-center rounded-full',
 
   variants: {
+    /** The colour behind the avatar, which the dot's ring has to match. */
+    surface: statusSurfaceRing,
+
     size: {
       'x-small': 'bottom-0 -right-0.5 size-2 ring-2', // 8px dot
       small: 'bottom-0 -right-0.5 size-2 ring-2', // 8px dot
@@ -112,8 +177,9 @@ export const statusDot = tv({
       // Filled green disc.
       online: 'bg-feedback-success-highlight',
       // A ring, not a disc: the SVG is a stroked circle with no fill, sitting on
-      // the frame's canvas background.
-      offline: 'border border-surface-border-emphasized bg-surface-canvas',
+      // the surface behind it. That fill comes from `surface` in the compound
+      // variants below, because it is the only status that needs one.
+      offline: 'border border-surface-border-emphasized',
       // Filled red disc with a bar knocked out of it, which reveals the canvas
       // behind — so the bar is drawn in canvas rather than punched out.
       unavailable: 'bg-feedback-danger-highlight',
@@ -123,7 +189,18 @@ export const statusDot = tv({
   compoundVariants: [
     // The offline ring's stroke is 1px on the 8px dot and 2px on the larger two.
     { status: 'offline', size: ['base', 'large', 'x-large'], class: 'border-2' },
+
+    // `offline` is the one status drawn as an outline rather than a disc, so it
+    // is the one that shows the surface through its middle.
+    { status: 'offline', surface: 'canvas', class: statusSurfaceFill.canvas },
+    { status: 'offline', surface: 'card-primary', class: statusSurfaceFill['card-primary'] },
+    { status: 'offline', surface: 'card-subtle', class: statusSurfaceFill['card-subtle'] },
+    { status: 'offline', surface: 'card-emphasized', class: statusSurfaceFill['card-emphasized'] },
   ],
+
+  defaultVariants: {
+    surface: DEFAULT_AVATAR_SURFACE,
+  },
 })
 
 /**
@@ -132,9 +209,15 @@ export const statusDot = tv({
  * sizes: 4×1, 6×1.5, 10×2.5.
  */
 export const statusBar = tv({
-  base: 'block bg-surface-canvas',
+  base: 'block',
 
   variants: {
+    /**
+     * The bar is the surface showing through the disc, not a colour of its own —
+     * so it is a fill in whatever is behind the avatar.
+     */
+    surface: statusSurfaceFill,
+
     size: {
       'x-small': 'h-px w-1',
       small: 'h-px w-1',
@@ -142,6 +225,10 @@ export const statusBar = tv({
       large: 'h-[1.5px] w-1.5',
       'x-large': 'h-[2.5px] w-2.5',
     },
+  },
+
+  defaultVariants: {
+    surface: DEFAULT_AVATAR_SURFACE,
   },
 })
 
@@ -151,7 +238,11 @@ export const statusBar = tv({
  *
  * **The overlap is the ring width.** Figma's group is five 36px avatars at 164px
  * total, so each circle sits 4px into the one before it — exactly as wide as its
- * ring. The two cancel out and leave a clean band of canvas between neighbours.
+ * ring. The two cancel out and leave a clean band of the surface between
+ * neighbours. Three `small` avatars are 64px for the same reason.
+ *
+ * These numbers only ever move together with the `outline-*` compound variants
+ * on `avatar`. Change one without the other and the band stops being clean.
  */
 export const avatarGroup = tv({
   // inline-flex rather than flex so the group's box is the width of the row of
@@ -162,7 +253,7 @@ export const avatarGroup = tv({
   variants: {
     size: {
       'x-small': '-space-x-0.5', // 2px
-      small: '-space-x-0.5', // 2px
+      small: '-space-x-1', // 4px — see the compound variants on `avatar`
       base: '-space-x-1', // 4px
       large: '-space-x-1', // 4px
       'x-large': '-space-x-1', // 4px
