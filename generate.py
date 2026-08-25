@@ -295,10 +295,15 @@ def build_shadow(parts, inset=False):
 # ---- assemble @theme (static tokens) ----
 theme = []
 theme.append("  /* fonts */")
+# Fontsource's variable packages register the family as "<Name> Variable". The bare
+# name from Figma matches nothing, so name both or the stack falls through to the
+# generic fallback and quietly renders in the system mono/sans instead.
 if "font-sans" in fonts:
-    theme.append(f'  --font-sans: "{fonts["font-sans"]}", ui-sans-serif, system-ui, sans-serif;')
+    n = fonts["font-sans"]
+    theme.append(f'  --font-sans: "{n}", "{n} Variable", ui-sans-serif, system-ui, sans-serif;')
 if "font-mono" in fonts:
-    theme.append(f'  --font-mono: "{fonts["font-mono"]}", ui-monospace, SFMono-Regular, monospace;')
+    n = fonts["font-mono"]
+    theme.append(f'  --font-mono: "{n}", "{n} Variable", ui-monospace, SFMono-Regular, monospace;')
 theme.append("")
 theme.append("  /* font weights */")
 for k in ("normal", "semibold", "bold"):
