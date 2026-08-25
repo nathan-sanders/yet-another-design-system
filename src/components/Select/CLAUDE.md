@@ -55,7 +55,7 @@ so a real `<label for>` would open the popup on click and light the trigger on h
 the switch and names `<Select.Trigger>` in its warning. Verified: the label focuses the trigger and
 leaves it closed, and the name still resolves through `aria-labelledby`. Combobox and Autocomplete
 will want the same.
-**No new tokens and no `generate.py` run** — `input-*`, `surface-card-*` and
+**No new tokens and no `generate.py` run** — `input-*`, `surface-*` and
 `feedback-danger-highlight` already existed. No third untokenised value.
 Left out: `Backdrop` and `Arrow` (Figma draws neither), `Select.Label` (Field owns the label),
 filtering (Base UI is explicit that Combobox is the answer), and Astryx's `hasClear`, `isLoading`,

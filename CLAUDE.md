@@ -59,7 +59,7 @@ red — and it is the reason the check exists.
 ### The golden rule for components
 
 **Style components with semantic-token utilities, never raw primitives or hex.** Use classes like
-`bg-surface-card-primary`, `text-content-primary`, `border-surface-border`,
+`bg-surface-primary`, `text-content-primary`, `border-surface-border`,
 `bg-action-primary-background`, `text-action-primary-foreground`, `hover:bg-action-primary-background-hover`,
 `shadow-low`, `rounded-md`. Primitive utilities (`bg-blue-500`) exist but are for defining semantics,
 not for use inside components.
@@ -76,7 +76,7 @@ Neutral. Choosing one is `<html data-neutral="taupe">`, and it moves every surfa
 colour, action, input, focus ring, shadow and neutral badge in both themes at once.
 
 The seam is an eleven-step alias tier between primitives and semantics. **No semantic token names a
-ramp** — `--surface-card-emphasized: var(--neutral-800)`, never `var(--color-stone-800)`. Because no
+ramp** — `--surface-emphasized: var(--neutral-800)`, never `var(--color-stone-800)`. Because no
 component reads a primitive either, the semantic layer is a complete choke point and the swap is
 total with zero per-component work. That property is worth protecting: a component that reaches for
 `bg-stone-200` would be the one thing on the page that does not follow.
@@ -425,7 +425,7 @@ component usually has fewer decisions in it than it looks.
   exception to the derive-don't-declare rule above, and the boundary is worth stating: derive what
   the *element itself* already knows (its children, its `href`, whether it is inside a group);
   declare what only its **ancestors** know. `surface` names the token, so `card-primary` binds what
-  `Surface/Card Primary` binds — Card's `padding={3}` rule again. Anything else that draws a
+  `Surface/Primary` binds — Card's `padding={3}` rule again. Anything else that draws a
   knockout, a notch or a seam will hit this, and should copy the prop rather than invent a second
   spelling.
 
@@ -453,8 +453,8 @@ variant added ahead of the file, but a whole component. It owes the file a drawi
 
 **Content Block's debts are both closed, and the pair is the clearest illustration of the two
 routes.** `Emphasis` went code → file: `subtle` and `accent` shipped ahead of any drawing, and the
-file later added all three variants at exactly the token pairs the code already had — Surface/Card
-Primary, Subtle and Emphasized, the last on Surface/Border Emphasized — so nothing changed in code
+file later added all three variants at exactly the token pairs the code already had — Surface/Primary,
+Subtle and Emphasized, the last on Surface/Border Emphasized — so nothing changed in code
 when it landed. That is the Accordion route again, after `Clickable Card`'s `State=Selected` below,
 and the first time it has carried a whole variant axis rather than one state. The header's right
 padding went the other way, file → code correcting file: `_Content Block Header` drew `pl-4 pr-2`,
@@ -469,7 +469,7 @@ number *and* the bound variable name: all twelve came back 16 bound to `spacing/
 Same instinct as diffing a token export rather than trusting one node.
 
 **Card's two debts are both settled, and only one of them by drawing.** `Clickable Card` gained a
-`State=Selected` for both emphases the day after it shipped — Surface/Card Subtle on Surface/Border
+`State=Selected` for both emphases the day after it shipped — Surface/Subtle on Surface/Border
 Emphasized, exactly what the code had, so nothing changed here. That is the Accordion route working.
 
 The `Padding` one closed the other way, and it is the more useful precedent: **not every code axis

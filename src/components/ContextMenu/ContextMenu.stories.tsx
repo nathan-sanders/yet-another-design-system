@@ -38,7 +38,7 @@ function Surface({
     <div
       {...props}
       className={cn(
-        'flex h-48 w-96 items-center justify-center rounded-lg border border-dashed border-surface-border bg-surface-card-subtle text-base text-content-subtle select-none',
+        'flex h-48 w-96 items-center justify-center rounded-lg border border-dashed border-surface-border bg-surface-subtle text-base text-content-subtle select-none',
         className,
       )}
     >
@@ -309,7 +309,7 @@ export const InContext: Story = {
       <ContextMenu>
         <ContextMenu.Trigger
           render={
-            <div className="flex w-96 items-center justify-between rounded-lg border border-surface-border bg-surface-card-primary p-4">
+            <div className="flex w-96 items-center justify-between rounded-lg border border-surface-border bg-surface-primary p-4">
               <div className="flex flex-col">
                 <span className="text-base font-semibold text-content-emphasized">Q3 roadmap</span>
                 <span className="text-sm text-content-subtle">Edited 2 days ago</span>

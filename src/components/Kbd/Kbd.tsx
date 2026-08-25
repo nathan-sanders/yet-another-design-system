@@ -9,7 +9,7 @@ import { parseKeys } from './keys'
  * Kbd — a keyboard shortcut, drawn as one small key per keystroke.
  *
  * The look comes from the Figma component "Kbd" (Yet Another Design System,
- * node 40004073:20923): a 20px key on `Surface/Card Subtle`, `Content/Primary`
+ * node 40004073:20923): a 20px key on `Surface/Subtle`, `Content/Primary`
  * text at `text-sm/normal`, `rounded-xs`, 4px of horizontal padding and the
  * `Extra Low` drop shadow. **The API comes from Meta's Astryx `Kbd`**, which
  * takes a single `keys` string and splits it on `+`.
@@ -22,7 +22,7 @@ import { parseKeys } from './keys'
  * face, and a mono ⌘ is a worse ⌘.
  *
  * **The fill is translucent, on its own token.** The key was first drawn on
- * `Surface/Card Subtle`, which is byte-identical to `Surface/Canvas` *and* to
+ * `Surface/Subtle`, which is byte-identical to `Surface/Canvas` *and* to
  * the menu row's `data-highlighted` background — both measured. So an opaque key
  * vanished on the page canvas, and vanished again the moment you hovered the
  * menu row it was sitting in, surviving only on its drop shadow.

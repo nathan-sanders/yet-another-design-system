@@ -131,8 +131,8 @@ const field = tv({
       false: 'inline-flex items-center gap-3',
       true: [
         'flex w-full flex-col justify-center gap-2 px-3 py-2',
-        'rounded-md bg-surface-card-primary inset-ring inset-ring-surface-border',
-        'hover:bg-surface-card-subtle',
+        'rounded-md bg-surface-primary inset-ring inset-ring-surface-border',
+        'hover:bg-surface-subtle',
         ...focusRingWithin,
         // The card is a plain <label>, not a Base UI part, so it reads validity
         // off the control inside it — the same `has-` idiom as focusRingWithin

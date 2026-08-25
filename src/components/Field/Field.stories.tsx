@@ -198,7 +198,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <form
-      className="flex w-96 flex-col gap-5 rounded-lg bg-surface-card-primary p-6 inset-ring inset-ring-surface-border"
+      className="flex w-96 flex-col gap-5 rounded-lg bg-surface-primary p-6 inset-ring inset-ring-surface-border"
       onSubmit={(event) => event.preventDefault()}
     >
       <div className="flex flex-col gap-1">

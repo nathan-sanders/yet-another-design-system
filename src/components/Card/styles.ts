@@ -84,7 +84,7 @@ export const card = tv({
      *
      * **The border tracks the fill unless the file says otherwise**, which is
      * the pattern to notice: read back from the variants, `subtle`'s stroke is
-     * bound to `Surface/Card Subtle` — its own fill — and only `default` and
+     * bound to `Surface/Subtle` — its own fill — and only `default` and
      * `accent` bind a real border token. So a subtle card is a *fill*, not an
      * outline.
      *
@@ -93,18 +93,18 @@ export const card = tv({
      * word, two components, and the file draws them differently on purpose: a
      * block is a region of a page and wants an edge, a card is an object in a
      * list and wants a face. The consequence is worth knowing —
-     * `--surface-card-subtle` and `--surface-canvas` are the same stone in both
+     * `--surface-subtle` and `--surface-canvas` are the same stone in both
      * themes, so a subtle card on the canvas is *invisible*, where a subtle
      * block is an outline. It is for use inside another surface: a recessed well
      * in a white card, which is where the compositions put it.
      */
     emphasis: {
-      /** Figma's Default: Surface/Card Primary on Surface/Border. */
-      default: 'bg-surface-card-primary border-surface-border text-content-primary',
-      /** Surface/Card Subtle, edge and face both. A well, not an outline. */
-      subtle: 'bg-surface-card-subtle border-surface-card-subtle text-content-primary',
+      /** Figma's Default: Surface/Primary on Surface/Border. */
+      default: 'bg-surface-primary border-surface-border text-content-primary',
+      /** Surface/Subtle, edge and face both. A well, not an outline. */
+      subtle: 'bg-surface-subtle border-surface-subtle text-content-primary',
       /**
-       * The loud one. Surface/Card Emphasized on Surface/Border Emphasized with
+       * The loud one. Surface/Emphasized on Surface/Border Emphasized with
        * Content/Inverse over it — each tier's own inverted value, already tuned
        * for contrast on that background in both themes, so there is no `dark:`
        * class here. ContentBlock's accent, unchanged, and Banner's finding
@@ -114,7 +114,7 @@ export const card = tv({
        * same stone). Use `appearance="overlay"`.
        */
       accent: [
-        'bg-surface-card-emphasized border-surface-border-emphasized',
+        'bg-surface-emphasized border-surface-border-emphasized',
         'text-content-inverse',
       ],
     },
@@ -161,30 +161,30 @@ export const clickableCard = tv({
      * nor `floating` appears here, which is why this is a second component
      * rather than a flag on the first.
      *
-     * Both hover to Surface/Card Subtle, **fill and border together** — read
+     * Both hover to Surface/Subtle, **fill and border together** — read
      * back from the hover variants, where the stroke is bound to the same
-     * `Surface/Card Subtle` as the fill.
+     * `Surface/Subtle` as the fill.
      */
     emphasis: {
-      /** A card that happens to be clickable. Surface/Card Primary on Surface/Border. */
+      /** A card that happens to be clickable. Surface/Primary on Surface/Border. */
       default: [
-        'bg-surface-card-primary border-surface-border',
-        'hover:bg-surface-card-subtle hover:border-surface-card-subtle',
+        'bg-surface-primary border-surface-border',
+        'hover:bg-surface-subtle hover:border-surface-subtle',
       ],
       /**
-       * The list row. Figma binds the stroke to `Surface/Card Primary` — the
+       * The list row. Figma binds the stroke to `Surface/Primary` — the
        * same token as the fill — so the border is present but invisible, and a
        * ghost row is exactly the size of a bordered card beside it. Written as
        * the token rather than as `border-transparent` for that reason, and
        * because it is what makes the hover a single colour transition.
        *
-       * On a `surface-card-primary` parent it disappears at rest and greys under
+       * On a `surface-primary` parent it disappears at rest and greys under
        * the pointer, which is what a mail list wants. On the canvas it is a white
        * block — check which surface it is sitting on before reaching for it.
        */
       ghost: [
-        'bg-surface-card-primary border-surface-card-primary',
-        'hover:bg-surface-card-subtle hover:border-surface-card-subtle',
+        'bg-surface-primary border-surface-primary',
+        'hover:bg-surface-subtle hover:border-surface-subtle',
       ],
     },
 
@@ -204,7 +204,7 @@ export const clickableCard = tv({
      */
     selected: {
       true: [
-        'bg-surface-card-subtle border-surface-border-emphasized',
+        'bg-surface-subtle border-surface-border-emphasized',
         'hover:border-surface-border-emphasized',
       ],
       false: '',

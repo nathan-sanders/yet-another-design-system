@@ -11,9 +11,9 @@ const surfaces = ['canvas', 'card-primary', 'card-subtle', 'card-emphasized'] as
 /** The fill each `surface` value names, so a story can sit a group on its own surface. */
 const SURFACE_CLASS: Record<(typeof surfaces)[number], string> = {
   canvas: 'bg-surface-canvas',
-  'card-primary': 'bg-surface-card-primary',
-  'card-subtle': 'bg-surface-card-subtle',
-  'card-emphasized': 'bg-surface-card-emphasized',
+  'card-primary': 'bg-surface-primary',
+  'card-subtle': 'bg-surface-subtle',
+  'card-emphasized': 'bg-surface-emphasized',
 }
 
 /** `card-emphasized` is the dark one, so its label has to flip. */
@@ -186,7 +186,7 @@ export const Overflow: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex max-w-md flex-col gap-4 rounded-lg border border-surface-border bg-surface-card-primary p-4 shadow-low">
+    <div className="flex max-w-md flex-col gap-4 rounded-lg border border-surface-border bg-surface-primary p-4 shadow-low">
       <div className="flex items-baseline justify-between">
         <span className="text-base font-semibold text-content-primary">Design systems</span>
         <span className="text-sm text-content-subtle">{team.length} people</span>
@@ -214,7 +214,7 @@ export const InContext: Story = {
  * card. That is what the mismatch looks like: a grey outline drawn around each
  * circle instead of a gap between them. Worth seeing once, because it is subtle
  * enough in light mode to survive review — flip the toolbar to dark, where
- * `surface-canvas` and `surface-card-primary` are two different near-blacks,
+ * `surface-canvas` and `surface-primary` are two different near-blacks,
  * and it is unmistakable.
  */
 export const Surfaces: Story = {
@@ -241,7 +241,7 @@ export const Surfaces: Story = {
         </div>
       ))}
 
-      <div className="flex items-center justify-between gap-4 rounded-lg border border-feedback-danger-highlight bg-surface-card-primary p-4">
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-feedback-danger-highlight bg-surface-primary p-4">
         <span className="font-mono text-sm text-content-subtle">
           the default, on a card — wrong
         </span>

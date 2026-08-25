@@ -182,7 +182,7 @@ const value = tv({
 const popup = tv({
   base: [
     'flex flex-col',
-    'rounded-lg border border-surface-border bg-surface-card-primary shadow-medium',
+    'rounded-lg border border-surface-border bg-surface-primary shadow-medium',
     'font-sans',
     'outline-none',
     'min-w-(--anchor-width) max-h-(--available-height)',
@@ -214,7 +214,7 @@ const item = tv({
     'rounded-md px-3 py-1',
     'cursor-pointer text-base select-none',
     'text-content-primary',
-    'data-highlighted:bg-surface-card-subtle',
+    'data-highlighted:bg-surface-subtle',
     ...focusRing,
     'data-disabled:pointer-events-none data-disabled:opacity-40',
     'transition-colors duration-fast-min ease-standard',
@@ -256,7 +256,7 @@ const indicatorBox = tv({
 const scrollArrow = tv({
   base: [
     'z-1 flex h-6 w-full shrink-0 items-center justify-center',
-    'bg-surface-card-primary text-content-subtle',
+    'bg-surface-primary text-content-subtle',
     'data-[direction=up]:rounded-t-lg data-[direction=down]:rounded-b-lg',
   ],
 })

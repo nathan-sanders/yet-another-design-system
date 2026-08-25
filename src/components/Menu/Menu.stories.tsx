@@ -326,7 +326,7 @@ export const Sides: Story = {
  */
 export const InContext: Story = {
   render: () => (
-    <div className="flex w-96 items-center justify-between rounded-lg border border-surface-border bg-surface-card-primary p-4">
+    <div className="flex w-96 items-center justify-between rounded-lg border border-surface-border bg-surface-primary p-4">
       <div className="flex flex-col">
         <span className="text-base font-semibold text-content-emphasized">Q3 roadmap</span>
         <span className="text-sm text-content-subtle">Edited 2 days ago</span>

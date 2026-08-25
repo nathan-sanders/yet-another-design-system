@@ -117,7 +117,7 @@ export const InContext: Story = {
         A badge sits inline with body copy <Badge color="green">Live</Badge> without disturbing the
         line height, because its height is exactly the small line-height.
       </p>
-      <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-card-primary p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-primary p-4">
         <div className="flex items-center gap-2">
           <span className="text-base text-content-primary">Deploy pipeline</span>
           <Badge color="green" startIcon={Check}>

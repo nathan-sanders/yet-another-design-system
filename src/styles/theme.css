@@ -544,10 +544,10 @@
 :root {
   --surface-canvas: var(--neutral-100);
   --surface-canvas-transparent: color-mix(in oklab, var(--neutral-100) 0%, transparent);
-  --surface-card-primary: var(--color-white);
-  --surface-card-subtle: var(--neutral-100);
-  --surface-card-emphasized: var(--neutral-800);
   --surface-canvas-overlay: color-mix(in oklab, var(--neutral-800) 10%, transparent);
+  --surface-primary: var(--color-white);
+  --surface-subtle: var(--neutral-100);
+  --surface-emphasized: var(--neutral-800);
   --surface-overlay-subtle: color-mix(in oklab, var(--neutral-800) 10%, transparent);
   --surface-border: var(--neutral-200);
   --surface-border-emphasized: var(--neutral-800);
@@ -729,10 +729,10 @@
 .dark {
   --surface-canvas: var(--neutral-950);
   --surface-canvas-transparent: color-mix(in oklab, var(--neutral-950) 0%, transparent);
-  --surface-card-primary: var(--neutral-900);
-  --surface-card-subtle: var(--neutral-950);
-  --surface-card-emphasized: var(--neutral-100);
   --surface-canvas-overlay: color-mix(in oklab, var(--neutral-100) 10%, transparent);
+  --surface-primary: var(--neutral-900);
+  --surface-subtle: var(--neutral-950);
+  --surface-emphasized: var(--neutral-100);
   --surface-overlay-subtle: color-mix(in oklab, var(--neutral-100) 10%, transparent);
   --surface-border: var(--neutral-700);
   --surface-border-emphasized: var(--neutral-100);
@@ -916,10 +916,10 @@
 @theme inline {
   --color-surface-canvas: var(--surface-canvas);
   --color-surface-canvas-transparent: var(--surface-canvas-transparent);
-  --color-surface-card-primary: var(--surface-card-primary);
-  --color-surface-card-subtle: var(--surface-card-subtle);
-  --color-surface-card-emphasized: var(--surface-card-emphasized);
   --color-surface-canvas-overlay: var(--surface-canvas-overlay);
+  --color-surface-primary: var(--surface-primary);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-emphasized: var(--surface-emphasized);
   --color-surface-overlay-subtle: var(--surface-overlay-subtle);
   --color-surface-border: var(--surface-border);
   --color-surface-border-emphasized: var(--surface-border-emphasized);

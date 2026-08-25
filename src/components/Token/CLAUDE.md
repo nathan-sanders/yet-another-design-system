@@ -87,7 +87,7 @@ borders. Measured: icon still 12×12, still 8px from the label and 9px from the 
 — they are resized instances on the canvas. `Token.Avatar` reads the token's size from context
 and applies 16 or 12, so a call site never writes the number. See Avatar's own `CLAUDE.md` for
 why the derived scales snap to the nearest named step.
-**No new tokens and no `generate.py` run** — `surface-card-primary`, `surface-border`,
+**No new tokens and no `generate.py` run** — `surface-primary`, `surface-border`,
 `content-primary`, `shadow-low` and the motion pair already existed. Every Figma value maps.
 Left out: Astryx's `color` (Badge's job), `isLabelHidden` (Astryx argues against it in the same
 breath), and `description` / `aria-description` (no Figma counterpart, thin support).
