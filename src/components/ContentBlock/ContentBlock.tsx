@@ -11,9 +11,12 @@ import { Icon } from '../Icon'
  *
  * Mirrors the Figma component set "Content Block" (Yet Another Design System,
  * node 40004181:4493) and its private header, `_Content Block Header`
- * (40004181:4365). Figma draws one axis, `Floating` false | true; the header's
- * Icon / Header Slot / Actions booleans are slots here, the way Banner's
- * Title / Description / Action booleans are.
+ * (40004181:4365). Figma draws three axes — `Emphasis` Default | Subtle |
+ * Accent, `Floating` false | true, and `Header` true | false — plus a `Content`
+ * slot property. `Emphasis` and `Floating` are props here; `Header` is
+ * composition instead, since a block with no header simply has no
+ * `ContentBlock.Header` child. The header's own Icon / Header Slot / Actions
+ * booleans are slots, the way Banner's Title / Description / Action are.
  *
  * **This is the part a bento layout is made of.** A bento view is a mosaic of
  * compartments, each holding one idea; `BentoGrid` arranges them, and this is
@@ -73,8 +76,10 @@ const contentBlock = tv({
      * Which surface the block sits on — bento's visual hierarchy, expressed as
      * a token pair rather than as size.
      *
-     * Figma draws only `default`. The other two are code-first (the Accordion
-     * route) and belong in the file next.
+     * All three are in Figma now. `subtle` and `accent` were code-first — the
+     * Accordion route — and the file drew them afterwards at exactly the token
+     * pairs already here, so nothing needed changing on this side. That is the
+     * route working, and the second time it has.
      */
     emphasis: {
       /** Figma's Content Block: Surface/Card Primary on Surface/Border. */
@@ -177,13 +182,13 @@ const header = tv({
   base: [
     'flex items-center gap-2',
     // min-h-12 = height/h-12 (48px), px-4 = spacing/4, py-2 = spacing/2.
-    // Symmetric left and right, so the title and the right edge sit the same
-    // 16 off the block's border whether or not there are actions. Figma draws 8
-    // on the right instead, betting there is always a button there: a 32px
-    // ghost Button carries its own 12px, which lands the glyph at 16 and the
-    // box at 8. That bet costs a header with no actions 8px of its right
-    // margin, and this library would rather the empty case be right — an
-    // icon-only action now sits optically inset, at 16 + the Button's 12.
+    // Symmetric left and right, so the title and the right edge sit the same 16
+    // off the block's border whether or not there are actions. Figma drew 8 on
+    // the right until this landed, betting there is always a button in the
+    // actions slot: a 32px ghost Button carries its own 12px, which lands the
+    // glyph at 16 and the box at 8. The bet fails on a header with no actions,
+    // which is why both sides are 16 now. The cost is an icon-only action
+    // reading optically inset, at 16 + the Button's 12.
     'min-h-12 px-4 py-2',
     // A min-height rather than a height: a title that wraps grows the row
     // instead of spilling out of it. Accordion's trigger makes the same call.

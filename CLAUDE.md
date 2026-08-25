@@ -425,12 +425,21 @@ something has already been reinvented in its absence.
 for. **BentoGrid is the first component in the library with no Figma node behind it at all** — not a
 variant added ahead of the file, but a whole component. It owes the file a drawing.
 
-**The Content Block header's right padding is a third debt, and it is code correcting the file.**
-`_Content Block Header` draws `pl-4 pr-2`, which only reads as 16 both sides when the actions slot
-is filled — a 32px ghost Button's own 12px covers the missing 8. Empty, the header sits 8px short on
-the right. Code is now `px-4`, symmetric always, at the cost of an icon-only action reading
-optically inset (16 + the Button's 12). Figma should follow: set the header's right padding to
-`spacing/4` and let the Button's padding fall where it does.
+**Content Block's debts are both closed, and the pair is the clearest illustration of the two
+routes.** `Emphasis` went code → file: `subtle` and `accent` shipped ahead of any drawing, and the
+file later added all three variants at exactly the token pairs the code already had — Surface/Card
+Primary, Subtle and Emphasized, the last on Surface/Border Emphasized — so nothing changed in code
+when it landed. That is the Accordion route, second time. The header's right padding went the other
+way, file → code correcting file: `_Content Block Header` drew `pl-4 pr-2`, which only reads as 16
+both sides when the actions slot is filled, because a 32px ghost Button's own 12px covers the
+missing 8. Empty, the header sat 8px short. Code went to `px-4` and Figma rebound the right padding
+to `spacing/4` to match.
+
+**The check that made the second one trustworthy is worth repeating.** Reading the component alone
+would not have settled it — a variant instance can pin an old padding as a local override and look
+correct in the component while every real use is stale. Walk the set's instances and assert both the
+number *and* the bound variable name: all twelve came back 16 bound to `spacing/4` with no override.
+Same instinct as diffing a token export rather than trusting one node.
 
 **Card's two debts are both settled, and only one of them by drawing.** `Clickable Card` gained a
 `State=Selected` for both emphases the day after it shipped — Surface/Card Subtle on Surface/Border
