@@ -429,11 +429,12 @@ variant added ahead of the file, but a whole component. It owes the file a drawi
 routes.** `Emphasis` went code → file: `subtle` and `accent` shipped ahead of any drawing, and the
 file later added all three variants at exactly the token pairs the code already had — Surface/Card
 Primary, Subtle and Emphasized, the last on Surface/Border Emphasized — so nothing changed in code
-when it landed. That is the Accordion route, second time. The header's right padding went the other
-way, file → code correcting file: `_Content Block Header` drew `pl-4 pr-2`, which only reads as 16
-both sides when the actions slot is filled, because a 32px ghost Button's own 12px covers the
-missing 8. Empty, the header sat 8px short. Code went to `px-4` and Figma rebound the right padding
-to `spacing/4` to match.
+when it landed. That is the Accordion route again, after `Clickable Card`'s `State=Selected` below,
+and the first time it has carried a whole variant axis rather than one state. The header's right
+padding went the other way, file → code correcting file: `_Content Block Header` drew `pl-4 pr-2`,
+which only reads as 16 both sides when the actions slot is filled, because a 32px ghost Button's own
+12px covers the missing 8. Empty, the header sat 8px short. Code went to `px-4`, and Figma rebound
+the right padding to `spacing/4` to match.
 
 **The check that made the second one trustworthy is worth repeating.** Reading the component alone
 would not have settled it — a variant instance can pin an old padding as a local override and look

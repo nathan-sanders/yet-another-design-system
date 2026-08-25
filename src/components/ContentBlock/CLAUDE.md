@@ -30,8 +30,9 @@ from below which surface the root chose.
 
 ## The emphasis axis
 
-Figma draws `default` only. `subtle` and `accent` are code-first — the Accordion route, which this
-library allows so long as the file catches up.
+All three are in the file now. `subtle` and `accent` were code-first — the Accordion route, which
+this library allows so long as the file catches up — and it caught up, drawing all three at exactly
+the token pairs already in code, so nothing moved on this side when it landed.
 
 - **`accent` is the anchor cell.** Surface/Card Emphasized on Surface/Border Emphasized, with
   Content/Inverse on top — each tier's own inverted value, and a foreground already tuned for
