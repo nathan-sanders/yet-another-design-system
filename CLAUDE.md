@@ -274,8 +274,9 @@ The deciding question is **whether the value has to come from a known set**, not
   - too many to scroll: **Combobox** — typing filters, but the value must come from the list.
 
 **Autocomplete and Combobox look identical and differ on exactly one thing:** whether off-list input
-is allowed. That is the distinction to keep hold of. Base UI ships both; Combobox is built,
-Autocomplete is not.
+is allowed. That is the distinction to keep hold of, and Base UI puts it in the API rather than in a
+prop — Autocomplete's `value` is the input *string*, and a row has no `selected` state at all. Both
+are built.
 
 Orthogonal to all of it: **Checkbox** for an intention a Save button later commits, **Switch** for a
 setting that takes effect the moment you let go, **Slider** for an approximate number.
@@ -318,6 +319,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Kbd](src/components/Kbd/CLAUDE.md) | a keyboard shortcut | Figma draws the key and the group, Astryx's `keys` string API; `mod` resolves per platform |
 | [Card](src/components/Card/CLAUDE.md) | the plain container | `rounded-md` inside ContentBlock's `rounded-lg`; the border tracks the fill unless the file says otherwise |
 | [ClickableCard](src/components/Card/CLAUDE.md) | the same card as a hit target | `href` picks the element; `ghost` is the list row, `selected` is `aria-current` |
+| [Autocomplete](src/components/Autocomplete/CLAUDE.md) | free text that suggests without constraining | Combobox with one rule removed; `Input`'s box, Combobox's popup, shared not copied |
 
 ### Patterns that recur across components
 
@@ -350,6 +352,13 @@ component usually has fewer decisions in it than it looks.
   under its own namespace; the recipe they share sits in `Menu/styles.ts`. The test for this is
   not "do they look alike" but "is it the same primitive underneath" — Combobox looks like Select
   and is a different component, so it duplicates, correctly.
+  **Autocomplete is the first case where the answer is neither, and the line runs through one
+  component.** Base UI's `autocomplete` subpath re-exports Combobox's `Popup`, `Positioner`, `List`,
+  `Group`, `GroupLabel`, `Collection`, `Empty` and `Input` as the same objects, while `Root`, `Item`,
+  `Trigger`, `Value` and `Separator` are genuinely its own. So the popup recipes moved to
+  `Combobox/styles.ts` and the field recipes stayed put — and the field itself is `Input`'s `box`
+  imported outright, which is the same rule pointing at a third component. **Ask the question per
+  part, not per component.**
 - **A portalled popup needs a `z-index`, and gets it from `src/lib/layers.ts`.** Being appended to
   `<body>` last does not settle painting order: every positioned element with a positive `z-index`
   paints above every one left on `auto`, whatever the document order. So a popup on `auto` is
@@ -357,18 +366,21 @@ component usually has fewer decisions in it than it looks.
   `relative z-10` and its crosses floated over an open Combobox menu. `overlayLayer` goes on the
   **Positioner**, which is the element Base UI positions, and sits at 40 so `Toast`'s `z-50` stays
   the top of the library.
-- **Figma's `overflow-clip` is not ported** — ten times now, across SegmentedControl, Banner, Toast,
-  Menu, Switch, Slider, Select, Combobox and ContentBlock. A canvas has no other way to bound a frame; here the focus ring paints
-  outside the component on purpose, and clipping would slice it off.
+- **Figma's `overflow-clip` is not ported** — eleven times now, across SegmentedControl, Banner,
+  Toast, Menu, Switch, Slider, Select, Combobox, ContentBlock and Autocomplete. A canvas has no other
+  way to bound a frame; here the focus ring paints outside the component on purpose, and clipping
+  would slice it off.
 - **Controls grow as you touch them.** Switch's knob 14 → 16 as it slides, Slider's handle 16 → 20 on
   hover, focus and drag.
 - **Field owns the label — unless the label is a hit target.** A control with nothing to name itself
-  gets its label from Field (Input, InputGroup, Select, Combobox, and Autocomplete when it lands).
+  gets its label from Field (Input, InputGroup, Select, Combobox and Autocomplete).
   Checkbox, Radio and Switch keep their own, because their `<label>` wraps the control and that is
   what makes the text clickable. **Whether the label is a real `<label>` is a third question**, and
   Field's `nativeLabel` is where it is answered: a `<button>` control wants it off, an `<input>` on.
   Combobox is the case that shows the two are independent — the same component, `false` in its
-  single-select shape and `true` as a tokenizer.
+  single-select shape and `true` as a tokenizer. Autocomplete keeps the default `true` for the same
+  reason the tokenizer does: its control is a real `<input>`, so clicking the label should land the
+  caret.
 - **Code sometimes goes first and Figma catches up.** Badge's four extra hues, Divider's `emphasis`,
   SegmentedControl's `large`, three of Slider's four decisions and Accordion's `container` were built
   here against a file that did not have them, then drawn into the file afterwards. The direction is
@@ -390,7 +402,7 @@ component usually has fewer decisions in it than it looks.
   `titleSlot` before it could collide with `slot`. The rule that decides it is whether the prop name
   is the one a caller would reach for first. `slot`, `title`, `style`, `color` and `content` are the
   ones to watch.
-- **Each entry records which Base UI component it was.** Nineteen so far, Divider first. Worth keeping
+- **Each entry records which Base UI component it was.** Twenty so far, Divider first. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **The default size is the first option, everywhere.** Reach for it in application stories — the
   `InContext` family, and anything standing in for a real screen — and in composition generally, so
@@ -466,9 +478,13 @@ built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take the
 Field as well as from their own prop, and Slider is closed as a deliberate non-change (see its
 entry). Combobox landed and took Token with it — `Combobox.Chips` / `Chip` / `ChipRemove` supply
 the behaviour, Token supplies the look, and the 20 / 24 against a field's inner 22 / 30 / 38 held
-when measured. What is in Figma and still unbuilt is **Autocomplete**, which already has a `Type` in
-the Field set. It is Combobox with one rule removed — a value that is not on the list is still
-allowed — and Base UI ships it as a separate component.
+when measured. **Autocomplete has since landed and closed the family** — Combobox with one rule
+removed, and the clearest case yet of the sharing rule doing real work: Base UI's `autocomplete`
+subpath re-exports Combobox's `Popup`, `List`, `Group`, `Collection` and `Empty` as the *same
+component objects*, so those recipes moved to `Combobox/styles.ts` rather than being written twice.
+Its field is `Input`'s box for the same reason from the other direction — the file draws an Input
+Group, and `focusRingWithin` is correct there because `Autocomplete.InputGroup` has exactly one
+focusable descendant. Nothing in the form family is left unbuilt against the file.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's
