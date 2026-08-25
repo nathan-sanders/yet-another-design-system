@@ -114,7 +114,7 @@ reaches Menu's rows. The field half — `trigger`, `value`, `field`, `chips`, `c
 `Separator` really are different components in the two namespaces. Nothing about this component
 changed; the story suite passing unchanged is what says so.
 **`overflow-clip` is not ported** — ninth time.
-**No new tokens and no `generate.py` run** — `input-*`, `surface-card-*`, `surface-border`,
+**No new tokens and no `generate.py` run** — `input-*`, `surface-*`, `surface-border`,
 `feedback-danger-highlight` and `shadow-medium` all existed.
 Left out: `Combobox.Clear`, `Backdrop`, `Arrow` and `Row`; virtualization; `Combobox.Label` (Field
 owns the label); a `Hug` property, which this set does not have though Select's does; and Astryx's

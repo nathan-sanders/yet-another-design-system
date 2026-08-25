@@ -337,7 +337,7 @@ export const Controlled: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
-    <div className="flex flex-col gap-6 rounded-lg border border-surface-border bg-surface-card-primary p-6">
+    <div className="flex flex-col gap-6 rounded-lg border border-surface-border bg-surface-primary p-6">
       <h2 className="text-lg font-semibold text-content-emphasized">Output</h2>
       <Slider
         {...args}

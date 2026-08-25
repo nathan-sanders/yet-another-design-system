@@ -383,7 +383,7 @@ function GuidanceDemo() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
-      <div className="flex flex-col gap-2 rounded-lg border border-surface-border bg-surface-card-primary p-4">
+      <div className="flex flex-col gap-2 rounded-lg border border-surface-border bg-surface-primary p-4">
         <p className="text-base font-semibold text-content-emphasized">Documents</p>
         {items.length === 0 && (
           <p className="text-base text-content-subtle">Everything here has been deleted.</p>

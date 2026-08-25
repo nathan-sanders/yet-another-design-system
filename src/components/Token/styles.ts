@@ -47,7 +47,7 @@ export const token = tv({
     // `max-w-full` so a token can shrink inside a field rather than widening it.
     'relative inline-flex max-w-full shrink-0 items-center',
     'gap-2 px-2',
-    'border border-surface-border bg-surface-card-primary',
+    'border border-surface-border bg-surface-primary',
     'font-sans text-sm font-normal text-content-primary',
     // Focus lands on a control *inside* the token — the remove button, or the
     // overlay that makes the whole pill clickable — and Figma draws the ring

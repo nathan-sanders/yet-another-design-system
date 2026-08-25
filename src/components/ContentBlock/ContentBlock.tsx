@@ -82,18 +82,18 @@ const contentBlock = tv({
      * route working, and the second time it has.
      */
     emphasis: {
-      /** Figma's Content Block: Surface/Card Primary on Surface/Border. */
-      default: 'bg-surface-card-primary border-surface-border text-content-primary',
+      /** Figma's Content Block: Surface/Primary on Surface/Border. */
+      default: 'bg-surface-primary border-surface-border text-content-primary',
       /** A secondary tile that should recede — the canvas colour, still bordered. */
-      subtle: 'bg-surface-card-subtle border-surface-border text-content-primary',
+      subtle: 'bg-surface-subtle border-surface-border text-content-primary',
       /**
-       * The anchor cell: one loud tile carrying the headline number. Surface/Card
-       * Emphasized on Surface/Border Emphasized, with Content/Inverse on top —
+       * The anchor cell: one loud tile carrying the headline number.
+       * Surface/Emphasized on Surface/Border Emphasized, with Content/Inverse on top —
        * each tier's own inverted value, and a foreground already tuned for
        * contrast on that background in both themes, so there is no `dark:` class
        * here (the same finding Banner recorded).
        *
-       * It borrowed the Action/Primary pair until Surface/Card Emphasized landed
+       * It borrowed the Action/Primary pair until Surface/Emphasized landed
        * in Figma. Same stone either way, but a card is not a control: on the
        * action ramp, restyling the primary Button would have dragged the bento
        * anchor along with it.
@@ -103,7 +103,7 @@ const contentBlock = tv({
        * is what Banner does for exactly this reason.
        */
       accent: [
-        'bg-surface-card-emphasized border-surface-border-emphasized',
+        'bg-surface-emphasized border-surface-border-emphasized',
         'text-content-inverse',
       ],
     },

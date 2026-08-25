@@ -6,7 +6,7 @@ import { tv } from 'tailwind-variants'
  * **Shared with `ContextMenu`**, which is why it lives here rather than in
  * `Menu.tsx`. The two components draw the same card — Figma's `Context Menu`
  * (`40004155:13536`) reads back the same `width/w-30`, `border-radius/rounded-lg`,
- * `Surface/Card Primary`, `Surface/Border` and `Elevation/Drop Shadow/Medium` as
+ * `Surface/Primary`, `Surface/Border` and `Elevation/Drop Shadow/Medium` as
  * the Menu frame does — and Base UI's context-menu subpath re-exports Menu's own
  * `Popup` component object, so there is one popup here in every sense. The two
  * wrappers differ only in what they hand the positioner.
@@ -23,7 +23,7 @@ export const popup = tv({
   base: [
     // min-w-30 = 120px, the min-width Figma sets on Menu Group.
     'flex min-w-30 flex-col',
-    'rounded-lg border border-surface-border bg-surface-card-primary shadow-medium',
+    'rounded-lg border border-surface-border bg-surface-primary shadow-medium',
     'font-sans',
     // Base UI parks focus on the popup itself when a menu is opened by click,
     // and the browser draws its own focus ring on it — the system accent colour,

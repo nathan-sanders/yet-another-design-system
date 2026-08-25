@@ -56,7 +56,7 @@ export const Playground: Story = {
  * The three surfaces, on the canvas.
  *
  * **`subtle` is invisible here, and that is the finding rather than a bug.**
- * `--surface-card-subtle` and `--surface-canvas` are the same stone in both
+ * `--surface-subtle` and `--surface-canvas` are the same stone in both
  * themes, and unlike `ContentBlock` the card binds its border to its own fill —
  * so there is no outline left to see it by. It is a well, meant for use inside
  * another surface; `InsideContentBlock` below is where it does its job.
@@ -141,7 +141,7 @@ export const FullBleed: Story = {
   render: () => (
     <div className="max-w-80">
       <Card padding={0}>
-        <div className="bg-surface-card-emphasized text-content-inverse flex h-32 items-center justify-center rounded-t-md">
+        <div className="bg-surface-emphasized text-content-inverse flex h-32 items-center justify-center rounded-t-md">
           Media
         </div>
         <div className="flex flex-col gap-1 p-3">
@@ -218,7 +218,7 @@ export const KpiRow: Story = {
  * ever moves.
  *
  * It also shows what `subtle` is *for*. Against the block's
- * `surface-card-primary` it is a recessed well; on the canvas two stories up it
+ * `surface-primary` it is a recessed well; on the canvas two stories up it
  * was nothing at all.
  */
 export const InsideContentBlock: Story = {

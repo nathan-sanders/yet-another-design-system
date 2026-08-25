@@ -15,7 +15,7 @@ import { Tooltip } from '../Tooltip'
  */
 function Card({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-surface-border bg-surface-card-primary p-4">
+    <div className="rounded-lg border border-surface-border bg-surface-primary p-4">
       {children}
     </div>
   )

@@ -37,7 +37,7 @@ export interface ClickableCardProps
   children: ReactNode
   /**
    * Which surface the card draws. `ghost` has no visible edge — the list row,
-   * for a mail list or a nav. It disappears on a `surface-card-primary` parent
+   * for a mail list or a nav. It disappears on a `surface-primary` parent
    * and is a white block on the canvas, so check what is behind it.
    */
   emphasis?: ClickableCardEmphasis

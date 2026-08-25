@@ -87,7 +87,7 @@ list, `role="option"` on the rows. And the behaviour itself: typed `sourdough st
 the value stood.
 **`overflow-clip` is not ported** — eleventh time. Figma sets it on the menu, the group's items
 wrapper and the row; here it would slice the focus ring.
-**No new tokens and no `generate.py` run** — `input-*`, `surface-card-*`, `surface-border`,
+**No new tokens and no `generate.py` run** — `input-*`, `surface-*`, `surface-border`,
 `content-*`, `feedback-danger-highlight` and `shadow-medium` all existed.
 Left out: `Autocomplete.Trigger` and `Value` (no trigger, and the value is the input's own);
 `Clear`, `Backdrop`, `Arrow`, `Row` and `Status`, none of which Figma draws; `grid`, `inline` and
