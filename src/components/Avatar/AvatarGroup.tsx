@@ -3,7 +3,14 @@ import type { ComponentPropsWithRef, MouseEventHandler, ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 import { AvatarGroupContext, useAvatarGroup } from './context'
-import { avatar, avatarGroup, avatarSurface, type AvatarSize } from './styles'
+import {
+  avatar,
+  avatarGroup,
+  avatarSurface,
+  DEFAULT_AVATAR_SURFACE,
+  type AvatarSize,
+  type AvatarSurface,
+} from './styles'
 
 /**
  * AvatarGroup — overlapping avatars for a set of people.
@@ -29,15 +36,26 @@ import { avatar, avatarGroup, avatarSurface, type AvatarSize } from './styles'
  * **The overlap is the ring width.** Figma's group is five 36px avatars at
  * 164px total — `5 × 36 − 4 × 4` — so each avatar sits 4px into the one before
  * it, which is exactly the width of the ring. The two of them together leave a
- * clean band of canvas between neighbouring circles. The ring is an `outline`
- * rather than a `border` because Figma draws it as an outside stroke: it must
- * not shrink the photo or take up room in the row.
+ * clean band of the background between neighbouring circles. The ring is an
+ * `outline` rather than a `border` because Figma draws it as an outside stroke:
+ * it must not shrink the photo or take up room in the row.
+ *
+ * **Which background is a prop, not a guess.** That band only disappears if it
+ * is painted in the colour behind the group, and CSS has no way to ask what
+ * that is — so `surface` says. It defaults to `canvas`, which is right on the
+ * page and wrong the moment the group moves into a Card or a ContentBlock:
+ * there it wants `surface="card-primary"`, or the rings read as grey halos.
  */
 export interface AvatarGroupProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** `Avatar` elements, optionally ending in one `AvatarGroup.Overflow`. */
   children: ReactNode
   /** Size applied to every avatar in the group. A child's own `size` overrides it. */
   size?: AvatarSize
+  /**
+   * Which surface the group is drawn on, so the ring between overlapping
+   * avatars disappears into it. A child's own `surface` overrides it.
+   */
+  surface?: AvatarSurface
 }
 
 export interface AvatarGroupOverflowProps
@@ -50,6 +68,8 @@ export interface AvatarGroupOverflowProps
   onClick?: MouseEventHandler<HTMLElement>
   /** Overrides the size inherited from the group. */
   size?: AvatarSize
+  /** Overrides the surface inherited from the group. */
+  surface?: AvatarSurface
   /** What the count is called out loud. Defaults to "N more". */
   label?: string
 }
@@ -66,18 +86,23 @@ function AvatarGroupOverflow({
   children,
   onClick,
   size,
+  surface,
   label,
   className,
   ...props
 }: AvatarGroupOverflowProps) {
   const group = useAvatarGroup()
   const resolvedSize = size ?? group?.size ?? 'base'
+  const resolvedSurface = surface ?? group?.surface ?? DEFAULT_AVATAR_SURFACE
   const interactive = Boolean(onClick)
   const accessibleName = label ?? `${count} more`
 
   // Sizing and the group ring come from the same variants the avatars use, so
   // the count can never drift out of step with the circles beside it.
-  const classes = cn(avatar({ size: resolvedSize, interactive, inGroup: true }), className)
+  const classes = cn(
+    avatar({ size: resolvedSize, interactive, inGroup: true, surface: resolvedSurface }),
+    className,
+  )
   const content = <span className={avatarSurface()}>{children ?? `+${count}`}</span>
 
   if (interactive) {
@@ -97,10 +122,16 @@ function AvatarGroupOverflow({
 
 AvatarGroupOverflow.displayName = 'AvatarGroup.Overflow'
 
-export function AvatarGroup({ children, size = 'base', className, ...props }: AvatarGroupProps) {
+export function AvatarGroup({
+  children,
+  size = 'base',
+  surface = DEFAULT_AVATAR_SURFACE,
+  className,
+  ...props
+}: AvatarGroupProps) {
   // A fresh object every render would re-render every avatar in the group for
   // nothing, and a group can be long.
-  const context = useMemo(() => ({ size, inGroup: true }), [size])
+  const context = useMemo(() => ({ size, inGroup: true, surface }), [size, surface])
 
   return (
     <AvatarGroupContext.Provider value={context}>

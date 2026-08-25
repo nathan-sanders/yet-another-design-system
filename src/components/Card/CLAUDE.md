@@ -152,6 +152,24 @@ and a library that makes cards cheap is a library that ends up with borders arou
 Between the two card sets: a board is objects you move, so each wants its own edge (`default`); a
 mail list is one list, so the rows should not (`ghost`).
 
+## The two composition stories
+
+`Kanban` mirrors `40004220:13045` and `EmailList` mirrors `40004297:8827` — the inbox, which is the
+larger of the two and the one that puts nine components in one screen. Both are worth reading before
+changing either card, because they are where the emphases are actually justified rather than
+described.
+
+**Two things the inbox settled that are not about Card at all.** Its avatars needed
+`AvatarGroup`/`Avatar`'s new `surface` prop — the ring between overlapping avatars is a band of the
+*background*, and inside a card the background is the card, not the page. Separately, the kanban
+group is `size="small"` because *its own* composition draws 24px avatars at 64px — a measured
+constraint rather than the preference the library's default-size rule exists to catch. Both are
+written up in `Avatar/CLAUDE.md`.
+
+The inbox's actions bar is a plain `div` at ContentBlock.Header's geometry rather than a
+`ContentBlock.Header`. Same 48px row, same padding — but it is not a heading, and reaching for
+Header to get the spacing would put an empty `<h3>` in the document.
+
 ## Measurements to check if this changes
 
 Radius **8px**, border **1px**, padding **12px** at `padding={3}` (0/8/12/16 across the four steps), **8px**

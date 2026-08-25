@@ -296,7 +296,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size; `neutral` follows the swappable ramp |
 | [Breadcrumbs](src/components/Breadcrumbs/CLAUDE.md) | a trail to the current page | four separators, last child is current automatically |
 | [Divider](src/components/Divider/CLAUDE.md) | a line separating content | orientation × emphasis, optional label |
-| [Avatar](src/components/Avatar/CLAUDE.md) | a person, and a stack of them | photo, initials or `+N`; `AvatarGroup` overlaps |
+| [Avatar](src/components/Avatar/CLAUDE.md) | a person, and a stack of them | photo, initials or `+N`; `AvatarGroup` overlaps, and `surface` says what the ring hides in |
 | [Tooltip](src/components/Tooltip/CLAUDE.md) | a label for what you point at | first component on the motion tokens |
 | [SegmentedControl](src/components/SegmentedControl/CLAUDE.md) | one of a few, all visible | a compact strip sized beside a Button |
 | [Tabs](src/components/Tabs/CLAUDE.md) | switch between panels | sliding indicator, in pure CSS |
@@ -414,6 +414,20 @@ component usually has fewer decisions in it than it looks.
   assumption that a 48px row was tight; it is `min-h-12` with 8px of padding either side, so it has
   exactly the 32px a default Button is, and the constraint was imagined. A tight fit is easy to
   assume and quick to measure.
+  **The rule cuts the other way too, and the kanban board is the case.** Its AvatarGroup was the
+  default `base` against a composition that draws 24px avatars at 64px — so `size="small"` there is
+  a measured constraint, not a preference, and it is the first place in the library where reaching
+  past the default is the *correct* answer. The test is the same either way: go and measure the
+  Figma node. Both failures look identical in review and only one of them is settled by opinion.
+- **A ring that hides in the background has to be told what the background is.** CSS has no
+  "the fill of whatever contains me", so an element that paints a band of its own backdrop —
+  Avatar's group ring, its status dot's ring — cannot derive it and needs a prop. That is the
+  exception to the derive-don't-declare rule above, and the boundary is worth stating: derive what
+  the *element itself* already knows (its children, its `href`, whether it is inside a group);
+  declare what only its **ancestors** know. `surface` names the token, so `card-primary` binds what
+  `Surface/Card Primary` binds — Card's `padding={3}` rule again. Anything else that draws a
+  knockout, a notch or a seam will hit this, and should copy the prop rather than invent a second
+  spelling.
 
 ## Still to build
 

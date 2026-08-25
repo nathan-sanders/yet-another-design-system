@@ -13,8 +13,10 @@ import {
   nearestAvatarSize,
   FALLBACK_GLYPH_SIZE,
   STATUS_LABEL,
+  DEFAULT_AVATAR_SURFACE,
   type AvatarSize,
   type AvatarStatus,
+  type AvatarSurface,
 } from './styles'
 
 interface AvatarBaseProps
@@ -47,6 +49,20 @@ interface AvatarBaseProps
   status?: AvatarStatus
   /** What the dot is called out loud. Defaults to Online / Offline / Unavailable. */
   statusLabel?: string
+  /**
+   * Which surface the avatar is drawn on. An AvatarGroup sets this for its
+   * children.
+   *
+   * Both rings here are a band of the background showing through — the group
+   * ring between overlapping circles, and the status dot's ring against the
+   * photo — and CSS cannot ask what is painted behind an element, so it has to
+   * be told. Leave it alone on the page; set it to `card-primary` inside a Card
+   * or a ContentBlock, which is where an avatar most often ends up.
+   *
+   * Only matters when there is a ring to colour: an avatar with no `status`,
+   * outside a group, draws none.
+   */
+  surface?: AvatarSurface
   /**
    * How long to wait before showing the fallback, in milliseconds. Passed to
    * Base UI. A small delay stops a fast photo from flashing initials first.
@@ -99,13 +115,21 @@ function deriveInitials(name: string): string | undefined {
   return initials.trim() === '' ? undefined : initials
 }
 
-function StatusDot({ status, size }: { status: AvatarStatus; size: AvatarSize }) {
+function StatusDot({
+  status,
+  size,
+  surface,
+}: {
+  status: AvatarStatus
+  size: AvatarSize
+  surface: AvatarSurface
+}) {
   return (
     // The dot is decorative here: its label is folded into the avatar's own
     // accessible name, which is how it reaches a screen reader without the
     // avatar announcing itself twice.
-    <span className={statusDot({ status, size })} aria-hidden="true" data-status={status}>
-      {status === 'unavailable' && <span className={statusBar({ size })} />}
+    <span className={statusDot({ status, size, surface })} aria-hidden="true" data-status={status}>
+      {status === 'unavailable' && <span className={statusBar({ size, surface })} />}
     </span>
   )
 }
@@ -151,6 +175,7 @@ export function Avatar({
   count,
   status,
   statusLabel,
+  surface,
   fallbackDelay,
   href,
   target,
@@ -165,6 +190,7 @@ export function Avatar({
   const group = useAvatarGroup()
   const requestedSize = size ?? group?.size ?? 'base'
   const inGroup = group?.inGroup ?? false
+  const resolvedSurface = surface ?? group?.surface ?? DEFAULT_AVATAR_SURFACE
 
   // A custom size draws its own box and borrows the rest of the scale from the
   // step it sits closest to — see `nearestAvatarSize`. Inline width/height beats
@@ -185,7 +211,10 @@ export function Avatar({
   const spokenStatus = status ? (statusLabel ?? STATUS_LABEL[status]) : undefined
   const accessibleName = [spokenName, spokenStatus].filter(Boolean).join(', ') || undefined
 
-  const classes = cn(avatar({ size: resolvedSize, interactive, inGroup }), className)
+  const classes = cn(
+    avatar({ size: resolvedSize, interactive, inGroup, surface: resolvedSurface }),
+    className,
+  )
 
   // Figma's three Content values, in the order they take precedence.
   const derivedInitials = initials ?? (name ? deriveInitials(name) : undefined)
@@ -234,7 +263,7 @@ export function Avatar({
         {fallbackContent}
       </AvatarPrimitive.Fallback>
 
-      {status && <StatusDot status={status} size={resolvedSize} />}
+      {status && <StatusDot status={status} size={resolvedSize} surface={resolvedSurface} />}
     </AvatarPrimitive.Root>
   )
 }
