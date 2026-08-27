@@ -86,7 +86,7 @@ const accordion = tv({
      * component keeps its content and gives up its frame.
      */
     container: {
-      true: 'rounded-lg border border-surface-border bg-surface-primary',
+      true: 'rounded-lg border border-surface-border bg-surface-background-primary',
       false: '',
     },
   },
@@ -121,7 +121,7 @@ const trigger = tv({
     // trigger's variants are 40 tall and bind height/h-10.
     'min-h-10 rounded-md px-3',
     'cursor-pointer text-left font-sans text-base font-semibold text-content-emphasized select-none',
-    'hover:bg-surface-subtle',
+    'hover:bg-surface-background-subtle',
     'transition-colors duration-fast-min ease-standard',
     // The library's shared ring. It paints outside the trigger, into the 4px of
     // header padding — which is exactly why nothing here clips.

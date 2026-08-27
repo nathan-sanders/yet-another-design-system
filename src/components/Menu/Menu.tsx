@@ -104,7 +104,7 @@ const item = tv({
     'cursor-pointer text-base select-none',
     'text-content-primary',
     // Hover and keyboard highlight are the same attribute — see the header.
-    'data-highlighted:bg-surface-subtle',
+    'data-highlighted:bg-surface-background-subtle',
     ...focusRingUnhovered,
     'data-disabled:pointer-events-none data-disabled:opacity-40',
     'transition-colors duration-fast-min ease-standard',

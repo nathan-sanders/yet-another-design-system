@@ -40,29 +40,29 @@ per variant:
 
 | Variant | fill | stroke |
 |---|---|---|
-| Card default | Surface/Primary | **Surface/Border** |
-| Card subtle | Surface/Subtle | *Surface/Subtle* |
-| Card accent | Surface/Emphasized | **Surface/Border Emphasized** |
-| Clickable default rest | Surface/Primary | **Surface/Border** |
-| Clickable ghost rest | Surface/Primary | *Surface/Primary* |
-| Either, hover | Surface/Subtle | *Surface/Subtle* |
+| Card default | Surface/Background Primary | **Surface/Border** |
+| Card subtle | Surface/Background Subtle | *Surface/Background Subtle* |
+| Card accent | Surface/Background Emphasized | **Surface/Border Emphasized** |
+| Clickable default rest | Surface/Background Primary | **Surface/Border** |
+| Clickable ghost rest | Surface/Background Primary | *Surface/Background Primary* |
+| Either, hover | Surface/Background Subtle | *Surface/Background Subtle* |
 
 So a subtle card is a **fill**, not an outline — where `ContentBlock`'s `subtle` keeps
 `border-surface-border` and *is* an outline. Same word, two components, drawn differently on
 purpose: a block is a region of a page and wants an edge; a card is an object in a list and wants a
 face.
 
-**The consequence matters more than the rule.** `--surface-subtle` and `--surface-canvas` are
+**The consequence matters more than the rule.** `--surface-background-subtle` and `--surface-canvas` are
 the same stone in both themes, so a subtle *card* on the canvas is invisible — where a subtle
 *block* is at least an outline. It is for use inside another surface: a recessed well in a white
 card, which is exactly where the KPI composition puts it. The `Emphasis` story shows it vanishing
 on the canvas and `InsideContentBlock` shows it working, so the failure is on the record rather
 than in a sentence.
 
-**Ghost is the same trick doing a different job.** Its stroke is bound to `Surface/Primary` —
+**Ghost is the same trick doing a different job.** Its stroke is bound to `Surface/Background Primary` —
 its own fill — rather than removed, so a ghost row is exactly the size of a bordered card beside it
 and the hover is one colour move instead of a border appearing from nowhere. Written as the token
-and not as `border-transparent` for both reasons. It disappears on a `surface-primary` parent
+and not as `border-transparent` for both reasons. It disappears on a `surface-background-primary` parent
 and is a white block on the canvas: check what is behind it.
 
 ## Details that were settled once
@@ -101,7 +101,7 @@ and is a white block on the canvas: check what is behind it.
   `SelectableCard`), and nothing in the file or the compositions asks for one. Drawn as the subtle
   fill *plus* the emphasized border, repeated under `hover:` so the pointer cannot wash the outline
   off the selected row — otherwise "selected" and "the pointer is here" are the same pixel.
-  **Drawn in the file now** — `State=Selected` on both emphases, Surface/Subtle on
+  **Drawn in the file now** — `State=Selected` on both emphases, Surface/Background Subtle on
   Surface/Border Emphasized, which is what the code already had. Nothing changed here when it
   landed, which is the test of whether a catch-up was really a catch-up.
 - **Link's motion, not Button's.** `transition-colors duration-fast-min ease-standard`; Button's
@@ -177,12 +177,12 @@ gap between children, 14/24 type, `overflow: visible`. `shadow-low` (0 2px 4px, 
 present only when `floating`. Subtle and accent have border-colour **equal to** their background;
 default and ghost do not. Focused ClickableCard is pixel-identical to unfocused — measured 375×82
 both ways. Disabled is opacity `0.4` with `pointer-events: none`. Hover moves fill **and** border to
-`surface-subtle`.
+`surface-background-subtle`.
 
 Contrast, measured across Stone / Olive / Mauve / Slate in both themes: the lowest pair is
-`content-subtle` on `surface-subtle` at **6.26:1** (Olive light). Every pair clears AA.
+`content-subtle` on `surface-background-subtle` at **6.26:1** (Olive light). Every pair clears AA.
 
 **Storybook trap.** A server left running from an earlier session serves a stale Tailwind scan, so
-classes new to the repo — here `border-surface-primary`,
-`hover:border-surface-subtle` — are simply absent and a correct component measures wrong. A
+classes new to the repo — here `border-surface-background-primary`,
+`hover:border-surface-background-subtle` — are simply absent and a correct component measures wrong. A
 reload does not fix it. Restart before believing any measurement.

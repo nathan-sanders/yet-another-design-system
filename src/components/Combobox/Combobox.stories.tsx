@@ -368,7 +368,7 @@ export const Standalone: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex w-96 flex-col gap-6 rounded-lg border border-surface-border bg-surface-primary p-6">
+    <div className="flex w-96 flex-col gap-6 rounded-lg border border-surface-border bg-surface-background-primary p-6">
       <Field label="Country" description="Where the invoice is sent" nativeLabel={false}>
         <Combobox items={countries} placeholder="Select country" searchPlaceholder="e.g. Japan" />
       </Field>

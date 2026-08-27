@@ -268,7 +268,7 @@ export const FullBleedContent: Story = {
       <ContentBlock>
         <ContentBlock.Header>Posts published</ContentBlock.Header>
         {/* A stand-in for a chart: a strip that runs to both borders. */}
-        <div className="flex h-24 items-end gap-1 bg-surface-subtle px-1 pb-1">
+        <div className="flex h-24 items-end gap-1 bg-surface-background-subtle px-1 pb-1">
           {[40, 65, 30, 80, 55, 95, 70].map((height, index) => (
             <div
               key={index}

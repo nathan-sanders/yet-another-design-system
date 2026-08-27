@@ -62,7 +62,7 @@ const tooltip = tv({
   base: [
     // Surface. shadow-low is Figma's Elevation/Drop Shadow/Low; its colour is a
     // semantic token, so it flips for dark mode on its own.
-    'max-w-96 rounded-md border border-surface-border bg-surface-primary shadow-low',
+    'max-w-96 rounded-md border border-surface-border bg-surface-background-primary shadow-low',
     // Box: px-3 = spacing/3 (12px), py-0.5 = spacing/0-5 (2px).
     'flex items-center justify-center px-3 py-0.5',
     // Type: Figma's text-base/normal, 14px on a 24px line.

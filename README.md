@@ -55,7 +55,7 @@ Style with **semantic** tokens, never primitives or raw colour:
 
 ```tsx
 // yes
-<div className="bg-surface-primary text-content-primary border-surface-border" />
+<div className="bg-surface-background-primary text-content-primary border-surface-border" />
 
 // no — primitives are for defining semantics, not for using in components
 <div className="bg-stone-100 text-stone-800" />
@@ -85,9 +85,9 @@ It works because the semantic layer never names a ramp. It goes through an eleve
       ↓
 --neutral-800       the tier      re-pointed by [data-neutral]
       ↓
---surface-emphasized: var(--neutral-800)
+--surface-background-emphasized: var(--neutral-800)
       ↓
-bg-surface-emphasized
+bg-surface-background-emphasized
 ```
 
 Two things worth knowing:

@@ -9,7 +9,7 @@ is what makes it pair with them. `size`: small | default | large. `layout`: hug 
 **Labels come from the Content ramp, not the Action one:** unselected is `content-primary` and
 selected darkens to `content-emphasized`, so selection is carried by colour as well as by weight
 and the raised card — and in dark mode that reads stone-100 → white, which is what keeps the
-selected segment legible when its card (`surface-primary`, stone-900) is *darker* than the
+selected segment legible when its card (`surface-background-primary`, stone-900) is *darker* than the
 track. Hover changes only the background. Focus darkens the label to `content-emphasized` too;
 that is a no-op on a selected segment and only shows on a group rendered with nothing selected.
 **Fourth Base UI component, first built on `RadioGroup` + `Radio`.** It is an *input*, not

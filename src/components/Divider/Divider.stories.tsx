@@ -126,7 +126,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex max-w-md flex-col gap-8">
-      <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-primary p-4 shadow-low">
+      <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
         <div className="flex items-baseline justify-between">
           <span className="text-base font-semibold text-content-primary">Order summary</span>
           <span className="text-sm text-content-subtle">3 items</span>
@@ -157,7 +157,7 @@ export const InContext: Story = {
         </div>
       </div>
 
-      <div className="flex items-center gap-6 rounded-lg border border-surface-border bg-surface-primary p-4 shadow-low">
+      <div className="flex items-center gap-6 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
         <div className="flex flex-col gap-1">
           <span className="text-sm text-content-subtle">Revenue</span>
           <span className="text-xl font-semibold text-content-primary">$24,500</span>

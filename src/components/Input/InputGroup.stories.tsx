@@ -230,7 +230,7 @@ export const States: Story = {
 export const GhostSearch: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex w-[32rem] flex-col gap-4 rounded-lg bg-surface-primary p-4 inset-ring inset-ring-surface-border">
+    <div className="flex w-[32rem] flex-col gap-4 rounded-lg bg-surface-background-primary p-4 inset-ring inset-ring-surface-border">
       <div className="flex items-center gap-3">
         <InputGroup appearance="ghost" className="flex-1">
           <InputGroup.Addon align="inline-start" icon={Search} />
@@ -255,7 +255,7 @@ export const GhostSearch: Story = {
 export const GhostVsDefault: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="grid w-fit grid-cols-[auto_18rem_18rem] items-center gap-x-6 gap-y-4 rounded-lg bg-surface-primary p-6 inset-ring inset-ring-surface-border">
+    <div className="grid w-fit grid-cols-[auto_18rem_18rem] items-center gap-x-6 gap-y-4 rounded-lg bg-surface-background-primary p-6 inset-ring inset-ring-surface-border">
       <span aria-hidden />
       <span className="text-sm text-content-subtle">Default</span>
       <span className="text-sm text-content-subtle">Ghost</span>
@@ -291,7 +291,7 @@ export const GhostVsDefault: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex w-[28rem] flex-col gap-5 rounded-lg bg-surface-primary p-6 inset-ring inset-ring-surface-border">
+    <div className="flex w-[28rem] flex-col gap-5 rounded-lg bg-surface-background-primary p-6 inset-ring inset-ring-surface-border">
       <h2 className="text-lg font-semibold text-content-emphasized">Share this file</h2>
 
       <Field label="Invite by email" description="They'll get a link straight away">

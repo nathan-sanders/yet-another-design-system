@@ -222,7 +222,7 @@ export const Interactive: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex max-w-md flex-col gap-4 rounded-lg border border-surface-border bg-surface-primary p-4 shadow-low">
+    <div className="flex max-w-md flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
       {[
         { name: 'Nathan Sanders', role: 'Design systems', src: samplePhoto, status: 'online' },
         { name: 'Ada Lovelace', role: 'Engineering', status: 'unavailable' },

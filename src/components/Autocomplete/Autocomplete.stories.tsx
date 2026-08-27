@@ -333,7 +333,7 @@ export const WithIcons: Story = {
 export const Ghost: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="w-80 rounded-lg border border-surface-border bg-surface-primary p-2">
+    <div className="w-80 rounded-lg border border-surface-border bg-surface-background-primary p-2">
       <Autocomplete
         appearance="ghost"
         items={recent}
@@ -388,7 +388,7 @@ export const Standalone: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex w-96 flex-col gap-6 rounded-lg border border-surface-border bg-surface-primary p-6">
+    <div className="flex w-96 flex-col gap-6 rounded-lg border border-surface-border bg-surface-background-primary p-6">
       <Field label="Search" description="We keep your last few searches">
         <Autocomplete items={recent} placeholder="Search anything…" />
       </Field>

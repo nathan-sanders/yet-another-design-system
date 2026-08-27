@@ -73,9 +73,9 @@ function Swatches({ items }: { items: [string, string][] }) {
 
 const surfaces: [string, string][] = [
   ['bg-surface-canvas', 'surface-canvas'],
-  ['bg-surface-primary', 'surface-primary'],
-  ['bg-surface-subtle', 'surface-subtle'],
-  ['bg-surface-emphasized', 'surface-emphasized'],
+  ['bg-surface-background-primary', 'surface-background-primary'],
+  ['bg-surface-background-subtle', 'surface-background-subtle'],
+  ['bg-surface-background-emphasized', 'surface-background-emphasized'],
   ['bg-surface-canvas-overlay', 'surface-canvas-overlay'],
   ['bg-surface-border', 'surface-border'],
   ['bg-surface-border-emphasized', 'surface-border-emphasized'],
@@ -222,7 +222,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-surface-canvas font-sans text-content-primary">
-      <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-surface-border bg-surface-primary px-6 py-4">
+      <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-surface-border bg-surface-background-primary px-6 py-4">
         <div>
           <h1 className="text-xl font-bold text-content-emphasized">Yet Another Design System</h1>
           <p className="text-sm text-content-subtle">Token playground — every swatch is a semantic token</p>
@@ -296,7 +296,7 @@ export default function App() {
         </Section>
 
         <Section title="Type scale" hint="Sizes and line heights come from --text-*.">
-          <div className="flex flex-col gap-2 rounded-lg border border-surface-border bg-surface-primary p-5">
+          <div className="flex flex-col gap-2 rounded-lg border border-surface-border bg-surface-background-primary p-5">
             {typeScale.map(([cls, name]) => (
               <div key={name} className="flex items-baseline gap-4">
                 <span className="w-20 shrink-0 font-mono text-xs text-content-subtle">{name}</span>
@@ -321,7 +321,7 @@ export default function App() {
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {shadows.map(([cls, name]) => (
               <div key={name} className="flex flex-col gap-1.5">
-                <div className={`h-16 rounded-lg bg-surface-primary ${cls}`} />
+                <div className={`h-16 rounded-lg bg-surface-background-primary ${cls}`} />
                 <span className="font-mono text-xs text-content-subtle">{name}</span>
               </div>
             ))}
@@ -329,7 +329,7 @@ export default function App() {
         </Section>
 
         <Section title="Fonts">
-          <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-primary p-5">
+          <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-background-primary p-5">
             <p className="font-sans text-lg text-content-primary">Inter — font-sans — 0123456789</p>
             <p className="font-mono text-lg text-content-primary">Geist Mono — font-mono — 0123456789</p>
           </div>

@@ -199,7 +199,7 @@ export const InContext: Story = {
       >
         All services will be unavailable on Sunday from 2:00–4:00 AM.
       </Banner>
-      <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-primary p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-background-primary p-4">
         <p className="text-base font-semibold text-content-emphasized">Billing</p>
         <Banner type="danger" title="Card declined">
           Update your billing information to continue.

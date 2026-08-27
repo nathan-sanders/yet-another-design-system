@@ -103,7 +103,7 @@ export const Container: Story = {
 
 /**
  * Hover and focus are real browser states, not props — hover a row for the
- * `surface-subtle` fill, and press Tab for the library's shared ring.
+ * `surface-background-subtle` fill, and press Tab for the library's shared ring.
  *
  * A disabled item sits at 40% opacity and cannot be opened, but it is still a
  * tab stop and is still announced, so nobody arrives at a gap in the list with
