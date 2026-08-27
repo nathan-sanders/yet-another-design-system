@@ -129,7 +129,7 @@ const segment = tv({
     // state at all. `data-unchecked` comes from Base UI.
     'data-unchecked:hover:bg-surface-canvas-overlay',
     // Selected: the raised white card. Weight goes 400 -> 600, as in Figma.
-    'data-checked:bg-surface-primary data-checked:border-action-secondary-border',
+    'data-checked:bg-surface-background-primary data-checked:border-action-secondary-border',
     'data-checked:shadow-low data-checked:font-semibold data-checked:text-content-emphasized',
     // Focusing an unselected segment darkens its label to the selected colour.
     // Figma sets this on every Focus variant; it costs nothing on a selected

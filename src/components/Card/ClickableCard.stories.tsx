@@ -88,11 +88,11 @@ export const Playground: Story = {
 }
 
 /**
- * The two emphases, on `surface-primary` — which is the surface `ghost` is
+ * The two emphases, on `surface-background-primary` — which is the surface `ghost` is
  * drawn against.
  *
  * **`ghost` has no visible edge and is exactly the same size as `default`.**
- * Figma binds its border to `Surface/Primary`, the same token as its fill,
+ * Figma binds its border to `Surface/Background Primary`, the same token as its fill,
  * rather than removing the border — so a ghost row and a bordered card line up
  * in a mixed list, and the hover is one colour move rather than a border
  * appearing from nowhere. Hover both to see it.
@@ -100,7 +100,7 @@ export const Playground: Story = {
 export const Emphasis: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="bg-surface-primary border-surface-border flex max-w-100 flex-col gap-2 rounded-lg border p-4">
+    <div className="bg-surface-background-primary border-surface-border flex max-w-100 flex-col gap-2 rounded-lg border p-4">
       {emphases.map((emphasis) => (
         <ClickableCard key={emphasis} emphasis={emphasis}>
           <p className="font-semibold">emphasis="{emphasis}"</p>
@@ -126,7 +126,7 @@ export const Emphasis: Story = {
 export const States: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="bg-surface-primary border-surface-border grid max-w-200 gap-4 rounded-lg border p-4 sm:grid-cols-2">
+    <div className="bg-surface-background-primary border-surface-border grid max-w-200 gap-4 rounded-lg border p-4 sm:grid-cols-2">
       {emphases.map((emphasis) => (
         <div key={emphasis} className="flex flex-col gap-2">
           <p className="text-content-subtle text-sm font-semibold">emphasis="{emphasis}"</p>
@@ -290,7 +290,7 @@ export const Kanban: Story = {
  * the message you are reading.
  *
  * **This is what `ghost` and `selected` are both for.** The rows sit on the
- * list's `surface-primary`, so at rest they have no edge and read as one
+ * list's `surface-background-primary`, so at rest they have no edge and read as one
  * list rather than as a stack of cards; they grey under the pointer, and the one
  * you are reading keeps the emphasized outline whether you are pointing at it or
  * not. `aria-current` is what carries that to a screen reader — it is a

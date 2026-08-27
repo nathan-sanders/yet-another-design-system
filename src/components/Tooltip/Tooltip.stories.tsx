@@ -244,7 +244,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <Tooltip.Provider>
-      <div className="flex w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-primary p-4 shadow-low">
+      <div className="flex w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
         <div className="flex items-center justify-between">
           <span className="text-base font-semibold text-content-primary">Pricing page</span>
           <Tooltip label="Deployed 4 minutes ago">

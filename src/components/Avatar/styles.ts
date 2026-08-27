@@ -40,17 +40,17 @@ export const DEFAULT_AVATAR_SURFACE: AvatarSurface = 'canvas'
 /** The group ring, painted as an `outline` so it costs no layout. */
 const avatarSurfaceRing = {
   canvas: 'outline-surface-canvas',
-  'card-primary': 'outline-surface-primary',
-  'card-subtle': 'outline-surface-subtle',
-  'card-emphasized': 'outline-surface-emphasized',
+  'card-primary': 'outline-surface-background-primary',
+  'card-subtle': 'outline-surface-background-subtle',
+  'card-emphasized': 'outline-surface-background-emphasized',
 } as const satisfies Record<AvatarSurface, string>
 
 /** The status dot's ring, painted as a `ring` for the same reason. */
 const statusSurfaceRing = {
   canvas: 'ring-surface-canvas',
-  'card-primary': 'ring-surface-primary',
-  'card-subtle': 'ring-surface-subtle',
-  'card-emphasized': 'ring-surface-emphasized',
+  'card-primary': 'ring-surface-background-primary',
+  'card-subtle': 'ring-surface-background-subtle',
+  'card-emphasized': 'ring-surface-background-emphasized',
 } as const satisfies Record<AvatarSurface, string>
 
 /**
@@ -61,9 +61,9 @@ const statusSurfaceRing = {
  */
 const statusSurfaceFill = {
   canvas: 'bg-surface-canvas',
-  'card-primary': 'bg-surface-primary',
-  'card-subtle': 'bg-surface-subtle',
-  'card-emphasized': 'bg-surface-emphasized',
+  'card-primary': 'bg-surface-background-primary',
+  'card-subtle': 'bg-surface-background-subtle',
+  'card-emphasized': 'bg-surface-background-emphasized',
 } as const satisfies Record<AvatarSurface, string>
 
 export const avatar = tv({

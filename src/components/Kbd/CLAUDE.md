@@ -3,7 +3,7 @@
 A keyboard shortcut, drawn as one small key per keystroke.
 
 **Two sources, split cleanly.** Figma node `40004073:20923` owns the look: 20px key, `min-w-5`,
-`px-1` (spacing/1), `rounded-xs`, `Surface/Subtle`, `Content/Primary`, `text-sm/normal`,
+`px-1` (spacing/1), `rounded-xs`, `Surface/Background Subtle`, `Content/Primary`, `text-sm/normal`,
 `Elevation/Drop Shadow/Extra Low`. Meta's Astryx `Kbd` owns the API: one `keys` string, split on
 `+`, one key per token. Nathan asked for both by name.
 
@@ -14,7 +14,7 @@ type. Figma sets no height at all. `min-h-5` holds it anyway, the Badge preceden
 Astryx both draw these in the body face, and a mono ⌘ is a worse ⌘. The deliberate non-use is the
 decision here, not an oversight.
 
-**The fill is translucent, on a token of its own.** The key was first drawn on `Surface/Subtle`,
+**The fill is translucent, on a token of its own.** The key was first drawn on `Surface/Background Subtle`,
 which is byte-identical to `Surface/Canvas` *and* to the menu row's `data-highlighted` background
 (`oklch(0.97 0.001 106.424)` light — all three measured, not assumed). So an opaque key was invisible
 on the page canvas, and invisible again the moment you hovered the menu row it was sitting in,

@@ -259,7 +259,7 @@ export const GroupPlain: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
-    <div className="flex max-w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-primary p-6">
+    <div className="flex max-w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
       <h2 className="text-lg font-semibold text-content-emphasized">Notifications</h2>
       <Checkbox
         {...args}
