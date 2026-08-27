@@ -106,8 +106,11 @@ are the neutral at some alpha — ghost backgrounds, both overlays, both shadows
 literals they freeze at Stone and stay stone-tinted on every other ramp, which is exactly what makes
 a swap look half-applied. They are matched by RGB against the default ramp and emitted as
 `color-mix(in oklab, var(--neutral-800) 10%, transparent)`; the run prints every one it re-points.
-`#ffffff99`, `#00000080` and the Data Viz accessibility border do not match and stay literal, which
-is right — white and black are not neutrals in the swappable sense.
+`#ffffff99` and `#00000080` do not match and stay literal, which is right — white and black are not
+neutrals in the swappable sense. The Data Viz accessibility border used to sit in that list too; on
+2026-08-27 Figma moved it from `#162020`/`#f3f4f4` to `#1b1816`/`#f5f5f5`, which *are* the neutral at
+56%, so it now re-points onto `--neutral-900`/`--neutral-100` and follows the ramp like the rest. The
+old value carried a faint teal cast (`oklch(23.4% 0.0143 196.218)`) that froze on every ramp.
 
 **Contrast is not automatic.** The ramps differ in lightness at the same step, so a pair that clears
 4.5:1 on Stone is not guaranteed to on Olive. `npm test` runs axe on every story but only at the
@@ -120,6 +123,20 @@ a chart benchmark wants a chromaless grey whatever the UI neutral is. They are n
 appearing is a Figma slip, not a decision. `Action/Overlay/Foreground` was exactly that: `@Neutral/950`
 in dark among an otherwise all-Stone family, caught when the tier was built and fixed in Figma to
 `@Black`, which is the symmetric partner of the `@White` it already had in light.
+
+**The categorical series is mode-independent, on purpose.** Since 2026-08-27 all fourteen
+`Data Viz/Categorical/*` tokens carry the *same* alias in Light and Dark, where each used to shift a
+step or two per mode (`@Cyan/700` → `@Cyan/500`, and so on). One value now has to sit on both
+canvases, so nine of the fourteen clear 3:1 against only one of them — the light aliases
+(`Yellow/300` 1.2:1, `Teal/300` 1.4:1, `Blue/300` 1.7:1, `Red/300` 1.8:1, `Green/500`, `Orange/400`,
+`Purple/400`) fall short on `Stone/100`, and the two dark ones (`Pink/800` 2.5:1, `Teal/800` 2.7:1)
+fall short on `Stone/950`. That is a series identity decision, not a slip: a category keeps one
+colour so a reader can carry it between themes and between a chart and its legend.
+`Data Viz/Utility/Accessibility Border` is the mitigation — a mark that needs separating from the
+canvas gets the border, rather than the series being re-split per mode. **Do not "fix" a categorical
+token by giving it a different dark value**; that silently breaks the identity the series is for.
+The benchmark, alt and placeholder entries are the exception and still differ per mode, because they
+are ground, not series.
 
 ### Colour is OKLCH, and Tailwind owns the primitives
 
