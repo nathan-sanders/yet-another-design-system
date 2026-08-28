@@ -9,11 +9,20 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * ChartLegend — the dependable identity channel.
  *
  * Figma's `Chart Legend` (`40004318:14644`), four types. **A legend is present
- * whenever a chart has two or more series**, and that is not a preference: it is
- * the only thing standing between a reader and having to match hues by eye. A
- * single-series chart gets none — there is one colour, and the block's title
- * already says what it is; a box with one swatch restates the title and spends
- * space saying nothing.
+ * by default on every chart**, and that is not a preference: it is the only
+ * thing standing between a reader and having to match hues by eye.
+ *
+ * **It does not depend on the series count, and it does not depend on how much
+ * data there is.** Both exceptions are tempting and both are wrong. A
+ * single-series chart still gets one, because the swatch is what says *which*
+ * colour means the thing the title names — and in greyscale, or for a reader who
+ * cannot separate two hues, that mapping is the only thing carrying it. A chart
+ * narrowed to a single data point still gets one, because a series with one
+ * reading is still a series, and a chart that shed its key exactly when a filter
+ * narrowed it would be at its least readable at the moment it changed.
+ *
+ * `legend={false}` on a chart remains available for the case where something
+ * else already names the series — a caption, a heading, a surrounding table.
  *
  * ## Four types, two jobs
  *

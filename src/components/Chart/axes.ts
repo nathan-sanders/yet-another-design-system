@@ -91,7 +91,15 @@ function toDate(value: unknown): Date | null {
  */
 export function inferXPreset(values: readonly unknown[]): ChartXPreset {
   const dates = values.map(toDate)
-  if (dates.some((d) => d === null) || dates.length < 2) return 'categories'
+  if (dates.length === 0 || dates.some((d) => d === null)) return 'categories'
+
+  // One point has no span to measure, but it is still a date, and falling
+  // through to `categories` here was a real bug: the tick formatter passes a
+  // category straight through, so a single-point chart printed the whole ISO
+  // string — `2026-01-01T00:00:00.000Z` — under its one mark. `days` is the safe
+  // guess because a bucketed series is nearly always daily; `xPreset` overrides
+  // it for the chart that is genuinely one hour or one month.
+  if (dates.length === 1) return 'days'
 
   const first = dates[0]!
   const last = dates[dates.length - 1]!
@@ -221,6 +229,48 @@ export function xAxisProps({ wide = true, count = 0 }: XAxisOptions = {}) {
   }
 }
 
+/**
+ * Round a step up to something a reader can count in: 1, 1.5, 2, 2.5, 5 or 10
+ * times a power of ten. The ladder is the usual one plus 1.5, which is worth
+ * having — without it a max of 456 over four intervals rounds to a step of 200
+ * and the plot uses barely half its height, where 150 fills it and still reads
+ * as a round number.
+ */
+function niceStep(raw: number): number {
+  if (!Number.isFinite(raw) || raw <= 0) return 1
+
+  const magnitude = 10 ** Math.floor(Math.log10(raw))
+  const normalized = raw / magnitude
+  const step =
+    normalized <= 1 ? 1 : normalized <= 1.5 ? 1.5 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10
+
+  return step * magnitude
+}
+
+/**
+ * The top of the y axis: the smallest round number at or above the data that
+ * divides evenly by the gridline count.
+ *
+ * **Why this is not left to Recharts.** Its automatic domain ends at the largest
+ * value present and divides that by the tick count, which is fine when the data
+ * happens to be round and poor when it does not. A single-point chart is the
+ * case that exposes it — one value of 1,800 produced the ticks 0, 450, 900,
+ * 1.4k, 1.8k, and a scale a reader cannot count in is a scale they have to read
+ * every label of.
+ *
+ * Rounding the *top* rather than the ticks is what keeps them all round at once,
+ * because every tick is then `max × n / intervals`.
+ *
+ * This reproduces what Recharts already got right — 1,990 over four intervals
+ * still gives 2k, and 20,000 still gives 20k — so it changes the bad cases and
+ * leaves the good ones alone. That is the property the unit tests pin.
+ */
+export function niceMax(dataMax: number, lines: number): number {
+  const intervals = Math.max(1, lines - 1)
+  if (!Number.isFinite(dataMax) || dataMax <= 0) return intervals
+  return niceStep(dataMax / intervals) * intervals
+}
+
 export interface YAxisOptions {
   /**
    * How many gridlines, 2–8 — Figma's `_Y-Axis Presets` `Lines` axis. Five is
@@ -243,6 +293,15 @@ export function yAxisProps({ lines = 5 }: YAxisOptions = {}) {
     axisLine: false as const,
     tickLine: false as const,
     tickCount: lines,
+    // Only the upper bound is rounded, and only when the data is entirely
+    // non-negative — which is the case a zero baseline is right for. Anything
+    // with negatives needs a floor as well as a ceiling and a midpoint that
+    // stays at zero, so it is left to Recharts rather than half-handled here.
+    domain: [
+      (dataMin: number) => (dataMin >= 0 ? 0 : dataMin),
+      (dataMax: number) => niceMax(dataMax, lines),
+    ] as [(min: number) => number, (max: number) => number],
+    allowDecimals: false,
     width: Y_AXIS_WIDTH,
     tickMargin: TICK_MARGIN,
     tick: { className: TICK_CLASS },

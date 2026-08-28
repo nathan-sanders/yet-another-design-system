@@ -90,7 +90,6 @@ export const AxisPresets: Story = {
           {...args}
           data={hourlyData()}
           series={[{ key: 'sessions', label: 'Sessions' }]}
-          legend={false}
           label="Sessions over 24 hours"
           height={200}
         />
@@ -171,6 +170,72 @@ export const Narrow: Story = {
 }
 
 /**
+ * One data point.
+ *
+ * **The legend stays.** It does not depend on how much data there is — it names
+ * the series, and a series with one reading is still a series. A chart that
+ * dropped its key as soon as a filter narrowed to a single day would be at its
+ * least readable exactly when it changed.
+ *
+ * Two things had to be fixed for this case, and both were invisible until a
+ * chart was actually drawn with one row:
+ *
+ * - **The x label was the raw ISO string.** A lone date has no span to measure,
+ *   so the preset fell through to `categories`, and a category is passed to the
+ *   axis untouched: `2026-01-01T00:00:00.000Z` under a single mark.
+ * - **The y scale was not round.** One value of 1,800 gave Recharts the ticks 0,
+ *   450, 900, 1.4k, 1.8k. The axis now rounds its top to a number that divides
+ *   evenly by the gridline count, which makes every tick round at once.
+ */
+export const SinglePoint: Story = {
+  render: (args) => (
+    <div className="flex max-w-4xl flex-col gap-8">
+      <figure className="flex flex-col gap-2">
+        <figcaption className="text-content-subtle font-mono text-sm">one point, three series</figcaption>
+        <LineSeries {...args} data={dailyData(1)} label="Sessions, signups and conversions for one day" />
+      </figure>
+      <figure className="flex flex-col gap-2">
+        <figcaption className="text-content-subtle font-mono text-sm">one point, one series</figcaption>
+        <LineSeries
+          {...args}
+          data={dailyData(1)}
+          series={[{ key: 'sessions', label: 'Sessions' }]}
+          label="Sessions for one day"
+        />
+      </figure>
+    </div>
+  ),
+}
+
+/**
+ * `legend={false}` — the deliberate opt-out.
+ *
+ * The legend is on by default for every chart, whatever its series count and
+ * whatever its data length, and that is the right default: it is the identity
+ * channel a reader who cannot separate two hues depends on, and the one that
+ * survives greyscale.
+ *
+ * Turning it off is for the case where something *else* already names the
+ * series — a caption, a heading, a surrounding table — so the box would repeat
+ * a label the reader has just read. It is a statement that the naming happens
+ * elsewhere, not a way to save space.
+ */
+export const WithoutLegend: Story = {
+  render: (args) => (
+    <figure className="flex max-w-4xl flex-col gap-2">
+      <figcaption className="text-content-emphasized text-base font-semibold">Sessions</figcaption>
+      <LineSeries
+        {...args}
+        data={dailyData(14)}
+        series={[{ key: 'sessions', label: 'Sessions' }]}
+        label="Sessions over 14 days"
+        legend={false}
+      />
+    </figure>
+  ),
+}
+
+/**
  * The dashboard the charts are for — `BentoGrid` and `ContentBlock`, both of
  * which already existed, with charts as their content.
  *
@@ -214,7 +279,6 @@ export const Dashboard: Story = {
               xKey="date"
               series={[{ key: 'sessions', label: 'Sessions' }]}
               label="Sessions over the last 24 hours"
-              legend={false}
               height={200}
             />
           </ContentBlock.Content>
