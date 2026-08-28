@@ -5,6 +5,19 @@ import { markerForIndex, type ChartMarker } from './shapes'
 import type { ChartSwatchShape } from './Swatch'
 
 /**
+ * **Which swatch a chart's legend uses is decided by what its marks are, not by
+ * taste.** A line chart's key is a rule with the series' point shape sitting on
+ * it, because that is literally what the reader will look for on the plot. A
+ * chart made of *areas* — an area fill, a bar segment, a donut slice, a heat-map
+ * cell — has no line and no point to echo, so its key is the plain colour
+ * square. Figma binds exactly this: `Area Series` and `Vertical Bar` both key
+ * with `Style=Color Swatch`, while `Line Series` keys with the marker styles.
+ *
+ * A chart states it once by passing `swatch` to `ChartContainer`; every series
+ * inherits it unless it names a marker of its own.
+ */
+
+/**
  * What a chart tells its legend and its tooltip.
  *
  * A legend row and a tooltip row both have to draw the same swatch as the mark
@@ -69,13 +82,19 @@ export interface ResolvedChartSeries extends ChartSeries {
  * reader just learned. Benchmarks are skipped when counting, so adding a target
  * line does not shift every series' colour by one.
  */
-export function resolveSeries(series: readonly ChartSeries[]): ResolvedChartSeries[] {
+export function resolveSeries(
+  series: readonly ChartSeries[],
+  defaultSwatch?: ChartSwatchShape,
+): ResolvedChartSeries[] {
   let categoricalIndex = 0
 
   return series.map((s) => {
     const index = s.benchmark ? -1 : categoricalIndex++
     const color = s.color ?? (s.benchmark ? benchmarkColor : categorical(index))
-    const marker = s.marker ?? (s.benchmark ? false : markerForIndex(index))
+    // A chart whose marks are areas has no plot points to echo, so it has no
+    // marker either — `defaultSwatch` is how it says so, and the two travel
+    // together rather than being set independently and disagreeing.
+    const marker = s.marker ?? (s.benchmark || defaultSwatch ? false : markerForIndex(index))
     const dashed = s.dashed ?? Boolean(s.benchmark)
 
     return {
@@ -83,7 +102,12 @@ export function resolveSeries(series: readonly ChartSeries[]): ResolvedChartSeri
       color,
       marker,
       dashed,
-      swatchShape: marker === false ? (dashed ? 'dashedLine' : 'solidLine') : marker,
+      swatchShape:
+        marker !== false
+          ? marker
+          : dashed
+            ? 'dashedLine'
+            : (defaultSwatch ?? 'solidLine'),
     }
   })
 }

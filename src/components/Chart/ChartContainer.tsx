@@ -4,6 +4,7 @@ import { ResponsiveContainer } from 'recharts'
 import { cn } from '../../lib/cn'
 import { CHART_BREAKPOINT } from './axes'
 import { ChartContext, resolveSeries, type ChartSeries } from './context'
+import type { ChartSwatchShape } from './Swatch'
 
 /**
  * ChartContainer — what every chart in the library sits in.
@@ -71,6 +72,15 @@ export interface ChartContainerProps {
   children: ReactElement
   /** Rendered above the plot — this is where a legend goes. */
   header?: ReactNode
+  /**
+   * The legend key for series that do not name a marker.
+   *
+   * Pass `'colorSwatch'` from any chart whose marks are areas rather than points
+   * on a line — an area fill, a bar segment, a slice. Leaving it unset keeps the
+   * line chart's behaviour, where each series gets a rule with its own point
+   * shape on it.
+   */
+  swatch?: ChartSwatchShape
   className?: string
 }
 
@@ -84,9 +94,10 @@ export function ChartContainer({
   formatY = (v) => String(v ?? ''),
   children,
   header,
+  swatch,
   className,
 }: ChartContainerProps) {
-  const resolved = useMemo(() => resolveSeries(series), [series])
+  const resolved = useMemo(() => resolveSeries(series, swatch), [series, swatch])
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Wide until measured. An unmeasured chart still renders once, and starting

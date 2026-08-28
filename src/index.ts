@@ -20,6 +20,9 @@ export type {
   AutocompleteAppearance,
 } from './components/Autocomplete'
 
+export { AreaSeries } from './components/AreaSeries'
+export type { AreaSeriesProps, AreaSeriesSeries, AreaInterpolation, AreaFill } from './components/AreaSeries'
+
 export { Avatar, AvatarGroup } from './components/Avatar'
 export type {
   AvatarProps,
@@ -190,6 +193,9 @@ export type {
 export { Select } from './components/Select'
 export type { SelectProps, SelectItemProps, SelectGroupProps, SelectSize } from './components/Select'
 
+export { Spark } from './components/Spark'
+export type { SparkProps, SparkType } from './components/Spark'
+
 export { Slider } from './components/Slider'
 export type { SliderProps, SliderMark } from './components/Slider'
 
@@ -219,6 +225,9 @@ export type {
 
 export { Token } from './components/Token'
 export type { TokenProps, TokenSize, TokenRadius } from './components/Token'
+
+export { VerticalBar } from './components/VerticalBar'
+export type { VerticalBarProps } from './components/VerticalBar'
 
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps, TooltipPopupProps } from './components/Tooltip'
