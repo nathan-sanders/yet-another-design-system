@@ -10,6 +10,9 @@ export type { ChartTooltipProps, ChartTooltipPayloadEntry } from './ChartTooltip
 export { ChartSwatch } from './Swatch'
 export type { ChartSwatchProps, ChartSwatchShape } from './Swatch'
 
+export { barSegment, BAR_RADIUS, BAR_SEGMENT_GAP, BAR_MAX_WIDTH } from './bars'
+export type { BarSegmentOptions, BarSegmentProps } from './bars'
+
 export { markerShape, markerForIndex, isOutlineMarker, chartMarkers } from './shapes'
 export type { ChartMarker, MarkerShapeOptions } from './shapes'
 

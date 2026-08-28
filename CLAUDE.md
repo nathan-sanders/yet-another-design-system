@@ -363,6 +363,9 @@ settled once, against the Figma file, for a reason that is written down.
 | [Autocomplete](src/components/Autocomplete/CLAUDE.md) | free text that suggests without constraining | Combobox with one rule removed; `Input`'s box, Combobox's popup, shared not copied |
 | [Chart](src/components/Chart/CLAUDE.md) | the chrome every chart sits in | container, legend, tooltip, swatch, palette, axis rules; half the Figma page is a drawing mechanism, not an API |
 | [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
+| [AreaSeries](src/components/AreaSeries/CLAUDE.md) | how much, over time | two fills that are different drawings; opaque areas make paint order part of the API |
+| [VerticalBar](src/components/VerticalBar/CLAUDE.md) | how much, per category | Figma's three bar types are one boolean; rounded stacked segments Recharts cannot draw |
+| [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labelled or decorative, enforced by the type |
 
 ### Data visualisation
 
@@ -398,6 +401,16 @@ Three rules worth having in mind before touching a chart:
   of truth Figma cannot reach — so `isAnimationActive={false}` everywhere, and any motion that is
   wanted goes back as CSS on the tokens. Its tooltip writes a `transition` *inline* even when series
   animation is off; see the Chart record.
+- **Recharts' defaults are set for a different library than this one**, and two have already had to
+  be turned off. `accessibilityLayer` defaults **on**, making the chart root focusable — fine inside
+  `ChartContainer`, a real fault inside `Spark`'s `aria-hidden` wrapper, where axe caught it. Its
+  automatic y-domain ends at the largest value present, which gives round ticks only when the data
+  happens to be round. Assume a Recharts default is aimed at a chart with no design system behind it.
+- **Measure the geometry; do not read it off a screenshot.** Both chart bugs found so far were
+  invisible in a picture and obvious in a number — a missing 1px gap between two stacked segments,
+  and grouped bars at 7px because `barCategoryGap` is applied to each side of the band. Pull the
+  rendered attributes out of the DOM, or pin the arithmetic in a node test, as `Chart/axes.test.ts`
+  and `Chart/bars.test.ts` do.
 
 ### Patterns that recur across components
 
