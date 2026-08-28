@@ -177,8 +177,6 @@ const dataViz: [string, string][] = [
   ['bg-data-viz-categorical-10', 'categorical-10'],
   ['bg-data-viz-categorical-11', 'categorical-11'],
   ['bg-data-viz-categorical-12', 'categorical-12'],
-  ['bg-data-viz-categorical-13', 'categorical-13'],
-  ['bg-data-viz-categorical-14', 'categorical-14'],
   ['bg-data-viz-sentiment-positive', 'sentiment-positive'],
   ['bg-data-viz-sentiment-neutral', 'sentiment-neutral'],
   ['bg-data-viz-sentiment-negative', 'sentiment-negative'],
