@@ -22,6 +22,9 @@ Figma, so the code matches Figma and both stay in sync.
   lets a caller override a component's defaults
 - **`lucide-react`** for icons, wrapped by the `Icon` component
 - Fonts: **Inter** (sans), **Geist Mono** (mono), self-hosted via `@fontsource`
+- **Recharts** for data visualisation — the library shadcn/ui uses. Charts are SVG, and colour
+  reaches them as `stroke="var(--data-viz-categorical-01)"` rather than as a class, because SVG
+  attributes take values
 
 ## Commands
 
@@ -358,6 +361,43 @@ settled once, against the Figma file, for a reason that is written down.
 | [Card](src/components/Card/CLAUDE.md) | the plain container | `rounded-md` inside ContentBlock's `rounded-lg`; the border tracks the fill unless the file says otherwise |
 | [ClickableCard](src/components/Card/CLAUDE.md) | the same card as a hit target | `href` picks the element; `ghost` is the list row, `selected` is `aria-current` |
 | [Autocomplete](src/components/Autocomplete/CLAUDE.md) | free text that suggests without constraining | Combobox with one rule removed; `Input`'s box, Combobox's popup, shared not copied |
+| [Chart](src/components/Chart/CLAUDE.md) | the chrome every chart sits in | container, legend, tooltip, swatch, palette, axis rules; half the Figma page is a drawing mechanism, not an API |
+| [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
+
+### Data visualisation
+
+Charts live on the Figma page **↪ Data Viz (In Progress)** (`40004316:13427`) and are built on
+**Recharts**. Two things about that page decide how much work it is.
+
+**Half of it does not become code.** Everything with a leading underscore — `_Line Series / Segment`
+(16 variants), `_Radar / Areas` (20), `_Donut / Slice Sweep`, `_X-Axis Presets` (26) — exists because
+Figma has to draw a chart by hand, one segment at a time, and cannot compute a tick from data.
+Recharts does both. Those are a *drawing mechanism*, not an API: a segment's "Direction=Positive" is
+not a decision, it is what the data did between two points. **Ask "decision or mechanism?" of every
+underscored component before implementing it** — reading them as a component list turns ~15 real
+components into 30-plus.
+
+**shadcn's `ChartStyle` has no counterpart here, and must not gain one.** shadcn injects a `<style>`
+block per chart mapping `--color-desktop` onto a hex, because its charts are handed raw colours with
+nowhere theme-aware to put them. `--data-viz-*` are semantic tokens — `:root` plus `.dark` — so a
+mark painted with one follows the theme with no injected CSS, no second palette and no `dark:`
+variant. That is the whole point of the semantic layer, arriving somewhere new for free.
+
+The Data Viz tokens had been in `theme.css` since the twelve-category split with **nothing reading
+them**; `src/components/Chart/` is the first code that does.
+
+Three rules worth having in mind before touching a chart:
+
+- **The categorical order is fixed and never cycled by rank**, and past twelve series the scale
+  returns the placeholder grey rather than wrapping. Two visible series sharing a colour is worse
+  than admitting the scale ran out. Figma agrees from the other end — its legend has a `+X more` row.
+- **Text never wears the series colour.** Identity comes from the swatch beside it. Three of the
+  twelve hues are illegible as text on the light canvas, and colouring text also removes the channel
+  a low-colour-vision reader was relying on.
+- **Charts do not animate.** Recharts animates in JavaScript with its own constants — a second source
+  of truth Figma cannot reach — so `isAnimationActive={false}` everywhere, and any motion that is
+  wanted goes back as CSS on the tokens. Its tooltip writes a `transition` *inline* even when series
+  animation is off; see the Chart record.
 
 ### Patterns that recur across components
 

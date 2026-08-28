@@ -64,6 +64,45 @@ export type {
   CardPadding,
 } from './components/Card'
 
+export {
+  ChartContainer,
+  ChartLegend,
+  ChartTooltip,
+  ChartSwatch,
+  categorical,
+  categoricalScale,
+  categoricalCount,
+  monoScales,
+  benchmark,
+  benchmarkAlt,
+  placeholder,
+  sentiment,
+  accessibilityBorder,
+  markerShape,
+  markerForIndex,
+  chartMarkers,
+  chartGridProps,
+  xAxisProps,
+  yAxisProps,
+  formatCompactNumber,
+  formatFullNumber,
+  formatDateTick,
+  inferXPreset,
+  CHART_BREAKPOINT,
+} from './components/Chart'
+export type {
+  ChartContainerProps,
+  ChartLegendProps,
+  ChartLegendType,
+  ChartTooltipProps,
+  ChartSwatchProps,
+  ChartSwatchShape,
+  ChartSeries,
+  ChartMarker,
+  ChartMonoScale,
+  ChartXPreset,
+} from './components/Chart'
+
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps, CheckboxGroupProps } from './components/Checkbox'
 
@@ -121,6 +160,9 @@ export type {
 
 export { Link } from './components/Link'
 export type { LinkProps, LinkSize } from './components/Link'
+
+export { LineSeries } from './components/LineSeries'
+export type { LineSeriesProps, LineSeriesSeries, LineInterpolation } from './components/LineSeries'
 
 export { Menu } from './components/Menu'
 export type {

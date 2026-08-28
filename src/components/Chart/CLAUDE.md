@@ -1,0 +1,160 @@
+# Chart
+
+The shared chrome every chart in the library sits in: the container, the legend, the tooltip, the
+swatch, the marker shapes, the palette and the axis rules. Nothing here draws a chart. It is the
+`Menu`/`ContextMenu` and `Combobox`/`Autocomplete` arrangement again — the recipes live in one place
+and each chart imports them rather than copying.
+
+Figma page: **↪ Data Viz (In Progress)** (`40004316:13427`). Sections `Legend & Tooltip`
+(`40004318:14467`), `Grids` (`40004318:14336`), `X-Axis` (`40004318:14868`), `Y-Axis`
+(`40004318:14768`).
+
+## Half the Figma page does not become code, and that is the main thing to know
+
+Everything on that page with a **leading underscore** — `_Line Series / Segment` (16 variants),
+`_Donut / Slice Sweep`, `_Radar / Areas` (20 variants), `_Line Series / Plot Point`, `_X-Axis
+Presets` (26 variants) — exists because **Figma has to draw a chart by hand**, one segment at a
+time, and a Figma component cannot be parameterised by a number or compute a tick from data.
+Recharts does both. Those components are a *drawing mechanism*, not an API.
+
+Reading them as a component list is the single biggest way this work could balloon: it turns roughly
+15 real components into 30-plus, most of which would be re-implementations of things Recharts
+already does. **Before building anything off this page, ask whether the Figma component is a
+decision or a mechanism.** A segment's "Direction=Positive" is not a decision — it is what the data
+did between two points.
+
+What survives the crossing is the part that *is* a decision: the interpolation, the dash, the marker
+shape, the colour order, the tick rules.
+
+## Why there is no `ChartStyle`, and no port of shadcn's container
+
+shadcn/ui's `ChartContainer` injects a `<style>` element per chart mapping names like
+`--color-desktop` onto hex values, one block per theme. It exists because its charts are handed raw
+colours with nowhere theme-aware to put them.
+
+This library has somewhere. `--data-viz-*` are **semantic tokens**: defined at `:root` in section 3
+of `theme.css` and redefined in `.dark`. A mark painted `stroke="var(--data-viz-categorical-01)"`
+follows the theme with no injected CSS, no second palette, no JavaScript and no `dark:` variant.
+Verified by switching the Storybook theme with nothing in the component changing.
+
+**Do not port `ChartStyle`.** It would be a second, worse copy of a tier that already exists — and it
+is the exact thing the semantic layer was built to make unnecessary.
+
+## Colour rules that are not preferences
+
+- **The categorical order is fixed and never cycled by rank.** `resolveSeries` assigns colour from a
+  series' index in the caller's array, not from a counter over visible ones. A palette that re-flows
+  when a series is filtered out repaints the survivors and silently invalidates the legend the
+  reader just learned.
+- **Past twelve series, `categorical()` returns the placeholder grey rather than wrapping.** Two
+  visible series sharing a colour is worse than admitting the scale ran out: the reader cannot tell
+  them apart and nothing signals that they should stop trying. Figma reaches the same conclusion from
+  the other end — its `Chart Legend` has a `+X more` row, which `ChartLegend`'s `max` implements.
+  A thirteenth series means group, facet or filter; it does not mean grow the scale.
+- **Markers cycle where colours do not**, and the asymmetry is the point. A repeated *shape* is still
+  separated by colour, so a second channel that runs out beats no second channel.
+- **A benchmark does not consume a categorical slot.** Adding a target line leaves every real series
+  the colour it already had.
+- **Text never wears the series colour** — `content-subtle` throughout, identity from the swatch
+  beside it. Three of the twelve hues are illegible as text on the light canvas (yellow at 1.74:1 is
+  the worst), and colouring text also removes the channel a low-colour-vision reader relies on.
+- **The three short-contrast hues are known and parked.** The root `CLAUDE.md` records them as
+  accepted. Do not "fix" them here; `accessibilityBorder` and the outline marker shapes are the
+  sanctioned mitigations.
+
+## Stroke weights are read, never derived
+
+The series line is **1.5px**. A marker's ring is **2px in a swatch and 1.5px on a plot point** — not
+`2 × 8/12 = 1.33`, which is what scaling would predict. Every one of those numbers was read off the
+Figma node. A stroke weight is not geometry and cannot be recovered from a shape's size; this file
+has been caught by that before.
+
+Shape *sizes* do scale, because Figma drew them to scale: the set is defined in a nominal-12 space
+(the square's width in a 24px swatch) and multiplied by `size / 12`. The check that this is faithful
+rather than approximate is Figma's own second size — the plot point's square is 8, and 13 × 8/12 =
+8.67 against Figma's circle of 9. Measured back out of the DOM, all seven shapes land on the file's
+numbers exactly.
+
+**The hexagon is written from half-extents, not an angle sweep.** Six vertices at 60° off one radius
+gives a *regular* hexagon, 11.6 across for 13.4 tall. Figma's is 12 across. Stating both extents hits
+the number and is easier to check against the file than trigonometry is.
+
+## An outline shape means two different things at two sizes
+
+At **swatch** size an outline marker is a true ring with no fill, so the rule behind it is drawn as
+two pieces with a gap — a continuous rule would show through the middle and turn a hollow marker into
+a struck-through one. The gap widths are per-shape and read off the file (8 for square, triangle and
+hexagon; 7 for circle and diamond); deriving them from the shape's width gets the round ones wrong.
+
+At **plot-point** size the same marker is filled with the *surface* colour, because there it sits on
+its own line and has to hide it.
+
+One function serves both: `markerShape` takes `surface` as a colour, so `'none'` yields the ring and
+the real token yields the filled marker. That is why it is a colour and not a boolean.
+
+## The accessible alternative is a table, and its position is load-bearing
+
+`ChartContainer` renders the plot inside `role="img"` with an `aria-label`, **and** a visually hidden
+`<table>` of every value. An `aria-label` alone passes an automated check and leaves a screen reader
+user with one sentence where everyone else has thirty-one days of data.
+
+**The table is a sibling of the labelled plot, never a child.** `role="img"` makes its whole subtree
+opaque to assistive technology, so a table inside it would be announced to nobody. Easy to get
+backwards, and nothing would flag it.
+
+Recharts' `accessibilityLayer` is set on each chart for keyboard traversal of the points.
+
+## Motion
+
+Every series sets `isAnimationActive={false}`, and so does `Tooltip`. Recharts animates in JavaScript
+with its own constants — a second source of truth Figma cannot reach, which is what the motion tokens
+exist to prevent.
+
+The tooltip is the subtle one. Recharts writes `transition: transform 400ms` **inline** on its
+tooltip wrapper even when series animation is off. The global `prefers-reduced-motion` clamp does
+still beat it (that rule is `!important` on `*`, which outranks an inline declaration), so it was
+never an accessibility hole — but 400ms is close enough to `--transition-duration-medium` (410ms) to
+look like it came from the system when it did not. So Recharts' tween is off and the movement is put
+back through `wrapperStyle` referencing the tokens as custom properties.
+
+**`wrapperClassName` is a trap:** Recharts puts it on `DefaultTooltipContent`, not on `Tooltip`.
+Passing it to `Tooltip` type-checks and does nothing at all. Use `wrapperStyle`.
+
+## `ResponsiveContainer` renders nothing at zero width
+
+Not a small chart — an empty one, which looks exactly like a broken component. `height` is therefore
+a required number rather than a percentage, and the wrapper carries `min-w-0` so a flex or grid
+parent cannot collapse it. When verifying in the Browser pane, pass explicit `width`/`height` to
+`resize_window` first or every chart will measure as broken.
+
+## Dates are formatted in UTC by default
+
+These charts plot **buckets** — a day's sessions, a month's signups — and a bucket's label has to read
+the same for every reader. `new Date('2026-01-01')` is parsed as UTC midnight, so local formatting
+slides the whole axis back a day for anyone west of Greenwich. This was caught in the first
+screenshot: the 31-day chart opened on "Dec 31". `formatDateTick` takes a `timeZone`, defaulting to
+`UTC`; pass one for wall-clock times that genuinely belong to a place.
+
+The month is written only where it changes ("Jan 1", then 3, 5, 7) — and the field comparison is done
+through the *same* zone the label is written in, so "has the month changed?" cannot disagree with
+what the label says.
+
+## The axis presets became rules
+
+Figma's 13 x presets × wide/narrow and 8 y presets are `tickInterval` plus `formatDateTick` plus
+`inferXPreset`. The check that the rules reproduce the design: 31 points in a wide chart gives
+`ceil(31/16) - 1 = 1`, labelling days 1, 3, 5 … 31 — exactly the sixteen labels the file draws.
+
+Wide/narrow is Figma's own `Chart Breakpoint` variable (600), measured by a `ResizeObserver` rather
+than declared. A zero width is treated as "not laid out yet" rather than "narrow", and the initial
+state is wide, so a chart does not visibly shed its labels and put them back.
+
+## Left for later, deliberately
+
+- **The legend is not interactive.** Figma models a clickable legend as a separate
+  `Chart Legend Buttons` property and puts it on Donut, Gauge and Radar — not on Line Series. Toggling
+  arrives with the components that ask for it.
+- **`_Quadrant Grid`** has no chart built on it in Figma yet.
+- Figma's `Chart Key / Metric` and `_Swatch Label` are absorbed into `ChartLegend`'s row and
+  `ChartTooltip`'s row rather than being separate components. Split them out if a third caller
+  appears.
