@@ -130,11 +130,23 @@ step or two per mode (`@Cyan/700` → `@Cyan/500`, and so on). One value now has
 canvases, so nine of the fourteen clear 3:1 against only one of them — the light aliases
 (`Yellow/300` 1.2:1, `Teal/300` 1.4:1, `Blue/300` 1.7:1, `Red/300` 1.8:1, `Green/500`, `Orange/400`,
 `Purple/400`) fall short on `Stone/100`, and the two dark ones (`Pink/800` 2.5:1, `Teal/800` 2.7:1)
-fall short on `Stone/950`. That is a series identity decision, not a slip: a category keeps one
-colour so a reader can carry it between themes and between a chart and its legend.
-`Data Viz/Utility/Accessibility Border` is the mitigation — a mark that needs separating from the
-canvas gets the border, rather than the series being re-split per mode. **Do not "fix" a categorical
-token by giving it a different dark value**; that silently breaks the identity the series is for.
+fall short on `Stone/950` (figures as of that date — see below, they are being revised).
+
+**Nathan confirmed on 2026-08-27 that the mode-independence itself is intentional**, asked directly
+and after seeing the per-token contrast figures. So separate the two questions, because only one of
+them is settled:
+
+- **Settled:** one alias per category, the same in both modes. The benefit it buys (the evident one,
+  not his stated reasoning) is that a category keeps one colour, so a reader can carry it between
+  themes and between a chart and its legend. **Do not "fix" a categorical token by giving it a
+  different dark value** — that silently breaks the identity the series is for, and it has been
+  asked and answered.
+- **In play:** *which* step in each hue. Nathan is revising these for contrast. The constraint that
+  makes it hard is worth knowing before touching them: clearing 3:1 on both `Stone/100` and
+  `Stone/950` confines a colour to relative luminance **0.108–0.271**, and the best any single
+  colour can do against both canvases at once is **4.28:1** (at L≈0.175). So a dual-canvas fix is a
+  choice of step within a narrow band, never a free pick — and for hues whose ramp steps straddle
+  that band, `Data Viz/Utility/Accessibility Border` stays the mitigation rather than a worse step.
 The benchmark, alt and placeholder entries are the exception and still differ per mode, because they
 are ground, not series.
 
