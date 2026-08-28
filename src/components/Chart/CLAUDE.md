@@ -149,6 +149,37 @@ Wide/narrow is Figma's own `Chart Breakpoint` variable (600), measured by a `Res
 than declared. A zero width is treated as "not laid out yet" rather than "narrow", and the initial
 state is wide, so a chart does not visibly shed its labels and put them back.
 
+## The legend does not scale down with the chart
+
+It is on by default and stays on — not for two or more series, but for **every** chart. Two
+exceptions look reasonable and are both wrong: a single-series chart still needs the swatch to say
+which colour means the thing the title names (in greyscale, or for a reader who cannot separate two
+hues, that mapping is the only thing carrying identity), and a chart narrowed to one data point still
+plots a series. A key that disappeared exactly when a filter narrowed the data would be missing at
+the moment the chart was least familiar.
+
+`ChartLegend` therefore reads only `series`, never `data`. `legend={false}` on a chart remains the
+escape hatch for when something else already names the series.
+
+An earlier version of this file recommended the opposite for a single series, following generic
+charting guidance. Nathan reversed it on 2026-08-28.
+
+## Y-axis tops are rounded, not left to Recharts
+
+Recharts' automatic domain ends at the largest value present and divides it by the tick count, which
+is fine when the data happens to be round and poor when it is not — one value of 1,800 produced the
+ticks 0, 450, 900, 1.4k, 1.8k. `niceMax` rounds the **top** to the smallest countable number at or
+above the data that divides evenly by the gridline count; rounding the top is what makes every tick
+round at once, since each is then `max × n / intervals`.
+
+It only applies where the data is entirely non-negative, which is the case a zero baseline is right
+for. Anything with negatives needs a floor as well as a ceiling and a midpoint pinned at zero, so it
+is left to Recharts rather than half-handled.
+
+The check that this is a fix and not a change of taste: it reproduces every scale Recharts already
+got right (1,990 → 2k, 20,000 → 20k, 456 → 600) and only moves the bad ones. `axes.test.ts` pins
+that.
+
 ## Left for later, deliberately
 
 - **The legend is not interactive.** Figma models a clickable legend as a separate

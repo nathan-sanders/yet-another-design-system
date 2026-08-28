@@ -51,12 +51,40 @@ noticing — **does not consume a categorical slot**. Adding a target to a chart
 series the colour it already had. A dashed line is also the only dashed thing on the plot, which is
 why the gridlines are solid.
 
-## The legend defaults on
+## The legend defaults on, and stays on
 
-Two or more series always get one; it is the dependable identity channel and the alternative is
-asking the reader to match hues by eye. `legend={false}` is for the single-series case, where the
-containing `ContentBlock`'s title already names the one thing plotted and a box with one swatch just
-restates it. The `Dashboard` story does exactly that for its 24-hour block.
+It is the dependable identity channel, and the alternative is asking the reader to match hues by eye.
+
+**It does not scale down with the chart.** Two exceptions look reasonable and are both wrong:
+
+- **A single series still gets one.** The swatch is what says which colour means the thing the title
+  names, and in greyscale — or for a reader who cannot separate two hues — that mapping is the only
+  thing carrying it. This used to be the other way round, and the `Dashboard` story's 24-hour block
+  opted out; Nathan reversed it on 2026-08-28 and the block now keeps its key like every other.
+- **A single data point still gets one.** A series with one reading is still a series. A chart that
+  dropped its key the moment a filter narrowed to one day would be at its least readable exactly when
+  it changed.
+
+`legend={false}` stays available for the case where something *else* already names the series — a
+caption, a heading, a surrounding table — so the box would repeat a label just read. That is a
+statement about where the naming happens, not a way to save space, and `WithoutLegend` is the story
+for it.
+
+## One data point
+
+Worth its own story, because two things broke there and neither was visible until a chart was drawn
+with a single row:
+
+- **The x label was the raw ISO string.** A lone date has no span to measure, so `inferXPreset` fell
+  through to `categories` — and a category is handed to the axis untouched, giving
+  `2026-01-01T00:00:00.000Z` under a single mark. A lone parseable date now reads as `days`.
+- **The y scale was not round.** One value of 1,800 gave Recharts the ticks 0, 450, 900, 1.4k, 1.8k.
+  `niceMax` rounds the axis *top* to a number that divides evenly by the gridline count, which is
+  what makes every tick round at once rather than fixing them one at a time.
+
+Both are pinned in `Chart/axes.test.ts`, which is a plain node test — the story suite would only
+catch a regression here by screenshot, and a subtly wrong tick label reads as a design choice rather
+than a bug.
 
 ## The Dashboard story is the point of the exercise
 
