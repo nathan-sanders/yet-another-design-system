@@ -124,31 +124,40 @@ appearing is a Figma slip, not a decision. `Action/Overlay/Foreground` was exact
 in dark among an otherwise all-Stone family, caught when the tier was built and fixed in Figma to
 `@Black`, which is the symmetric partner of the `@White` it already had in light.
 
-**The categorical series is mode-independent, on purpose.** Since 2026-08-27 all fourteen
-`Data Viz/Categorical/*` tokens carry the *same* alias in Light and Dark, where each used to shift a
-step or two per mode (`@Cyan/700` → `@Cyan/500`, and so on). One value now has to sit on both
-canvases, so nine of the fourteen clear 3:1 against only one of them — the light aliases
-(`Yellow/300` 1.2:1, `Teal/300` 1.4:1, `Blue/300` 1.7:1, `Red/300` 1.8:1, `Green/500`, `Orange/400`,
-`Purple/400`) fall short on `Stone/100`, and the two dark ones (`Pink/800` 2.5:1, `Teal/800` 2.7:1)
-fall short on `Stone/950` (figures as of that date — see below, they are being revised).
+**The categorical series is twelve categories, and per-mode again.** It changed twice in two days,
+and the second change reversed the first — worth reading as one story, because the reversal is the
+useful part.
 
-**Nathan confirmed on 2026-08-27 that the mode-independence itself is intentional**, asked directly
-and after seeing the per-token contrast figures. So separate the two questions, because only one of
-them is settled:
+On **2026-08-27** all fourteen categories were made *mode-independent*: one alias serving both Light
+and Dark. Nathan confirmed that was deliberate. But one value has to sit on both canvases, and that
+is a hard ceiling: clearing 3:1 against both `Stone/100` and `Stone/950` confines a colour to
+relative luminance **0.108–0.271** — in practice only steps 500/600/700 of any hue — and **the best
+any single colour can manage against both at once is 4.28:1** (at L≈0.175). Nine of the fourteen
+cleared 3:1 on only one canvas. A second problem sat underneath: the fourteen used just **ten**
+distinct hues, four pairs separated by lightness alone, and inside that narrow band lightness is
+gone as a separator (`Pink/500` vs `Pink/700` is 1.64:1).
 
-- **Settled:** one alias per category, the same in both modes. The benefit it buys (the evident one,
-  not his stated reasoning) is that a category keeps one colour, so a reader can carry it between
-  themes and between a chart and its legend. **Do not "fix" a categorical token by giving it a
-  different dark value** — that silently breaks the identity the series is for, and it has been
-  asked and answered.
-- **In play:** *which* step in each hue. Nathan is revising these for contrast. The constraint that
-  makes it hard is worth knowing before touching them: clearing 3:1 on both `Stone/100` and
-  `Stone/950` confines a colour to relative luminance **0.108–0.271**, and the best any single
-  colour can do against both canvases at once is **4.28:1** (at L≈0.175). So a dual-canvas fix is a
-  choice of step within a narrow band, never a free pick — and for hues whose ramp steps straddle
-  that band, `Data Viz/Utility/Accessibility Border` stays the mitigation rather than a worse step.
-The benchmark, alt and placeholder entries are the exception and still differ per mode, because they
-are ground, not series.
+On **2026-08-28** Nathan resolved both by splitting the modes again and dropping to **twelve**
+categories. `Categorical/13` and `/14` were **deleted** — not renamed. All twelve now use a distinct
+hue, so nothing depends on lightness to tell two categories apart, and ten of the twelve carry a
+different step per mode (`09` Purple/500 and `10` Green/600 happen to land on the same step in both,
+which is a coincidence of the ramp, not a return to the old rule).
+
+**The reversal is the thing to remember: per-mode values exist to buy contrast headroom.** Splitting
+the modes lifts the 4.28:1 ceiling entirely — `01` is now 6.69:1 on light and 10.77:1 on dark, which
+no single-value token could have reached. So if a future change proposes collapsing the series back
+to one value per category, that is the cost it is paying, and it has now been tried and reversed
+once.
+
+**Three still fall short on the light canvas** and are known: `04` `Yellow/500` at 1.74:1, `03`
+`Emerald/500` at 2.25:1, and `10` `Green/600` at 2.95:1 — the last effectively on the line. Yellow
+is the structural one; it needs roughly `Yellow/700` to clear 3:1 on `Stone/100`, which is a visibly
+different yellow. Nathan is aware and has parked it, so **do not quietly "fix" these** — they are a
+known, accepted state, and `Data Viz/Utility/Accessibility Border` is the mitigation for a mark that
+needs separating from its ground.
+
+The benchmark, alt and placeholder entries are the exception to all of it and still differ per mode
+on their own logic, because they are ground, not series.
 
 ### Colour is OKLCH, and Tailwind owns the primitives
 
