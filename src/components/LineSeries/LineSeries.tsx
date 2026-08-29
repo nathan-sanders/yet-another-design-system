@@ -55,7 +55,7 @@ import {
  * Every series sets `isAnimationActive={false}`. Recharts animates in
  * JavaScript, with its own duration and easing constants — a second source of
  * truth for motion that Figma cannot reach, which is exactly what this library's
- * motion tokens exist to prevent. It also would not honour the global
+ * motion tokens exist to prevent. It also would not honor the global
  * `prefers-reduced-motion` clamp in `theme.css`, because that clamp is CSS and
  * Recharts' tween is not. Hover feedback is still CSS and still uses the tokens.
  */

@@ -88,7 +88,7 @@ import { empty, groupLabel, item, itemLabel, list, popup, separator } from './st
  * **There is no vertical padding, and that is deliberate** — Select's note, and
  * Input's before it. Figma's `padding-block` sums to the box height only because
  * a Figma stroke does not add to a frame; a CSS border does, and `border-box`
- * would render the default size at 34. Letting the line-height centre inside a
+ * would render the default size at 34. Letting the line-height center inside a
  * `min-h` box lands 24 / 32 / 40 exactly.
  *
  * `group` is here so the value slot can read `data-placeholder` off the trigger,
@@ -220,7 +220,7 @@ const field = tv({
  * single row of tokens actually sits: **1 / 3 / 7**. Setting the padding to
  * anything *less* than that still looks right with one row, because
  * `items-center` makes up the difference — and then betrays itself the moment a
- * second row arrives and there is no spare height left to centre in. The first
+ * second row arrives and there is no spare height left to center in. The first
  * row jerks upwards by the difference.
  *
  * Measured before the fix: 4px above the first token at the default size with
@@ -256,7 +256,7 @@ const chips = tv({
 
   variants: {
     // Each pair is the same number twice: half of the field's inner height less
-    // the token's, which is where one row centres itself anyway.
+    // the token's, which is where one row centers itself anyway.
     size: {
       small: 'py-px [&[role=toolbar]]:pl-px', // (22 − 20) / 2 = 1
       default: 'py-0.75 [&[role=toolbar]]:pl-0.75', // (30 − 24) / 2 = 3
@@ -274,7 +274,7 @@ const chips = tv({
  * `min-w-16` rather than letting it shrink to nothing: a flex child with
  * `flex-1` and no minimum collapses the moment the tokens fill the line, which
  * leaves nowhere to type. With a minimum it wraps onto the next line instead —
- * which is the field's *one* licence to grow. 64px is the smallest that still
+ * which is the field's *one* license to grow. 64px is the smallest that still
  * shows a few characters; more than that and a field wraps while there is
  * plainly room left on the line.
  */
@@ -384,7 +384,7 @@ export interface ComboboxItemData {
   label: string
   /** Secondary line under the label. Figma's `Sub Label`. */
   description?: ReactNode
-  /** Greys the row out and stops it being chosen. */
+  /** Grays the row out and stops it being chosen. */
   disabled?: boolean
 }
 
@@ -694,7 +694,7 @@ export function Combobox({
                         // caret so the two never fire together.
                         className={cn(focusRing)}
                         render={
-                          // Token is the look; Base UI is the behaviour. The
+                          // Token is the look; Base UI is the behavior. The
                           // remove button goes in the end slot because Token's
                           // own `onRemove` would draw a second one — and
                           // `interactive` has to be said out loud here, since

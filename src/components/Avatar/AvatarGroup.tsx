@@ -45,7 +45,7 @@ import {
  * is painted in the color behind the group, and CSS has no way to ask what
  * that is — so `surface` says. It defaults to `canvas`, which is right on the
  * page and wrong the moment the group moves into a Card or a ContentBlock:
- * there it wants `surface="card-primary"`, or the rings read as grey halos.
+ * there it wants `surface="card-primary"`, or the rings read as gray halos.
  */
 export interface AvatarGroupProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** `Avatar` elements, optionally ending in one `AvatarGroup.Overflow`. */

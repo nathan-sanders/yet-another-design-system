@@ -284,7 +284,7 @@ export interface YAxisOptions {
  * `YAxis` props: labels only, no axis line, no ticks, compact numbers.
  *
  * The y axis draws no line of its own because the gridlines already run the full
- * width at every labelled value — a vertical rule beside them would be a fifth
+ * width at every labeled value — a vertical rule beside them would be a fifth
  * line saying nothing. This is Figma's `_Chart Grid`, which has horizontal rules
  * and one heavier baseline, and no left edge.
  */

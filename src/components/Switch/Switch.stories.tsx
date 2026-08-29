@@ -57,7 +57,7 @@ type Story = StoryObj<typeof meta>
 export const Playground: Story = {}
 
 /**
- * The full `Selected State` axis. Off is a white track with a grey knob on the
+ * The full `Selected State` axis. Off is a white track with a gray knob on the
  * left; on fills track and border with Input/Selected and swaps the knob to
  * Input/Selected Foreground.
  *

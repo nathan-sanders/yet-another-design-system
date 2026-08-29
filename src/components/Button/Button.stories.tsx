@@ -116,7 +116,7 @@ export const WithIcons: Story = {
 
 /**
  * Icon-only: a start icon and no label. It keeps the same height *and the same
- * left/right padding* as the labelled version, so the width simply follows the
+ * left/right padding* as the labeled version, so the width simply follows the
  * icon — 42x32 at default size, matching Figma. It is not squared off.
  *
  * There is no visible text, so `aria-label` is what names the button for screen

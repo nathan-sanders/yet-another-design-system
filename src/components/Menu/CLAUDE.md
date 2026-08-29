@@ -10,7 +10,7 @@ Compound API: `<Menu>` + `Trigger` + `Popup` + `Group` + `Item` / `Submenu` / `C
 and is the component Tabs' overflow `TabMenu` has been waiting on.
 **`Menu.Popup` swallows Portal and Positioner.** Base UI's docs have every caller nest
 Root → Trigger → Portal → Positioner → Popup by hand; that is their surface, not this
-library's. `side` / `align` / `sideOffset` are behaviour, not `tv()` variants — Tooltip's call.
+library's. `side` / `align` / `sideOffset` are behavior, not `tv()` variants — Tooltip's call.
 **No ARIA to patch, unlike Tooltip:** `role="menu"`, `role="menuitem"` and the group↔label
 `aria-labelledby` all come from Base UI. Verified in `node_modules` *and* measured in the browser.
 **Disabled hangs off `data-disabled`, not `:disabled`** — Base UI builds items with
@@ -52,7 +52,7 @@ menu with Tab then ArrowDown and hovering a row; `ContextMenu` had it on *every*
 it was noticed. The fix scopes the ring off the hovered row (`:focus-visible:not(:hover)`) rather
 than removing it: `data-highlighted` still paints the row under the cursor, and arrowing away from a
 parked mouse rings the row you moved to. The earlier note here — that the ring was "nearly
-redundant" because highlight and focus fire together — was the bug being rationalised rather than
+redundant" because highlight and focus fire together — was the bug being rationalized rather than
 measured, which is worth remembering as a failure mode.
 The checkbox box and radio dial **deliberately do not reuse `Checkbox` or `Radio`**: the visual
 is theirs, but the state arrives from the item rather than the control, so these read it with

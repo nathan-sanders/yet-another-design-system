@@ -169,7 +169,7 @@ export const WithIcons: Story = {
 /**
  * Icon-only: an icon and no label. Each segment becomes a square at its size
  * (20 / 28 / 36), so the control keeps the same 24 / 32 / 40 outer height as
- * the labelled version.
+ * the labeled version.
  *
  * There is no visible text, so `aria-label` is what names each segment — it is
  * required by the types, and a missing one will not compile.

@@ -19,7 +19,7 @@ import { ChartSwatch } from './Swatch'
  * *label text* in the series color — which several of the twelve hues cannot
  * carry legibly — and has no idea the library has tokens.
  *
- * ## Why a tooltip at all, rather than labelling the points
+ * ## Why a tooltip at all, rather than labeling the points
  *
  * A number beside every point is unreadable at thirty-one points times three
  * series, and it is the single most common way a good chart is ruined. The axis

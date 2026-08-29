@@ -18,13 +18,13 @@ accessibility table nobody asked for, which is a worse description of the compon
 What it *does* share is the palette and `barSegment`, so its bars round exactly like a real bar
 chart's.
 
-## Labelled or decorative — one of the two, enforced by the type
+## Labeled or decorative — one of the two, enforced by the type
 
-`SparkProps` is a union: either `label` is present, or `decorative: true` is. **An unlabelled,
+`SparkProps` is a union: either `label` is present, or `decorative: true` is. **An unlabeled,
 non-decorative spark does not compile**, because that is the silent third case — a `role="img"` with
 no accessible name, which an audit flags and a reader gets nothing from.
 
-The common case is `decorative`. A spark almost always sits next to the figure it summarises, where
+The common case is `decorative`. A spark almost always sits next to the figure it summarizes, where
 the trend is already stated in text; announcing "line chart" there gives a screen reader a vaguer
 second version of a number it has just read. `label` is for the rarer case where the spark is the
 only thing carrying the information.
@@ -33,7 +33,7 @@ only thing carrying the information.
 
 Recharts 3 turns `accessibilityLayer` **on by default**, which makes the chart root focusable. Inside
 this component that is a genuine fault: a `tabindex="0"` element inside an `aria-hidden` wrapper is
-something a keyboard user can land on and a screen reader cannot describe. The labelled case has the
+something a keyboard user can land on and a screen reader cannot describe. The labeled case has the
 same shape, because `role="img"` also makes its subtree opaque.
 
 axe caught it on the `InAMetric` story — worth remembering as the general lesson, since the same

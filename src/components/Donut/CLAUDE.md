@@ -46,7 +46,7 @@ a range of box sizes, everything drawn including the halo lands inside the box.
 
 Figma strokes every slice in `Surface/Background Primary`. Third chart in a row using the same idea:
 the stacked bar's 1px gap, the solid area's top edge, and now this. **White does the separating, not
-a border** — a border is ink that is not data. Worth recognising as one idea rather than three
+a border** — a border is ink that is not data. Worth recognizing as one idea rather than three
 coincidences.
 
 ## `center` is a slot, and a sibling

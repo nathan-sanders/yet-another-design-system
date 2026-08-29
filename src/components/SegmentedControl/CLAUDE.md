@@ -22,7 +22,7 @@ panels — which is item 9 below, on Base UI `Tabs`.
 It takes **both** `nativeButton` and `render={<button type="button" />}` to become a real button —
 that pairing is what gives `:focus-visible` and the native `disabled` attribute.
 **Selection follows focus:** `RadioGroup` clicks the hidden input on arrow-key focus. Correct
-radiogroup behaviour, and what Astryx does. Don't fight it. `enableHomeAndEndKeys` is off, so
+radiogroup behavior, and what Astryx does. Don't fight it. `enableHomeAndEndKeys` is off, so
 Home/End do nothing here (Button's toolbar cousins differ).
 **Heights are Button's, and they fall out of the parts:** a 20px segment inside 1px of padding
 inside a 1px border is 24px, and the same for 28→32 and 36→40. **24 / 32 / 40 are the numbers to
@@ -44,7 +44,7 @@ is what Tooltip's `SharedDelay` story is built from now. A tooltip still only *d
 icon-only segment needs its own `aria-label`, which the union prop type requires anyway.
 **`layout="fill"`** is the one thing here Figma does not draw — Astryx's, for a fixed-width
 panel, and a gap in the file rather than an invention. Figma's focus ring is drawn at
-`rounded-xs` on a `rounded-sm` segment — an artefact of it being a separate overlay layer; the
+`rounded-xs` on a `rounded-sm` segment — an artifact of it being a separate overlay layer; the
 segment's own radius is used instead, as in Button.
 This component shipped first and Figma caught up second, which is the reverse of the usual
 direction: `large` and the Content-ramp label colors were both added to the file afterwards

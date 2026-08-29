@@ -21,7 +21,7 @@ import { Tooltip } from '../Tooltip'
  *     <Slider label="Price range" defaultValue={[20, 80]} />
  *
  * **Eleventh Base UI component**, on `Slider`. Base UI supplies all of the
- * behaviour: a `<input type="range">` per thumb (so it submits with a form and
+ * behavior: a `<input type="range">` per thumb (so it submits with a form and
  * announces as a slider), pointer dragging, track presses, arrow keys, Shift and
  * Page Up/Down for the large step, Home/End, and the thumb-collision rules for a
  * range. All the styling is ours.
@@ -86,10 +86,10 @@ const root = tv({
      *
      * A label sits 4px under the track and is 20px tall (`text-sm`'s
      * line-height), so it needs 24px below the track's bottom edge; a 4px track
-     * centred in the 32px row leaves 14. Hence 10.
+     * centered in the 32px row leaves 14. Hence 10.
      *
      * **It goes here rather than on the row**, which was tried first and is
-     * wrong: padding on the row shrinks the box `items-center` centres the
+     * wrong: padding on the row shrinks the box `items-center` centers the
      * control in, so the track rides 4px higher and the labels still overflow —
      * measured at exactly 4px over. On the root it reserves the space without
      * touching the row's geometry, so a slider with marks and one without put
@@ -117,7 +117,7 @@ const row = tv({
  * diverges from the canvas on purpose. Figma draws a 24px frame around the
  * handle, because on a canvas that is the only place a target can live. In the
  * browser Base UI listens for pointer events on `Slider.Control`, so the height
- * belongs here (`h-6`, Figma's 24) with the 4px track centred inside it. A
+ * belongs here (`h-6`, Figma's 24) with the 4px track centered inside it. A
  * control the height of its track would be a 4px target.
  */
 const control = tv({
@@ -172,7 +172,7 @@ const indicator = tv({
  * the same instinct at the other end.
  *
  * **The overhang, and why `thumbAlignment` is not Base UI's default.** Figma draws
- * the handle centred on the end of the filled track, which is `center` — and at
+ * the handle centered on the end of the filled track, which is `center` — and at
  * `min` that hangs half a handle past the control. Measured: a resting 16px disc
  * overhangs by 8px, which is exactly the row's `gap-2` and is presumably why
  * Figma's gap is 8. But the disc grows to 20px the moment you touch it, and then
@@ -222,7 +222,7 @@ const markTick = tv({
   base: 'absolute top-1/2 h-2 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-border',
 })
 
-/** A tick, optionally labelled. A bare number labels itself with its value. */
+/** A tick, optionally labeled. A bare number labels itself with its value. */
 export type SliderMark = number | { value: number; label?: ReactNode }
 
 type SliderRootProps = ComponentPropsWithRef<typeof SliderPrimitive.Root>
@@ -350,7 +350,7 @@ export function Slider({
       // without this the story suite fails on `color-contrast`. Valid here
       // because `Slider.Root` renders `role="group"`, which supports the state.
       aria-disabled={disabled || undefined}
-      // Not Base UI's default `center`. See the `thumb` recipe above: centred, a
+      // Not Base UI's default `center`. See the `thumb` recipe above: centered, a
       // focused handle at min or max paints over the bounds label.
       thumbAlignment="edge"
       className={cn(root({ disabled, markLabels: hasMarkLabels }), className)}
@@ -401,7 +401,7 @@ export function Slider({
             // the handle that is sitting on `max`. Insetting the layer by the
             // same 8px puts every tick exactly where its value's handle lands,
             // and the indicator agrees too, because it also ends at the handle's
-            // centre.
+            // center.
             //
             // This was derived here by measuring, and **Figma has since been
             // updated to agree**: the Marks frame is now `left: 8px; right: 8px`

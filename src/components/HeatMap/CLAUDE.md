@@ -11,7 +11,7 @@ rounded squares — no axis to scale, no path to compute, no layout to solve. Th
 
 It still goes through `ChartContainer` with **`responsive={false}`**, a prop added for it, because
 `ResponsiveContainer` requires a Recharts child while everything *else* the container does is wanted
-here: the `role="img"` labelling, the hidden data table, the legend header.
+here: the `role="img"` labeling, the hidden data table, the legend header.
 
 `Spark` is the opposite call — it uses no container at all, because it wants none of those things.
 The two are different answers to different questions, not one question at two settings.

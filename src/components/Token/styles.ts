@@ -62,7 +62,7 @@ export const token = tv({
 
   variants: {
     size: {
-      default: 'min-h-6', // 24px — 20px line box centred, 2px of slack
+      default: 'min-h-6', // 24px — 20px line box centered, 2px of slack
       small: 'min-h-5 leading-4.5', // 20px — 18px line box + 2px border
     },
 
@@ -71,7 +71,7 @@ export const token = tv({
      * radius every other card and field in the library uses. A token *inside* a
      * field — a Combobox's chips — takes the step down to `rounded-sm`, because
      * an 8px pill sitting a few pixels inside an 8px box reads as a mistake:
-     * two curves of the same radius on different centres never look parallel.
+     * two curves of the same radius on different centers never look parallel.
      * Subtracting the gap is the usual rule of thumb, and 8 − 3 lands almost
      * exactly on the 6px the scale already has.
      *
@@ -121,7 +121,7 @@ export const token = tv({
 /**
  * The label. `min-w-0` is what lets `truncate` bite: without it a flex child
  * refuses to shrink below its content, and a long value would widen the field
- * instead of ellipsising. Astryx's guidance ("keep labels short — tokens
+ * instead of ellipsizing. Astryx's guidance ("keep labels short — tokens
  * truncate with ellipsis"), and load-bearing for a Combobox that must not grow.
  */
 export const tokenLabel = tv({

@@ -138,7 +138,7 @@ export const card = tv({
 export const clickableCard = tv({
   base: [
     ...box,
-    // A <button> centres its text and inherits nothing; both have to be said.
+    // A <button> centers its text and inherits nothing; both have to be said.
     'text-left text-content-primary',
     // Tailwind's preflight sets buttons to cursor: default. Button's line.
     'cursor-pointer',
@@ -178,7 +178,7 @@ export const clickableCard = tv({
        * the token rather than as `border-transparent` for that reason, and
        * because it is what makes the hover a single color transition.
        *
-       * On a `surface-background-primary` parent it disappears at rest and greys under
+       * On a `surface-background-primary` parent it disappears at rest and grays under
        * the pointer, which is what a mail list wants. On the canvas it is a white
        * block — check which surface it is sitting on before reaching for it.
        */

@@ -47,7 +47,7 @@ const SEPARATOR_ICON: Record<'chevron' | 'arrow' | 'dot', LucideIcon> = {
 }
 
 const separatorStyles = tv({
-  // 16px wide in Figma at every style, with the glyph centred and clipped. The
+  // 16px wide in Figma at every style, with the glyph centered and clipped. The
   // color is set here rather than on the glyph so the slash (text) and the
   // three Lucide icons (currentColor) both land on Content/Subtle.
   base: [

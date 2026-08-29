@@ -46,7 +46,7 @@ import { popup } from './styles'
  * caller nest Root > Trigger > Portal > Positioner > Popup by hand; that is
  * their surface, not this library's. `side`, `align` and `sideOffset` land on
  * the positioner, which is also what flips the popup when it would leave the
- * viewport — so, as in Tooltip, they are behaviour rather than `tv()` variants.
+ * viewport — so, as in Tooltip, they are behavior rather than `tv()` variants.
  * The raw parts are attached below for anything this shape cannot express.
  *
  * **No ARIA to patch, unlike Tooltip.** `role="menu"` and `role="menuitem"` are

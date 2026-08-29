@@ -46,9 +46,9 @@ export const Playground: Story = {
  * The figure under the arch, which is the whole reason this is a separate
  * component rather than a `Donut` prop.
  *
- * Folding a donut in half turns the hole into a **shelf**: the arc's centre sits
+ * Folding a donut in half turns the hole into a **shelf**: the arc's center sits
  * at the bottom edge, so the free space is the lower half of the box rather than
- * the middle of it. A donut centres its content; a gauge tucks it under. Those
+ * the middle of it. A donut centers its content; a gauge tucks it under. Those
  * are different components pretending to be one prop.
  */
 export const WithMetric: Story = {

@@ -10,7 +10,7 @@ held in the theme for.
 Hover/focus/disabled are CSS states, not props. Focus is the shared ring (see **Focus** above),
 on `:focus-visible`. Disabled is `opacity-40`.
 **Icon-only:** pass `startIcon` with no children. It keeps the same height *and the same
-horizontal padding* as its labelled twin, so the width follows the icon — 42×32 at default size
+horizontal padding* as its labeled twin, so the width follows the icon — 42×32 at default size
 per Figma (node 40002016:6867), **not** a 32×32 square. It is derived from the absence of a label, not a prop, and
-the props are a union so `aria-label` is *required* in that form — an unlabelled icon button will
+the props are a union so `aria-label` is *required* in that form — an unlabeled icon button will
 not compile.

@@ -19,7 +19,7 @@ import { Metric, type MetricProps } from './Metric'
  * warns about.
  *
  * **It is `h-full` on purpose.** Cards in a row have labels of different
- * lengths, and a metric row where one card is a line taller than its neighbours
+ * lengths, and a metric row where one card is a line taller than its neighbors
  * reads as a mistake. Filling the row's height is what keeps them level, and it
  * is the same thing `ContentBlock` does inside `BentoGrid`.
  */

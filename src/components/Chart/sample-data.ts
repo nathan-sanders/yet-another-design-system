@@ -106,7 +106,7 @@ export function heatMapData(): { rows: string[]; columns: string[]; values: (num
   const values = rows.map((_, r) =>
     columns.map((_, c) => {
       // Quiet overnight and at weekends, busy mid-morning midweek — a shape a
-      // reader can recognise, so a broken scale is obvious rather than plausible.
+      // reader can recognize, so a broken scale is obvious rather than plausible.
       const workday = r >= 1 && r <= 5 ? 1 : 0.35
       const hourly = Math.exp(-((c - 10) ** 2) / 40) + 0.15
       const value = Math.round(workday * hourly * 900 * (0.6 + random() * 0.8))

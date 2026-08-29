@@ -54,7 +54,7 @@ const meta = {
   decorators: [
     // A select needs room. It opens *over* its trigger rather than below it, so
     // without the height it would have nowhere to sit and Base UI would fall
-    // back to the conventional dropdown — hiding the behaviour this component
+    // back to the conventional dropdown — hiding the behavior this component
     // is built around. Menu's decorator, for a related reason.
     (Story) => (
       <div className="flex min-h-96 items-center justify-center p-16">

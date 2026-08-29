@@ -175,12 +175,12 @@ def px2rem(v):
 
 # ---- the neutral role: Figma's "Stone" is the alias tier, not the ramp ----
 # '#rrggbb' (lowercase, no alpha) -> step, for the default ramp only. Used to
-# recognise the alpha variants the semantic layer stores as raw hex.
+# recognize the alpha variants the semantic layer stores as raw hex.
 NEUTRAL_ROLE_HEX = {p["v"].lower(): p["n"].split("/", 1)[1]
                     for p in prims
                     if p["n"].startswith(NEUTRAL_ROLE + "/")}
 
-stats["neutralised"] = []
+stats["neutralized"] = []
 
 def neutral_step(target):
     """'Stone/800' -> '800', else None."""
@@ -227,7 +227,7 @@ def resolve(val):
     if isinstance(val, str) and val.startswith("#"):
         mixed = neutral_alpha(val)
         if mixed:
-            stats["neutralised"].append((val, mixed))
+            stats["neutralized"].append((val, mixed))
             return mixed
         return hex_to_oklch(val)
     return val
@@ -421,7 +421,7 @@ out.append(":root {")
 out += extra_lines
 out.append("}")
 out.append("")
-out.append("/* ---- 5. Reduced motion. Astryx: components honour the OS setting by ---- */")
+out.append("/* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */")
 out.append("/*    replacing animation with an instant state change. Applied globally    */")
 out.append("/*    so no component has to remember to.                                   */")
 out.append("/*                                                                          */")
@@ -481,16 +481,16 @@ if stats["unmatched"]:
           "in Figma): " + ", ".join(sorted(set(stats["unmatched"]))))
 print(f"neutral ramp: {len(NEUTRAL_SCALES)} scales x {len(NEUTRAL_STEPS)} steps "
       f"(default {NEUTRAL_SCALES[0]}), via --neutral-*")
-if stats["neutralised"]:
-    print(f"  {len(stats['neutralised'])} raw alpha color(s) re-pointed onto the neutral tier:")
-    for hexval, mixed in stats["neutralised"]:
+if stats["neutralized"]:
+    print(f"  {len(stats['neutralized'])} raw alpha color(s) re-pointed onto the neutral tier:")
+    for hexval, mixed in stats["neutralized"]:
         print(f"      {hexval}  ->  {mixed}")
 if stats["drifted"]:
     print(f"  ! {len(stats['drifted'])} primitive(s) differ from Tailwind by more than hex")
     print("    rounding. Tailwind wins, so the Figma value is NOT being used. Either")
     print("    set Figma back to match, or move the color into the semantic layer:")
     for name, fig, tw, d in sorted(stats["drifted"], key=lambda r: -r[3]):
-        print(f"      {name:16} figma {fig}  ignored in favour of  {tw}")
+        print(f"      {name:16} figma {fig}  ignored in favor of  {tw}")
 print(f"radius:{len(radius)} text:{len(text_fs)} blur:{len(blur)} "
       f"drop-shadows:{len(shadows_drop)} inner-shadows:{len(shadows_inner)}")
 print(f"wrote {out_path} ({len(css)} bytes, {css.count(chr(10))} lines)")

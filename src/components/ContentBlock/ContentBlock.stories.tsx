@@ -322,7 +322,7 @@ export const ActionsOnAccent: Story = {
  * Emphasis exists to be used sparingly: one accent block in a view, and the
  * eye goes there first. Three of them, and it goes nowhere.
  *
- * This story shows the working version — the anchor plus its neighbours, all at
+ * This story shows the working version — the anchor plus its neighbors, all at
  * the same size, so the only thing separating them is the surface. Vary the
  * sizes too and you have a bento layout; see `BentoGrid`.
  */

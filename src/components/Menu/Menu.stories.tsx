@@ -164,7 +164,7 @@ export const Groups: Story = {
 /**
  * An icon-only trigger — the overflow menu for a table row or a card, where a
  * text button would take too much space. The Button's own union prop type
- * requires `aria-label`, so an unlabelled trigger will not compile.
+ * requires `aria-label`, so an unlabeled trigger will not compile.
  */
 export const IconTrigger: Story = {
   render: () => (
@@ -291,7 +291,7 @@ export const Shortcuts: Story = {
 
 /**
  * `side` and `align` go to Base UI's positioner, which is also what flips the
- * popup when it would leave the viewport — so they are behaviour, not `tv()`
+ * popup when it would leave the viewport — so they are behavior, not `tv()`
  * variants. The same call Tooltip's docblock makes.
  */
 export const Sides: Story = {

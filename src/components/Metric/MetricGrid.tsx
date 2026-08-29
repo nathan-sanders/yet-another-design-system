@@ -22,7 +22,7 @@ import { cn } from '../../lib/cn'
  * stops there.
  *
  * If that ever stops being true, this component has no reason to exist and
- * should be deleted in favour of `BentoGrid`. It is worth writing that down,
+ * should be deleted in favor of `BentoGrid`. It is worth writing that down,
  * because from the outside the two look like duplicates.
  *
  * ## The count is a hint, not a promise

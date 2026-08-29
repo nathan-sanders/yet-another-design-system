@@ -29,13 +29,13 @@ import type { ChartSwatchShape } from './Swatch'
  *
  * `role="img"` plus an `aria-label` gets a chart past an automated check and
  * leaves a screen reader user with a sentence where everyone else has thirty-one
- * days of data. So the container renders both: the plot, labelled, and a
+ * days of data. So the container renders both: the plot, labeled, and a
  * visually hidden `<table>` carrying every value.
  *
  * The order matters and is easy to get backwards. `role="img"` makes an
  * element's whole subtree opaque to assistive technology, so a table *inside*
  * it would be announced to no one. The table is therefore a **sibling** of the
- * labelled plot, not a child of it.
+ * labeled plot, not a child of it.
  *
  * ## Sizing, and the trap under it
  *
@@ -77,7 +77,7 @@ export interface ChartContainerProps {
    *
    * Pass `'colorSwatch'` from any chart whose marks are areas rather than points
    * on a line — an area fill, a bar segment, a slice. Leaving it unset keeps the
-   * line chart's behaviour, where each series gets a rule with its own point
+   * line chart's behavior, where each series gets a rule with its own point
    * shape on it.
    */
   swatch?: ChartSwatchShape
@@ -118,7 +118,7 @@ export interface ChartContainerProps {
    * grid of colored cells, and `ResponsiveContainer` requires a Recharts child.
    *
    * Everything else this container does is still wanted there: the series
-   * context, the legend header, the `role="img"` labelling, the hidden data
+   * context, the legend header, the `role="img"` labeling, the hidden data
    * table and the overlay slot. Three lines here save a heat map
    * reimplementing the accessibility work, which is the part most likely to be
    * done differently the second time.

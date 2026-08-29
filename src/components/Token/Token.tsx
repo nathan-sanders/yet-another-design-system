@@ -96,7 +96,7 @@ export type TokenProps = TokenBaseProps &
 /**
  * The `x` that removes a token.
  *
- * Exported as `Token.Remove` so that a Combobox can hand its own behaviour to
+ * Exported as `Token.Remove` so that a Combobox can hand its own behavior to
  * the same button — `<Combobox.ChipRemove render={<Token.Remove />} />` — rather
  * than the styling being locked inside Token's `onRemove`. Base UI ships
  * `Combobox.Chips` / `Chip` / `ChipRemove` and no chip of its own to look at,

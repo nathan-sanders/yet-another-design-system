@@ -43,7 +43,7 @@ type Story = StoryObj<typeof meta>
  * A single link with controls — use the Theme switch in the toolbar for dark
  * mode. `size` is set to `base` here because a link on its own has no sentence
  * to inherit from; clear it and this one falls back to the browser default,
- * which is the behaviour the InlineLink story is built on.
+ * which is the behavior the InlineLink story is built on.
  */
 export const Playground: Story = {}
 
@@ -151,7 +151,7 @@ export const States: Story = {
  * `external` is one prop doing four things: the arrow glyph from Figma's
  * External Link property, `target="_blank"`, `noopener noreferrer` merged into
  * any `rel` you pass, and hidden text so a screen reader announces the new tab
- * before following the link. Override that text with `newTabLabel` to localise.
+ * before following the link. Override that text with `newTabLabel` to localize.
  *
  * The arrow is 12px against `text-base`, as Figma draws it, and steps up with
  * the type scale — the last row is `size="2xl"` with a 20px arrow.
@@ -184,7 +184,7 @@ export const ExternalLink: Story = {
  * in a Base UI button.
  *
  * `Tooltip.Provider` shares the hover delay across the row: once one has opened,
- * its neighbours open immediately, which is what makes the nav read as one
+ * its neighbors open immediately, which is what makes the nav read as one
  * surface rather than three separate waits.
  *
  * A tooltip *describes*; it never names. These links are already named by their

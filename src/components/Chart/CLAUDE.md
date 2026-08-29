@@ -14,7 +14,7 @@ Figma page: **↪ Data Viz (In Progress)** (`40004316:13427`). Sections `Legend 
 Everything on that page with a **leading underscore** — `_Line Series / Segment` (16 variants),
 `_Donut / Slice Sweep`, `_Radar / Areas` (20 variants), `_Line Series / Plot Point`, `_X-Axis
 Presets` (26 variants) — exists because **Figma has to draw a chart by hand**, one segment at a
-time, and a Figma component cannot be parameterised by a number or compute a tick from data.
+time, and a Figma component cannot be parameterized by a number or compute a tick from data.
 Recharts does both. Those components are a *drawing mechanism*, not an API.
 
 Reading them as a component list is the single biggest way this work could balloon: it turns roughly
@@ -46,7 +46,7 @@ is the exact thing the semantic layer was built to make unnecessary.
   series' index in the caller's array, not from a counter over visible ones. A palette that re-flows
   when a series is filtered out repaints the survivors and silently invalidates the legend the
   reader just learned.
-- **Past twelve series, `categorical()` returns the placeholder grey rather than wrapping.** Two
+- **Past twelve series, `categorical()` returns the placeholder gray rather than wrapping.** Two
   visible series sharing a color is worse than admitting the scale ran out: the reader cannot tell
   them apart and nothing signals that they should stop trying. Figma reaches the same conclusion from
   the other end — its `Chart Legend` has a `+X more` row, which `ChartLegend`'s `max` implements.
@@ -98,7 +98,7 @@ the real token yields the filled marker. That is why it is a color and not a boo
 `<table>` of every value. An `aria-label` alone passes an automated check and leaves a screen reader
 user with one sentence where everyone else has thirty-one days of data.
 
-**The table is a sibling of the labelled plot, never a child.** `role="img"` makes its whole subtree
+**The table is a sibling of the labeled plot, never a child.** `role="img"` makes its whole subtree
 opaque to assistive technology, so a table inside it would be announced to nobody. Easy to get
 backwards, and nothing would flag it.
 
@@ -170,7 +170,7 @@ what the label says.
 
 Figma's 13 x presets × wide/narrow and 8 y presets are `tickInterval` plus `formatDateTick` plus
 `inferXPreset`. The check that the rules reproduce the design: 31 points in a wide chart gives
-`ceil(31/16) - 1 = 1`, labelling days 1, 3, 5 … 31 — exactly the sixteen labels the file draws.
+`ceil(31/16) - 1 = 1`, labeling days 1, 3, 5 … 31 — exactly the sixteen labels the file draws.
 
 Wide/narrow is Figma's own `Chart Breakpoint` variable (600), measured by a `ResizeObserver` rather
 than declared. A zero width is treated as "not laid out yet" rather than "narrow", and the initial
@@ -180,7 +180,7 @@ state is wide, so a chart does not visibly shed its labels and put them back.
 
 It is on by default and stays on — not for two or more series, but for **every** chart. Two
 exceptions look reasonable and are both wrong: a single-series chart still needs the swatch to say
-which color means the thing the title names (in greyscale, or for a reader who cannot separate two
+which color means the thing the title names (in grayscale, or for a reader who cannot separate two
 hues, that mapping is the only thing carrying identity), and a chart narrowed to one data point still
 plots a series. A key that disappeared exactly when a filter narrowed the data would be missing at
 the moment the chart was least familiar.
@@ -227,7 +227,7 @@ different door. Verified by reading the fills before and after a toggle: `01,02,
 `01,03,04,05,06`, not `01,02,03,04,05`.
 
 A switched-off row keeps its place — you have to be able to click it back — and carries **two**
-signals, the placeholder grey and a strikethrough, because a color change alone is a poor way to
+signals, the placeholder gray and a strikethrough, because a color change alone is a poor way to
 state a binary. The state is `aria-pressed`, not `aria-hidden` or `disabled`: it is a toggle that is
 still available.
 

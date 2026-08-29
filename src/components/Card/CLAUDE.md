@@ -106,13 +106,13 @@ and is a white block on the canvas: check what is behind it.
   landed, which is the test of whether a catch-up was really a catch-up.
 - **Link's motion, not Button's.** `transition-colors duration-fast-min ease-standard`; Button's
   bare `transition-colors` predates the motion tier and is not the model.
-- **`text-left` and `cursor-pointer` are both said out loud**, because a `<button>` centres its text
+- **`text-left` and `cursor-pointer` are both said out loud**, because a `<button>` centers its text
   and Tailwind's preflight gives it `cursor: default`.
 
 ## Why padding is not a variant
 
 Worth writing down, because it is the first axis in this library that **could not** become a Figma
-property, and the reasoning generalises.
+property, and the reasoning generalizes.
 
 Figma has exactly four component-property kinds — VARIANT, BOOLEAN, TEXT, INSTANCE_SWAP — and
 **none of them is a number.** Read the Card set's own `componentPropertyDefinitions` and you get

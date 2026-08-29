@@ -69,7 +69,7 @@ export const WithTotal: Story = {
  * legend the reader has just learned.
  *
  * A switched-off row stays in the legend — you have to be able to click it back
- * — and carries two signals, the placeholder grey and a strikethrough, because a
+ * — and carries two signals, the placeholder gray and a strikethrough, because a
  * color change alone is a poor way to state a binary.
  */
 export const InteractiveLegend: Story = {

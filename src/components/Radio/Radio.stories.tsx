@@ -122,7 +122,7 @@ export const WithDescription: Story = {
       <Radio
         {...args}
         value="org"
-        label="Organisation"
+        label="Organization"
         description="Unlimited editors, SSO, and an audit log."
       />
     </Radio.Group>
@@ -180,7 +180,7 @@ export const ContainerWithDescription: Story = {
           {...args}
           inContainer
           value="org"
-          label="Organisation"
+          label="Organization"
           description="Unlimited editors, SSO, and an audit log."
         />
       </Radio.Group>

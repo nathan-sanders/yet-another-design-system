@@ -195,7 +195,7 @@ export const WithEndSlot: Story = {
 
 /**
  * Icon-only: an icon and no label. Each tab becomes a square at its size
- * (24 / 32 / 40), so a strip mixing labelled and icon-only tabs still lines up.
+ * (24 / 32 / 40), so a strip mixing labeled and icon-only tabs still lines up.
  *
  * There is no visible text, so `aria-label` is what names each tab — it is
  * required by the types, and a missing one will not compile.

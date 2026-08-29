@@ -1,6 +1,6 @@
 # Metric
 
-The labelled-number family: `Metric`, `MetricCard`, `MetricGrid`, `TrendBadge`. Figma's `Metric Grid`
+The labeled-number family: `Metric`, `MetricCard`, `MetricGrid`, `TrendBadge`. Figma's `Metric Grid`
 section (`40004341:12479`). **No Recharts anywhere in this folder** — it is layout, and it is what
 the top row of a dashboard is made of.
 
@@ -56,7 +56,7 @@ spark, whose bars always do.
   component** — worth remembering as the shape of that mistake.
 - What works is the row staying `items-end` with the spark wrapped beside a **zero-width strut**
   carrying the value's own typography. The strut has a real text baseline; the spark is a box with no
-  text, so flexbox synthesises one from its bottom edge, and `items-baseline` between the two lands
+  text, so flexbox synthesizes one from its bottom edge, and `items-baseline` between the two lands
   that edge on the strut's baseline. The wrapper's own bottom is still the line box bottom, so it
   aligns with the block as before.
 

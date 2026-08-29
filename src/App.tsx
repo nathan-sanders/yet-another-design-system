@@ -278,7 +278,7 @@ export default function App() {
           <Swatches items={decorative} />
         </Section>
 
-        <Section title="Data visualisation">
+        <Section title="Data visualization">
           <Swatches items={dataViz} />
         </Section>
 

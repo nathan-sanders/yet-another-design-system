@@ -158,7 +158,7 @@ export function Field({
         {/*
           Both halves have to move together: Base UI logs an error if
           `nativeLabel` is false while a real <label> is still rendered, because
-          the two would disagree about whether native label behaviour applies.
+          the two would disagree about whether native label behavior applies.
         */}
         <FieldPrimitive.Label
           nativeLabel={nativeLabel}

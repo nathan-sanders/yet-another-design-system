@@ -68,10 +68,10 @@ export const categoricalCount = categoricalScale.length
 /**
  * The color for series `index`.
  *
- * **Past the twelfth series this returns the placeholder grey, and that is the
+ * **Past the twelfth series this returns the placeholder gray, and that is the
  * intended answer rather than a shortfall.** Wrapping back to color 01 would
  * hand two different series the same identity, which is worse than admitting
- * there is no color left: the reader cannot tell them apart and, unlike a grey,
+ * there is no color left: the reader cannot tell them apart and, unlike a gray,
  * nothing signals that they should stop trying. Figma reaches the same
  * conclusion from the other end — its `Chart Legend` carries a `+X more` row for
  * precisely this case.
@@ -89,7 +89,7 @@ export function categorical(index: number): string {
  * The reference line a series is measured against — a target, last period, an
  * average. Deliberately chromaless in both themes, and pinned so it does *not*
  * follow the swappable neutral ramp: a benchmark should read as "not a series"
- * whatever the UI neutral is, and a tinted grey next to twelve hues reads as a
+ * whatever the UI neutral is, and a tinted gray next to twelve hues reads as a
  * thirteenth category. The root `CLAUDE.md` records these four as the only
  * `@Neutral/*` references left in the semantic layer, and keeping them that way
  * is the invariant.

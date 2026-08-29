@@ -41,7 +41,7 @@ lowest two segments welded together with no gap at all.
 
 **That bug was invisible in a screenshot and obvious in a measurement**, at 1px across 31 columns.
 It is pinned in `Chart/bars.test.ts`, which asserts the property rather than the pixels: every
-neighbouring pair in a stack is separated by exactly the gap, and the bottom of the stack still sits
+neighboring pair in a stack is separated by exactly the gap, and the bottom of the stack still sits
 on the baseline.
 
 ## Bar width and the two category gaps

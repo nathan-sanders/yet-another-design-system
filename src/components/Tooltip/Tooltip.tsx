@@ -11,7 +11,7 @@ import { overlayLayer } from '../../lib/layers'
  *
  * Mirrors Figma node `40004073:20833`. That component has no variant set at all
  * — one look, no sizes, no colors, no arrow — so there is nothing here to model
- * as `tv()` variants. Everything interesting is behaviour.
+ * as `tv()` variants. Everything interesting is behavior.
  *
  * Third Base UI component in the library after Divider and Avatar, and the first
  * that portals. Base UI supplies the whole popup lifecycle: hover and focus
@@ -44,7 +44,7 @@ import { overlayLayer } from '../../lib/layers'
  * it, this would produce a duplicate id reference.
  *
  * **`side` and `align` are not Figma variants** and deliberately are not `tv()`
- * variants either. They are behaviour: they go to Base UI's positioner, which is
+ * variants either. They are behavior: they go to Base UI's positioner, which is
  * also what flips the popup to the other side when it would leave the viewport.
  *
  * **Wrapping trap:** Figma's text layer is `white-space: nowrap` because it is
@@ -165,7 +165,7 @@ export function Tooltip({
 
 /**
  * Shared hover delay across a group of tooltips. Once one has opened, its
- * neighbours open instantly until the group goes quiet — which is what makes a
+ * neighbors open instantly until the group goes quiet — which is what makes a
  * toolbar of icon buttons feel like one surface rather than a row of separate
  * waits. Base UI's `Tooltip.Provider`, unstyled and passed straight through.
  */

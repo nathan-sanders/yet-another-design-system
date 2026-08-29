@@ -67,7 +67,7 @@ describe('formatDateTick', () => {
     expect(formatDateTick('2026-01-01', 'days')).toBe('Jan 1')
   })
 
-  it('honours an explicit zone', () => {
+  it('honors an explicit zone', () => {
     expect(formatDateTick('2026-01-01T00:00:00Z', 'days', undefined, 'America/Los_Angeles')).toBe('Dec 31')
   })
 

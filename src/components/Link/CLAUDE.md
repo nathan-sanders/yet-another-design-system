@@ -44,17 +44,17 @@ already expose to callers, so the library still has exactly one polymorphism idi
 otherwise. **`@base-ui/react/use-render` is named in `vite.config.ts`** per the Toast rule.
 `external` is one prop doing four things — the arrow, `target="_blank"`, `noopener noreferrer`
 merged (not replaced) into any `rel` passed, and `sr-only` text announcing the new tab, which
-`newTabLabel` localises. The arrow follows an explicit type-step → Icon-size map the way
+`newTabLabel` localizes. The arrow follows an explicit type-step → Icon-size map the way
 Button's `ICON_SIZE` does, 12/16/20/24, and **stops growing at `x-large`**: an off-scale icon
-size would be a second untokenised value in a library trying to keep Avatar's
+size would be a second untokenized value in a library trying to keep Avatar's
 `tracking-[-0.02em]` as its only one.
 **The arrow is `align-middle`, 1.18px below where Figma puts it**, and that is deliberate.
-Auto-layout centres it on the line box, which agrees with the text only while the line-height
+Auto-layout centers it on the line box, which agrees with the text only while the line-height
 does; centring on the x-height keeps it glued to the words at every step and under any leading.
 **12px arrow, 2px gap, 24px line box at `base`, and 1.18px are the numbers to check.**
 Focus is the shared ring, measured pixel-identical box before and after focus with the table
 around it unmoved — but on **`rounded-[0.4em]`, the one place this component leaves the radius
-scale**, and the library's second untokenised value after Avatar's `tracking-[-0.02em]`.
+scale**, and the library's second untokenized value after Avatar's `tracking-[-0.02em]`.
 Figma binds `border-radius/rounded-md`, and 8px is wrong here twice over. An inline element's
 painted box is the font's *content* box (~1.21em), not the line box: 17px at `text-base` where
 a blockified link — any Link that lands in a flex container, which is most standalone ones —

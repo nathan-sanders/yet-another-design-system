@@ -1124,7 +1124,7 @@
   --icon-stroke-weight: 1.5;
 }
 
-/* ---- 5. Reduced motion. Astryx: components honour the OS setting by ---- */
+/* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */
 /*    replacing animation with an instant state change. Applied globally    */
 /*    so no component has to remember to.                                   */
 /*                                                                          */

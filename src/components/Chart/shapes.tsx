@@ -7,7 +7,7 @@ import type { ReactElement } from 'react'
  * once here and used at two very different sizes: **24px** inside a legend or
  * tooltip `Swatch`, and **8–9px** as a plot point on a line. Figma models these
  * as two separate component sets (`_Swatch`, `_Line Series / Plot Point`)
- * because a Figma component cannot be parameterised by a number; in code they
+ * because a Figma component cannot be parameterized by a number; in code they
  * are one function and a `size`.
  *
  * ## The nominal-12 space
@@ -89,7 +89,7 @@ export const chartMarkers: readonly ChartMarker[] = [
  * bigger problems.
  *
  * Having a shape at all is the point: it is what keeps identity legible for a
- * reader who cannot separate two hues, and in greyscale print.
+ * reader who cannot separate two hues, and in grayscale print.
  */
 export function markerForIndex(index: number): ChartMarker {
   return chartMarkers[index % chartMarkers.length]
@@ -156,7 +156,7 @@ export interface MarkerShapeOptions {
   size: number
   /** Ring thickness for the outline shapes and the X. 2 in a swatch, 1.5 on a plot point. */
   strokeWidth: number
-  /** Centre of the shape, in the coordinate space of the `<svg>` it is placed in. */
+  /** Center of the shape, in the coordinate space of the `<svg>` it is placed in. */
   cx?: number
   cy?: number
   /**
@@ -168,7 +168,7 @@ export interface MarkerShapeOptions {
 }
 
 /**
- * One marker, as an SVG element centred on (`cx`, `cy`).
+ * One marker, as an SVG element centered on (`cx`, `cy`).
  *
  * Returns a bare shape with no wrapper, so the caller decides the coordinate
  * space — `Swatch` puts it in a 24×24 `<svg>`, and Recharts places it directly

@@ -30,7 +30,7 @@ interface AvatarBaseProps
    * avatar is 16px at its default size and 12px at small, neither of which is a
    * variant here or in the Figma Avatar set. The box takes the number; the type
    * scale, the fallback glyph, the status dot and the group ring snap to the
-   * nearest named step, because those are tokenised and there is nothing
+   * nearest named step, because those are tokenized and there is nothing
    * continuous to interpolate. Reach for a name unless something else owns the
    * box.
    */
@@ -88,7 +88,7 @@ interface AvatarButtonProps {
 
 /**
  * An interactive avatar has no visible text of its own, so it needs a name from
- * somewhere. Requiring `name` or `alt` in the type means an unlabelled link or
+ * somewhere. Requiring `name` or `alt` in the type means an unlabeled link or
  * button will not compile — the same guard Button puts on its icon-only form.
  */
 type AvatarAccessibleName = { name: string; alt?: string } | { alt: string; name?: string }
@@ -146,7 +146,7 @@ StatusDot.displayName = 'Avatar.StatusDot'
  * label. `src` gives you the photo, `name` gives you initials, `count` gives you
  * the `+N` circle, and with none of them you get a person glyph.
  *
- * Behaviour comes from **Base UI's `Avatar`** (Root / Image / Fallback), which
+ * Behavior comes from **Base UI's `Avatar`** (Root / Image / Fallback), which
  * tracks the image's loading state and swaps in the fallback when it errors —
  * with an optional delay so a fast-loading photo never flashes initials first.
  * All the styling is ours, and it lives in `styles.ts` because the group's

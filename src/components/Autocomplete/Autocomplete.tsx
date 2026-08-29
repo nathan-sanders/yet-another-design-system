@@ -125,7 +125,7 @@ export interface AutocompleteItemData {
    * with its own data about whether it has an avatar.
    */
   avatar?: AutocompleteItemAvatar
-  /** Greys the row out and stops it being chosen. */
+  /** Grays the row out and stops it being chosen. */
   disabled?: boolean
 }
 

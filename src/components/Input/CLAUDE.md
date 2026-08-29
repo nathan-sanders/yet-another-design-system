@@ -58,7 +58,7 @@ case is the point to extract it. **A Button in an addon is not disabled by a dis
 nothing reaches into arbitrary children, so the box fades and stops taking pointers but the
 button keeps its place in the tab order unless you disable it too.
 **No new tokens, and no `generate.py` run** — the `input-*` ramp already existed for Checkbox and
-Radio. Also **no untokenised values**: the text row's 22 / 30 / 38 are `min-h-5.5` / `-7.5` /
+Radio. Also **no untokenized values**: the text row's 22 / 30 / 38 are `min-h-5.5` / `-7.5` /
 `-9.5`, real half-steps of the 4px spacing scale rather than arbitrary pixels, so Avatar's
 `tracking-[-0.02em]` and Link's `rounded-[0.4em]` are still the only two in the library.
 **`Display` stays one property in Figma, settled deliberately.** The code can mix the two — an

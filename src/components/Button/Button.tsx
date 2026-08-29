@@ -24,7 +24,7 @@ import { Icon, type IconProps } from '../Icon'
  * handled entirely by the token layer swapping under `.dark`.
  *
  * Passing a `startIcon` with no children gives the icon-only form: same height
- * and same horizontal padding as its labelled counterpart, just without the
+ * and same horizontal padding as its labeled counterpart, just without the
  * label, with `aria-label` required to supply the name the label would have
  * carried.
  *
@@ -114,12 +114,12 @@ interface ButtonBaseProps extends Omit<ComponentPropsWithRef<'button'>, 'color' 
 }
 
 /**
- * A Button is either labelled or icon-only, and the two have different rules,
+ * A Button is either labeled or icon-only, and the two have different rules,
  * so the props are a union rather than "everything optional".
  *
  * Icon-only means exactly what it says: a start icon and no label. Because
  * there is no visible text, `aria-label` is required — TypeScript will not let
- * an unlabelled icon button compile, which is the one accessibility mistake
+ * an unlabeled icon button compile, which is the one accessibility mistake
  * this pattern invites.
  */
 export type ButtonProps = ButtonBaseProps &

@@ -35,7 +35,7 @@ import { Icon, type IconProps } from '../Icon'
  * keys move focus and Enter or Space activates. With panels attached that is the
  * WAI-ARIA recommendation: following focus would swap the panel contents under
  * someone who is only arrowing past on their way to the tab they want. Pass
- * `activateOnFocus` on `Tabs.List` for the automatic behaviour.
+ * `activateOnFocus` on `Tabs.List` for the automatic behavior.
  *
  * **The bold-weight reflow, and how it is dodged.** Figma draws an inactive
  * label at weight 400 and the active one at 600, which makes the selected tab
@@ -180,7 +180,7 @@ const tab = tv({
       small: 'min-h-6 px-3 text-sm', // 24px
       default: 'min-h-8 px-3 text-base', // 32px
       // Large is taller but no wider — px-3 at every size, as in Figma, which
-      // is SegmentedControl's behaviour rather than Button's 8 / 12 / 16.
+      // is SegmentedControl's behavior rather than Button's 8 / 12 / 16.
       large: 'min-h-10 px-3 text-base', // 40px
     },
 
@@ -194,7 +194,7 @@ const tab = tv({
     /**
      * Icon-only: Figma's `Label` slot switched off. Not a prop — derived from
      * the absence of children, so a caller cannot set it and have the two
-     * disagree. Square at each size, so a strip mixing labelled and icon-only
+     * disagree. Square at each size, so a strip mixing labeled and icon-only
      * tabs still lines up.
      */
     iconOnly: {
@@ -317,9 +317,9 @@ interface TabsTabBaseProps
 }
 
 /**
- * A tab is either labelled or icon-only, and the two have different rules, so
+ * A tab is either labeled or icon-only, and the two have different rules, so
  * the props are a union rather than "everything optional". With no visible text,
- * `aria-label` is required — TypeScript will not let an unlabelled icon tab
+ * `aria-label` is required — TypeScript will not let an unlabeled icon tab
  * compile, which is the accessibility mistake the shape invites.
  */
 export type TabsTabProps = TabsTabBaseProps &

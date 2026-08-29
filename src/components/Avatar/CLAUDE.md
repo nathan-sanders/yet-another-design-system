@@ -15,7 +15,7 @@ variant here or in the Figma Avatar set* — they are resized instances on the c
 takes the number through an inline `width`/`height`, which beats the `size-*` class on
 specificity. Everything **derived** from the size — the initials type scale, the fallback glyph,
 the status dot, the group ring — snaps to the nearest named step via `nearestAvatarSize`, because
-those scales are tokenised and there is nothing continuous between their steps to interpolate to.
+those scales are tokenized and there is nothing continuous between their steps to interpolate to.
 So a 16px avatar draws 10px initials, `x-small`'s. `AvatarGroup`'s `size` stays named-only: the
 overlap is keyed to the ring width at each step, and a custom size is for one avatar whose box
 something else owns, not for a row of them.
@@ -35,7 +35,7 @@ the circle and shrink the photo. **164px at `base` is the number to check** when
 **Focus:** the shared ring, which is `box-shadow` — this is the component that decides that for
 the whole library. `outline` is already carrying the group ring here, and `border` would shrink
 the photo, so focus had nothing else left to use.
-**The one untokenised value in the library:** x-large initials get `tracking-[-0.02em]`. Figma's
+**The one untokenized value in the library:** x-large initials get `tracking-[-0.02em]`. Figma's
 `text-5xl` style carries −2% letter-spacing, but letter-spacing is not exported by the token
 pipeline at all — no `--text-*--letter-spacing` in `theme.css`, no `letterSpacing` in
 `tokens/dimensions.json` — so there is no token to reach for.
@@ -56,7 +56,7 @@ not offered; `surface-border` is a line, not a fill, and nothing is drawn on top
 It was a hardcoded `outline-surface-canvas` until this landed, which was right on the page and
 wrong everywhere else. `--surface-canvas` is `neutral-100` against a card's white in light and
 `neutral-950` against its `neutral-900` in dark, so a group inside a Card or a ContentBlock drew a
-grey halo around every circle instead of a gap between them. Kanban had it, and so did this
+gray halo around every circle instead of a gap between them. Kanban had it, and so did this
 component's own `InContext` story. `statusDot` had the same assumption three times over —
 `ring-surface-canvas`, the `offline` dot's fill, and the bar across `unavailable` — so the prop is
 on `Avatar` as well as on the group, and travels through the same context `size` does.
@@ -94,7 +94,7 @@ They coincide at three of five sizes, which is exactly why the coincidence was c
 
 **What each one actually does.** The **ring** is the band of background between two photos — it is
 what you see. The **overlap** is how far the next circle sits into the previous one, so
-`overlap + ring` is how much of a neighbour is covered. x-large stacks far harder (24 into 128)
+`overlap + ring` is how much of a neighbor is covered. x-large stacks far harder (24 into 128)
 because a 4px overlap on a circle that size would not read as a stack at all; its ring is 8px for
 the same reason of scale. x-small goes the other way: a 4px overlap, but only a 2px ring, because
 4px of ring on a 20px circle would eat the photo.
@@ -105,7 +105,7 @@ layout, so the two compose exactly as they do on the canvas.
 **Check number: `5 × size − 4 × overlap`** — 84 / 104 / 164 / 184 / 544. Note this is *not*
 `5 × size − 4 × ring`; that only works where the two happen to be equal.
 
-**The general lesson, which is the reason this section is long:** a component modelled off a single
+**The general lesson, which is the reason this section is long:** a component modeled off a single
 Figma variant will encode coincidences as rules, and they are invisible until the axis is drawn.
 When the file has one variant, say so in the comment — "this is the only size drawn" — rather than
 writing the inferred relationship as though it were the design.

@@ -54,7 +54,7 @@ larger and it wraps too eagerly. 64px was measured against a 320px field.
 **The chip row's padding is the centring gap, not slack — 1 / 3 / 7.** Half of the field's inner
 height less the token's is where one row of tokens sits anyway; set the padding to anything less and
 `items-center` quietly makes up the difference, until a second row arrives and there is nothing
-spare left to centre in. The first row then jerks upwards by exactly the shortfall. Measured before
+spare left to center in. The first row then jerks upwards by exactly the shortfall. Measured before
 the fix: 4px above the first token at the default size with one row, 3px with three. **Small was
 already exact and never moved**, which is what made it easy to miss.
 **And the same number is the left inset, once there are tokens.** A token 12px from the left edge

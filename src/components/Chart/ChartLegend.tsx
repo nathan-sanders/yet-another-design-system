@@ -16,7 +16,7 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * **It does not depend on the series count, and it does not depend on how much
  * data there is.** Both exceptions are tempting and both are wrong. A
  * single-series chart still gets one, because the swatch is what says *which*
- * color means the thing the title names — and in greyscale, or for a reader who
+ * color means the thing the title names — and in grayscale, or for a reader who
  * cannot separate two hues, that mapping is the only thing carrying it. A chart
  * narrowed to a single data point still gets one, because a series with one
  * reading is still a series, and a chart that shed its key exactly when a filter
@@ -28,7 +28,7 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * ## Four types, two jobs
  *
  * `horizontal` and `vertical` are the **categorical** legend: one row per
- * series, each a swatch and a name. Horizontal centres above the plot and wraps;
+ * series, each a swatch and a name. Horizontal centers above the plot and wraps;
  * vertical stacks beside it, which is what a donut or a long series list wants.
  *
  * `stepped` and `gradient` are the **continuous** legend, for a magnitude scale
@@ -61,8 +61,8 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * from the capability means the two cannot disagree.
  *
  * A switched-off series keeps its row — you have to be able to click it back —
- * and drops to the placeholder grey with its label struck through. Two channels,
- * because the grey alone is a color difference and this is a state a reader has
+ * and drops to the placeholder gray with its label struck through. Two channels,
+ * because the gray alone is a color difference and this is a state a reader has
  * to be sure about.
  *
  * The state is `aria-pressed`, not `aria-hidden` or a disabled attribute: the

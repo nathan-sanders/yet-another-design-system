@@ -86,7 +86,7 @@ export interface KbdProps extends Omit<ComponentPropsWithRef<'kbd'>, 'children'>
    * Overrides the spoken name of the shortcut. The generated one joins the key
    * names with `+` — `"mod+shift+p"` becomes "Command + Shift + P" — which is
    * right almost always; reach for this when the shortcut has a name of its own
-   * that a reader would recognise faster than its keys.
+   * that a reader would recognize faster than its keys.
    */
   label?: string
 }

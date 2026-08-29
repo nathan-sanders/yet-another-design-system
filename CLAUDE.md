@@ -22,7 +22,7 @@ Figma, so the code matches Figma and both stay in sync.
   lets a caller override a component's defaults
 - **`lucide-react`** for icons, wrapped by the `Icon` component
 - Fonts: **Inter** (sans), **Geist Mono** (mono), self-hosted via `@fontsource`
-- **Recharts** for data visualisation — the library shadcn/ui uses. Charts are SVG, and color
+- **Recharts** for data visualization — the library shadcn/ui uses. Charts are SVG, and color
   reaches them as `stroke="var(--data-viz-categorical-01)"` rather than as a class, because SVG
   attributes take values
 
@@ -121,7 +121,7 @@ default ramp, so a non-default ramp wants a manual sweep of `content-subtle` on 
 and the secondary action pair.
 
 **What stays pinned, on purpose.** The four `Data Viz` `@Neutral/*` tokens do not follow the ramp:
-a chart benchmark wants a chromaless grey whatever the UI neutral is. They are now the *only*
+a chart benchmark wants a chromaless gray whatever the UI neutral is. They are now the *only*
 `@Neutral/*` references left in the semantic layer, which is the invariant to keep — a fifth one
 appearing is a Figma slip, not a decision. `Action/Overlay/Foreground` was exactly that: `@Neutral/950`
 in dark among an otherwise all-Stone family, caught when the tier was built and fixed in Figma to
@@ -194,7 +194,7 @@ are Tailwind's. That translation is the same one `generate.py` already does turn
 `dimensions.json` and deleting `motion.json` is the whole migration. In Figma, durations are ordinary
 FLOAT variables; the curve is a **STRING** variable, because Figma has no bezier type.
 
-`prefers-reduced-motion: reduce` is honoured globally in section 5 of `theme.css`, so no component has
+`prefers-reduced-motion: reduce` is honored globally in section 5 of `theme.css`, so no component has
 to remember to. It clamps to **1ms rather than 0** on purpose: Base UI decides when a popup may
 unmount by asking `element.getAnimations()`, and a zero-length transition can mean no animation is
 ever observed — which would leave the popup mounted forever.
@@ -323,7 +323,7 @@ keyboard. `Showcase.tsx`'s `Table` does this once for all of them.
   Kbd, `40004278:7706` for Danger) and the bindings are all there. The general rule: an absent token
   in a parent's output is not evidence of anything until you have checked whether the node that
   would carry it is visible.
-- **An instance inherits its main component's bindings**, so retokenising a component updates every
+- **An instance inherits its main component's bindings**, so retokenizing a component updates every
   instance without touching them. Worth remembering before raising "the instances still point at the
   old token" — check one by id first.
 - Colors come back as `{r,g,b,a}` 0–1 floats — convert to hex.
@@ -396,15 +396,15 @@ settled once, against the Figma file, for a reason that is written down.
 | [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
 | [AreaSeries](src/components/AreaSeries/CLAUDE.md) | how much, over time | two fills that are different drawings; opaque areas make paint order part of the API |
 | [VerticalBar](src/components/VerticalBar/CLAUDE.md) | how much, per category | Figma's three bar types are one boolean; rounded stacked segments Recharts cannot draw |
-| [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labelled or decorative, enforced by the type |
+| [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labeled or decorative, enforced by the type |
 | [Donut](src/components/Donut/CLAUDE.md) | parts of one whole | a slice is a series with one value; hover is a halo that does not resize the slice |
 | [Gauge](src/components/Gauge/CLAUDE.md) | how far along | a donut folded in half, which turns the hole into a shelf; the radius has to be computed |
 | [Radar](src/components/Radar/CLAUDE.md) | several series across a few dimensions | translucent because no paint order can work; the grid's outer ring is a second element |
-| [Metric](src/components/Metric/CLAUDE.md) | a labelled number and what it did | no Recharts at all; two of its four components are wrappers over `Badge` and `Card` |
+| [Metric](src/components/Metric/CLAUDE.md) | a labeled number and what it did | no Recharts at all; two of its four components are wrappers over `Badge` and `Card` |
 | [HeatMap](src/components/HeatMap/CLAUDE.md) | how much, across two dimensions | a CSS grid, not a chart; the one caller of `ChartContainer`'s `responsive={false}` |
 | [TreeMap](src/components/TreeMap/CLAUDE.md) | parts of a whole, past a donut's limit | the only chart whose marks carry their own text |
 
-### Data visualisation
+### Data visualization
 
 Charts live on the Figma page **↪ Data Viz (In Progress)** (`40004316:13427`) and are built on
 **Recharts**. Two things about that page decide how much work it is.
@@ -429,7 +429,7 @@ them**; `src/components/Chart/` is the first code that does.
 Three rules worth having in mind before touching a chart:
 
 - **The categorical order is fixed and never cycled by rank**, and past twelve series the scale
-  returns the placeholder grey rather than wrapping. Two visible series sharing a color is worse
+  returns the placeholder gray rather than wrapping. Two visible series sharing a color is worse
   than admitting the scale ran out. Figma agrees from the other end — its legend has a `+X more` row.
 - **Text never wears the series color.** Identity comes from the swatch beside it. Three of the
   twelve hues are illegible as text on the light canvas, and coloring text also removes the channel
@@ -445,7 +445,7 @@ Three rules worth having in mind before touching a chart:
   happens to be round. Assume a Recharts default is aimed at a chart with no design system behind it.
 - **White does the separating, not a border.** The stacked bar's 1px gap, the solid area's
   surface-colored top edge, the donut's slice stroke and the tree map's tile inset are one idea in
-  four places: a border would be ink that is not data. Recognise it before inventing a fifth
+  four places: a border would be ink that is not data. Recognize it before inventing a fifth
   mechanism.
 - **Color is assigned over the full series list, never the visible one.** It is what makes the
   interactive legend safe — switching a series off cannot repaint the survivors. The fixed
@@ -547,7 +547,7 @@ component usually has fewer decisions in it than it looks.
   what gets built reads as the ordinary case rather than a styled one. `small` and `large` belong in
   the stories that exist to show the scale, or where something genuinely calls for them: a Button
   inside an addon is `small` because it has to fit inside a 32px field, and that is a reason. "It
-  looked better" is not, and it is how a library ends up with no default anybody recognises.
+  looked better" is not, and it is how a library ends up with no default anybody recognizes.
   **Check the reason before believing it.** ContentBlock's header actions were `small` on the
   assumption that a 48px row was tight; it is `min-h-12` with 8px of padding either side, so it has
   exactly the 32px a default Button is, and the constraint was imagined. A tight fit is easy to
@@ -629,7 +629,7 @@ The form family is complete against the file bar one: **Checkbox Group** and **R
 built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a
 Field as well as from their own prop, and Slider is closed as a deliberate non-change (see its
 entry). Combobox landed and took Token with it — `Combobox.Chips` / `Chip` / `ChipRemove` supply
-the behaviour, Token supplies the look, and the 20 / 24 against a field's inner 22 / 30 / 38 held
+the behavior, Token supplies the look, and the 20 / 24 against a field's inner 22 / 30 / 38 held
 when measured. **Autocomplete has since landed and closed the family** — Combobox with one rule
 removed, and the clearest case yet of the sharing rule doing real work: Base UI's `autocomplete`
 subpath re-exports Combobox's `Popup`, `List`, `Group`, `Collection` and `Empty` as the *same

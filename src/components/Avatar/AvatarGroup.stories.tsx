@@ -119,7 +119,7 @@ export const Sizes: Story = {
  *
  * `AvatarGroup.Overflow` takes a `count`, or children when the number needs
  * capping (`99+`). Give it an `onClick` and it becomes a focusable `<button>`
- * for opening the full list; without one it is a static circle labelled
+ * for opening the full list; without one it is a static circle labeled
  * "N more".
  */
 export const Overflow: Story = {
@@ -179,7 +179,7 @@ export const Overflow: Story = {
  * stacked row is the wrong place to read.
  *
  * **Note `surface="card-primary"`.** The card is white and the page is not, so
- * without it the rings would be painted in the canvas color and read as grey
+ * without it the rings would be painted in the canvas color and read as gray
  * halos rather than as the gap they are. This story had exactly that bug until
  * the prop existed. Compare with `Surfaces` below.
  */
@@ -211,7 +211,7 @@ export const InContext: Story = {
  * prop and the background agree.
  *
  * **The bottom row is the same group with the prop left at its default**, on a
- * card. That is what the mismatch looks like: a grey outline drawn around each
+ * card. That is what the mismatch looks like: a gray outline drawn around each
  * circle instead of a gap between them. Worth seeing once, because it is subtle
  * enough in light mode to survive review — flip the toolbar to dark, where
  * `surface-canvas` and `surface-background-primary` are two different near-blacks,

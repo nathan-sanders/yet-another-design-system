@@ -122,7 +122,7 @@ export const Gap: Story = {
  * full-width cell, which reads as a mistake. Keep it at or under `columns`.
  *
  * A `rowSpan` covers content-sized rows plus the gutter between them: the grid
- * deliberately does not equalise row heights, because a dashboard's rows are
+ * deliberately does not equalize row heights, because a dashboard's rows are
  * genuinely different sizes.
  */
 export const Spans: Story = {
@@ -168,7 +168,7 @@ export const Spans: Story = {
  * A dashboard — seven blocks, which is inside the nine a bento view should stay
  * under. Everything the pattern asks for is visible here at once:
  *
- * - **Compartmentalisation** — every figure has its own bordered cell.
+ * - **Compartmentalization** — every figure has its own bordered cell.
  * - **Hierarchy** — the anchor is 2x2 *and* `emphasis="accent"`; size and
  *   surface pull the same way rather than competing.
  * - **Chunking** — the two platform figures share one block instead of taking a

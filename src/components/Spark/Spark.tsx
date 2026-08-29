@@ -24,14 +24,14 @@ import { BAR_MAX_WIDTH, barSegment, categorical } from '../Chart'
  *
  * ## Accessibility: usually decorative, and honest about it
  *
- * A spark almost always sits next to the figure it summarises — a metric card's
+ * A spark almost always sits next to the figure it summarizes — a metric card's
  * value and its delta. In that arrangement the trend is **already stated in
  * text**, and announcing "line chart" adds a second, vaguer version of a number
  * the reader has just heard. So `decorative` marks it `aria-hidden` and that is
  * the common case.
  *
  * When a spark is genuinely the only thing carrying the information, pass a
- * `label` and it becomes a labelled image instead. What is not offered is
+ * `label` and it becomes a labeled image instead. What is not offered is
  * silence: one of the two has to be true, and neither is guessed for you.
  *
  * ## One series, always
@@ -58,8 +58,8 @@ interface SparkBaseProps {
 }
 
 /**
- * A spark is either labelled or explicitly decorative. Requiring one of the two
- * is what stops the silent third case — an unlabelled `role="img"`, which is the
+ * A spark is either labeled or explicitly decorative. Requiring one of the two
+ * is what stops the silent third case — an unlabeled `role="img"`, which is the
  * one an audit flags and a reader gets nothing from.
  */
 export type SparkProps = SparkBaseProps &
@@ -96,7 +96,7 @@ export function Spark({
    * root focusable. Inside this component that is a genuine fault, and axe
    * caught it: a `tabindex="0"` element inside an `aria-hidden` wrapper is
    * something a keyboard user can land on and a screen reader cannot describe.
-   * The labelled case has the same shape, because `role="img"` also makes the
+   * The labeled case has the same shape, because `role="img"` also makes the
    * subtree opaque.
    *
    * Off rather than worked around, because a spark has nothing to traverse: no

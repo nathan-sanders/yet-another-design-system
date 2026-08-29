@@ -35,7 +35,7 @@ the background.
 A `solid` area completely hides whatever is behind it. Recharts paints in element order, so **the
 `series` array is the paint order, back to front — order the largest first.** Figma's own example is
 drawn that way. The `PaintOrder` story shows both, including the wrong one, because the failure is
-much easier to recognise than to describe.
+much easier to recognize than to describe.
 
 `gradient` does not have the problem. If the data genuinely crosses and no order works, that is the
 signal to use `LineSeries`: two lines can cross and stay readable, two opaque areas cannot.

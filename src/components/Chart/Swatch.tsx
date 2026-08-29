@@ -38,7 +38,7 @@ import { isOutlineMarker, markerShape, type ChartMarker } from './shapes'
  * That difference is also why `markerShape` takes `surface` as a color rather
  * than a boolean: passing `'none'` here yields the ring, and passing the real
  * surface token yields the filled marker a plot point needs. One function, both
- * behaviours, no extra flag.
+ * behaviors, no extra flag.
  */
 
 /** Every style Figma's `_Swatch` offers. */
@@ -85,7 +85,7 @@ export interface ChartSwatchProps extends Omit<ComponentPropsWithRef<'svg'>, 'co
 }
 
 export function ChartSwatch({ shape = 'colorSwatch', color, className, ...props }: ChartSwatchProps) {
-  const centre = BOX / 2
+  const center = BOX / 2
 
   return (
     <svg
@@ -112,9 +112,9 @@ export function ChartSwatch({ shape = 'colorSwatch', color, className, ...props 
       ) : shape === 'solidLine' || shape === 'dashedLine' ? (
         <line
           x1={0}
-          y1={centre}
+          y1={center}
           x2={BOX}
-          y2={centre}
+          y2={center}
           stroke={color}
           strokeWidth={LINE_WIDTH}
           // Figma's dash is 4 on, 6 off, with a square cap so each dash keeps its
@@ -128,23 +128,23 @@ export function ChartSwatch({ shape = 'colorSwatch', color, className, ...props 
             <>
               <line
                 x1={0}
-                y1={centre}
+                y1={center}
                 x2={SPLIT_LINE_INSET[shape]}
-                y2={centre}
+                y2={center}
                 stroke={color}
                 strokeWidth={LINE_WIDTH}
               />
               <line
                 x1={BOX - SPLIT_LINE_INSET[shape]}
-                y1={centre}
+                y1={center}
                 x2={BOX}
-                y2={centre}
+                y2={center}
                 stroke={color}
                 strokeWidth={LINE_WIDTH}
               />
             </>
           ) : (
-            <line x1={0} y1={centre} x2={BOX} y2={centre} stroke={color} strokeWidth={LINE_WIDTH} />
+            <line x1={0} y1={center} x2={BOX} y2={center} stroke={color} strokeWidth={LINE_WIDTH} />
           )}
           {markerShape({
             marker: shape,
@@ -155,8 +155,8 @@ export function ChartSwatch({ shape = 'colorSwatch', color, className, ...props 
             surface: 'none',
             size: MARKER_SIZE,
             strokeWidth: MARKER_STROKE,
-            cx: centre,
-            cy: centre,
+            cx: center,
+            cy: center,
           })}
         </>
       )}

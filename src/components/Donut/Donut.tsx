@@ -203,7 +203,7 @@ export function Donut({
 Donut.displayName = 'Donut'
 
 /**
- * The hole's contents, centred over the ring.
+ * The hole's contents, centered over the ring.
  *
  * A sibling absolutely positioned over the plot rather than SVG text, so what
  * goes in the middle can be anything the library already has — a heading, a

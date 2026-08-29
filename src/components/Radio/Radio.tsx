@@ -28,7 +28,7 @@ import { focusRing, focusRingWithin } from '../../lib/focus'
  * **This is a list; SegmentedControl is a control.** Both are one-of-many built
  * on the same primitive, and the difference is presentation, not semantics: a
  * segmented control is a compact strip you put beside a Button, a radio list is
- * a stack of labelled options with room for a sentence under each. Reach for
+ * a stack of labeled options with room for a sentence under each. Reach for
  * this when the options need explaining, and for SegmentedControl when they fit
  * in a word each.
  *

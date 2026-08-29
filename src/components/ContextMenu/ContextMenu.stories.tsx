@@ -148,7 +148,7 @@ export const Open: Story = {
 
     // The suppression itself cannot be asserted from here, and it is worth
     // saying why rather than writing a test that passes for the wrong reason:
-    // a synthesised hover dispatches mouse events but never moves the real
+    // a synthesized hover dispatches mouse events but never moves the real
     // pointer, so CSS `:hover` stays false and the bug cannot reproduce in this
     // runner. That is checked by hand in a browser.
     //
@@ -251,7 +251,7 @@ export const Submenu: Story = {
 }
 
 /**
- * `disabled` gives the browser's own menu back. That is the right behaviour
+ * `disabled` gives the browser's own menu back. That is the right behavior
  * rather than swallowing the gesture: a region that suppresses right-click and
  * then offers nothing has taken something away from the user. Astryx's
  * `isDisabled` means exactly this.

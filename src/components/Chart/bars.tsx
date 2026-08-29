@@ -24,7 +24,7 @@ import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
  * That is worth stating carefully, because the intuitive answer is the wrong way
  * round and it looks fine on screen. Shrinking a segment's top opens the space
  * between it and whatever sits *above* it — so every segment needs it in order
- * to separate from its upper neighbour, and the top segment does not, since
+ * to separate from its upper neighbor, and the top segment does not, since
  * there is nothing above it and shrinking it would understate the stack's total.
  *
  * Exempting the *bottom* segment instead — the first guess — leaves the lowest
@@ -48,7 +48,7 @@ import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
  * ## 3. Negative values
  *
  * Recharts reports a bar below the axis with a negative `height` and a `y` at
- * its top. Normalising to a positive rectangle first means everything below
+ * its top. Normalizing to a positive rectangle first means everything below
  * reads the same for both directions, and the gap still comes off the side
  * facing the rest of the stack.
  */
@@ -115,7 +115,7 @@ export function barSegment({
     const rawWidth = props.width ?? 0
     const rawHeight = props.height ?? 0
 
-    // Normalise a below-axis bar (negative height, y at its top) into a plain
+    // Normalize a below-axis bar (negative height, y at its top) into a plain
     // positive rectangle before doing anything else.
     const width = Math.abs(rawWidth)
     const fullHeight = Math.abs(rawHeight)

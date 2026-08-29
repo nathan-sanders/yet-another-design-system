@@ -187,7 +187,7 @@ export const Fallbacks: Story = {
  * photo rather than sitting outside it.
  *
  * An interactive avatar has no visible text, so `name` or `alt` is **required**
- * by the type. An unlabelled link or button will not compile.
+ * by the type. An unlabeled link or button will not compile.
  */
 export const Interactive: Story = {
   parameters: { controls: { disable: true } },

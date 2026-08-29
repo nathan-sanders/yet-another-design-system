@@ -18,7 +18,7 @@ import { heatScale } from './scale'
  *
  * It still goes through `ChartContainer` (with `responsive={false}`, since
  * `ResponsiveContainer` needs a Recharts child) because everything *else* the
- * container does is wanted here: the `role="img"` labelling, the hidden data
+ * container does is wanted here: the `role="img"` labeling, the hidden data
  * table, the legend header. `Spark` is the opposite call — it wants none of
  * them, so it uses no container at all.
  *

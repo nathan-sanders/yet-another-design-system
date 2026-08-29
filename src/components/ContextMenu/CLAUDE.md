@@ -50,7 +50,7 @@ menu, so the cursor-anchoring rule never reaches it. Measured with both open: th
 edge meets the trigger row's right edge to within 0.2px, sits 9.2px over the parent's border box,
 and its first item lands level with the trigger row at **0.0px** — Menu's measured offsets,
 correct here unchanged.
-**`disabled` gives the browser's own menu back**, and that is the right behaviour rather than
+**`disabled` gives the browser's own menu back**, and that is the right behavior rather than
 swallowing the gesture: measured, the `contextmenu` event comes back with `defaultPrevented`
 false. Astryx's `isDisabled` means exactly this.
 **The focus ring showed on hover, and it was this component that exposed it.** Base UI focuses the
@@ -62,7 +62,7 @@ hover. `Menu` has the identical defect and only shows it after a keypress (open 
 ArrowDown, then hover), which is why the fix is in the shared row recipe rather than here:
 `focusRingUnhovered` scopes the ring off the hovered row. The row is not left unmarked —
 `data-highlighted` paints it — and arrowing away from a parked mouse rings the row you moved to.
-**The suite cannot test it, and the story says so instead of pretending.** A synthesised hover
+**The suite cannot test it, and the story says so instead of pretending.** A synthesized hover
 dispatches mouse events but never moves the real pointer, so CSS `:hover` stays false and the bug
 does not reproduce in the runner — an assertion on the painted ring would have passed for the wrong
 reason. `Open` guards the two halves that *are* checkable: the row carries the scoped utility, and

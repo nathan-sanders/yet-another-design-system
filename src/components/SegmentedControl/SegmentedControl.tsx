@@ -136,7 +136,7 @@ const segment = tv({
     // segment, which is already emphasized.
     'focus-visible:text-content-emphasized',
     // Focus is the library's shared ring — see src/lib/focus.ts. Figma draws it
-    // at rounded-xs (4px) on a rounded-sm (6px) segment, an artefact of it being
+    // at rounded-xs (4px) on a rounded-sm (6px) segment, an artifact of it being
     // a separate inset overlay layer; the segment's own radius is used instead,
     // as in Button.
     ...focusRing,
@@ -166,7 +166,7 @@ const segment = tv({
      * Icon-only: the start icon with no label (Figma's `label` slot switched
      * off). Not a prop — derived from the absence of children, so a caller can
      * never set it and have the two disagree. Square at each size, so a row
-     * mixing labelled and icon-only segments still lines up.
+     * mixing labeled and icon-only segments still lines up.
      */
     iconOnly: {
       true: 'px-0',
@@ -230,9 +230,9 @@ interface SegmentedControlItemBaseProps
 }
 
 /**
- * A segment is either labelled or icon-only, and the two have different rules,
+ * A segment is either labeled or icon-only, and the two have different rules,
  * so the props are a union rather than "everything optional". With no visible
- * text, `aria-label` is required — TypeScript will not let an unlabelled icon
+ * text, `aria-label` is required — TypeScript will not let an unlabeled icon
  * segment compile, which is the accessibility mistake the shape invites.
  */
 export type SegmentedControlItemProps = SegmentedControlItemBaseProps &

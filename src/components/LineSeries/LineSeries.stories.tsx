@@ -114,7 +114,7 @@ export const AxisPresets: Story = {
 /**
  * A benchmark is not a series.
  *
- * It takes the chromaless benchmark grey and a dashed line, and — the part worth
+ * It takes the chromaless benchmark gray and a dashed line, and — the part worth
  * noticing — it does **not** consume a categorical slot. Adding a target to a
  * chart leaves every real series the color it already had.
  */
@@ -209,7 +209,7 @@ export const SinglePoint: Story = {
  * The legend is on by default for every chart, whatever its series count and
  * whatever its data length, and that is the right default: it is the identity
  * channel a reader who cannot separate two hues depends on, and the one that
- * survives greyscale.
+ * survives grayscale.
  *
  * Turning it off is for the case where something *else* already names the
  * series — a caption, a heading, a surrounding table — so the box would repeat
