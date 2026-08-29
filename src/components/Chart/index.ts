@@ -5,6 +5,7 @@ export { ChartLegend } from './ChartLegend'
 export type { ChartLegendProps, ChartLegendType } from './ChartLegend'
 
 export { ChartTooltip } from './ChartTooltip'
+export { chartTooltipWrapperStyle } from './styles'
 export type { ChartTooltipProps, ChartTooltipPayloadEntry } from './ChartTooltip'
 
 export { ChartSwatch } from './Swatch'

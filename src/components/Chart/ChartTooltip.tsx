@@ -30,9 +30,14 @@ import { ChartSwatch } from './Swatch'
  *
  * Values are `font-mono` with `tabular-nums` so a column of them aligns on the
  * decimal and the eye can compare down the list; names are the sans the rest of
- * the library uses. Figma binds exactly this pair — `text-sm/mono regular` for
- * values against `text-base/normal` for labels — and it is the reason the card
- * reads as a table rather than a paragraph.
+ * the library uses. **Both are `text-base`** — Figma binds `text-base/mono
+ * regular` against `text-base/normal`, and the Total row `text-base/mono bold`.
+ * The difference between a value and its label is the *face*, not the size.
+ *
+ * These were 12px for a while, which was a misreading: `text-sm/mono regular` is
+ * the **axis tick** style, where 12px is right because a tick is chrome. A
+ * tooltip value is the number the reader came for, and shrinking it below its
+ * own label inverts the hierarchy of the card.
  *
  * ## Rows are ordered by the series, not by value
  *
@@ -141,7 +146,7 @@ export function ChartTooltip({
           <li key={item.series.key} className="flex items-center gap-1">
             <ChartSwatch shape={item.series.swatchShape} color={item.series.color} />
             <span className="text-content-subtle min-w-0 flex-1 truncate text-base">{item.series.label}</span>
-            <span className="text-content-primary font-mono text-sm tabular-nums">{formatValue(item.value)}</span>
+            <span className="text-content-primary font-mono text-base tabular-nums">{formatValue(item.value)}</span>
           </li>
         ))}
       </ul>
@@ -149,7 +154,7 @@ export function ChartTooltip({
       {showTotal ? (
         <div className="border-surface-border flex items-center gap-1 border-t pt-1">
           <span className="text-content-emphasized flex-1 text-base font-semibold">Total</span>
-          <span className="text-content-emphasized font-mono text-sm font-bold tabular-nums">
+          <span className="text-content-emphasized font-mono text-base font-bold tabular-nums">
             {formatValue(total)}
           </span>
         </div>

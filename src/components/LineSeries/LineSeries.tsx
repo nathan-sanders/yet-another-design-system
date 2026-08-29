@@ -5,6 +5,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  chartTooltipWrapperStyle,
   chartGridProps,
   formatDateTick,
   formatFullNumber,
@@ -175,33 +176,11 @@ function LineSeriesPlot({
         // A vertical rule under the pointer, in the gridline colour so it reads
         // as chrome rather than as data.
         cursor={{ stroke: gridline, strokeWidth: 1 }}
-        // Recharts otherwise writes `transition: transform 400ms` *inline* on
-        // its tooltip wrapper. The global `prefers-reduced-motion` clamp does
-        // still beat it — that rule is `!important` on `*`, which outranks an
-        // inline style — so this is not an accessibility hole. It is a motion
-        // value living in JavaScript where Figma cannot reach it, which is the
-        // thing the motion tokens exist to prevent, and 400ms is close enough to
-        // `--transition-duration-medium` (410ms) to look like it came from the
-        // system when it did not.
-        //
-        // So: turn Recharts' tween off, and put the movement back as a CSS
-        // transition on the same wrapper, in the library's own tokens. `fast`
-        // rather than `medium` because the card is chasing a crosshair that
-        // moves instantly — a slower slide reads as lag, and the two stop
-        // looking like one thing.
+        // Recharts' own tween off, and the movement put back in the library's
+        // tokens on the wrapper. Both halves of that, plus why it is
+        // `wrapperStyle` and not a class, live on `chartTooltipWrapperStyle`.
         isAnimationActive={false}
-        // `wrapperStyle`, not a class — Recharts puts `wrapperClassName` on its
-        // *default* tooltip content, not on `Tooltip`, and passing it here type-
-        // checks and then does nothing at all. The values are still the tokens,
-        // read as custom properties rather than copied as numbers, so Figma
-        // stays the source of truth. The reduced-motion clamp in `theme.css` is
-        // `!important` on `*`, which outranks an inline declaration, so this
-        // still collapses to 1ms when it should.
-        wrapperStyle={{
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--transition-duration-fast)',
-          transitionTimingFunction: 'var(--ease-standard)',
-        }}
+        wrapperStyle={chartTooltipWrapperStyle}
 
         content={<ChartTooltip formatLabel={(value) => formatDateTick(value, preset, undefined, timeZone)} />}
       />
