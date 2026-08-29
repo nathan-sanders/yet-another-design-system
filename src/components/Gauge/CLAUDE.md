@@ -26,6 +26,12 @@ chart context — the container is already measuring for the breakpoint, so the 
 Before this, the gauge rendered at half size with its metric overlapping the ring. It looked like a
 styling problem and was an arithmetic one.
 
+**And the arc is kept clear of the box edges**, which is a second, separate correction. Sized to fill
+exactly, a gauge's apex is clipped flat at rest — the separator stroke straddles the outer edge, so
+half of it falls outside — and the hover halo has nowhere to go at all. `gaugeGeometry` subtracts
+`POLAR_MARGIN` and puts the centre just above the bottom edge rather than on it, so the flat radial
+ends keep their stroke too. Pinned in `Chart/polar.test.ts`.
+
 ## What a gauge is for
 
 Progress toward one thing: a budget spent, a quota filled, a score out of a maximum. It is the

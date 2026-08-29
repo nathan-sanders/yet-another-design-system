@@ -32,6 +32,16 @@ Figma draws the hover state as a second ellipse at 268 against the ring's 256 wi
 grows the hovered slice — Recharts' own documented example does exactly that — and on a chart whose
 entire encoding is size, enlarging what you point at makes pointing look like it changed the value.
 
+## The ring is sized to leave the halo somewhere to go
+
+At `outerRadius="100%"` the ring reaches the edge of the SVG, and the halo — drawn *outside* it —
+is simply cut off, top and bottom. **The chart looked correct until you hovered it**, which is why
+this survived the first round of checking: every screenshot was taken at rest.
+
+`donutRadius` subtracts `POLAR_MARGIN` — the halo's gap and thickness, half the separator stroke,
+and a pixel of slack for rounding. `polar.test.ts` asserts the property rather than the number: for
+a range of box sizes, everything drawn including the halo lands inside the box.
+
 ## The separator is surface-coloured, not a gap
 
 Figma strokes every slice in `Surface/Background Primary`. Third chart in a row using the same idea:

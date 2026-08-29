@@ -10,6 +10,7 @@ import {
   GAUGE_START_ANGLE,
   SLICE_GAP,
   formatFullNumber,
+  gaugeGeometry,
   surface,
   useChart,
   useVisibleSeries,
@@ -71,16 +72,16 @@ function GaugePlot({
   const plotWidth = useChart()?.plotWidth ?? 0
 
   /**
-   * Recharts sizes a pie from `min(width, height) / 2`, which is correct for a
-   * full circle and leaves a gauge at roughly half the size it should be: a
-   * semicircle needs `R` of height but `2R` of width, so the radius it can
-   * actually afford is `min(width / 2, height)`.
-   *
-   * Falls back to a percentage until the first measurement lands, so the chart
-   * still draws something on its first frame rather than collapsing.
+   * Two things Recharts gets wrong for a half circle, both in `gaugeGeometry`:
+   * it sizes a pie from `min(width, height) / 2`, which leaves a gauge at half
+   * the size it should be, and it has no reason to keep the arc clear of the
+   * box edges — so the apex was clipped flat and the hover halo had nowhere to
+   * go.
    */
-  const outerRadius = plotWidth > 0 ? Math.min(plotWidth / 2, height) : '100%'
+  const { cy, outerRadius } = gaugeGeometry(plotWidth, height)
 
+  // Keep only the rows whose slice is still switched on, in the caller's order
+  // so the arc does not re-sort itself as slices are toggled.
   const rows = useMemo(() => {
     const keys = new Set(visible.map((s) => s.key))
     return data.filter((row) => keys.has(String(row[nameKey])))
@@ -107,9 +108,12 @@ function GaugePlot({
         // the box rather than the middle — otherwise half the plot area is empty
         // space under a small arch.
         cx="50%"
-        cy="100%"
-        innerRadius={typeof outerRadius === 'number' ? outerRadius * GAUGE_INNER_RATIO : `${GAUGE_INNER_RATIO * 100}%`}
-        outerRadius={outerRadius}
+        // Just above the bottom edge, not on it: the arc's flat ends are radial,
+        // so their separator stroke straddles the baseline and half of it would
+        // fall outside the box.
+        cy={outerRadius > 0 ? cy : '100%'}
+        innerRadius={outerRadius > 0 ? outerRadius * GAUGE_INNER_RATIO : `${GAUGE_INNER_RATIO * 90}%`}
+        outerRadius={outerRadius > 0 ? outerRadius : '90%'}
         startAngle={GAUGE_START_ANGLE}
         endAngle={GAUGE_END_ANGLE}
         stroke={surface}

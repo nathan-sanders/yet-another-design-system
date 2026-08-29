@@ -221,6 +221,21 @@ a **semicircle cannot size itself from Recharts' rules**, which derive a pie's r
 `min(width, height) / 2`. That is right for a full circle and leaves a gauge at half the size it
 should be, because a half circle needs `R` of height but `2R` of width. See the Gauge record.
 
+## A chart that fills its box exactly has nowhere to draw its own decorations
+
+Donut and Gauge draw the hover halo **outside** the ring. Both originally sized themselves to fill
+the plot box, so the halo was cut off top and bottom, and the gauge's apex was clipped even at rest
+because the separator stroke straddles the outer edge.
+
+Two things worth carrying forward. First, **the bug only appeared on hover**, so a screenshot at rest
+proved nothing — the same reason the stacked-bar gap needed a measurement rather than a picture.
+Second, the fix belongs in a pure function (`donutRadius`, `gaugeGeometry`) precisely so it *can* be
+tested: `polar.test.ts` asserts the invariant — everything drawn, halo included, lands inside the box
+— across a range of sizes, rather than pinning one number that happens to be right today.
+
+Before adding anything that paints outside a mark's own bounds, check the chart has reserved room for
+it.
+
 ## Left for later, deliberately
 
 - **`_Quadrant Grid`** has no chart built on it in Figma yet.
