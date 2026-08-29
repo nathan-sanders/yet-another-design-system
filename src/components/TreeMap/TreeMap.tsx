@@ -78,9 +78,19 @@ export interface TreeMapProps {
   className?: string
 }
 
-/** Figma: `_Tree Map / Data Group` corner radius, and the gap between tiles. */
+/** Figma: `_Tree Map / Data Group` corner radius. */
 const TILE_RADIUS = 4
-const TILE_GAP = 8
+/**
+ * The gap between tiles — **2px, the same as the heat map's**.
+ *
+ * Both frames report `itemSpacing: 8`, and in both that is not the visual gap:
+ * Figma's GRID layout does not use it as one. The heat map's real number was
+ * derived from its own geometry (24 columns of 39.3px in a 992px frame leaves
+ * 2.1px), and this one was taken at face value instead — same trap, caught once
+ * and missed once. 8px made the tiles read as separate cards rather than parts
+ * of one shape.
+ */
+const TILE_GAP = 2
 /** Figma: the label plate's radius and padding. */
 const PLATE_RADIUS = 6
 const PLATE_PAD_X = 8

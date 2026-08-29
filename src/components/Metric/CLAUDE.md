@@ -41,10 +41,31 @@ loose. At 18px in a row, alignment wins; at 48px alone, fit does.
 
 ## The spark sits on the value's baseline, and carries no fill
 
-The row is `items-end`, not `items-center`. Centred, the spark floats between the label and the
-number and belongs to neither; bottom-aligned it sits on the same line as the value and its badge and
-reads as part of one statement — this number, and how it got here. Measured: the spark's bottom edge
-and the value's bottom edge land on the same pixel.
+The spark spans the whole block's height beside the label and the number — but its **bottom sits on
+the value's baseline**, about 10px above the bottom of the value's line box. That difference is
+invisible on a line spark, whose path rarely reaches the bottom of its box, and obvious on a **bar**
+spark, whose bars always do.
+
+**How, and why not the two simpler answers:**
+
+- Aligning the row to `items-end` puts the spark on the line box's *bottom*, which is the descender
+  gap too low. That is what shipped first.
+- Moving the spark into the value's row with `items-baseline` gets the baseline right and wrecks the
+  card: a 36px spark inside a 24px line grows the row to 46, pushes the card from 86 to 100, jams the
+  spark under the label and leaves dead space beneath the number. **Correct alignment, worse
+  component** — worth remembering as the shape of that mistake.
+- What works is the row staying `items-end` with the spark wrapped beside a **zero-width strut**
+  carrying the value's own typography. The strut has a real text baseline; the spark is a box with no
+  text, so flexbox synthesises one from its bottom edge, and `items-baseline` between the two lands
+  that edge on the strut's baseline. The wrapper's own bottom is still the line box bottom, so it
+  aligns with the block as before.
+
+The strut earns its slight cleverness by deriving the descender gap from the font's real metrics at
+`text-xl`. A hardcoded `mb-2.5` is the same 10px today and silently wrong the day the type scale is
+regenerated from Figma — which is a thing that happens here.
+
+Measured: card height back to Figma's 86, the value's baseline and the spark's bottom both at the
+same pixel, and the bar spark's lowest mark on that line.
 
 And it is `type="line"`, not `area`. Beside a number the fill is the loudest thing in the card while
 carrying nothing the line does not — the shape is the whole point, and a wash under it competes with

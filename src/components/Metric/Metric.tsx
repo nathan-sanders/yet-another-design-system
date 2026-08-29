@@ -75,12 +75,6 @@ export function Metric({
   ...props
 }: MetricProps) {
   return (
-    // `items-end`, not `items-center`.
-    //
-    // The spark's baseline is the **value's** baseline, not the block's centre.
-    // Centred, it floats between the label and the number and belongs to
-    // neither; sitting on the same line as the value and its badge, it reads as
-    // part of the same statement — this number, and how it got here.
     <div className={cn('flex min-w-0 items-end gap-6', className)} {...props}>
       <div className="flex min-w-0 flex-col gap-1">
         <span className="text-content-subtle truncate text-base">{label}</span>
@@ -91,7 +85,36 @@ export function Metric({
           )}
         </span>
       </div>
-      {spark ? <div className="min-w-0 flex-1">{spark}</div> : null}
+
+      {spark ? (
+        /*
+          The spark spans the whole block's height beside the label and the
+          number — but its **bottom sits on the value's baseline**, not on the
+          bottom of the value's line box, which is roughly 10px lower.
+          That difference is invisible on a line spark, whose path rarely
+          reaches the bottom of its box, and obvious on a bar spark, whose bars
+          always do.
+        */
+        <span className="flex min-w-0 flex-1 items-baseline">
+          <span className="min-w-0 flex-1">{spark}</span>
+          {/*
+            A zero-width strut carrying the value's own typography.
+
+            This is what makes the alignment exact without a magic number. The
+            strut has a real text baseline; the spark beside it is a box with no
+            text, so flexbox synthesises one from its bottom edge — and
+            `items-baseline` puts the two on the same line. The descender gap
+            therefore comes from the font's own metrics at `text-xl`, so it stays
+            correct if the type scale is regenerated from Figma.
+
+            The obvious alternative, a hardcoded `mb-2.5`, is the same 10px today
+            and silently wrong the day `--text-xl` moves.
+          */}
+          <span aria-hidden="true" className="w-0 overflow-hidden font-mono text-xl font-bold">
+            &#8203;
+          </span>
+        </span>
+      ) : null}
     </div>
   )
 }
