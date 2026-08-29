@@ -1,5 +1,9 @@
 # Yet Another Design System
 
+![A collage of the library's components around the YET wordmark: a context menu, success and info
+banners, a text-formatting toolbar, a card with a slider and a token input, a profile card, and a
+pair of radio options.](src/yads-hero.png)
+
 A themeable React component library whose entire look is driven by design tokens exported from
 Figma — so the code and the design file stay in sync, and dark mode costs nothing to support.
 
