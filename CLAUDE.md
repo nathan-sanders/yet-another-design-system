@@ -272,6 +272,37 @@ default variant silently unpainted. **When a token is renamed, grep the whole of
 name — and do not pipe that grep through `head`, because `theme.css` will fill the output before a
 component does.** That is precisely how those two were missed.
 
+### The Foundations group in Storybook
+
+`src/foundations/` is a documentation group, not part of the published library — eight story files
+under a `Foundations/` title, ordered ahead of `Components` by `storySort` in `.storybook/preview.tsx`.
+Overview, Colour, Semantic Colour, Typography, Space, Shape, Elevation, Motion.
+
+**Every page is parsed out of `theme.css` at load time** (`src/foundations/tokens.ts`, which imports
+it with Vite's `?raw`). Nothing is hand-listed, so the pages cannot drift: add a ramp, rename a role,
+retune the motion scale, and the documentation follows on the next reload. Same reasoning as
+`tokens.test.ts` reading the file rather than trusting a copy of it.
+
+The centrepiece is **Semantic Colour → Mapping**: every role with its light *and* dark target side by
+side, in one table, in either theme. That works because the two targets name the *ramp* tier
+(`neutral-800`) or a primitive (`red-700`), neither of which depends on the theme — only the choice
+between them does. The handful of roles that alias another semantic token (`feedback-success-background`
+is `decorative-green-background`) are expanded per theme by `resolve()` in `tokens.ts`, or they would
+quietly show the same colour in both columns.
+
+**Trap: Tailwind drops `@theme` variables nothing uses.** `--color-orange-500` is in `theme.css`, but
+no utility and no token references it, so it is not in the stylesheet the browser gets —
+`var(--color-orange-500)` resolves to nothing and the swatch paints blank. Half the primitive ramps
+came out with holes in them before this was understood. It only bites code that reads a primitive as
+a *variable* rather than through a `bg-*` class, which is to say: these pages, and SVG attributes.
+`paint()` in `tokens.ts` substitutes primitives for their literal OKLCH from the same file. The ramp
+and semantic tiers are left live on purpose — they live in plain `:root` blocks Tailwind never
+touches, and that is what makes the Theme and Neutral toolbar switches move these pages.
+
+A scrollable table needs `tabIndex={0}` and a label, or axe fails the story on
+`scrollable-region-focusable` — a region you can only reach by dragging is unreachable from a
+keyboard. `Showcase.tsx`'s `Table` does this once for all of them.
+
 ## Figma is the source of truth
 
 - File key: `8bRBn0lf6TfPyFWR2XttDP` (Yet Another Design System)
