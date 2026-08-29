@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
 import { ResponsiveContainer } from 'recharts'
 
 import { cn } from '../../lib/cn'
@@ -81,6 +81,36 @@ export interface ChartContainerProps {
    * shape on it.
    */
   swatch?: ChartSwatchShape
+  /**
+   * Let the reader switch series off by clicking the legend.
+   *
+   * Figma models this as `Chart Legend Buttons` and puts it on Donut, Gauge and
+   * Radar — the charts where series overlap and hiding one is how you read the
+   * others. It works on any chart here, and is off by default because a legend
+   * that looks clickable and is not is worse than a plain one.
+   *
+   * Uncontrolled: the container holds the hidden set. Nothing needs it lifted
+   * yet, and a controlled pair can be added the day something does.
+   */
+  interactiveLegend?: boolean
+  /**
+   * Replace the generated data table.
+   *
+   * The default builds one row per `data` row with a column per series, which is
+   * right for anything with an x axis. A pie is shaped the other way round — one
+   * row *is* one slice — so `Donut` and `Gauge` pass their own.
+   */
+  table?: ReactNode
+  /**
+   * Content laid over the plot — a donut's total, a gauge's figure.
+   *
+   * It is rendered as a **sibling** of the `role="img"` element, not inside it,
+   * for the same reason the data table is: `role="img"` makes its subtree opaque
+   * to assistive technology, so a total placed inside would be a number nobody
+   * could hear. Being a sibling, it is ordinary content and can be anything the
+   * library already has.
+   */
+  overlay?: ReactNode
   className?: string
 }
 
@@ -95,15 +125,35 @@ export function ChartContainer({
   children,
   header,
   swatch,
+  interactiveLegend = false,
+  table,
+  overlay,
   className,
 }: ChartContainerProps) {
   const resolved = useMemo(() => resolveSeries(series, swatch), [series, swatch])
+
+  const [hidden, setHidden] = useState<ReadonlySet<string>>(() => new Set())
+
+  const toggleSeries = useCallback((key: string) => {
+    setHidden((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }, [])
+
+  const visibleSeries = useMemo(
+    () => (hidden.size === 0 ? resolved : resolved.filter((s) => !hidden.has(s.key))),
+    [resolved, hidden],
+  )
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   // Wide until measured. An unmeasured chart still renders once, and starting
   // narrow makes a wide chart visibly shed most of its x labels and put them
   // back a frame later.
   const [wide, setWide] = useState(true)
+  const [plotWidth, setPlotWidth] = useState(0)
 
   useEffect(() => {
     const element = wrapperRef.current
@@ -114,30 +164,47 @@ export function ChartContainer({
       // A zero width means "not laid out yet", not "narrow" — a hidden tab, a
       // pane that has not been sized. Treating it as narrow would flip every
       // label off and back on when the element appears.
-      if (width > 0) setWide(width >= CHART_BREAKPOINT)
+      if (width > 0) {
+        setWide(width >= CHART_BREAKPOINT)
+        setPlotWidth(width)
+      }
     })
 
     observer.observe(element)
     return () => observer.disconnect()
   }, [])
 
-  const value = useMemo(() => ({ series: resolved, wide }), [resolved, wide])
+  const value = useMemo(
+    () => ({
+      series: resolved,
+      visibleSeries,
+      hidden,
+      wide,
+      plotWidth,
+      toggleSeries: interactiveLegend ? toggleSeries : undefined,
+    }),
+    [resolved, visibleSeries, hidden, wide, plotWidth, interactiveLegend, toggleSeries],
+  )
 
   return (
     <ChartContext.Provider value={value}>
       <div ref={wrapperRef} className={cn('flex w-full min-w-0 flex-col gap-4', className)}>
         {header}
 
-        <div role="img" aria-label={label} style={{ height }} className="w-full min-w-0">
-          <ResponsiveContainer width="100%" height="100%">
-            {children}
-          </ResponsiveContainer>
+        <div style={{ height }} className="relative w-full min-w-0">
+          <div role="img" aria-label={label} className="h-full w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              {children}
+            </ResponsiveContainer>
+          </div>
+          {overlay}
         </div>
 
         {/*
           The same numbers, reachable. Outside the `role="img"` element on
           purpose: inside it, nothing here would ever be announced.
         */}
+        {table ?? (
         <table className="sr-only">
           <caption>{label}</caption>
           <thead>
@@ -161,6 +228,7 @@ export function ChartContainer({
             ))}
           </tbody>
         </table>
+        )}
       </div>
     </ChartContext.Provider>
   )

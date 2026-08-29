@@ -137,11 +137,17 @@ export type {
   ContextMenuTriggerProps,
 } from './components/ContextMenu'
 
+export { Donut } from './components/Donut'
+export type { DonutProps } from './components/Donut'
+
 export { Divider } from './components/Divider'
 export type { DividerProps } from './components/Divider'
 
 export { Field } from './components/Field'
 export type { FieldProps } from './components/Field'
+
+export { Gauge } from './components/Gauge'
+export type { GaugeProps } from './components/Gauge'
 
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
@@ -177,6 +183,9 @@ export type {
   MenuCheckboxItemProps,
   MenuRadioItemProps,
 } from './components/Menu'
+
+export { Radar } from './components/Radar'
+export type { RadarProps } from './components/Radar'
 
 export { Radio } from './components/Radio'
 export type { RadioProps, RadioGroupProps } from './components/Radio'

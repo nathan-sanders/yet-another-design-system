@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
-import { monoScales, type ChartMonoScale } from './palette'
+import { focusRing } from '../../lib/focus'
+import { monoScales, placeholder, type ChartMonoScale } from './palette'
 import { resolveSeries, useChart, type ChartSeries } from './context'
 import { ChartSwatch, type ChartSwatchShape } from './Swatch'
 
@@ -47,11 +48,26 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * illegible as 14px text on the canvas — yellow at 1.74:1 is the worst — and it
  * removes the one channel a reader with low colour vision was relying on.
  *
- * ## Not interactive yet, on purpose
+ * ## Interactive when, and only when, the chart says so
  *
- * Figma models a clickable legend as a separate `Chart Legend Buttons` property,
- * and it appears on Donut, Gauge and Radar — not on Line Series. So this is
- * presentational, and toggling arrives with the components that ask for it.
+ * Figma models a clickable legend as a separate `Chart Legend Buttons` property
+ * and puts it on Donut, Gauge and Radar — the charts where series overlap and
+ * switching one off is how you read the others.
+ *
+ * A row becomes a real `<button>` only when the chart passed
+ * `interactiveLegend` to `ChartContainer`, which the legend detects by the
+ * presence of `toggleSeries` in context. That is deliberate: a legend that looks
+ * clickable and is not is worse than a plain one, and deriving the affordance
+ * from the capability means the two cannot disagree.
+ *
+ * A switched-off series keeps its row — you have to be able to click it back —
+ * and drops to the placeholder grey with its label struck through. Two channels,
+ * because the grey alone is a colour difference and this is a state a reader has
+ * to be sure about.
+ *
+ * The state is `aria-pressed`, not `aria-hidden` or a disabled attribute: the
+ * button is a toggle that is still very much available, and pressed/unpressed is
+ * exactly what a screen reader should hear.
  */
 
 export type ChartLegendType = 'horizontal' | 'vertical' | 'stepped' | 'gradient'
@@ -85,11 +101,44 @@ export interface ChartLegendProps {
 }
 
 /** One swatch and one name. Figma's `_Swatch Label`. */
-function LegendItem({ shape, color, label }: { shape: ChartSwatchShape; color: string; label: ReactNode }) {
+function LegendItem({
+  shape,
+  color,
+  label,
+  hidden = false,
+  onToggle,
+}: {
+  shape: ChartSwatchShape
+  color: string
+  label: ReactNode
+  hidden?: boolean
+  onToggle?: () => void
+}) {
+  const content = (
+    <>
+      <ChartSwatch shape={shape} color={hidden ? placeholder : color} />
+      <span className={cn('text-content-subtle text-base', hidden && 'line-through')}>{label}</span>
+    </>
+  )
+
+  if (!onToggle) return <li className="flex items-center gap-1">{content}</li>
+
   return (
-    <li className="flex items-center gap-1">
-      <ChartSwatch shape={shape} color={color} />
-      <span className="text-content-subtle text-base">{label}</span>
+    <li className="flex">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-pressed={!hidden}
+        className={cn(
+          'flex cursor-pointer items-center gap-1 rounded-xs',
+          // The swatch and label already carry the state; the hover is only
+          // saying "this is a control".
+          'hover:opacity-80',
+          focusRing,
+        )}
+      >
+        {content}
+      </button>
     </li>
   )
 }
@@ -138,6 +187,9 @@ export function ChartLegend({
   }
 
   const series = seriesProp ? resolveSeries(seriesProp) : (chart?.series ?? [])
+  // A legend given its series explicitly is standing outside a chart, so there
+  // is nothing for it to toggle.
+  const toggle = seriesProp ? undefined : chart?.toggleSeries
   const shown = series.slice(0, max)
   const hidden = series.length - shown.length
 
@@ -152,7 +204,14 @@ export function ChartLegend({
       )}
     >
       {shown.map((s) => (
-        <LegendItem key={s.key} shape={s.swatchShape} color={s.color} label={s.label} />
+        <LegendItem
+          key={s.key}
+          shape={s.swatchShape}
+          color={s.color}
+          label={s.label}
+          hidden={chart?.hidden.has(s.key) ?? false}
+          onToggle={toggle ? () => toggle(s.key) : undefined}
+        />
       ))}
       {hidden > 0 ? <li className="text-content-subtle text-base">+{hidden} more</li> : null}
     </ul>

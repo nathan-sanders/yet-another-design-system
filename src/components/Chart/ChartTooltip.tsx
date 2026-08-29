@@ -87,7 +87,9 @@ export function ChartTooltip({
   className,
 }: ChartTooltipProps) {
   const chart = useChart()
-  const contextSeries = seriesProp ? resolveSeries(seriesProp) : (chart?.series ?? [])
+  // `visibleSeries`: a series switched off in the legend has stopped being
+  // drawn, so listing its value here would describe a mark that is not there.
+  const contextSeries = seriesProp ? resolveSeries(seriesProp) : (chart?.visibleSeries ?? [])
 
   if (!active || !payload?.length) return null
 
@@ -115,6 +117,15 @@ export function ChartTooltip({
 
   const total = items.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0)
 
+  /**
+   * A pie has no x value, so Recharts hands the tooltip `label: undefined` and
+   * the heading formats to an empty string. Rendering it anyway left a blank
+   * line above the rows on every Donut and Gauge tooltip — the row already
+   * carries the slice's name, so there is nothing for a heading to add.
+   */
+  const heading = formatLabel(label)
+  const hasHeading = heading !== '' && heading !== null && heading !== undefined
+
   return (
     <div
       className={cn(
@@ -123,7 +134,7 @@ export function ChartTooltip({
         className,
       )}
     >
-      <p className="text-content-emphasized text-base font-semibold">{formatLabel(label)}</p>
+      {hasHeading ? <p className="text-content-emphasized text-base font-semibold">{heading}</p> : null}
 
       <ul className="flex list-none flex-col">
         {items.map((item) => (

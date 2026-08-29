@@ -62,3 +62,35 @@ export function hourlyData(seed = 3): Record<string, unknown>[] {
     sessions: Math.round(50 + random() * 450),
   }))
 }
+
+/** One row per slice, for Donut and Gauge. */
+export function sliceData(count = 6): Record<string, unknown>[] {
+  const browsers = ['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Brave', 'Vivaldi', 'Arc']
+  const values = [4820, 2140, 980, 620, 310, 180, 90, 40]
+  return browsers.slice(0, count).map((name, i) => ({ browser: name, sessions: values[i] }))
+}
+
+/** Progress toward a target, for a Gauge. */
+export function gaugeData(): Record<string, unknown>[] {
+  return [
+    { stage: 'Committed', amount: 62 },
+    { stage: 'In progress', amount: 24 },
+    { stage: 'Remaining', amount: 14 },
+  ]
+}
+
+/** One row per dimension, several series — the shape a Radar wants. */
+export function radarData(axes = 5): Record<string, unknown>[] {
+  const names = ['Speed', 'Reliability', 'Comfort', 'Safety', 'Efficiency', 'Value']
+  const seeds = [
+    [88, 72, 64, 91, 55, 70],
+    [64, 88, 78, 62, 84, 58],
+    [72, 55, 92, 70, 66, 81],
+  ]
+  return names.slice(0, axes).map((name, i) => ({
+    dimension: name,
+    modelA: seeds[0][i],
+    modelB: seeds[1][i],
+    modelC: seeds[2][i],
+  }))
+}
