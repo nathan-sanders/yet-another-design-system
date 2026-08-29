@@ -10,7 +10,8 @@ Figma — so the code and the design file stay in sync, and dark mode costs noth
 Built with React 19, TypeScript, Vite, Tailwind CSS v4, and [Base UI](https://base-ui.com), with
 [Recharts](https://recharts.org) behind the charts. Previewed in Storybook.
 
-**[Browse the components →](https://nathan-sanders.github.io/yet-another-design-system/)**
+**[Browse the components →](https://nathan-sanders.github.io/yet-another-design-system/)** ·
+**[Open the Figma file →](https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System)**
 
 ## Quick start
 
@@ -36,7 +37,9 @@ publishes Storybook to GitHub Pages — see
 
 ## How it works
 
-Three layers, each generated from the one above it.
+Three layers, each generated from the one above it, starting from the
+[Figma file](https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System) — which
+is the source of truth for everything below it.
 
 ```
 Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css  →  components
