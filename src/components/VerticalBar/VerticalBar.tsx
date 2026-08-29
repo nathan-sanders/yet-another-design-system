@@ -14,6 +14,7 @@ import {
   gridline,
   inferXPreset,
   useChart,
+  useVisibleSeries,
   xAxisProps,
   yAxisProps,
   type ChartSeries,
@@ -92,6 +93,8 @@ export interface VerticalBarProps {
   /** Gridlines, 2–8. */
   yLines?: number
   legend?: 'horizontal' | 'vertical' | false
+  /** Let the reader switch series off by clicking the legend. */
+  interactiveLegend?: boolean
   xPreset?: ChartXPreset
   timeZone?: string
   className?: string
@@ -120,7 +123,10 @@ function VerticalBarPlot({
   timeZone: string
 }) {
   const chart = useChart()
-  const series = chart?.series ?? []
+  // `visibleSeries`, not `series`: a series switched off in an interactive
+  // legend must stop being drawn. Colour was assigned before this filter, so the
+  // ones that remain keep the colours they already had.
+  const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
   return (
@@ -202,6 +208,7 @@ export function VerticalBar({
   accessibilityBorder = false,
   yLines = 5,
   legend = 'horizontal',
+  interactiveLegend = false,
   xPreset,
   timeZone = 'UTC',
   className,
@@ -216,6 +223,7 @@ export function VerticalBar({
       label={label}
       height={height}
       className={className}
+      interactiveLegend={interactiveLegend}
       swatch="colorSwatch"
       formatX={(value) => formatDateTick(value, preset, undefined, timeZone)}
       formatY={(value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? ''))}

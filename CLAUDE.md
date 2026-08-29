@@ -366,6 +366,9 @@ settled once, against the Figma file, for a reason that is written down.
 | [AreaSeries](src/components/AreaSeries/CLAUDE.md) | how much, over time | two fills that are different drawings; opaque areas make paint order part of the API |
 | [VerticalBar](src/components/VerticalBar/CLAUDE.md) | how much, per category | Figma's three bar types are one boolean; rounded stacked segments Recharts cannot draw |
 | [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labelled or decorative, enforced by the type |
+| [Donut](src/components/Donut/CLAUDE.md) | parts of one whole | a slice is a series with one value; hover is a halo that does not resize the slice |
+| [Gauge](src/components/Gauge/CLAUDE.md) | how far along | a donut folded in half, which turns the hole into a shelf; the radius has to be computed |
+| [Radar](src/components/Radar/CLAUDE.md) | several series across a few dimensions | translucent because no paint order can work; the grid's outer ring is a second element |
 
 ### Data visualisation
 
@@ -406,6 +409,12 @@ Three rules worth having in mind before touching a chart:
   `ChartContainer`, a real fault inside `Spark`'s `aria-hidden` wrapper, where axe caught it. Its
   automatic y-domain ends at the largest value present, which gives round ticks only when the data
   happens to be round. Assume a Recharts default is aimed at a chart with no design system behind it.
+- **White does the separating, not a border.** The stacked bar's 1px gap, the solid area's
+  surface-coloured top edge and the donut's slice stroke are one idea in three places: a border would
+  be ink that is not data. Recognise it before inventing a fourth mechanism.
+- **Colour is assigned over the full series list, never the visible one.** It is what makes the
+  interactive legend safe — switching a series off cannot repaint the survivors. The fixed
+  categorical order and the hidden-series filter are the same rule seen from two sides.
 - **Measure the geometry; do not read it off a screenshot.** Both chart bugs found so far were
   invisible in a picture and obvious in a number — a missing 1px gap between two stacked segments,
   and grouped bars at 7px because `barCategoryGap` is applied to each side of the band. Pull the

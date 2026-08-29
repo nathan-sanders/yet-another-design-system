@@ -113,7 +113,30 @@ export function resolveSeries(
 }
 
 export interface ChartContextValue {
+  /**
+   * Every series, including any currently hidden. The legend walks this, so a
+   * hidden series still has a row to click to bring it back.
+   */
   series: ResolvedChartSeries[]
+  /**
+   * The series a plot should actually draw.
+   *
+   * **Colour is assigned before this filter, never after.** That is the whole
+   * reason hiding a series is safe: `resolveSeries` numbers the full array, and
+   * this is a filter over the result, so switching one series off leaves every
+   * other one the colour it already had. Assigning colour to the visible list
+   * instead would repaint the survivors every time the reader clicked — and
+   * silently invalidate the legend they had just learned.
+   */
+  visibleSeries: ResolvedChartSeries[]
+  /** Keys currently switched off in the legend. */
+  hidden: ReadonlySet<string>
+  /**
+   * Toggle one series. Present only when the chart was given an interactive
+   * legend — the legend uses its absence to decide whether to render rows or
+   * buttons, so a static legend cannot accidentally look clickable.
+   */
+  toggleSeries?: (key: string) => void
   /**
    * Whether the plot area has reached Figma's `Chart Breakpoint` (600px).
    *
@@ -126,12 +149,41 @@ export interface ChartContextValue {
    * wide chart visibly drop most of its labels and put them back.
    */
   wide: boolean
+  /**
+   * The measured plot width in px, or 0 before the first measurement.
+   *
+   * Exposed because a **semicircle cannot size itself from Recharts' rules.**
+   * Recharts derives a pie's radius from `min(width, height) / 2`, which is
+   * right for a full circle and wrong for a gauge: a half circle needs `R`
+   * vertically but `2R` horizontally, so the sensible radius is
+   * `min(width / 2, height)` and Recharts has no way to know that. The
+   * container is already measuring for the breakpoint, so the number is free.
+   */
+  plotWidth: number
 }
 
 export const ChartContext = createContext<ChartContextValue | null>(null)
 
 export function useChart(): ChartContextValue | null {
   return useContext(ChartContext)
+}
+
+/**
+ * A single stable empty array.
+ *
+ * `useChart()?.visibleSeries ?? []` looks harmless and is not: the literal is a
+ * new array on every render, so any `useMemo` or effect depending on it never
+ * hits its cache. Every chart derives something from the visible series, so this
+ * would have been six quiet re-computations per render.
+ */
+const NO_SERIES: ResolvedChartSeries[] = []
+
+/**
+ * The series a plot should draw, with a stable identity when there is no chart
+ * context. Use this rather than reading `visibleSeries` off `useChart()`.
+ */
+export function useVisibleSeries(): ResolvedChartSeries[] {
+  return useContext(ChartContext)?.visibleSeries ?? NO_SERIES
 }
 
 /** Look one series up by the `dataKey` Recharts hands back in a payload entry. */

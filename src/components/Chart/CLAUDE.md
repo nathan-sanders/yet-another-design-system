@@ -180,11 +180,49 @@ The check that this is a fix and not a change of taste: it reproduces every scal
 got right (1,990 → 2k, 20,000 → 20k, 456 → 600) and only moves the bad ones. `axes.test.ts` pins
 that.
 
+## The interactive legend, and the rule it depends on
+
+Figma's `Chart Legend Buttons` — on Donut, Gauge and Radar, the charts where series overlap and
+switching one off is how you read the others. `interactiveLegend` on `ChartContainer` turns it on for
+any chart; it is off by default, because a legend that looks clickable and is not is worse than a
+plain one.
+
+**A row becomes a `<button>` only when `toggleSeries` is present in context.** Deriving the affordance
+from the capability means the two cannot disagree — the same "derive it, do not declare it" rule as
+Button's icon-only form.
+
+**The whole feature rests on colour being assigned before the filter, not after.** `resolveSeries`
+numbers the full series array; `visibleSeries` is a filter over the result. So switching one series
+off leaves every other one the colour it already had. Assigning colour to the *visible* list instead
+would repaint the survivors on every click and silently invalidate the legend the reader had just
+learned — which is the same failure the fixed categorical order exists to prevent, arriving through a
+different door. Verified by reading the fills before and after a toggle: `01,02,03,04,05,06` becomes
+`01,03,04,05,06`, not `01,02,03,04,05`.
+
+A switched-off row keeps its place — you have to be able to click it back — and carries **two**
+signals, the placeholder grey and a strikethrough, because a colour change alone is a poor way to
+state a binary. The state is `aria-pressed`, not `aria-hidden` or `disabled`: it is a toggle that is
+still available.
+
+Plots read `useVisibleSeries()` rather than `chart.visibleSeries` directly. The `?? []` fallback
+looks harmless and is not — a fresh array every render defeats every `useMemo` downstream of it.
+
+## `overlay`, and the `role="img"` trap for the second time
+
+A donut's total and a gauge's figure go through `ChartContainer`'s `overlay`, rendered as a
+**sibling** of the `role="img"` plot. Inside it, they would be numbers no screen reader could reach —
+exactly the mistake the hidden data table is positioned to avoid, arriving in a second place. If a
+third thing ever needs to sit over a plot, it goes here for the same reason.
+
+## `plotWidth`
+
+The container already measures its width for the breakpoint, so it publishes it. One chart needs it:
+a **semicircle cannot size itself from Recharts' rules**, which derive a pie's radius from
+`min(width, height) / 2`. That is right for a full circle and leaves a gauge at half the size it
+should be, because a half circle needs `R` of height but `2R` of width. See the Gauge record.
+
 ## Left for later, deliberately
 
-- **The legend is not interactive.** Figma models a clickable legend as a separate
-  `Chart Legend Buttons` property and puts it on Donut, Gauge and Radar — not on Line Series. Toggling
-  arrives with the components that ask for it.
 - **`_Quadrant Grid`** has no chart built on it in Figma yet.
 - Figma's `Chart Key / Metric` and `_Swatch Label` are absorbed into `ChartLegend`'s row and
   `ChartTooltip`'s row rather than being separate components. Split them out if a third caller

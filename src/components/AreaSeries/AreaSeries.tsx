@@ -12,6 +12,7 @@ import {
   inferXPreset,
   surface,
   useChart,
+  useVisibleSeries,
   xAxisProps,
   yAxisProps,
   type ChartSeries,
@@ -89,6 +90,8 @@ export interface AreaSeriesProps {
   /** Gridlines, 2–8. */
   yLines?: number
   legend?: 'horizontal' | 'vertical' | false
+  /** Let the reader switch series off by clicking the legend. */
+  interactiveLegend?: boolean
   xPreset?: ChartXPreset
   timeZone?: string
   className?: string
@@ -119,7 +122,10 @@ function AreaSeriesPlot({
   gradientId: string
 }) {
   const chart = useChart()
-  const series = chart?.series ?? []
+  // `visibleSeries`, not `series`: a series switched off in an interactive
+  // legend must stop being drawn. Colour was assigned before this filter, so the
+  // ones that remain keep the colours they already had.
+  const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
   return (
@@ -196,6 +202,7 @@ export function AreaSeries({
   fill = 'solid',
   yLines = 5,
   legend = 'horizontal',
+  interactiveLegend = false,
   xPreset,
   timeZone = 'UTC',
   className,
@@ -211,6 +218,7 @@ export function AreaSeries({
       label={label}
       height={height}
       className={className}
+      interactiveLegend={interactiveLegend}
       // An area has no plot points, so its key is the plain colour square —
       // which is what Figma's Area Series legend uses.
       swatch="colorSwatch"

@@ -13,6 +13,7 @@ import {
   markerShape,
   surface,
   useChart,
+  useVisibleSeries,
   xAxisProps,
   yAxisProps,
   type ChartSeries,
@@ -93,6 +94,8 @@ export interface LineSeriesProps {
   yLines?: number
   /** Where the legend goes, or `false` for none. A chart with two or more series should keep it. */
   legend?: 'horizontal' | 'vertical' | false
+  /** Let the reader switch series off by clicking the legend. */
+  interactiveLegend?: boolean
   /** Override the x-axis preset where the data is ambiguous. */
   xPreset?: ChartXPreset
   /**
@@ -141,7 +144,10 @@ function LineSeriesPlot({
   timeZone: string
 }) {
   const chart = useChart()
-  const series = chart?.series ?? []
+  // `visibleSeries`, not `series`: a series switched off in an interactive
+  // legend must stop being drawn. Colour was assigned before this filter, so the
+  // ones that remain keep the colours they already had.
+  const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
   return (
@@ -254,6 +260,7 @@ export function LineSeries({
   showPoints = true,
   yLines = 5,
   legend = 'horizontal',
+  interactiveLegend = false,
   xPreset,
   timeZone = 'UTC',
   className,
@@ -271,6 +278,7 @@ export function LineSeries({
       label={label}
       height={height}
       className={className}
+      interactiveLegend={interactiveLegend}
       formatX={(value) => formatDateTick(value, preset, undefined, timeZone)}
       formatY={(value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? ''))}
       header={legend === false ? undefined : <ChartLegend type={legend} />}
