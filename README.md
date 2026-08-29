@@ -3,8 +3,8 @@
 A themeable React component library whose entire look is driven by design tokens exported from
 Figma — so the code and the design file stay in sync, and dark mode costs nothing to support.
 
-Built with React 19, TypeScript, Vite, Tailwind CSS v4, and [Base UI](https://base-ui.com).
-Previewed in Storybook.
+Built with React 19, TypeScript, Vite, Tailwind CSS v4, and [Base UI](https://base-ui.com), with
+[Recharts](https://recharts.org) behind the charts. Previewed in Storybook.
 
 **[Browse the components →](https://nathan-sanders.github.io/yet-another-design-system/)**
 
@@ -134,6 +134,8 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **BentoGrid** | The mosaic a set of `ContentBlock`s sits in; 2/3/4 columns × default/loose gutter, with a `BentoGrid.Cell` spanning 1–4 columns and 1–3 rows — one breakpoint collapses the grid to a single column and drops every span with it |
 | **Breadcrumbs** | Composed trail; 4 separators (slash, chevron, arrow, dot); link/current-page items × default/hover/focus/disabled, with icon slots |
 | **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
+| **Card** | The plain container; 3 emphases (default, subtle, accent) × flat/floating, padding named as a spacing token — `rounded-md` on 12px where a `ContentBlock` is `rounded-lg` on 16, so the two are drawn to nest |
+| **ClickableCard** | The same card as a hit target; 2 emphases (default, ghost) × default/hover/focus/disabled, plus `selected`. Passing `href` picks the element — an `<a>` with one, a `<button>` without — and `selected` lands on `aria-current` |
 | **Checkbox** | Unticked, ticked or indeterminate × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
 | **Combobox** | A list too long to scroll, filtered by typing; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled — a trigger with a searchable popup, or a tokenizer whose chosen values sit in front of the caret as `Token`s |
@@ -144,6 +146,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, in a default or ghost appearance |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
+| **Kbd** | A keyboard shortcut, one 20px key per keystroke, from a single `keys` string split on `+`. Prefer `mod`: it draws ⌘ on Apple platforms and ⌃ everywhere else, so one call site is right on both |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
 | **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labeled groups |
 | **Radio** | Unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
@@ -271,8 +274,75 @@ let go. So a form full of settings wants checkboxes and a button, and a settings
 at the bottom wants switches. Both wrap their label in a real `<label>`, which is what makes the text
 a hit target as well as the accessible name.
 
-Still to build: Card, List Item, Table Cell, Indicator, Chart Legend Buttons, Carousel
-Pagination Button.
+### Data visualization
+
+Charts are built on [Recharts](https://recharts.org) — the library shadcn/ui uses — and file under
+**Data Viz** in Storybook rather than Components. They share one container, one legend, one tooltip
+and one categorical palette.
+
+| Chart | What it shows |
+|---|---|
+| **Chart** | The chrome the others sit in, drawing nothing itself: `ChartContainer`, `ChartLegend` (horizontal, vertical, stepped, gradient), `ChartTooltip` and `ChartSwatch`, plus the categorical palette, the marker shapes and the axis rules |
+| **LineSeries** | Change over time, for up to 12 series; curve or linear × points on/off, with gridline count, a horizontal, vertical or absent legend, and an x-axis preset inferred from the data unless you name one |
+| **AreaSeries** | A magnitude over time, as a filled shape; curve or linear × solid or gradient fill — a solid area is opaque, so the surface-colored edge along its top is what separates one from the one behind it |
+| **VerticalBar** | A magnitude per category; grouped or stacked × total label on/off, with an optional accessibility overlay. Figma's three bar types are the one `stacked` boolean |
+| **Spark** | A shape at the size of a word; line, bar or area. The one chart that is not a `ChartContainer`, and the type makes you choose: either a `label` or an explicit `decorative` |
+| **Donut** | Parts of one whole, with a free-form center slot; hovering a slice raises a halo around it rather than resizing it |
+| **Gauge** | The same parts-of-a-whole folded into a half circle — Donut's data shape, slice separator and halo, but the fold turns the hole into a shelf, so the radius has to be computed |
+| **Radar** | Several series across the same handful of dimensions; scale labels on/off. The areas are translucent because with every series overlapping, no paint order can work |
+| **HeatMap** | How much, across two dimensions at once; 3 mono scales (a, b, c) of 10 steps × a start/end legend or none, over a derived or pinned min/max. A CSS grid, not a chart |
+| **TreeMap** | Parts of a whole, past the point a donut can carry them; values on/off — the only chart whose marks hold their own text |
+| **Metric** | A labeled number and what it did; optional trend, and a slot for a `Spark` |
+| **MetricCard** | The same metric on a `Card` |
+| **MetricGrid** | The row those cards sit in; 2–6 columns from `md` up, two on a phone, × default/tight gutter |
+| **TrendBadge** | The delta as a `Badge` — up, down or flat arrow, colored by whether that direction is the good one, so a fall in churn reads green |
+
+```tsx
+import { LineSeries, MetricCard, MetricGrid, Spark } from './src'
+
+<LineSeries
+  label="Followers by network, last 30 days"
+  data={rows}
+  xKey="date"
+  series={[{ key: 'instagram', label: 'Instagram' }, { key: 'x', label: 'X' }]}
+  interactiveLegend
+/>
+
+<MetricGrid columns={4}>
+  <MetricCard
+    label="Total followers"
+    value="128,412"
+    trend={6.1}
+    spark={<Spark data={rows} dataKey="followers" decorative />}
+  />
+</MetricGrid>
+```
+
+Every chart takes a `label`, because an SVG full of shapes says nothing on its own. `Spark` is the
+one that lets you out of it, and only by saying `decorative` out loud — an unlabeled `role="img"` is
+the case an audit flags and a reader gets nothing from, so the types make you pick.
+
+Three rules the charts hold to, each of which is easier to keep than to restore:
+
+- **The categorical order is fixed, and never cycled by rank.** Past twelve series the scale returns
+  the placeholder gray rather than wrapping, because two visible series sharing a color is worse
+  than admitting the scale ran out. Color is assigned over the full series list rather than the
+  visible one, which is what makes the interactive legend safe: switching a series off cannot
+  repaint the ones left.
+- **Text never wears the series color.** Identity comes from the swatch beside it. Three of the
+  twelve hues are illegible as text on the light canvas, and coloring text also removes the channel
+  a reader with low color vision was relying on.
+- **Charts do not animate.** Recharts animates in JavaScript against its own constants — a second
+  source of truth that Figma cannot reach — so `isAnimationActive={false}` throughout, and any
+  motion that is wanted comes back as CSS on the motion tokens.
+
+Color reaches a chart as `stroke="var(--data-viz-categorical-01)"` rather than as a class, because
+SVG attributes take values. That is also why there is no counterpart to shadcn's `ChartStyle`, which
+injects a `<style>` block per chart to map a variable onto a hex: `--data-viz-*` are semantic tokens
+with a `.dark` block already, so a mark painted with one follows the theme with no injected CSS, no
+second palette and no `dark:` variant.
+
+Still to build: List Item, Table Cell, Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
 ## Project structure
 
