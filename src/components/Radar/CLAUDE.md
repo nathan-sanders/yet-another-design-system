@@ -38,6 +38,39 @@ first keeps them all visible. **A radar's shapes overlap in every direction at o
 order exists that keeps them readable** — translucency is the only thing that works. It is also why a
 radar tolerates more overlapping series than an area chart does.
 
+## Everything on the chart is mono, because everything on it is an axis label
+
+The dimension names and the scale numbers are both 12px Geist Mono in `Content/Subtle` — which is
+what Figma binds (`text-sm/mono regular` on both) and what every other axis in the library uses. The
+dimension names shipped as sans first; that was a slip, not a gap in the file.
+
+**Mono is wider than sans at the same size**, so making the switch immediately pushed "Efficiency"
+and "Reliability" off both edges — Recharts places dimension labels *outside* the polygon and
+reserves no room for them. The polygon shrank to 70% with margins rather than the type shrinking:
+the labels are the part a reader needs legible, and a radar's shape survives being smaller perfectly
+well.
+
+## Making the scale readable took three separate fixes
+
+It was illegible, and each cause would have been enough on its own:
+
+1. **It was painted under the data.** Recharts paints in element order and `PolarRadiusAxis` was
+   declared before the `<Radar>` elements, so the numbers sat beneath three translucent fills and
+   whatever muddy colour they composited into. It is now declared last. Chrome normally belongs under
+   the data and the grid still does — axis *text* is the exception, and a radar is the one chart here
+   whose marks cover the middle where its own scale lives.
+2. **It had no halo.** Each glyph now carries a surface-coloured stroke with `paint-order: stroke`,
+   which puts the stroke under the fill so 3px reads as a 1.5px outline of canvas rather than a smear
+   over the character. Same idea as the stacked bar's gap and the donut's slice separator, so it
+   follows the theme for free.
+3. **It was slanted.** Recharts rotates each tick to follow the ray (`rotate(36, …)` here), and a
+   `tick` props object cannot override a transform the axis sets itself — so the ticks are a custom
+   renderer that simply does not apply it. Horizontal is a deliberate departure from Figma, which
+   rotates them -90°: both the quarter-turn and the slant ask a reader to tilt their head to read a
+   number that exists to be read.
+
+The colour stayed `Content/Subtle` throughout, which is Figma's. The problem was never the colour.
+
 ## The scale runs between two spokes, not along one
 
 Recharts puts the first vertex at 90°, so a radius axis at 90° runs straight through the topmost
