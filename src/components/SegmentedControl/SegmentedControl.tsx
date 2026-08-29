@@ -112,9 +112,9 @@ const segment = tv({
     'gap-2 rounded-sm font-sans whitespace-nowrap select-none',
     // Labels come from the Content ramp, not the Action one: an unselected
     // segment is `content-primary` and the selected one darkens to
-    // `content-emphasized`, so selection is carried by colour as well as by
+    // `content-emphasized`, so selection is carried by color as well as by
     // weight and the card. In dark mode that reads as stone-100 -> white.
-    // Hover does not change the colour — only the background does.
+    // Hover does not change the color — only the background does.
     'cursor-pointer text-content-primary',
     // A 1px border at rest, transparent until selected. Without it, selecting a
     // segment would add a border and grow it by 2px, shoving the whole row.
@@ -131,7 +131,7 @@ const segment = tv({
     // Selected: the raised white card. Weight goes 400 -> 600, as in Figma.
     'data-checked:bg-surface-background-primary data-checked:border-action-secondary-border',
     'data-checked:shadow-low data-checked:font-semibold data-checked:text-content-emphasized',
-    // Focusing an unselected segment darkens its label to the selected colour.
+    // Focusing an unselected segment darkens its label to the selected color.
     // Figma sets this on every Focus variant; it costs nothing on a selected
     // segment, which is already emphasized.
     'focus-visible:text-content-emphasized',

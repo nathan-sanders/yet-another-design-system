@@ -16,7 +16,7 @@ import {
  * AvatarGroup — overlapping avatars for a set of people.
  *
  * Mirrors the Figma component "Avatar Group" (node 40004297:11406): a row of
- * avatars, each ringed in the canvas colour so the circles read apart where they
+ * avatars, each ringed in the canvas color so the circles read apart where they
  * overlap, ending in a `+N` count.
  *
  * The API is composed rather than an `items` array, and the group does **not**
@@ -42,7 +42,7 @@ import {
  * photo or take up room in the row.
  *
  * **Which background is a prop, not a guess.** That band only disappears if it
- * is painted in the colour behind the group, and CSS has no way to ask what
+ * is painted in the color behind the group, and CSS has no way to ask what
  * that is — so `surface` says. It defaults to `canvas`, which is right on the
  * page and wrong the moment the group moves into a Card or a ContentBlock:
  * there it wants `surface="card-primary"`, or the rings read as grey halos.

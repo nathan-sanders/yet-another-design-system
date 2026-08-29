@@ -5,7 +5,7 @@
  *
  * Two concentric strokes, **both outside the component**: a 2px gap in
  * `focus/focus-inner-border` (white in light mode, stone-900 in dark — the
- * canvas colour, so it reads as a gap), then a 2px ring in
+ * canvas color, so it reads as a gap), then a 2px ring in
  * `focus/focus-outer-border`. Nothing is drawn on or inside the component
  * itself, so the thing you focused looks exactly the same as it did before.
  *

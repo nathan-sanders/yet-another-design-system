@@ -94,7 +94,7 @@ export const Playground: Story = {
  * **`ghost` has no visible edge and is exactly the same size as `default`.**
  * Figma binds its border to `Surface/Background Primary`, the same token as its fill,
  * rather than removing the border — so a ghost row and a bordered card line up
- * in a mixed list, and the hover is one colour move rather than a border
+ * in a mixed list, and the hover is one color move rather than a border
  * appearing from nowhere. Hover both to see it.
  */
 export const Emphasis: Story = {

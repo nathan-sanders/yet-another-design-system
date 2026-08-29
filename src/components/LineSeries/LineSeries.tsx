@@ -74,7 +74,7 @@ export interface LineSeriesProps {
   data: readonly Record<string, unknown>[]
   /** The property holding the x value. Dates may be `Date`s, ISO strings or timestamps. */
   xKey: string
-  /** The series, in a fixed order — colour and marker come from position here. */
+  /** The series, in a fixed order — color and marker come from position here. */
   series: readonly LineSeriesSeries[]
   /** What the chart shows, as a sentence. Becomes its accessible name. */
   label: string
@@ -146,8 +146,8 @@ function LineSeriesPlot({
 }) {
   const chart = useChart()
   // `visibleSeries`, not `series`: a series switched off in an interactive
-  // legend must stop being drawn. Colour was assigned before this filter, so the
-  // ones that remain keep the colours they already had.
+  // legend must stop being drawn. Color was assigned before this filter, so the
+  // ones that remain keep the colors they already had.
   const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
@@ -174,7 +174,7 @@ function LineSeriesPlot({
 
       <Tooltip
         // A vertical rule under the pointer, in the accessibility overlay —
-        // see `cursorHighlight`. It was the gridline colour, which is a step
+        // see `cursorHighlight`. It was the gridline color, which is a step
         // too quiet for the one element that has to track the pointer.
         cursor={{ stroke: cursorHighlight, strokeWidth: 1 }}
         // Recharts' own tween off, and the movement put back in the library's

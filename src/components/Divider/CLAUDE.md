@@ -16,7 +16,7 @@ element, so it would collide and shadow that escape hatch. It is `lineStyle`, an
 property was renamed `Style` → `Line Style` to match.
 **Dashed trap:** Figma specifies `stroke-dasharray="4 4"`; `border-dashed` lets the *browser*
 choose the dash length (near 2/2 at 1px, and engine-dependent), so dashes are a hard-stopped
-`repeating-linear-gradient` instead. Colour is set once with `text-surface-border` and picked up
+`repeating-linear-gradient` instead. Color is set once with `text-surface-border` and picked up
 as `currentColor`, so one class swap covers solid and dashed alike.
 **Sizing:** vertical is `self-stretch` so it matches the row it sits in, plus `min-h-5` — outside
 a flex container `self-stretch` does nothing and a 0-height div renders as nothing at all.

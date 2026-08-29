@@ -99,8 +99,8 @@ export const Grid: Story = {
  * so a number and its arrow cannot contradict each other.
  *
  * **Sentiment is a separate question**, because "up is good" is not universal.
- * `goodDirection="down"` flips the *colour* and leaves the *arrow* alone: the
- * arrow reports what the number did, the colour says how to feel about it.
+ * `goodDirection="down"` flips the *color* and leaves the *arrow* alone: the
+ * arrow reports what the number did, the color says how to feel about it.
  * Churn falling by 6% is green and pointing down, which is exactly right and
  * what a component fusing the two would get wrong.
  */

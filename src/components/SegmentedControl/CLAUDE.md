@@ -7,7 +7,7 @@ once. Mirrors Figma nodes `40004127:14774` (Segment Control, `Appearance` Second
 `appearance`: secondary | ghost — the same track token pairs Button's two appearances use, which
 is what makes it pair with them. `size`: small | default | large. `layout`: hug | fill.
 **Labels come from the Content ramp, not the Action one:** unselected is `content-primary` and
-selected darkens to `content-emphasized`, so selection is carried by colour as well as by weight
+selected darkens to `content-emphasized`, so selection is carried by color as well as by weight
 and the raised card — and in dark mode that reads stone-100 → white, which is what keeps the
 selected segment legible when its card (`surface-background-primary`, stone-900) is *darker* than the
 track. Hover changes only the background. Focus darkens the label to `content-emphasized` too;
@@ -35,7 +35,7 @@ so selecting one doesn't grow it.
 overlay *inside* the segment; here the shared ring paints 4px outside a segment that sits 1px in
 from the track edge, so clipping would slice the ring off the first and last segments.
 **Second component to use the motion tokens**, after Tooltip: `duration-fast-min` +
-`ease-standard` crossfading colour, background, border and shadow. Astryx measures at 125ms on
+`ease-standard` crossfading color, background, border and shadow. Astryx measures at 125ms on
 `cubic-bezier(0.24, 1, 0.4, 1)` — the same curve, and 130ms is the nearest token. No sliding
 indicator: that needs the JS layout library this system deliberately turned down.
 **A `Tooltip` composes onto a segment** — Tooltip hands `children` to Base UI's `render`, so the
@@ -47,6 +47,6 @@ panel, and a gap in the file rather than an invention. Figma's focus ring is dra
 `rounded-xs` on a `rounded-sm` segment — an artefact of it being a separate overlay layer; the
 segment's own radius is used instead, as in Button.
 This component shipped first and Figma caught up second, which is the reverse of the usual
-direction: `large` and the Content-ramp label colours were both added to the file afterwards
+direction: `large` and the Content-ramp label colors were both added to the file afterwards
 (as with Badge's four hues and Divider's `emphasis`), then synced back into the code. Large's
 `px-3` and the `content-primary` / `content-emphasized` pair came from Figma, not from us.

@@ -96,7 +96,7 @@ export const Variants: Story = {
 
 /**
  * The Avatar Status set (node 40004102:5619). Three statuses, each with a shape
- * of its own rather than only a colour — a filled disc, a ring, and a disc with
+ * of its own rather than only a color — a filled disc, a ring, and a disc with
  * a bar through it — so the three are still distinguishable to anyone who cannot
  * separate green from red.
  *

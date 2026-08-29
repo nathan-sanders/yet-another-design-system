@@ -23,7 +23,7 @@ import { focusRing } from '../../lib/focus'
  *
  * The group ring is a band of the background showing between overlapping
  * circles, and the status dot's ring is the same trick — so both have to name
- * the colour behind the avatar, and neither can work it out for itself. CSS has
+ * the color behind the avatar, and neither can work it out for itself. CSS has
  * no "the background of whatever contains me", so it is a prop.
  *
  * It names the token rather than inventing a second vocabulary — Card's
@@ -54,10 +54,10 @@ const statusSurfaceRing = {
 } as const satisfies Record<AvatarSurface, string>
 
 /**
- * The same colour as a *fill*, for the two status shapes that reveal the
+ * The same color as a *fill*, for the two status shapes that reveal the
  * background rather than ring it: `offline` is a stroked circle with the
  * surface showing through, and `unavailable`'s bar is drawn in the surface
- * colour rather than punched out.
+ * color rather than punched out.
  */
 const statusSurfaceFill = {
   canvas: 'bg-surface-canvas',
@@ -103,7 +103,7 @@ export const avatar = tv({
     /**
      * The ring that separates overlapping avatars in a group. Set from context
      * by AvatarGroup, never by hand — an avatar cannot be wrong about whether
-     * it is in a group. What *colour* the ring is comes from `surface` below.
+     * it is in a group. What *color* the ring is comes from `surface` below.
      */
     inGroup: {
       true: 'outline-solid',
@@ -151,7 +151,7 @@ export const avatarSurface = tv({
  * avatars, M for base and large, L for x-large — so it is keyed by avatar size
  * here rather than exposed as a second knob.
  *
- * Each status has a *shape* as well as a colour — a filled disc, a ring, a disc
+ * Each status has a *shape* as well as a color — a filled disc, a ring, a disc
  * with a bar through it — so the three stay distinguishable to anyone who cannot
  * separate green from red.
  */
@@ -159,7 +159,7 @@ export const statusDot = tv({
   base: 'absolute flex items-center justify-center rounded-full',
 
   variants: {
-    /** The colour behind the avatar, which the dot's ring has to match. */
+    /** The color behind the avatar, which the dot's ring has to match. */
     surface: statusSurfaceRing,
 
     size: {
@@ -210,7 +210,7 @@ export const statusBar = tv({
 
   variants: {
     /**
-     * The bar is the surface showing through the disc, not a colour of its own —
+     * The bar is the surface showing through the disc, not a color of its own —
      * so it is a fill in whatever is behind the avatar.
      */
     surface: statusSurfaceFill,

@@ -53,8 +53,8 @@ import type { IconProps } from '../Icon'
 export const box = tv({
   base: [
     'flex w-full flex-wrap items-center',
-    // `border` with no colour: the width is constant so the box never changes
-    // size, and which colour it takes is the `appearance` variant's business.
+    // `border` with no color: the width is constant so the box never changes
+    // size, and which color it takes is the `appearance` variant's business.
     // Button's ghost does the same thing with a fully transparent border.
     'rounded-md border',
     // Focus lands on the <input> inside, so the ring goes on the box and the
@@ -64,7 +64,7 @@ export const box = tv({
     // here: Figma draws a focus state for clicking into the field.
     ...focusRingWithin,
     // Same crossfade Checkbox and SegmentedControl use, for the same reason: the
-    // border colour changes on hover and on invalid, and 130ms is the shortest
+    // border color changes on hover and on invalid, and 130ms is the shortest
     // motion token.
     'transition-colors duration-fast-min ease-standard',
     // Inside a Field, validity arrives as `data-invalid` on the control rather
@@ -139,7 +139,7 @@ export const box = tv({
 
   // `appearance` is declared before `invalid` on purpose: tailwind-variants
   // applies variants in the order their keys appear, and tailwind-merge keeps the
-  // last of two conflicting border colours — so an invalid ghost field keeps its
+  // last of two conflicting border colors — so an invalid ghost field keeps its
   // red border at rest rather than hiding the one state that must never hide.
   defaultVariants: { appearance: 'default', size: 'default', invalid: false },
 })

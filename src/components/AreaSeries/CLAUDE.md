@@ -18,15 +18,15 @@ the Figma variants side by side:
 
 | | fill | top edge |
 |---|---|---|
-| `solid` | series colour, **opacity 1** | **`Surface/Background Primary`** |
-| `gradient` | series colour → **transparent**, downward | **the series colour** |
+| `solid` | series color, **opacity 1** | **`Surface/Background Primary`** |
+| `gradient` | series color → **transparent**, downward | **the series color** |
 
-**The edge swaps colour between the modes**, and that is the load-bearing part. A solid area's edge
-is surface-coloured because that is what separates it from the area behind it — the same trick the
+**The edge swaps color between the modes**, and that is the load-bearing part. A solid area's edge
+is surface-colored because that is what separates it from the area behind it — the same trick the
 stacked bar uses its 1px gap for, white doing the separating rather than more ink. A gradient area's
-edge is the series colour because there is nothing to separate from and the line is the mark.
+edge is the series color because there is nothing to separate from and the line is the mark.
 
-Get it backwards and each mode loses the thing it exists for: a solid area with a coloured edge has
+Get it backwards and each mode loses the thing it exists for: a solid area with a colored edge has
 no separation where two areas meet, and a gradient area with a surface edge has its line vanish into
 the background.
 
@@ -49,7 +49,7 @@ smooth stacked area never does.
 
 ## The legend keys with `colorSwatch`
 
-An area has no plot point to echo, so its key is the plain colour square rather than the
+An area has no plot point to echo, so its key is the plain color square rather than the
 rule-and-marker a line chart uses. Figma binds exactly this. The chart states it once by passing
 `swatch="colorSwatch"` to `ChartContainer`; see the note on `resolveSeries`.
 

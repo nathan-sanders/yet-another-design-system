@@ -24,13 +24,13 @@ decision or a mechanism.** A segment's "Direction=Positive" is not a decision �
 did between two points.
 
 What survives the crossing is the part that *is* a decision: the interpolation, the dash, the marker
-shape, the colour order, the tick rules.
+shape, the color order, the tick rules.
 
 ## Why there is no `ChartStyle`, and no port of shadcn's container
 
 shadcn/ui's `ChartContainer` injects a `<style>` element per chart mapping names like
 `--color-desktop` onto hex values, one block per theme. It exists because its charts are handed raw
-colours with nowhere theme-aware to put them.
+colors with nowhere theme-aware to put them.
 
 This library has somewhere. `--data-viz-*` are **semantic tokens**: defined at `:root` in section 3
 of `theme.css` and redefined in `.dark`. A mark painted `stroke="var(--data-viz-categorical-01)"`
@@ -40,24 +40,24 @@ Verified by switching the Storybook theme with nothing in the component changing
 **Do not port `ChartStyle`.** It would be a second, worse copy of a tier that already exists — and it
 is the exact thing the semantic layer was built to make unnecessary.
 
-## Colour rules that are not preferences
+## Color rules that are not preferences
 
-- **The categorical order is fixed and never cycled by rank.** `resolveSeries` assigns colour from a
+- **The categorical order is fixed and never cycled by rank.** `resolveSeries` assigns color from a
   series' index in the caller's array, not from a counter over visible ones. A palette that re-flows
   when a series is filtered out repaints the survivors and silently invalidates the legend the
   reader just learned.
 - **Past twelve series, `categorical()` returns the placeholder grey rather than wrapping.** Two
-  visible series sharing a colour is worse than admitting the scale ran out: the reader cannot tell
+  visible series sharing a color is worse than admitting the scale ran out: the reader cannot tell
   them apart and nothing signals that they should stop trying. Figma reaches the same conclusion from
   the other end — its `Chart Legend` has a `+X more` row, which `ChartLegend`'s `max` implements.
   A thirteenth series means group, facet or filter; it does not mean grow the scale.
-- **Markers cycle where colours do not**, and the asymmetry is the point. A repeated *shape* is still
-  separated by colour, so a second channel that runs out beats no second channel.
+- **Markers cycle where colors do not**, and the asymmetry is the point. A repeated *shape* is still
+  separated by color, so a second channel that runs out beats no second channel.
 - **A benchmark does not consume a categorical slot.** Adding a target line leaves every real series
-  the colour it already had.
-- **Text never wears the series colour** — `content-subtle` throughout, identity from the swatch
+  the color it already had.
+- **Text never wears the series color** — `content-subtle` throughout, identity from the swatch
   beside it. Three of the twelve hues are illegible as text on the light canvas (yellow at 1.74:1 is
-  the worst), and colouring text also removes the channel a low-colour-vision reader relies on.
+  the worst), and coloring text also removes the channel a low-color-vision reader relies on.
 - **The three short-contrast hues are known and parked.** The root `CLAUDE.md` records them as
   accepted. Do not "fix" them here; `accessibilityOverlay` and the outline marker shapes are the
   sanctioned mitigations.
@@ -86,11 +86,11 @@ two pieces with a gap — a continuous rule would show through the middle and tu
 a struck-through one. The gap widths are per-shape and read off the file (8 for square, triangle and
 hexagon; 7 for circle and diamond); deriving them from the shape's width gets the round ones wrong.
 
-At **plot-point** size the same marker is filled with the *surface* colour, because there it sits on
+At **plot-point** size the same marker is filled with the *surface* color, because there it sits on
 its own line and has to hide it.
 
-One function serves both: `markerShape` takes `surface` as a colour, so `'none'` yields the ring and
-the real token yields the filled marker. That is why it is a colour and not a boolean.
+One function serves both: `markerShape` takes `surface` as a color, so `'none'` yields the ring and
+the real token yields the filled marker. That is why it is a color and not a boolean.
 
 ## The accessible alternative is a table, and its position is load-bearing
 
@@ -180,7 +180,7 @@ state is wide, so a chart does not visibly shed its labels and put them back.
 
 It is on by default and stays on — not for two or more series, but for **every** chart. Two
 exceptions look reasonable and are both wrong: a single-series chart still needs the swatch to say
-which colour means the thing the title names (in greyscale, or for a reader who cannot separate two
+which color means the thing the title names (in greyscale, or for a reader who cannot separate two
 hues, that mapping is the only thing carrying identity), and a chart narrowed to one data point still
 plots a series. A key that disappeared exactly when a filter narrowed the data would be missing at
 the moment the chart was least familiar.
@@ -218,16 +218,16 @@ plain one.
 from the capability means the two cannot disagree — the same "derive it, do not declare it" rule as
 Button's icon-only form.
 
-**The whole feature rests on colour being assigned before the filter, not after.** `resolveSeries`
+**The whole feature rests on color being assigned before the filter, not after.** `resolveSeries`
 numbers the full series array; `visibleSeries` is a filter over the result. So switching one series
-off leaves every other one the colour it already had. Assigning colour to the *visible* list instead
+off leaves every other one the color it already had. Assigning color to the *visible* list instead
 would repaint the survivors on every click and silently invalidate the legend the reader had just
 learned — which is the same failure the fixed categorical order exists to prevent, arriving through a
 different door. Verified by reading the fills before and after a toggle: `01,02,03,04,05,06` becomes
 `01,03,04,05,06`, not `01,02,03,04,05`.
 
 A switched-off row keeps its place — you have to be able to click it back — and carries **two**
-signals, the placeholder grey and a strikethrough, because a colour change alone is a poor way to
+signals, the placeholder grey and a strikethrough, because a color change alone is a poor way to
 state a binary. The state is `aria-pressed`, not `aria-hidden` or `disabled`: it is a toggle that is
 still available.
 
@@ -255,7 +255,7 @@ The crosshair on a line or area chart, and the band behind a bar chart's categor
 
 **They used to take `gridline`, and it was too light to see.** The two tokens are one line apart in
 the file and a world apart in what they are for: a gridline is scenery a reader looks *past*, while a
-cursor is the one element they are actively following. Reusing the quietest colour in the chart for
+cursor is the one element they are actively following. Reusing the quietest color in the chart for
 it had it vanishing over the data.
 
 The overlay token is the right home because a hover highlight has exactly the job it was made for —

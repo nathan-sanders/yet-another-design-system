@@ -59,7 +59,7 @@ interface AvatarBaseProps
    * be told. Leave it alone on the page; set it to `card-primary` inside a Card
    * or a ContentBlock, which is where an avatar most often ends up.
    *
-   * Only matters when there is a ring to colour: an avatar with no `status`,
+   * Only matters when there is a ring to color: an avatar with no `status`,
    * outside a group, draws none.
    */
   surface?: AvatarSurface

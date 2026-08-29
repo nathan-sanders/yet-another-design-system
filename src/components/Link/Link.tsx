@@ -52,7 +52,7 @@ import { Icon, type IconProps } from '../Icon'
  * for a descendant — it propagates, and the line is painted straight across an
  * inline-block child's box — so the only way to end the rule where the label ends
  * is to start it there. It is underlined in every state, including hover: Figma's
- * hover changes colour and nothing else. (Astryx defaults to underline-on-hover
+ * hover changes color and nothing else. (Astryx defaults to underline-on-hover
  * behind a `hasUnderline` prop; this follows the file.)
  *
  * Breadcrumbs also renders `<a>` and deliberately looks nothing like this — it is
@@ -129,7 +129,7 @@ const link = tv({
     },
 
     // Figma's Disabled state is a flat 40% opacity (opacity/opacity-40) with the
-    // colour left alone.
+    // color left alone.
     disabled: {
       true: 'cursor-default opacity-40',
     },

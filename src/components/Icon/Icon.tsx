@@ -11,11 +11,11 @@ import { cn } from '../../lib/cn'
  * single `Size` property: Small 12, Base 16, Large 20, X-Large 24. Every size
  * uses stroke weight 1.5 (`--icon-stroke-weight`).
  *
- * Colour is `currentColor` by design, not a hardcoded token. Figma binds the
+ * Color is `currentColor` by design, not a hardcoded token. Figma binds the
  * icon fill to Content/Primary, which is what it inherits when it sits on a
  * normal page — but inside a Button it has to take the button's foreground
  * instead. Inheriting gets both for free; hardcoding would break the Button.
- * To colour one deliberately, pass a text utility: `<Icon className="text-content-danger" />`.
+ * To color one deliberately, pass a text utility: `<Icon className="text-content-danger" />`.
  */
 const icon = tv({
   // Stroke weight comes from the --icon-stroke-weight token (1.5), and needs two

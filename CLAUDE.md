@@ -22,7 +22,7 @@ Figma, so the code matches Figma and both stay in sync.
   lets a caller override a component's defaults
 - **`lucide-react`** for icons, wrapped by the `Icon` component
 - Fonts: **Inter** (sans), **Geist Mono** (mono), self-hosted via `@fontsource`
-- **Recharts** for data visualisation — the library shadcn/ui uses. Charts are SVG, and colour
+- **Recharts** for data visualisation — the library shadcn/ui uses. Charts are SVG, and color
   reaches them as `stroke="var(--data-viz-categorical-01)"` rather than as a class, because SVG
   attributes take values
 
@@ -55,7 +55,7 @@ red — and it is the reason the check exists.
   **neutral tier**, see below.
 - `:root { --surface-canvas … }` and `.dark { … }` — the **semantic** tokens (role-based, theme-aware).
 - `@theme inline { --color-surface-canvas: var(--surface-canvas) … }` — exposes semantic tokens as
-  colour utilities.
+  color utilities.
 - A trailing `:root` for reference-only values: `--border-width-*`, `--opacity-*`,
   `--icon-stroke-weight`.
 
@@ -69,14 +69,14 @@ not for use inside components.
 
 ### Dark mode
 
-Toggled by `class="dark"` on `<html>`. Because colour lives in the semantic layer, **do not write
-`dark:` variants for colour** — the token swaps itself. A theme toggle just adds/removes that class.
+Toggled by `class="dark"` on `<html>`. Because color lives in the semantic layer, **do not write
+`dark:` variants for color** — the token swaps itself. A theme toggle just adds/removes that class.
 
 ### The neutral is swappable
 
 Nine ramps are neutrals — **Stone** (default), Taupe, Mauve, Mist, Olive, Slate, Gray, Zinc,
 Neutral. Choosing one is `<html data-neutral="taupe">`, and it moves every surface, border, text
-colour, action, input, focus ring, shadow and neutral badge in both themes at once.
+color, action, input, focus ring, shadow and neutral badge in both themes at once.
 
 The seam is an eleven-step alias tier between primitives and semantics. **No semantic token names a
 ramp** — `--surface-background-emphasized: var(--neutral-800)`, never `var(--color-stone-800)`. Because no
@@ -133,9 +133,9 @@ useful part.
 
 On **2026-08-27** all fourteen categories were made *mode-independent*: one alias serving both Light
 and Dark. Nathan confirmed that was deliberate. But one value has to sit on both canvases, and that
-is a hard ceiling: clearing 3:1 against both `Stone/100` and `Stone/950` confines a colour to
+is a hard ceiling: clearing 3:1 against both `Stone/100` and `Stone/950` confines a color to
 relative luminance **0.108–0.271** — in practice only steps 500/600/700 of any hue — and **the best
-any single colour can manage against both at once is 4.28:1** (at L≈0.175). Nine of the fourteen
+any single color can manage against both at once is 4.28:1** (at L≈0.175). Nine of the fourteen
 cleared 3:1 on only one canvas. A second problem sat underneath: the fourteen used just **ten**
 distinct hues, four pairs separated by lightness alone, and inside that narrow band lightness is
 gone as a separator (`Pink/500` vs `Pink/700` is 1.64:1).
@@ -162,10 +162,10 @@ needs separating from its ground.
 The benchmark, alt and placeholder entries are the exception to all of it and still differ per mode
 on their own logic, because they are ground, not series.
 
-### Colour is OKLCH, and Tailwind owns the primitives
+### Color is OKLCH, and Tailwind owns the primitives
 
-Every colour is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
-roundings; nearly all 288 primitives are Tailwind palette colours, so `generate.py` reads
+Every color is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
+roundings; nearly all 288 primitives are Tailwind palette colors, so `generate.py` reads
 `node_modules/tailwindcss/theme.css` and uses Tailwind's canonical value, falling back to converting
 the Figma hex only when there is no counterpart.
 
@@ -175,12 +175,12 @@ names, `generate.py` lists all 44 under "scale-shaped names with no Tailwind cou
 run. That warning exists to catch a *misspelling* in Figma; for these four it is expected.
 
 **Consequence:** a primitive changed in Figma is ignored. `generate.py` reports any primitive that
-differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A colour
+differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A color
 that isn't a Tailwind value belongs in the **semantic** layer, which is fully Figma-driven.
 
 ### Motion
 
-Motion is a token tier like colour or radius, not a library. The scale is **Astryx's**, taken
+Motion is a token tier like color or radius, not a library. The scale is **Astryx's**, taken
 verbatim: nine durations — `fast`/`medium`/`slow`, each with a `-min` and `-max` — and one easing
 curve, `standard` (`cubic-bezier(0.24, 1, 0.4, 1)`).
 
@@ -235,7 +235,7 @@ Every focusable thing in the library uses one ring, exported from `src/lib/focus
 it takes focus). Import it; do not write focus classes by hand.
 
 It draws two strokes, **both outside the component**: a 2px gap in `focus/focus-inner-border` — the
-canvas colour, white in light mode and stone-900 in dark, so it reads as a gap — then a 2px ring in
+canvas color, white in light mode and stone-900 in dark, so it reads as a gap — then a 2px ring in
 `focus/focus-outer-border`. Nothing is painted on or inside the component, so a focused component is
 pixel-identical to an unfocused one.
 
@@ -260,7 +260,7 @@ Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Fig
 three JSON files and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
 
 `generate.py` refuses to write if it would emit an invalid CSS custom property name. This matters:
-an invalid name is dropped **silently** by the browser, which is how eight diverging colours once
+an invalid name is dropped **silently** by the browser, which is how eight diverging colors once
 went missing. Figma's `+`/`-` sign prefixes become `pos-`/`neg-` (`--data-viz-diverging-neg-08`).
 
 **`src/styles/tokens.test.ts` is the same guard one layer up**, and it runs in CI. Tailwind builds
@@ -276,19 +276,19 @@ component does.** That is precisely how those two were missed.
 
 `src/foundations/` is a documentation group, not part of the published library — eight story files
 under a `Foundations/` title, ordered ahead of `Components` by `storySort` in `.storybook/preview.tsx`.
-Overview, Colour, Semantic Colour, Typography, Space, Shape, Elevation, Motion.
+Overview, Color, Semantic Color, Typography, Space, Shape, Elevation, Motion.
 
 **Every page is parsed out of `theme.css` at load time** (`src/foundations/tokens.ts`, which imports
 it with Vite's `?raw`). Nothing is hand-listed, so the pages cannot drift: add a ramp, rename a role,
 retune the motion scale, and the documentation follows on the next reload. Same reasoning as
 `tokens.test.ts` reading the file rather than trusting a copy of it.
 
-The centrepiece is **Semantic Colour → Mapping**: every role with its light *and* dark target side by
+The centerpiece is **Semantic Color → Mapping**: every role with its light *and* dark target side by
 side, in one table, in either theme. That works because the two targets name the *ramp* tier
 (`neutral-800`) or a primitive (`red-700`), neither of which depends on the theme — only the choice
 between them does. The handful of roles that alias another semantic token (`feedback-success-background`
 is `decorative-green-background`) are expanded per theme by `resolve()` in `tokens.ts`, or they would
-quietly show the same colour in both columns.
+quietly show the same color in both columns.
 
 **Trap: Tailwind drops `@theme` variables nothing uses.** `--color-orange-500` is in `theme.css`, but
 no utility and no token references it, so it is not in the stylesheet the browser gets —
@@ -326,7 +326,7 @@ keyboard. `Showcase.tsx`'s `Table` does this once for all of them.
 - **An instance inherits its main component's bindings**, so retokenising a component updates every
   instance without touching them. Worth remembering before raising "the instances still point at the
   old token" — check one by id first.
-- Colours come back as `{r,g,b,a}` 0–1 floats — convert to hex.
+- Colors come back as `{r,g,b,a}` 0–1 floats — convert to hex.
 
 ## Components
 
@@ -364,7 +364,7 @@ settled once, against the Figma file, for a reason that is written down.
 |---|---|---|
 | [Accordion](src/components/Accordion/CLAUDE.md) | a stack of sections, one open at a time | height animated off a measurement Base UI publishes |
 | [Button](src/components/Button/CLAUDE.md) | the action control | five appearances, three sizes, icon-only derived from the absence of a label |
-| [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, colour inherited via `currentColor` |
+| [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, color inherited via `currentColor` |
 | [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size; `neutral` follows the swappable ramp |
 | [Breadcrumbs](src/components/Breadcrumbs/CLAUDE.md) | a trail to the current page | four separators, last child is current automatically |
 | [Divider](src/components/Divider/CLAUDE.md) | a line separating content | orientation × emphasis, optional label |
@@ -418,7 +418,7 @@ underscored component before implementing it** — reading them as a component l
 components into 30-plus.
 
 **shadcn's `ChartStyle` has no counterpart here, and must not gain one.** shadcn injects a `<style>`
-block per chart mapping `--color-desktop` onto a hex, because its charts are handed raw colours with
+block per chart mapping `--color-desktop` onto a hex, because its charts are handed raw colors with
 nowhere theme-aware to put them. `--data-viz-*` are semantic tokens — `:root` plus `.dark` — so a
 mark painted with one follows the theme with no injected CSS, no second palette and no `dark:`
 variant. That is the whole point of the semantic layer, arriving somewhere new for free.
@@ -429,11 +429,11 @@ them**; `src/components/Chart/` is the first code that does.
 Three rules worth having in mind before touching a chart:
 
 - **The categorical order is fixed and never cycled by rank**, and past twelve series the scale
-  returns the placeholder grey rather than wrapping. Two visible series sharing a colour is worse
+  returns the placeholder grey rather than wrapping. Two visible series sharing a color is worse
   than admitting the scale ran out. Figma agrees from the other end — its legend has a `+X more` row.
-- **Text never wears the series colour.** Identity comes from the swatch beside it. Three of the
-  twelve hues are illegible as text on the light canvas, and colouring text also removes the channel
-  a low-colour-vision reader was relying on.
+- **Text never wears the series color.** Identity comes from the swatch beside it. Three of the
+  twelve hues are illegible as text on the light canvas, and coloring text also removes the channel
+  a low-color-vision reader was relying on.
 - **Charts do not animate.** Recharts animates in JavaScript with its own constants — a second source
   of truth Figma cannot reach — so `isAnimationActive={false}` everywhere, and any motion that is
   wanted goes back as CSS on the tokens. Its tooltip writes a `transition` *inline* even when series
@@ -444,10 +444,10 @@ Three rules worth having in mind before touching a chart:
   automatic y-domain ends at the largest value present, which gives round ticks only when the data
   happens to be round. Assume a Recharts default is aimed at a chart with no design system behind it.
 - **White does the separating, not a border.** The stacked bar's 1px gap, the solid area's
-  surface-coloured top edge, the donut's slice stroke and the tree map's tile inset are one idea in
+  surface-colored top edge, the donut's slice stroke and the tree map's tile inset are one idea in
   four places: a border would be ink that is not data. Recognise it before inventing a fifth
   mechanism.
-- **Colour is assigned over the full series list, never the visible one.** It is what makes the
+- **Color is assigned over the full series list, never the visible one.** It is what makes the
   interactive legend safe — switching a series off cannot repaint the survivors. The fixed
   categorical order and the hidden-series filter are the same rule seen from two sides.
 - **Figma's Data Viz page references one token that does not exist.** The tree map's tile metric
@@ -646,5 +646,5 @@ cover all states → write a story showing every variant in light and dark. Then
 
 - Propose a short plan and get a yes before scaffolding or installing.
 - Keep commits/steps small and explain them in plain language.
-- Don't hardcode colours, spacing, radii, or shadows — always tokens.
+- Don't hardcode colors, spacing, radii, or shadows — always tokens.
 - Verify by measuring (computed styles, screenshots) rather than assuming.

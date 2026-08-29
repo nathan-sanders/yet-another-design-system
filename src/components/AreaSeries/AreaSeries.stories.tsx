@@ -36,10 +36,10 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * The chart Figma draws: two opaque areas, separated by a surface-coloured edge.
+ * The chart Figma draws: two opaque areas, separated by a surface-colored edge.
  *
- * Note the legend keys — plain colour squares, not the rule-and-marker a line
- * chart uses. An area has no point to echo, so the key is just the colour.
+ * Note the legend keys — plain color squares, not the rule-and-marker a line
+ * chart uses. An area has no point to echo, so the key is just the color.
  */
 export const Playground: Story = {}
 
@@ -47,23 +47,23 @@ export const Playground: Story = {}
  * The two fills, which are different drawings rather than a style toggle.
  *
  * `solid` fills at full opacity and strokes its top edge in the **surface**
- * colour, so where two areas meet the boundary is made of white rather than of
+ * color, so where two areas meet the boundary is made of white rather than of
  * extra ink. `gradient` fades to transparent downward and strokes its edge in
- * the **series** colour — the familiar line-with-a-wash.
+ * the **series** color — the familiar line-with-a-wash.
  *
- * The edge swapping colour between them is the part that matters: a solid area
- * with a coloured edge would lose its separation, and a gradient area with a
+ * The edge swapping color between them is the part that matters: a solid area
+ * with a colored edge would lose its separation, and a gradient area with a
  * surface edge would lose its line.
  */
 export const Fills: Story = {
   render: (args) => (
     <div className="flex max-w-4xl flex-col gap-8">
       <figure className="flex flex-col gap-2">
-        <figcaption className="text-content-subtle font-mono text-sm">solid — opaque, surface-coloured edge</figcaption>
+        <figcaption className="text-content-subtle font-mono text-sm">solid — opaque, surface-colored edge</figcaption>
         <AreaSeries {...args} fill="solid" data={dailyData(14)} height={200} />
       </figure>
       <figure className="flex flex-col gap-2">
-        <figcaption className="text-content-subtle font-mono text-sm">gradient — fades out, series-coloured edge</figcaption>
+        <figcaption className="text-content-subtle font-mono text-sm">gradient — fades out, series-colored edge</figcaption>
         <AreaSeries {...args} fill="gradient" data={dailyData(14)} height={200} />
       </figure>
     </div>

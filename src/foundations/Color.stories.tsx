@@ -4,11 +4,11 @@ import { Chip, Mono, Page, Panel, RampRow, RampScale, Section, Table, Td, Th } f
 import { chromaticRamps, neutralRamps, neutralSteps, paint, swappableNeutrals } from './tokens'
 
 /**
- * Tier one: the raw palette. Every colour in the system is one of these steps —
+ * Tier one: the raw palette. Every color in the system is one of these steps —
  * nothing else is allowed to invent one.
  */
 const meta = {
-  title: 'Foundations/Colour',
+  title: 'Foundations/Color',
   parameters: { controls: { disable: true } },
 } satisfies Meta
 
@@ -29,7 +29,7 @@ const orderedNeutrals = swappableNeutrals.flatMap(
  * The primitive ramps, exactly as `theme.css` writes them: eighteen chromatic
  * families and nine neutrals, eleven steps each, in OKLCH.
  *
- * These are theme-independent. `red-700` is the same colour in dark mode as in
+ * These are theme-independent. `red-700` is the same color in dark mode as in
  * light — what changes is which step the semantic layer reaches for. That is
  * the whole trick, and it is why this page has no theme switch of its own.
  *
@@ -38,7 +38,7 @@ const orderedNeutrals = swappableNeutrals.flatMap(
 export const Primitives: Story = {
   render: () => (
     <Page
-      title="Colour primitives"
+      title="Color primitives"
       lede={
         <>
           The palette, before it means anything. {chromaticRamps.length} chromatic families and{' '}
@@ -78,7 +78,7 @@ export const Primitives: Story = {
         </Panel>
       </Section>
 
-      <Section title="Absolutes" hint="No ramp, no steps — and the only two colours the semantic layer names outright.">
+      <Section title="Absolutes" hint="No ramp, no steps — and the only two colors the semantic layer names outright.">
         <Panel>
           <div className="grid max-w-md grid-cols-2 gap-4">
             {['white', 'black'].map((name) => (

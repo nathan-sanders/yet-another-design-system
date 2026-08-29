@@ -18,7 +18,7 @@ import type { ChartSwatchShape } from './Swatch'
  *
  * shadcn/ui's container of the same name injects a `<style>` element per chart,
  * mapping names like `--color-desktop` onto hex values, one block per theme.
- * That exists because its charts are handed raw colours with nowhere
+ * That exists because its charts are handed raw colors with nowhere
  * theme-aware to put them. This library has somewhere: `--data-viz-*` are
  * semantic tokens, already defined at `:root` and already redefined in `.dark`.
  * A mark painted with one follows the theme with no injected CSS, no second
@@ -47,7 +47,7 @@ import type { ChartSwatchShape } from './Swatch'
  */
 
 export interface ChartContainerProps {
-  /** The series, in a fixed order. Colour and marker are assigned from position here. */
+  /** The series, in a fixed order. Color and marker are assigned from position here. */
   series: readonly ChartSeries[]
   /**
    * The rows the chart plots. Also what the hidden table is built from, so it
@@ -115,7 +115,7 @@ export interface ChartContainerProps {
    * Wrap the children in Recharts' `ResponsiveContainer`. On by default.
    *
    * Pass `false` for a plot that is **DOM rather than SVG** — `HeatMap` is a CSS
-   * grid of coloured cells, and `ResponsiveContainer` requires a Recharts child.
+   * grid of colored cells, and `ResponsiveContainer` requires a Recharts child.
    *
    * Everything else this container does is still wanted there: the series
    * context, the legend header, the `role="img"` labelling, the hidden data

@@ -9,7 +9,7 @@ import type { ChartSwatchShape } from './Swatch'
  * taste.** A line chart's key is a rule with the series' point shape sitting on
  * it, because that is literally what the reader will look for on the plot. A
  * chart made of *areas* — an area fill, a bar segment, a donut slice, a heat-map
- * cell — has no line and no point to echo, so its key is the plain colour
+ * cell — has no line and no point to echo, so its key is the plain color
  * square. Figma binds exactly this: `Area Series` and `Vertical Bar` both key
  * with `Style=Color Swatch`, while `Line Series` keys with the marker styles.
  *
@@ -42,9 +42,9 @@ export interface ChartSeries {
   /** The name a human reads, in the legend and the tooltip. */
   label: string
   /**
-   * Override the colour. Almost never needed — the default is this series'
+   * Override the color. Almost never needed — the default is this series'
    * position in the categorical scale, which is what keeps two charts on the
-   * same dashboard agreeing about which colour "sessions" is.
+   * same dashboard agreeing about which color "sessions" is.
    */
   color?: string
   /**
@@ -56,7 +56,7 @@ export interface ChartSeries {
   dashed?: boolean
   /**
    * Mark this as a reference line — a target, a prior period, an average. It
-   * takes the chromaless benchmark colour instead of a categorical one and is
+   * takes the chromaless benchmark color instead of a categorical one and is
    * dashed by default, and it does **not** consume a categorical slot: a
    * benchmark is the thing the series are measured against, not one of them.
    */
@@ -75,12 +75,12 @@ export interface ResolvedChartSeries extends ChartSeries {
 /**
  * Fill in every default.
  *
- * **Colour is assigned from the index in this array, not from a running
+ * **Color is assigned from the index in this array, not from a running
  * counter over the visible ones.** Toggling a series off in the legend must
- * leave every other series the colour it already had — a palette that
+ * leave every other series the color it already had — a palette that
  * re-flows on filter repaints the survivors and silently invalidates what the
  * reader just learned. Benchmarks are skipped when counting, so adding a target
- * line does not shift every series' colour by one.
+ * line does not shift every series' color by one.
  */
 export function resolveSeries(
   series: readonly ChartSeries[],
@@ -121,10 +121,10 @@ export interface ChartContextValue {
   /**
    * The series a plot should actually draw.
    *
-   * **Colour is assigned before this filter, never after.** That is the whole
+   * **Color is assigned before this filter, never after.** That is the whole
    * reason hiding a series is safe: `resolveSeries` numbers the full array, and
    * this is a filter over the result, so switching one series off leaves every
-   * other one the colour it already had. Assigning colour to the visible list
+   * other one the color it already had. Assigning color to the visible list
    * instead would repaint the survivors every time the reader clicked — and
    * silently invalidate the legend they had just learned.
    */

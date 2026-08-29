@@ -22,8 +22,8 @@ something else owns, not for a row of them.
 **Content is derived, not a prop.** Figma's `Content` (Image | Initials | Overflow) follows from
 what you pass: `src` → photo, `name` → initials, `count` → `+N`, none → a `User` glyph. Same
 move as Button deriving icon-only from having no label.
-`status`: online | offline | unavailable — each has a *shape* as well as a colour (filled disc,
-ring, disc with a bar), so they survive red/green colour blindness. The dot's size is chosen by
+`status`: online | offline | unavailable — each has a *shape* as well as a color (filled disc,
+ring, disc with a bar), so they survive red/green color blindness. The dot's size is chosen by
 the avatar (8 / 8 / 12 / 12 / 20), not exposed as a second knob.
 Group: `<AvatarGroup size>` + `<AvatarGroup.Overflow count>`. It does **not** count for you —
 you slice the list, as Astryx does.
@@ -48,7 +48,7 @@ is left out: an avatar that needs a name should be wrapped in `Tooltip`.
 
 Both rings on this component are a band of the **background** showing through: the group ring
 between overlapping circles, and the status dot's ring against the photo. That only works if it is
-painted in the colour behind the avatar, and **CSS has no way to ask what that is** — there is no
+painted in the color behind the avatar, and **CSS has no way to ask what that is** — there is no
 "background of whatever contains me". So it is a prop: `canvas` (default) | `card-primary` |
 `card-subtle` | `card-emphasized`, the four `--surface-*` fills the theme has. The border tokens are
 not offered; `surface-border` is a line, not a fill, and nothing is drawn on top of one.

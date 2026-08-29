@@ -119,5 +119,5 @@ changed; the story suite passing unchanged is what says so.
 Left out: `Combobox.Clear`, `Backdrop`, `Arrow` and `Row`; virtualization; `Combobox.Label` (Field
 owns the label); a `Hug` property, which this set does not have though Select's does; and Astryx's
 `maxEntries`, `hasCreate`, `status`, `+N more` overflow, `endContent`, `isLabelHidden` and
-`disabledMessage`, none of which are in the file. Astryx's rule against colouring individual tokens
+`disabledMessage`, none of which are in the file. Astryx's rule against coloring individual tokens
 is already Token's.

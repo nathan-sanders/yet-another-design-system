@@ -57,7 +57,7 @@ describe('heatScale', () => {
     expect(color(100)).toBe(last)
   })
 
-  it('only ever returns a colour from the ramp it was given', () => {
+  it('only ever returns a color from the ramp it was given', () => {
     for (const scale of ['a', 'b', 'c'] as const) {
       const color = heatScale([0, 33, 66, 99], { scale })
       for (const value of [0, 12, 33, 47, 66, 80, 99]) {

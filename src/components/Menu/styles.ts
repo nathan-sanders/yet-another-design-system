@@ -26,7 +26,7 @@ export const popup = tv({
     'rounded-lg border border-surface-border bg-surface-background-primary shadow-medium',
     'font-sans',
     // Base UI parks focus on the popup itself when a menu is opened by click,
-    // and the browser draws its own focus ring on it — the system accent colour,
+    // and the browser draws its own focus ring on it — the system accent color,
     // which is nothing to do with this theme. The popup is a way-station, not a
     // stop: the ring belongs on the item you land on.
     'outline-none',

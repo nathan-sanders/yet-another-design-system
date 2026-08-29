@@ -18,7 +18,7 @@ library's. `side` / `align` / `sideOffset` are behaviour, not `tv()` variants �
 are one state**: `highlightItemOnHover` defaults true, so Figma's separate Hover and Focus
 collapse to `data-highlighted:` for the background plus `focus-visible:` for the ring.
 **The popup itself needs `outline-none`.** Base UI parks focus on the popup when a menu is opened
-by click, and the browser then draws *its own* focus ring on it — the macOS accent colour, which
+by click, and the browser then draws *its own* focus ring on it — the macOS accent color, which
 has nothing to do with this theme. The popup is a way-station, not a stop.
 **The separator is a sibling of the group, not a child.** Figma draws a Divider inside every
 group including the first, where it is invisible only because it lands on the popup's border

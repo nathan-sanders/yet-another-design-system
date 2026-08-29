@@ -56,7 +56,7 @@ const banner = tv({
     /**
      * Which feedback pair the banner draws from. The foreground lands on the
      * root rather than on the text, so the status glyph inherits it as
-     * `currentColor` — Icon never carries a colour of its own.
+     * `currentColor` — Icon never carries a color of its own.
      */
     type: {
       info: 'bg-feedback-info-background text-feedback-info-foreground',

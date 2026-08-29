@@ -22,7 +22,7 @@ its `aria-describedby` — verified in the browser: the label resolves as the na
 as the description. No `useId` anywhere, unlike Tooltip.
 `Field.Root`'s `invalid` prop is Base UI's documented path for validity decided outside the
 component, and it is what puts `aria-invalid` on the control and `data-invalid` on every part —
-which is what Input's border colour hangs off. `Field.Error` takes `match` so the message shows
+which is what Input's border color hangs off. `Field.Error` takes `match` so the message shows
 because the caller said so rather than because the browser found a native constraint violation.
 `validate` / `validationMode` / `validationDebounceTime` are deliberately **not** surfaced: this
 is presentational, and deciding *when* a value is wrong belongs to a Form component that does not
@@ -42,7 +42,7 @@ Select, Autocomplete and Combobox have all had their own label properties remove
 one label in the file and nothing left to disagree. **600 is the number to check.** Slider is the
 only control still drawing its own, and it moved to semibold to match — code-first, so the Slider
 set wants updating from `normal`. **Still open:** Slider's label is `Content/Primary` where this
-one is `Content/Emphasized`. Only the weight was aligned; the colour is left for the file.
+one is `Content/Emphasized`. Only the weight was aligned; the color is left for the file.
 **The validation message is italic** — `text-sm`, Content/Danger. Italic is this system's mark
 for text that is not something the person entered; the placeholder inside a field is italic for
 the same reason, and missing it is easy because a screenshot does not show it.

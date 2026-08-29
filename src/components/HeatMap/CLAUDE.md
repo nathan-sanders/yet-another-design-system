@@ -28,10 +28,10 @@ value there first and had to be corrected. **An `itemSpacing` on a Figma GRID fr
 
 **Height is computed from the row count**, not taken as a prop: a heat map's height is its data.
 
-## Colour is sequential, never categorical
+## Color is sequential, never categorical
 
 Cells encode **magnitude**, so they take one hue getting darker — one of `monoScales`. The twelve
-categorical colours would say that Tuesday 9am is a different *kind* of thing from Tuesday 10am,
+categorical colors would say that Tuesday 9am is a different *kind* of thing from Tuesday 10am,
 rather than more of the same.
 
 **The domain is computed once over the whole grid.** Per-row scaling would make every row's darkest
@@ -51,7 +51,7 @@ and the path went untested.
 
 ## The tooltip is an addition to the file
 
-Figma draws no hover state. A cell shows a colour and nothing else, so without one the only way to
+Figma draws no hover state. A cell shows a color and nothing else, so without one the only way to
 read an exact value is the hidden table, which sighted readers never see.
 
 It is `ChartTooltip` positioned from local state rather than Recharts' — there is no Recharts here to

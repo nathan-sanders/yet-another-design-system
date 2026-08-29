@@ -82,7 +82,7 @@ for hiding a search field's label, and it is why the search case is the safe cas
 the third leg — it answers "is this interactive?" before you commit.
 **Invalid stays visible at rest on a ghost field**, which is the one state that must not wait for a
 hover. It works because `appearance` is declared *before* `invalid` in the recipe: tailwind-variants
-applies variants in key order and tailwind-merge keeps the last of two conflicting border colours.
+applies variants in key order and tailwind-merge keeps the last of two conflicting border colors.
 Verified in the browser, because that is a silent failure if the order ever flips.
 Deliberately **not** enforced with a props union, unlike Button's icon-only `aria-label`: those
 unions enforce an accessible *name*, and a placeholder is a visual affordance — requiring one would

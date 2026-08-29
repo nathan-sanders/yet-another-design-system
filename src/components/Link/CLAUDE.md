@@ -28,7 +28,7 @@ family is a library-wide constant, not typographic context.
 the arrow, and `text-decoration` cannot be turned off for a descendant — it propagates, and the
 rule is painted straight across an inline-block child's box — so the only way to end it where
 the label ends is to start it there. Underlined in *every* state including hover; Figma's hover
-changes colour and nothing else. Figma's text style is ported whole:
+changes color and nothing else. Figma's text style is ported whole:
 `decoration-from-font`, `[text-underline-position:from-font]`, `[text-decoration-skip-ink:none]`.
 **Disabled renders a `<span>`** — `<a>` has no disabled attribute and `pointer-events-none`
 alone leaves it in the tab order. Breadcrumbs' answer. **`aria-disabled` on it is not

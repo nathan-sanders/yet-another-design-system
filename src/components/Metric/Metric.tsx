@@ -42,7 +42,7 @@ export interface MetricProps extends Omit<ComponentPropsWithRef<'div'>, 'childre
   value: ReactNode
   /** The change, as a number. Its sign picks the arrow. Omit for no badge. */
   trend?: number
-  /** Which direction counts as good news. Flips the badge's colour, not its arrow. */
+  /** Which direction counts as good news. Flips the badge's color, not its arrow. */
   goodDirection?: TrendGoodDirection
   /** How the trend reads. Passed through to `TrendBadge`. */
   formatTrend?: (trend: number) => string

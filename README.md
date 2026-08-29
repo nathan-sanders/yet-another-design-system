@@ -51,7 +51,7 @@ three JSON files into `tokens/` and run `python3 generate.py`.
 
 ### The rule for components
 
-Style with **semantic** tokens, never primitives or raw colour:
+Style with **semantic** tokens, never primitives or raw color:
 
 ```tsx
 // yes
@@ -63,7 +63,7 @@ Style with **semantic** tokens, never primitives or raw colour:
 
 ### Dark mode
 
-Add `class="dark"` to `<html>`. That's the whole mechanism. Because colour lives in the semantic
+Add `class="dark"` to `<html>`. That's the whole mechanism. Because color lives in the semantic
 layer, components **never** need a `dark:` variant — the token swaps itself.
 
 ### Neutral scales
@@ -75,7 +75,7 @@ Slate, Gray, Zinc and Neutral — and picking one is a single attribute:
 <html data-neutral="taupe">
 ```
 
-That changes every surface, border, text colour, button, input, focus ring, shadow and neutral badge
+That changes every surface, border, text color, button, input, focus ring, shadow and neutral badge
 at once, in both light and dark. Nothing else has to know.
 
 It works because the semantic layer never names a ramp. It goes through an eleven-step alias tier:
@@ -102,19 +102,19 @@ Two things worth knowing:
 Contrast is not automatic. The ramps differ slightly in lightness at the same step, so a pair that
 clears 4.5:1 on Stone is not guaranteed to on Olive. Check before shipping a non-default ramp.
 
-### Colour is OKLCH
+### Color is OKLCH
 
-Every colour ships as `oklch()`. Figma can only store hex, so the exported values are 8-bit
-roundings of colours that are really defined in OKLCH. Nearly every primitive here is a Tailwind
-palette colour, so `generate.py` reads the installed Tailwind and uses its canonical value:
+Every color ships as `oklch()`. Figma can only store hex, so the exported values are 8-bit
+roundings of colors that are really defined in OKLCH. Nearly every primitive here is a Tailwind
+palette color, so `generate.py` reads the installed Tailwind and uses its canonical value:
 
 ```css
 --color-red-500: oklch(63.7% 0.237 25.331);
 ```
 
-**Tailwind is the source of truth for colour primitives.** A primitive changed in Figma is ignored
+**Tailwind is the source of truth for color primitives.** A primitive changed in Figma is ignored
 in favour of Tailwind's value — `generate.py` reports any such disagreement rather than discarding
-it silently. Colours that aren't Tailwind values belong in the semantic layer, which is entirely
+it silently. Colors that aren't Tailwind values belong in the semantic layer, which is entirely
 Figma-driven.
 
 The four custom neutral ramps — **Taupe, Mauve, Mist and Olive** — are the exception: they have no

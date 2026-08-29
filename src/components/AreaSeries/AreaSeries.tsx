@@ -38,16 +38,16 @@ import {
  * This is the thing to understand before changing anything here, and reading the
  * Figma variants side by side is what makes it obvious:
  *
- * - **`solid`** — the fill is the series colour at **full opacity**, and the top
- *   edge is stroked in the **surface** colour. Overlapping areas are separated
- *   by that surface-coloured edge, which is the same trick the stacked bar uses
+ * - **`solid`** — the fill is the series color at **full opacity**, and the top
+ *   edge is stroked in the **surface** color. Overlapping areas are separated
+ *   by that surface-colored edge, which is the same trick the stacked bar uses
  *   its 1px gap for: white does the separating, not a border drawn in more ink.
- * - **`gradient`** — the fill fades from the series colour to fully transparent
- *   downward, and the top edge is stroked in the **series** colour. This is the
+ * - **`gradient`** — the fill fades from the series color to fully transparent
+ *   downward, and the top edge is stroked in the **series** color. This is the
  *   familiar "line chart with a wash under it".
  *
- * So the edge stroke swaps colour between the two modes. That is not a detail:
- * a solid area with a coloured edge would have no separation where two areas
+ * So the edge stroke swaps color between the two modes. That is not a detail:
+ * a solid area with a colored edge would have no separation where two areas
  * meet, and a gradient area with a surface edge would have its line vanish into
  * the background.
  *
@@ -86,7 +86,7 @@ export interface AreaSeriesProps {
   height?: number
   /** Monotone (`curve`) or straight (`linear`). See `LineSeries` on why monotone. */
   interpolation?: AreaInterpolation
-  /** Opaque with a surface-coloured edge, or a wash fading downward. */
+  /** Opaque with a surface-colored edge, or a wash fading downward. */
   fill?: AreaFill
   /** Gridlines, 2–8. */
   yLines?: number
@@ -124,8 +124,8 @@ function AreaSeriesPlot({
 }) {
   const chart = useChart()
   // `visibleSeries`, not `series`: a series switched off in an interactive
-  // legend must stop being drawn. Colour was assigned before this filter, so the
-  // ones that remain keep the colours they already had.
+  // legend must stop being drawn. Color was assigned before this filter, so the
+  // ones that remain keep the colors they already had.
   const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
@@ -170,8 +170,8 @@ function AreaSeriesPlot({
           dataKey={s.key}
           name={s.label}
           type={RECHARTS_TYPE[(s as AreaSeriesSeries).curve ?? interpolation]}
-          // The edge swaps colour with the fill mode — surface for solid so
-          // overlapping areas separate, the series colour for gradient so the
+          // The edge swaps color with the fill mode — surface for solid so
+          // overlapping areas separate, the series color for gradient so the
           // line reads. See the note on the component.
           stroke={fill === 'solid' ? surface : s.color}
           strokeWidth={EDGE_WIDTH}
@@ -216,7 +216,7 @@ export function AreaSeries({
       height={height}
       className={className}
       interactiveLegend={interactiveLegend}
-      // An area has no plot points, so its key is the plain colour square —
+      // An area has no plot points, so its key is the plain color square —
       // which is what Figma's Area Series legend uses.
       swatch="colorSwatch"
       formatX={(value) => formatDateTick(value, preset, undefined, timeZone)}

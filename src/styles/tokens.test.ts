@@ -22,7 +22,7 @@ import { describe, expect, it } from 'vitest'
 
 const ROOT = join(import.meta.dirname, '..')
 
-/** Utility prefixes that resolve against a colour token. */
+/** Utility prefixes that resolve against a color token. */
 const PREFIX = String.raw`(?:bg|text|border|ring|fill|stroke|shadow|inset-shadow|outline|decoration|divide|accent|caret|from|via|to)`
 /** The semantic groups — the tiers a component is allowed to paint with. */
 const GROUP = '(?:surface|content|action|input|focus|feedback|decorative|data-viz)'

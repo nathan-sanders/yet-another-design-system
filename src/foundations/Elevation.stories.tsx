@@ -22,11 +22,11 @@ function label(name: string, prefix: string): string {
  * Four heights, plus the directional variants a popup needs when it opens
  * upward or sideways.
  *
- * **The shadow colour is itself a semantic token.** Every shadow here is
+ * **The shadow color is itself a semantic token.** Every shadow here is
  * `… var(--surface-drop-shadow)`, so elevation adapts in dark mode without a
  * second set of shadow tokens — the same reason nothing in the library carries a
  * `dark:` class. Flip **Theme** in the toolbar and the shadows below change
- * colour, not size.
+ * color, not size.
  */
 export const Shadows: Story = {
   render: () => (
@@ -34,7 +34,7 @@ export const Shadows: Story = {
       title="Elevation"
       lede={
         <>
-          Height is a shadow, and the shadow's colour is a token — so the scale is written once and
+          Height is a shadow, and the shadow's color is a token — so the scale is written once and
           works in both themes.
         </>
       }

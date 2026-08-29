@@ -77,14 +77,14 @@ const preview: Preview = {
       // which is alphabetical by path — that would file the token layer under
       // C, between Components and Data Viz. Foundations comes first because it
       // is what every component is built out of: read it and the rest of the
-      // library stops looking like a pile of colours.
+      // library stops looking like a pile of colors.
       //
       // Within Foundations the order is the tiers themselves, palette outward,
       // rather than alphabetical.
       storySort: {
         order: [
           'Foundations',
-          ['Overview', 'Colour', 'Semantic Colour', 'Typography', 'Space', 'Shape', 'Elevation', 'Motion'],
+          ['Overview', 'Color', 'Semantic Color', 'Typography', 'Space', 'Shape', 'Elevation', 'Motion'],
           'Components',
           'Data Viz',
         ],

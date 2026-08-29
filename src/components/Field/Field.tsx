@@ -93,7 +93,7 @@ export interface FieldProps
   /**
    * Figma's `Validation Message`. Providing one puts the field in the invalid
    * state on its own — a danger-red message beside a neutral border would read
-   * as a bug — so `invalid` is only needed to colour the control without saying
+   * as a bug — so `invalid` is only needed to color the control without saying
    * anything.
    */
   error?: ReactNode
@@ -135,7 +135,7 @@ export function Field({
       // `invalid` on Field.Root is Base UI's documented path for a field whose
       // validity is decided outside it. It is what puts `aria-invalid` on the
       // control and `data-invalid` on every part, which is what the control's
-      // own border colour hangs off.
+      // own border color hangs off.
       invalid={isInvalid}
       // Not decoration. Disabled is a flat opacity-40, which measures about 2:1
       // against the canvas, and axe only exempts disabled text by walking up

@@ -2,7 +2,7 @@
  * The Foundations pages read the token layer itself.
  *
  * `theme.css` is generated from `tokens/*.json` by `generate.py`, so it is the
- * one artefact the playground, Storybook and every consumer share. Importing it
+ * one artifact the playground, Storybook and every consumer share. Importing it
  * as text and parsing it here means these pages cannot drift: add a ramp, rename
  * a semantic token, retune the motion scale, and the documentation changes with
  * it on the next reload. A hand-maintained list of swatches would be a second
@@ -80,7 +80,7 @@ function suffix(name: string, prefix: string): string {
   return name.slice(prefix.length + 3)
 }
 
-/* ------------------------------------------------------------------ colour */
+/* ------------------------------------------------------------------ color */
 
 export type Ramp = { name: string; steps: { step: string; value: string }[] }
 
@@ -256,12 +256,12 @@ const DARK_BY_NAME = new Map(DARK.map((d) => [d.name, d.value]))
  * Expand a declared value until it only references the ramp and primitive
  * tiers, which are theme-independent.
  *
- * This is what lets one page show the light *and* dark colour of a token at the
+ * This is what lets one page show the light *and* dark color of a token at the
  * same time. Most semantic tokens already point straight at `--neutral-800` or
  * `--color-red-700` and need no work — but a handful point at another semantic
  * token (`feedback-success-background` is `decorative-green-background`), and
  * those would otherwise follow whichever theme the reader is in, quietly
- * showing the same colour in both columns.
+ * showing the same color in both columns.
  */
 export function resolve(value: string, theme: 'light' | 'dark'): string {
   const map = theme === 'dark' ? DARK_BY_NAME : LIGHT_BY_NAME

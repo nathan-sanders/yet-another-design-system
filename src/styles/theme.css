@@ -372,8 +372,8 @@
   --shadow-high-right: 16px 0px 32px 0px var(--surface-drop-shadow);
   --shadow-high-left: -16px 0px 32px 0px var(--surface-drop-shadow);
   --inset-shadow-top: inset 0px 16px 8px -8px var(--surface-inner-shadow);
-  --inset-shadow-bottom: inset 0px -16px 16px -8px var(--surface-inner-shadow);
-  --inset-shadow-left: inset 16px 0px 16px -8px var(--surface-inner-shadow);
+  --inset-shadow-bottom: inset 0px -16px 8px -8px var(--surface-inner-shadow);
+  --inset-shadow-left: inset 16px 0px 8px -8px var(--surface-inner-shadow);
   --inset-shadow-right: inset -16px 0px 8px -8px var(--surface-inner-shadow);
 
   /* motion — Astryx's scale. The names are Astryx's; the prefixes are Tailwind's, */

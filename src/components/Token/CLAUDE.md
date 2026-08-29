@@ -11,8 +11,8 @@ look. So this is the look, shaped to be driven by them later:
 separately so `<Combobox.ChipRemove render={<Token.Remove />} />` can take it over.
 **Not a Badge.** The two draw a similar pill and the line is what the thing *is*: a Badge is a
 status you read, one of 18 Decorative hues, no states at all; a Token is a value someone chose,
-in the card colour, that they can usually take back. Coloured and static → Badge. That is why
-Astryx's 11 colours are **not** ported: they would make the two indistinguishable.
+in the card color, that they can usually take back. Colored and static → Badge. That is why
+Astryx's 11 colors are **not** ported: they would make the two indistinguishable.
 **20 and 24 are the numbers to check.** Measured, both sizes, view-only and removable. Same
 12/20 type at both — Figma's `Size` changes the height and nothing else.
 **Small is where Figma's stroke lies.** Figma's small variant is exactly one 20px line box with

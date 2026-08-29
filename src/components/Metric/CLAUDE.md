@@ -15,7 +15,7 @@ up. Reading that off the file is what made this the smallest batch of the four:
 | a `Card` instance | `Card` | `emphasis="subtle"` is already `bg-surface-background-subtle border-surface-background-subtle` — Figma fills *and* strokes with that token. `padding={3}` is its 12px; `rounded-md` is its radius 8. |
 
 So `TrendBadge` contributes one thing — a number mapped to a direction — and `MetricCard` contributes
-one thing: the pairing. Neither should grow padding, a radius or a colour of its own; the moment
+one thing: the pairing. Neither should grow padding, a radius or a color of its own; the moment
 either does, it is a second badge or a second card.
 
 ## `TrendBadge` keeps direction and sentiment apart
@@ -25,8 +25,8 @@ a number *and* a direction would let the two contradict each other — the same 
 Button's `iconOnly` and Slider's `range`.
 
 **Sentiment is a separate question, because "up is good" is not universal.** Sessions rising is good;
-churn, load time, cost and error rate rising are not. `goodDirection="down"` flips the **colour** and
-leaves the **arrow** alone: the arrow reports what the number did, the colour says how to feel about
+churn, load time, cost and error rate rising are not. `goodDirection="down"` flips the **color** and
+leaves the **arrow** alone: the arrow reports what the number did, the color says how to feel about
 it. A component that fused them would be wrong on roughly half of every dashboard, and the failure
 would look like a design choice rather than a bug.
 

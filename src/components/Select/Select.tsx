@@ -107,7 +107,7 @@ const trigger = tv({
     'data-invalid:hover:border-feedback-danger-highlight',
     // Base UI sets `data-disabled` on the trigger and, being a native button,
     // the `disabled` attribute too. Both are listed so the fade does not depend
-    // on which one arrives; Figma's disabled is a flat opacity with no colour
+    // on which one arrives; Figma's disabled is a flat opacity with no color
     // swap at all.
     'disabled:pointer-events-none disabled:opacity-40',
     'data-disabled:pointer-events-none data-disabled:opacity-40',
@@ -247,7 +247,7 @@ const indicatorBox = tv({
  * They are the cost of overlapping the trigger: a list long enough to run past
  * the viewport has to scroll inside a popup that is already covering its own
  * anchor, and these are how Base UI does it. Built from tokens in the popup's
- * own colours, and recorded in CLAUDE.md as a gap in the file rather than an
+ * own colors, and recorded in CLAUDE.md as a gap in the file rather than an
  * invention — Divider's `emphasis` and Menu's `destructive` again.
  *
  * Base UI unmounts them when the list does not scroll, so there is nothing to

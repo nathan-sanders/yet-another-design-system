@@ -48,7 +48,7 @@ the line. The `Dense` story is 90 days with them off. The line's shape is still 
 
 `benchmark: true` takes the chromaless benchmark grey and a dashed line, and — the part worth
 noticing — **does not consume a categorical slot**. Adding a target to a chart leaves every real
-series the colour it already had. A dashed line is also the only dashed thing on the plot, which is
+series the color it already had. A dashed line is also the only dashed thing on the plot, which is
 why the gridlines are solid.
 
 ## The legend defaults on, and stays on
@@ -57,7 +57,7 @@ It is the dependable identity channel, and the alternative is asking the reader 
 
 **It does not scale down with the chart.** Two exceptions look reasonable and are both wrong:
 
-- **A single series still gets one.** The swatch is what says which colour means the thing the title
+- **A single series still gets one.** The swatch is what says which color means the thing the title
   names, and in greyscale — or for a reader who cannot separate two hues — that mapping is the only
   thing carrying it. This used to be the other way round, and the `Dashboard` story's 24-hour block
   opted out; Nathan reversed it on 2026-08-28 and the block now keeps its key like every other.

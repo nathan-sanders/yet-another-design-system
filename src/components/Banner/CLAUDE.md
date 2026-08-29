@@ -20,7 +20,7 @@ keeps Banner stateless like everything else here. Astryx self-hides with interna
 that quietly returns on the next render is the worse surprise. The button is just
 `<Button appearance="overlay" size="small" startIcon={X} aria-label>` — overlay is the one
 appearance that works on all four feedback backgrounds, because its own background is a dark
-translucent wash rather than a theme colour. Its union prop type already requires the label.
+translucent wash rather than a theme color. Its union prop type already requires the label.
 **Naming trap, the mirror of Divider's.** `title` is a real DOM attribute on every element (the
 browser's hover tooltip), typed `string`, so `ComponentPropsWithRef<'div'>` has to be
 `Omit`ed to retype it as a ReactNode. Divider resolved the same collision the other way and

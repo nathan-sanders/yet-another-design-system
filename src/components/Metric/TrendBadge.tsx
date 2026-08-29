@@ -26,8 +26,8 @@ import { Badge } from '../Badge'
  *
  * Direction and sentiment are two different things and the component keeps them
  * apart. Sessions rising is good; churn rising is not, and neither is load time,
- * cost, or error rate. `goodDirection="down"` flips the **colour** while leaving
- * the **arrow** alone — the arrow reports what the number did, the colour says
+ * cost, or error rate. `goodDirection="down"` flips the **color** while leaving
+ * the **arrow** alone — the arrow reports what the number did, the color says
  * how to feel about it, and a component that fused them would be wrong for
  * roughly half of every dashboard.
  */
@@ -41,7 +41,7 @@ export interface TrendBadgeProps {
    * `format` has had it.
    */
   trend: number
-  /** Which direction counts as good. Flips the colour, never the arrow. */
+  /** Which direction counts as good. Flips the color, never the arrow. */
   goodDirection?: TrendGoodDirection
   /** How the number reads. Defaults to a signed percentage, Figma's `8%`. */
   format?: (trend: number) => string

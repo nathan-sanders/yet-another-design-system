@@ -50,7 +50,7 @@ interface SparkBaseProps {
   dataKey: string
   /** Line, bar, or a line with a wash under it. */
   type?: SparkType
-  /** The series colour. Defaults to the first categorical. */
+  /** The series color. Defaults to the first categorical. */
   color?: string
   /** Height in px. Figma draws it at 96; a metric card usually wants less. */
   height?: number

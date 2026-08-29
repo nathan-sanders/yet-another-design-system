@@ -67,7 +67,7 @@ export const Playground: Story = {
  * and `accent` are code-first, and exist because a bento view needs a way to say
  * which compartment matters most that is not just "make it bigger".
  *
- * Every colour here is a semantic token pair, so the whole grid works in dark
+ * Every color here is a semantic token pair, so the whole grid works in dark
  * mode with no `dark:` class anywhere — switch the Theme toolbar and nothing
  * below changes but the tokens.
  */

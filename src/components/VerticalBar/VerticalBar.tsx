@@ -61,7 +61,7 @@ import {
  * (grouped), but those are the component's own size on the canvas — the real
  * chart distributes bars across whatever width it has, and pinning them to 16
  * would leave a wide chart mostly empty. The cap is what matters: past 24 a bar
- * stops reading as a measured length and starts reading as a block of colour,
+ * stops reading as a measured length and starts reading as a block of color,
  * and the leftover in the band is supposed to be air.
  */
 
@@ -85,7 +85,7 @@ export interface VerticalBarProps {
   /**
    * Outline every segment with `Data Viz/Utility/Accessibility Overlay`.
    *
-   * For a chart using one of the three categorical colours that fall short of
+   * For a chart using one of the three categorical colors that fall short of
    * 3:1 on the light canvas — `04` yellow above all — where a large flat fill
    * can be hard to find against the surface. Off by default because Figma's own
    * examples do not draw it.
@@ -125,8 +125,8 @@ function VerticalBarPlot({
 }) {
   const chart = useChart()
   // `visibleSeries`, not `series`: a series switched off in an interactive
-  // legend must stop being drawn. Colour was assigned before this filter, so the
-  // ones that remain keep the colours they already had.
+  // legend must stop being drawn. Color was assigned before this filter, so the
+  // ones that remain keep the colors they already had.
   const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
@@ -166,7 +166,7 @@ function VerticalBarPlot({
         //
         // The accessibility overlay at a low opacity, not the gridline: see
         // `cursorHighlight`. A band is larger than a rule, so it takes the
-        // colour down rather than up.
+        // color down rather than up.
         cursor={{ fill: cursorHighlight, fillOpacity: 0.24 }}
         isAnimationActive={false}
         wrapperStyle={chartTooltipWrapperStyle}

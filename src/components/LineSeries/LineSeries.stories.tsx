@@ -38,7 +38,7 @@ type Story = StoryObj<typeof meta>
 /**
  * Thirty-one days, three series — the chart Figma draws, with controls.
  *
- * Use the Theme switch in the toolbar for dark mode: the series colours are
+ * Use the Theme switch in the toolbar for dark mode: the series colors are
  * semantic tokens, so they swap themselves and there is no `dark:` variant
  * anywhere in this component. The Neutral switch moves the grid and the axis
  * labels but deliberately leaves the series alone — a chart's categories are not
@@ -116,7 +116,7 @@ export const AxisPresets: Story = {
  *
  * It takes the chromaless benchmark grey and a dashed line, and — the part worth
  * noticing — it does **not** consume a categorical slot. Adding a target to a
- * chart leaves every real series the colour it already had.
+ * chart leaves every real series the color it already had.
  */
 export const WithBenchmark: Story = {
   render: (args) => (

@@ -24,10 +24,10 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Figma's chart: three groups, each a block of tiles in one colour.
+ * Figma's chart: three groups, each a block of tiles in one color.
  *
- * **Colour belongs to the group, not the tile.** That is what lets a treemap
- * show eleven rectangles with three colours — and it is why this form keeps
+ * **Color belongs to the group, not the tile.** That is what lets a treemap
+ * show eleven rectangles with three colors — and it is why this form keeps
  * working where a donut stops: past about six slices a donut's small arcs are
  * unreadable, while a treemap's small rectangles are merely small.
  */
@@ -44,7 +44,7 @@ export const Playground: Story = {}
  * That token's first job is outlining a mark that cannot separate from its
  * ground. This is a second, and it works for the same reason: it is the neutral
  * at 56%, and it flips with the theme, so `content-inverse` is the right text
- * colour in both. Switch to dark in the toolbar and watch the plate invert.
+ * color in both. Switch to dark in the toolbar and watch the plate invert.
  */
 export const WithValues: Story = {
   args: { showValues: true },

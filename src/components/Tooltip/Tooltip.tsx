@@ -10,7 +10,7 @@ import { overlayLayer } from '../../lib/layers'
  * Tooltip — a short label describing the thing you are pointing at.
  *
  * Mirrors Figma node `40004073:20833`. That component has no variant set at all
- * — one look, no sizes, no colours, no arrow — so there is nothing here to model
+ * — one look, no sizes, no colors, no arrow — so there is nothing here to model
  * as `tv()` variants. Everything interesting is behaviour.
  *
  * Third Base UI component in the library after Divider and Avatar, and the first
@@ -60,7 +60,7 @@ import { overlayLayer } from '../../lib/layers'
  */
 const tooltip = tv({
   base: [
-    // Surface. shadow-low is Figma's Elevation/Drop Shadow/Low; its colour is a
+    // Surface. shadow-low is Figma's Elevation/Drop Shadow/Low; its color is a
     // semantic token, so it flips for dark mode on its own.
     'max-w-96 rounded-md border border-surface-border bg-surface-background-primary shadow-low',
     // Box: px-3 = spacing/3 (12px), py-0.5 = spacing/0-5 (2px).

@@ -103,7 +103,7 @@ export const Floating: Story = {
  * The action slot takes a node, not a label, so it can hold whatever the message
  * needs. A small overlay Button is the pairing Figma draws: overlay is the one
  * appearance that works on all four feedback backgrounds, because its own
- * background is a dark translucent wash rather than a theme colour.
+ * background is a dark translucent wash rather than a theme color.
  */
 export const WithAction: Story = {
   parameters: { controls: { disable: true } },

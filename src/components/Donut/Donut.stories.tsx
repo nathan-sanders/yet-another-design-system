@@ -31,9 +31,9 @@ type Story = StoryObj<typeof meta>
 
 /**
  * Figma's chart: six slices, starting at twelve o'clock and running clockwise,
- * separated by a surface-coloured stroke rather than a gap in the geometry.
+ * separated by a surface-colored stroke rather than a gap in the geometry.
  *
- * Hover a slice to see the halo — a thin arc of the series colour just outside
+ * Hover a slice to see the halo — a thin arc of the series color just outside
  * the ring. The slice itself does not grow, which is deliberate: on a chart
  * whose entire encoding is size, enlarging what you point at makes pointing look
  * like it changed the value.
@@ -63,14 +63,14 @@ export const WithTotal: Story = {
  * The interactive legend — Figma's `Chart Legend Buttons`.
  *
  * Click a slice's key to switch it off. The thing to watch is what does **not**
- * happen: the remaining slices keep the colours they already had. Colour is
+ * happen: the remaining slices keep the colors they already had. Color is
  * assigned over the full series list and the hidden set is a filter applied
  * afterwards, so toggling can never repaint the survivors and invalidate the
  * legend the reader has just learned.
  *
  * A switched-off row stays in the legend — you have to be able to click it back
  * — and carries two signals, the placeholder grey and a strikethrough, because a
- * colour change alone is a poor way to state a binary.
+ * color change alone is a poor way to state a binary.
  */
 export const InteractiveLegend: Story = {
   args: { interactiveLegend: true },

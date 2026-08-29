@@ -38,7 +38,7 @@ type Story = StoryObj<typeof meta>
  * distinction the cartesian charts make.
  *
  * That emphasis takes two elements. Recharts' `PolarGrid` paints every ring one
- * colour, so the heavier boundary comes from `PolarAngleAxis`'s own `axisLine`
+ * color, so the heavier boundary comes from `PolarAngleAxis`'s own `axisLine`
  * drawn as a polygon over the top.
  */
 export const Playground: Story = {

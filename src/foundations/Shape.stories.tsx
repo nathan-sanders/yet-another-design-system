@@ -4,7 +4,7 @@ import { Mono, Page, Panel, Section } from './Showcase'
 import { borderWidths, opacities, radii } from './tokens'
 
 /**
- * Corner radius, stroke weight and opacity — the non-colour parts of how a
+ * Corner radius, stroke weight and opacity — the non-color parts of how a
  * surface is drawn.
  */
 const meta = {

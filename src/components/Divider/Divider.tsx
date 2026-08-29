@@ -66,7 +66,7 @@ const divider = tv({
     },
   },
 
-  // Colour is set with a text utility above and picked up here as currentColor,
+  // Color is set with a text utility above and picked up here as currentColor,
   // so `emphasis` is a single class swap that works for solid and dashed alike.
   //
   // The dashes are a gradient rather than `border-dashed` on purpose. Figma's

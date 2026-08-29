@@ -179,7 +179,7 @@ export const Overflow: Story = {
  * stacked row is the wrong place to read.
  *
  * **Note `surface="card-primary"`.** The card is white and the page is not, so
- * without it the rings would be painted in the canvas colour and read as grey
+ * without it the rings would be painted in the canvas color and read as grey
  * halos rather than as the gap they are. This story had exactly that bug until
  * the prop existed. Compare with `Surfaces` below.
  */
@@ -205,7 +205,7 @@ export const InContext: Story = {
 /**
  * The four surfaces, each group sitting on the one it names.
  *
- * The ring between overlapping avatars is not a colour — it is a band of
+ * The ring between overlapping avatars is not a color — it is a band of
  * whatever is behind the group, showing through. CSS has no way to ask what
  * that is, so `surface` tells it, and every row here is correct because the
  * prop and the background agree.

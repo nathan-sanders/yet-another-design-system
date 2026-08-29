@@ -22,10 +22,10 @@ import { heatScale } from './scale'
  * table, the legend header. `Spark` is the opposite call — it wants none of
  * them, so it uses no container at all.
  *
- * ## Colour is a sequential ramp, and never a categorical one
+ * ## Color is a sequential ramp, and never a categorical one
  *
  * Cells encode **magnitude**, so they take one hue getting darker — one of
- * `monoScales`. The twelve categorical colours are for identity and would say
+ * `monoScales`. The twelve categorical colors are for identity and would say
  * that Tuesday at 9am is a different *kind* of thing from Tuesday at 10am rather
  * than more of the same. The domain is computed once over the whole grid; see
  * `scale.ts` for why per-row scaling destroys the chart.
@@ -38,7 +38,7 @@ import { heatScale } from './scale'
  *
  * ## The tooltip
  *
- * A cell shows a colour and nothing else, so without hover the only way to read
+ * A cell shows a color and nothing else, so without hover the only way to read
  * an exact value is the hidden table — which sighted readers never see. Figma
  * draws no hover state; this is a deliberate addition.
  *
@@ -151,7 +151,7 @@ export function HeatMap({
 
   return (
     <ChartContainer
-      // A heat map has no categorical series — its colour is a magnitude ramp,
+      // A heat map has no categorical series — its color is a magnitude ramp,
       // and its legend is the gradient rather than a list of names.
       series={[]}
       data={[]}
@@ -228,7 +228,7 @@ export function HeatMap({
                   active
                   label={`${hovered.row} · ${hovered.column}`}
                   // A cell is an area, not a point on a line, so its key is the
-                  // plain colour square — the same rule Area, Bar and Donut follow.
+                  // plain color square — the same rule Area, Bar and Donut follow.
                   swatch="colorSwatch"
                   series={[{ key: 'value', label: valueLabel, color: colorFor(hovered.value) ?? undefined }]}
                   payload={[{ dataKey: 'value', value: hovered.value }]}

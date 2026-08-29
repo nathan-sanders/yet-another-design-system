@@ -36,7 +36,7 @@ import {
  *
  * It lives here rather than under any one chart because it is not about any one
  * chart. It is the integration test that the family agrees with itself: one
- * colour order, one legend, one tooltip, one set of axis rules, in one grid.
+ * color order, one legend, one tooltip, one set of axis rules, in one grid.
  */
 const meta = {
   title: 'Data Viz/Dashboard',
@@ -146,11 +146,11 @@ export const Reference: Story = {
 /**
  * Every chart in the library, on one page.
  *
- * Worth looking at as a whole: the same twelve colours in the same order, one
+ * Worth looking at as a whole: the same twelve colors in the same order, one
  * legend, one tooltip and one set of axis rules across nine very different
  * forms. Switch the theme and the neutral in the toolbar — nothing here writes
  * a `dark:` variant, and the grid and axes follow the ramp while the series
- * colours deliberately do not.
+ * colors deliberately do not.
  */
 export const Everything: Story = {
   render: () => (

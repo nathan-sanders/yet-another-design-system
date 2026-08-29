@@ -64,7 +64,7 @@ export function Mono({ children, muted = false }: { children: ReactNode; muted?:
 }
 
 /**
- * One colour chip. `value` is any CSS colour — a live `var(--surface-canvas)`
+ * One color chip. `value` is any CSS color — a live `var(--surface-canvas)`
  * for a token that should follow the toolbar, or a literal for a primitive.
  * See `paint` in `tokens.ts` for why primitives cannot be read as variables.
  */

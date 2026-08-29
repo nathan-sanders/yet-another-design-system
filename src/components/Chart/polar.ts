@@ -14,7 +14,7 @@
  * Where a donut's hole starts, as a fraction of its outer radius.
  *
  * Figma's `_Donut / Slice Sweep` arc: `innerRadius: 0.72`. On a 256px donut that
- * is a 36px band — thick enough to carry a colour, thin enough that the eye
+ * is a 36px band — thick enough to carry a color, thin enough that the eye
  * compares arc *lengths* rather than areas, which is the only reason a donut is
  * more honest than a pie.
  */
@@ -46,7 +46,7 @@ export const DONUT_START_ANGLE = 90
 export const DONUT_END_ANGLE = -270
 
 /**
- * The surface-coloured stroke that separates one slice from the next.
+ * The surface-colored stroke that separates one slice from the next.
  *
  * Figma strokes every slice in `Surface/Background Primary` — the same
  * "let white do the separating" move as the stacked bar's gap and the solid
@@ -56,7 +56,7 @@ export const DONUT_END_ANGLE = -270
 export const SLICE_GAP = 2
 
 /**
- * The hover halo: a thin arc of the series colour sitting just outside the
+ * The hover halo: a thin arc of the series color sitting just outside the
  * slice you are pointing at.
  *
  * Figma builds it as a second ellipse at 268 against the donut's 256 with

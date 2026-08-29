@@ -1,7 +1,7 @@
 # Tooltip
 
 A short label describing the thing you are pointing at. Mirrors Figma node
-`40004073:20833`, which has **no variant set at all** — one look, no sizes, no colours, no arrow —
+`40004073:20833`, which has **no variant set at all** — one look, no sizes, no colors, no arrow —
 so there is not a single `tv()` variant. Everything interesting is behaviour.
 Third Base UI component and the **first that portals**, so it sets the pattern every later overlay
 (Popover, Dialog, Select, Menu) will copy. Base UI supplies the lifecycle: hover/focus delays,

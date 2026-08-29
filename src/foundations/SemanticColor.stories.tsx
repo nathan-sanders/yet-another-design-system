@@ -9,12 +9,12 @@ import type { SemanticToken } from './tokens'
  * theme.
  *
  * This is the page the whole system turns on. A component never names a
- * colour — it names a *role* (`bg-action-primary-background`), and this table
+ * color — it names a *role* (`bg-action-primary-background`), and this table
  * is where that role is cashed in for a step on a ramp. Dark mode is not a set
  * of `dark:` classes anywhere in the library; it is the right-hand column.
  */
 const meta = {
-  title: 'Foundations/Semantic Colour',
+  title: 'Foundations/Semantic Color',
   parameters: { controls: { disable: true } },
 } satisfies Meta
 
@@ -27,9 +27,9 @@ const GROUP_NOTES: Record<string, string> = {
   action: 'The tiers a Button is built from: primary, secondary, destructive, ghost, overlay, link.',
   input: 'Fields and their selected state. Separate from action because an input is not a button.',
   focus: 'The two-ring focus indicator — an inner light ring and an outer dark one, so it survives on any background.',
-  feedback: 'Success, info, warning, danger. Each one aliases a decorative family rather than naming a colour twice.',
+  feedback: 'Success, info, warning, danger. Each one aliases a decorative family rather than naming a color twice.',
   decorative: 'The eighteen hue families, each with a background, highlight and foreground that already contrast.',
-  'data-viz': 'Chart colour: the categorical order, the diverging scale, sentiment and the mono ramp.',
+  'data-viz': 'Chart color: the categorical order, the diverging scale, sentiment and the mono ramp.',
 }
 
 /** One theme's target, as a chip plus the alias it was written as. */
@@ -101,10 +101,10 @@ function MappingTable({ group, tokens }: { group: string; tokens: SemanticToken[
 export const Mapping: Story = {
   render: () => (
     <Page
-      title="Semantic colour"
+      title="Semantic color"
       lede={
         <>
-          {semanticTokenCount} tokens, each one a <em>role</em> rather than a colour. Components paint
+          {semanticTokenCount} tokens, each one a <em>role</em> rather than a color. Components paint
           with these and nothing else, which is why there is not a single <Mono>dark:</Mono> class in
           the library — the dark column below does that job for all of them at once.
         </>
@@ -120,7 +120,7 @@ export const Mapping: Story = {
 }
 
 /**
- * The same tokens as flat swatch walls, for when you want to compare colours
+ * The same tokens as flat swatch walls, for when you want to compare colors
  * rather than read a mapping. These follow the toolbar's **Theme** and
  * **Neutral** switches, so this is the fastest way to see what changing the
  * ramp actually does to the system.
@@ -128,7 +128,7 @@ export const Mapping: Story = {
 export const Swatches: Story = {
   render: () => (
     <Page
-      title="Semantic colour, as swatches"
+      title="Semantic color, as swatches"
       lede="Every semantic token painted at its current value. Change Theme or Neutral in the toolbar and the whole wall moves."
     >
       {semanticGroups.map((g) => (

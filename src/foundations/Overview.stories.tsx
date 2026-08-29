@@ -94,7 +94,7 @@ export const Overview: Story = {
         title="Foundations"
         lede={
           <>
-            The token layer, tier by tier. A component never names a colour, a size or a duration —
+            The token layer, tier by tier. A component never names a color, a size or a duration —
             it names a <em>role</em>, and the tiers below decide what that role is worth today.
           </>
         }
@@ -126,7 +126,7 @@ export const Overview: Story = {
               step={1}
               name="Primitive"
               swatch={paint(`var(--color-stone-${rampStep})`)}
-              detail="The raw palette, in OKLCH. Theme-independent: this step is the same colour in dark mode. Nothing paints with it directly."
+              detail="The raw palette, in OKLCH. Theme-independent: this step is the same color in dark mode. Nothing paints with it directly."
             >
               --color-stone-{rampStep}
             </Tier>
@@ -187,12 +187,12 @@ export const Overview: Story = {
           <Panel>
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               {[
-                ['Colour', `The ${chromaticRamps.length + neutralRamps.length} primitive ramps, and the swappable neutral tier.`],
-                ['Semantic Colour', `All ${semanticTokenCount} roles, with their light and dark targets side by side.`],
+                ['Color', `The ${chromaticRamps.length + neutralRamps.length} primitive ramps, and the swappable neutral tier.`],
+                ['Semantic Color', `All ${semanticTokenCount} roles, with their light and dark targets side by side.`],
                 ['Typography', `Two families, three weights, ${typeScale.length} steps that carry their own line height.`],
                 ['Space', 'One base number, and the multiples every layout is built from.'],
                 ['Shape', `${radii.length} radii, six stroke weights, twenty-one opacities.`],
-                ['Elevation', `${shadows.length} shadows whose colour is itself a token, so they adapt in dark mode.`],
+                ['Elevation', `${shadows.length} shadows whose color is itself a token, so they adapt in dark mode.`],
                 ['Motion', `${durations.length} durations in three tiers, and one easing curve.`],
               ].map(([term, def]) => (
                 <div key={term} className="flex flex-col gap-0.5">

@@ -61,7 +61,7 @@ than in a sentence.
 
 **Ghost is the same trick doing a different job.** Its stroke is bound to `Surface/Background Primary` —
 its own fill — rather than removed, so a ghost row is exactly the size of a bordered card beside it
-and the hover is one colour move instead of a border appearing from nowhere. Written as the token
+and the hover is one color move instead of a border appearing from nowhere. Written as the token
 and not as `border-transparent` for both reasons. It disappears on a `surface-background-primary` parent
 and is a white block on the canvas: check what is behind it.
 
@@ -174,7 +174,7 @@ Header to get the spacing would put an empty `<h3>` in the document.
 
 Radius **8px**, border **1px**, padding **12px** at `padding={3}` (0/8/12/16 across the four steps), **8px**
 gap between children, 14/24 type, `overflow: visible`. `shadow-low` (0 2px 4px, 25% neutral-800)
-present only when `floating`. Subtle and accent have border-colour **equal to** their background;
+present only when `floating`. Subtle and accent have border-color **equal to** their background;
 default and ghost do not. Focused ClickableCard is pixel-identical to unfocused — measured 375×82
 both ways. Disabled is opacity `0.4` with `pointer-events: none`. Hover moves fill **and** border to
 `surface-background-subtle`.

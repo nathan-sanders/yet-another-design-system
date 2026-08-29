@@ -35,7 +35,7 @@ import type { ReactElement } from 'react'
  * ## How an outline shape hides what is under it
  *
  * An outline marker is **not** a shape with no fill. It is filled with the
- * *surface* colour and stroked with the series colour, exactly as Figma draws it
+ * *surface* color and stroked with the series color, exactly as Figma draws it
  * — its outline variants each carry a `Background` layer beneath the ring. That
  * matters wherever markers overlap or a marker sits on its own line: an unfilled
  * ring would show the line straight through its middle and stop reading as a
@@ -80,11 +80,11 @@ export const chartMarkers: readonly ChartMarker[] = [
 /**
  * The default marker for series `index`.
  *
- * Markers cycle where colours do not, and the asymmetry is deliberate. A colour
+ * Markers cycle where colors do not, and the asymmetry is deliberate. A color
  * repeated across two visible series is ambiguous — that is why `categorical()`
- * stops at twelve. A *shape* repeated is not, because the colour is still
+ * stops at twelve. A *shape* repeated is not, because the color is still
  * telling them apart; the shape is a second channel, and a second channel that
- * runs out is still better than none. Eleven shapes against twelve colours means
+ * runs out is still better than none. Eleven shapes against twelve colors means
  * the pair only repeats at the twelfth series, by which point the chart has
  * bigger problems.
  *
@@ -148,7 +148,7 @@ const HEXAGON: readonly (readonly [number, number])[] = [
 export interface MarkerShapeOptions {
   /** The shape to draw. */
   marker: ChartMarker
-  /** The series colour — a `var(--data-viz-…)` reference from `palette.ts`. */
+  /** The series color — a `var(--data-viz-…)` reference from `palette.ts`. */
   color: string
   /** The chart surface, which fills an outline shape so nothing shows through it. */
   surface: string
@@ -187,8 +187,8 @@ export function markerShape({
   const scale = size / NOMINAL
   const outline = isOutlineMarker(marker)
 
-  // An outline shape is surface-filled and colour-stroked; a solid one is
-  // colour-filled with no stroke at all. Figma draws both exactly this way.
+  // An outline shape is surface-filled and color-stroked; a solid one is
+  // color-filled with no stroke at all. Figma draws both exactly this way.
   const paint = outline
     ? { fill: surface, stroke: color, strokeWidth }
     : { fill: color, stroke: 'none' as const }
@@ -254,7 +254,7 @@ export function markerShape({
 
     case 'x': {
       // The one shape that is a stroke rather than a region, so it takes the
-      // series colour on its stroke and has no fill to give the surface.
+      // series color on its stroke and has no fill to give the surface.
       const h = X_HALF * scale
       return (
         <path

@@ -17,7 +17,7 @@ Figma draws five concentric polygons at 96, 136, 176, 216 and 256. The inner fou
 `Surface/Border`; the **outermost is `Surface/Border Emphasized`** — the same gridline-versus-baseline
 distinction the cartesian charts make, for the same reason.
 
-Recharts' `PolarGrid` paints every ring one colour and has nowhere to put a second stroke, so the
+Recharts' `PolarGrid` paints every ring one color and has nowhere to put a second stroke, so the
 emphasis comes from `PolarAngleAxis`'s own `axisLine` drawn as a polygon over the top. Two elements,
 one appearance.
 
@@ -56,10 +56,10 @@ It was illegible, and each cause would have been enough on its own:
 
 1. **It was painted under the data.** Recharts paints in element order and `PolarRadiusAxis` was
    declared before the `<Radar>` elements, so the numbers sat beneath three translucent fills and
-   whatever muddy colour they composited into. It is now declared last. Chrome normally belongs under
+   whatever muddy color they composited into. It is now declared last. Chrome normally belongs under
    the data and the grid still does — axis *text* is the exception, and a radar is the one chart here
    whose marks cover the middle where its own scale lives.
-2. **It had no halo.** Each glyph now carries a surface-coloured stroke with `paint-order: stroke`,
+2. **It had no halo.** Each glyph now carries a surface-colored stroke with `paint-order: stroke`,
    which puts the stroke under the fill so 3px reads as a 1.5px outline of canvas rather than a smear
    over the character. Same idea as the stacked bar's gap and the donut's slice separator, so it
    follows the theme for free.
@@ -69,7 +69,7 @@ It was illegible, and each cause would have been enough on its own:
    rotates them -90°: both the quarter-turn and the slant ask a reader to tilt their head to read a
    number that exists to be read.
 
-The colour stayed `Content/Subtle` throughout, which is Figma's. The problem was never the colour.
+The color stayed `Content/Subtle` throughout, which is Figma's. The problem was never the color.
 
 ## The scale runs between two spokes, not along one
 

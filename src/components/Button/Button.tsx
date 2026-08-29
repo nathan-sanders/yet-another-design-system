@@ -19,7 +19,7 @@ import { Icon, type IconProps } from '../Icon'
  * which is what a link mostly needs to do. That is a typography concern, and
  * it will come back as its own Link component.
  *
- * Every value below comes from a semantic token. There are no hex colours, no
+ * Every value below comes from a semantic token. There are no hex colors, no
  * primitive utilities (`bg-stone-800`) and no `dark:` variants — dark mode is
  * handled entirely by the token layer swapping under `.dark`.
  *

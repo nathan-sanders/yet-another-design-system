@@ -10,14 +10,14 @@ import { Icon } from '../Icon'
  *
  * Mirrors the Figma component set "Badge" (Yet Another Design System,
  * node 40002033:1215): a single `Color` property, plus the Start Icon / Label /
- * End Icon slots. Colour covers all 18 hues of the Decorative ramp.
+ * End Icon slots. Color covers all 18 hues of the Decorative ramp.
  *
  * Unlike Button, Badge is **not interactive**: Figma gives it no hover, focus or
  * disabled state, so it renders as a `<span>` and carries no cursor, transition
  * or state classes. If you need something clickable that looks like this, wrap a
  * Badge in a Button rather than adding states here.
  *
- * Colour comes from the Decorative token ramp, which pairs a `Background` with a
+ * Color comes from the Decorative token ramp, which pairs a `Background` with a
  * matching `Foreground` tuned for contrast on it. The ramp also exposes a
  * `Highlight`, but Figma's Badge does not use it — there is no border.
  */
@@ -77,7 +77,7 @@ const badge = tv({
 type BadgeVariants = VariantProps<typeof badge>
 
 export interface BadgeProps extends Omit<ComponentPropsWithRef<'span'>, 'color'> {
-  /** Colour of the pill. Maps to the Figma `Color` property. */
+  /** Color of the pill. Maps to the Figma `Color` property. */
   color?: BadgeVariants['color']
   /**
    * Lucide icon rendered before the label (the Figma "Start Icon" slot).
