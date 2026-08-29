@@ -78,9 +78,18 @@ the tooltip and the table either way — so below the width its text needs, a ti
 Pinned by measurement rather than by eye: with the long-tail data, nine tiles render four labels and
 **none** of them falls outside a tile's bounds.
 
-## The gap comes out of the tile
+## The gap comes out of the tile, and it is 2px
 
-Recharts hands over rectangles that already tile the space exactly, so the 8px separation is taken
-*out of* each tile rather than added between them. Third instance of one idea, after the stacked
-bar's segment gap and the donut's slice separator: **white does the separating**, and no ink is spent
-on a border.
+Recharts hands over rectangles that already tile the space exactly, so the separation is taken *out
+of* each tile rather than added between them. Third instance of one idea, after the stacked bar's
+segment gap and the donut's slice separator: **white does the separating**, and no ink is spent on a
+border.
+
+**The gap is 2px, the same as the heat map's — not the 8 the file reports.** Both frames say
+`itemSpacing: 8`, and in neither is that the visual gap: Figma's GRID layout does not use it as one.
+The heat map's real number was derived from its own geometry; this one was taken at face value, and
+8px made the tiles read as separate cards rather than parts of one shape.
+
+Same trap, caught once and missed once — so the rule is worth stating plainly: **an `itemSpacing` on
+a Figma GRID frame is not a gap.** Derive it from the frame's own arithmetic, as
+`_Heat Map / Heat Map` was.

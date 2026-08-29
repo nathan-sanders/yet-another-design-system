@@ -75,23 +75,36 @@ export function Metric({
   ...props
 }: MetricProps) {
   return (
-    // `items-end`, not `items-center`.
-    //
-    // The spark's baseline is the **value's** baseline, not the block's centre.
-    // Centred, it floats between the label and the number and belongs to
-    // neither; sitting on the same line as the value and its badge, it reads as
-    // part of the same statement — this number, and how it got here.
-    <div className={cn('flex min-w-0 items-end gap-6', className)} {...props}>
-      <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-content-subtle truncate text-base">{label}</span>
-        <span className="flex items-center gap-2">
-          <span className="text-content-emphasized font-mono text-xl font-bold tabular-nums">{value}</span>
-          {trend === undefined ? null : (
-            <TrendBadge trend={trend} goodDirection={goodDirection} format={formatTrend} />
-          )}
-        </span>
-      </div>
-      {spark ? <div className="min-w-0 flex-1">{spark}</div> : null}
+    <div className={cn('flex min-w-0 flex-col gap-1', className)} {...props}>
+      <span className="text-content-subtle truncate text-base">{label}</span>
+
+      {/*
+        The spark lives in the **value's** row, not beside the label-and-value
+        block, and the row is `items-baseline`.
+
+        That is what puts its bottom edge on the number's baseline rather than a
+        few pixels under it. A flex item with no text baseline — a div wrapping
+        an SVG — has one synthesised from its bottom margin edge, so
+        `items-baseline` lands that edge exactly on the baseline of the text
+        beside it. Aligning to the block's *end* instead put it on the line
+        box's bottom, which sits below the baseline by the descender gap: barely
+        visible on a line spark, and obvious on bars, which always reach the
+        bottom of their box.
+
+        Structurally it is also the truer place for it. A spark is about the
+        number, not about the label above it.
+      */}
+      <span className="flex items-baseline gap-2">
+        <span className="text-content-emphasized font-mono text-xl font-bold tabular-nums">{value}</span>
+        {trend === undefined ? null : (
+          // Centred on the line rather than baseline-aligned: a pill reads as
+          // sitting beside the number, and dropping it to the baseline hangs it
+          // low against a 24px line.
+          <TrendBadge trend={trend} goodDirection={goodDirection} format={formatTrend} className="self-center" />
+        )}
+        {/* `ml-4` on top of the row's `gap-2` makes Figma's 24px. */}
+        {spark ? <span className="ml-4 min-w-0 flex-1">{spark}</span> : null}
+      </span>
     </div>
   )
 }

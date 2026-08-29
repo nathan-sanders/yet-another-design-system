@@ -23,6 +23,9 @@ Cell radius **4** and a **2px** gap. The gap is *derived* rather than read: Figm
 its own geometry — 24 columns of 39.3px in a 992px frame leaves 2.1px per gap, and 7 rows of 32.3px
 in 240px leaves 2.0. Measured back out of the DOM at 4px and 2px.
 
+`TreeMap` reports the same `itemSpacing: 8` and has the same real gap of 2 — it was taken at face
+value there first and had to be corrected. **An `itemSpacing` on a Figma GRID frame is not a gap.**
+
 **Height is computed from the row count**, not taken as a prop: a heat map's height is its data.
 
 ## Colour is sequential, never categorical

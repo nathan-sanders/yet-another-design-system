@@ -41,10 +41,21 @@ loose. At 18px in a row, alignment wins; at 48px alone, fit does.
 
 ## The spark sits on the value's baseline, and carries no fill
 
-The row is `items-end`, not `items-center`. Centred, the spark floats between the label and the
-number and belongs to neither; bottom-aligned it sits on the same line as the value and its badge and
-reads as part of one statement — this number, and how it got here. Measured: the spark's bottom edge
-and the value's bottom edge land on the same pixel.
+**It lives in the value's row, not beside the label-and-value block, and that row is
+`items-baseline`.** Both halves matter.
+
+A flex item with no text baseline — a div wrapping an SVG — has one synthesised from its bottom
+margin edge, so `items-baseline` lands that edge exactly on the baseline of the text beside it.
+
+Aligning to the block's *end* instead, which was the first attempt, put the spark on the line box's
+bottom — and a line box's bottom sits below the baseline by the descender gap, 10px at this size.
+That was barely visible on a line spark, whose path rarely reaches the bottom of its box, and obvious
+on a **bar** spark, whose bars always do. Measured: the value's baseline and the spark box's bottom
+now agree to the pixel, and the bar spark's lowest mark lands on the same line.
+
+Structurally it is also the truer place for it: a spark is about the number, not about the label
+above it. The badge stays `self-center`, because a pill dropped to the baseline hangs low against a
+24px line.
 
 And it is `type="line"`, not `area`. Beside a number the fill is the loudest thing in the card while
 carrying nothing the line does not — the shape is the whole point, and a wash under it competes with
