@@ -68,7 +68,7 @@ export interface ChartContainerProps {
   formatX?: (value: unknown) => string
   /** How a y value reads in the table. Defaults to `String`. */
   formatY?: (value: unknown) => string
-  /** The Recharts chart element. */
+  /** The Recharts chart element, or any node when `responsive` is `false`. */
   children: ReactElement
   /** Rendered above the plot — this is where a legend goes. */
   header?: ReactNode
@@ -111,6 +111,23 @@ export interface ChartContainerProps {
    * library already has.
    */
   overlay?: ReactNode
+  /**
+   * Wrap the children in Recharts' `ResponsiveContainer`. On by default.
+   *
+   * Pass `false` for a plot that is **DOM rather than SVG** — `HeatMap` is a CSS
+   * grid of coloured cells, and `ResponsiveContainer` requires a Recharts child.
+   *
+   * Everything else this container does is still wanted there: the series
+   * context, the legend header, the `role="img"` labelling, the hidden data
+   * table and the overlay slot. Three lines here save a heat map
+   * reimplementing the accessibility work, which is the part most likely to be
+   * done differently the second time.
+   *
+   * `Spark` is the other side of this and does not use `ChartContainer` at all —
+   * it wants none of those things. The two are different answers to different
+   * questions, not the same one at two settings.
+   */
+  responsive?: boolean
   className?: string
 }
 
@@ -128,6 +145,7 @@ export function ChartContainer({
   interactiveLegend = false,
   table,
   overlay,
+  responsive = true,
   className,
 }: ChartContainerProps) {
   const resolved = useMemo(() => resolveSeries(series, swatch), [series, swatch])
@@ -193,9 +211,13 @@ export function ChartContainer({
 
         <div style={{ height }} className="relative w-full min-w-0">
           <div role="img" aria-label={label} className="h-full w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              {children}
-            </ResponsiveContainer>
+            {responsive ? (
+              <ResponsiveContainer width="100%" height="100%">
+                {children}
+              </ResponsiveContainer>
+            ) : (
+              children
+            )}
           </div>
           {overlay}
         </div>

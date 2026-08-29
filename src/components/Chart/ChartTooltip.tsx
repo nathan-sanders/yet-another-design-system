@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { formatFullNumber } from './axes'
 import { resolveSeries, seriesByKey, useChart, type ChartSeries } from './context'
+import type { ChartSwatchShape } from './Swatch'
 import { ChartSwatch } from './Swatch'
 
 /**
@@ -68,6 +69,12 @@ export interface ChartTooltipProps {
    * not have one.
    */
   series?: readonly ChartSeries[]
+  /**
+   * The swatch shape for an explicit `series`, matching `ChartContainer`'s prop
+   * of the same name. `HeatMap` passes `colorSwatch`: its marks are coloured
+   * cells, so a rule-and-marker key would describe a line that is not there.
+   */
+  swatch?: ChartSwatchShape
   /** How the heading reads. Defaults to the raw x value. */
   formatLabel?: (label: unknown) => ReactNode
   /** How a value reads. Defaults to a thousands-separated integer. */
@@ -86,6 +93,7 @@ export function ChartTooltip({
   payload,
   label,
   series: seriesProp,
+  swatch,
   formatLabel = (value) => String(value ?? ''),
   formatValue = (value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? '')),
   showTotal = false,
@@ -94,7 +102,7 @@ export function ChartTooltip({
   const chart = useChart()
   // `visibleSeries`: a series switched off in the legend has stopped being
   // drawn, so listing its value here would describe a mark that is not there.
-  const contextSeries = seriesProp ? resolveSeries(seriesProp) : (chart?.visibleSeries ?? [])
+  const contextSeries = seriesProp ? resolveSeries(seriesProp, swatch) : (chart?.visibleSeries ?? [])
 
   if (!active || !payload?.length) return null
 

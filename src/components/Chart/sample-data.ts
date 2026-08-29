@@ -94,3 +94,62 @@ export function radarData(axes = 5): Record<string, unknown>[] {
     modelC: seeds[2][i],
   }))
 }
+
+/** A week by hour, for the heat map. Some cells are deliberately empty. */
+export function heatMapData(): { rows: string[]; columns: string[]; values: (number | null)[][] } {
+  const rows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const columns = Array.from({ length: 24 }, (_, h) =>
+    h === 0 ? '12AM' : h === 12 ? '12PM' : String(h % 12),
+  )
+  const random = seeded(23)
+
+  const values = rows.map((_, r) =>
+    columns.map((_, c) => {
+      // Quiet overnight and at weekends, busy mid-morning midweek — a shape a
+      // reader can recognise, so a broken scale is obvious rather than plausible.
+      const workday = r >= 1 && r <= 5 ? 1 : 0.35
+      const hourly = Math.exp(-((c - 10) ** 2) / 40) + 0.15
+      const value = Math.round(workday * hourly * 900 * (0.6 + random() * 0.8))
+      // Genuinely sparse: quiet hours have *no* sessions rather than very few,
+      // so the story actually exercises the empty-cell path Figma draws.
+      return value < 130 ? null : value
+    }),
+  )
+
+  return { rows, columns, values }
+}
+
+/** Three groups of tiles, for the tree map. */
+export function treeMapData() {
+  return [
+    {
+      key: 'organic',
+      label: 'Organic',
+      tiles: [
+        { name: 'Search', value: 4200 },
+        { name: 'Direct', value: 2600 },
+        { name: 'Referral', value: 1100 },
+      ],
+    },
+    {
+      key: 'paid',
+      label: 'Paid',
+      tiles: [
+        { name: 'Display', value: 2400 },
+        { name: 'Video', value: 1500 },
+        { name: 'Retarget', value: 700 },
+        { name: 'Sponsor', value: 420 },
+      ],
+    },
+    {
+      key: 'social',
+      label: 'Social',
+      tiles: [
+        { name: 'Threads', value: 1900 },
+        { name: 'YouTube', value: 1250 },
+        { name: 'LinkedIn', value: 800 },
+        { name: 'Reddit', value: 380 },
+      ],
+    },
+  ]
+}

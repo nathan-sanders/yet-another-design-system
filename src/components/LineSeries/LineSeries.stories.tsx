@@ -1,11 +1,7 @@
-import { Ellipsis } from 'lucide-react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { LineSeries } from './LineSeries'
 import { dailyData, hourlyData, monthlyData } from '../Chart/sample-data'
-import { BentoGrid } from '../BentoGrid'
-import { Button } from '../Button'
-import { ContentBlock } from '../ContentBlock'
 
 const SERIES = [
   { key: 'sessions', label: 'Sessions' },
@@ -232,80 +228,5 @@ export const WithoutLegend: Story = {
         legend={false}
       />
     </figure>
-  ),
-}
-
-/**
- * The dashboard the charts are for — `BentoGrid` and `ContentBlock`, both of
- * which already existed, with charts as their content.
- *
- * This is the composition Figma's `Examples` frame draws, and it is the point of
- * the whole exercise: a chart is ordinary content inside a block, so it needs no
- * card, no title and no menu of its own. Those belong to `ContentBlock`, which
- * already has them.
- */
-export const Dashboard: Story = {
-  render: () => (
-    <BentoGrid columns={4}>
-      <BentoGrid.Cell colSpan={4}>
-        <ContentBlock>
-          <ContentBlock.Header
-            actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="Block options" />}
-          >
-            Line series
-          </ContentBlock.Header>
-          <ContentBlock.Content>
-            <LineSeries
-              data={dailyData(31)}
-              xKey="date"
-              series={SERIES}
-              label="Sessions, signups and conversions over 31 days"
-              height={260}
-            />
-          </ContentBlock.Content>
-        </ContentBlock>
-      </BentoGrid.Cell>
-
-      <BentoGrid.Cell colSpan={2}>
-        <ContentBlock>
-          <ContentBlock.Header
-            actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="Block options" />}
-          >
-            Last 24 hours
-          </ContentBlock.Header>
-          <ContentBlock.Content>
-            <LineSeries
-              data={hourlyData()}
-              xKey="date"
-              series={[{ key: 'sessions', label: 'Sessions' }]}
-              label="Sessions over the last 24 hours"
-              height={200}
-            />
-          </ContentBlock.Content>
-        </ContentBlock>
-      </BentoGrid.Cell>
-
-      <BentoGrid.Cell colSpan={2}>
-        <ContentBlock>
-          <ContentBlock.Header
-            actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="Block options" />}
-          >
-            This year
-          </ContentBlock.Header>
-          <ContentBlock.Content>
-            <LineSeries
-              data={monthlyData()}
-              xKey="date"
-              series={[
-                { key: 'sessions', label: 'Sessions' },
-                { key: 'signups', label: 'Signups' },
-              ]}
-              label="Sessions and signups over 12 months"
-              height={200}
-            />
-          </ContentBlock.Content>
-        </ContentBlock>
-      </BentoGrid.Cell>
-    </BentoGrid>
   ),
 }

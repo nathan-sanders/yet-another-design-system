@@ -149,6 +149,9 @@ export type { FieldProps } from './components/Field'
 export { Gauge } from './components/Gauge'
 export type { GaugeProps } from './components/Gauge'
 
+export { HeatMap, heatScale } from './components/HeatMap'
+export type { HeatMapProps, HeatScaleOptions } from './components/HeatMap'
+
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'
 
@@ -183,6 +186,17 @@ export type {
   MenuCheckboxItemProps,
   MenuRadioItemProps,
 } from './components/Menu'
+
+export { Metric, MetricCard, MetricGrid, TrendBadge } from './components/Metric'
+export type {
+  MetricProps,
+  MetricCardProps,
+  MetricGridProps,
+  MetricGridColumns,
+  MetricGridGap,
+  TrendBadgeProps,
+  TrendGoodDirection,
+} from './components/Metric'
 
 export { Radar } from './components/Radar'
 export type { RadarProps } from './components/Radar'
@@ -220,6 +234,9 @@ export type {
   TabsSize,
   TabsLayout,
 } from './components/Tabs'
+
+export { TreeMap } from './components/TreeMap'
+export type { TreeMapProps, TreeMapGroup, TreeMapTile } from './components/TreeMap'
 
 export { Toast, ToastViewport, useToast } from './components/Toast'
 export type {
