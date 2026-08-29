@@ -100,7 +100,7 @@ export const Sides: Story = {
 /**
  * Where the popup sits along its side. `center` is the default and almost always
  * right; `start` and `end` matter when the trigger is much wider than the label,
- * which is exactly when a centred tooltip stops pointing at anything in
+ * which is exactly when a centered tooltip stops pointing at anything in
  * particular.
  */
 export const Alignment: Story = {
@@ -164,7 +164,7 @@ export const LongLabel: Story = {
  * The icon-only Button is the important one, and the trap worth naming: a tooltip
  * lands on `aria-describedby`, not `aria-labelledby`. It *describes*; it is not a
  * name. The button still carries its own `aria-label`, which `ButtonProps`
- * requires at compile time — an unlabelled icon button does not build, tooltip or
+ * requires at compile time — an unlabeled icon button does not build, tooltip or
  * no tooltip.
  *
  * The bare `<span>` shows the other edge: it is not focusable, so its tooltip is
@@ -197,12 +197,12 @@ export const Triggers: Story = {
 
 /**
  * `Tooltip.Provider` shares one delay across a group. The first tooltip waits the
- * full 600ms; while the group stays warm, its neighbours open instantly. Sweep
+ * full 600ms; while the group stays warm, its neighbors open instantly. Sweep
  * along this control and it reads as one surface rather than four separate waits.
  *
  * The instant ones also skip the transition — Base UI marks them `data-instant`,
  * and the recipe drops the duration to zero for that case. An animation that
- * plays again on every neighbour is what makes a hovered toolbar feel noisy.
+ * plays again on every neighbor is what makes a hovered toolbar feel noisy.
  *
  * Icon-only segments are the case tooltips exist for. The tooltip *describes*;
  * `aria-label` still does the naming, which the types require — so each segment

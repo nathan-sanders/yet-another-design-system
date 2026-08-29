@@ -112,7 +112,7 @@ export const ShortSegments: Story = {
 
 /**
  * `accessibilityOverlay`, the sanctioned mitigation for the three categorical
- * colours that fall short of 3:1 on the light canvas.
+ * colors that fall short of 3:1 on the light canvas.
  *
  * Yellow (`04`) at 1.74:1 is the structural one: as a thin line it is nearly
  * invisible, and as a large flat fill it is hard to find against the surface.

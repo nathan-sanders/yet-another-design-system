@@ -14,7 +14,7 @@ import { Icon } from '../Icon'
  * "Breadcrumb Item" set (node 40004041:11838) and the "Separator" set
  * (node 40004041:11868).
  *
- * Note the colour: Figma styles a breadcrumb link with Content/Subtle and
+ * Note the color: Figma styles a breadcrumb link with Content/Subtle and
  * underlines it on hover — it does *not* use the blue Action/Link pair that
  * Button's `link` appearance reaches for. A trail is navigation chrome sitting
  * above the page, not a link inside body copy, so it stays neutral.
@@ -47,8 +47,8 @@ const SEPARATOR_ICON: Record<'chevron' | 'arrow' | 'dot', LucideIcon> = {
 }
 
 const separatorStyles = tv({
-  // 16px wide in Figma at every style, with the glyph centred and clipped. The
-  // colour is set here rather than on the glyph so the slash (text) and the
+  // 16px wide in Figma at every style, with the glyph centered and clipped. The
+  // color is set here rather than on the glyph so the slash (text) and the
   // three Lucide icons (currentColor) both land on Content/Subtle.
   base: [
     'flex w-4 min-w-4 shrink-0 items-center justify-center overflow-hidden',

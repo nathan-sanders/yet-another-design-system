@@ -9,7 +9,7 @@ import { focusRing } from './lib/focus'
  *
  * Every swatch below is painted with a *semantic* token utility. Flip the
  * dark-mode switch and they should all change without a single `dark:` class,
- * because the colour lives in the token layer, not the component.
+ * because the color lives in the token layer, not the component.
  */
 
 function useDarkMode() {
@@ -49,7 +49,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   )
 }
 
-/** One colour chip. `className` must be a complete literal so Tailwind sees it. */
+/** One color chip. `className` must be a complete literal so Tailwind sees it. */
 function Swatch({ className, name }: { className: string; name: string }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
@@ -262,7 +262,7 @@ export default function App() {
           <Swatches items={surfaces} />
         </Section>
 
-        <Section title="Content" hint="Text colours, shown here as fills so you can compare them.">
+        <Section title="Content" hint="Text colors, shown here as fills so you can compare them.">
           <Swatches items={content} />
         </Section>
 
@@ -278,7 +278,7 @@ export default function App() {
           <Swatches items={decorative} />
         </Section>
 
-        <Section title="Data visualisation">
+        <Section title="Data visualization">
           <Swatches items={dataViz} />
         </Section>
 
@@ -315,7 +315,7 @@ export default function App() {
           </div>
         </Section>
 
-        <Section title="Elevation" hint="Shadow colour is itself a token, so it adapts in dark mode.">
+        <Section title="Elevation" hint="Shadow color is itself a token, so it adapts in dark mode.">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {shadows.map(([cls, name]) => (
               <div key={name} className="flex flex-col gap-1.5">

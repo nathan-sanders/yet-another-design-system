@@ -54,7 +54,7 @@ larger and it wraps too eagerly. 64px was measured against a 320px field.
 **The chip row's padding is the centring gap, not slack — 1 / 3 / 7.** Half of the field's inner
 height less the token's is where one row of tokens sits anyway; set the padding to anything less and
 `items-center` quietly makes up the difference, until a second row arrives and there is nothing
-spare left to centre in. The first row then jerks upwards by exactly the shortfall. Measured before
+spare left to center in. The first row then jerks upwards by exactly the shortfall. Measured before
 the fix: 4px above the first token at the default size with one row, 3px with three. **Small was
 already exact and never moved**, which is what made it easy to miss.
 **And the same number is the left inset, once there are tokens.** A token 12px from the left edge
@@ -119,5 +119,5 @@ changed; the story suite passing unchanged is what says so.
 Left out: `Combobox.Clear`, `Backdrop`, `Arrow` and `Row`; virtualization; `Combobox.Label` (Field
 owns the label); a `Hug` property, which this set does not have though Select's does; and Astryx's
 `maxEntries`, `hasCreate`, `status`, `+N more` overflow, `endContent`, `isLabelHidden` and
-`disabledMessage`, none of which are in the file. Astryx's rule against colouring individual tokens
+`disabledMessage`, none of which are in the file. Astryx's rule against coloring individual tokens
 is already Token's.

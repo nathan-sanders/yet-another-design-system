@@ -13,7 +13,7 @@ import type { AvatarSize, AvatarSurface } from './styles'
  *   avatars. It is derived from where the avatar sits, not declared — the same
  *   reasoning as `CurrentContext` in Breadcrumbs and `iconOnly` in Button. An
  *   avatar cannot be wrong about whether it is in a group;
- * - `surface`, the colour that ring has to be. Unlike `inGroup` this one cannot
+ * - `surface`, the color that ring has to be. Unlike `inGroup` this one cannot
  *   be derived — CSS has no way to ask what is painted behind you — so it is
  *   set once on the group and travels, exactly as `size` does.
  *

@@ -94,7 +94,7 @@ export const Playground: Story = {
  * **`ghost` has no visible edge and is exactly the same size as `default`.**
  * Figma binds its border to `Surface/Background Primary`, the same token as its fill,
  * rather than removing the border — so a ghost row and a bordered card line up
- * in a mixed list, and the hover is one colour move rather than a border
+ * in a mixed list, and the hover is one color move rather than a border
  * appearing from nowhere. Hover both to see it.
  */
 export const Emphasis: Story = {
@@ -193,7 +193,7 @@ export const NestedInteractive: Story = {
     <div className="max-w-80">
       <ClickableCard href="#headphones">
         <p className="font-semibold">Wireless Headphones</p>
-        <p className="text-content-subtle">Noise-cancelling, 30-hour battery.</p>
+        <p className="text-content-subtle">Noise-canceling, 30-hour battery.</p>
         <div className="flex items-center justify-between gap-2 pt-1">
           <p className="font-mono font-semibold">$79.99</p>
           <Button
@@ -225,7 +225,7 @@ export const NestedInteractive: Story = {
  * constraint that overrides it. `surface="card-primary"` because the ring
  * between overlapping avatars is a band of the *background*, and the background
  * here is the card, not the page. Without it the rings are painted in
- * `surface-canvas` and read as grey halos.
+ * `surface-canvas` and read as gray halos.
  */
 export const Kanban: Story = {
   parameters: { controls: { disable: true } },
@@ -291,7 +291,7 @@ export const Kanban: Story = {
  *
  * **This is what `ghost` and `selected` are both for.** The rows sit on the
  * list's `surface-background-primary`, so at rest they have no edge and read as one
- * list rather than as a stack of cards; they grey under the pointer, and the one
+ * list rather than as a stack of cards; they gray under the pointer, and the one
  * you are reading keeps the emphasized outline whether you are pointing at it or
  * not. `aria-current` is what carries that to a screen reader — it is a
  * navigation state, not a toggle, which is why it is not `aria-pressed`.

@@ -83,7 +83,7 @@ import { SelectContext, useSelect } from './context'
  * `padding-block` of 2 / 4 / 8 around a 20 / 24 / 24 line-height, which sums to
  * its 24 / 32 / 40 because a Figma stroke does not add to a frame's size. A CSS
  * border does: `border-box` would make the default size 24 + 8 + 2 = **34**, not
- * 32. Letting the line-height centre itself inside a `min-h` box lands all three
+ * 32. Letting the line-height center itself inside a `min-h` box lands all three
  * exactly, which is the same fix `Input` uses for its text row.
  */
 const trigger = tv({
@@ -107,7 +107,7 @@ const trigger = tv({
     'data-invalid:hover:border-feedback-danger-highlight',
     // Base UI sets `data-disabled` on the trigger and, being a native button,
     // the `disabled` attribute too. Both are listed so the fade does not depend
-    // on which one arrives; Figma's disabled is a flat opacity with no colour
+    // on which one arrives; Figma's disabled is a flat opacity with no color
     // swap at all.
     'disabled:pointer-events-none disabled:opacity-40',
     'data-disabled:pointer-events-none data-disabled:opacity-40',
@@ -247,7 +247,7 @@ const indicatorBox = tv({
  * They are the cost of overlapping the trigger: a list long enough to run past
  * the viewport has to scroll inside a popup that is already covering its own
  * anchor, and these are how Base UI does it. Built from tokens in the popup's
- * own colours, and recorded in CLAUDE.md as a gap in the file rather than an
+ * own colors, and recorded in CLAUDE.md as a gap in the file rather than an
  * invention — Divider's `emphasis` and Menu's `destructive` again.
  *
  * Base UI unmounts them when the list does not scroll, so there is nothing to
@@ -272,7 +272,7 @@ export type SelectSize = NonNullable<TriggerVariants['size']>
  * `Select.ItemText` is rendered as a `<span>` rather than its default `<div>` so
  * it can live inside this one. It is not decoration: Base UI measures that
  * element to line the selected row up with the trigger's value text, which is
- * the whole `alignItemWithTrigger` behaviour.
+ * the whole `alignItemWithTrigger` behavior.
  */
 function ItemLabel({ children, description }: { children: ReactNode; description?: ReactNode }) {
   return (
@@ -559,7 +559,7 @@ export function Select({
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner
             className={overlayLayer}
-            // The macOS behaviour, and Base UI's default — see the header. It
+            // The macOS behavior, and Base UI's default — see the header. It
             // cannot mean anything with several values selected, so `multiple`
             // falls back to a conventional dropdown 4px below the trigger,
             // which is also what Base UI's own multi-select example does.

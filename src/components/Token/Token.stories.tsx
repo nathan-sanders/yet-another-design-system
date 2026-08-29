@@ -216,7 +216,7 @@ export const Clickable: Story = {
  * `md` (8px) is a token standing on its own, and the radius every card and field
  * in the library uses. `sm` (6px) is a token **nested inside a field** — what a
  * `Combobox` passes for its chips — because two curves of the same radius on
- * different centres never read as parallel. Subtracting the gap between them is
+ * different centers never read as parallel. Subtracting the gap between them is
  * the usual rule of thumb, and 8 − 3 lands almost exactly on the 6 the scale
  * already has.
  *

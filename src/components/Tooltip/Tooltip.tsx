@@ -10,8 +10,8 @@ import { overlayLayer } from '../../lib/layers'
  * Tooltip — a short label describing the thing you are pointing at.
  *
  * Mirrors Figma node `40004073:20833`. That component has no variant set at all
- * — one look, no sizes, no colours, no arrow — so there is nothing here to model
- * as `tv()` variants. Everything interesting is behaviour.
+ * — one look, no sizes, no colors, no arrow — so there is nothing here to model
+ * as `tv()` variants. Everything interesting is behavior.
  *
  * Third Base UI component in the library after Divider and Avatar, and the first
  * that portals. Base UI supplies the whole popup lifecycle: hover and focus
@@ -44,7 +44,7 @@ import { overlayLayer } from '../../lib/layers'
  * it, this would produce a duplicate id reference.
  *
  * **`side` and `align` are not Figma variants** and deliberately are not `tv()`
- * variants either. They are behaviour: they go to Base UI's positioner, which is
+ * variants either. They are behavior: they go to Base UI's positioner, which is
  * also what flips the popup to the other side when it would leave the viewport.
  *
  * **Wrapping trap:** Figma's text layer is `white-space: nowrap` because it is
@@ -60,7 +60,7 @@ import { overlayLayer } from '../../lib/layers'
  */
 const tooltip = tv({
   base: [
-    // Surface. shadow-low is Figma's Elevation/Drop Shadow/Low; its colour is a
+    // Surface. shadow-low is Figma's Elevation/Drop Shadow/Low; its color is a
     // semantic token, so it flips for dark mode on its own.
     'max-w-96 rounded-md border border-surface-border bg-surface-background-primary shadow-low',
     // Box: px-3 = spacing/3 (12px), py-0.5 = spacing/0-5 (2px).
@@ -165,7 +165,7 @@ export function Tooltip({
 
 /**
  * Shared hover delay across a group of tooltips. Once one has opened, its
- * neighbours open instantly until the group goes quiet — which is what makes a
+ * neighbors open instantly until the group goes quiet — which is what makes a
  * toolbar of icon buttons feel like one surface rather than a row of separate
  * waits. Base UI's `Tooltip.Provider`, unstyled and passed straight through.
  */

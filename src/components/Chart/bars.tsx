@@ -8,7 +8,7 @@ import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
  * Recharts' `Bar` takes a `radius`, and for a single bar that is enough. A
  * *stacked* bar is where it runs out: Figma rounds **every** segment on all four
  * corners and separates them with a gap, so a stack reads as a column of
- * discrete blocks rather than one bar with internal colour changes. Recharts
+ * discrete blocks rather than one bar with internal color changes. Recharts
  * stacks segments flush and rounds only what you tell each `Bar` to round, with
  * no notion of a gap between them at all.
  *
@@ -24,7 +24,7 @@ import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
  * That is worth stating carefully, because the intuitive answer is the wrong way
  * round and it looks fine on screen. Shrinking a segment's top opens the space
  * between it and whatever sits *above* it — so every segment needs it in order
- * to separate from its upper neighbour, and the top segment does not, since
+ * to separate from its upper neighbor, and the top segment does not, since
  * there is nothing above it and shrinking it would understate the stack's total.
  *
  * Exempting the *bottom* segment instead — the first guess — leaves the lowest
@@ -48,7 +48,7 @@ import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
  * ## 3. Negative values
  *
  * Recharts reports a bar below the axis with a negative `height` and a `y` at
- * its top. Normalising to a positive rectangle first means everything below
+ * its top. Normalizing to a positive rectangle first means everything below
  * reads the same for both directions, and the gap still comes off the side
  * facing the rest of the stack.
  */
@@ -61,7 +61,7 @@ export const BAR_SEGMENT_GAP = 1
  * Widest a bar is allowed to get. Figma's `Segment` is 16 for a single or
  * stacked bar and 24 inside a group; 24 is also the cap generic charting
  * guidance puts on a bar, and past it a bar stops reading as a measured length
- * and starts reading as a block of colour. The band's leftover is meant to be
+ * and starts reading as a block of color. The band's leftover is meant to be
  * air.
  */
 export const BAR_MAX_WIDTH = 24
@@ -88,7 +88,7 @@ export interface BarSegmentOptions {
   /**
    * Draw the accessibility border around the segment.
    *
-   * Three of the twelve categorical colours fall short of 3:1 on the light
+   * Three of the twelve categorical colors fall short of 3:1 on the light
    * canvas — yellow at 1.74:1 is the worst — and a large flat area of one of
    * them can be genuinely hard to find against the surface. This is the
    * sanctioned mitigation, and it is off by default because Figma's own bar
@@ -115,7 +115,7 @@ export function barSegment({
     const rawWidth = props.width ?? 0
     const rawHeight = props.height ?? 0
 
-    // Normalise a below-axis bar (negative height, y at its top) into a plain
+    // Normalize a below-axis bar (negative height, y at its top) into a plain
     // positive rectangle before doing anything else.
     const width = Math.abs(rawWidth)
     const fullHeight = Math.abs(rawHeight)

@@ -112,9 +112,9 @@ const segment = tv({
     'gap-2 rounded-sm font-sans whitespace-nowrap select-none',
     // Labels come from the Content ramp, not the Action one: an unselected
     // segment is `content-primary` and the selected one darkens to
-    // `content-emphasized`, so selection is carried by colour as well as by
+    // `content-emphasized`, so selection is carried by color as well as by
     // weight and the card. In dark mode that reads as stone-100 -> white.
-    // Hover does not change the colour — only the background does.
+    // Hover does not change the color — only the background does.
     'cursor-pointer text-content-primary',
     // A 1px border at rest, transparent until selected. Without it, selecting a
     // segment would add a border and grow it by 2px, shoving the whole row.
@@ -131,12 +131,12 @@ const segment = tv({
     // Selected: the raised white card. Weight goes 400 -> 600, as in Figma.
     'data-checked:bg-surface-background-primary data-checked:border-action-secondary-border',
     'data-checked:shadow-low data-checked:font-semibold data-checked:text-content-emphasized',
-    // Focusing an unselected segment darkens its label to the selected colour.
+    // Focusing an unselected segment darkens its label to the selected color.
     // Figma sets this on every Focus variant; it costs nothing on a selected
     // segment, which is already emphasized.
     'focus-visible:text-content-emphasized',
     // Focus is the library's shared ring — see src/lib/focus.ts. Figma draws it
-    // at rounded-xs (4px) on a rounded-sm (6px) segment, an artefact of it being
+    // at rounded-xs (4px) on a rounded-sm (6px) segment, an artifact of it being
     // a separate inset overlay layer; the segment's own radius is used instead,
     // as in Button.
     ...focusRing,
@@ -166,7 +166,7 @@ const segment = tv({
      * Icon-only: the start icon with no label (Figma's `label` slot switched
      * off). Not a prop — derived from the absence of children, so a caller can
      * never set it and have the two disagree. Square at each size, so a row
-     * mixing labelled and icon-only segments still lines up.
+     * mixing labeled and icon-only segments still lines up.
      */
     iconOnly: {
       true: 'px-0',
@@ -230,9 +230,9 @@ interface SegmentedControlItemBaseProps
 }
 
 /**
- * A segment is either labelled or icon-only, and the two have different rules,
+ * A segment is either labeled or icon-only, and the two have different rules,
  * so the props are a union rather than "everything optional". With no visible
- * text, `aria-label` is required — TypeScript will not let an unlabelled icon
+ * text, `aria-label` is required — TypeScript will not let an unlabeled icon
  * segment compile, which is the accessibility mistake the shape invites.
  */
 export type SegmentedControlItemProps = SegmentedControlItemBaseProps &

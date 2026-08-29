@@ -41,7 +41,7 @@ import { Icon } from '../Icon'
 /**
  * Set once on the root and read by the header. Two things travel: the heading
  * level, so a grid of blocks cannot land at different depths (Accordion's
- * reason, and its mechanism), and the emphasis, because the title's colour
+ * reason, and its mechanism), and the emphasis, because the title's color
  * depends on which surface the root chose and it cannot see that from below.
  *
  * Deliberately not exported.
@@ -84,7 +84,7 @@ const contentBlock = tv({
     emphasis: {
       /** Figma's Content Block: Surface/Background Primary on Surface/Border. */
       default: 'bg-surface-background-primary border-surface-border text-content-primary',
-      /** A secondary tile that should recede — the canvas colour, still bordered. */
+      /** A secondary tile that should recede — the canvas color, still bordered. */
       subtle: 'bg-surface-background-subtle border-surface-border text-content-primary',
       /**
        * The anchor cell: one loud tile carrying the headline number.
@@ -203,7 +203,7 @@ const title = tv({
       default: 'text-content-emphasized',
       subtle: 'text-content-emphasized',
       /**
-       * On the anchor cell there is no second colour to promote to: the root
+       * On the anchor cell there is no second color to promote to: the root
        * already carries Content/Inverse, and Content/Emphasized on that
        * background is unreadable. Weight does the work instead.
        */
@@ -271,7 +271,7 @@ function ContentBlockHeader({
         {/*
           A real `<h2>`–`<h6>` rather than a `role="heading"` / `aria-level`
           pair: the tag is what a screen reader's outline is built from, and it
-          needs no ARIA to say so. Colour comes from the root's emphasis, which
+          needs no ARIA to say so. Color comes from the root's emphasis, which
           the context is carrying.
         */}
         <Heading className={title({ emphasis })}>{children}</Heading>

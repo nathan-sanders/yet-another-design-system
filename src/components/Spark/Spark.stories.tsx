@@ -49,7 +49,7 @@ export const Types: Story = {
 /**
  * The size it is actually for.
  *
- * A spark belongs beside the number it summarises, at roughly the height of a
+ * A spark belongs beside the number it summarizes, at roughly the height of a
  * couple of lines of text. This is what `Metric Overview` will use it at.
  *
  * Note `decorative` here rather than a label: the value and its delta are
@@ -79,14 +79,14 @@ export const InAMetric: Story = {
 }
 
 /**
- * Labelled rather than decorative.
+ * Labeled rather than decorative.
  *
  * When a spark is the only thing carrying the information — no value beside it —
- * it takes a `label` and becomes a labelled image. The types make one of the two
- * required: an unlabelled, non-decorative spark will not compile, because the
+ * it takes a `label` and becomes a labeled image. The types make one of the two
+ * required: an unlabeled, non-decorative spark will not compile, because the
  * silent third case is the one an audit flags and a reader gets nothing from.
  */
-export const Labelled: Story = {
+export const Labeled: Story = {
   args: { label: 'Sessions trend over the last 14 days' },
   render: (args) => (
     <div className="w-68">

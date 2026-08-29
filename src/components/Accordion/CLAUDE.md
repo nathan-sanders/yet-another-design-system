@@ -32,7 +32,7 @@ close is `height: var(--accordion-panel-height)` plus `overflow: hidden`, collap
 gives its own collapsible chevron. Toast — the library's only other height animation — uses
 `duration-medium-min` (310ms), and that was the alternative; running the panel and the chevron on
 one duration means they finish together, and a chevron that lands early beside a still-opening
-panel is what reads as broken. Colour stays on `duration-fast-min`, as everywhere else.
+panel is what reads as broken. Color stays on `duration-fast-min`, as everywhere else.
 
 Astryx does **not** animate its collapsible's height at all — it is a `display: none` toggle, with
 only the chevron moving. That is the one part of its spec deliberately not copied.

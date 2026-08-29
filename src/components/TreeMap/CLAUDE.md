@@ -16,7 +16,7 @@ dataset came out as an empty chart with a legend above it — the SVG contained
 `recharts-treemap-depth-1` layers holding empty `<g>` elements, which is what pointed at the cause.
 
 `flat` renders the leaves, and the squarified layout still solves the top level first and recurses
-into each group's rectangle — so groups stay contiguous and the colours read as regions rather than
+into each group's rectangle — so groups stay contiguous and the colors read as regions rather than
 confetti, which is the thing `nest` sounded like it was for.
 
 **The tile renderer tests for leaves by looking for children, not by counting depth.** Recharts calls
@@ -25,10 +25,10 @@ the groups paint solid over their own tiles. Depth was the obvious test and is t
 `depth` means different things under the two `type` modes, so a depth check would break on a prop
 change elsewhere. "Has no children" is what a tile actually is.
 
-## Colour belongs to the group
+## Color belongs to the group
 
-Every tile in a group shares one hue, so the twelve-colour scale counts **groups**, not tiles. That
-is what lets a treemap show forty rectangles without needing forty colours, and it is why the legend
+Every tile in a group shares one hue, so the twelve-color scale counts **groups**, not tiles. That
+is what lets a treemap show forty rectangles without needing forty colors, and it is why the legend
 names three things above eleven tiles.
 
 ## The only chart whose marks carry their own text
@@ -41,7 +41,7 @@ own 56%.
 That token's first job is outlining a mark that cannot separate from its ground. This is a second,
 and it works for the same reason — it is the neutral at 56%, exactly what a legible plate needs, and
 it **flips with the theme** (`neutral-900` in light, `neutral-100` in dark), so `content-inverse` is
-the right text colour in both. Verified in dark, where the plates invert to light with dark text.
+the right text color in both. Verified in dark, where the plates invert to light with dark text.
 
 **Figma binds `Overlay/Text` for the metric line, and that token does not exist** — no `Overlay/*`
 token is in any of `tokens/*.json`. `content-inverse` stands in and is correct in both themes. The
@@ -56,12 +56,12 @@ had fallen off its label.
 
 ## The tooltip swatch comes from the datum, not the entry
 
-Recharts puts a *series* colour on a tooltip entry, and a treemap has no series — every tile shares
+Recharts puts a *series* color on a tooltip entry, and a treemap has no series — every tile shares
 one `dataKey`. So the entry's `color` is undefined and the fallback painted every swatch in
-`currentColor`, which is the text colour: **every tile's key came out black.**
+`currentColor`, which is the text color: **every tile's key came out black.**
 
 `ChartTooltip` now reads `payload.groupColor` (then `payload.fill`) before falling back to the
-entry's colour. Worth knowing generally: a chart whose *marks* carry the colour rather than its
+entry's color. Worth knowing generally: a chart whose *marks* carry the color rather than its
 series will hit this, and a pie is the other one.
 
 ## A label that will not fit is dropped, not narrowed

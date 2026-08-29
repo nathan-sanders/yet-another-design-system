@@ -52,7 +52,7 @@ import { Icon, type IconProps } from '../Icon'
  * for a descendant — it propagates, and the line is painted straight across an
  * inline-block child's box — so the only way to end the rule where the label ends
  * is to start it there. It is underlined in every state, including hover: Figma's
- * hover changes colour and nothing else. (Astryx defaults to underline-on-hover
+ * hover changes color and nothing else. (Astryx defaults to underline-on-hover
  * behind a `hasUnderline` prop; this follows the file.)
  *
  * Breadcrumbs also renders `<a>` and deliberately looks nothing like this — it is
@@ -129,7 +129,7 @@ const link = tv({
     },
 
     // Figma's Disabled state is a flat 40% opacity (opacity/opacity-40) with the
-    // colour left alone.
+    // color left alone.
     disabled: {
       true: 'cursor-default opacity-40',
     },
@@ -148,7 +148,7 @@ export type LinkSize = NonNullable<LinkVariants['size']>
  *
  * It stops growing at `x-large`. A link at `text-9xl` with a 24px arrow is a
  * strange thing to build, and the alternative — an off-scale icon size — would be
- * a second untokenised value in a library that is trying to keep Avatar's
+ * a second untokenized value in a library that is trying to keep Avatar's
  * `tracking-[-0.02em]` as its only one.
  */
 const ARROW_SIZE: Record<LinkSize, IconProps['size']> = {
@@ -194,7 +194,7 @@ export interface LinkProps extends Omit<ComponentPropsWithRef<'a'>, 'color'> {
    */
   external?: boolean
   /**
-   * The hidden text an `external` link announces. Override it to localise, or to
+   * The hidden text an `external` link announces. Override it to localize, or to
    * say something more specific.
    */
   newTabLabel?: string
@@ -248,8 +248,8 @@ export function Link({
       {external && (
         <>
           {/*
-            `align-middle` centres the arrow on the text's x-height rather than on
-            the line box. Figma centres it on the line box, which measures 1.18px
+            `align-middle` centers the arrow on the text's x-height rather than on
+            the line box. Figma centers it on the line box, which measures 1.18px
             higher at text-base — the difference is deliberate. Line-box centring
             is what auto-layout does, and it only agrees with the text while the
             line-height does; inside a paragraph with looser leading the arrow

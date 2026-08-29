@@ -16,7 +16,7 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * **It does not depend on the series count, and it does not depend on how much
  * data there is.** Both exceptions are tempting and both are wrong. A
  * single-series chart still gets one, because the swatch is what says *which*
- * colour means the thing the title names — and in greyscale, or for a reader who
+ * color means the thing the title names — and in grayscale, or for a reader who
  * cannot separate two hues, that mapping is the only thing carrying it. A chart
  * narrowed to a single data point still gets one, because a series with one
  * reading is still a series, and a chart that shed its key exactly when a filter
@@ -28,7 +28,7 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * ## Four types, two jobs
  *
  * `horizontal` and `vertical` are the **categorical** legend: one row per
- * series, each a swatch and a name. Horizontal centres above the plot and wraps;
+ * series, each a swatch and a name. Horizontal centers above the plot and wraps;
  * vertical stacks beside it, which is what a donut or a long series list wants.
  *
  * `stepped` and `gradient` are the **continuous** legend, for a magnitude scale
@@ -36,17 +36,17 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * sequential ramps rather than naming anything, because a continuous scale has
  * no categories to name. `stepped` shows the ten discrete steps a chart actually
  * paints with; `gradient` shows them blended, for a scale that is genuinely
- * continuous. Use the one that matches how the marks are coloured — a stepped
+ * continuous. Use the one that matches how the marks are colored — a stepped
  * chart under a gradient key tells the reader they can read a value between two
  * steps, and they cannot.
  *
- * ## The labels never wear the series colour
+ * ## The labels never wear the series color
  *
  * Text stays in `content-subtle` throughout, and identity comes from the
- * coloured swatch *beside* it. Colouring the text instead is the common version
+ * colored swatch *beside* it. Coloring the text instead is the common version
  * of this component and it fails twice: several of the categorical hues are
  * illegible as 14px text on the canvas — yellow at 1.74:1 is the worst — and it
- * removes the one channel a reader with low colour vision was relying on.
+ * removes the one channel a reader with low color vision was relying on.
  *
  * ## Interactive when, and only when, the chart says so
  *
@@ -61,8 +61,8 @@ import { ChartSwatch, type ChartSwatchShape } from './Swatch'
  * from the capability means the two cannot disagree.
  *
  * A switched-off series keeps its row — you have to be able to click it back —
- * and drops to the placeholder grey with its label struck through. Two channels,
- * because the grey alone is a colour difference and this is a state a reader has
+ * and drops to the placeholder gray with its label struck through. Two channels,
+ * because the gray alone is a color difference and this is a state a reader has
  * to be sure about.
  *
  * The state is `aria-pressed`, not `aria-hidden` or a disabled attribute: the
@@ -87,7 +87,7 @@ export interface ChartLegendProps {
   /**
    * How many series to name before collapsing the rest into "+N more". Figma's
    * legend carries the same row, and it is the honest end of a categorical
-   * scale: past twelve series there is no colour left to give, so the answer is
+   * scale: past twelve series there is no color left to give, so the answer is
    * to stop naming them rather than to repeat a hue.
    */
   max?: number

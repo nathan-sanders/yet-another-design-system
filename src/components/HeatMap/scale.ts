@@ -22,7 +22,7 @@ export interface HeatScaleOptions {
 }
 
 /**
- * Build a value → colour function over `values`.
+ * Build a value → color function over `values`.
  *
  * **The domain is computed once, over the whole grid**, rather than per row or
  * per column. A per-row scale would make every row's darkest cell equally dark

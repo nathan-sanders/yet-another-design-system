@@ -96,7 +96,7 @@ export type TokenProps = TokenBaseProps &
 /**
  * The `x` that removes a token.
  *
- * Exported as `Token.Remove` so that a Combobox can hand its own behaviour to
+ * Exported as `Token.Remove` so that a Combobox can hand its own behavior to
  * the same button — `<Combobox.ChipRemove render={<Token.Remove />} />` — rather
  * than the styling being locked inside Token's `onRemove`. Base UI ships
  * `Combobox.Chips` / `Chip` / `ChipRemove` and no chip of its own to look at,
@@ -153,8 +153,8 @@ TokenAvatar.displayName = 'Token.Avatar'
  *
  * **Not a Badge.** The two draw a similar pill and the line between them is what
  * the thing *is*: a Badge is a status you read, in one of 18 Decorative hues,
- * with no states at all; a Token is a value someone chose, in the card colour,
- * that they can usually take back. If it is coloured and static it is a Badge.
+ * with no states at all; a Token is a value someone chose, in the card color,
+ * that they can usually take back. If it is colored and static it is a Badge.
  *
  * **Figma's `Usage` axis is not a prop.** A token is interactive because it has
  * an `onRemove`, an `onClick` or an `href` — the same derivation Avatar uses for

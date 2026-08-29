@@ -11,7 +11,7 @@ rounded squares — no axis to scale, no path to compute, no layout to solve. Th
 
 It still goes through `ChartContainer` with **`responsive={false}`**, a prop added for it, because
 `ResponsiveContainer` requires a Recharts child while everything *else* the container does is wanted
-here: the `role="img"` labelling, the hidden data table, the legend header.
+here: the `role="img"` labeling, the hidden data table, the legend header.
 
 `Spark` is the opposite call — it uses no container at all, because it wants none of those things.
 The two are different answers to different questions, not one question at two settings.
@@ -28,10 +28,10 @@ value there first and had to be corrected. **An `itemSpacing` on a Figma GRID fr
 
 **Height is computed from the row count**, not taken as a prop: a heat map's height is its data.
 
-## Colour is sequential, never categorical
+## Color is sequential, never categorical
 
 Cells encode **magnitude**, so they take one hue getting darker — one of `monoScales`. The twelve
-categorical colours would say that Tuesday 9am is a different *kind* of thing from Tuesday 10am,
+categorical colors would say that Tuesday 9am is a different *kind* of thing from Tuesday 10am,
 rather than more of the same.
 
 **The domain is computed once over the whole grid.** Per-row scaling would make every row's darkest
@@ -69,7 +69,7 @@ Same shape of failure as a Tailwind class naming a token that does not exist —
 
 ## The tooltip is an addition to the file
 
-Figma draws no hover state. A cell shows a colour and nothing else, so without one the only way to
+Figma draws no hover state. A cell shows a color and nothing else, so without one the only way to
 read an exact value is the hidden table, which sighted readers never see.
 
 It is `ChartTooltip` positioned from local state rather than Recharts' — there is no Recharts here to

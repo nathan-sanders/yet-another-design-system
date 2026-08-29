@@ -30,7 +30,7 @@ import { cn } from '../../lib/cn'
  *   behind `md:`, so below 768px the grid is one column and the spans stop
  *   applying together. A caller writes no breakpoint of their own.
  * - **Restraint in count** — nine cells or fewer per view. That is guidance and
- *   stays guidance: it is a judgement about a whole page, and a component that
+ *   stays guidance: it is a judgment about a whole page, and a component that
  *   threw at ten children would be wrong about the tenth as often as it was
  *   right.
  */

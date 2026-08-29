@@ -24,10 +24,10 @@ type Story = StoryObj<typeof meta>
 const SHAPES: ChartSwatchShape[] = [...chartMarkers, 'colorSwatch', 'solidLine', 'dashedLine']
 
 /**
- * All fourteen swatch styles, in the series colour.
+ * All fourteen swatch styles, in the series color.
  *
  * The eleven markers draw a rule with a shape on it — the key for a line chart,
- * saying both the colour and the point shape at once. `colorSwatch` is the key
+ * saying both the color and the point shape at once. `colorSwatch` is the key
  * for a chart made of areas (a donut slice, a bar), where there is no line to
  * echo. The two line styles are for a series drawn without points, and for
  * benchmarks.
@@ -49,7 +49,7 @@ export const Swatches: Story = {
   ),
 }
 
-/** The twelve categorical colours, in the fixed order a chart assigns them. */
+/** The twelve categorical colors, in the fixed order a chart assigns them. */
 export const CategoricalScale: Story = {
   render: () => (
     <div className="flex max-w-3xl flex-wrap gap-3">
@@ -111,7 +111,7 @@ export const Legends: Story = {
 
       <figure className="flex flex-col gap-2">
         <figcaption className="text-content-subtle font-mono text-sm">
-          twelve series, capped at six — the rest collapse rather than repeat a colour
+          twelve series, capped at six — the rest collapse rather than repeat a color
         </figcaption>
         <ChartLegend type="horizontal" max={6} series={MANY_SERIES} />
       </figure>
@@ -123,7 +123,7 @@ export const Legends: Story = {
  * The tooltip card, rendered outside a chart so it can be inspected at rest.
  *
  * Values are mono and tabular so a column of them aligns; names are the sans the
- * rest of the library uses. Neither wears the series colour — identity comes
+ * rest of the library uses. Neither wears the series color — identity comes
  * from the swatch beside the name, because several of the twelve hues are
  * illegible as text on the canvas.
  */

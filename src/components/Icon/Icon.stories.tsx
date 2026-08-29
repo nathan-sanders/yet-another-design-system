@@ -47,11 +47,11 @@ export const Sizes: Story = {
 }
 
 /**
- * Icons inherit `currentColor`, so they pick up whatever text colour surrounds
+ * Icons inherit `currentColor`, so they pick up whatever text color surrounds
  * them. That is what lets the same component sit correctly inside a dark
  * Primary button and a light page.
  */
-export const InheritsColour: Story = {
+export const InheritsColor: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-3">

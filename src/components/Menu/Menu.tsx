@@ -46,7 +46,7 @@ import { popup } from './styles'
  * caller nest Root > Trigger > Portal > Positioner > Popup by hand; that is
  * their surface, not this library's. `side`, `align` and `sideOffset` land on
  * the positioner, which is also what flips the popup when it would leave the
- * viewport — so, as in Tooltip, they are behaviour rather than `tv()` variants.
+ * viewport — so, as in Tooltip, they are behavior rather than `tv()` variants.
  * The raw parts are attached below for anything this shape cannot express.
  *
  * **No ARIA to patch, unlike Tooltip.** `role="menu"` and `role="menuitem"` are
@@ -118,7 +118,7 @@ const item = tv({
      * call as Divider's `emphasis` and SegmentedControl's `layout` — build it,
      * then add it to Figma — and the file caught up when ContextMenu landed. It
      * stays a boolean rather than a third `type`, because that is how it reads
-     * at a call site. The leading icon inherits the colour, as Icon is built to.
+     * at a call site. The leading icon inherits the color, as Icon is built to.
      */
     destructive: {
       true: 'text-content-danger',
@@ -275,7 +275,7 @@ export interface MenuItemProps
    * right and never squeezes the label — the row's own `gap-3` is the spacing.
    */
   endSlot?: ReactNode
-  /** Colours the row for a destructive action. */
+  /** Colors the row for a destructive action. */
   destructive?: ItemVariants['destructive']
   className?: string
 }

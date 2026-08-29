@@ -53,7 +53,7 @@ describe('barSegment', () => {
 
   /**
    * The property that actually matters, stated as a property: in a full stack
-   * every neighbouring pair is separated by exactly the gap, and the bottom of
+   * every neighboring pair is separated by exactly the gap, and the bottom of
    * the stack has not moved off the baseline.
    */
   it('separates every pair in a stack and stays welded to the baseline', () => {
@@ -91,7 +91,7 @@ describe('barSegment', () => {
     expect(geometry(barSegment()({ ...BAR, width: 3 })).rx).toBe(1.5)
   })
 
-  it('normalises a below-axis bar into a positive rectangle', () => {
+  it('normalizes a below-axis bar into a positive rectangle', () => {
     const g = geometry(barSegment()({ x: 10, y: 100, width: 18, height: -30, fill: 'red' }))
     expect(g.y).toBe(70)
     expect(g.height).toBe(30)

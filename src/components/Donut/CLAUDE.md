@@ -10,7 +10,7 @@ Every other chart here has one row per *x value* and one series per column. A do
 `series` array, and builds the series list from the rows.
 
 Doing it that way instead of inventing pie-shaped context means everything downstream keeps working
-unchanged: **a slice is just a series with one value**, so the twelve-colour order, the `+N more`
+unchanged: **a slice is just a series with one value**, so the twelve-color order, the `+N more`
 overflow and the interactive toggle all apply with no special case.
 
 The one thing it cannot reuse is the hidden table, whose default shape is rows × series. A pie's
@@ -42,11 +42,11 @@ this survived the first round of checking: every screenshot was taken at rest.
 and a pixel of slack for rounding. `polar.test.ts` asserts the property rather than the number: for
 a range of box sizes, everything drawn including the halo lands inside the box.
 
-## The separator is surface-coloured, not a gap
+## The separator is surface-colored, not a gap
 
 Figma strokes every slice in `Surface/Background Primary`. Third chart in a row using the same idea:
 the stacked bar's 1px gap, the solid area's top edge, and now this. **White does the separating, not
-a border** — a border is ink that is not data. Worth recognising as one idea rather than three
+a border** — a border is ink that is not data. Worth recognizing as one idea rather than three
 coincidences.
 
 ## `center` is a slot, and a sibling

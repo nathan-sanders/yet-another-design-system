@@ -33,7 +33,7 @@ Field can drive it — Base UI's `fieldValidityMapping` turns the Field's `valid
 part, reads it off the control inside with `has-[[data-invalid]]:`. The prop stays as the
 standalone path Figma draws, and the two compose: either lights the border. Prefer the Field
 wherever there is a message, since only it can carry one.
-**Open question for Figma:** the box is centred against the whole label block, which is what
+**Open question for Figma:** the box is centered against the whole label block, which is what
 Figma's auto-layout does, but most systems top-align once a sub-label makes the text two lines.
 **`Checkbox.Group`** — Figma's Checkbox Group set (node `40004010:5118`): `Layout` Vertical |
 Horizontal plus a `Select All Option` boolean. **Fifteenth Base UI component.** The group owns

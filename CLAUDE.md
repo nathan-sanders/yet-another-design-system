@@ -22,7 +22,7 @@ Figma, so the code matches Figma and both stay in sync.
   lets a caller override a component's defaults
 - **`lucide-react`** for icons, wrapped by the `Icon` component
 - Fonts: **Inter** (sans), **Geist Mono** (mono), self-hosted via `@fontsource`
-- **Recharts** for data visualisation — the library shadcn/ui uses. Charts are SVG, and colour
+- **Recharts** for data visualization — the library shadcn/ui uses. Charts are SVG, and color
   reaches them as `stroke="var(--data-viz-categorical-01)"` rather than as a class, because SVG
   attributes take values
 
@@ -55,7 +55,7 @@ red — and it is the reason the check exists.
   **neutral tier**, see below.
 - `:root { --surface-canvas … }` and `.dark { … }` — the **semantic** tokens (role-based, theme-aware).
 - `@theme inline { --color-surface-canvas: var(--surface-canvas) … }` — exposes semantic tokens as
-  colour utilities.
+  color utilities.
 - A trailing `:root` for reference-only values: `--border-width-*`, `--opacity-*`,
   `--icon-stroke-weight`.
 
@@ -69,14 +69,14 @@ not for use inside components.
 
 ### Dark mode
 
-Toggled by `class="dark"` on `<html>`. Because colour lives in the semantic layer, **do not write
-`dark:` variants for colour** — the token swaps itself. A theme toggle just adds/removes that class.
+Toggled by `class="dark"` on `<html>`. Because color lives in the semantic layer, **do not write
+`dark:` variants for color** — the token swaps itself. A theme toggle just adds/removes that class.
 
 ### The neutral is swappable
 
 Nine ramps are neutrals — **Stone** (default), Taupe, Mauve, Mist, Olive, Slate, Gray, Zinc,
 Neutral. Choosing one is `<html data-neutral="taupe">`, and it moves every surface, border, text
-colour, action, input, focus ring, shadow and neutral badge in both themes at once.
+color, action, input, focus ring, shadow and neutral badge in both themes at once.
 
 The seam is an eleven-step alias tier between primitives and semantics. **No semantic token names a
 ramp** — `--surface-background-emphasized: var(--neutral-800)`, never `var(--color-stone-800)`. Because no
@@ -121,7 +121,7 @@ default ramp, so a non-default ramp wants a manual sweep of `content-subtle` on 
 and the secondary action pair.
 
 **What stays pinned, on purpose.** The four `Data Viz` `@Neutral/*` tokens do not follow the ramp:
-a chart benchmark wants a chromaless grey whatever the UI neutral is. They are now the *only*
+a chart benchmark wants a chromaless gray whatever the UI neutral is. They are now the *only*
 `@Neutral/*` references left in the semantic layer, which is the invariant to keep — a fifth one
 appearing is a Figma slip, not a decision. `Action/Overlay/Foreground` was exactly that: `@Neutral/950`
 in dark among an otherwise all-Stone family, caught when the tier was built and fixed in Figma to
@@ -133,9 +133,9 @@ useful part.
 
 On **2026-08-27** all fourteen categories were made *mode-independent*: one alias serving both Light
 and Dark. Nathan confirmed that was deliberate. But one value has to sit on both canvases, and that
-is a hard ceiling: clearing 3:1 against both `Stone/100` and `Stone/950` confines a colour to
+is a hard ceiling: clearing 3:1 against both `Stone/100` and `Stone/950` confines a color to
 relative luminance **0.108–0.271** — in practice only steps 500/600/700 of any hue — and **the best
-any single colour can manage against both at once is 4.28:1** (at L≈0.175). Nine of the fourteen
+any single color can manage against both at once is 4.28:1** (at L≈0.175). Nine of the fourteen
 cleared 3:1 on only one canvas. A second problem sat underneath: the fourteen used just **ten**
 distinct hues, four pairs separated by lightness alone, and inside that narrow band lightness is
 gone as a separator (`Pink/500` vs `Pink/700` is 1.64:1).
@@ -162,10 +162,10 @@ needs separating from its ground.
 The benchmark, alt and placeholder entries are the exception to all of it and still differ per mode
 on their own logic, because they are ground, not series.
 
-### Colour is OKLCH, and Tailwind owns the primitives
+### Color is OKLCH, and Tailwind owns the primitives
 
-Every colour is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
-roundings; nearly all 288 primitives are Tailwind palette colours, so `generate.py` reads
+Every color is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
+roundings; nearly all 288 primitives are Tailwind palette colors, so `generate.py` reads
 `node_modules/tailwindcss/theme.css` and uses Tailwind's canonical value, falling back to converting
 the Figma hex only when there is no counterpart.
 
@@ -175,12 +175,12 @@ names, `generate.py` lists all 44 under "scale-shaped names with no Tailwind cou
 run. That warning exists to catch a *misspelling* in Figma; for these four it is expected.
 
 **Consequence:** a primitive changed in Figma is ignored. `generate.py` reports any primitive that
-differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A colour
+differs from Tailwind by more than hex rounding (>0.05 in OKLab) so the override is visible. A color
 that isn't a Tailwind value belongs in the **semantic** layer, which is fully Figma-driven.
 
 ### Motion
 
-Motion is a token tier like colour or radius, not a library. The scale is **Astryx's**, taken
+Motion is a token tier like color or radius, not a library. The scale is **Astryx's**, taken
 verbatim: nine durations — `fast`/`medium`/`slow`, each with a `-min` and `-max` — and one easing
 curve, `standard` (`cubic-bezier(0.24, 1, 0.4, 1)`).
 
@@ -194,7 +194,7 @@ are Tailwind's. That translation is the same one `generate.py` already does turn
 `dimensions.json` and deleting `motion.json` is the whole migration. In Figma, durations are ordinary
 FLOAT variables; the curve is a **STRING** variable, because Figma has no bezier type.
 
-`prefers-reduced-motion: reduce` is honoured globally in section 5 of `theme.css`, so no component has
+`prefers-reduced-motion: reduce` is honored globally in section 5 of `theme.css`, so no component has
 to remember to. It clamps to **1ms rather than 0** on purpose: Base UI decides when a popup may
 unmount by asking `element.getAnimations()`, and a zero-length transition can mean no animation is
 ever observed — which would leave the popup mounted forever.
@@ -235,7 +235,7 @@ Every focusable thing in the library uses one ring, exported from `src/lib/focus
 it takes focus). Import it; do not write focus classes by hand.
 
 It draws two strokes, **both outside the component**: a 2px gap in `focus/focus-inner-border` — the
-canvas colour, white in light mode and stone-900 in dark, so it reads as a gap — then a 2px ring in
+canvas color, white in light mode and stone-900 in dark, so it reads as a gap — then a 2px ring in
 `focus/focus-outer-border`. Nothing is painted on or inside the component, so a focused component is
 pixel-identical to an unfocused one.
 
@@ -260,7 +260,7 @@ Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Fig
 three JSON files and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
 
 `generate.py` refuses to write if it would emit an invalid CSS custom property name. This matters:
-an invalid name is dropped **silently** by the browser, which is how eight diverging colours once
+an invalid name is dropped **silently** by the browser, which is how eight diverging colors once
 went missing. Figma's `+`/`-` sign prefixes become `pos-`/`neg-` (`--data-viz-diverging-neg-08`).
 
 **`src/styles/tokens.test.ts` is the same guard one layer up**, and it runs in CI. Tailwind builds
@@ -271,6 +271,37 @@ exactly how renaming `decorative-stone` reached `main` with Avatar's initials fa
 default variant silently unpainted. **When a token is renamed, grep the whole of `src` for the old
 name — and do not pipe that grep through `head`, because `theme.css` will fill the output before a
 component does.** That is precisely how those two were missed.
+
+### The Foundations group in Storybook
+
+`src/foundations/` is a documentation group, not part of the published library — eight story files
+under a `Foundations/` title, ordered ahead of `Components` by `storySort` in `.storybook/preview.tsx`.
+Overview, Color, Semantic Color, Typography, Space, Shape, Elevation, Motion.
+
+**Every page is parsed out of `theme.css` at load time** (`src/foundations/tokens.ts`, which imports
+it with Vite's `?raw`). Nothing is hand-listed, so the pages cannot drift: add a ramp, rename a role,
+retune the motion scale, and the documentation follows on the next reload. Same reasoning as
+`tokens.test.ts` reading the file rather than trusting a copy of it.
+
+The centerpiece is **Semantic Color → Mapping**: every role with its light *and* dark target side by
+side, in one table, in either theme. That works because the two targets name the *ramp* tier
+(`neutral-800`) or a primitive (`red-700`), neither of which depends on the theme — only the choice
+between them does. The handful of roles that alias another semantic token (`feedback-success-background`
+is `decorative-green-background`) are expanded per theme by `resolve()` in `tokens.ts`, or they would
+quietly show the same color in both columns.
+
+**Trap: Tailwind drops `@theme` variables nothing uses.** `--color-orange-500` is in `theme.css`, but
+no utility and no token references it, so it is not in the stylesheet the browser gets —
+`var(--color-orange-500)` resolves to nothing and the swatch paints blank. Half the primitive ramps
+came out with holes in them before this was understood. It only bites code that reads a primitive as
+a *variable* rather than through a `bg-*` class, which is to say: these pages, and SVG attributes.
+`paint()` in `tokens.ts` substitutes primitives for their literal OKLCH from the same file. The ramp
+and semantic tiers are left live on purpose — they live in plain `:root` blocks Tailwind never
+touches, and that is what makes the Theme and Neutral toolbar switches move these pages.
+
+A scrollable table needs `tabIndex={0}` and a label, or axe fails the story on
+`scrollable-region-focusable` — a region you can only reach by dragging is unreachable from a
+keyboard. `Showcase.tsx`'s `Table` does this once for all of them.
 
 ## Figma is the source of truth
 
@@ -292,10 +323,10 @@ component does.** That is precisely how those two were missed.
   Kbd, `40004278:7706` for Danger) and the bindings are all there. The general rule: an absent token
   in a parent's output is not evidence of anything until you have checked whether the node that
   would carry it is visible.
-- **An instance inherits its main component's bindings**, so retokenising a component updates every
+- **An instance inherits its main component's bindings**, so retokenizing a component updates every
   instance without touching them. Worth remembering before raising "the instances still point at the
   old token" — check one by id first.
-- Colours come back as `{r,g,b,a}` 0–1 floats — convert to hex.
+- Colors come back as `{r,g,b,a}` 0–1 floats — convert to hex.
 
 ## Components
 
@@ -333,7 +364,7 @@ settled once, against the Figma file, for a reason that is written down.
 |---|---|---|
 | [Accordion](src/components/Accordion/CLAUDE.md) | a stack of sections, one open at a time | height animated off a measurement Base UI publishes |
 | [Button](src/components/Button/CLAUDE.md) | the action control | five appearances, three sizes, icon-only derived from the absence of a label |
-| [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, colour inherited via `currentColor` |
+| [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, color inherited via `currentColor` |
 | [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size; `neutral` follows the swappable ramp |
 | [Breadcrumbs](src/components/Breadcrumbs/CLAUDE.md) | a trail to the current page | four separators, last child is current automatically |
 | [Divider](src/components/Divider/CLAUDE.md) | a line separating content | orientation × emphasis, optional label |
@@ -365,15 +396,15 @@ settled once, against the Figma file, for a reason that is written down.
 | [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
 | [AreaSeries](src/components/AreaSeries/CLAUDE.md) | how much, over time | two fills that are different drawings; opaque areas make paint order part of the API |
 | [VerticalBar](src/components/VerticalBar/CLAUDE.md) | how much, per category | Figma's three bar types are one boolean; rounded stacked segments Recharts cannot draw |
-| [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labelled or decorative, enforced by the type |
+| [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labeled or decorative, enforced by the type |
 | [Donut](src/components/Donut/CLAUDE.md) | parts of one whole | a slice is a series with one value; hover is a halo that does not resize the slice |
 | [Gauge](src/components/Gauge/CLAUDE.md) | how far along | a donut folded in half, which turns the hole into a shelf; the radius has to be computed |
 | [Radar](src/components/Radar/CLAUDE.md) | several series across a few dimensions | translucent because no paint order can work; the grid's outer ring is a second element |
-| [Metric](src/components/Metric/CLAUDE.md) | a labelled number and what it did | no Recharts at all; two of its four components are wrappers over `Badge` and `Card` |
+| [Metric](src/components/Metric/CLAUDE.md) | a labeled number and what it did | no Recharts at all; two of its four components are wrappers over `Badge` and `Card` |
 | [HeatMap](src/components/HeatMap/CLAUDE.md) | how much, across two dimensions | a CSS grid, not a chart; the one caller of `ChartContainer`'s `responsive={false}` |
 | [TreeMap](src/components/TreeMap/CLAUDE.md) | parts of a whole, past a donut's limit | the only chart whose marks carry their own text |
 
-### Data visualisation
+### Data visualization
 
 Charts live on the Figma page **↪ Data Viz (In Progress)** (`40004316:13427`) and are built on
 **Recharts**. Two things about that page decide how much work it is.
@@ -387,7 +418,7 @@ underscored component before implementing it** — reading them as a component l
 components into 30-plus.
 
 **shadcn's `ChartStyle` has no counterpart here, and must not gain one.** shadcn injects a `<style>`
-block per chart mapping `--color-desktop` onto a hex, because its charts are handed raw colours with
+block per chart mapping `--color-desktop` onto a hex, because its charts are handed raw colors with
 nowhere theme-aware to put them. `--data-viz-*` are semantic tokens — `:root` plus `.dark` — so a
 mark painted with one follows the theme with no injected CSS, no second palette and no `dark:`
 variant. That is the whole point of the semantic layer, arriving somewhere new for free.
@@ -398,11 +429,11 @@ them**; `src/components/Chart/` is the first code that does.
 Three rules worth having in mind before touching a chart:
 
 - **The categorical order is fixed and never cycled by rank**, and past twelve series the scale
-  returns the placeholder grey rather than wrapping. Two visible series sharing a colour is worse
+  returns the placeholder gray rather than wrapping. Two visible series sharing a color is worse
   than admitting the scale ran out. Figma agrees from the other end — its legend has a `+X more` row.
-- **Text never wears the series colour.** Identity comes from the swatch beside it. Three of the
-  twelve hues are illegible as text on the light canvas, and colouring text also removes the channel
-  a low-colour-vision reader was relying on.
+- **Text never wears the series color.** Identity comes from the swatch beside it. Three of the
+  twelve hues are illegible as text on the light canvas, and coloring text also removes the channel
+  a low-color-vision reader was relying on.
 - **Charts do not animate.** Recharts animates in JavaScript with its own constants — a second source
   of truth Figma cannot reach — so `isAnimationActive={false}` everywhere, and any motion that is
   wanted goes back as CSS on the tokens. Its tooltip writes a `transition` *inline* even when series
@@ -413,10 +444,10 @@ Three rules worth having in mind before touching a chart:
   automatic y-domain ends at the largest value present, which gives round ticks only when the data
   happens to be round. Assume a Recharts default is aimed at a chart with no design system behind it.
 - **White does the separating, not a border.** The stacked bar's 1px gap, the solid area's
-  surface-coloured top edge, the donut's slice stroke and the tree map's tile inset are one idea in
-  four places: a border would be ink that is not data. Recognise it before inventing a fifth
+  surface-colored top edge, the donut's slice stroke and the tree map's tile inset are one idea in
+  four places: a border would be ink that is not data. Recognize it before inventing a fifth
   mechanism.
-- **Colour is assigned over the full series list, never the visible one.** It is what makes the
+- **Color is assigned over the full series list, never the visible one.** It is what makes the
   interactive legend safe — switching a series off cannot repaint the survivors. The fixed
   categorical order and the hidden-series filter are the same rule seen from two sides.
 - **Figma's Data Viz page references one token that does not exist.** The tree map's tile metric
@@ -516,7 +547,7 @@ component usually has fewer decisions in it than it looks.
   what gets built reads as the ordinary case rather than a styled one. `small` and `large` belong in
   the stories that exist to show the scale, or where something genuinely calls for them: a Button
   inside an addon is `small` because it has to fit inside a 32px field, and that is a reason. "It
-  looked better" is not, and it is how a library ends up with no default anybody recognises.
+  looked better" is not, and it is how a library ends up with no default anybody recognizes.
   **Check the reason before believing it.** ContentBlock's header actions were `small` on the
   assumption that a 48px row was tight; it is `min-h-12` with 8px of padding either side, so it has
   exactly the 32px a default Button is, and the constraint was imagined. A tight fit is easy to
@@ -598,7 +629,7 @@ The form family is complete against the file bar one: **Checkbox Group** and **R
 built as `Checkbox.Group` and `Radio.Group`, Checkbox, Radio and Switch take their validity from a
 Field as well as from their own prop, and Slider is closed as a deliberate non-change (see its
 entry). Combobox landed and took Token with it — `Combobox.Chips` / `Chip` / `ChipRemove` supply
-the behaviour, Token supplies the look, and the 20 / 24 against a field's inner 22 / 30 / 38 held
+the behavior, Token supplies the look, and the 20 / 24 against a field's inner 22 / 30 / 38 held
 when measured. **Autocomplete has since landed and closed the family** — Combobox with one rule
 removed, and the clearest case yet of the sharing rule doing real work: Base UI's `autocomplete`
 subpath re-exports Combobox's `Popup`, `List`, `Group`, `Collection` and `Empty` as the *same
@@ -615,5 +646,5 @@ cover all states → write a story showing every variant in light and dark. Then
 
 - Propose a short plan and get a yes before scaffolding or installing.
 - Keep commits/steps small and explain them in plain language.
-- Don't hardcode colours, spacing, radii, or shadows — always tokens.
+- Don't hardcode colors, spacing, radii, or shadows — always tokens.
 - Verify by measuring (computed styles, screenshots) rather than assuming.

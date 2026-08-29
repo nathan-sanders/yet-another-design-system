@@ -29,7 +29,7 @@ exactly when a total is a real number rather than an accident of addition.
 ## The segment shape, and the bug worth not repeating
 
 Figma rounds all four corners of **every** stacked segment and puts a 1px gap between them, so a
-stack reads as a column of discrete blocks rather than one bar with colour changes. Recharts stacks
+stack reads as a column of discrete blocks rather than one bar with color changes. Recharts stacks
 flush and has no concept of a gap, so each segment goes through a custom shape — see
 [`Chart/bars.tsx`](../Chart/bars.tsx).
 
@@ -41,7 +41,7 @@ lowest two segments welded together with no gap at all.
 
 **That bug was invisible in a screenshot and obvious in a measurement**, at 1px across 31 columns.
 It is pinned in `Chart/bars.test.ts`, which asserts the property rather than the pixels: every
-neighbouring pair in a stack is separated by exactly the gap, and the bottom of the stack still sits
+neighboring pair in a stack is separated by exactly the gap, and the bottom of the stack still sits
 on the baseline.
 
 ## Bar width and the two category gaps
@@ -49,7 +49,7 @@ on the baseline.
 Bars cap at **24px**. Figma's `Segment` is intrinsically 16 (single, stacked) and 24 (grouped), but
 those are the component's size on the canvas — a real chart distributes bars across whatever width it
 has, and pinning them to 16 would leave a wide chart mostly empty. The cap is the part that
-transfers: past 24 a bar stops reading as a measured length and starts reading as a block of colour,
+transfers: past 24 a bar stops reading as a measured length and starts reading as a block of color,
 and the band's leftover is meant to be air.
 
 **`barCategoryGap` is taken off *each* side of the band, so the number is half what it looks like.**
@@ -67,7 +67,7 @@ line charts keep the rule, because there the mark is a point and a rule through 
 ## `accessibilityOverlay`
 
 Off by default, because Figma's own bar examples do not draw it. It exists for a chart using one of
-the three categorical colours that fall short of 3:1 on the light canvas — `04` yellow at 1.74:1
+the three categorical colors that fall short of 3:1 on the light canvas — `04` yellow at 1.74:1
 above all — where a large flat fill is genuinely hard to find against the surface. It is the
-sanctioned mitigation the root `CLAUDE.md` points to, and the reason those three colours are allowed
+sanctioned mitigation the root `CLAUDE.md` points to, and the reason those three colors are allowed
 to stay as they are.

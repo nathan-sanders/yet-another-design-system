@@ -14,7 +14,7 @@ import { DONUT_INNER_RATIO, HALO_GAP, HALO_THICKNESS, donutRadius, gaugeGeometry
  * everything the chart draws, halo included, lands inside the box it was given.
  */
 
-/** The furthest anything is drawn from the centre. */
+/** The furthest anything is drawn from the center. */
 const drawnRadius = (outerRadius: number) => outerRadius + HALO_GAP + HALO_THICKNESS
 
 describe('donutRadius', () => {
@@ -27,7 +27,7 @@ describe('donutRadius', () => {
     ]) {
       const r = donutRadius(w, h)
       expect(r).toBeGreaterThan(0)
-      // The halo has to fit in both directions, measuring from the centre.
+      // The halo has to fit in both directions, measuring from the center.
       expect(drawnRadius(r)).toBeLessThanOrEqual(Math.min(w, h) / 2)
     }
   })
@@ -67,7 +67,7 @@ describe('gaugeGeometry', () => {
 
       // Top: the apex sits at cy - r, and the halo reaches above it.
       expect(cy - drawnRadius(outerRadius)).toBeGreaterThanOrEqual(0)
-      // Sides: measured from the horizontal centre.
+      // Sides: measured from the horizontal center.
       expect(drawnRadius(outerRadius)).toBeLessThanOrEqual(w / 2)
       // Bottom: the flat ends and their stroke stay inside.
       expect(cy).toBeLessThan(h)

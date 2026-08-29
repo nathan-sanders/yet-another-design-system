@@ -44,7 +44,7 @@ const banner = tv({
     // gap-1 = 4px (spacing/1), px-4 = 16px, py-3 = 12px.
     'gap-1 px-4 py-3',
     'rounded-lg',
-    // 14/24 body type. Set here so the icon rail can centre against a known
+    // 14/24 body type. Set here so the icon rail can center against a known
     // line-height, and so both text rows inherit it.
     'font-sans text-base [word-break:break-word]',
     // Figma has overflow-clip on the frame. Deliberately not ported: nothing
@@ -56,7 +56,7 @@ const banner = tv({
     /**
      * Which feedback pair the banner draws from. The foreground lands on the
      * root rather than on the text, so the status glyph inherits it as
-     * `currentColor` — Icon never carries a colour of its own.
+     * `currentColor` — Icon never carries a color of its own.
      */
     type: {
       info: 'bg-feedback-info-background text-feedback-info-foreground',
@@ -155,7 +155,7 @@ export function Banner({
       {...props}
     >
       {/*
-       * The py-1 is load-bearing: 4px above a 16px glyph centres it on the 24px
+       * The py-1 is load-bearing: 4px above a 16px glyph centers it on the 24px
        * line-height of the title beside it. Without it the icon top-aligns and
        * sits visibly high against the text.
        */}

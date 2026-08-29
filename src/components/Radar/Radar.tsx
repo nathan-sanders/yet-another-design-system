@@ -43,7 +43,7 @@ import {
  * baseline, and for the same reason: the outer ring is the boundary values are
  * measured against, the rest is scenery.
  *
- * Recharts' `PolarGrid` paints every ring one colour, so the emphasis comes from
+ * Recharts' `PolarGrid` paints every ring one color, so the emphasis comes from
  * `PolarAngleAxis`'s own `axisLine` drawn as a polygon over the top. Two
  * elements, one appearance — worth knowing before someone tries to give
  * `PolarGrid` a second stroke and finds it has nowhere to put it.
@@ -105,10 +105,10 @@ export interface RadarProps {
  * head to read a number that exists to be read, and at 12px over a mottled
  * background that is the difference between a scale and a decoration.
  *
- * The surface-coloured stroke is a halo: `paint-order: stroke` puts the stroke
+ * The surface-colored stroke is a halo: `paint-order: stroke` puts the stroke
  * *under* the fill, so 3px reads as a 1.5px outline of canvas around each glyph
  * rather than a smear over it. Same idea as the stacked bar's gap, the solid
- * area's top edge and the donut's slice separator — the surface colour does the
+ * area's top edge and the donut's slice separator — the surface color does the
  * separating, so it follows the theme for free.
  */
 interface ScaleTickProps {
@@ -216,7 +216,7 @@ function RadarPlot({
 
         Recharts paints in element order, and this was above the `<Radar>`
         elements — so the numbers sat underneath three translucent fills and
-        whatever muddy colour they composited into. A scale a reader cannot read
+        whatever muddy color they composited into. A scale a reader cannot read
         is worse than no scale, because it still spends the space.
 
         Chrome normally belongs under the data, and the grid still does. Axis

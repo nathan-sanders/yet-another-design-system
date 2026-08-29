@@ -4,7 +4,7 @@ import { cn } from '../../lib/cn'
 import { TrendBadge, type TrendGoodDirection } from './TrendBadge'
 
 /**
- * Metric — a labelled number, and what it did.
+ * Metric — a labeled number, and what it did.
  *
  * Figma's `Metric Overview` (`40004341:15530`). Named `Metric` here because that
  * is what it is; "Overview" is Figma disambiguating it from the card around it,
@@ -42,7 +42,7 @@ export interface MetricProps extends Omit<ComponentPropsWithRef<'div'>, 'childre
   value: ReactNode
   /** The change, as a number. Its sign picks the arrow. Omit for no badge. */
   trend?: number
-  /** Which direction counts as good news. Flips the badge's colour, not its arrow. */
+  /** Which direction counts as good news. Flips the badge's color, not its arrow. */
   goodDirection?: TrendGoodDirection
   /** How the trend reads. Passed through to `TrendBadge`. */
   formatTrend?: (trend: number) => string
@@ -102,7 +102,7 @@ export function Metric({
 
             This is what makes the alignment exact without a magic number. The
             strut has a real text baseline; the spark beside it is a box with no
-            text, so flexbox synthesises one from its bottom edge — and
+            text, so flexbox synthesizes one from its bottom edge — and
             `items-baseline` puts the two on the same line. The descender gap
             therefore comes from the font's own metrics at `text-xl`, so it stays
             correct if the type scale is regenerated from Figma.

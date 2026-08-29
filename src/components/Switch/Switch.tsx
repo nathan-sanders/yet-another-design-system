@@ -124,7 +124,7 @@ const track = tv({
  * other are different properties and the browser cannot transition between
  * them. The switch would jump.
  *
- * `top-1/2 -translate-y-1/2` then recentres the knob for free as it grows,
+ * `top-1/2 -translate-y-1/2` then recenters the knob for free as it grows,
  * which is what lands Figma's 2px and 1px vertical insets without either number
  * being written down.
  */

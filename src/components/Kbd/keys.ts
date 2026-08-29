@@ -7,7 +7,7 @@
  * Refresh, which is the same reason Token, Input, Avatar, Toast and Menu each
  * keep a `styles.ts`.
  *
- * Modelled on Meta's Astryx `Kbd`, which takes one `keys` string and splits it
+ * Modeled on Meta's Astryx `Kbd`, which takes one `keys` string and splits it
  * on `+`. The table below is a deliberate **superset** of theirs: Astryx maps
  * `mod ctrl alt shift enter backspace escape tab up down left right` and lets
  * everything else fall through its uppercasing branch, so `space` and `delete`

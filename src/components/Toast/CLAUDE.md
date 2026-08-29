@@ -7,7 +7,7 @@ should be described against each other: a banner stays, a toast interrupts and g
 **Default is the Decorative/Neutral ramp, not `feedback-info`.** A toast that only confirms
 something is neutral; the file says so, and Astryx agrees (it has just info and error). Success
 and danger are Banner's `feedback-*` pairs, so again no `dark:` class anywhere.
-**No icon rail** — Banner centres a glyph in a 16px column, Toast's text starts flush against the
+**No icon rail** — Banner centers a glyph in a 16px column, Toast's text starts flush against the
 16px padding. A real difference between the two, not an omission. **72 / 48 are the numbers to
 check** (title + description, and title only). Figma draws the dismiss button 28×24 (`px-2` round
 a 12px glyph); `Button` makes an icon-only small button a 24px square and the code is right —

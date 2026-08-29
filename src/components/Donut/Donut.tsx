@@ -32,7 +32,7 @@ import { activeSliceShape } from './slices'
  * the series list from the rows themselves.
  *
  * Doing it that way rather than inventing a pie-shaped context means everything
- * downstream keeps working unchanged: the legend, the twelve-colour order, the
+ * downstream keeps working unchanged: the legend, the twelve-color order, the
  * `+N more` overflow and the interactive toggle are all series machinery, and a
  * slice is just a series with one value.
  *
@@ -127,7 +127,7 @@ function DonutPlot({
         outerRadius={outerRadius > 0 ? outerRadius : '90%'}
         startAngle={DONUT_START_ANGLE}
         endAngle={DONUT_END_ANGLE}
-        // The separator is surface-coloured rather than a gap in the geometry,
+        // The separator is surface-colored rather than a gap in the geometry,
         // exactly as Figma strokes it — the same "white does the separating"
         // move as the stacked bar and the solid area.
         stroke={surface}
@@ -154,7 +154,7 @@ export function Donut({
   interactiveLegend = false,
   className,
 }: DonutProps) {
-  // A slice is a series with one value, so the whole series machinery — colour
+  // A slice is a series with one value, so the whole series machinery — color
   // order, overflow, toggling — applies unchanged.
   const series = useMemo(
     () => data.map((row) => ({ key: String(row[nameKey]), label: String(row[nameKey]) })),
@@ -203,7 +203,7 @@ export function Donut({
 Donut.displayName = 'Donut'
 
 /**
- * The hole's contents, centred over the ring.
+ * The hole's contents, centered over the ring.
  *
  * A sibling absolutely positioned over the plot rather than SVG text, so what
  * goes in the middle can be anything the library already has — a heading, a

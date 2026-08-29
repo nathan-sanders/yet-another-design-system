@@ -50,7 +50,7 @@ import { focusRing } from '../../lib/focus'
  * foreground already tuned for contrast on it in both themes — so, as in Banner,
  * there is not one `dark:` class in this component.
  *
- * **There is no icon rail.** Banner centres a status glyph in a 16px column
+ * **There is no icon rail.** Banner centers a status glyph in a 16px column
  * before its text; Toast's content starts flush against the 16px padding. A
  * deliberate difference between the two components, not an omission here.
  */
@@ -120,7 +120,7 @@ export const toastViewport = tv({
 })
 
 /**
- * The stacking behaviour, applied to `Toast.Root` on top of `toastCard`.
+ * The stacking behavior, applied to `Toast.Root` on top of `toastCard`.
  *
  * Collapsed, the toasts behind peek out by 12px each and shrink 5% each, capped
  * at three deep so a long queue does not walk off the screen. Expanded — which
@@ -220,7 +220,7 @@ export const TOAST_SWIPE_EXIT = [
 /**
  * Which way a toast can be thrown to dismiss it — derived from where the stack
  * sits, so it is never a second knob that can disagree with `position`. A
- * centred stack has no sideways home to be thrown to, so it only swipes on the
+ * centered stack has no sideways home to be thrown to, so it only swipes on the
  * axis it entered from.
  */
 export const TOAST_SWIPE_DIRECTION: Record<ToastPosition, ('up' | 'down' | 'left' | 'right')[]> = {

@@ -6,7 +6,7 @@ Pick exactly one option from a list you can see all of. Mirrors Figma node
 **Eighth Base UI component**, on the same `RadioGroup` + `Radio` pair SegmentedControl uses.
 **This is a list; SegmentedControl is a control.** Both are one-of-many on the same primitive,
 and the difference is presentation, not semantics: a segmented control is a compact strip you
-put beside a Button, a radio list is a stack of labelled options with room for a sentence under
+put beside a Button, a radio list is a stack of labeled options with room for a sentence under
 each. Reach for this when the options need explaining.
 **Selection follows focus**, as in SegmentedControl and as a radiogroup should — verified in the
 browser: ArrowDown moves *and* selects, and exactly one stays checked.

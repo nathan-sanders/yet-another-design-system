@@ -138,7 +138,7 @@ export const card = tv({
 export const clickableCard = tv({
   base: [
     ...box,
-    // A <button> centres its text and inherits nothing; both have to be said.
+    // A <button> centers its text and inherits nothing; both have to be said.
     'text-left text-content-primary',
     // Tailwind's preflight sets buttons to cursor: default. Button's line.
     'cursor-pointer',
@@ -176,9 +176,9 @@ export const clickableCard = tv({
        * same token as the fill — so the border is present but invisible, and a
        * ghost row is exactly the size of a bordered card beside it. Written as
        * the token rather than as `border-transparent` for that reason, and
-       * because it is what makes the hover a single colour transition.
+       * because it is what makes the hover a single color transition.
        *
-       * On a `surface-background-primary` parent it disappears at rest and greys under
+       * On a `surface-background-primary` parent it disappears at rest and grays under
        * the pointer, which is what a mail list wants. On the canvas it is a white
        * block — check which surface it is sitting on before reaching for it.
        */
@@ -212,7 +212,7 @@ export const clickableCard = tv({
 
     /**
      * Figma's Disabled: a flat 40% opacity (`opacity/opacity-40`) with the
-     * colour left alone.
+     * color left alone.
      *
      * A variant rather than Button's `disabled:` modifier, because this
      * component has two element paths and only one of them can carry the native

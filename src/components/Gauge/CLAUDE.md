@@ -6,8 +6,8 @@ its slice separator and its hover halo.
 
 ## Why it is not a `Donut` prop
 
-Folding a donut in half turns the hole into a **shelf**. A donut's centre content is centred in a
-ring; a gauge's sits under an arch, because the arc's own centre is at the bottom edge of the box.
+Folding a donut in half turns the hole into a **shelf**. A donut's center content is centered in a
+ring; a gauge's sits under an arch, because the arc's own center is at the bottom edge of the box.
 Those are different layouts, and a `semicircle` boolean on `Donut` would be a prop that changes where
 another prop renders — which is how one component quietly becomes two.
 
@@ -29,7 +29,7 @@ styling problem and was an arithmetic one.
 **And the arc is kept clear of the box edges**, which is a second, separate correction. Sized to fill
 exactly, a gauge's apex is clipped flat at rest — the separator stroke straddles the outer edge, so
 half of it falls outside — and the hover halo has nowhere to go at all. `gaugeGeometry` subtracts
-`POLAR_MARGIN` and puts the centre just above the bottom edge rather than on it, so the flat radial
+`POLAR_MARGIN` and puts the center just above the bottom edge rather than on it, so the flat radial
 ends keep their stroke too. Pinned in `Chart/polar.test.ts`.
 
 ## What a gauge is for

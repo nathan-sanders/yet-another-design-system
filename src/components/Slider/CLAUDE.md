@@ -33,8 +33,8 @@ focus must come from `:focus-visible` rather than Base UI's `data-focused`: that
 state, so on a range both handles would light up at once.
 **The hit area is the Control, not the handle's frame.** Figma draws a 24px frame round the disc
 because on a canvas that is the only place a target can live; Base UI listens on
-`Slider.Control`, so the height goes there (`h-6`, Figma's 24) with the 4px track centred in it.
-**`thumbAlignment="edge"`, not Base UI's default `center`.** Figma centres the handle on the end
+`Slider.Control`, so the height goes there (`h-6`, Figma's 24) with the 4px track centered in it.
+**`thumbAlignment="edge"`, not Base UI's default `center`.** Figma centers the handle on the end
 of the filled track, and at `min` that hangs 8px past the control — exactly the row's `gap-2`,
 which is presumably why the gap is 8. But the disc grows to 20px and the ring adds 4px, and a
 focused handle at `min` then **paints 6px over the bounds label**. `edge` insets it;
@@ -50,9 +50,9 @@ agrees** — the Marks frame is `left: 8px; right: 8px` where it used to be flus
 on the track is load-bearing too: an absolutely positioned sibling paints over a static one
 whatever the DOM order.
 **Room for the mark labels goes on the root, not the row.** It was on the row first and that is
-wrong: padding there shrinks the box `items-center` centres the control in, so the track rides
+wrong: padding there shrinks the box `items-center` centers the control in, so the track rides
 4px higher and the labels *still* overflowed, measured at exactly 4px. On the root, 10px
-(4 under the track + 20 of line-height − the 14 a centred 4px track leaves in a 32px row).
+(4 under the track + 20 of line-height − the 14 a centered 4px track leaves in a 32px row).
 **The value tooltip composes `Tooltip`** rather than being a second popup — `sideOffset={8}` is
 Figma's gap, not Tooltip's default 4 — and it needs no state: `Slider.Value` reads the live value
 out of the slider's context, which reaches the popup through the portal. Two things verified in
@@ -105,14 +105,14 @@ with no invalid, and Field's `Type` list does not include Slider, so there is no
 for an invalid slider and inventing one would be the second source of truth this component
 already refused once over its number input. Checkbox, Radio and Switch were migrated in the same
 PR precisely because the file *does* draw their invalid state.
-Worth knowing if that changes: Base UI would already do the labelling half of it —
+Worth knowing if that changes: Base UI would already do the labeling half of it —
 `ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, …)` in `SliderRoot`,
 read out of `node_modules` — so a Slider inside a Field is named by the Field without needing its
 own `Slider.Label`. The blocker is the props union: `label` or `aria-label` is *required*, so
 `<Field label="Volume"><Slider /></Field>` does not compile. Relaxing that to enable an undrawn
 composition would trade away the guarantee that an unnamed slider cannot ship, which is a bad
 trade until Figma draws `Type=Slider`.
-**The label question, settled deliberately.** Base UI's `Field` could own labelling instead —
+**The label question, settled deliberately.** Base UI's `Field` could own labeling instead —
 `Field.Label` beats `Slider.Label`, since `SliderRoot` resolves `fieldLabelId ?? localLabelId`,
 so the two never collide and a slider inside a Field simply stops using its own. The call was to
 keep the label on the control, matching Astryx and matching what Figma now draws; a Field wrapper

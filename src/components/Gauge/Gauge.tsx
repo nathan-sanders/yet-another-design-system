@@ -25,7 +25,7 @@ import { activeSliceShape } from '../Donut'
  * swept 180° instead of 360°, and the reason it exists as its own component
  * rather than a `Donut` prop is what that fold does to the layout: the hole
  * stops being a hole and becomes a **shelf**, which is where the figure sits.
- * A donut's centre content is centred; a gauge's sits under the arch. Those are
+ * A donut's center content is centered; a gauge's sits under the arch. Those are
  * different components pretending to be one prop.
  *
  * ## The ring is thinner than a donut's, on purpose
@@ -101,7 +101,7 @@ function GaugePlot({
         data={rows as Record<string, unknown>[]}
         dataKey={valueKey}
         nameKey={nameKey}
-        // The arc occupies the top half, so its centre belongs at the bottom of
+        // The arc occupies the top half, so its center belongs at the bottom of
         // the box rather than the middle — otherwise half the plot area is empty
         // space under a small arch.
         cx="50%"
@@ -177,9 +177,9 @@ export function Gauge({
       table={table}
       overlay={
         center ? (
-          // Under the arch rather than centred: the arc's own centre is at the
+          // Under the arch rather than centered: the arc's own center is at the
           // bottom edge, so the free space is the lower half of the box.
-          // The shelf under the arch: the arc's centre is the bottom edge, so
+          // The shelf under the arch: the arc's center is the bottom edge, so
           // the clear space is a semicircle of the inner radius — four fifths of
           // the box height once the gauge is sized to fill it.
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-4/5 items-center justify-center">

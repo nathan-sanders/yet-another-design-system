@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Generate a Tailwind v4 theme.css from Figma token exports.
 
-Colours are emitted as OKLCH. Figma can only store hex, so the exported values
-are 8-bit roundings of colours that are really defined in OKLCH; every primitive
-in this system is a Tailwind palette colour, so the canonical OKLCH value is
+Colors are emitted as OKLCH. Figma can only store hex, so the exported values
+are 8-bit roundings of colors that are really defined in OKLCH; every primitive
+in this system is a Tailwind palette color, so the canonical OKLCH value is
 read straight from the installed Tailwind and used instead of the rounded hex.
 Anything without a Tailwind counterpart is converted from its hex.
 """
@@ -79,7 +79,7 @@ def slug(name):
     s = re.sub(r"-+", "-", s).strip("-")
     return s
 
-# ---------- colour: hex -> OKLCH ----------
+# ---------- color: hex -> OKLCH ----------
 def _srgb_to_linear(c):
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
@@ -118,7 +118,7 @@ def hex_to_oklch(h):
     """'#rrggbb' or '#rrggbbaa' -> an oklch() string."""
     L, A, B, a = hex_to_oklab(h)
     C = math.hypot(A, B)
-    # Achromatic colours get hue `none`, matching how Tailwind writes them.
+    # Achromatic colors get hue `none`, matching how Tailwind writes them.
     if C < 1e-6:
         chroma, hue = "0", "none"
     else:
@@ -140,7 +140,7 @@ def load_tailwind_palette():
 TW = load_tailwind_palette()
 stats = {"tailwind": 0, "converted": 0, "unmatched": [], "drifted": []}
 
-# Storing a colour as 8-bit hex moves it slightly; across this whole palette the
+# Storing a color as 8-bit hex moves it slightly; across this whole palette the
 # largest such rounding measured 0.027 in OKLab. Anything past this threshold is
 # too big to be rounding, so it is a real edit made in Figma.
 HEX_ROUNDING_TOLERANCE = 0.05
@@ -149,7 +149,7 @@ def primitive_value(name, hexval):
     """Tailwind is the source of truth for primitives.
 
     Figma cannot express OKLCH, so its hex is treated as an approximation and
-    Tailwind's canonical value wins. That means a colour deliberately changed in
+    Tailwind's canonical value wins. That means a color deliberately changed in
     Figma would be ignored — so any disagreement too large to be hex rounding is
     reported rather than silently discarded.
     """
@@ -175,12 +175,12 @@ def px2rem(v):
 
 # ---- the neutral role: Figma's "Stone" is the alias tier, not the ramp ----
 # '#rrggbb' (lowercase, no alpha) -> step, for the default ramp only. Used to
-# recognise the alpha variants the semantic layer stores as raw hex.
+# recognize the alpha variants the semantic layer stores as raw hex.
 NEUTRAL_ROLE_HEX = {p["v"].lower(): p["n"].split("/", 1)[1]
                     for p in prims
                     if p["n"].startswith(NEUTRAL_ROLE + "/")}
 
-stats["neutralised"] = []
+stats["neutralized"] = []
 
 def neutral_step(target):
     """'Stone/800' -> '800', else None."""
@@ -190,7 +190,7 @@ def neutral_step(target):
 def neutral_alpha(hexval):
     """A raw hex that is a neutral-role step with an alpha -> a color-mix on the tier.
 
-    Ten of the eleven raw colours in the semantic layer are exactly this: ghost
+    Ten of the eleven raw colors in the semantic layer are exactly this: ghost
     backgrounds, both overlays and both shadows are the neutral at some alpha.
     Emitted as oklch() they would freeze at Stone and stay stone-tinted on every
     other ramp — which is what makes a swap look half-applied. white, black and
@@ -222,12 +222,12 @@ def resolve(val):
         if step:
             return f"var(--neutral-{step})"
         return ref.get(target, f"/* unresolved: {target} */")
-    # Raw colours in the semantic layer are alpha variants of the palette; they
+    # Raw colors in the semantic layer are alpha variants of the palette; they
     # get the same OKLCH treatment so no hex survives into the output.
     if isinstance(val, str) and val.startswith("#"):
         mixed = neutral_alpha(val)
         if mixed:
-            stats["neutralised"].append((val, mixed))
+            stats["neutralized"].append((val, mixed))
             return mixed
         return hex_to_oklch(val)
     return val
@@ -421,7 +421,7 @@ out.append(":root {")
 out += extra_lines
 out.append("}")
 out.append("")
-out.append("/* ---- 5. Reduced motion. Astryx: components honour the OS setting by ---- */")
+out.append("/* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */")
 out.append("/*    replacing animation with an instant state change. Applied globally    */")
 out.append("/*    so no component has to remember to.                                   */")
 out.append("/*                                                                          */")
@@ -472,25 +472,25 @@ with open(out_path, "w") as f:
 
 print(f"primitives: {len(prims)}  semantic: {len(sem)}  dimensions: {len(dims)}")
 if not TW:
-    print("  ! tailwindcss not found in node_modules — every colour was converted "
+    print("  ! tailwindcss not found in node_modules — every color was converted "
           "from its Figma hex rather than taken from the Tailwind palette")
-print(f"colours: {stats['tailwind']} from the Tailwind palette, "
+print(f"colors: {stats['tailwind']} from the Tailwind palette, "
       f"{stats['converted']} converted from hex")
 if stats["unmatched"]:
     print("  ! scale-shaped names with no Tailwind counterpart (check the spelling "
           "in Figma): " + ", ".join(sorted(set(stats["unmatched"]))))
 print(f"neutral ramp: {len(NEUTRAL_SCALES)} scales x {len(NEUTRAL_STEPS)} steps "
       f"(default {NEUTRAL_SCALES[0]}), via --neutral-*")
-if stats["neutralised"]:
-    print(f"  {len(stats['neutralised'])} raw alpha colour(s) re-pointed onto the neutral tier:")
-    for hexval, mixed in stats["neutralised"]:
+if stats["neutralized"]:
+    print(f"  {len(stats['neutralized'])} raw alpha color(s) re-pointed onto the neutral tier:")
+    for hexval, mixed in stats["neutralized"]:
         print(f"      {hexval}  ->  {mixed}")
 if stats["drifted"]:
     print(f"  ! {len(stats['drifted'])} primitive(s) differ from Tailwind by more than hex")
     print("    rounding. Tailwind wins, so the Figma value is NOT being used. Either")
-    print("    set Figma back to match, or move the colour into the semantic layer:")
+    print("    set Figma back to match, or move the color into the semantic layer:")
     for name, fig, tw, d in sorted(stats["drifted"], key=lambda r: -r[3]):
-        print(f"      {name:16} figma {fig}  ignored in favour of  {tw}")
+        print(f"      {name:16} figma {fig}  ignored in favor of  {tw}")
 print(f"radius:{len(radius)} text:{len(text_fs)} blur:{len(blur)} "
       f"drop-shadows:{len(shadows_drop)} inner-shadows:{len(shadows_inner)}")
 print(f"wrote {out_path} ({len(css)} bytes, {css.count(chr(10))} lines)")

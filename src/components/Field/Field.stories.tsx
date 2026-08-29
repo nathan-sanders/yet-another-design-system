@@ -65,7 +65,7 @@ export const WithDescription: Story = {
  * placeholder inside the field is italic for the same reason.
  *
  * **Passing `error` is enough.** It puts the field in the invalid state on its
- * own, so `invalid` is only needed for the rarer case of colouring the control
+ * own, so `invalid` is only needed for the rarer case of coloring the control
  * without saying anything. Like the sub-label, the message lands in
  * `aria-describedby`, so it is read out rather than just seen.
  */

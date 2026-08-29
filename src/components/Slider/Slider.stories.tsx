@@ -286,7 +286,7 @@ export const States: Story = {
  * `aria-valuetext` still says "start range" and "end range", which is a floor
  * rather than a finish.
  */
-export const Unlabelled: Story = {
+export const Unlabeled: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-8">

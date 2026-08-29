@@ -1,10 +1,10 @@
 /**
- * The chart colour scales, as CSS variable references.
+ * The chart color scales, as CSS variable references.
  *
  * ## Why these are plain strings and not Tailwind classes
  *
- * Recharts sets colour through SVG attributes — `stroke`, `fill` — that take a
- * value, not a class. So a series colour is the string
+ * Recharts sets color through SVG attributes — `stroke`, `fill` — that take a
+ * value, not a class. So a series color is the string
  * `var(--data-viz-categorical-01)`, handed straight to the attribute, and the
  * browser resolves it.
  *
@@ -17,7 +17,7 @@
  *
  * **This is why shadcn's `ChartStyle` has no counterpart in YADS.** shadcn
  * injects a `<style>` block per chart mapping `--color-desktop` to a hex,
- * because its charts are handed raw colours and have nowhere theme-aware to put
+ * because its charts are handed raw colors and have nowhere theme-aware to put
  * them. This library has somewhere. Do not port that component; it would add a
  * second, worse copy of a tier that already exists.
  *
@@ -39,12 +39,12 @@
  */
 
 /**
- * The twelve categorical series colours, in the order Figma assigns them.
+ * The twelve categorical series colors, in the order Figma assigns them.
  *
- * The order is fixed and is never sorted, reversed or cycled by rank. A colour
+ * The order is fixed and is never sorted, reversed or cycled by rank. A color
  * belongs to a *series*, not to a position in a chart — so hiding series 2 must
- * leave series 3 the colour it already had, or the legend a reader just learned
- * becomes a lie. Every consumer resolves colour from the series' index in the
+ * leave series 3 the color it already had, or the legend a reader just learned
+ * becomes a lie. Every consumer resolves color from the series' index in the
  * caller's `series` array, which does not move when one is toggled off.
  */
 export const categoricalScale = [
@@ -66,12 +66,12 @@ export const categoricalScale = [
 export const categoricalCount = categoricalScale.length
 
 /**
- * The colour for series `index`.
+ * The color for series `index`.
  *
- * **Past the twelfth series this returns the placeholder grey, and that is the
- * intended answer rather than a shortfall.** Wrapping back to colour 01 would
+ * **Past the twelfth series this returns the placeholder gray, and that is the
+ * intended answer rather than a shortfall.** Wrapping back to color 01 would
  * hand two different series the same identity, which is worse than admitting
- * there is no colour left: the reader cannot tell them apart and, unlike a grey,
+ * there is no color left: the reader cannot tell them apart and, unlike a gray,
  * nothing signals that they should stop trying. Figma reaches the same
  * conclusion from the other end — its `Chart Legend` carries a `+X more` row for
  * precisely this case.
@@ -89,7 +89,7 @@ export function categorical(index: number): string {
  * The reference line a series is measured against — a target, last period, an
  * average. Deliberately chromaless in both themes, and pinned so it does *not*
  * follow the swappable neutral ramp: a benchmark should read as "not a series"
- * whatever the UI neutral is, and a tinted grey next to twelve hues reads as a
+ * whatever the UI neutral is, and a tinted gray next to twelve hues reads as a
  * thirteenth category. The root `CLAUDE.md` records these four as the only
  * `@Neutral/*` references left in the semantic layer, and keeping them that way
  * is the invariant.
@@ -107,7 +107,7 @@ export const placeholder = 'var(--data-viz-categorical-placeholder)'
  *
  * These are reserved: a chart that means "good / neutral / bad" uses them, and a
  * chart that means "product A / B / C" must not, however conveniently three
- * series map onto three colours. Reusing them makes a neutral series read as a
+ * series map onto three colors. Reusing them makes a neutral series read as a
  * verdict on itself.
  */
 export const sentiment = {
@@ -117,9 +117,9 @@ export const sentiment = {
 } as const
 
 /**
- * The border that separates a mark from its ground when its own colour cannot.
+ * The border that separates a mark from its ground when its own color cannot.
  *
- * Three of the twelve categorical colours fall short of 3:1 on the light canvas
+ * Three of the twelve categorical colors fall short of 3:1 on the light canvas
  * — `04` Yellow at 1.74:1, `03` Emerald at 2.25:1, `10` Green at 2.95:1. The
  * root `CLAUDE.md` records this as a known, accepted, parked state: **do not
  * "fix" it by changing a token.** This border is the sanctioned mitigation, and
@@ -137,7 +137,7 @@ export const accessibilityOverlay = 'var(--data-viz-utility-accessibility-overla
  *
  * **It used to be `gridline`, and that was too light to see.** A gridline is
  * scenery a reader is supposed to look past; a cursor is a thing they are
- * actively following, and reusing the quietest colour in the chart for the one
+ * actively following, and reusing the quietest color in the chart for the one
  * element that has to track the pointer had it disappearing over the data. The
  * two are one step apart in the token file and a world apart in what they are
  * for.
@@ -162,12 +162,12 @@ export const axisLine = 'var(--surface-border-emphasized)'
  *
  * A sequential ramp encodes **magnitude**, not identity: one hue, getting
  * darker as the value grows. It is what a heat map's cells and a continuous
- * legend are painted with, and it is never a source of categorical colours —
+ * legend are painted with, and it is never a source of categorical colors —
  * two steps of one hue differ only in lightness, which is the separator the
- * twelve categorical colours were specifically chosen not to depend on.
+ * twelve categorical colors were specifically chosen not to depend on.
  *
  * Three of them exist so a view can carry two or three magnitude scales at once
- * without either of them borrowing a series colour.
+ * without either of them borrowing a series color.
  */
 export const monoScales = {
   a: [

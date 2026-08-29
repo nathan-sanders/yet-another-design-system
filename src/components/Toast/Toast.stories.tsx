@@ -87,7 +87,7 @@ export const AllTypes: Story = {
 }
 
 /**
- * **The headline behaviour.** Fire a few and the toasts collapse into one stack:
+ * **The headline behavior.** Fire a few and the toasts collapse into one stack:
  * each card behind peeks out 12px and shrinks 5%, all of them clamped to the
  * frontmost card's height so the group reads as a single object. Hover it, or
  * tab into it, and the stack expands to every toast's real height and offset.
@@ -150,7 +150,7 @@ export const Stacking: Story = {
  * `position` is the only knob on the viewport, and everything else follows from
  * it rather than being a second setting that can disagree: which corner the
  * stack is pinned to, whether toasts grow up or down, which way they enter and
- * leave, and which way you can throw one to dismiss it. A centred stack only
+ * leave, and which way you can throw one to dismiss it. A centered stack only
  * swipes on the axis it arrived on, because it has no side to be thrown to.
  *
  * Not a Figma property — the file draws a card, never a viewport.

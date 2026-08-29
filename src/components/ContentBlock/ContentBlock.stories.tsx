@@ -67,7 +67,7 @@ export const Playground: Story = {
  * and `accent` are code-first, and exist because a bento view needs a way to say
  * which compartment matters most that is not just "make it bigger".
  *
- * Every colour here is a semantic token pair, so the whole grid works in dark
+ * Every color here is a semantic token pair, so the whole grid works in dark
  * mode with no `dark:` class anywhere — switch the Theme toolbar and nothing
  * below changes but the tokens.
  */
@@ -322,7 +322,7 @@ export const ActionsOnAccent: Story = {
  * Emphasis exists to be used sparingly: one accent block in a view, and the
  * eye goes there first. Three of them, and it goes nowhere.
  *
- * This story shows the working version — the anchor plus its neighbours, all at
+ * This story shows the working version — the anchor plus its neighbors, all at
  * the same size, so the only thing separating them is the surface. Vary the
  * sizes too and you have a bento layout; see `BentoGrid`.
  */

@@ -2,7 +2,7 @@
  * The polar charts' shared geometry — Donut, Gauge and Radar.
  *
  * These three are one family in Figma and one family here: they measure from a
- * centre outward rather than along an axis, so none of `axes.ts` applies to
+ * center outward rather than along an axis, so none of `axes.ts` applies to
  * them and all of the numbers below are theirs alone.
  *
  * Every value is read off the Figma file rather than chosen. The ring ratios in
@@ -14,7 +14,7 @@
  * Where a donut's hole starts, as a fraction of its outer radius.
  *
  * Figma's `_Donut / Slice Sweep` arc: `innerRadius: 0.72`. On a 256px donut that
- * is a 36px band — thick enough to carry a colour, thin enough that the eye
+ * is a 36px band — thick enough to carry a color, thin enough that the eye
  * compares arc *lengths* rather than areas, which is the only reason a donut is
  * more honest than a pie.
  */
@@ -46,17 +46,17 @@ export const DONUT_START_ANGLE = 90
 export const DONUT_END_ANGLE = -270
 
 /**
- * The surface-coloured stroke that separates one slice from the next.
+ * The surface-colored stroke that separates one slice from the next.
  *
  * Figma strokes every slice in `Surface/Background Primary` — the same
  * "let white do the separating" move as the stacked bar's gap and the solid
- * area's top edge. Three charts, one idea, and it is worth recognising: the
+ * area's top edge. Three charts, one idea, and it is worth recognizing: the
  * alternative is a border, which is ink that is not data.
  */
 export const SLICE_GAP = 2
 
 /**
- * The hover halo: a thin arc of the series colour sitting just outside the
+ * The hover halo: a thin arc of the series color sitting just outside the
  * slice you are pointing at.
  *
  * Figma builds it as a second ellipse at 268 against the donut's 256 with
@@ -122,14 +122,14 @@ export function donutRadius(plotWidth: number, height: number): number {
 }
 
 /**
- * A gauge's centre and radius.
+ * A gauge's center and radius.
  *
  * Two things Recharts cannot work out on its own. **The radius** is
  * `min(width / 2, height)` rather than `min(width, height) / 2`, because a half
  * circle needs `R` of height but `2R` of width — Recharts' rule is for a full
  * circle and leaves a gauge at roughly half the size it should be.
  *
- * **The centre** sits just above the bottom edge rather than on it. The arc's
+ * **The center** sits just above the bottom edge rather than on it. The arc's
  * flat ends are radial, so their separator stroke straddles the baseline and
  * half of it would fall outside the box.
  */

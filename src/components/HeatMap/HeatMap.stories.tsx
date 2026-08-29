@@ -31,7 +31,7 @@ type Story = StoryObj<typeof meta>
  *
  * That legend is `ChartLegend type="gradient"`, built in PR 1 and used here for
  * the first time — a continuous key for a continuous scale. Hover any cell for
- * its exact value; without that, a cell shows a colour and nothing else.
+ * its exact value; without that, a cell shows a color and nothing else.
  *
  * Note the empty cells. Figma draws nothing where there is no data, and so does
  * this: painting a missing value with the lightest step would claim a
@@ -43,7 +43,7 @@ export const Playground: Story = {}
  * The three sequential ramps.
  *
  * All three encode **magnitude** — one hue getting darker. The twelve
- * categorical colours would be wrong here whatever they looked like: they say
+ * categorical colors would be wrong here whatever they looked like: they say
  * two things are different *kinds*, and 9am and 10am are the same kind of thing
  * in different amounts.
  */

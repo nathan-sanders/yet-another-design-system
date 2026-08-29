@@ -31,7 +31,7 @@ Caught by the story suite, which is the bug axe is worth having for.
 Hover and Focus collapse to `data-highlighted:` plus the shared ring, exactly as in Menu.
 **The trigger has no vertical padding, deliberately.** Figma's `padding-block` of 2/4/8 around a
 20/24/24 line-height sums to 24/32/40 only because a Figma stroke does not add to a frame; a CSS
-border does, and would give 34 at the default size. Letting the line-height centre in a `min-h` box
+border does, and would give 34 at the default size. Letting the line-height center in a `min-h` box
 lands all three exactly — Input's fix. **24 / 32 / 40 are the numbers to check**, all measured.
 **A flat list gets the group's padding implicitly.** Figma hangs the popup's 8px on the *group's*
 items wrapper, because the header sits outside it — so an ungrouped list had its rows hard against
@@ -56,7 +56,7 @@ the switch and names `<Select.Trigger>` in its warning. Verified: the label focu
 leaves it closed, and the name still resolves through `aria-labelledby`. Combobox and Autocomplete
 will want the same.
 **No new tokens and no `generate.py` run** — `input-*`, `surface-*` and
-`feedback-danger-highlight` already existed. No third untokenised value.
+`feedback-danger-highlight` already existed. No third untokenized value.
 Left out: `Backdrop` and `Arrow` (Figma draws neither), `Select.Label` (Field owns the label),
 filtering (Base UI is explicit that Combobox is the answer), and Astryx's `hasClear`, `isLoading`,
 `hasSelectAll` and `statusVariant`, none of which are in the file.

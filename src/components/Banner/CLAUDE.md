@@ -20,12 +20,12 @@ keeps Banner stateless like everything else here. Astryx self-hides with interna
 that quietly returns on the next render is the worse surprise. The button is just
 `<Button appearance="overlay" size="small" startIcon={X} aria-label>` — overlay is the one
 appearance that works on all four feedback backgrounds, because its own background is a dark
-translucent wash rather than a theme colour. Its union prop type already requires the label.
+translucent wash rather than a theme color. Its union prop type already requires the label.
 **Naming trap, the mirror of Divider's.** `title` is a real DOM attribute on every element (the
 browser's hover tooltip), typed `string`, so `ComponentPropsWithRef<'div'>` has to be
 `Omit`ed to retype it as a ReactNode. Divider resolved the same collision the other way and
 renamed its prop to `lineStyle`; here the prop name is the right one, so the attribute gives way.
-**The icon rail's `py-1` is load-bearing:** 4px above a 16px glyph centres it on the 24px
+**The icon rail's `py-1` is load-bearing:** 4px above a 16px glyph centers it on the 24px
 line-height of the title beside it. Measured at exactly 0.0px offset; drop it and the glyph
 top-aligns and reads high.
 **Do not port Figma's `overflow-clip`** — nothing overflows, and it is SegmentedControl's

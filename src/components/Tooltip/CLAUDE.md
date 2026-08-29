@@ -1,8 +1,8 @@
 # Tooltip
 
 A short label describing the thing you are pointing at. Mirrors Figma node
-`40004073:20833`, which has **no variant set at all** — one look, no sizes, no colours, no arrow —
-so there is not a single `tv()` variant. Everything interesting is behaviour.
+`40004073:20833`, which has **no variant set at all** — one look, no sizes, no colors, no arrow —
+so there is not a single `tv()` variant. Everything interesting is behavior.
 Third Base UI component and the **first that portals**, so it sets the pattern every later overlay
 (Popover, Dialog, Select, Menu) will copy. Base UI supplies the lifecycle: hover/focus delays,
 `role="tooltip"`, `aria-describedby`, Escape, collision flipping, and holding the node in the DOM
@@ -13,7 +13,7 @@ wrapped in a Base UI `<button>`; Button, Avatar and Badge all work unchanged. `T
 (shared hover delay across a toolbar) and the raw `Root`/`Trigger`/`Portal`/`Positioner`/`Popup`
 are attached for controlled or externally-anchored tooltips.
 `side`/`align`/`sideOffset` are **not** Figma variants and deliberately not `tv()` variants —
-they are behaviour, and they go to the positioner, which is what makes collision flipping work.
+they are behavior, and they go to the positioner, which is what makes collision flipping work.
 **First component to use the motion tokens:** `duration-fast` + `ease-standard`, fading and
 scaling from `origin-(--transform-origin)` so it grows out of the edge nearest its trigger.
 `data-[instant]:duration-0` covers the cases where animating is wrong — keyboard focus, dismissal,

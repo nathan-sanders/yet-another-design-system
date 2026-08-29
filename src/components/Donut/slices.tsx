@@ -6,7 +6,7 @@ import { HALO_GAP, HALO_THICKNESS } from '../Chart'
 /**
  * The hovered-slice shape, shared by Donut and Gauge.
  *
- * Figma draws the hover state as a **halo**: a thin arc of the series colour
+ * Figma draws the hover state as a **halo**: a thin arc of the series color
  * sitting just outside the slice, 2px clear of the ring and 4px thick. The slice
  * itself does not change.
  *

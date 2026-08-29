@@ -50,7 +50,7 @@ const meta = {
   // component sets no typography on its panel (see its CLAUDE.md — what goes in
   // a panel is the caller's content), so without this the stories render panel
   // text at the browser's 16px next to a 14/24 trigger, which is a story
-  // artefact rather than the design. Triggers set their own `text-base`, so
+  // artifact rather than the design. Triggers set their own `text-base`, so
   // nothing inherits past them.
   decorators: [
     (Story) => (
@@ -177,7 +177,7 @@ export const WithIcons: Story = {
 }
 
 /**
- * By default opening one section closes the last — the single-open behaviour
+ * By default opening one section closes the last — the single-open behavior
  * Astryx recommends for an FAQ or a settings page, where the reader is looking
  * for one answer.
  *

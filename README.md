@@ -51,7 +51,7 @@ three JSON files into `tokens/` and run `python3 generate.py`.
 
 ### The rule for components
 
-Style with **semantic** tokens, never primitives or raw colour:
+Style with **semantic** tokens, never primitives or raw color:
 
 ```tsx
 // yes
@@ -63,7 +63,7 @@ Style with **semantic** tokens, never primitives or raw colour:
 
 ### Dark mode
 
-Add `class="dark"` to `<html>`. That's the whole mechanism. Because colour lives in the semantic
+Add `class="dark"` to `<html>`. That's the whole mechanism. Because color lives in the semantic
 layer, components **never** need a `dark:` variant — the token swaps itself.
 
 ### Neutral scales
@@ -75,7 +75,7 @@ Slate, Gray, Zinc and Neutral — and picking one is a single attribute:
 <html data-neutral="taupe">
 ```
 
-That changes every surface, border, text colour, button, input, focus ring, shadow and neutral badge
+That changes every surface, border, text color, button, input, focus ring, shadow and neutral badge
 at once, in both light and dark. Nothing else has to know.
 
 It works because the semantic layer never names a ramp. It goes through an eleven-step alias tier:
@@ -102,19 +102,19 @@ Two things worth knowing:
 Contrast is not automatic. The ramps differ slightly in lightness at the same step, so a pair that
 clears 4.5:1 on Stone is not guaranteed to on Olive. Check before shipping a non-default ramp.
 
-### Colour is OKLCH
+### Color is OKLCH
 
-Every colour ships as `oklch()`. Figma can only store hex, so the exported values are 8-bit
-roundings of colours that are really defined in OKLCH. Nearly every primitive here is a Tailwind
-palette colour, so `generate.py` reads the installed Tailwind and uses its canonical value:
+Every color ships as `oklch()`. Figma can only store hex, so the exported values are 8-bit
+roundings of colors that are really defined in OKLCH. Nearly every primitive here is a Tailwind
+palette color, so `generate.py` reads the installed Tailwind and uses its canonical value:
 
 ```css
 --color-red-500: oklch(63.7% 0.237 25.331);
 ```
 
-**Tailwind is the source of truth for colour primitives.** A primitive changed in Figma is ignored
-in favour of Tailwind's value — `generate.py` reports any such disagreement rather than discarding
-it silently. Colours that aren't Tailwind values belong in the semantic layer, which is entirely
+**Tailwind is the source of truth for color primitives.** A primitive changed in Figma is ignored
+in favor of Tailwind's value — `generate.py` reports any such disagreement rather than discarding
+it silently. Colors that aren't Tailwind values belong in the semantic layer, which is entirely
 Figma-driven.
 
 The four custom neutral ramps — **Taupe, Mauve, Mist and Olive** — are the exception: they have no
@@ -138,14 +138,14 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
 | **Combobox** | A list too long to scroll, filtered by typing; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled — a trigger with a searchable popup, or a tokenizer whose chosen values sit in front of the caret as `Token`s |
 | **ContentBlock** | A card owning one titled region of a page; composed header (title, icon, title slot, actions) + body, 3 emphases (default, subtle, accent) × flat/floating, heading level 2–6 |
-| **ContextMenu** | The same popup as Menu, opened by right-click or long press at the pointer — action, submenu, checkbox and radio items, destructive items and labelled groups. Base UI hands over Menu's own parts, so these are literally the same rows |
+| **ContextMenu** | The same popup as Menu, opened by right-click or long press at the pointer — action, submenu, checkbox and radio items, destructive items and labeled groups. Base UI hands over Menu's own parts, so these are literally the same rows |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, in a default or ghost appearance |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
-| **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labelled groups |
+| **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labeled groups |
 | **Radio** | Unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Radio.Group** | Vertical or horizontal set owning the value, the roving tabindex and the arrow keys |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
@@ -236,7 +236,7 @@ or a Radio (few enough to show at once); an `Autocomplete` looks like a Combobox
 one thing that matters, which is that it suggests without constraining — type something nobody
 thought of and the value stands.
 
-The text around a control belongs to `Field`, not to the control — so a labelled input is a `Field`
+The text around a control belongs to `Field`, not to the control — so a labeled input is a `Field`
 wrapping an `Input`, and the same `Field` works for a Checkbox or a group of Radios. It wires itself
 up: the label points at whatever is inside it, and the sub-label and validation message both land in
 `aria-describedby`, so they are read out rather than just seen. Passing `error` is enough to put the

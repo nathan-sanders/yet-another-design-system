@@ -12,7 +12,7 @@ import { cn } from '../../lib/cn'
  * Dashed) and `Emphasis` (Default | Emphasized) — are the three props here, and
  * its eight variants are the eight combinations. The line is 1px in all of them.
  *
- * Behaviour comes from **Base UI's `Separator`**, so the rendered element carries
+ * Behavior comes from **Base UI's `Separator`**, so the rendered element carries
  * `role="separator"` and `data-orientation` without us hand-writing ARIA. This is
  * the first Base UI primitive in the library; everything Base UI does not provide
  * — which here is all of the styling — is ours.
@@ -66,7 +66,7 @@ const divider = tv({
     },
   },
 
-  // Colour is set with a text utility above and picked up here as currentColor,
+  // Color is set with a text utility above and picked up here as currentColor,
   // so `emphasis` is a single class swap that works for solid and dashed alike.
   //
   // The dashes are a gradient rather than `border-dashed` on purpose. Figma's

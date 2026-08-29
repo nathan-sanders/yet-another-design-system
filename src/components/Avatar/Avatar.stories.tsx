@@ -96,7 +96,7 @@ export const Variants: Story = {
 
 /**
  * The Avatar Status set (node 40004102:5619). Three statuses, each with a shape
- * of its own rather than only a colour — a filled disc, a ring, and a disc with
+ * of its own rather than only a color — a filled disc, a ring, and a disc with
  * a bar through it — so the three are still distinguishable to anyone who cannot
  * separate green from red.
  *
@@ -187,7 +187,7 @@ export const Fallbacks: Story = {
  * photo rather than sitting outside it.
  *
  * An interactive avatar has no visible text, so `name` or `alt` is **required**
- * by the type. An unlabelled link or button will not compile.
+ * by the type. An unlabeled link or button will not compile.
  */
 export const Interactive: Story = {
   parameters: { controls: { disable: true } },

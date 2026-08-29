@@ -34,14 +34,14 @@ silent: the cell lays out one column wide and reads as a design mistake rather t
 `src/lib/focus.ts` carries the same warning, from the same cause.
 
 **No `auto-rows-fr`.** A dashboard's rows are genuinely different heights — a row of stat tiles over
-a row of charts — and equalising them stretches the short row to match the tall one. Rows stay
+a row of charts — and equalizing them stretches the short row to match the tall one. Rows stay
 content-sized; a `rowSpan` covers two of them plus the gutter between, which is what it should mean.
 Tiles within one row still end level, because `ContentBlock` is `h-full`.
 
 **A `colSpan` wider than the grid is not an error** — CSS clamps it to the full width. It is also not
 a feature: it looks like a bug. Keep spans at or under `columns`.
 
-**"Nine or fewer" stays guidance.** It is a judgement about a whole view, and a component that threw
+**"Nine or fewer" stays guidance.** It is a judgment about a whole view, and a component that threw
 on the tenth child would be wrong about it as often as it was right. It lives in the docs and in the
 `Dashboard` story, which uses seven.
 

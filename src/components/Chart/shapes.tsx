@@ -7,7 +7,7 @@ import type { ReactElement } from 'react'
  * once here and used at two very different sizes: **24px** inside a legend or
  * tooltip `Swatch`, and **8–9px** as a plot point on a line. Figma models these
  * as two separate component sets (`_Swatch`, `_Line Series / Plot Point`)
- * because a Figma component cannot be parameterised by a number; in code they
+ * because a Figma component cannot be parameterized by a number; in code they
  * are one function and a `size`.
  *
  * ## The nominal-12 space
@@ -35,7 +35,7 @@ import type { ReactElement } from 'react'
  * ## How an outline shape hides what is under it
  *
  * An outline marker is **not** a shape with no fill. It is filled with the
- * *surface* colour and stroked with the series colour, exactly as Figma draws it
+ * *surface* color and stroked with the series color, exactly as Figma draws it
  * — its outline variants each carry a `Background` layer beneath the ring. That
  * matters wherever markers overlap or a marker sits on its own line: an unfilled
  * ring would show the line straight through its middle and stop reading as a
@@ -80,16 +80,16 @@ export const chartMarkers: readonly ChartMarker[] = [
 /**
  * The default marker for series `index`.
  *
- * Markers cycle where colours do not, and the asymmetry is deliberate. A colour
+ * Markers cycle where colors do not, and the asymmetry is deliberate. A color
  * repeated across two visible series is ambiguous — that is why `categorical()`
- * stops at twelve. A *shape* repeated is not, because the colour is still
+ * stops at twelve. A *shape* repeated is not, because the color is still
  * telling them apart; the shape is a second channel, and a second channel that
- * runs out is still better than none. Eleven shapes against twelve colours means
+ * runs out is still better than none. Eleven shapes against twelve colors means
  * the pair only repeats at the twelfth series, by which point the chart has
  * bigger problems.
  *
  * Having a shape at all is the point: it is what keeps identity legible for a
- * reader who cannot separate two hues, and in greyscale print.
+ * reader who cannot separate two hues, and in grayscale print.
  */
 export function markerForIndex(index: number): ChartMarker {
   return chartMarkers[index % chartMarkers.length]
@@ -148,7 +148,7 @@ const HEXAGON: readonly (readonly [number, number])[] = [
 export interface MarkerShapeOptions {
   /** The shape to draw. */
   marker: ChartMarker
-  /** The series colour — a `var(--data-viz-…)` reference from `palette.ts`. */
+  /** The series color — a `var(--data-viz-…)` reference from `palette.ts`. */
   color: string
   /** The chart surface, which fills an outline shape so nothing shows through it. */
   surface: string
@@ -156,7 +156,7 @@ export interface MarkerShapeOptions {
   size: number
   /** Ring thickness for the outline shapes and the X. 2 in a swatch, 1.5 on a plot point. */
   strokeWidth: number
-  /** Centre of the shape, in the coordinate space of the `<svg>` it is placed in. */
+  /** Center of the shape, in the coordinate space of the `<svg>` it is placed in. */
   cx?: number
   cy?: number
   /**
@@ -168,7 +168,7 @@ export interface MarkerShapeOptions {
 }
 
 /**
- * One marker, as an SVG element centred on (`cx`, `cy`).
+ * One marker, as an SVG element centered on (`cx`, `cy`).
  *
  * Returns a bare shape with no wrapper, so the caller decides the coordinate
  * space — `Swatch` puts it in a 24×24 `<svg>`, and Recharts places it directly
@@ -187,8 +187,8 @@ export function markerShape({
   const scale = size / NOMINAL
   const outline = isOutlineMarker(marker)
 
-  // An outline shape is surface-filled and colour-stroked; a solid one is
-  // colour-filled with no stroke at all. Figma draws both exactly this way.
+  // An outline shape is surface-filled and color-stroked; a solid one is
+  // color-filled with no stroke at all. Figma draws both exactly this way.
   const paint = outline
     ? { fill: surface, stroke: color, strokeWidth }
     : { fill: color, stroke: 'none' as const }
@@ -254,7 +254,7 @@ export function markerShape({
 
     case 'x': {
       // The one shape that is a stroke rather than a region, so it takes the
-      // series colour on its stroke and has no fill to give the surface.
+      // series color on its stroke and has no fill to give the surface.
       const h = X_HALF * scale
       return (
         <path

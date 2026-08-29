@@ -30,7 +30,7 @@ landed** — which is the test of whether a catch-up was really a catch-up, the 
 Group passed.
 
 `generate.py` re-points it onto the neutral tier automatically, like the other seventeen raw alpha
-colours, so the key follows a swapped ramp instead of staying stone-tinted.
+colors, so the key follows a swapped ramp instead of staying stone-tinted.
 
 **Do not reach for a border instead.** Besides not being drawn, a CSS border adds height a Figma
 stroke does not — the trap Token already walked into, which needed `leading-4.5` to climb back out

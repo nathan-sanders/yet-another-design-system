@@ -38,7 +38,7 @@ import {
  * ground; this is a second, and it works for the same reason — it is the neutral
  * at 56%, which is exactly what a legible plate needs, and it **flips with the
  * theme** (`neutral-900` in light, `neutral-100` in dark) so `content-inverse`
- * is the right text colour in both.
+ * is the right text color in both.
  *
  * **Figma binds `Overlay/Text` for the metric line, and that token does not
  * exist** — no `Overlay/*` token is in any of `tokens/*.json`. `content-inverse`
@@ -47,10 +47,10 @@ import {
  *
  * ## Grouping
  *
- * Data is one level of nesting: a group, and its tiles. Colour belongs to the
- * **group**, so every tile in a group shares one hue and the twelve-colour scale
+ * Data is one level of nesting: a group, and its tiles. Color belongs to the
+ * **group**, so every tile in a group shares one hue and the twelve-color scale
  * counts groups rather than tiles — which is what lets a treemap show forty
- * rectangles without needing forty colours.
+ * rectangles without needing forty colors.
  */
 
 export interface TreeMapTile {
@@ -61,12 +61,12 @@ export interface TreeMapTile {
 }
 
 export interface TreeMapGroup extends ChartSeries {
-  /** The tiles in this group. They share the group's colour. */
+  /** The tiles in this group. They share the group's color. */
   tiles: readonly TreeMapTile[]
 }
 
 export interface TreeMapProps {
-  /** One entry per group, in a fixed order — colour comes from position here. */
+  /** One entry per group, in a fixed order — color comes from position here. */
   groups: readonly TreeMapGroup[]
   /** What the chart shows, as a sentence. Becomes its accessible name. */
   label: string
@@ -215,7 +215,7 @@ function makeTile({ showValues, formatValue }: TileOptions) {
               ry={PLATE_RADIUS}
               // Figma's plate: the accessibility overlay at its own 56%, which
               // flips with the theme, so `content-inverse` is the right text
-              // colour in both.
+              // color in both.
               fill={accessibilityOverlay}
             />
             <text
@@ -252,8 +252,8 @@ export function TreeMap({
   formatValue = formatFullNumber,
   className,
 }: TreeMapProps) {
-  // Colour belongs to the group, so the categorical scale counts groups. This is
-  // what lets a treemap show forty tiles without needing forty colours.
+  // Color belongs to the group, so the categorical scale counts groups. This is
+  // what lets a treemap show forty tiles without needing forty colors.
   const resolved = useMemo(() => resolveSeries(groups, 'colorSwatch'), [groups])
   const renderTile = useMemo(() => makeTile({ showValues, formatValue }), [showValues, formatValue])
 
@@ -316,7 +316,7 @@ export function TreeMap({
         // waits for a click, so a nested dataset came out as an empty chart with
         // a legend above it. `flat` renders the leaves, and the squarified
         // layout still solves the top level first and recurses into each group's
-        // rectangle, so groups stay contiguous and the colours read as regions
+        // rectangle, so groups stay contiguous and the colors read as regions
         // rather than confetti.
         type="flat"
         isAnimationActive={false}

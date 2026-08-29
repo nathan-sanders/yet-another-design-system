@@ -16,10 +16,10 @@ import { ChartSwatch } from './Swatch'
  *
  * It replaces Recharts' default entirely, through the `content` prop. That is
  * not cosmetic: the default renders its own inline-styled box, paints the
- * *label text* in the series colour — which several of the twelve hues cannot
+ * *label text* in the series color — which several of the twelve hues cannot
  * carry legibly — and has no idea the library has tokens.
  *
- * ## Why a tooltip at all, rather than labelling the points
+ * ## Why a tooltip at all, rather than labeling the points
  *
  * A number beside every point is unreadable at thirty-one points times three
  * series, and it is the single most common way a good chart is ruined. The axis
@@ -56,8 +56,8 @@ export interface ChartTooltipPayloadEntry {
   color?: string
   /**
    * The datum behind the entry. Recharts fills this in, and it is the only
-   * place a `TreeMap` tile's colour survives — a treemap has one `dataKey` for
-   * every tile, so `color` on the entry is the *series* colour and there is no
+   * place a `TreeMap` tile's color survives — a treemap has one `dataKey` for
+   * every tile, so `color` on the entry is the *series* color and there is no
    * series here to have one.
    */
   payload?: Record<string, unknown>
@@ -78,7 +78,7 @@ export interface ChartTooltipProps {
   series?: readonly ChartSeries[]
   /**
    * The swatch shape for an explicit `series`, matching `ChartContainer`'s prop
-   * of the same name. `HeatMap` passes `colorSwatch`: its marks are coloured
+   * of the same name. `HeatMap` passes `colorSwatch`: its marks are colored
    * cells, so a rule-and-marker key would describe a line that is not there.
    */
   swatch?: ChartSwatchShape
@@ -96,10 +96,10 @@ export interface ChartTooltipProps {
 }
 
 /**
- * The colour to draw an entry's swatch in.
+ * The color to draw an entry's swatch in.
  *
- * Recharts puts a series colour on the entry, but a chart whose *marks* carry
- * the colour — a treemap tile, a pie cell — has it on the datum instead. Look at
+ * Recharts puts a series color on the entry, but a chart whose *marks* carry
+ * the color — a treemap tile, a pie cell — has it on the datum instead. Look at
  * the datum first, since a chart that has both means the datum.
  */
 function pickColor(entry: ChartTooltipPayloadEntry): string | undefined {
@@ -142,11 +142,11 @@ export function ChartTooltip({
         series: seriesByKey(contextSeries, entry.dataKey) ?? {
           key: String(entry.dataKey),
           label: String(entry.name ?? entry.dataKey),
-          // A datum may carry its own colour, and for some charts it is the only
+          // A datum may carry its own color, and for some charts it is the only
           // one there is. `TreeMap` is the case: every tile shares one `dataKey`,
-          // so the entry's `color` is the series colour — of which a treemap has
+          // so the entry's `color` is the series color — of which a treemap has
           // none — and the fallback painted every swatch in `currentColor`,
-          // which is the text colour. Every tile's key came out black.
+          // which is the text color. Every tile's key came out black.
           color: pickColor(entry) ?? 'currentColor',
           swatchShape: 'colorSwatch' as const,
         },

@@ -83,7 +83,7 @@ component does. The cast picks the flat form.
 which is Select's and Menu's number; popup `rounded-lg` on the Medium elevation
 (`0 8px 16px` at 25%); positioner `z-40` from `overlayLayer`; `role="combobox"` +
 `aria-expanded` + `aria-controls` + `aria-autocomplete="list"` on the input, `role="listbox"` on the
-list, `role="option"` on the rows. And the behaviour itself: typed `sourdough starter`, blurred, and
+list, `role="option"` on the rows. And the behavior itself: typed `sourdough starter`, blurred, and
 the value stood.
 **`overflow-clip` is not ported** — eleventh time. Figma sets it on the menu, the group's items
 wrapper and the row; here it would slice the focus ring.

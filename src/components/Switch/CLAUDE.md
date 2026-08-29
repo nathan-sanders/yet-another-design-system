@@ -17,7 +17,7 @@ That is the file, not a rounding error, and it is built as drawn.
 **It is positioned from one origin.** `left: 2px` in both states with the travel done by
 `translate`, because `left` in one state and `right` in the other are different properties and
 the browser cannot transition between them — the knob would jump. `top-1/2 -translate-y-1/2`
-then recentres it for free as it grows, which lands both vertical insets without either number
+then recenters it for free as it grows, which lands both vertical insets without either number
 appearing in the source. The travel is **11px**: a 30px padding box, less the 1px right inset,
 less the 16px knob, less the 2px it starts at. Fifth component on the motion tokens —
 `duration-fast-min` + `ease-standard` for everything that moves, because 11px of travel reads as

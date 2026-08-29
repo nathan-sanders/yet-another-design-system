@@ -72,6 +72,24 @@ const preview: Preview = {
 
   parameters: {
     layout: 'fullscreen',
+    options: {
+      // Sidebar order. Storybook otherwise sorts by the order stories load,
+      // which is alphabetical by path — that would file the token layer under
+      // C, between Components and Data Viz. Foundations comes first because it
+      // is what every component is built out of: read it and the rest of the
+      // library stops looking like a pile of colors.
+      //
+      // Within Foundations the order is the tiers themselves, palette outward,
+      // rather than alphabetical.
+      storySort: {
+        order: [
+          'Foundations',
+          ['Overview', 'Color', 'Semantic Color', 'Typography', 'Space', 'Shape', 'Elevation', 'Motion'],
+          'Components',
+          'Data Viz',
+        ],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

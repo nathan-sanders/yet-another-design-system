@@ -15,7 +15,7 @@ import { box, control, type InputAppearance, type InputSize } from './styles'
  *     </Field>
  *
  * **The label belongs to `Field`, not here.** Figma's Field set nests this
- * component with its own `Label` boolean switched off, so a labelled field is a
+ * component with its own `Label` boolean switched off, so a labeled field is a
  * Field wrapping an Input rather than an Input drawing its own text. Standalone
  * it still needs a name — either a Field around it or an `aria-label`.
  *
