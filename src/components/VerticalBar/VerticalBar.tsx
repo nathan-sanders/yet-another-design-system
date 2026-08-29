@@ -12,7 +12,7 @@ import {
   chartGridProps,
   formatDateTick,
   formatFullNumber,
-  gridline,
+  cursorHighlight,
   inferXPreset,
   useChart,
   useVisibleSeries,
@@ -83,14 +83,14 @@ export interface VerticalBarProps {
    */
   showTotal?: boolean
   /**
-   * Outline every segment with `Data Viz/Utility/Accessibility Border`.
+   * Outline every segment with `Data Viz/Utility/Accessibility Overlay`.
    *
    * For a chart using one of the three categorical colours that fall short of
    * 3:1 on the light canvas — `04` yellow above all — where a large flat fill
    * can be hard to find against the surface. Off by default because Figma's own
    * examples do not draw it.
    */
-  accessibilityBorder?: boolean
+  accessibilityOverlay?: boolean
   /** Gridlines, 2–8. */
   yLines?: number
   legend?: 'horizontal' | 'vertical' | false
@@ -109,7 +109,7 @@ function VerticalBarPlot({
   xKey,
   stacked,
   showTotal,
-  accessibilityBorder,
+  accessibilityOverlay,
   yLines,
   preset,
   timeZone,
@@ -118,7 +118,7 @@ function VerticalBarPlot({
   xKey: string
   stacked: boolean
   showTotal: boolean
-  accessibilityBorder: boolean
+  accessibilityOverlay: boolean
   yLines: number
   preset: ChartXPreset
   timeZone: string
@@ -163,7 +163,11 @@ function VerticalBarPlot({
         // A band behind the whole category rather than a rule, because a bar
         // occupies width — a hairline down the middle of a 24px column looks
         // like it is pointing between two bars rather than at one.
-        cursor={{ fill: gridline, fillOpacity: 0.4 }}
+        //
+        // The accessibility overlay at a low opacity, not the gridline: see
+        // `cursorHighlight`. A band is larger than a rule, so it takes the
+        // colour down rather than up.
+        cursor={{ fill: cursorHighlight, fillOpacity: 0.24 }}
         isAnimationActive={false}
         wrapperStyle={chartTooltipWrapperStyle}
         content={
@@ -186,7 +190,7 @@ function VerticalBarPlot({
             // separate from, and so the only one that keeps its full height.
             isTop: !stacked || index === series.length - 1,
             gap: stacked ? BAR_SEGMENT_GAP : 0,
-            accessibilityBorder,
+            accessibilityOverlay,
           })}
         />
       ))}
@@ -202,7 +206,7 @@ export function VerticalBar({
   height = 280,
   stacked = false,
   showTotal,
-  accessibilityBorder = false,
+  accessibilityOverlay = false,
   yLines = 5,
   legend = 'horizontal',
   interactiveLegend = false,
@@ -231,7 +235,7 @@ export function VerticalBar({
         xKey={xKey}
         stacked={stacked}
         showTotal={showTotal ?? stacked}
-        accessibilityBorder={accessibilityBorder}
+        accessibilityOverlay={accessibilityOverlay}
         yLines={yLines}
         preset={preset}
         timeZone={timeZone}

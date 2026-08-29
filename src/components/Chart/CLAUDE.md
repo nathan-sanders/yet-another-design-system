@@ -59,7 +59,7 @@ is the exact thing the semantic layer was built to make unnecessary.
   beside it. Three of the twelve hues are illegible as text on the light canvas (yellow at 1.74:1 is
   the worst), and colouring text also removes the channel a low-colour-vision reader relies on.
 - **The three short-contrast hues are known and parked.** The root `CLAUDE.md` records them as
-  accepted. Do not "fix" them here; `accessibilityBorder` and the outline marker shapes are the
+  accepted. Do not "fix" them here; `accessibilityOverlay` and the outline marker shapes are the
   sanctioned mitigations.
 
 ## Stroke weights are read, never derived
@@ -247,6 +247,21 @@ The container already measures its width for the breakpoint, so it publishes it.
 a **semicircle cannot size itself from Recharts' rules**, which derive a pie's radius from
 `min(width, height) / 2`. That is right for a full circle and leaves a gauge at half the size it
 should be, because a half circle needs `R` of height but `2R` of width. See the Gauge record.
+
+## The hover cursor is the accessibility overlay, not a gridline
+
+The crosshair on a line or area chart, and the band behind a bar chart's category, both take
+`Data Viz/Utility/Accessibility Overlay` via `cursorHighlight`.
+
+**They used to take `gridline`, and it was too light to see.** The two tokens are one line apart in
+the file and a world apart in what they are for: a gridline is scenery a reader looks *past*, while a
+cursor is the one element they are actively following. Reusing the quietest colour in the chart for
+it had it vanishing over the data.
+
+The overlay token is the right home because a hover highlight has exactly the job it was made for —
+sitting over the data and staying visible against whatever is under it, in either theme, without
+being ink that competes with the marks. The band takes it at a lower opacity than the rule, because a
+band is larger.
 
 ## A chart that fills its box exactly has nowhere to draw its own decorations
 

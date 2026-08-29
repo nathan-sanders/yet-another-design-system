@@ -9,7 +9,7 @@ import {
   chartGridProps,
   formatDateTick,
   formatFullNumber,
-  gridline,
+  cursorHighlight,
   inferXPreset,
   surface,
   useChart,
@@ -158,7 +158,7 @@ function AreaSeriesPlot({
       <YAxis {...yAxisProps({ lines: yLines })} />
 
       <Tooltip
-        cursor={{ stroke: gridline, strokeWidth: 1 }}
+        cursor={{ stroke: cursorHighlight, strokeWidth: 1 }}
         isAnimationActive={false}
         wrapperStyle={chartTooltipWrapperStyle}
         content={<ChartTooltip formatLabel={(value) => formatDateTick(value, preset, undefined, timeZone)} />}

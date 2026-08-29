@@ -64,7 +64,7 @@ A bar occupies width. A hairline down the middle of a 24px column looks like it 
 two bars rather than at one, so the cursor is a translucent band covering the whole category. The
 line charts keep the rule, because there the mark is a point and a rule through it is exact.
 
-## `accessibilityBorder`
+## `accessibilityOverlay`
 
 Off by default, because Figma's own bar examples do not draw it. It exists for a chart using one of
 the three categorical colours that fall short of 3:1 on the light canvas — `04` yellow at 1.74:1

@@ -156,7 +156,7 @@ once.
 `Emerald/500` at 2.25:1, and `10` `Green/600` at 2.95:1 — the last effectively on the line. Yellow
 is the structural one; it needs roughly `Yellow/700` to clear 3:1 on `Stone/100`, which is a visibly
 different yellow. Nathan is aware and has parked it, so **do not quietly "fix" these** — they are a
-known, accepted state, and `Data Viz/Utility/Accessibility Border` is the mitigation for a mark that
+known, accepted state, and `Data Viz/Utility/Accessibility Overlay` is the mitigation for a mark that
 needs separating from its ground.
 
 The benchmark, alt and placeholder entries are the exception to all of it and still differ per mode

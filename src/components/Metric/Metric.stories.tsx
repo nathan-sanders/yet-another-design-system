@@ -151,7 +151,7 @@ export const WithSpark: Story = {
             <Spark
               data={dailyData(14)}
               dataKey="sessions"
-              type="area"
+              type="line"
               height={36}
               decorative
             />
@@ -165,7 +165,7 @@ export const WithSpark: Story = {
             <Spark
               data={dailyData(14)}
               dataKey="signups"
-              type="area"
+              type="line"
               color={sentiment.negative}
               height={36}
               decorative

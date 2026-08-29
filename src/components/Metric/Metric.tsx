@@ -55,6 +55,11 @@ export interface MetricProps extends Omit<ComponentPropsWithRef<'div'>, 'childre
    * `decorative`: the value and its trend are stated in text right here, so
    * announcing the shape as well would give a screen reader a vaguer second
    * version of a number it has just read.
+   *
+   * **Use `type="line"`, not `area`.** Beside a number the fill is the loudest
+   * thing in the card and it is carrying no information the line does not — the
+   * shape is the whole point, and a wash under it competes with the value for
+   * the eye. `area` earns its fill where a spark stands alone.
    */
   spark?: ReactNode
 }
@@ -70,7 +75,13 @@ export function Metric({
   ...props
 }: MetricProps) {
   return (
-    <div className={cn('flex min-w-0 items-center gap-6', className)} {...props}>
+    // `items-end`, not `items-center`.
+    //
+    // The spark's baseline is the **value's** baseline, not the block's centre.
+    // Centred, it floats between the label and the number and belongs to
+    // neither; sitting on the same line as the value and its badge, it reads as
+    // part of the same statement — this number, and how it got here.
+    <div className={cn('flex min-w-0 items-end gap-6', className)} {...props}>
       <div className="flex min-w-0 flex-col gap-1">
         <span className="text-content-subtle truncate text-base">{label}</span>
         <span className="flex items-center gap-2">

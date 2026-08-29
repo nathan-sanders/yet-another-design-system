@@ -719,7 +719,7 @@
   --data-viz-mono-c09: var(--color-pink-800);
   --data-viz-mono-c10: var(--color-pink-900);
   --data-viz-sentiment-positive: var(--color-green-500);
-  --data-viz-utility-accessibility-border: color-mix(in oklab, var(--neutral-900) 56%, transparent);
+  --data-viz-utility-accessibility-overlay: color-mix(in oklab, var(--neutral-900) 56%, transparent);
   --data-viz-sentiment-negative: var(--color-red-600);
   --data-viz-sentiment-neutral: var(--color-neutral-500);
 }
@@ -902,7 +902,7 @@
   --data-viz-mono-c09: var(--color-pink-100);
   --data-viz-mono-c10: var(--color-pink-50);
   --data-viz-sentiment-positive: var(--color-green-500);
-  --data-viz-utility-accessibility-border: color-mix(in oklab, var(--neutral-100) 56%, transparent);
+  --data-viz-utility-accessibility-overlay: color-mix(in oklab, var(--neutral-100) 56%, transparent);
   --data-viz-sentiment-negative: var(--color-red-600);
   --data-viz-sentiment-neutral: var(--color-neutral-500);
 }
@@ -1087,7 +1087,7 @@
   --color-data-viz-mono-c09: var(--data-viz-mono-c09);
   --color-data-viz-mono-c10: var(--data-viz-mono-c10);
   --color-data-viz-sentiment-positive: var(--data-viz-sentiment-positive);
-  --color-data-viz-utility-accessibility-border: var(--data-viz-utility-accessibility-border);
+  --color-data-viz-utility-accessibility-overlay: var(--data-viz-utility-accessibility-overlay);
   --color-data-viz-sentiment-negative: var(--data-viz-sentiment-negative);
   --color-data-viz-sentiment-neutral: var(--data-viz-sentiment-neutral);
 }

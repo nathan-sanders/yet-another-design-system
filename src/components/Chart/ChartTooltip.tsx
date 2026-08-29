@@ -54,6 +54,13 @@ export interface ChartTooltipPayloadEntry {
   name?: string | number
   value?: number | string
   color?: string
+  /**
+   * The datum behind the entry. Recharts fills this in, and it is the only
+   * place a `TreeMap` tile's colour survives — a treemap has one `dataKey` for
+   * every tile, so `color` on the entry is the *series* colour and there is no
+   * series here to have one.
+   */
+  payload?: Record<string, unknown>
 }
 
 export interface ChartTooltipProps {
@@ -86,6 +93,19 @@ export interface ChartTooltipProps {
    */
   showTotal?: boolean
   className?: string
+}
+
+/**
+ * The colour to draw an entry's swatch in.
+ *
+ * Recharts puts a series colour on the entry, but a chart whose *marks* carry
+ * the colour — a treemap tile, a pie cell — has it on the datum instead. Look at
+ * the datum first, since a chart that has both means the datum.
+ */
+function pickColor(entry: ChartTooltipPayloadEntry): string | undefined {
+  const fromDatum = entry.payload?.groupColor ?? entry.payload?.fill
+  if (typeof fromDatum === 'string') return fromDatum
+  return entry.color
 }
 
 export function ChartTooltip({
@@ -122,7 +142,12 @@ export function ChartTooltip({
         series: seriesByKey(contextSeries, entry.dataKey) ?? {
           key: String(entry.dataKey),
           label: String(entry.name ?? entry.dataKey),
-          color: entry.color ?? 'currentColor',
+          // A datum may carry its own colour, and for some charts it is the only
+          // one there is. `TreeMap` is the case: every tile shares one `dataKey`,
+          // so the entry's `color` is the series colour — of which a treemap has
+          // none — and the fallback painted every swatch in `currentColor`,
+          // which is the text colour. Every tile's key came out black.
+          color: pickColor(entry) ?? 'currentColor',
           swatchShape: 'colorSwatch' as const,
         },
         value: entry.value,

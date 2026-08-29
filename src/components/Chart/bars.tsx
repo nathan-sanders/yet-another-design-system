@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 
-import { accessibilityBorder as accessibilityBorderColor } from './palette'
+import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
 
 /**
  * The bar segment, drawn by hand because Recharts cannot draw Figma's.
@@ -95,7 +95,7 @@ export interface BarSegmentOptions {
    * examples do not draw it: it is for the chart that needs it, not for every
    * chart in case.
    */
-  accessibilityBorder?: boolean
+  accessibilityOverlay?: boolean
 }
 
 /**
@@ -109,7 +109,7 @@ export function barSegment({
   isTop = true,
   gap = 0,
   radius = BAR_RADIUS,
-  accessibilityBorder = false,
+  accessibilityOverlay = false,
 }: BarSegmentOptions = {}) {
   return function renderBarSegment(props: BarSegmentProps): ReactElement {
     const rawWidth = props.width ?? 0
@@ -141,8 +141,8 @@ export function barSegment({
         rx={r}
         ry={r}
         fill={props.fill}
-        stroke={accessibilityBorder ? accessibilityBorderColor : undefined}
-        strokeWidth={accessibilityBorder ? 1 : undefined}
+        stroke={accessibilityOverlay ? accessibilityOverlayColor : undefined}
+        strokeWidth={accessibilityOverlay ? 1 : undefined}
       />
     )
   }

@@ -176,7 +176,7 @@
 {"n":"Data Viz/Mono/C09","light":"@Pink/800","dark":"@Pink/100"},
 {"n":"Data Viz/Mono/C10","light":"@Pink/900","dark":"@Pink/50"},
 {"n":"Data Viz/Sentiment/Positive","light":"@Green/500","dark":"@Green/500"},
-{"n":"Data Viz/Utility/Accessibility Border","light":"#1b18168f","dark":"#f5f5f58f"},
+{"n":"Data Viz/Utility/Accessibility Overlay","light":"#1b18168f","dark":"#f5f5f58f"},
 {"n":"Data Viz/Sentiment/Negative","light":"@Red/600","dark":"@Red/600"},
 {"n":"Data Viz/Sentiment/Neutral","light":"@Neutral/500","dark":"@Neutral/500"}
 ]

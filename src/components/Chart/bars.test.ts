@@ -105,6 +105,6 @@ describe('barSegment', () => {
 
   it('only carries the accessibility border when asked', () => {
     expect(geometry(barSegment()(BAR)).stroke).toBeUndefined()
-    expect(geometry(barSegment({ accessibilityBorder: true })(BAR)).stroke).toContain('accessibility-border')
+    expect(geometry(barSegment({ accessibilityOverlay: true })(BAR)).stroke).toContain('accessibility-overlay')
   })
 })

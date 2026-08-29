@@ -39,7 +39,7 @@ export const Playground: Story = {}
  * Every other one keeps text outside the data, because several of the twelve
  * categorical hues are illegible underneath it. A treemap has nowhere else to
  * put a label, so Figma solves it with a **plate** — a translucent panel using
- * `Data Viz/Utility/Accessibility Border` at its own 56%.
+ * `Data Viz/Utility/Accessibility Overlay` at its own 56%.
  *
  * That token's first job is outlining a mark that cannot separate from its
  * ground. This is a second, and it works for the same reason: it is the neutral

@@ -162,13 +162,13 @@ export const Everything: Story = {
               label="Total sessions"
               value="12,480"
               trend={8}
-              spark={<Spark data={dailyData(14)} dataKey="sessions" type="area" height={32} decorative />}
+              spark={<Spark data={dailyData(14)} dataKey="sessions" type="line" height={32} decorative />}
             />
             <MetricCard
               label="Signups"
               value="3,204"
               trend={12}
-              spark={<Spark data={dailyData(14)} dataKey="signups" type="area" height={32} decorative />}
+              spark={<Spark data={dailyData(14)} dataKey="signups" type="line" height={32} decorative />}
             />
             <MetricCard
               label="Conversion"
