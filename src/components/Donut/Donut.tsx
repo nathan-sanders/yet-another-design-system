@@ -10,8 +10,10 @@ import {
   DONUT_INNER_RATIO,
   DONUT_START_ANGLE,
   SLICE_GAP,
+  donutRadius,
   formatFullNumber,
   surface,
+  useChart,
   useVisibleSeries,
 } from '../Chart'
 import { activeSliceShape } from './slices'
@@ -85,12 +87,20 @@ function DonutPlot({
   data,
   nameKey,
   valueKey,
+  height,
 }: {
   data: readonly Record<string, unknown>[]
   nameKey: string
   valueKey: string
+  height: number
 }) {
   const visible = useVisibleSeries()
+  const plotWidth = useChart()?.plotWidth ?? 0
+
+  // Sized to leave the halo somewhere to go. At `100%` the ring reaches the edge
+  // of the SVG and the hover halo — which is drawn *outside* it — is cut off top
+  // and bottom. See `POLAR_MARGIN`.
+  const outerRadius = donutRadius(plotWidth, height)
 
   // Keep only the rows whose slice is still switched on, and keep them in the
   // caller's order so the ring does not re-sort itself as slices are toggled.
@@ -116,8 +126,8 @@ function DonutPlot({
         data={rows as Record<string, unknown>[]}
         dataKey={valueKey}
         nameKey={nameKey}
-        innerRadius={`${DONUT_INNER_RATIO * 100}%`}
-        outerRadius="100%"
+        innerRadius={outerRadius > 0 ? outerRadius * DONUT_INNER_RATIO : `${DONUT_INNER_RATIO * 90}%`}
+        outerRadius={outerRadius > 0 ? outerRadius : '90%'}
         startAngle={DONUT_START_ANGLE}
         endAngle={DONUT_END_ANGLE}
         // The separator is surface-coloured rather than a gap in the geometry,
@@ -188,7 +198,7 @@ export function Donut({
       overlay={center ? <DonutCenter>{center}</DonutCenter> : undefined}
       header={legend === false ? undefined : <ChartLegend type={legend} />}
     >
-      <DonutPlot data={data} nameKey={nameKey} valueKey={valueKey} />
+      <DonutPlot data={data} nameKey={nameKey} valueKey={valueKey} height={height} />
     </ChartContainer>
   )
 }

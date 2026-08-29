@@ -91,3 +91,52 @@ export const RADAR_STROKE_WIDTH = 2
  * five rings, evenly stepped by 40.
  */
 export const RADAR_RINGS = 5
+
+/**
+ * Room to leave outside the ring, in px.
+ *
+ * **The halo is drawn outside the slice, so a chart sized to fill its box has
+ * nowhere to put it** — the arc reaches the edge of the SVG and the halo is
+ * simply cut off, top and bottom. That was the bug: a donut looked correct until
+ * you hovered it, and a gauge's apex was clipped even at rest, because the
+ * separator stroke straddles the outer edge and half of it fell outside too.
+ *
+ * `HALO_GAP + HALO_THICKNESS` is what the halo needs; half of `SLICE_GAP` is
+ * what the stroke needs; the last pixel is slack, because Recharts rounds and a
+ * chart clipped by a fraction of a pixel is the same bug at a size nobody can
+ * see but everybody notices.
+ */
+export const POLAR_MARGIN = HALO_GAP + HALO_THICKNESS + SLICE_GAP / 2 + 1
+
+/**
+ * A donut's outer radius: half the smaller dimension, less the room the halo
+ * needs.
+ *
+ * Returns 0 when it has not been measured yet or the box is too small to draw
+ * in — the caller falls back to a percentage rather than passing a negative
+ * radius, which Recharts renders as an empty chart.
+ */
+export function donutRadius(plotWidth: number, height: number): number {
+  if (plotWidth <= 0 || height <= 0) return 0
+  return Math.max(0, Math.min(plotWidth, height) / 2 - POLAR_MARGIN)
+}
+
+/**
+ * A gauge's centre and radius.
+ *
+ * Two things Recharts cannot work out on its own. **The radius** is
+ * `min(width / 2, height)` rather than `min(width, height) / 2`, because a half
+ * circle needs `R` of height but `2R` of width — Recharts' rule is for a full
+ * circle and leaves a gauge at roughly half the size it should be.
+ *
+ * **The centre** sits just above the bottom edge rather than on it. The arc's
+ * flat ends are radial, so their separator stroke straddles the baseline and
+ * half of it would fall outside the box.
+ */
+export function gaugeGeometry(plotWidth: number, height: number): { cy: number; outerRadius: number } {
+  if (plotWidth <= 0 || height <= 0) return { cy: 0, outerRadius: 0 }
+
+  const cy = height - SLICE_GAP
+  const outerRadius = Math.max(0, Math.min(plotWidth / 2 - POLAR_MARGIN, cy - POLAR_MARGIN))
+  return { cy, outerRadius }
+}

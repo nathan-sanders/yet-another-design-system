@@ -26,6 +26,9 @@ export {
   RADAR_STROKE_OPACITY,
   RADAR_STROKE_WIDTH,
   RADAR_RINGS,
+  POLAR_MARGIN,
+  donutRadius,
+  gaugeGeometry,
 } from './polar'
 export type { BarSegmentOptions, BarSegmentProps } from './bars'
 
