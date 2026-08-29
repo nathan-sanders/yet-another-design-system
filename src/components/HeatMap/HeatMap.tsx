@@ -128,8 +128,15 @@ export function HeatMap({
       <thead>
         <tr>
           <td />
-          {columns.map((column) => (
-            <th key={column} scope="col">
+          {/*
+            Keyed by position, not by label, everywhere below. A heat map's axes
+            are positional and its labels are display text with no obligation to
+            be unique — a day-by-hour map runs 12AM, 1, 2 … 11, 12PM, 1, 2 … 11,
+            so every hour but noon and midnight appears twice. Nothing here ever
+            reorders, so the index *is* the identity.
+          */}
+          {columns.map((column, c) => (
+            <th key={c} scope="col">
               {column}
             </th>
           ))}
@@ -137,11 +144,11 @@ export function HeatMap({
       </thead>
       <tbody>
         {rows.map((row, r) => (
-          <tr key={row}>
+          <tr key={r}>
             <th scope="row">{row}</th>
-            {columns.map((column, c) => {
+            {columns.map((_column, c) => {
               const value = values[r]?.[c]
-              return <td key={column}>{value === null || value === undefined ? 'No data' : formatValue(value)}</td>
+              return <td key={c}>{value === null || value === undefined ? 'No data' : formatValue(value)}</td>
             })}
           </tr>
         ))}
@@ -174,9 +181,9 @@ export function HeatMap({
           style={{ gap: CELL_GAP }}
           aria-hidden="true"
         >
-          {rows.map((row) => (
+          {rows.map((row, r) => (
             <span
-              key={row}
+              key={r}
               className="text-content-subtle flex items-center justify-end font-mono text-sm"
               style={{ height: cellHeight }}
             >
@@ -194,14 +201,14 @@ export function HeatMap({
             }}
             onMouseLeave={() => setHover(null)}
           >
-            {rows.map((row, r) =>
-              columns.map((column, c) => {
+            {rows.map((_row, r) =>
+              columns.map((_column, c) => {
                 const value = values[r]?.[c] ?? null
                 const color = colorFor(value)
 
                 return (
                   <div
-                    key={`${row}-${column}`}
+                    key={`${r}-${c}`}
                     className={cn(CELL_RADIUS, 'min-w-0')}
                     style={{ height: cellHeight, background: color ?? 'transparent' }}
                     onMouseEnter={(event) => {
@@ -243,8 +250,8 @@ export function HeatMap({
             style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))`, gap: CELL_GAP }}
             aria-hidden="true"
           >
-            {columns.map((column) => (
-              <span key={column} className="text-content-subtle truncate text-center font-mono text-sm">
+            {columns.map((column, c) => (
+              <span key={c} className="text-content-subtle truncate text-center font-mono text-sm">
                 {column}
               </span>
             ))}
