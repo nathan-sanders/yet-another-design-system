@@ -79,10 +79,14 @@ const preview: Preview = {
       // is what every component is built out of: read it and the rest of the
       // library stops looking like a pile of colors.
       //
+      // Introduction sits above even that: it is the one page that says what the
+      // library is before any page explains how a part of it works.
+      //
       // Within Foundations the order is the tiers themselves, palette outward,
       // rather than alphabetical.
       storySort: {
         order: [
+          'Introduction',
           'Foundations',
           ['Overview', 'Color', 'Semantic Color', 'Typography', 'Space', 'Shape', 'Elevation', 'Motion'],
           'Components',
