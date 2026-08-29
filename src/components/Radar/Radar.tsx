@@ -11,6 +11,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  chartTooltipWrapperStyle,
   RADAR_FILL_OPACITY,
   RADAR_RINGS,
   RADAR_STROKE_OPACITY,
@@ -140,11 +141,7 @@ function RadarPlot({
 
       <Tooltip
         isAnimationActive={false}
-        wrapperStyle={{
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--transition-duration-fast)',
-          transitionTimingFunction: 'var(--ease-standard)',
-        }}
+        wrapperStyle={chartTooltipWrapperStyle}
         content={<ChartTooltip />}
       />
 

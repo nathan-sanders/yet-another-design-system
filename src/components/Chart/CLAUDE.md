@@ -120,6 +120,33 @@ back through `wrapperStyle` referencing the tokens as custom properties.
 **`wrapperClassName` is a trap:** Recharts puts it on `DefaultTooltipContent`, not on `Tooltip`.
 Passing it to `Tooltip` type-checks and does nothing at all. Use `wrapperStyle`.
 
+All of that lives in **one object**, `chartTooltipWrapperStyle` in `styles.ts`, used by all six
+charts — it was copied inline into each of them first, which is six places to fix the next time
+Recharts changes its mind. It sits in `styles.ts` rather than beside the component because a module
+exporting both a component and a constant breaks Fast Refresh.
+
+## The tooltip stacks above the chart's own overlay
+
+That same object carries `zIndex: 10`. A donut's total and a gauge's figure go through
+`ChartContainer`'s `overlay`, which is a **sibling after** the plot — so by document order it painted
+*on top of* the tooltip, and hovering a slice put the tooltip behind the number in the middle.
+
+It is deliberately **not** `overlayLayer` from `src/lib/layers.ts`. That constant is for popups
+portalled to `<body>`, which have to out-rank arbitrary page content; this tooltip is a child of the
+chart and only ever competes with the chart's own overlay. Borrowing the portal layer would put a
+chart tooltip above a Toast.
+
+## Tooltip values are `text-base`, not `text-sm`
+
+Figma binds `text-base/mono regular` for a value against `text-base/normal` for its label, and
+`text-base/mono bold` for the Total. **The difference between a value and its label is the face, not
+the size.**
+
+They shipped at 12px first, from a real misreading worth recording: `text-sm/mono regular` is the
+**axis tick** style, where 12px is right because a tick is chrome. A tooltip value is the number the
+reader came for, and shrinking it below its own label inverts the card's hierarchy. When a mono style
+turns up in `get_variable_defs` output, check *which* node it was bound to.
+
 ## `ResponsiveContainer` renders nothing at zero width
 
 Not a small chart — an empty one, which looks exactly like a broken component. `height` is therefore

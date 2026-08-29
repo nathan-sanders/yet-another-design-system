@@ -5,6 +5,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  chartTooltipWrapperStyle,
   GAUGE_END_ANGLE,
   GAUGE_INNER_RATIO,
   GAUGE_START_ANGLE,
@@ -93,11 +94,7 @@ function GaugePlot({
     <PieChart accessibilityLayer>
       <Tooltip
         isAnimationActive={false}
-        wrapperStyle={{
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--transition-duration-fast)',
-          transitionTimingFunction: 'var(--ease-standard)',
-        }}
+        wrapperStyle={chartTooltipWrapperStyle}
         content={<ChartTooltip />}
       />
       <Pie

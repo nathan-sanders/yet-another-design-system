@@ -7,6 +7,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  chartTooltipWrapperStyle,
   barSegment,
   chartGridProps,
   formatDateTick,
@@ -164,11 +165,7 @@ function VerticalBarPlot({
         // like it is pointing between two bars rather than at one.
         cursor={{ fill: gridline, fillOpacity: 0.4 }}
         isAnimationActive={false}
-        wrapperStyle={{
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--transition-duration-fast)',
-          transitionTimingFunction: 'var(--ease-standard)',
-        }}
+        wrapperStyle={chartTooltipWrapperStyle}
         content={
           <ChartTooltip showTotal={showTotal} formatLabel={(value) => formatDateTick(value, preset, undefined, timeZone)} />
         }

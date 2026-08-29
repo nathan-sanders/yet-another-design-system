@@ -6,6 +6,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  chartTooltipWrapperStyle,
   DONUT_END_ANGLE,
   DONUT_INNER_RATIO,
   DONUT_START_ANGLE,
@@ -115,11 +116,7 @@ function DonutPlot({
     <PieChart accessibilityLayer>
       <Tooltip
         isAnimationActive={false}
-        wrapperStyle={{
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--transition-duration-fast)',
-          transitionTimingFunction: 'var(--ease-standard)',
-        }}
+        wrapperStyle={chartTooltipWrapperStyle}
         content={<ChartTooltip />}
       />
       <Pie

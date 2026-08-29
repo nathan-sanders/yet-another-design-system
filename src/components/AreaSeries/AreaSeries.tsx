@@ -5,6 +5,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  chartTooltipWrapperStyle,
   chartGridProps,
   formatDateTick,
   formatFullNumber,
@@ -159,11 +160,7 @@ function AreaSeriesPlot({
       <Tooltip
         cursor={{ stroke: gridline, strokeWidth: 1 }}
         isAnimationActive={false}
-        wrapperStyle={{
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--transition-duration-fast)',
-          transitionTimingFunction: 'var(--ease-standard)',
-        }}
+        wrapperStyle={chartTooltipWrapperStyle}
         content={<ChartTooltip formatLabel={(value) => formatDateTick(value, preset, undefined, timeZone)} />}
       />
 
