@@ -17,6 +17,7 @@ import {
   RADAR_STROKE_OPACITY,
   RADAR_STROKE_WIDTH,
   axisLine,
+  surface,
   formatFullNumber,
   gridline,
   useVisibleSeries,
@@ -90,6 +91,57 @@ export interface RadarProps {
   className?: string
 }
 
+/**
+ * One number on the radius scale.
+ *
+ * A custom renderer rather than a `tick` props object, for one reason:
+ * **Recharts rotates each tick to follow the ray**, applying `rotate(36, …)`
+ * here, and a props object cannot override a transform the axis sets itself.
+ * Rendering the `<text>` and simply not applying that transform leaves the
+ * numbers horizontal.
+ *
+ * Horizontal is a deliberate departure from Figma, which rotates them -90°.
+ * Both Figma's quarter-turn and Recharts' slant ask the reader to tilt their
+ * head to read a number that exists to be read, and at 12px over a mottled
+ * background that is the difference between a scale and a decoration.
+ *
+ * The surface-coloured stroke is a halo: `paint-order: stroke` puts the stroke
+ * *under* the fill, so 3px reads as a 1.5px outline of canvas around each glyph
+ * rather than a smear over it. Same idea as the stacked bar's gap, the solid
+ * area's top edge and the donut's slice separator — the surface colour does the
+ * separating, so it follows the theme for free.
+ */
+interface ScaleTickProps {
+  x?: number
+  y?: number
+  index?: number
+  payload?: { value?: unknown }
+}
+
+function scaleTick(rawProps: unknown) {
+  // Recharts types its tick renderer against an internal payload carrying far
+  // more than the four fields this reads. Narrowing here keeps the renderer
+  // honest about what it actually uses, the same way `activeSliceShape` does.
+  const props = rawProps as ScaleTickProps
+
+  return (
+    <text
+      key={props.index}
+      x={props.x}
+      y={props.y}
+      textAnchor="middle"
+      dominantBaseline="middle"
+      className="fill-content-subtle font-mono text-sm tabular-nums"
+      stroke={surface}
+      strokeWidth={3}
+      strokeLinejoin="round"
+      style={{ paintOrder: 'stroke' }}
+    >
+      {String(props.payload?.value ?? '')}
+    </text>
+  )
+}
+
 function RadarPlot({
   data,
   axisKey,
@@ -102,7 +154,23 @@ function RadarPlot({
   const series = useVisibleSeries()
 
   return (
-    <RadarChart data={data as Record<string, unknown>[]} accessibilityLayer outerRadius="80%">
+    <RadarChart
+      data={data as Record<string, unknown>[]}
+      accessibilityLayer
+      /*
+        70%, not 80%, and with margins — because the dimension labels sit
+        *outside* the polygon and Recharts does not reserve room for them.
+
+        Mono is a wider face than sans at the same size, so switching the labels
+        to Geist Mono to match every other axis in the library immediately pushed
+        "Efficiency" and "Reliability" off both edges. Shrinking the polygon is
+        the fix rather than shrinking the type: the labels are the part a reader
+        needs at a legible size, and a radar's shape survives being smaller
+        perfectly well.
+      */
+      outerRadius="70%"
+      margin={{ top: 8, right: 16, bottom: 8, left: 16 }}
+    >
       {/* The inner rings and the spokes. */}
       <PolarGrid gridType="polygon" stroke={gridline} strokeWidth={1} />
 
@@ -115,28 +183,11 @@ function RadarPlot({
         dataKey={axisKey}
         axisLineType="polygon"
         axisLine={{ stroke: axisLine, strokeWidth: 1 }}
-        tick={{ className: 'fill-content-subtle font-sans text-sm' }}
-      />
-
-      {/*
-        Always rendered, even when the scale is hidden. `PolarGrid` takes its
-        ring radii from the radius axis, so this is what pins the count at
-        Figma's five — leaving it out lets Recharts choose, and the grid quietly
-        stops matching the file. `tick={false}` hides the numbers without
-        removing the thing the rings are derived from.
-      */}
-      <PolarRadiusAxis
-        /*
-          Between two spokes, not along one.
-          Recharts puts the first vertex at 90°, so a scale at 90° runs straight
-          through the topmost axis label — which is exactly what it did, stacking
-          "Speed" on top of the numbers. Half a segment round from there is the
-          widest gap available whatever the point count.
-        */
-        angle={90 - 180 / Math.max(1, data.length)}
-        tickCount={RADAR_RINGS}
-        axisLine={false}
-        tick={showScale ? { className: 'fill-content-subtle font-mono text-sm tabular-nums' } : false}
+        // Mono, like every other axis label in the library. A dimension name is
+        // an axis tick, and the cartesian charts set the precedent: ticks are
+        // 12px Geist Mono in `content-subtle`, because they are chrome and
+        // because mono keeps a column of them optically even.
+        tick={{ className: 'fill-content-subtle font-mono text-sm' }}
       />
 
       <Tooltip
@@ -159,6 +210,39 @@ function RadarPlot({
           dot={false}
         />
       ))}
+
+      {/*
+        Declared **after** the areas, so it paints on top of them.
+
+        Recharts paints in element order, and this was above the `<Radar>`
+        elements — so the numbers sat underneath three translucent fills and
+        whatever muddy colour they composited into. A scale a reader cannot read
+        is worse than no scale, because it still spends the space.
+
+        Chrome normally belongs under the data, and the grid still does. Axis
+        *text* is the exception: it has to stay legible whatever the data does,
+        and a radar is the one chart here whose marks cover the middle where its
+        own scale lives.
+
+        Always rendered, even when the scale is hidden: `PolarGrid` takes its
+        ring radii from the radius axis, so this element is what pins the count
+        at Figma's five. Leave it out and Recharts picks its own and the grid
+        quietly stops matching the file. `tick={false}` hides the numbers without
+        removing the thing the rings are derived from.
+      */}
+      <PolarRadiusAxis
+        /*
+          Between two spokes, not along one. Recharts puts the first vertex at
+          90°, so a scale at 90° runs straight through the topmost axis label —
+          which is exactly what it did, stacking "Speed" on top of the numbers.
+          Half a segment round is the widest gap available whatever the point
+          count.
+        */
+        angle={90 - 180 / Math.max(1, data.length)}
+        tickCount={RADAR_RINGS}
+        axisLine={false}
+        tick={showScale ? scaleTick : false}
+      />
     </RadarChart>
   )
 }
