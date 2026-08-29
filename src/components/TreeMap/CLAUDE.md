@@ -35,7 +35,7 @@ names three things above eleven tiles.
 
 Every other chart here keeps text outside the data, because several of the twelve categorical hues
 are illegible underneath it. A treemap has nowhere else to put a label, and Figma solves it with a
-**plate**: a translucent panel behind the text using `Data Viz/Utility/Accessibility Border` at its
+**plate**: a translucent panel behind the text using `Data Viz/Utility/Accessibility Overlay` at its
 own 56%.
 
 That token's first job is outlining a mark that cannot separate from its ground. This is a second,
@@ -46,6 +46,23 @@ the right text colour in both. Verified in dark, where the plates invert to ligh
 **Figma binds `Overlay/Text` for the metric line, and that token does not exist** — no `Overlay/*`
 token is in any of `tokens/*.json`. `content-inverse` stands in and is correct in both themes. The
 gap is in the file, not here.
+
+## The value goes *inside* the plate
+
+The plate grows to hold both lines — label above, value below — and its width is the wider of the
+two. The value was drawn *under* the plate at first, straight onto the tile, which put 10px text on a
+saturated categorical fill: exactly what the plate exists to prevent, and it read as a caption that
+had fallen off its label.
+
+## The tooltip swatch comes from the datum, not the entry
+
+Recharts puts a *series* colour on a tooltip entry, and a treemap has no series — every tile shares
+one `dataKey`. So the entry's `color` is undefined and the fallback painted every swatch in
+`currentColor`, which is the text colour: **every tile's key came out black.**
+
+`ChartTooltip` now reads `payload.groupColor` (then `payload.fill`) before falling back to the
+entry's colour. Worth knowing generally: a chart whose *marks* carry the colour rather than its
+series will hit this, and a pie is the other one.
 
 ## A label that will not fit is dropped, not narrowed
 

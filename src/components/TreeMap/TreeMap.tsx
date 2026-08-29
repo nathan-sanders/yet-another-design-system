@@ -5,7 +5,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
-  accessibilityBorder,
+  accessibilityOverlay,
   chartTooltipWrapperStyle,
   formatFullNumber,
   resolveSeries,
@@ -32,7 +32,7 @@ import {
  * legends, tooltips — for the reason the shared record gives: several of the
  * twelve categorical hues are illegible under text. A treemap has nowhere else
  * to put a label, so Figma solves it with a **plate**: a translucent dark panel
- * behind the text, using `Data Viz/Utility/Accessibility Border` at its own 56%.
+ * behind the text, using `Data Viz/Utility/Accessibility Overlay` at its own 56%.
  *
  * That token's first job is outlining a mark that cannot separate from its
  * ground; this is a second, and it works for the same reason — it is the neutral
@@ -81,17 +81,19 @@ export interface TreeMapProps {
 /** Figma: `_Tree Map / Data Group` corner radius, and the gap between tiles. */
 const TILE_RADIUS = 4
 const TILE_GAP = 8
-/** Figma: the label plate's radius, padding and resulting height (2 + 20 + 2). */
+/** Figma: the label plate's radius and padding. */
 const PLATE_RADIUS = 6
 const PLATE_PAD_X = 8
 const PLATE_PAD_Y = 2
-const PLATE_LINE = 20
-const PLATE_HEIGHT = PLATE_LINE + PLATE_PAD_Y * 2
+/** Line heights inside the plate, and the width of one character at each size. */
+const LABEL_LINE = 20
+const VALUE_LINE = 16
+const LABEL_CHAR = 7.2
+const VALUE_CHAR = 6
 /** Figma: 8px inset from the tile's edge. */
 const TILE_PAD = 8
 /** Below this a tile cannot hold a plate without the plate becoming the tile. */
 const MIN_LABEL_WIDTH = 56
-const MIN_LABEL_HEIGHT = 32
 
 interface TileProps {
   x?: number
@@ -151,22 +153,34 @@ function makeTile({ showValues, formatValue }: TileOptions) {
     const radius = Math.min(TILE_RADIUS, w / 2, h / 2)
     const label = props.name ?? ''
 
-    // Roughly 7.2px a character at 12px mono, plus the plate's padding — mono is
-    // the one face where a width can be counted rather than measured, which is
-    // what makes this possible in an SVG with no layout engine.
-    //
-    // **The plate is never narrowed to fit; the label is dropped instead.**
-    // Clamping the plate to the tile leaves the *text* spilling over the edge,
-    // because SVG text does not wrap or clip to its box — which is exactly what
-    // happened, and "Retarget" hung off its tile into the next one. A label
-    // clipped by its own tile is worse than no label, and the value is still in
-    // the tooltip and the table either way.
-    const plateWidth = label.length * 7.2 + PLATE_PAD_X * 2
-    const roomForLabel =
-      w >= MIN_LABEL_WIDTH && h >= MIN_LABEL_HEIGHT && plateWidth <= w - TILE_PAD * 2
+    // Roughly 7.2px a character at 12px mono, and 6px at 10px — mono is the one
+    // face whose width can be counted rather than measured, which is what makes
+    // this possible in an SVG with no layout engine.
+    const value = typeof props.value === 'number' ? formatValue(props.value) : ''
+    const wantsValue = showValues && value !== ''
 
-    const showValue =
-      showValues && roomForLabel && typeof props.value === 'number' && h >= MIN_LABEL_HEIGHT + PLATE_LINE
+    const labelWidth = label.length * LABEL_CHAR
+    const valueWidth = value.length * VALUE_CHAR
+
+    // **The plate grows to hold the value; the value never sits outside it.**
+    // It used to be drawn under the plate, straight onto the tile — which put
+    // 10px text on a saturated categorical fill, exactly the thing the plate
+    // exists to prevent, and it read as a caption that had fallen off.
+    const plateWidth = Math.max(labelWidth, wantsValue ? valueWidth : 0) + PLATE_PAD_X * 2
+    const plateHeight = PLATE_PAD_Y * 2 + LABEL_LINE + (wantsValue ? VALUE_LINE : 0)
+
+    // **A label that will not fit is dropped, not narrowed.** Clamping the plate
+    // to the tile leaves the *text* spilling over the edge, because SVG text
+    // neither wraps nor clips to its box — which is what happened, and
+    // "Retarget" hung off its tile into the next one. A label clipped by its own
+    // tile is worse than no label, and the value is still in the tooltip and the
+    // table either way.
+    const roomForLabel =
+      plateWidth <= w - TILE_PAD * 2 && plateHeight <= h - TILE_PAD * 2 && w >= MIN_LABEL_WIDTH
+
+    const plateX = x + inset + TILE_PAD
+    const plateY = y + inset + TILE_PAD
+    const textX = plateX + PLATE_PAD_X
 
     return (
       <g>
@@ -183,39 +197,36 @@ function makeTile({ showValues, formatValue }: TileOptions) {
         {roomForLabel ? (
           <>
             <rect
-              x={x + inset + TILE_PAD}
-              y={y + inset + TILE_PAD}
+              x={plateX}
+              y={plateY}
               width={plateWidth}
-              height={PLATE_HEIGHT}
+              height={plateHeight}
               rx={PLATE_RADIUS}
               ry={PLATE_RADIUS}
-              // Figma's plate: the accessibility-border token at its own 56%,
-              // which flips with the theme, so `content-inverse` is the right
-              // text colour in both.
-              fill={accessibilityBorder}
+              // Figma's plate: the accessibility overlay at its own 56%, which
+              // flips with the theme, so `content-inverse` is the right text
+              // colour in both.
+              fill={accessibilityOverlay}
             />
             <text
-              x={x + inset + TILE_PAD + PLATE_PAD_X}
-              y={y + inset + TILE_PAD + PLATE_HEIGHT / 2}
+              x={textX}
+              y={plateY + PLATE_PAD_Y + LABEL_LINE / 2}
               dominantBaseline="middle"
               className="fill-content-inverse font-mono text-sm"
             >
               {label}
             </text>
+            {wantsValue ? (
+              <text
+                x={textX}
+                y={plateY + PLATE_PAD_Y + LABEL_LINE + VALUE_LINE / 2}
+                dominantBaseline="middle"
+                className="fill-content-inverse font-mono text-xs"
+              >
+                {value}
+              </text>
+            ) : null}
           </>
-        ) : null}
-
-        {showValue ? (
-          // Figma's `Show Metric`, under the plate rather than inside it: the
-          // plate hugs its label, and a second line would make it a block.
-          <text
-            x={x + inset + TILE_PAD + PLATE_PAD_X}
-            y={y + inset + TILE_PAD + PLATE_HEIGHT + 12}
-            dominantBaseline="middle"
-            className="fill-content-inverse font-mono text-xs"
-          >
-            {formatValue(props.value as number)}
-          </text>
         ) : null}
       </g>
     )

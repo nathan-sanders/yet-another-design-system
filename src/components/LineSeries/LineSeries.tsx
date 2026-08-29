@@ -9,7 +9,7 @@ import {
   chartGridProps,
   formatDateTick,
   formatFullNumber,
-  gridline,
+  cursorHighlight,
   inferXPreset,
   markerShape,
   surface,
@@ -173,9 +173,10 @@ function LineSeriesPlot({
       <YAxis {...yAxisProps({ lines: yLines })} />
 
       <Tooltip
-        // A vertical rule under the pointer, in the gridline colour so it reads
-        // as chrome rather than as data.
-        cursor={{ stroke: gridline, strokeWidth: 1 }}
+        // A vertical rule under the pointer, in the accessibility overlay —
+        // see `cursorHighlight`. It was the gridline colour, which is a step
+        // too quiet for the one element that has to track the pointer.
+        cursor={{ stroke: cursorHighlight, strokeWidth: 1 }}
         // Recharts' own tween off, and the movement put back in the library's
         // tokens on the wrapper. Both halves of that, plus why it is
         // `wrapperStyle` and not a class, live on `chartTooltipWrapperStyle`.

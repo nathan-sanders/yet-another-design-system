@@ -15,7 +15,7 @@ const meta = {
   argTypes: {
     stacked: { control: 'boolean' },
     showTotal: { control: 'boolean' },
-    accessibilityBorder: { control: 'boolean' },
+    accessibilityOverlay: { control: 'boolean' },
     legend: { control: 'inline-radio', options: ['horizontal', 'vertical', false] },
     yLines: { control: { type: 'range', min: 2, max: 8, step: 1 } },
     height: { control: { type: 'range', min: 120, max: 480, step: 20 } },
@@ -111,7 +111,7 @@ export const ShortSegments: Story = {
 }
 
 /**
- * `accessibilityBorder`, the sanctioned mitigation for the three categorical
+ * `accessibilityOverlay`, the sanctioned mitigation for the three categorical
  * colours that fall short of 3:1 on the light canvas.
  *
  * Yellow (`04`) at 1.74:1 is the structural one: as a thin line it is nearly
@@ -138,7 +138,7 @@ export const AccessibilityBorder: Story = {
           <figcaption className="text-content-subtle font-mono text-sm">on</figcaption>
           <VerticalBar
             {...args}
-            accessibilityBorder
+            accessibilityOverlay
             data={data}
             series={series}
             xKey="name"

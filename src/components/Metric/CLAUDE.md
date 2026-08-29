@@ -39,6 +39,17 @@ That is the **opposite** of the rule for a hero figure, where proportional digit
 `tabular-nums` gives every digit the width of a `0`, and at display sizes a number like `121` reads
 loose. At 18px in a row, alignment wins; at 48px alone, fit does.
 
+## The spark sits on the value's baseline, and carries no fill
+
+The row is `items-end`, not `items-center`. Centred, the spark floats between the label and the
+number and belongs to neither; bottom-aligned it sits on the same line as the value and its badge and
+reads as part of one statement — this number, and how it got here. Measured: the spark's bottom edge
+and the value's bottom edge land on the same pixel.
+
+And it is `type="line"`, not `area`. Beside a number the fill is the loudest thing in the card while
+carrying nothing the line does not — the shape is the whole point, and a wash under it competes with
+the value for the eye. `area` earns its fill where a spark stands alone.
+
 ## `Metric` has no card, and that is what makes the donut work
 
 A `Metric` is content: no background, no border, no padding. `MetricCard` is the version with a

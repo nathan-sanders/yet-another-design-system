@@ -125,7 +125,24 @@ export const sentiment = {
  * "fix" it by changing a token.** This border is the sanctioned mitigation, and
  * the outline marker styles exist for the same reason.
  */
-export const accessibilityBorder = 'var(--data-viz-utility-accessibility-border)'
+export const accessibilityOverlay = 'var(--data-viz-utility-accessibility-overlay)'
+
+/**
+ * The crosshair and the band that follow the pointer across a chart.
+ *
+ * The same token, and deliberately: a hover highlight has exactly the job the
+ * accessibility overlay was made for — sitting over the data and staying
+ * visible against whatever is under it, in either theme, without being ink that
+ * competes with the marks.
+ *
+ * **It used to be `gridline`, and that was too light to see.** A gridline is
+ * scenery a reader is supposed to look past; a cursor is a thing they are
+ * actively following, and reusing the quietest colour in the chart for the one
+ * element that has to track the pointer had it disappearing over the data. The
+ * two are one step apart in the token file and a world apart in what they are
+ * for.
+ */
+export const cursorHighlight = accessibilityOverlay
 
 /**
  * The chart surface. Used where a mark has to punch a hole in itself — the

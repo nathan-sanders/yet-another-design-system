@@ -80,7 +80,7 @@ export {
   benchmarkAlt,
   placeholder,
   sentiment,
-  accessibilityBorder,
+  accessibilityOverlay,
   markerShape,
   markerForIndex,
   chartMarkers,
