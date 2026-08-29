@@ -49,6 +49,24 @@ missing value with the lightest step claims a measurement of "almost none" where
 measurement. The sample data is deliberately sparse so the stories exercise it; it was not at first,
 and the path went untested.
 
+## Both axes are keyed by position, not by label
+
+An axis label is display text and nothing obliges it to be unique. The sample data is the proof:
+24 hours read `12AM, 1, 2 … 11, 12PM, 1, 2 … 11`, so every hour but noon and midnight appears
+twice, and keying a cell `${row}-${column}` gave two children the same key eleven times over. React
+logged it on every render — 176 lines out of `Chart`'s stories and 704 out of this component's,
+without failing a single test, which is exactly how it sat there unnoticed.
+
+Position is the right identity here: a heat map's rows and columns are an axis, nothing ever
+reorders, and the label is the thing being *drawn* rather than the thing being identified. So the
+index is the key in all five places — the hidden table's header, its rows and cells, the two label
+strips and the grid itself.
+
+**Duplicate keys are silent.** Nothing in `npm test` fails on them, `tsc` sees a valid `ReactNode`
+and axe has no opinion, so the only signal is console noise on a run nobody reads to the bottom.
+Same shape of failure as a Tailwind class naming a token that does not exist — see the root
+`CLAUDE.md` on `tokens.test.ts`.
+
 ## The tooltip is an addition to the file
 
 Figma draws no hover state. A cell shows a colour and nothing else, so without one the only way to
