@@ -75,36 +75,46 @@ export function Metric({
   ...props
 }: MetricProps) {
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1', className)} {...props}>
-      <span className="text-content-subtle truncate text-base">{label}</span>
+    <div className={cn('flex min-w-0 items-end gap-6', className)} {...props}>
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="text-content-subtle truncate text-base">{label}</span>
+        <span className="flex items-center gap-2">
+          <span className="text-content-emphasized font-mono text-xl font-bold tabular-nums">{value}</span>
+          {trend === undefined ? null : (
+            <TrendBadge trend={trend} goodDirection={goodDirection} format={formatTrend} />
+          )}
+        </span>
+      </div>
 
-      {/*
-        The spark lives in the **value's** row, not beside the label-and-value
-        block, and the row is `items-baseline`.
+      {spark ? (
+        /*
+          The spark spans the whole block's height beside the label and the
+          number — but its **bottom sits on the value's baseline**, not on the
+          bottom of the value's line box, which is roughly 10px lower.
+          That difference is invisible on a line spark, whose path rarely
+          reaches the bottom of its box, and obvious on a bar spark, whose bars
+          always do.
+        */
+        <span className="flex min-w-0 flex-1 items-baseline">
+          <span className="min-w-0 flex-1">{spark}</span>
+          {/*
+            A zero-width strut carrying the value's own typography.
 
-        That is what puts its bottom edge on the number's baseline rather than a
-        few pixels under it. A flex item with no text baseline — a div wrapping
-        an SVG — has one synthesised from its bottom margin edge, so
-        `items-baseline` lands that edge exactly on the baseline of the text
-        beside it. Aligning to the block's *end* instead put it on the line
-        box's bottom, which sits below the baseline by the descender gap: barely
-        visible on a line spark, and obvious on bars, which always reach the
-        bottom of their box.
+            This is what makes the alignment exact without a magic number. The
+            strut has a real text baseline; the spark beside it is a box with no
+            text, so flexbox synthesises one from its bottom edge — and
+            `items-baseline` puts the two on the same line. The descender gap
+            therefore comes from the font's own metrics at `text-xl`, so it stays
+            correct if the type scale is regenerated from Figma.
 
-        Structurally it is also the truer place for it. A spark is about the
-        number, not about the label above it.
-      */}
-      <span className="flex items-baseline gap-2">
-        <span className="text-content-emphasized font-mono text-xl font-bold tabular-nums">{value}</span>
-        {trend === undefined ? null : (
-          // Centred on the line rather than baseline-aligned: a pill reads as
-          // sitting beside the number, and dropping it to the baseline hangs it
-          // low against a 24px line.
-          <TrendBadge trend={trend} goodDirection={goodDirection} format={formatTrend} className="self-center" />
-        )}
-        {/* `ml-4` on top of the row's `gap-2` makes Figma's 24px. */}
-        {spark ? <span className="ml-4 min-w-0 flex-1">{spark}</span> : null}
-      </span>
+            The obvious alternative, a hardcoded `mb-2.5`, is the same 10px today
+            and silently wrong the day `--text-xl` moves.
+          */}
+          <span aria-hidden="true" className="w-0 overflow-hidden font-mono text-xl font-bold">
+            &#8203;
+          </span>
+        </span>
+      ) : null}
     </div>
   )
 }
