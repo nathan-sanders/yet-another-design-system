@@ -16,10 +16,13 @@ import { tv } from 'tailwind-variants'
 /**
  * The scrim.
  *
- * **Figma draws no backdrop at all**, and Astryx marks one *required* — so this
- * is built ahead of the file, the Accordion route that Popover's Title,
+ * Figma drew no backdrop when this was built, and Astryx marks one *required* —
+ * so it went in ahead of the file, the Accordion route that Popover's Title,
  * Description and Close took. A modal dialog without one has nothing that says
- * the page behind it is blocked, which is most of what "modal" means.
+ * the page behind it is blocked, which is most of what "modal" means. **The file
+ * has since caught up**: the Docs previews on the `↪ Dialog` page draw the scrim
+ * behind the dialog in both themes. It lives there rather than inside the
+ * component, because it sits behind the dialog rather than in it.
  *
  * **`surface-drop-shadow`, and the route to it is the point.** The obvious
  * candidate was `surface-canvas-overlay` — the token literally named "an overlay

@@ -327,6 +327,18 @@ keyboard. `Showcase.tsx`'s `Table` does this once for all of them.
   instance without touching them. Worth remembering before raising "the instances still point at the
   old token" — check one by id first.
 - Colors come back as `{r,g,b,a}` 0–1 floats — convert to hex.
+- **Three authoring limits found building the Dialog page, all of which shape what a component can
+  be in this file.** There is no `figma.createSlot` — reading the property *throws* rather than
+  returning undefined — and `detachInstance()` turns a `SLOT` into a plain `FRAME`, so a slot can
+  only be made by hand in the UI. `componentPropertyReferences` accepts only `characters`, `visible`
+  and `mainComponent`, so a **nested instance's** property (a Button's `Label Text` inside a
+  component) cannot be bound to an outer property — add one anyway and you get a control wired to
+  nothing. And `page.clone()` turns the page's `COMPONENT` into an `INSTANCE` of the original, which
+  is convenient for copying a Docs template and useless for copying a component.
+- **`instance.componentProperties` is read-only.** The setter is `instance.setProperties({...})`.
+- **The Best Practices block on a component's Docs page reads "Usage rule." on every page**,
+  Popover's included. An unfilled one is the template's normal state, not evidence that a particular
+  component was left behind.
 
 ## Components
 
@@ -379,7 +391,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Menu](src/components/Menu/CLAUDE.md) | actions in a popup | items, separators, submenus |
 | [ContextMenu](src/components/ContextMenu/CLAUDE.md) | the same actions, on right-click | Menu's rows re-attached, not copied; opens at the pointer |
 | [Popover](src/components/Popover/CLAUDE.md) | a panel of content, on click | the library's first `role="dialog"`; Figma's own drawing has no accessible name, which is why `label` exists |
-| [Dialog](src/components/Dialog/CLAUDE.md) | a modal surface that blocks the page | the first genuinely modal component; `Body` is the scroll container Popover was standing in for |
+| [Dialog](src/components/Dialog/CLAUDE.md) | a modal surface that blocks the page | the first genuinely modal component; `Body` is the scroll container Popover was standing in for, and the one part Figma cannot draw |
 | [AlertDialog](src/components/AlertDialog/CLAUDE.md) | confirm something you cannot undo | the sharing rule at its limit — Base UI hands over every part but the Root |
 | [Switch](src/components/Switch/CLAUDE.md) | a setting that applies at once | knob grows 14 → 16 as it slides |
 | [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value |
@@ -596,7 +608,10 @@ Base UI's `alert-dialog` subpath re-exports every part but `Root` out of `dialog
 is not even re-exported, it is `export const AlertDialogTrigger = DialogTrigger`. So it re-attaches
 the library's *own* Dialog wrappers rather than the raw parts, which is a step past ContextMenu
 (rows shared, Popup written) and past Autocomplete (parts shared from two components). It is also
-the first component since BentoGrid with **no Figma node at all**, and it owes the file a drawing.
+the first component since BentoGrid to ship with **no Figma node at all** — a debt since closed by
+an `↪ Alert Dialog` page. Figma models it as a *sibling* of Dialog rather than a reuse, because the
+canvas cannot express "the same parts under a different root"; what keeps that honest is the two
+things it removes, the close button and the content slot. See its record.
 
 **Card is built, and the entry it closes is worth keeping.** It asked whether a card was anything
 more than a `ContentBlock` with no `ContentBlock.Header`, and said to close the entry rather than

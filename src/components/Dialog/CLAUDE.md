@@ -170,16 +170,33 @@ for styling a stack, but Astryx says plainly not to nest dialogs and to restruct
 instead, so nothing here styles the nested case. `Dialog.Viewport` is used for centering only, not
 as the scroll container — `Body` is.
 
-## What it owes the file
+## The file has caught up, and one thing cannot
 
-Three things, and they are ordinary code-first debts rather than drift — the Accordion route, which
-Popover's whole part set took the same way.
+Three debts were opened when this shipped and two are closed. **Nothing in the code changed when
+they landed**, which is the test of whether a catch-up was really a catch-up — Accordion's route,
+after Popover's whole part set took it the same way.
 
-- **The component's description in Figma is Popover's, copy-pasted verbatim.** It read "A
-  click-triggered panel anchored to a button or a link… Width is fixed at 324" on a 600-wide dialog.
-  Rewritten as part of this work.
-- **The Backdrop, the Description and `Body` are not drawn.** Astryx marks Backdrop and Body
-  required elements; the file has neither.
-- **The Docs page is an unfilled template.** `40004383:17047` has a `Preview` frame whose Light and
-  Dark children are empty apart from their sun and moon icons, and a `Guidance` frame whose Do and
-  Don't both still read "Usage rule."
+- **The description was Popover's, copy-pasted verbatim.** It read "A click-triggered panel anchored
+  to a button or a link… Width is fixed at 324" on a 600-wide dialog. Rewritten.
+- **The Description line is drawn**, and with it the property set became Popover's vocabulary
+  exactly: `Title` / `Title Text` / `Description` / `Description Text` / `Is Dismissable` /
+  `Content`. It was cloned from Popover's own Description node rather than rebuilt, so it carries
+  the same type style and the same `Content/Subtle` binding — the file's version of sharing a part.
+- **The Backdrop is drawn**, in the Docs previews rather than inside the component, because it sits
+  behind the dialog rather than in it. Bound to `Surface/Drop Shadow`, so the canvas and the code
+  paint the same scrim.
+- **The Docs page is filled** — Light and Dark previews, each with a Confirmation and a Required
+  example on a scrim, and six Best Practices. Worth knowing that the Best Practices block is a
+  template placeholder reading "Usage rule." on **every** page in the file, Popover's included, so
+  Dialog is the first one filled rather than the only one behind.
+
+**`Body` is the one that cannot land, and that is a property of Figma rather than a debt.** A
+scrolling region with a pinned header and footer has no static drawing — a clipped frame would be a
+picture of the wrong thing. It is carried on the page as a Best Practices rule instead: *"Put long
+content in a scrolling body, so the title and the close button stay in place while the content moves
+under them."* That is the file holding a behavior as guidance, which is the right place for it.
+
+**Still owed: a `Surface/Backdrop` token.** The scrim is `Surface/Drop Shadow` on both sides now,
+which is the elevation family's token doing a surface job — see the scrim section above. Drawing the
+backdrop did not fix that; it only made both sides wrong in the same way, which is at least
+honest.
