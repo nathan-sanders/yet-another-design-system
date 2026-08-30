@@ -144,7 +144,7 @@ export function gaugeGeometry(plotWidth: number, height: number): { cy: number; 
 /**
  * Where a radial bar chart's hole starts, as a fraction of its outer radius.
  *
- * Figma's `_Radial / Radial` track (`40004355:41236`) is drawn at 256px with a
+ * Figma's `_Radial / Radial` track (`40004450:16871`) is drawn at 256px with a
  * 64px hole: **0.25**, against Donut's 0.72 and Gauge's 0.8. The three differ
  * because they are three different forms, not three settings of one — a donut is
  * a band, a gauge is an arch, and a radial bar is a set of concentric tracks that

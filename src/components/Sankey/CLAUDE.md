@@ -1,17 +1,36 @@
 # Sankey
 
-Where a quantity went, from one stage to the next. **Read
+Where a quantity went, from one stage to the next. Figma's `Sankey` section (`40004378:41237`):
+`Sankey` (`40004453:16908`) and `_Sankey / Sankey` (`40004452:16910`). **Read
 [Chart/CLAUDE.md](../Chart/CLAUDE.md) first.**
 
-## Figma draws nothing, and every decision below says which rule it came from
+## Nothing was read off a node, and every decision below says which rule it came from
 
-The `Sankey` section (`40004378:41237`) exists and is **empty** — a placeholder someone created and
-never filled. So unlike every other chart here, nothing was read off a node. That makes this the
-largest code-first component since BentoGrid, and the record has to carry more weight than usual: the
-file cannot be consulted later to settle an argument, so each choice names the rule it followed.
+The section was **empty** when this was built — a placeholder someone created and never filled. So
+unlike every other chart here, nothing was read off the file. That made it the largest code-first
+component since BentoGrid, and it is why the record carries more weight than usual: each choice names
+the rule it followed rather than the node it came from.
 
-**What the file owes:** a `Sankey` component, and with it a verdict on the four things below that
-were decided here — link color, link opacity, the node bar's size and radius, and label placement.
+The drawing landed on **2026-08-30**, and the direction is worth being precise about. This is not the
+file catching up with a verdict of its own — **it is the code's geometry transcribed into Figma**,
+pulled straight off the rendered chart at 1048 × 320 so the two cannot disagree. Every decision below
+is still the code's, and the file now agrees with it rather than having ratified it.
+
+That makes it the clearest case in the library of the direction running one way. `Accordion` and
+`ContentBlock` went code-first and Figma then made its *own* drawing that happened to match; here
+there was nothing to match against, so the drawing was derived. **If a future change disagrees with
+the drawing, the code is the older authority, not the file.**
+
+## What is drawn, and what is not
+
+`_Sankey / Sankey` holds three frames — `Links`, `Nodes`, `Labels`. The ribbons are **stroked
+vectors, not filled shapes**: the band's thickness is the stroke weight, which is how Recharts draws
+them too, and it is the only reason an eight-ribbon diagram is eight nodes rather than eight
+hand-built outlines.
+
+There is deliberately **no `_Sankey / Node` component**. Every bar's height is what the data did and
+every ribbon is a unique path — mechanism, not decision, in the Chart record's terms. A component
+per mark would be the trap that file warns about, turning a drawing into an API.
 
 ## A ribbon takes its source node's color
 

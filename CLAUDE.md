@@ -470,11 +470,15 @@ Three rules worth having in mind before touching a chart:
 - **Figma's Data Viz page references one token that does not exist.** The tree map's tile metric
   binds `Overlay/Text`, and no `Overlay/*` token is in any of `tokens/*.json`. `content-inverse`
   stands in. Worth knowing that the file is not a complete description of the token layer.
-- **Three of the page's sections are ahead of the file rather than behind it.** `Radial`
-  (`40004355:41100`) holds only a slice-sweep arc and a concentric track — the mechanism, not the
-  chart — and `Sankey` (`40004378:41237`) and `Scatter` (`40004378:41242`) are **empty sections**.
-  Radial and Sankey are built here anyway, on the code-first route, and each record names exactly
-  what the file owes. Scatter has nothing built against it yet.
+- **Radial and Sankey went code-first and the file has caught up.** Both sections held nothing usable
+  when the components were built — Radial only its mechanism, Sankey nothing at all — and both were
+  drawn on 2026-08-30 with the same shape as `Donut`, a `Chart Legend` instance over a plot
+  component. Nothing in the code changed when they landed. **Sankey is the one case where the
+  drawing was *derived* from the code** rather than made independently, because there was nothing to
+  derive it from otherwise; its record says so, and says the code is the older authority there.
+  `Scatter` (`40004378:41242`) is still an empty section with nothing built against it.
+- **Figma measures `arcData` from three o'clock, clockwise**, while every polar chart here starts at
+  twelve. A sweep drawn without the quarter-turn offset looks entirely plausible and is wrong.
 - **A hidden browser tab makes every measured chart lie.** `ChartContainer` sizes itself with a
   `ResizeObserver`, and a tab that is never rendered does not run the rendering steps, so the
   observer never fires — `plotWidth` stays 0 and Donut, Gauge and Radial all silently fall back to

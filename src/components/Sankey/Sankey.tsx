@@ -18,10 +18,13 @@ import { nodeDepths, toSankeyGraph, type SankeyFlow } from './graph'
 /**
  * Sankey — where a quantity went, from one stage to the next.
  *
- * **Figma draws no Sankey.** Its `Sankey` section (`40004378:41237`) exists and
- * is empty, so every decision here follows from rules the library already holds
- * rather than from the file. The record beside this file says which rule each
- * one came from, and what the file owes.
+ * Figma's `Sankey` (`40004453:16908`), section `40004378:41237`.
+ *
+ * **The section was empty when this was built**, so every decision here follows
+ * from rules the library already holds rather than from the file. The drawing
+ * that now sits there was derived from this component's own rendered geometry,
+ * not made independently — so the code is the older authority. The record beside
+ * this file says which rule each decision came from.
  *
  * ## A ribbon takes its source node's color
  *
