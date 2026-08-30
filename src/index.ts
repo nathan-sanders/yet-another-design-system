@@ -8,6 +8,9 @@ export type {
   AccordionHeadingLevel,
 } from './components/Accordion'
 
+export { AlertDialog } from './components/AlertDialog'
+export type { AlertDialogProps } from './components/AlertDialog'
+
 export { Autocomplete } from './components/Autocomplete'
 export type {
   AutocompleteProps,
@@ -136,6 +139,17 @@ export type {
   ContextMenuPopupProps,
   ContextMenuTriggerProps,
 } from './components/ContextMenu'
+
+export { Dialog } from './components/Dialog'
+export type {
+  DialogProps,
+  DialogPopupProps,
+  DialogTitleProps,
+  DialogHeadingLevel,
+  DialogDescriptionProps,
+  DialogBodyProps,
+  DialogCloseProps,
+} from './components/Dialog'
 
 export { Donut } from './components/Donut'
 export type { DonutProps } from './components/Donut'

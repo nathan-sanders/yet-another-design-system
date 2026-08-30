@@ -379,6 +379,8 @@ settled once, against the Figma file, for a reason that is written down.
 | [Menu](src/components/Menu/CLAUDE.md) | actions in a popup | items, separators, submenus |
 | [ContextMenu](src/components/ContextMenu/CLAUDE.md) | the same actions, on right-click | Menu's rows re-attached, not copied; opens at the pointer |
 | [Popover](src/components/Popover/CLAUDE.md) | a panel of content, on click | the library's first `role="dialog"`; Figma's own drawing has no accessible name, which is why `label` exists |
+| [Dialog](src/components/Dialog/CLAUDE.md) | a modal surface that blocks the page | the first genuinely modal component; `Body` is the scroll container Popover was standing in for |
+| [AlertDialog](src/components/AlertDialog/CLAUDE.md) | confirm something you cannot undo | the sharing rule at its limit — Base UI hands over every part but the Root |
 | [Switch](src/components/Switch/CLAUDE.md) | a setting that applies at once | knob grows 14 → 16 as it slides |
 | [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value |
 | [Link](src/components/Link/CLAUDE.md) | inline and standalone navigation | what Button's removed `link` appearance became |
@@ -582,12 +584,19 @@ Foundational and static first:
 2. **Table Cell** — native, styled.
 3. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
 
-**Popover's landing is the evidence that a Dialog is owed**, and it is Card's rule arriving from a
-new direction. Both of Astryx's "don't" rules for a popover — content that needs heavy input, and
-content long enough to scroll — say *use a Dialog instead*, and there is no Dialog here to send
-anyone to. Popover's `max-h-(--available-height) overflow-y-auto` is a floor for the case rather
-than a home for it. So the roadmap item is not "the file draws one" but "the library is already
-pointing at it in two places."
+**Dialog is built, and the entry it closes is the cleanest run of Card's rule so far.** The bar is
+that a roadmap item earns its build when the file draws it *and* something has already been
+reinvented in its absence — and both halves arrived together. Figma drew `Dialog` (`40004383:17046`),
+and Popover's `max-h-(--available-height) overflow-y-auto` had been standing in for the scrolling
+case with its own record calling it "a floor, not a home". `Dialog.Body` is the home, and both of
+Astryx's "don't" rules for a popover now have somewhere to send people.
+
+**AlertDialog came with it, and is worth reading for the sharing rule rather than for itself.**
+Base UI's `alert-dialog` subpath re-exports every part but `Root` out of `dialog/` — and `Trigger`
+is not even re-exported, it is `export const AlertDialogTrigger = DialogTrigger`. So it re-attaches
+the library's *own* Dialog wrappers rather than the raw parts, which is a step past ContextMenu
+(rows shared, Popup written) and past Autocomplete (parts shared from two components). It is also
+the first component since BentoGrid with **no Figma node at all**, and it owes the file a drawing.
 
 **Card is built, and the entry it closes is worth keeping.** It asked whether a card was anything
 more than a `ContentBlock` with no `ContentBlock.Header`, and said to close the entry rather than
