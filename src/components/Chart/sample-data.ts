@@ -153,3 +153,47 @@ export function treeMapData() {
     },
   ]
 }
+
+/**
+ * One row per ring, for the radial bar chart — completion against a shared
+ * ceiling, which is the case the form is for.
+ */
+export function radialData(count = 5): Record<string, unknown>[] {
+  const teams = ['Platform', 'Growth', 'Mobile', 'Data', 'Design', 'Support', 'Infra', 'Docs']
+  const values = [92, 78, 64, 51, 37, 28, 19, 11]
+  return teams.slice(0, count).map((name, i) => ({ team: name, complete: values[i] }))
+}
+
+/**
+ * A four-stage funnel, for the Sankey.
+ *
+ * Deliberately not a tree: `Trial` is reached from both `Search` and `Social`,
+ * and `Churned` from both `Paid` and `Trial`. A graph where every node has one
+ * parent is a tree drawn sideways, and it would hide every layout and coloring
+ * problem a real Sankey has.
+ */
+export function sankeyData(): {
+  nodes: { key: string; label: string }[]
+  flows: { source: string; target: string; value: number }[]
+} {
+  return {
+    nodes: [
+      { key: 'search', label: 'Search' },
+      { key: 'social', label: 'Social' },
+      { key: 'trial', label: 'Trial' },
+      { key: 'direct-paid', label: 'Direct to paid' },
+      { key: 'paid', label: 'Paid' },
+      { key: 'churned', label: 'Churned' },
+    ],
+    flows: [
+      { source: 'search', target: 'trial', value: 3200 },
+      { source: 'search', target: 'direct-paid', value: 800 },
+      { source: 'social', target: 'trial', value: 1900 },
+      { source: 'social', target: 'churned', value: 600 },
+      { source: 'trial', target: 'paid', value: 2600 },
+      { source: 'trial', target: 'churned', value: 2500 },
+      { source: 'direct-paid', target: 'paid', value: 800 },
+      { source: 'paid', target: 'churned', value: 420 },
+    ],
+  }
+}
