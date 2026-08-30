@@ -83,7 +83,7 @@ would be the "worse abstraction than two short lists of classes" test, failed.
 exactly one property and it is a SLOT, so inventing a frame the file has not drawn goes past
 code-first into designing in code — and Card's evidentiary bar (*something has already been
 reinvented in its absence*) cannot be met by a component that did not exist until today. The header
-is `flex items-start justify-between gap-2` at the call site. If several callers hand-roll the same
+is `flex items-center justify-between gap-2` at the call site. If several callers hand-roll the same
 row, that is the evidence, and the part can land then.
 
 **Figma's `overflow-clip` is not ported — the twelfth time**, and here it would actually have been
@@ -124,12 +124,31 @@ than Menu's: the size is held and only the color changes, because this is body t
 sub-label under a row. On the Olive ramp it measures 6.9:1 light and 7.29:1 dark on the panel, so
 the non-default ramps are clear.
 
-**The file has caught up, and it was a clean one.** `Title`, `Description` and `Close` were drawn
-into the component the same day, and the stack gap rebound from `spacing/0` to `spacing/2`.
-**Nothing in this code changed**, which is the test — measured on both sides rather than eyeballed:
-12 padding, an 8 stack gap, a 32-tall header row on an 8 gap aligned to its start, a 42×32 close
-button, `text-base/semibold` on `Content/Primary`, `text-base/normal` on `Content/Subtle`. Accordion's
-route, now on its own whole part set rather than a variant axis.
+**The file has caught up, and then corrected the code — both directions in one day.** `Title`,
+`Description` and `Close` were drawn into the component, and the stack gap rebound from `spacing/0`
+to `spacing/2`; nothing here changed when they arrived, which is the Accordion route working on a
+whole part set rather than a variant axis. Measured on both sides: 12 padding, an 8 stack gap, a
+32-tall header row on an 8 gap, a 42×32 close button, `text-base/semibold` on `Content/Primary`,
+`text-base/normal` on `Content/Subtle`.
+
+**Then two things came back the other way**, which is ContentBlock's header padding again — the file
+correcting the code rather than following it.
+
+- **The header row is `items-center`, not `items-start`.** Drawn top-aligned first, and Nathan
+  centered it. He is right and the number says so: with a one-line title the button's center and the
+  title's first-line center land **exactly 0px apart** centered, against 4px apart top-aligned.
+  **The cost is a wrapping title**: at two lines the header grows to 48, the 32px button centers
+  against that, and the × ends up **12px below** the first line it belongs to. Figma draws one line,
+  so the canvas cannot see this. If it ever matters the fix is not to go back — it is `items-start`
+  on the row plus `py-1` on the Title, which pins the button to the first line at 0px in *both*
+  cases. Left undone deliberately: it adds a box to the Title that Figma does not draw, for a
+  two-line title nothing has asked for yet.
+- **The header frame had a `#FFFFFF` fill**, from `figma.createAutoLayout()`'s default, and Nathan
+  removed it. No code counterpart — the row here has never had a background — but it is worth
+  recording as a **Figma-authoring trap**: a white frame on a white popover is invisible on the
+  canvas in light mode and would have painted a white band across the header in dark, where the
+  surface is `Surface/Background Primary` at stone-900. `createAutoLayout()` and `createFrame()` both
+  arrive opaque white; a layout-only frame wants `fills = []` set explicitly.
 
 The old `gap-2` note is worth keeping for why it was ever a question: Figma bound the slot's gap to
 `spacing/0`, but the frame had exactly one child, so its itemSpacing was never a decision anyone
@@ -144,7 +163,7 @@ string). Two things about that set are deliberate:
   title is not expressible in the file** — it is in code, and it is a shape nothing has asked for
   yet. If one ever does, the fix is a third boolean on the row rather than uncoupling these two.
 - **The header row is a frame in Figma and deliberately not a part in code.** Figma has to have
-  something to sit the title beside the button; the code does not, and `flex items-start
+  something to sit the title beside the button; the code does not, and `flex items-center
   justify-between` at the call site is the whole of it. Seeing `Header` in the layer tree is not
   evidence that `Popover.Header` should exist — Card's bar still applies.
 

@@ -46,7 +46,7 @@ export const Playground: Story = {
     <Popover>
       <Popover.Trigger render={<Button appearance="secondary">Share file</Button>} />
       <Popover.Popup>
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <Popover.Title>Share this file</Popover.Title>
           <Popover.Close />
         </div>
@@ -105,7 +105,7 @@ export const ConfirmAction: Story = {
     <Popover defaultOpen>
       <Popover.Trigger render={<Button appearance="destructive">Delete project</Button>} />
       <Popover.Popup width={300}>
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <Popover.Title>Delete project?</Popover.Title>
           <Popover.Close />
         </div>
@@ -300,7 +300,7 @@ export const InContext: Story = {
               }
             />
             <Popover.Popup>
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <Popover.Title>Share this file</Popover.Title>
                 <Popover.Close />
               </div>
