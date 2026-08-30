@@ -156,6 +156,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Kbd** | A keyboard shortcut, one 20px key per keystroke, from a single `keys` string split on `+`. Prefer `mod`: it draws ⌘ on Apple platforms and ⌃ everywhere else, so one call site is right on both |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
 | **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labeled groups |
+| **Popover** | A click-triggered panel anchored to a button or a link; a title, a body and whatever the panel is for, at 324px or any width you pass. The library's first `role="dialog"` — so it wants a `Popover.Title`, which is what names it |
 | **Radio** | Unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Radio.Group** | Vertical or horizontal set owning the value, the roving tabindex and the arrow keys |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |

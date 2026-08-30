@@ -378,6 +378,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [Radio](src/components/Radio/CLAUDE.md) | exactly one of a visible list | plus `Radio.Group` |
 | [Menu](src/components/Menu/CLAUDE.md) | actions in a popup | items, separators, submenus |
 | [ContextMenu](src/components/ContextMenu/CLAUDE.md) | the same actions, on right-click | Menu's rows re-attached, not copied; opens at the pointer |
+| [Popover](src/components/Popover/CLAUDE.md) | a panel of content, on click | the library's first `role="dialog"`; Figma's own drawing has no accessible name, which is why `label` exists |
 | [Switch](src/components/Switch/CLAUDE.md) | a setting that applies at once | knob grows 14 → 16 as it slides |
 | [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value |
 | [Link](src/components/Link/CLAUDE.md) | inline and standalone navigation | what Button's removed `link` appearance became |
@@ -574,6 +575,13 @@ Foundational and static first:
 1. **List Item** — variants/states; native, styled.
 2. **Table Cell** — native, styled.
 3. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+
+**Popover's landing is the evidence that a Dialog is owed**, and it is Card's rule arriving from a
+new direction. Both of Astryx's "don't" rules for a popover — content that needs heavy input, and
+content long enough to scroll — say *use a Dialog instead*, and there is no Dialog here to send
+anyone to. Popover's `max-h-(--available-height) overflow-y-auto` is a floor for the case rather
+than a home for it. So the roadmap item is not "the file draws one" but "the library is already
+pointing at it in two places."
 
 **Card is built, and the entry it closes is worth keeping.** It asked whether a card was anything
 more than a `ContentBlock` with no `ContentBlock.Header`, and said to close the entry rather than
