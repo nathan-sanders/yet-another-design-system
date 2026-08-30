@@ -133,6 +133,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | Component | Variants |
 |---|---|
 | **Accordion** | A stack of sections, single- or multi-open (`multiple`); card or flush (`container`); optional leading icon, heading level 2–6 |
+| **AlertDialog** | The same surface asking you to confirm something you cannot undo — `role="alertdialog"`, a required description saying what will happen, and no close button. Base UI hands over every part but the Root, so these are literally Dialog's |
 | **Autocomplete** | Free text with suggestions that do not constrain it; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, a magnifier in the start slot, and rows that can carry an avatar or a sub-label. Looks like a Combobox and differs on the one rule: an off-list value stands |
 | **Avatar** | Photo, initials or `+N` at 5 sizes (20/24/36/40/128); online/offline/unavailable status, each with its own shape |
 | **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
@@ -148,6 +149,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Combobox** | A list too long to scroll, filtered by typing; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled — a trigger with a searchable popup, or a tokenizer whose chosen values sit in front of the caret as `Token`s |
 | **ContentBlock** | A card owning one titled region of a page; composed header (title, icon, title slot, actions) + body, 3 emphases (default, subtle, accent) × flat/floating, heading level 2–6 |
 | **ContextMenu** | The same popup as Menu, opened by right-click or long press at the pointer — action, submenu, checkbox and radio items, destructive items and labeled groups. Base UI hands over Menu's own parts, so these are literally the same rows |
+| **Dialog** | A modal surface that blocks the page until you answer it; a title, a body and a row of actions, at 600px or any width you pass. `Dialog.Body` is the part that scrolls, so a long dialog keeps its title and close button in place while the middle moves |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
