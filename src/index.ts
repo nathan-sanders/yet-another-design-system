@@ -198,6 +198,16 @@ export type {
   TrendGoodDirection,
 } from './components/Metric'
 
+export { Popover } from './components/Popover'
+export type {
+  PopoverProps,
+  PopoverPopupProps,
+  PopoverTitleProps,
+  PopoverHeadingLevel,
+  PopoverDescriptionProps,
+  PopoverCloseProps,
+} from './components/Popover'
+
 export { Radar } from './components/Radar'
 export type { RadarProps } from './components/Radar'
 

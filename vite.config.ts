@@ -89,6 +89,7 @@ export default defineConfig({
           '@base-ui/react/input',
           '@base-ui/react/field',
           '@base-ui/react/checkbox-group',
+          '@base-ui/react/popover',
           '@base-ui/react/select'
         ]
       },
