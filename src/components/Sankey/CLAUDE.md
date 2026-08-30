@@ -76,22 +76,42 @@ is the obvious test and gets the middle columns wrong.
 **The bound that mattered was the second one.** Checking only that a label stays inside the plot
 looks sufficient and is not: at 256px, `Paid` and `Churned` were drawn straight through each other,
 both comfortably inside the plot and both illegible. A label also has to fit inside its **column**,
-which is why `depthCount` exists — it reproduces Recharts' column count from the longest path, so the
-renderer can work out the column step before the layout is anywhere a caller could read it.
+which is why `nodeDepths` exists — it reproduces Recharts' columns from the longest path, so the
+renderer can work out the column step and its own column before the layout is anywhere a caller
+could read it.
 
-**Every label sits over data, and needs Radar's halo for it.** A label goes on the side its own
+**And a third bound, because a left-placed label shares its gap.** Only the last column ever goes
+left — right is the default and fails only at the plot's edge — so a left plate reaches back into the
+same gap the previous column's *right* plates already occupy. Two plates that each clear the column
+bound on their own can still collide, and did: `Reactivated` ran back over `Archived` in
+`TooManyNodes`. The bound is therefore on the **pair**, with the widest plate the previous column
+will actually draw subtracted first. One that is going to be dropped reserves nothing, or a single
+long name would quietly cost its neighbours their labels too.
+
+Widening the text into a plate is what surfaced it — at 16px narrower the same two labels cleared
+each other. Worth stating plainly: **the plate did not cause the bug, it made an existing one
+reachable.** A pair bound was always the correct rule.
+
+**Every label sits over data, and takes `TreeMap`'s plate for it.** A label goes on the side its own
 ribbon leaves from, so it is never over bare canvas — and at 0.4 opacity the ribbons are exactly
-muddy enough to swallow a subtle gray. The fix is the one `Radar`'s scale already uses: a
-surface-colored stroke with `paint-order: stroke`, which puts the stroke *under* the fill so 3px
-reads as a 1.5px outline of canvas around each glyph rather than a smear over it. It follows the
-theme for free, and it was visibly needed in both — "Trial" and "Paid" over the dark green were the
-worst of it.
+muddy enough to swallow a subtle gray. `Data Viz/Utility/Accessibility Overlay` at `rounded-md` on
+8 × 2 of padding, with `content-inverse` text: the same recipe, the same numbers, because two charts
+that both have to put text over their own marks should not invent two ways to make it legible.
+
+The token is the neutral at 56% and **flips with the theme** — `neutral-900` in light,
+`neutral-100` in dark — so `content-inverse` is right in both with no `dark:` variant. A
+surface-colored halo (`Radar`'s answer for its scale numbers) was the first attempt and works, but a
+plate is the stronger one where the ground is a saturated fill rather than a gridline, and it is
+already the library's answer for exactly this.
+
+The plate is **a single line**, so it has no value row and its height is one `LABEL_LINE` between the
+padding. That is the only place it departs from the treemap's.
 
 A label that fits neither side is **dropped, not narrowed** — SVG text neither wraps nor clips to a
 box, so a narrowed label does not shrink, it runs on over whatever is beside it. `TreeMap`'s rule,
-and its record has the detail. Verified by measurement rather than by eye: across four widths and
-three stories, no two labels overlap in both axes and none falls outside the plot; at 256px two are
-correctly dropped.
+and its record has the detail. Verified by measurement rather than by eye: across four widths and four stories, **no two plates
+overlap in both axes** and none falls outside the plot. The drop-off is gradual — all six labels to
+about 450px, five to 384, four to 320, and only "Paid" left at 256.
 
 ## Vertical order is Recharts', on purpose
 

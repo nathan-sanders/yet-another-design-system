@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { resolveSeries } from '../Chart'
-import { depthCount, toSankeyGraph } from './graph'
+import { depthCount, nodeDepths, toSankeyGraph } from './graph'
 
 /**
  * The key → index translation, pinned.
@@ -104,5 +104,23 @@ describe('depthCount', () => {
     // Not a Sankey, and Recharts cannot lay one out either — but looping is a
     // worse way to say so than returning a number.
     expect(depthCount(2, [{ source: 0, target: 1 }, { source: 1, target: 0 }])).toBeGreaterThan(0)
+  })
+})
+
+describe('nodeDepths', () => {
+  it('puts each node in the column its longest path reaches', () => {
+    // Node 2 is reachable in one step and in two. It sits in the third column,
+    // which is where Recharts puts it — the renderer has to agree with the
+    // layout, because it decides label placement before the layout exists.
+    expect(nodeDepths(3, [{ source: 0, target: 1 }, { source: 1, target: 2 }, { source: 0, target: 2 }])).toEqual([0, 1, 2])
+  })
+
+  it('leaves an unconnected node in the first column', () => {
+    expect(nodeDepths(3, [{ source: 0, target: 1 }])).toEqual([0, 1, 0])
+  })
+
+  it('agrees with depthCount', () => {
+    const links = [{ source: 0, target: 1 }, { source: 1, target: 2 }, { source: 0, target: 3 }]
+    expect(Math.max(...nodeDepths(4, links)) + 1).toBe(depthCount(4, links))
   })
 })

@@ -10,6 +10,7 @@ import {
   RADIAL_END_ANGLE,
   RADIAL_START_ANGLE,
   chartTooltipWrapperStyle,
+  cursorHighlight,
   formatFullNumber,
   placeholder,
   radialGeometry,
@@ -169,6 +170,25 @@ function RadialPlot({
         cornerRadius={RADIAL_CORNER_RADIUS}
         barSize={geometry.barSize > 0 ? geometry.barSize : undefined}
         isAnimationActive={false}
+        /*
+          The hover highlight, and it is the cartesian charts' cursor rather
+          than the donut's halo.
+
+          A line or area chart marks the pointer with
+          `cursor={{ stroke: cursorHighlight, strokeWidth: 1 }}`, and a bar chart
+          with the same token as a band. This is the same idea reaching the
+          shape it applies to: Recharts merges a props object onto the sector it
+          was already drawing, so the hovered ring is outlined in
+          `Data Viz/Utility/Accessibility Overlay` at 1px and nothing about its
+          geometry moves.
+
+          **Not Donut's halo.** That is a second arc *outside* the ring, which
+          works there because a donut has one ring and room around it. A radial
+          bar's rings are 4px apart, so a halo would land on its neighbour — and
+          the outermost one has nowhere to put it at all. The stroke sits on the
+          mark instead, which is why the chart needs no `POLAR_MARGIN`.
+        */
+        activeShape={{ stroke: cursorHighlight, strokeWidth: 1 }}
       >
         {plotted.map((row) => (
           <Cell key={String(row[nameKey])} fill={colorFor(String(row[nameKey]))} />

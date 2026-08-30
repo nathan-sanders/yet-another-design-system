@@ -111,26 +111,21 @@ export function toSankeyGraph(
 }
 
 /**
- * How many columns the diagram will have.
+ * Each node's column, as the **longest** path that reaches it.
  *
- * A node's column is the **longest** path that reaches it, which is what
- * Recharts' layout uses too — so this reproduces its column count without
- * waiting for it to lay the diagram out.
- *
- * It is needed for one thing: a label has to know how much room it has before
- * it runs into the next column. Checking only the plot's edges is not enough
- * and looks like it is — at a wide size every label fits either way, and the
- * two rules only diverge once the columns are close together, which is exactly
- * when a label overrunning into its neighbour matters.
+ * That is what Recharts' layout uses too, so this reproduces its columns without
+ * waiting for it to lay the diagram out — which the node renderer has to do,
+ * because it runs before the layout is anywhere a caller could read it.
  *
  * The relaxation is capped at one pass per node so a cycle cannot spin. A cycle
  * is not a Sankey and Recharts' own layout does not survive one either, but
  * looping forever is a worse way to say so.
  */
-export function depthCount(nodeCount: number, links: readonly { source: number; target: number }[]): number {
-  if (nodeCount <= 0) return 0
-
-  const depth = new Array<number>(nodeCount).fill(0)
+export function nodeDepths(
+  nodeCount: number,
+  links: readonly { source: number; target: number }[],
+): number[] {
+  const depth = new Array<number>(Math.max(0, nodeCount)).fill(0)
 
   for (let pass = 0; pass < nodeCount; pass++) {
     let changed = false
@@ -143,5 +138,19 @@ export function depthCount(nodeCount: number, links: readonly { source: number; 
     if (!changed) break
   }
 
-  return Math.max(...depth) + 1
+  return depth
+}
+
+/**
+ * How many columns the diagram will have.
+ *
+ * Needed for one thing: a label has to know how much room it has before it runs
+ * into the next column. Checking only the plot's edges is not enough and looks
+ * like it is — at a wide size every label fits either way, and the two rules
+ * only diverge once the columns are close together, which is exactly when a
+ * label overrunning into its neighbour matters.
+ */
+export function depthCount(nodeCount: number, links: readonly { source: number; target: number }[]): number {
+  if (nodeCount <= 0) return 0
+  return Math.max(...nodeDepths(nodeCount, links)) + 1
 }

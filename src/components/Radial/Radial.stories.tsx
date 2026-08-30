@@ -39,6 +39,12 @@ type Story = StoryObj<typeof meta>
  * *angle*, and the same angle covers less ink at a small radius than at a large
  * one — so without a band showing each ring's full extent, an inner ring reads
  * as smaller than an outer ring holding exactly the same value.
+ *
+ * Hover a ring to see the highlight: a 1px outline in
+ * `Data Viz/Utility/Accessibility Overlay`, which is the same token and the same
+ * weight the line and area charts mark the pointer with. Nothing about the
+ * ring's geometry moves — on a chart whose encoding is size, growing what you
+ * point at makes pointing look like it changed the value.
  */
 export const Playground: Story = {}
 

@@ -5,6 +5,7 @@ import {
   ChartContainer,
   ChartLegend,
   ChartTooltip,
+  accessibilityOverlay,
   chartTooltipWrapperStyle,
   formatFullNumber,
   resolveSeries,
@@ -12,7 +13,7 @@ import {
   useChart,
   type ChartSeries,
 } from '../Chart'
-import { depthCount, toSankeyGraph, type SankeyFlow } from './graph'
+import { nodeDepths, toSankeyGraph, type SankeyFlow } from './graph'
 
 /**
  * Sankey — where a quantity went, from one stage to the next.
@@ -80,8 +81,20 @@ const LINK_OPACITY = 0.4
 const NODE_WIDTH = 12
 const NODE_RADIUS = 4
 
-/** The gap between a node bar and its label. */
+/** The gap between a node bar and its label plate. */
 const LABEL_GAP = 8
+/**
+ * The label plate — `TreeMap`'s, at its numbers.
+ *
+ * A single line, so there is no value row and the height is one `LABEL_LINE`
+ * between the vertical padding. Everything else is the same recipe, which is
+ * the point: two charts that both have to put text over their own marks should
+ * not invent two different ways to make it legible.
+ */
+const PLATE_RADIUS = 6
+const PLATE_PAD_X = 8
+const PLATE_PAD_Y = 2
+const LABEL_LINE = 20
 /** Room around the plot, so a label at either extreme is not flush to the edge. */
 const PLOT_MARGIN = 8
 /**
@@ -122,30 +135,61 @@ interface LinkRenderProps {
  * renderer any other way — and the plot width is what decides which side a label
  * goes on.
  */
-function makeNode({ plotRight, labelRoom }: { plotRight: number; labelRoom: number }) {
+function makeNode({
+  plotRight,
+  labelRoom,
+  widestByColumn,
+  columnOf,
+}: {
+  plotRight: number
+  labelRoom: number
+  /** The widest plate that will actually be drawn in each column. */
+  widestByColumn: number[]
+  /** Which column a node index lands in. */
+  columnOf: number[]
+}) {
   return function renderNode(rawProps: unknown) {
     const props = rawProps as NodeRenderProps
     const { x = 0, y = 0, width = 0, height = 0 } = props
     const name = props.payload?.name ?? ''
+    const column = columnOf[props.index ?? -1] ?? 0
 
     // **Which side the label goes on is measured, not derived from the graph.**
     // "Is this a terminal node?" is the obvious test and gets the middle columns
     // wrong — a node halfway across with room on neither side still has to pick
     // one. Asking whether the text fits is the question that actually decides it.
     const textWidth = name.length * LABEL_CHAR
+    // **The plate is what has to fit, not the text.** It is 16px wider, which is
+    // more than a rounding error at the widths where labels start being dropped.
+    const plateWidth = textWidth + PLATE_PAD_X * 2
+    const plateHeight = LABEL_LINE + PLATE_PAD_Y * 2
 
     // **Two bounds, and the second one is the one that was missing.** The plot's
     // edge is the obvious constraint; the *next column* is the real one. At a
     // wide size every label clears both and the difference is invisible, so this
     // was found by measuring at 256px, where "Paid" and "Churned" were drawn
     // straight through each other — both inside the plot, both illegible.
-    const withinColumn = labelRoom <= 0 || textWidth <= labelRoom
-    const fitsRight = withinColumn && (plotRight <= 0 || x + width + LABEL_GAP + textWidth <= plotRight)
-    // A label with nowhere to go is dropped rather than clipped. SVG text
-    // neither wraps nor clips to a box, so a narrowed label does not shrink —
-    // it runs on over whatever is beside it, which is what `TreeMap` found.
-    const fitsLeft = withinColumn && x - LABEL_GAP - textWidth >= 0
+    const withinColumn = labelRoom <= 0 || plateWidth <= labelRoom
+    const fitsRight = withinColumn && (plotRight <= 0 || x + width + LABEL_GAP + plateWidth <= plotRight)
+
+    // **A label placed left has to share its column gap, and one placed right
+    // does not.** Only the last column ever goes left — right is the default and
+    // fails only at the plot's edge — so a left plate reaches back into the same
+    // gap the previous column's right plates are already using. Two plates that
+    // each clear `labelRoom` on their own can still collide, and did:
+    // "Reactivated" ran back over "Archived" in `TooManyNodes`. The bound is on
+    // the *pair*, so the room the neighbour needs is subtracted first.
+    //
+    // Widening the text into a plate is what surfaced this. At 16px narrower the
+    // same two labels cleared each other, which is the honest reason it was not
+    // caught the first time rather than an oversight.
+    const neighbour = column > 0 ? (widestByColumn[column - 1] ?? 0) : 0
+    const fitsLeft =
+      (labelRoom <= 0 || plateWidth + neighbour <= labelRoom) && x - LABEL_GAP - plateWidth >= 0
     const showLabel = name !== '' && (fitsRight || fitsLeft)
+
+    const plateX = fitsRight ? x + width + LABEL_GAP : x - LABEL_GAP - plateWidth
+    const plateY = y + height / 2 - plateHeight / 2
 
     return (
       <g>
@@ -159,30 +203,41 @@ function makeNode({ plotRight, labelRoom }: { plotRight: number; labelRoom: numb
           fill={props.payload?.groupColor ?? surface}
         />
         {showLabel ? (
-          <text
-            x={fitsRight ? x + width + LABEL_GAP : x - LABEL_GAP}
-            y={y + height / 2}
-            textAnchor={fitsRight ? 'start' : 'end'}
-            dominantBaseline="middle"
-            // Mono, in `content-subtle`, like every other chart label in the
-            // library — `Radar`'s conclusion, and for its reason: a name beside
-            // a mark is chrome, and text never wears the series color, because
-            // three of the twelve hues cannot carry it legibly.
-            className="fill-content-subtle font-mono text-sm"
-            // **A label goes on the side its own ribbon leaves from**, so it is
-            // always over data rather than over the canvas — and at 0.4 the
-            // ribbons are exactly muddy enough to swallow a subtle gray. This is
-            // `Radar`'s halo, which had the same problem with its scale: the
-            // stroke is drawn *under* the fill by `paint-order`, so 3px reads as
-            // a 1.5px outline of canvas around each glyph rather than a smear
-            // over it. Surface-colored, so it follows the theme for free.
-            stroke={surface}
-            strokeWidth={3}
-            strokeLinejoin="round"
-            style={{ paintOrder: 'stroke' }}
-          >
-            {name}
-          </text>
+          <>
+            {/*
+              The plate — `TreeMap`'s, and here for the same reason it exists
+              there. **A label goes on the side its own ribbon leaves from**, so
+              it is always over data rather than over the canvas, and at 0.4 the
+              ribbons are exactly muddy enough to swallow a subtle gray.
+
+              `Data Viz/Utility/Accessibility Overlay` is the neutral at 56%,
+              which is what a legible plate needs, and it **flips with the theme**
+              (`neutral-900` in light, `neutral-100` in dark) — so
+              `content-inverse` is the right text color in both without a single
+              `dark:` variant.
+            */}
+            <rect
+              x={plateX}
+              y={plateY}
+              width={plateWidth}
+              height={plateHeight}
+              rx={PLATE_RADIUS}
+              ry={PLATE_RADIUS}
+              fill={accessibilityOverlay}
+            />
+            <text
+              x={plateX + PLATE_PAD_X}
+              y={plateY + plateHeight / 2}
+              textAnchor="start"
+              dominantBaseline="middle"
+              // Mono, like every other chart label in the library — `Radar`'s
+              // conclusion. Text never wears the series color, because three of
+              // the twelve hues cannot carry it legibly.
+              className="fill-content-inverse font-mono text-sm"
+            >
+              {name}
+            </text>
+          </>
         ) : null}
       </g>
     )
@@ -301,10 +356,26 @@ function SankeyPlot({
   // less one node, divided by the gaps between columns — the same arithmetic it
   // does, reproduced rather than waited for, since the renderer runs before the
   // layout is anywhere a caller can read it.
-  const columns = depthCount(graph.nodes.length, graph.links)
-  const inner = Math.max(0, plotWidth - PLOT_MARGIN * 2)
-  const columnStep = columns > 1 ? (inner - NODE_WIDTH) / (columns - 1) : inner
-  const labelRoom = columnStep - NODE_WIDTH - LABEL_GAP * 2
+  const layout = useMemo(() => {
+    const columnOf = nodeDepths(graph.nodes.length, graph.links)
+    const columns = columnOf.length ? Math.max(...columnOf) + 1 : 0
+    const inner = Math.max(0, plotWidth - PLOT_MARGIN * 2)
+    const columnStep = columns > 1 ? (inner - NODE_WIDTH) / (columns - 1) : inner
+    const labelRoom = columnStep - NODE_WIDTH - LABEL_GAP * 2
+
+    // The widest plate each column will actually *draw* — one that is going to
+    // be dropped reserves nothing, or a single long name would quietly cost its
+    // neighbours their labels too.
+    const widestByColumn: number[] = []
+    graph.nodes.forEach((node, index) => {
+      const plate = node.name.length * LABEL_CHAR + PLATE_PAD_X * 2
+      if (labelRoom > 0 && plate > labelRoom) return
+      const column = columnOf[index]
+      widestByColumn[column] = Math.max(widestByColumn[column] ?? 0, plate)
+    })
+
+    return { columnOf, labelRoom, widestByColumn }
+  }, [graph, plotWidth])
 
   return (
     <RechartsSankey
@@ -318,7 +389,12 @@ function SankeyPlot({
       // legible diagram for an ordering that means nothing. The caller's order
       // still fixes what matters: the color of each node and the order of the
       // legend, neither of which the layout can touch.
-      node={makeNode({ plotRight: plotWidth > 0 ? plotWidth - PLOT_MARGIN : 0, labelRoom })}
+      node={makeNode({
+        plotRight: plotWidth > 0 ? plotWidth - PLOT_MARGIN : 0,
+        labelRoom: layout.labelRoom,
+        widestByColumn: layout.widestByColumn,
+        columnOf: layout.columnOf,
+      })}
       link={renderLink}
       margin={{ top: PLOT_MARGIN, right: PLOT_MARGIN, bottom: PLOT_MARGIN, left: PLOT_MARGIN }}
     >

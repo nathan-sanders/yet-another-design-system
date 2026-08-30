@@ -59,12 +59,23 @@ computes. **Nothing is broken; the measurement is.** Verify these charts with a 
 short Playwright script against the Storybook iframe works) rather than the Browser pane when the
 pane is hidden.
 
-## No halo, and no `POLAR_MARGIN`
+## Hover is the cartesian cursor, not the donut's halo
 
-Donut and Gauge reserve `POLAR_MARGIN` for the hover halo Figma draws outside the ring. Figma draws
-no hover state for a radial, and nothing here paints outside the outermost bar — the arcs carry a
-fill and no stroke. Borrowing the constant would shrink every chart by eight pixels to leave room for
-something that is never drawn.
+The hovered ring is outlined in `Data Viz/Utility/Accessibility Overlay` at 1px — the same token and
+the same weight a line or area chart marks the pointer with
+(`cursor={{ stroke: cursorHighlight, strokeWidth: 1 }}`), and the same token a bar chart's band
+takes. It reaches the mark as a props object on `activeShape`, which Recharts merges onto the sector
+it was already drawing, so **nothing about the ring's geometry moves** — the restraint Donut's
+record argues for, on a chart whose encoding is also size.
+
+**Donut's halo is the wrong shape here**, and the reason is geometric rather than stylistic. That is
+a second arc drawn *outside* the ring, which works because a donut has one ring with room around it.
+A radial bar's rings are 4px apart, so a halo would land on the neighbour, and the outermost one has
+nowhere to put it at all. The stroke sits on the mark instead.
+
+Which is also why the chart reserves no `POLAR_MARGIN`. Donut and Gauge give up eight pixels for the
+halo; nothing here paints outside the outermost bar except half of a 1px stroke, which the
+`RADIAL_MARGIN` slack already covers.
 
 ## The track is the chart's honesty, not its decoration
 

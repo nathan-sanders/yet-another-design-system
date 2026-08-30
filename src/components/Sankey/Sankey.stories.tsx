@@ -59,12 +59,16 @@ export const NoLegend: Story = {
  * text neither wraps nor clips to a box, so a label that is merely narrowed runs
  * on over whatever is beside it. `TreeMap` found this first and its record has
  * the detail. Every name is still in the legend and in the hidden table.
+ *
+ * Four of six survive here. The plate is 16px wider than its text, so labels
+ * start going about a column earlier than they used to — the first drops at
+ * roughly 450px and only "Paid" is left by 256.
  */
 export const Narrow: Story = {
   args: { legend: 'vertical' },
   decorators: [
     (Story) => (
-      <div className="max-w-64">
+      <div className="max-w-96">
         <Story />
       </div>
     ),
