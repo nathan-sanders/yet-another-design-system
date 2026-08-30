@@ -140,3 +140,115 @@ export function gaugeGeometry(plotWidth: number, height: number): { cy: number; 
   const outerRadius = Math.max(0, Math.min(plotWidth / 2 - POLAR_MARGIN, cy - POLAR_MARGIN))
   return { cy, outerRadius }
 }
+
+/**
+ * Where a radial bar chart's hole starts, as a fraction of its outer radius.
+ *
+ * Figma's `_Radial / Radial` track (`40004355:41236`) is drawn at 256px with a
+ * 64px hole: **0.25**, against Donut's 0.72 and Gauge's 0.8. The three differ
+ * because they are three different forms, not three settings of one — a donut is
+ * a band, a gauge is an arch, and a radial bar is a set of concentric tracks that
+ * needs most of the radius to hold them.
+ */
+export const RADIAL_INNER_RATIO = 0.25
+
+/**
+ * The gap between one ring and the next, in px.
+ *
+ * Read off the same track: bands of 16 separated by 4, with the outermost
+ * touching 128 and the innermost touching 32. `5 × 16 + 4 × 4 = 96 = 128 − 32`,
+ * which is exact — and the arc component agrees from the other side, since
+ * `_Radial / Slice Sweep` (`40004355:41213`) has `arcData.innerRadius` of
+ * 0.8751687, or `128 × (1 − 0.87517) = 15.98`.
+ *
+ * **One drawing can hide two rules, and this one did.** 16 and 4 in a 256 box
+ * with 5 rings is equally consistent with "the band is always 16" and with "the
+ * hole is always a quarter". The second is the library's existing idiom — Donut
+ * and Gauge both pin a *ratio* — so the hole is the constant and the band is
+ * what is left over. At five rings the two readings are identical; they only
+ * diverge at another count, which is exactly why the choice had to be made
+ * deliberately rather than discovered later.
+ */
+export const RADIAL_TRACK_GAP = 4
+
+/**
+ * The rounded end of a bar. Figma binds `border-radius/rounded-xs` on the arc,
+ * and it is the reason the arc measures 12px thick where a screenshot happens to
+ * cross its cap rather than its middle.
+ */
+export const RADIAL_CORNER_RADIUS = 4
+
+/**
+ * Twelve o'clock, clockwise — the same as `Donut`, and for the same reason: a
+ * reader expects the first bar to start where a clock hand starts. Recharts
+ * measures counter-clockwise from three o'clock, so twelve is 90 and clockwise
+ * means counting down to -270.
+ */
+export const RADIAL_START_ANGLE = 90
+export const RADIAL_END_ANGLE = -270
+
+/**
+ * Room to leave outside the outermost ring, and deliberately **not**
+ * `POLAR_MARGIN`.
+ *
+ * That constant reserves space for the hover halo Figma draws outside a donut.
+ * A radial bar has no halo in the file, and nothing is painted outside the
+ * outermost bar — the arcs carry a fill and no stroke — so borrowing it would
+ * shrink every chart to leave room for something never drawn.
+ *
+ * What *is* needed is half a gap, and the reason is the one thing here that
+ * cannot be made to match Figma exactly. Recharts centers each bar in its band,
+ * so it insists on half a gap of padding outside the outermost one; Figma's
+ * outermost band sits flush against the frame's edge. The chart therefore hands
+ * Recharts a range inflated by `RADIAL_TRACK_GAP / 2` at each end, and gives up
+ * that much radius to do it. The ratios are the file's; the outer radius is
+ * three pixels short of the box, and no arrangement of the two recovers it.
+ *
+ * The extra pixel is slack for Recharts' rounding.
+ */
+export const RADIAL_MARGIN = RADIAL_TRACK_GAP / 2 + 1
+
+/**
+ * A radial bar chart's radii and bar thickness.
+ *
+ * **The two radii returned are Recharts' props, not the drawn edges**, and the
+ * difference is half a gap at each end. Recharts divides `outerRadius -
+ * innerRadius` into one band per row and centers each bar in its band, so it
+ * leaves half a gap of padding at both extremes. Figma's track has none: its
+ * outermost band touches the outer edge and its innermost touches the hole. So
+ * the range handed to Recharts is inflated by `RADIAL_TRACK_GAP / 2` on each
+ * side, and the padding it then adds lands the drawn bars exactly on the edges
+ * the file draws.
+ *
+ * Reproduces the file at five rings in a 256px box — 16px bands, 4px gaps, a
+ * 32px hole — to within `RADIAL_MARGIN`.
+ *
+ * Returns zeros before measurement, rather than a negative radius, which
+ * Recharts renders as an empty chart.
+ */
+export function radialGeometry(
+  plotWidth: number,
+  height: number,
+  count: number,
+): { innerRadius: number; outerRadius: number; barSize: number; ringInner: number; ringOuter: number } {
+  const none = { innerRadius: 0, outerRadius: 0, barSize: 0, ringInner: 0, ringOuter: 0 }
+  if (plotWidth <= 0 || height <= 0 || count <= 0) return none
+
+  const ringOuter = Math.min(plotWidth, height) / 2 - RADIAL_MARGIN
+  if (ringOuter <= 0) return none
+
+  const ringInner = ringOuter * RADIAL_INNER_RATIO
+  // One band per ring, and one gap *between* each pair — so `count` bands and
+  // `count - 1` gaps have to fit between the hole and the edge.
+  const band = (ringOuter - ringInner + RADIAL_TRACK_GAP) / count
+  const barSize = band - RADIAL_TRACK_GAP
+  if (barSize <= 0) return none
+
+  return {
+    innerRadius: ringInner - RADIAL_TRACK_GAP / 2,
+    outerRadius: ringOuter + RADIAL_TRACK_GAP / 2,
+    barSize,
+    ringInner,
+    ringOuter,
+  }
+}

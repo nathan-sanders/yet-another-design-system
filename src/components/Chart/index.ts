@@ -28,8 +28,15 @@ export {
   RADAR_STROKE_WIDTH,
   RADAR_RINGS,
   POLAR_MARGIN,
+  RADIAL_INNER_RATIO,
+  RADIAL_TRACK_GAP,
+  RADIAL_CORNER_RADIUS,
+  RADIAL_START_ANGLE,
+  RADIAL_END_ANGLE,
+  RADIAL_MARGIN,
   donutRadius,
   gaugeGeometry,
+  radialGeometry,
 } from './polar'
 export type { BarSegmentOptions, BarSegmentProps } from './bars'
 

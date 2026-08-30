@@ -99,13 +99,32 @@ export interface ChartTooltipProps {
  * The color to draw an entry's swatch in.
  *
  * Recharts puts a series color on the entry, but a chart whose *marks* carry
- * the color — a treemap tile, a pie cell — has it on the datum instead. Look at
- * the datum first, since a chart that has both means the datum.
+ * the color — a treemap tile, a pie cell, a sankey ribbon — has it on the datum
+ * instead. Look at the datum first, since a chart that has both means the datum.
+ *
+ * **The datum is not always one level down**, and that is the part worth
+ * knowing. `Sankey`'s payload searcher wraps its own datum as
+ * `{ payload, name, value }` before Recharts wraps *that* as the entry's
+ * `payload`, so the color sits at `entry.payload.payload.groupColor`. Reading
+ * only the first level was enough for `TreeMap` and left every Sankey swatch
+ * painted in `currentColor` — the text color, so every key came out black.
+ * Exactly the failure `TreeMap` recorded, arriving again through a door one
+ * level deeper.
+ *
+ * Outer before inner, so nothing about `TreeMap`'s case changes.
  */
+function datumColor(datum: Record<string, unknown> | undefined): string | undefined {
+  const value = datum?.groupColor ?? datum?.fill
+  return typeof value === 'string' ? value : undefined
+}
+
 function pickColor(entry: ChartTooltipPayloadEntry): string | undefined {
-  const fromDatum = entry.payload?.groupColor ?? entry.payload?.fill
-  if (typeof fromDatum === 'string') return fromDatum
-  return entry.color
+  const nested = entry.payload?.payload
+  return (
+    datumColor(entry.payload) ??
+    datumColor(nested && typeof nested === 'object' ? (nested as Record<string, unknown>) : undefined) ??
+    entry.color
+  )
 }
 
 export function ChartTooltip({

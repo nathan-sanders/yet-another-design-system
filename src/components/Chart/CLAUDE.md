@@ -278,9 +278,24 @@ tested: `polar.test.ts` asserts the invariant — everything drawn, halo include
 Before adding anything that paints outside a mark's own bounds, check the chart has reserved room for
 it.
 
+## `plotWidth` is 0 in a hidden browser tab, and it looks like a geometry bug
+
+The `ResizeObserver` above never fires in a tab that is not being rendered — the callback is
+delivered as part of the rendering steps, which a hidden tab does not run. So `plotWidth` stays 0 and
+every chart that derives geometry from it takes its percentage fallback instead: Donut measured a
+121.5 outer radius (`90%` of Recharts' own max) against the 132 its code computes, and Radial's rings
+landed on Recharts' defaults.
+
+**Nothing is broken in those charts; the measurement is.** `document.hidden` is the tell, along with
+`requestAnimationFrame` never running. When the Browser pane is hidden, measure in a real browser —
+a short Playwright script against the Storybook iframe — rather than trusting what the pane reports.
+Same family as the animation clock never advancing there.
+
 ## Left for later, deliberately
 
 - **`_Quadrant Grid`** has no chart built on it in Figma yet.
+- **`Scatter` (`40004378:41242`) is an empty section**, like `Sankey` was before `Sankey` was built.
+  Nothing is built against it.
 - Figma's `Chart Key / Metric` and `_Swatch Label` are absorbed into `ChartLegend`'s row and
   `ChartTooltip`'s row rather than being separate components. Split them out if a third caller
   appears.

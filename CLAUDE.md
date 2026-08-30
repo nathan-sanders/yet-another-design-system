@@ -418,6 +418,8 @@ settled once, against the Figma file, for a reason that is written down.
 | [Metric](src/components/Metric/CLAUDE.md) | a labeled number and what it did | no Recharts at all; two of its four components are wrappers over `Badge` and `Card` |
 | [HeatMap](src/components/HeatMap/CLAUDE.md) | how much, across two dimensions | a CSS grid, not a chart; the one caller of `ChartContainer`'s `responsive={false}` |
 | [TreeMap](src/components/TreeMap/CLAUDE.md) | parts of a whole, past a donut's limit | the only chart whose marks carry their own text |
+| [Radial](src/components/Radial/CLAUDE.md) | how much, per category, on a common scale | one Figma drawing hiding two rules; the track is what makes it honest |
+| [Sankey](src/components/Sankey/CLAUDE.md) | where a quantity went, stage to stage | the file draws nothing at all; a ribbon takes the color it left with |
 
 ### Data visualization
 
@@ -468,6 +470,17 @@ Three rules worth having in mind before touching a chart:
 - **Figma's Data Viz page references one token that does not exist.** The tree map's tile metric
   binds `Overlay/Text`, and no `Overlay/*` token is in any of `tokens/*.json`. `content-inverse`
   stands in. Worth knowing that the file is not a complete description of the token layer.
+- **Three of the page's sections are ahead of the file rather than behind it.** `Radial`
+  (`40004355:41100`) holds only a slice-sweep arc and a concentric track — the mechanism, not the
+  chart — and `Sankey` (`40004378:41237`) and `Scatter` (`40004378:41242`) are **empty sections**.
+  Radial and Sankey are built here anyway, on the code-first route, and each record names exactly
+  what the file owes. Scatter has nothing built against it yet.
+- **A hidden browser tab makes every measured chart lie.** `ChartContainer` sizes itself with a
+  `ResizeObserver`, and a tab that is never rendered does not run the rendering steps, so the
+  observer never fires — `plotWidth` stays 0 and Donut, Gauge and Radial all silently fall back to
+  their percentage radii. Nothing is broken; the *measurement* is. When the Browser pane is hidden,
+  verify polar geometry with a real browser instead — a short Playwright script against the
+  Storybook iframe does it.
 - **Measure the geometry; do not read it off a screenshot.** Both chart bugs found so far were
   invisible in a picture and obvious in a number — a missing 1px gap between two stacked segments,
   and grouped bars at 7px because `barCategoryGap` is applied to each side of the band. Pull the
