@@ -34,13 +34,19 @@ import { backdrop, body, popup, viewport } from './styles'
  * `Elevation/Drop Shadow/High`. The header is a 32-tall row on an 8 gap holding
  * `text-base/semibold` on `Content/Primary` beside a 42x32 ghost close button.
  *
- * **What Figma does not draw, and is built here anyway.** The Backdrop, the
+ * **What Figma did not draw, and was built here first.** The Backdrop, the
  * Description, and `Body`. Astryx marks Backdrop and Body *required* elements,
  * and a modal dialog with no scrim has nothing that says the page is blocked.
  * That is the Accordion route — code first, the file catches up — and it is the
- * same one Popover's whole part set took. The file also owes this component a
- * Docs page: the `Docs` frame exists but its Light and Dark previews are empty
- * and its Best Practices still read "Usage rule."
+ * same one Popover's whole part set took.
+ *
+ * **Two of the three have since landed in the file, and nothing here changed
+ * when they did**, which is the test of whether a catch-up was really a
+ * catch-up. The component gained a `Description` line and the `Title` /
+ * `Description` / `Is Dismissable` booleans, so its property set is now
+ * Popover's vocabulary exactly; the Docs previews draw the scrim in both themes.
+ * `Body` is the one that cannot land: Figma has no way to draw scrolling, so it
+ * is carried as a Best Practices rule on the page instead of as geometry.
  *
  * **`Dialog.Popup` swallows Portal, Backdrop and Viewport** — Menu's move, held
  * by Popover. The caller writes `<Dialog><Dialog.Trigger /><Dialog.Popup />`,

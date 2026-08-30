@@ -1,9 +1,9 @@
 # AlertDialog
 
-A dialog that asks you to confirm something you cannot undo. **No Figma node** — the file draws a
-`Dialog` and nothing else — so this is BentoGrid's situation rather than Accordion's: a whole
-component with no drawing behind it, built because Astryx documents it as its own component and
-Base UI ships the primitive. It owes the file a drawing.
+A dialog that asks you to confirm something you cannot undo. It shipped with **no Figma node at
+all** — BentoGrid's situation rather than Accordion's, a whole component with no drawing behind it,
+built because Astryx documents it as its own component and Base UI ships the primitive. The file has
+since caught up: `↪ Alert Dialog` (`40004405:463`) with the component at `40004406:491`.
 
 ## The sharing rule at its strongest so far
 
@@ -73,8 +73,31 @@ opened: `role="alertdialog"`, the name from the Title, the **description** from 
 focus on Cancel. The description is the half of the pattern that is easy to leave out, because a
 dialog missing it still looks and behaves fine.
 
-## What it owes the file
+## How Figma models it, and where that disagrees with the code
 
-A drawing. There is no `AlertDialog` component in Figma at all — not a variant, not a frame. If one
-is added, the thing to get right is that it is a *different component* from Dialog rather than a
-variant of it: no close button, a mandatory description, and a footer whose order changes at 640.
+The file now has an `Alert Dialog` component, and it is a **sibling of Dialog rather than a reuse of
+it** — which is the opposite of what this file's code does, so the disagreement is worth stating
+rather than smoothing over.
+
+The code shares Dialog's parts because Base UI hands over the same objects. Figma cannot express
+"the same parts under a different root", so on the canvas this is its own component drawn like
+Dialog. What makes that honest rather than a duplication is the two things it *removes*:
+
+- **No close button.** An alert dialog is answered by its actions, not dismissed past.
+- **No `Content` slot.** Its anatomy is fixed — a question, a consequence, and two buttons — so the
+  actions are baked into the component rather than composed at the call site.
+
+That second one was forced by the API and then turned out to be right. `figma.createSlot` does not
+exist, and detaching an instance turns a `SLOT` into a plain `FRAME`, so a slot could not have been
+made programmatically. But an alert dialog holding arbitrary content is not a shape anybody wants,
+which is exactly the distinction from Dialog. Properties are `Title Text` and `Description Text`.
+
+**The button labels are not component properties**, and that is a limitation rather than a choice:
+`componentPropertyReferences` accepts only `characters`, `visible` and `mainComponent`, so a nested
+instance's `Label Text` cannot be bound to an outer property. Two such properties were added and
+then deleted — a property that is wired to nothing is worse than no property. Set the labels on the
+Button instances inside, which is ordinary Figma practice.
+
+The responsive footer — destructive above Cancel below 640px — is **not drawn**. It is one component
+per breakpoint in Figma and one `flex-col-reverse sm:flex-row` in code, so the canvas carries the
+desktop shape and the record carries the rest.
