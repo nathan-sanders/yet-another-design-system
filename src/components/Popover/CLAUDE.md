@@ -124,10 +124,29 @@ than Menu's: the size is held and only the color changes, because this is body t
 sub-label under a row. On the Olive ramp it measures 6.9:1 light and 7.29:1 dark on the panel, so
 the non-default ramps are clear.
 
-**What the file owes.** `Title`, `Description` and `Close`, drawn into the component — and the
-`gap-2`, which is an invention: Figma binds the slot's gap to `spacing/0`, but the frame has
-exactly one child, so its itemSpacing was never a decision anyone made. Mechanism, not decision.
-The test of a clean catch-up is that nothing in this code changes when the variants arrive.
+**The file has caught up, and it was a clean one.** `Title`, `Description` and `Close` were drawn
+into the component the same day, and the stack gap rebound from `spacing/0` to `spacing/2`.
+**Nothing in this code changed**, which is the test — measured on both sides rather than eyeballed:
+12 padding, an 8 stack gap, a 32-tall header row on an 8 gap aligned to its start, a 42×32 close
+button, `text-base/semibold` on `Content/Primary`, `text-base/normal` on `Content/Subtle`. Accordion's
+route, now on its own whole part set rather than a variant axis.
+
+The old `gap-2` note is worth keeping for why it was ever a question: Figma bound the slot's gap to
+`spacing/0`, but the frame had exactly one child, so its itemSpacing was never a decision anyone
+made. Mechanism, not decision — and the catch-up is what turned it into one.
+
+**Figma's properties are `Title` / `Title Text` / `Description` / `Description Text` /
+`Is Dismissable`**, which is Banner's vocabulary (a bare noun for the boolean, `<Noun> Text` for the
+string). Two things about that set are deliberate:
+
+- **`Title` hides the whole header row, not just the text.** An empty auto-layout row would still
+  spend the stack's 8px gap, which is a visible artefact. The cost is that **a close button with no
+  title is not expressible in the file** — it is in code, and it is a shape nothing has asked for
+  yet. If one ever does, the fix is a third boolean on the row rather than uncoupling these two.
+- **The header row is a frame in Figma and deliberately not a part in code.** Figma has to have
+  something to sit the title beside the button; the code does not, and `flex items-start
+  justify-between` at the call site is the whole of it. Seeing `Header` in the layer tree is not
+  evidence that `Popover.Header` should exist — Card's bar still applies.
 
 **And what the library owes.** Both of Astryx's "don't" rules — heavy input, and content that needs
 scrolling — point at a **Dialog**, which does not exist here. Popover landing is the evidence Card's
