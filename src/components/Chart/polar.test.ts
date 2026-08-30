@@ -106,7 +106,7 @@ describe('radialGeometry', () => {
   }
 
   it('reproduces the file at five rings in a 256px box', () => {
-    // `_Radial / Radial` (40004355:41236) draws bands of 16 and gaps of 4 over a
+    // `_Radial / Radial` (40004450:16871) draws bands of 16 and gaps of 4 over a
     // hole of 32, against a radius of 128.
     //
     // **The proportions reproduce; the absolute radius does not, and cannot.**

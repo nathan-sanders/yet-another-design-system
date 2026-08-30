@@ -23,7 +23,8 @@ import {
  * Radial — how much, per category, against a common scale.
  *
  * Figma's `Radial` section (`40004355:41100`), on `_Radial / Slice Sweep`
- * (`40004355:41215`) and `_Radial / Radial` (`40004355:41236`).
+ * (`40004355:41215`) and `_Radial / Radial` (`40004450:16871`), with the composed
+ * chart at `40004451:16871`.
  *
  * ## Its data is shaped like a Donut's, not like a bar chart's
  *

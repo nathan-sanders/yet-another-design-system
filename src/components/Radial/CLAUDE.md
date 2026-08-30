@@ -1,19 +1,23 @@
 # Radial
 
-How much, per category, against a common scale. Figma's `Radial` section (`40004355:41100`).
-**Read [Chart/CLAUDE.md](../Chart/CLAUDE.md) first.**
+How much, per category, against a common scale. Figma's `Radial` section (`40004355:41100`):
+`Radial` (`40004451:16871`), `_Radial / Radial` (`40004450:16871`) and `_Radial / Slice Sweep`
+(`40004355:41215`). **Read [Chart/CLAUDE.md](../Chart/CLAUDE.md) first.**
 
-## The Figma page is a stub, and that is the first thing to know
+## It was built code-first, and the file has since caught up
 
-The section holds two things and neither is the chart: `_Radial / Slice Sweep` (`40004355:41215`),
-one arc, and `_Radial / Radial` (`40004355:41236`), the concentric track. There is no composed
-`Radial` component, no legend, no example and no hover state. This is the **code-first route** the
-root `CLAUDE.md` sanctions — Accordion, Popover, ContentBlock's `Emphasis` — with the rule attached:
-*what is not allowed is leaving the file behind.*
+The section held only the mechanism when this was built — one arc and the concentric track, no
+composed chart, no legend, no example. That is the **code-first route** the root `CLAUDE.md`
+sanctions, with its rule attached: *what is not allowed is leaving the file behind.*
 
-**What the file owes:** a `Radial` component drawing the composed chart with its legend, and a
-decision about hover. Everything below that the file *does* settle is settled; everything it does not
-is marked as this library's choice.
+The debt is now closed. `Radial` was drawn on **2026-08-30** with the same shape as `Donut` — a
+`Chart Wrap` holding a `Chart Legend` instance over the plot — and `_Radial / Radial` was promoted
+from a frame to a component so it could be instanced, which is why its id moved from `40004355:41236`
+to `40004450:16871`. **Nothing in the code changed when it landed**, which is the test of whether a
+catch-up was really a catch-up.
+
+One thing the file still does not draw: a **hover state**. The code's is described below and is this
+library's choice, not the file's.
 
 ## The two numbers, and the one drawing that hides two rules
 
@@ -44,6 +48,16 @@ arrangement of the two recovers it.
 
 Measured in a real browser at a 1184 × 280 plot: bands of 17.35, gaps of **exactly 4**, innermost
 edge on 34.25 and outermost on 137 — both precisely the computed ring bounds.
+
+**The Figma drawing does not make that concession, and should not.** There is no Recharts on the
+canvas, so `_Radial / Radial` draws the intended 16 / 4 / 32 against a 128 radius. The two are the
+same rule at the only two settings available to them, and the file is the one that states it
+cleanly. Do not "fix" the drawing to match the code's three-pixel loss.
+
+**Figma measures `arcData` from three o'clock, clockwise.** The chart starts at twelve, so every
+sweep in the drawing is offset back by a quarter turn (`startingAngle: -π/2`). Drawn without it, the
+rings all begin at three o'clock and the chart looks plausible and is wrong — which is exactly what
+the first attempt produced.
 
 ## `plotWidth` is 0 in a hidden browser pane, and every polar chart falls back
 
