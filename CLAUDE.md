@@ -529,6 +529,12 @@ component usually has fewer decisions in it than it looks.
   the same way**: built against a `Menu Item` whose `Type` was Action | Nested only, and drawn into
   the file as `Type=Danger` the day ContextMenu landed. Nothing in the code changed when it arrived,
   which is the test of whether a catch-up was really a catch-up.
+  **Popover is the newest, and the largest**: `Title`, `Description` and `Close` were built against a
+  node that drew a bare surface with one slot, and drawn into the file the same day — a whole part
+  set catching up rather than a variant axis. It also shows what the catch-up is *for*. Figma's
+  drawing had no title, and a `role="dialog"` with no title has no accessible name, so the file was
+  not merely incomplete: as drawn it could not ship. Nothing in the code changed when the parts
+  landed, and both sides were measured rather than eyeballed.
 - **Catching up can mean the file deleting something, not adding it.** ContextMenu shipped sharing
   Menu's rows, on the grounds that Base UI hands over the same component objects and Figma drew the
   two identically. Figma then retired its own `Context Menu Item` and `Context Menu Group` sets so
