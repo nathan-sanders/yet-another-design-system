@@ -73,10 +73,10 @@ const meta = {
         <NavItem href="#help" startIcon={CircleHelp}>
           Help
         </NavItem>
-        <NavItem href="#alerts" startIcon={Bell} status>
+        <NavItem href="#alerts" startIcon={Bell} newIndicator>
           Notifications
         </NavItem>
-        <NavItem href="#account" start={<Avatar name="Nathan Sanders" size="small" />}>
+        <NavItem href="#account" start={<Avatar name="Nathan Sanders" size="x-small" />}>
           Hi, Nathan!
         </NavItem>
       </>
@@ -147,6 +147,25 @@ export const InContext: Story = {
           The page keeps its own semantic tokens. Only the rail is drawn from the navigation
           theme.
         </p>
+      </main>
+    </div>
+  ),
+}
+
+/**
+ * `floating={false}` — Figma's `Floating=False`, which drops the drop shadow and
+ * changes nothing else. The docs frame draws this one: the rail docked inside
+ * the app window against the page it navigates, still rounded, just not lifted
+ * off it.
+ */
+export const Docked: Story = {
+  parameters: { controls: { disable: true } },
+  args: { floating: false },
+  render: (args) => (
+    <div className="flex h-full gap-0 overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary p-2">
+      <SideNav {...args} />
+      <main className="flex-1 p-6">
+        <h1 className="text-lg font-semibold text-content-emphasized">Home</h1>
       </main>
     </div>
   ),

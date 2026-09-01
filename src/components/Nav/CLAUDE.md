@@ -7,12 +7,17 @@ either. The same reason `Card/styles.ts` and `Menu/styles.ts` exist.
 
 | Thing | Node | Became |
 |---|---|---|
-| Nav Item (6 variants) | `40004484:25394` | `NavItem` |
-| Side Navigation (`Collapsed` axis) | `40004484:25806` | `SideNav` |
-| Nav Section List (`Collapsed` axis) | `40004504:29320` | `SideNav.Section` |
-| Nav Section Header | `40004504:29210` | `SideNav.Section`'s `header` prop |
-| Top Navigation | `40004484:25988` | `TopNav` |
-| Status | `40004485:27341` | `NavItem`'s `status` prop |
+| Nav Item (8 variants) | `40004484:25394` | `NavItem` |
+| Side Navigation (`Collapsed` × `Floating`) | `40004484:25806` | `SideNav` |
+| Nav Section List (`Collapsed`) | `40004504:29320` | `SideNav.Section` |
+| Nav Section Header (`Collapsed`) | `40004511:33365` | `SideNav.Section`'s `header` prop |
+| Top Navigation (`Floating`) | `40004511:34404` | `TopNav` |
+| Status → the `New Indicator` boolean | `40004485:27341` | `NavItem`'s `newIndicator` prop |
+
+The file moved under this component on 2026-09-01, after the first version landed. `Nav Item` gained
+a `Focus` state and split its start slot into separate `Icon` and `Avatar` booleans; `Nav Section
+Header` and `Top Navigation` became component sets; both bars gained `Floating`. What follows records
+the second reading, not the first.
 
 Left for a later branch: **Top Bar** (`40004485:27759`) and **Theme Control** (`40004486:27878`).
 Both draw from the *semantic* theme rather than the navigation one, and Top Bar is a page-header row
@@ -51,6 +56,35 @@ pointer arrives. Selected and unselected now measure 40px each, and 40px under h
 That widened `tokens.test.ts` too. Its prefix list had `ring` but the lookbehind rejects a `ring`
 preceded by a dash, so every `inset-ring-<token>` was being skipped in silence — the exact blind spot
 the test exists to close. `inset-ring` is now in the list.
+
+**`Floating` is only the drop shadow.** Both bars gained the axis, and it is worth saying plainly
+because the name suggests more: radius, padding, fill and size are byte-for-byte identical across the
+two variants. A docked bar does **not** square its corners — the docs frame shows the rail inset
+inside the app window, still `rounded-lg`, just not casting onto it. `floating` defaults to `true`,
+which is Figma's default and the more common case.
+
+**The expand chevron is the one part of a row that is not `nav-content-primary`.** Figma binds its
+stroke to `Nav Content/Subtle`, so it cannot inherit the row's color the way the start icon does, and
+has to say so. With the section header those are the only two things in the family painted with that
+token — worth knowing, because an `Icon` in a nav row otherwise takes `currentColor` and looks right
+by accident. Getting this wrong is invisible in a screenshot and obvious in a diff.
+
+**The collapsed section header is a rule, not nothing.** The first reading had the header simply
+absent when collapsed; the variant now holds a 12px band with a 1px line, which is what keeps the
+groups legible once their names are gone. It is `aria-hidden` and deliberately **not** the library's
+`Divider`: that renders `role="separator"`, and an unnamed separator between two groups of links is
+noise to a screen reader rather than structure — the same call Accordion made about its own item
+rules. Figma binds the line to `Nav Content/Primary`, which sounds far too strong and at 1px reads as
+a hairline.
+
+**The start slot is one 24px box, and the indent is a second one.** Figma's `Icon` and `Avatar`
+frames are both 24×24 with the glyph centred — a 16px icon lands at 4,4 and a 20px avatar at 2,2,
+which is exactly what centring gives for free. The `New Indicator` is **pinned to the top-right
+corner** of that box (16,0), not laid out beside the icon, which is what the first reading had. The
+indent is 24px for a reason worth keeping: `8 padding + 24 box + 4 gap` puts a child's label at the
+same x as its parent's. Measured at 68px for both.
+
+**The row gap is 4, not 8.** `spacing/1`. Easy to carry over wrong from the padding, which is 8.
 
 **The collapsed rail grows a tooltip, which Figma does not draw.** A 40x40 item with its label
 hidden has no accessible name at all: axe fails it, and a screen reader has nothing to read. The name
@@ -104,10 +138,15 @@ by pressing Tab.
 **One thing the focus ring does not do well here, and why it was left alone.** The inner of its two
 strokes is `focus/focus-inner-border`, the canvas color, so it reads as a *gap* rather than a stroke.
 On an inverse nav the canvas color is not what is behind it, so the gap reads as a bright outline
-instead. It stays legible and it stays visible — it is not a failure — but it is not the drawing the
-token intends. Fixing it means a nav-scoped focus inner border, which is a token decision rather than
-a component one, and Figma has no answer either: `Nav Item`'s axis is Default / Hover / Selected,
-with no focus state drawn at all. Worth raising the next time the tier is opened.
+instead. It stays legible and visible — not a failure — but it is not the drawing the token intends.
+
+Figma has since added a `Focus` state, and it does **not** settle this: its `Focus Ring` instance
+binds the same `Focus/Focus Inner Border` with an `Element States/Focus Outer Border` effect outside
+it — two concentric strokes, which is exactly what `focusRing` already composes out of `ring` and
+`ring-offset`. So the two sides agree, and they share the question. Fixing it means a nav-scoped
+focus inner border, a token decision rather than a component one. Worth raising the next time the
+tier is opened. (Figma draws that ring at `rounded-md` while the item is `rounded-lg`; `ring` follows
+the element's own radius, which is the better answer, so it was not copied.)
 
 **No collapse or responsive menu on `TopNav`.** Figma draws neither, and both are decisions rather
 than omissions — which breakpoint, whether the list becomes a `Menu` or a drawer, what happens to the
@@ -119,7 +158,13 @@ At `neutral-inverse` on Stone, against the Figma frames:
 
 | | Figma | Measured |
 |---|---|---|
-| Item height / radius / padding / gap | 40 / 12 / 8 / 8 | 40 / 12 / 8 / 8 |
+| Item height / radius / padding / gap | 40 / 12 / 8 / 4 | 40 / 12 / 8 / 4 |
+| Start slot / indent box | 24 / 24 | 24 / 24 |
+| Parent vs child label x | equal | 68 / 68 |
+| New indicator | 8px, top-right of the slot | 8px, offset 0,0 from that corner |
+| Hover background + border | Bg Hover + Border Hover | both applied, height stable at 40 |
+| Collapsed section header | 12px band, 1px rule | 12 / 1 |
+| Floating on / off | shadow / none | `shadow-low` / `none` |
 | Item type, default / small | 14/24 · 12/20 | 14/24 · 12/20, weight 600 when selected |
 | Rail width, expanded / collapsed | 224 / 56 | 224 / 56 |
 | Collapsed item | 40 × 40 | 40 × 40 |
@@ -151,12 +196,10 @@ ratio, because `npm test` runs axe only at the default ramp and none of these mo
 
 Worth a pass of their own; none of them changes the code:
 
-- **Side Navigation** has two properties both named `Top Slot Content` (`#40004487:78`, `#40004487:84`).
-- **Side Navigation**'s bottom pair inverts its own convention: `Bottom Slot` is the SLOT and
-  `Bottom Slot2` is the boolean, where the top pair is `Top Slot` boolean + `Top Slot Content` slot.
-- **Nav Section List / `Collapsed=True`** has no Nav Section Header node at all, so its
-  `Section Header` boolean silently does nothing in that variant. (The code does the same thing for
-  the same reason, deliberately.)
+Three of the six first listed here were fixed in Figma on 2026-09-01 and are struck: the duplicate
+`Top Slot Content`, the inverted `Bottom Slot` / `Bottom Slot2` pair, and the missing header node in
+`Nav Section List / Collapsed=True`, which now holds the rule described above. What is left:
+
 - **Top Bar**'s property is spelled `Breadcumbs#40004486:77`.
 - **Top Bar**'s root binds `strokeBottomWeight` to `border-width/border` with an empty `strokes`
   array — a dead binding. The visible rule is the Divider child.

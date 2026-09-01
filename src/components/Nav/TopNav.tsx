@@ -8,8 +8,8 @@ import { navSurface } from './styles'
 /**
  * TopNav — the horizontal navigation bar of an application or a site.
  *
- * Mirrors the Figma component "Top Navigation" (`40004484:25988`). Same three
- * parts as `SideNav`, laid on their side:
+ * Mirrors the Figma component set "Top Navigation" (`40004511:34404`, the
+ * `Floating` axis). Same three parts as `SideNav`, laid on their side:
  *
  *     <TopNav aria-label="Main" logo={<Logo />} utilities={<NavItem … />}>
  *       <NavItem href="/" selected>Home</NavItem>
@@ -52,10 +52,23 @@ export interface TopNavProps
   logo?: ReactNode
   /** The rows at the end — search, notifications, the account. */
   utilities?: ReactNode
+  /**
+   * Whether the bar is lifted off the page. Figma's `Floating` axis, and it is
+   * **only the drop shadow**. `false` is what the marketing example draws: a
+   * `transparent`-themed bar dissolving into the canvas, with nothing to cast.
+   */
+  floating?: boolean
   className?: string
 }
 
-export function TopNav({ children, logo, utilities, className, ...props }: TopNavProps) {
+export function TopNav({
+  children,
+  logo,
+  utilities,
+  floating = true,
+  className,
+  ...props
+}: TopNavProps) {
   const ctx = useMemo<NavContextValue>(
     () => ({ collapsed: false, size: 'default', indent: false }),
     [],
@@ -68,7 +81,7 @@ export function TopNav({ children, logo, utilities, className, ...props }: TopNa
   return (
     <nav
       className={cn(
-        navSurface(),
+        navSurface({ floating }),
         // min-h-14 = height/h-14 (56px), px-3 = spacing/3, py-2 = spacing/2,
         // gap-3 = spacing/3. A min-height so a taller utility does not clip.
         'flex min-h-14 w-full items-center gap-3 px-3 py-2',

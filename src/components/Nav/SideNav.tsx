@@ -13,8 +13,9 @@ import { navSurface } from './styles'
  * SideNav — the vertical navigation rail of an application.
  *
  * Mirrors the Figma component set "Side Navigation" (`40004484:25806`, the
- * `Collapsed` axis) together with "Nav Section List" (`40004504:29320`) and
- * "Nav Section Header" (`40004504:29210`), which are its `Section`. Composed
+ * `Collapsed` × `Floating` axes) together with "Nav Section List"
+ * (`40004504:29320`) and "Nav Section Header" (`40004511:33365`, itself now a
+ * set with a `Collapsed` axis), which are its `Section`. Composed
  * API, like Tabs, Menu and Accordion:
  *
  *     <SideNav aria-label="Main">
@@ -84,6 +85,13 @@ export interface SideNavProps
   top?: ReactNode
   /** Extra content directly above the utilities. Figma's Bottom Slot. */
   bottom?: ReactNode
+  /**
+   * Whether the rail is lifted off the page. Figma's `Floating` axis, and it is
+   * **only the drop shadow** — the radius and padding are identical either way.
+   * `false` is the docked case the docs frame shows: the rail inset inside the
+   * app window, still rounded, just not casting onto it.
+   */
+  floating?: boolean
   className?: string
 }
 
@@ -96,6 +104,7 @@ export function SideNav({
   onCollapsedChange,
   top,
   bottom,
+  floating = true,
   className,
   ...props
 }: SideNavProps) {
@@ -120,7 +129,7 @@ export function SideNav({
   return (
     <nav
       className={cn(
-        navSurface(),
+        navSurface({ floating }),
         sideNav.root,
         collapsed ? sideNav.collapsed : sideNav.expanded,
         className,
@@ -199,12 +208,30 @@ function SideNavSection({ children, header, className, ...props }: SideNavSectio
 
   return (
     <div className={cn('flex flex-col', className)} {...props}>
-      {header && !collapsed ? (
-        // px-3 = spacing/3, py-1 = spacing/1, text-sm = 12/20. Not a heading
-        // element: these are group labels inside a landmark, and putting four
-        // of them in the page outline is noise rather than structure. Tabs
-        // reached the same conclusion about its strip.
-        <span className="px-3 py-1 text-sm text-nav-content-subtle">{header}</span>
+      {header ? (
+        collapsed ? (
+          /*
+            Collapsed, Figma swaps the header text for a rule — its
+            `Nav Section Header / Collapsed=True` is a 12px band holding a 1px
+            line, which is how the groups stay legible once their names are
+            gone. `aria-hidden`, and not the library's `Divider`: that renders
+            `role="separator"`, and a separator with no name between two groups
+            of links is noise to a screen reader rather than structure — the
+            call Accordion made about its own item rules. The line is
+            `nav-content-primary`, which is what Figma binds; at 1px it reads as
+            a hairline rather than the full-strength stroke the name suggests.
+          */
+          <div aria-hidden className="flex h-3 items-center">
+            <span className="h-px w-full bg-nav-content-primary" />
+          </div>
+        ) : (
+          // px-3 = spacing/3, py-1 = spacing/1, text-sm = 12/20, and the one
+          // place `nav-content-subtle` paints text. Not a heading element:
+          // these are group labels inside a landmark, and putting four of them
+          // in the page outline is noise rather than structure. Tabs reached
+          // the same conclusion about its strip.
+          <span className="px-3 py-1 text-sm text-nav-content-subtle">{header}</span>
+        )
       ) : null}
       {children}
     </div>

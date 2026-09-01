@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Bell, CircleHelp, Search } from 'lucide-react'
+import { Bell, CircleHelp, Search, ShoppingCart } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
+import { Badge } from '../Badge'
 import { NavItem } from './NavItem'
 import { TopNav } from './TopNav'
 
@@ -38,10 +39,10 @@ const meta = {
     utilities: (
       <>
         <NavItem startIcon={Search} aria-label="Search" />
-        <NavItem startIcon={Bell} aria-label="Notifications" status />
+        <NavItem startIcon={Bell} aria-label="Notifications" newIndicator />
         <NavItem
           href="#account"
-          start={<Avatar name="Nathan Sanders" size="small" />}
+          start={<Avatar name="Nathan Sanders" size="x-small" />}
           aria-label="Hi, Nathan!"
         />
       </>
@@ -87,6 +88,35 @@ export const IconUtilities: Story = {
       <>
         <NavItem startIcon={CircleHelp} aria-label="Help" />
         <NavItem startIcon={Bell} aria-label="Notifications" />
+      </>
+    ),
+  },
+}
+
+/**
+ * `floating={false}` on the `transparent` nav theme — the combination the
+ * marketing example in the docs frame draws. The shadow goes and the surface
+ * dissolves into the canvas, leaving only the selected pill to say where you
+ * are. Switch the **Nav** toolbar to Transparent to see it as drawn.
+ */
+export const Docked: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    floating: false,
+    children: (
+      <>
+        <NavItem href="#home" selected>
+          Home
+        </NavItem>
+        <NavItem href="#products">Products</NavItem>
+        <NavItem href="#about">About</NavItem>
+        <NavItem href="#resources">Resources</NavItem>
+      </>
+    ),
+    utilities: (
+      <>
+        <NavItem href="#signin">Sign in</NavItem>
+        <NavItem href="#cart" startIcon={ShoppingCart} end={<Badge>3</Badge>} aria-label="Cart" />
       </>
     ),
   },

@@ -924,7 +924,7 @@
   --nav-content-primary: var(--neutral-100);
   --nav-content-subtle: var(--neutral-400);
   --nav-item-background-hover: var(--neutral-950);
-  --nav-item-border-hover: var(--neutral-800);
+  --nav-item-border-hover: var(--neutral-700);
   --nav-item-background-selected: var(--neutral-700);
   --nav-item-border-selected: var(--neutral-600);
 }
@@ -934,7 +934,7 @@
   --nav-content-primary: var(--neutral-100);
   --nav-content-subtle: var(--neutral-400);
   --nav-item-background-hover: var(--neutral-950);
-  --nav-item-border-hover: var(--neutral-800);
+  --nav-item-border-hover: var(--neutral-700);
   --nav-item-background-selected: var(--neutral-700);
   --nav-item-border-selected: var(--neutral-600);
 }
@@ -943,8 +943,8 @@
   --nav-background: var(--color-white);
   --nav-content-primary: var(--neutral-800);
   --nav-content-subtle: var(--neutral-600);
-  --nav-item-background-hover: var(--neutral-50);
-  --nav-item-border-hover: var(--neutral-100);
+  --nav-item-background-hover: var(--neutral-100);
+  --nav-item-border-hover: var(--neutral-200);
   --nav-item-background-selected: var(--neutral-200);
   --nav-item-border-selected: var(--neutral-300);
 }

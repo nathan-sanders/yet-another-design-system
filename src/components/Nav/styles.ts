@@ -19,10 +19,10 @@ export const navItem = tv({
     // `group` so the expand chevron can read `data-panel-open` off this element
     // — Base UI puts it on the trigger, not on the icon. Accordion's trigger
     // does the same.
-    'group flex w-full items-center gap-2 font-sans',
-    // min-h-10 = height/h-10 (40px), gap-2 and p-2 = spacing/2 (8px),
-    // rounded-lg = border-radius/rounded-lg (12px). A min-height rather than a
-    // height so a label that wraps grows the row instead of spilling.
+    'group flex w-full items-center gap-1 font-sans',
+    // min-h-10 = height/h-10 (40px), p-2 = spacing/2 (8px), gap-1 = spacing/1
+    // (4px), rounded-lg = border-radius/rounded-lg (12px). A min-height rather
+    // than a height so a label that wraps grows the row instead of spilling.
     'min-h-10 rounded-lg p-2',
     'text-nav-content-primary',
     // The icon inherits this, which is what Figma binds its stroke to.
@@ -35,6 +35,7 @@ export const navItem = tv({
     // border-radius, and needs no transparent placeholder on the resting item
     // to stop the row re-flowing when the pointer arrives. Same reasoning as
     // `focus.ts`, one property along.
+    'hover:bg-nav-item-background-hover',
     'hover:inset-ring-1 hover:inset-ring-nav-item-border-hover',
     // Not `focusRingUnhovered`: a nav item is a real tab stop, not a row that
     // takes focus because you pointed at it. The menu rule does not apply.
@@ -85,7 +86,26 @@ export const navItem = tv({
  * the nav.
  */
 export const navSurface = tv({
-  base: 'bg-nav-background text-nav-content-primary font-sans rounded-lg shadow-low',
+  base: 'bg-nav-background text-nav-content-primary font-sans rounded-lg',
+
+  variants: {
+    /**
+     * Figma's `Floating` axis, on both bars. It is **only the drop shadow** —
+     * every other property is identical across the two variants, radius
+     * included, which is worth knowing before assuming a docked bar squares
+     * off its corners. It does not; the docs frame shows it inset inside the
+     * app window, still rounded, just not lifted off it.
+     */
+    floating: {
+      true: 'shadow-low',
+      false: '',
+    },
+  },
+
+  defaultVariants: {
+    // Figma's default, and the more common case: a nav lifted off the page.
+    floating: true,
+  },
 })
 
 export type NavItemVariants = VariantProps<typeof navItem>

@@ -498,8 +498,8 @@ settled once, against the Figma file, for a reason that is written down.
 | [Tooltip](src/components/Tooltip/CLAUDE.md) | a label for what you point at | first component on the motion tokens |
 | [SegmentedControl](src/components/SegmentedControl/CLAUDE.md) | one of a few, all visible | a compact strip sized beside a Button |
 | [NavItem](src/components/Nav/CLAUDE.md) | one row of a navigation bar | Figma's `Type` axis is a size; the 1px inside stroke is an `inset-ring`, not a border |
-| [SideNav](src/components/Nav/CLAUDE.md) | the application rail | 224 expanded, 56 collapsed; collapsed labels become tooltips; groups are Base UI's `Collapsible` |
-| [TopNav](src/components/Nav/CLAUDE.md) | the horizontal bar | app or site; the page list centres because both ends are `flex-1` |
+| [SideNav](src/components/Nav/CLAUDE.md) | the application rail | 224 expanded, 56 collapsed; collapsed labels become tooltips and headers become a rule; groups are Base UI's `Collapsible` |
+| [TopNav](src/components/Nav/CLAUDE.md) | the horizontal bar | app or site; the page list centres because both ends are `flex-1`; `floating` is only the shadow |
 | [Tabs](src/components/Tabs/CLAUDE.md) | switch between panels | sliding indicator, in pure CSS |
 | [Banner](src/components/Banner/CLAUDE.md) | a persistent page message | four severities, optional actions |
 | [Toast](src/components/Toast/CLAUDE.md) | a notification that leaves | a stack that collapses |

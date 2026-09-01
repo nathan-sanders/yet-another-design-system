@@ -46,13 +46,23 @@ import { navItem, type NavItemSize } from './styles'
  * takes its `children` as both the accessible name and the tooltip text when
  * they are a string, and falls back to `aria-label` when they are not.
  *
- * **The status dot is folded in rather than exported.** Figma draws it as its
- * own component (`40004485:27341`) but it is eight pixels of geometry with no
- * properties, and the one interesting thing about it is the 2px ring bound to
- * the nav background — a cut-out, so the dot reads as punched through whatever
- * surface it lands on. `bg-decorative-pink-highlight` is `Pink/600` in both
- * themes, which is exactly the primitive Figma binds, reached through the
- * semantic layer as the token rule requires.
+ * **The new indicator is folded in rather than exported.** Figma drew it as its
+ * own `Status` component and now exposes it as the `New Indicator` boolean, but
+ * it is eight pixels of geometry with no properties, and the one interesting
+ * thing about it is the 2px ring bound to the nav background — a cut-out, so the
+ * dot reads as punched through whatever surface it lands on.
+ * `bg-decorative-pink-highlight` is `Pink/600` in both themes, which is exactly
+ * the primitive Figma binds, reached through the semantic layer as the token
+ * rule requires.
+ *
+ * **Figma now draws a Focus state, and it is the ring this library already
+ * had.** The `State` axis gained a fourth value whose `Focus Ring` instance is a
+ * 2px `Focus/Focus Inner Border` stroke with an `Element States/Focus Outer
+ * Border` effect outside it — two concentric strokes, which is exactly what
+ * `focusRing` composes out of `ring` and `ring-offset`. Nothing changed here as
+ * a result; the note is that the two sides now agree. Figma draws that ring at
+ * `rounded-md` while the item is `rounded-lg`; `ring` follows the element's own
+ * radius, which is the better answer, so it was not copied.
  */
 
 /** Props shared by both arms of the label union. */
@@ -86,10 +96,14 @@ interface NavItemBaseProps
   /** The end slot. A `Badge` with an unread count, in Figma's composition. */
   end?: ReactNode
   /**
-   * The 8px unread dot, drawn ahead of the icon with a cut-out ring in the nav
-   * background.
+   * The 8px dot in the top-right corner of the start slot, with a 2px cut-out
+   * ring in the nav background so it reads as punched through the surface.
+   *
+   * Named for Figma's `New Indicator` property. It was called `Status` when it
+   * was its own component, and the rename is worth keeping: `Avatar` already
+   * has a `status` prop meaning presence, and these are different things.
    */
-  status?: boolean
+  newIndicator?: boolean
   /** Renders the item at 40% opacity, out of the tab order, and inert. */
   disabled?: boolean
   /**
@@ -125,7 +139,7 @@ export function NavItem({
   startIcon,
   start,
   end,
-  status = false,
+  newIndicator = false,
   disabled = false,
   indent,
   expandable = false,
@@ -148,7 +162,7 @@ export function NavItem({
   const explicitLabel = (props as { 'aria-label'?: string })['aria-label']
   const accessibleName = explicitLabel ?? (ctx.collapsed ? childText : undefined)
 
-  const hasStart = startIcon !== undefined || start !== undefined || status
+  const hasStart = startIcon !== undefined || start !== undefined || newIndicator
 
   const element = useRender({
     render,
@@ -189,25 +203,32 @@ export function NavItem({
       ...(accessibleName ? { 'aria-label': accessibleName } : {}),
       children: (
         <>
-          {resolvedIndent ? <span aria-hidden className="w-4 shrink-0" /> : null}
+          {/*
+            24px, the same box as the icon slot — which is what lines a child's
+            label up with its parent's: both are 8px of padding, a 24px box and
+            a 4px gap, so both labels start at 36.
+          */}
+          {resolvedIndent ? <span aria-hidden className="size-6 shrink-0" /> : null}
           {hasStart ? (
-            // The start slot is 24px wide in Figma with no gap, which is exactly
-            // the 8px dot beside the 16px icon.
-            <span className="flex min-w-6 shrink-0 items-center justify-center">
-              {status ? (
+            // Figma's Icon and Avatar slots are both a 24px box with the glyph
+            // centred in it — a 16px icon lands at 4,4 and a 20px avatar at 2,2,
+            // which is what centring gives for free. The indicator is pinned to
+            // the top-right corner (16,0 in a 24 box), not laid out beside it.
+            <span className="relative flex size-6 shrink-0 items-center justify-center">
+              {startIcon ? <Icon icon={startIcon} /> : start}
+              {newIndicator ? (
                 <span
                   aria-hidden
-                  className="size-2 shrink-0 rounded-full bg-decorative-pink-highlight ring-2 ring-nav-background"
+                  className="absolute top-0 right-0 size-2 rounded-full bg-decorative-pink-highlight ring-2 ring-nav-background"
                 />
               ) : null}
-              {startIcon ? <Icon icon={startIcon} /> : start}
             </span>
           ) : null}
           {showLabel ? (
             // truncate rather than wrap: the rail is a fixed 224px and a
-            // two-line row breaks the rhythm of the stack. pr-1 is Figma's
-            // spacing/1 on the label frame.
-            <span className="min-w-0 flex-1 truncate pr-1">{children}</span>
+            // two-line row breaks the rhythm of the stack. px-1 is Figma's
+            // spacing/1, which it sets on both sides of the label frame.
+            <span className="min-w-0 flex-1 truncate px-1">{children}</span>
           ) : null}
           {end !== undefined && !ctx.collapsed ? (
             <span className="flex shrink-0 items-center gap-1">{end}</span>
@@ -215,7 +236,10 @@ export function NavItem({
           {expandable && !ctx.collapsed ? (
             <Icon
               icon={ChevronDown}
-              className="shrink-0 transition-transform duration-fast-min ease-standard group-data-[panel-open]:rotate-180"
+              // The one part of the row that is NOT Nav Content/Primary: Figma
+              // binds the chevron's stroke to Nav Content/Subtle, so it has to
+              // say so rather than inherit the row's color like the start icon.
+              className="shrink-0 text-nav-content-subtle transition-transform duration-fast-min ease-standard group-data-[panel-open]:rotate-180"
             />
           ) : null}
         </>

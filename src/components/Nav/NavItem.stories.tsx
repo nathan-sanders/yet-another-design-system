@@ -22,7 +22,7 @@ const meta = {
   argTypes: {
     size: { control: 'inline-radio', options: sizes },
     selected: { control: 'boolean' },
-    status: { control: 'boolean' },
+    newIndicator: { control: 'boolean' },
     disabled: { control: 'boolean' },
     indent: { control: 'boolean' },
     expandable: { control: 'boolean' },
@@ -99,10 +99,10 @@ export const Slots: Story = {
       <NavItem startIcon={Inbox} end={<Badge>3</Badge>}>
         With a badge
       </NavItem>
-      <NavItem startIcon={Bell} status>
-        With a status dot
+      <NavItem startIcon={Bell} newIndicator>
+        With a newIndicator dot
       </NavItem>
-      <NavItem start={<Avatar name="Nathan Sanders" size="small" />}>Hi, Nathan!</NavItem>
+      <NavItem start={<Avatar name="Nathan Sanders" size="x-small" />}>Hi, Nathan!</NavItem>
       <NavItem startIcon={CircleHelp} aria-label="Help" />
       <NavItem startIcon={House}>Parent</NavItem>
       <NavItem indent>Indented child</NavItem>
