@@ -32,8 +32,23 @@ import { focusRing } from '../../lib/focus'
  *
  * The border tokens are not offered: `surface-border` is a line, not a fill,
  * and nothing is ever drawn on top of one.
+ *
+ * `nav` is the odd one, and deliberate. The other four name `--surface-*`, the
+ * theme-aware semantic fills; `nav` names `--nav-background`, which belongs to
+ * the **navigation theme** tier and does not follow `.dark` on six of its seven
+ * modes. It is here because `SideNav` and `TopNav` put an avatar in a nav row —
+ * Figma binds that status ring to the nav `Background` — and the alternative
+ * was every caller re-pointing the ring with an arbitrary variant, which is a
+ * worse version of the hardcoded `outline-surface-canvas` this prop replaced.
+ * The rule the list follows is not "semantic tokens only" but "fills something
+ * can sit on top of", and a nav surface is one.
  */
-export type AvatarSurface = 'canvas' | 'card-primary' | 'card-subtle' | 'card-emphasized'
+export type AvatarSurface =
+  | 'canvas'
+  | 'card-primary'
+  | 'card-subtle'
+  | 'card-emphasized'
+  | 'nav'
 
 export const DEFAULT_AVATAR_SURFACE: AvatarSurface = 'canvas'
 
@@ -43,6 +58,7 @@ const avatarSurfaceRing = {
   'card-primary': 'outline-surface-background-primary',
   'card-subtle': 'outline-surface-background-subtle',
   'card-emphasized': 'outline-surface-background-emphasized',
+  nav: 'outline-nav-background',
 } as const satisfies Record<AvatarSurface, string>
 
 /** The status dot's ring, painted as a `ring` for the same reason. */
@@ -51,6 +67,7 @@ const statusSurfaceRing = {
   'card-primary': 'ring-surface-background-primary',
   'card-subtle': 'ring-surface-background-subtle',
   'card-emphasized': 'ring-surface-background-emphasized',
+  nav: 'ring-nav-background',
 } as const satisfies Record<AvatarSurface, string>
 
 /**
@@ -64,6 +81,7 @@ const statusSurfaceFill = {
   'card-primary': 'bg-surface-background-primary',
   'card-subtle': 'bg-surface-background-subtle',
   'card-emphasized': 'bg-surface-background-emphasized',
+  nav: 'bg-nav-background',
 } as const satisfies Record<AvatarSurface, string>
 
 export const avatar = tv({

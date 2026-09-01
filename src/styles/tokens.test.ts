@@ -23,9 +23,16 @@ import { describe, expect, it } from 'vitest'
 const ROOT = join(import.meta.dirname, '..')
 
 /** Utility prefixes that resolve against a color token. */
-const PREFIX = String.raw`(?:bg|text|border|ring|fill|stroke|shadow|inset-shadow|outline|decoration|divide|accent|caret|from|via|to)`
-/** The semantic groups — the tiers a component is allowed to paint with. */
-const GROUP = '(?:surface|content|action|input|focus|feedback|decorative|data-viz)'
+const PREFIX = String.raw`(?:bg|text|border|ring|inset-ring|fill|stroke|shadow|inset-shadow|outline|decoration|divide|accent|caret|from|via|to)`
+/**
+ * The semantic groups — the tiers a component is allowed to paint with.
+ *
+ * `nav` is the navigation theme tier, which is switched by `data-nav-theme`
+ * rather than by `.dark`. It is checked here like every other group: the
+ * failure mode is identical, and a `bg-nav-background` written before
+ * generate.py had a tier to emit is exactly the bug this test exists for.
+ */
+const GROUP = '(?:surface|content|action|input|focus|feedback|decorative|data-viz|nav)'
 
 const CLASS_RE = new RegExp(
   String.raw`(?<![-\w])(?:[a-z-]+:)*${PREFIX}-(${GROUP}-[a-z0-9-]+)`, 'g',
