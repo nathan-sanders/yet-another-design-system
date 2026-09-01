@@ -158,16 +158,19 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Kbd** | A keyboard shortcut, one 20px key per keystroke, from a single `keys` string split on `+`. Prefer `mod`: it draws ⌘ on Apple platforms and ⌃ everywhere else, so one call site is right on both |
 | **Link** | A styled anchor at any of the 13 type steps — or at none, inheriting the sentence it sits in; external links get an arrow, a new tab and safe `rel`; `render` swaps in a router link |
 | **Menu** | Composed popup; action, submenu, checkbox and radio items × default/highlighted/disabled, plus destructive items and labeled groups |
+| **NavItem** | One row of a navigation bar; 2 sizes (Figma's Primary/Secondary, 14/24 and 12/20) × default/hover/selected, with icon or avatar start slot, badge end slot, an 8px status dot, indent and an expand chevron. `href` makes an `<a>`, otherwise a `<button>`, and `render` takes a router link |
 | **Popover** | A click-triggered panel anchored to a button or a link; a title, a body and whatever the panel is for, at 324px or any width you pass. The library's first `role="dialog"` — so it wants a `Popover.Title`, which is what names it |
 | **Radio** | Unselected/selected × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Radio.Group** | Vertical or horizontal set owning the value, the roving tabindex and the arrow keys |
 | **SegmentedControl** | Composed group; 2 appearances (secondary, ghost) × 3 sizes × hug/fill, with icon slots — the same 24/32/40 heights as Button |
 | **Select** | Pick one value, or several, from a list; 3 sizes (24/32/40) × hug/fill × default/hover/focus/invalid/disabled, with grouped and described items — the popup opens *over* the trigger, macOS-style, with the chosen row landing on the value |
+| **SideNav** | The application rail; 224px expanded and 56px collapsed, with `SideNav.Section` (optional group header) and `SideNav.Group` (a disclosure built on Base UI's Collapsible). Collapsed, every label becomes both the accessible name and a tooltip. Logo and bottom-pinned utilities are slots |
 | **Slider** | One handle, or a pair for a range × default/disabled, with label, sub-label, bounds labels, marks and a value tooltip |
 | **Switch** | Off/on × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label — the knob grows from 14 to 16px as it slides |
 | **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |
 | **Toast** | 3 types (default, success, danger) with description, action and dismiss slots; fired from a `useToast()` hook into a stack that collapses into one card and expands on hover, in pure CSS |
 | **Token** | One chosen value as a pill; view-only or interactive × 2 sizes (24/20) × default/hover/focus/disabled, with icon, avatar and remove slots |
+| **TopNav** | The horizontal bar, for an app or a marketing site; logo, a centred page list and end utilities. No collapse — Figma draws none, and which breakpoint and what it collapses into are decisions the file does not make |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
 ```tsx

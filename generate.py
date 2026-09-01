@@ -38,6 +38,19 @@ NEUTRAL_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 # Decorative/Neutral. Figma has since renamed it at source, so it is gone.
 NEUTRAL_ROLE = "Stone"
 
+# ---------- the navigation theme ----------
+# A second swappable collection, and deliberately NOT built like the neutral
+# one. Six of its seven modes are absolute: a nav on "neutral" is white in dark
+# mode too, because a navigation surface is a brand decision, not a reading
+# preference. Only "transparent" aliases back into the semantic layer, so only
+# that mode follows .dark -- which falls out for free, since those aliases
+# resolve to --surface-* / --content-* and .dark redefines those on the same
+# <html> element.
+#
+# The order is Figma's, and the first entry is Figma's default mode.
+NAV_MODES = ["neutral-inverse", "neutral", "blue-inverse", "blue",
+             "purple-inverse", "purple", "transparent"]
+
 def load(name):
     with open(os.path.join(T, name)) as f:
         return json.load(f)
@@ -57,6 +70,7 @@ def load_optional(name):
 prims = load("primitives.json")
 sem = load("semantic.json")
 dims = load("dimensions.json") + load_optional("motion.json")
+navs = load("navigation.json")
 
 def slug(name):
     """Figma variable name -> CSS custom property name (without the leading --).
@@ -220,9 +234,30 @@ for p in prims:
 for s in sem:
     ref[s["n"]] = f"var(--{slug(s['n'])})"
 
+# Figma stores an alias-times-opacity as a COMPOSE_COLOR expression. The
+# exporter spells it "COMPOSE_COLOR(@Surface/Canvas, 0)"; the second argument is
+# the alpha, 0..1. Same output shape as neutral_alpha above, so a composed color
+# reads the same wherever it came from -- and it keeps pointing at the token
+# Figma points at, rather than at whichever token happens to have the same value
+# today.
+COMPOSE_RE = re.compile(r"^COMPOSE_COLOR\((.+),\s*([0-9.]+)\)$")
+
 def resolve(val):
+    if isinstance(val, str):
+        m = COMPOSE_RE.match(val)
+        if m:
+            base, alpha = m.group(1), float(m.group(2))
+            return (f"color-mix(in oklab, {resolve(base)} "
+                    f"{_fmt(round(alpha * 100, 2), 1)}%, transparent)")
     if isinstance(val, str) and val.startswith("@"):
         target = val[1:]
+        # "Neutral Palette" is Figma's real neutral collection, whose variables
+        # are named as bare steps. It is the same eleven-step tier --neutral-*
+        # already is, so an alias into it lands there and a nav on a neutral
+        # mode keeps following <html data-neutral>. Spelled out in the export
+        # rather than left as "@900", which would carry no ramp at all.
+        if target.startswith("Neutral Palette/"):
+            return f"var(--neutral-{target.split('/', 1)[1]})"
         # A semantic token names a *step of the neutral*, never a step of Stone.
         step = neutral_step(target)
         if step:
@@ -375,6 +410,27 @@ for scale in NEUTRAL_SCALES:
     neutral_lines.append("")
     neutral_lines += neutral_block(f':root[data-neutral="{scale}"]', scale)
 
+# ---- 2b. the navigation theme tier ----
+# Figma names six of the seven "Nav Content/Primary", "Nav Item/Border Hover"
+# and so on, and the seventh just "Background". Strip a leading "Nav" and
+# prefix every one with nav-, so the group is uniform and --nav-background is
+# not the bare --background it would otherwise be.
+def nav_slug(name):
+    stem = re.sub(r"^Nav[ /]", "", name)
+    return "nav-" + slug(stem)
+
+def nav_block(selector, mode):
+    return ([f"{selector} {{"]
+            + [f"  --{nav_slug(n['n'])}: {resolve(n[mode])};" for n in navs]
+            + ["}"])
+
+nav_lines = nav_block(":root", NAV_MODES[0])
+for mode in NAV_MODES:
+    nav_lines.append("")
+    nav_lines += nav_block(f':root[data-nav-theme="{mode}"]', mode)
+
+nav_theme_lines = [f"  --color-{nav_slug(n['n'])}: var(--{nav_slug(n['n'])});" for n in navs]
+
 # ---- write file ----
 out = []
 out.append("/* ============================================================")
@@ -416,10 +472,27 @@ out.append(".dark {")
 out += dark_lines
 out.append("}")
 out.append("")
+out.append("/* ---- 2b. The navigation theme. Seven tokens across seven modes, switched by ---- */")
+out.append("/*     one attribute: <html data-nav-theme=\"blue-inverse\">. Neutral Inverse is    */")
+out.append("/*     the default, and also has its own block so the attribute is never a lie.  */")
+out.append("/*                                                                              */")
+out.append("/*     Sits AFTER the semantic block on purpose. Six of the modes are absolute   */")
+out.append("/*     -- a nav on \"neutral\" stays white in dark mode, because a navigation      */")
+out.append("/*     surface is a brand decision and not a reading preference. Only            */")
+out.append("/*     \"transparent\" aliases --surface-* / --content-*, and so only that mode    */")
+out.append("/*     follows .dark. That asymmetry is the design, not an oversight.            */")
+out.append("/*                                                                              */")
+out.append("/*     The neutral modes alias Figma's Neutral Palette, which is this file's     */")
+out.append("/*     --neutral-* tier, so a nav on one still follows data-neutral as well.     */")
+out += nav_lines
+out.append("")
 out.append("/* ---- 4. Expose semantic tokens as color utilities (bg-*, text-*, border-*). ---- */")
 out.append("/*    'inline' keeps the var reference live so utilities respond to .dark.        */")
 out.append("@theme inline {")
 out += sem_theme_lines
+out.append("")
+out.append("  /* the navigation theme — bg-nav-background, text-nav-content-subtle, … */")
+out += nav_theme_lines
 out.append("}")
 out.append("")
 out.append("/* ---- Reference-only tokens (Tailwind already generates these utilities) ---- */")
@@ -487,6 +560,8 @@ if stats["unmatched"]:
           "in Figma): " + ", ".join(sorted(set(stats["unmatched"]))))
 print(f"neutral ramp: {len(NEUTRAL_SCALES)} scales x {len(NEUTRAL_STEPS)} steps "
       f"(default {NEUTRAL_SCALES[0]}), via --neutral-*")
+print(f"navigation: {len(navs)} tokens x {len(NAV_MODES)} modes "
+      f"(default {NAV_MODES[0]}), via --nav-*")
 if stats["neutralized"]:
     print(f"  {len(stats['neutralized'])} raw alpha color(s) re-pointed onto the neutral tier:")
     for hexval, mixed in stats["neutralized"]:

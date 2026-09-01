@@ -12,6 +12,13 @@ import '../src/styles/theme.css'
 const NEUTRALS = ['stone', 'taupe', 'mauve', 'mist', 'olive',
                   'slate', 'gray', 'zinc', 'neutral']
 
+/** The seven navigation themes, Figma's order — the same list as generate.py. */
+const NAV_THEMES = ['neutral-inverse', 'neutral', 'blue-inverse', 'blue',
+                    'purple-inverse', 'purple', 'transparent']
+
+const titleCase = (v: string) =>
+  v.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
+
 const preview: Preview = {
   globalTypes: {
     theme: {
@@ -31,10 +38,16 @@ const preview: Preview = {
       toolbar: {
         title: 'Neutral',
         icon: 'paintbrush',
-        items: NEUTRALS.map((value) => ({
-          value,
-          title: value[0].toUpperCase() + value.slice(1),
-        })),
+        items: NEUTRALS.map((value) => ({ value, title: titleCase(value) })),
+        dynamicTitle: true,
+      },
+    },
+    navTheme: {
+      description: 'Which theme the navigation components draw (SideNav, TopNav)',
+      toolbar: {
+        title: 'Nav',
+        icon: 'sidebar',
+        items: NAV_THEMES.map((value) => ({ value, title: titleCase(value) })),
         dynamicTitle: true,
       },
     },
@@ -43,22 +56,33 @@ const preview: Preview = {
   initialGlobals: {
     theme: 'light',
     neutral: 'stone',
+    navTheme: 'neutral-inverse',
   },
 
   decorators: [
-    // Both switches are attributes on <html>, exactly as they are in a real app
-    // — so stories exercise the same mechanism the library ships with. They are
-    // orthogonal: the ramp is theme-independent, and the semantic layer picks
-    // which of its steps each theme uses.
+    // All three switches are attributes on <html>, exactly as they are in a real
+    // app — so stories exercise the same mechanism the library ships with. They
+    // are orthogonal: the ramp is theme-independent, and the semantic layer
+    // picks which of its steps each theme uses.
+    //
+    // The nav theme is the odd one out, and the toolbar is how you see it. Six
+    // of its seven modes are absolute, so switching Theme to Dark moves the
+    // page around a nav that does not move with it. Only Transparent follows
+    // the theme — and the neutral modes still follow the ramp, because they
+    // alias the same --neutral-* tier the semantic layer does.
     (Story, context) => {
       const dark = context.globals.theme === 'dark'
       const neutral = context.globals.neutral as string
+      const navTheme = context.globals.navTheme as string
       useEffect(() => {
         document.documentElement.classList.toggle('dark', dark)
       }, [dark])
       useEffect(() => {
         document.documentElement.dataset.neutral = neutral
       }, [neutral])
+      useEffect(() => {
+        document.documentElement.dataset.navTheme = navTheme
+      }, [navTheme])
       return (
         // min-h-dvh so the canvas background fills the frame rather than hugging
         // the story — otherwise a short story leaves the browser's own white

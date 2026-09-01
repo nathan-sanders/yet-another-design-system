@@ -907,6 +907,98 @@
   --data-viz-sentiment-neutral: var(--color-neutral-500);
 }
 
+/* ---- 2b. The navigation theme. Seven tokens across seven modes, switched by ---- */
+/*     one attribute: <html data-nav-theme="blue-inverse">. Neutral Inverse is    */
+/*     the default, and also has its own block so the attribute is never a lie.  */
+/*                                                                              */
+/*     Sits AFTER the semantic block on purpose. Six of the modes are absolute   */
+/*     -- a nav on "neutral" stays white in dark mode, because a navigation      */
+/*     surface is a brand decision and not a reading preference. Only            */
+/*     "transparent" aliases --surface-* / --content-*, and so only that mode    */
+/*     follows .dark. That asymmetry is the design, not an oversight.            */
+/*                                                                              */
+/*     The neutral modes alias Figma's Neutral Palette, which is this file's     */
+/*     --neutral-* tier, so a nav on one still follows data-neutral as well.     */
+:root {
+  --nav-background: var(--neutral-900);
+  --nav-content-primary: var(--neutral-100);
+  --nav-content-subtle: var(--neutral-400);
+  --nav-item-background-hover: var(--neutral-950);
+  --nav-item-border-hover: var(--neutral-800);
+  --nav-item-background-selected: var(--neutral-700);
+  --nav-item-border-selected: var(--neutral-600);
+}
+
+:root[data-nav-theme="neutral-inverse"] {
+  --nav-background: var(--neutral-900);
+  --nav-content-primary: var(--neutral-100);
+  --nav-content-subtle: var(--neutral-400);
+  --nav-item-background-hover: var(--neutral-950);
+  --nav-item-border-hover: var(--neutral-800);
+  --nav-item-background-selected: var(--neutral-700);
+  --nav-item-border-selected: var(--neutral-600);
+}
+
+:root[data-nav-theme="neutral"] {
+  --nav-background: var(--color-white);
+  --nav-content-primary: var(--neutral-800);
+  --nav-content-subtle: var(--neutral-600);
+  --nav-item-background-hover: var(--neutral-50);
+  --nav-item-border-hover: var(--neutral-100);
+  --nav-item-background-selected: var(--neutral-200);
+  --nav-item-border-selected: var(--neutral-300);
+}
+
+:root[data-nav-theme="blue-inverse"] {
+  --nav-background: var(--color-blue-900);
+  --nav-content-primary: var(--color-blue-50);
+  --nav-content-subtle: var(--color-blue-300);
+  --nav-item-background-hover: var(--color-blue-950);
+  --nav-item-border-hover: var(--color-blue-800);
+  --nav-item-background-selected: var(--color-blue-700);
+  --nav-item-border-selected: var(--color-blue-600);
+}
+
+:root[data-nav-theme="blue"] {
+  --nav-background: var(--color-blue-50);
+  --nav-content-primary: var(--color-blue-950);
+  --nav-content-subtle: var(--color-blue-600);
+  --nav-item-background-hover: var(--color-blue-100);
+  --nav-item-border-hover: var(--color-blue-200);
+  --nav-item-background-selected: var(--color-blue-200);
+  --nav-item-border-selected: var(--color-blue-300);
+}
+
+:root[data-nav-theme="purple-inverse"] {
+  --nav-background: var(--color-purple-900);
+  --nav-content-primary: var(--color-purple-50);
+  --nav-content-subtle: var(--color-purple-300);
+  --nav-item-background-hover: var(--color-purple-950);
+  --nav-item-border-hover: var(--color-purple-800);
+  --nav-item-background-selected: var(--color-purple-700);
+  --nav-item-border-selected: var(--color-purple-600);
+}
+
+:root[data-nav-theme="purple"] {
+  --nav-background: var(--color-purple-50);
+  --nav-content-primary: var(--color-purple-950);
+  --nav-content-subtle: var(--color-purple-600);
+  --nav-item-background-hover: var(--color-purple-100);
+  --nav-item-border-hover: var(--color-purple-200);
+  --nav-item-background-selected: var(--color-purple-200);
+  --nav-item-border-selected: var(--color-purple-300);
+}
+
+:root[data-nav-theme="transparent"] {
+  --nav-background: color-mix(in oklab, var(--surface-canvas) 0%, transparent);
+  --nav-content-primary: var(--content-primary);
+  --nav-content-subtle: var(--content-subtle);
+  --nav-item-background-hover: var(--surface-overlay-subtle);
+  --nav-item-border-hover: var(--surface-overlay-subtle);
+  --nav-item-background-selected: var(--surface-background-primary);
+  --nav-item-border-selected: var(--surface-overlay-subtle);
+}
+
 /* ---- 4. Expose semantic tokens as color utilities (bg-*, text-*, border-*). ---- */
 /*    'inline' keeps the var reference live so utilities respond to .dark.        */
 @theme inline {
@@ -1090,6 +1182,15 @@
   --color-data-viz-utility-accessibility-overlay: var(--data-viz-utility-accessibility-overlay);
   --color-data-viz-sentiment-negative: var(--data-viz-sentiment-negative);
   --color-data-viz-sentiment-neutral: var(--data-viz-sentiment-neutral);
+
+  /* the navigation theme — bg-nav-background, text-nav-content-subtle, … */
+  --color-nav-background: var(--nav-background);
+  --color-nav-content-primary: var(--nav-content-primary);
+  --color-nav-content-subtle: var(--nav-content-subtle);
+  --color-nav-item-background-hover: var(--nav-item-background-hover);
+  --color-nav-item-border-hover: var(--nav-item-border-hover);
+  --color-nav-item-background-selected: var(--nav-item-background-selected);
+  --color-nav-item-border-selected: var(--nav-item-border-selected);
 }
 
 /* ---- Reference-only tokens (Tailwind already generates these utilities) ---- */

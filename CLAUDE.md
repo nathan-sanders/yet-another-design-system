@@ -193,23 +193,41 @@ which would put the export problem straight back) and rebind `visible` on
 collection. So "does the id still resolve" is not a deletion test — check
 `collection.variableIds.indexOf(id)`, or look the name up through the collection.
 
-### The navigation theme tier — in Figma, not yet in code
+### The navigation theme tier
 
-A second swappable collection landed alongside the neutral one: **`Navigation Theme`**, seven
-variables (`Background`, `Nav Content/Primary`, `Nav Content/Subtle`, `Nav Item/Background Hover`,
+A second swappable collection alongside the neutral one: **`Navigation Theme`**, seven variables
+(`Background`, `Nav Content/Primary`, `Nav Content/Subtle`, `Nav Item/Background Hover`,
 `Nav Item/Border Hover`, `Nav Item/Background Selected`, `Nav Item/Border Selected`) across seven
 modes — Neutral Inverse, Neutral, Blue Inverse, Blue, Purple Inverse, Purple, Transparent.
 
-Two things about it are worth knowing before building anything on it:
+It is in code as of 2026-09-01: `tokens/navigation.json`, section 1c of `generate.py`, section 2b of
+`theme.css`, and `NavItem` / `SideNav` / `TopNav` consuming it. The switch is one attribute,
+`<html data-nav-theme="blue-inverse">`, exactly like the neutral tier's.
+
+Two things about it are worth knowing before building anything else on it:
 
 - **It is not theme-aware, on purpose.** Six of the seven modes are absolute — `Neutral` is a white
   nav in dark mode too. Only `Transparent` aliases back into `Semantic Theme`, so only that one
   follows `.dark`. That is the opposite of how the neutral tier composes, and it is the design.
+  Measured both ways once the tier existed: `--nav-content-primary` moves between light and dark on
+  `Transparent` and holds on the other six.
 - **The neutral modes go through `Neutral Palette`**, so a nav on `Neutral`/`Neutral Inverse` still
-  follows `data-neutral`, while the Blue and Purple modes are pinned to Tailwind ramps.
+  follows `data-neutral`, while the Blue and Purple modes are pinned to Tailwind ramps. That falls
+  out for free: `Neutral Palette` is the same eleven steps as `--neutral-*`, so an alias into it
+  lands on the tier the semantic layer already uses.
 
-Nothing in the library consumes it yet — there are no navigation components — and the token names
-will move while the components are being drawn, so no CSS tier has been generated for it.
+**The export needs a value encoder that fails loudly, and this is where that was proved.** The first
+read of the collection came back with all forty-nine values `null` — not because Figma refused, but
+because the script had mapped `modeId` to `id` and then asked for `m.modeId`. A two-branch reader
+would have written a file full of `undefined` and looked clean doing it. Two shapes to know:
+`valuesByMode` is keyed by the collection's own mode ids, and a composed value's `type` is
+`VARIABLE_EXPRESSION`, not `EXPRESSION`.
+
+**The one composed value is handled generally rather than special-cased.** `Background` in
+`Transparent` is `COMPOSE_COLOR(@Surface/Canvas, 0)`; `generate.py` parses the expression and emits
+`color-mix(in oklab, var(--surface-canvas) 0%, transparent)`. That is the same shape `neutral_alpha`
+already produces, and it keeps the token pointing at the token Figma points at rather than at
+`--surface-canvas-transparent`, which happens to hold the same value today.
 
 **Contrast is not automatic.** The ramps differ in lightness at the same step, so a pair that clears
 4.5:1 on Stone is not guaranteed to on Olive. `npm test` runs axe on every story but only at the
@@ -479,6 +497,9 @@ settled once, against the Figma file, for a reason that is written down.
 | [Avatar](src/components/Avatar/CLAUDE.md) | a person, and a stack of them | photo, initials or `+N`; `AvatarGroup` overlaps, and `surface` says what the ring hides in |
 | [Tooltip](src/components/Tooltip/CLAUDE.md) | a label for what you point at | first component on the motion tokens |
 | [SegmentedControl](src/components/SegmentedControl/CLAUDE.md) | one of a few, all visible | a compact strip sized beside a Button |
+| [NavItem](src/components/Nav/CLAUDE.md) | one row of a navigation bar | Figma's `Type` axis is a size; the 1px inside stroke is an `inset-ring`, not a border |
+| [SideNav](src/components/Nav/CLAUDE.md) | the application rail | 224 expanded, 56 collapsed; collapsed labels become tooltips; groups are Base UI's `Collapsible` |
+| [TopNav](src/components/Nav/CLAUDE.md) | the horizontal bar | app or site; the page list centres because both ends are `flex-1` |
 | [Tabs](src/components/Tabs/CLAUDE.md) | switch between panels | sliding indicator, in pure CSS |
 | [Banner](src/components/Banner/CLAUDE.md) | a persistent page message | four severities, optional actions |
 | [Toast](src/components/Toast/CLAUDE.md) | a notification that leaves | a stack that collapses |
