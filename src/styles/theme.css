@@ -572,7 +572,7 @@
   --action-overlay-background-hover: color-mix(in oklab, var(--neutral-950) 75%, transparent);
   --action-ghost-background-hover: color-mix(in oklab, var(--neutral-800) 10%, transparent);
   --action-ghost-border: color-mix(in oklab, var(--neutral-800) 0%, transparent);
-  --action-ghost-border-hover: color-mix(in oklab, var(--neutral-800) 0%, transparent);
+  --action-ghost-border-hover: color-mix(in oklab, var(--neutral-800) 10%, transparent);
   --action-destructive-background-hover: var(--color-red-200);
   --action-destructive-border: var(--color-red-300);
   --action-destructive-border-hover: var(--color-red-500);
@@ -755,7 +755,7 @@
   --action-overlay-background-hover: oklch(100% 0 none / 0.75);
   --action-ghost-background-hover: color-mix(in oklab, var(--neutral-100) 10%, transparent);
   --action-ghost-border: color-mix(in oklab, var(--neutral-100) 0%, transparent);
-  --action-ghost-border-hover: color-mix(in oklab, var(--neutral-100) 0%, transparent);
+  --action-ghost-border-hover: color-mix(in oklab, var(--neutral-100) 10%, transparent);
   --action-destructive-background-hover: var(--color-red-900);
   --action-destructive-border: var(--color-red-800);
   --action-destructive-border-hover: var(--color-red-600);

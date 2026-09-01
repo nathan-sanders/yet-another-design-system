@@ -142,10 +142,19 @@ branch is right for the same reason it always was.
 both modes resolved and comparing against `tokens/semantic.json` gave 180 names identical, no
 additions, no removals, and only **two** value differences — both applied here:
 
-- `Action/Ghost/Border Hover` **dark** went from 10% to 0%, so the ghost button's hover border is
-  now invisible in both themes and matches `Action/Ghost/Border`. The 10% was the odd one out.
 - `Data Viz/Utility/Accessibility Overlay` went from 56% to 55% in both themes — the 8-bit `8f`
   became a round `opacity-55`, which is the same value written honestly.
+- `Action/Ghost/Border Hover` **dark** went from 10% to 0%. That one was a slip while rebuilding the
+  token, not a decision: Nathan confirmed the value is **10%, in both modes**. So light moved 0% →
+  10% as well, and the ghost button now gains a faint hover border in light mode that it never had.
+  It sits 10%-over-10% on `Action/Ghost/Background Hover`, so it reads as a denser edge rather than a
+  distinct ring, which is the intent.
+
+  **The code is one step ahead of Figma here, deliberately.** `Action/Ghost/Border Hover` still says
+  `opacity-0` in the file, because the Plugin API cannot write the new composed values —
+  `setValueForMode` answers `Composed color variable values are not supported`. Reading them works
+  fine; authoring one is a manual edit. Until it is made in Figma, a fresh diff will flag this token,
+  and that flag is expected rather than new drift.
 
 The 181st variable is **`Status`, a BOOLEAN sitting in a color collection** with the value `false` in
 both modes. It is almost certainly a stray. Leave it out of the export: `generate.py` would resolve
