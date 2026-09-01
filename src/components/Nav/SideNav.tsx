@@ -5,6 +5,7 @@ import { PanelLeft } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
+import { Popover } from '../Popover'
 import { Tooltip } from '../Tooltip'
 import { NavContext, type NavContextValue } from './context'
 import { NavItem } from './NavItem'
@@ -290,17 +291,27 @@ function SideNavSection({ children, header, className, ...props }: SideNavSectio
 SideNavSection.displayName = 'SideNav.Section'
 
 export interface SideNavGroupProps {
-  /** The rows revealed when the group opens. They carry the 16px indent. */
+  /** The rows revealed when the group opens. They carry the 24px indent. */
   children: ReactNode
-  /** The trigger's label. */
-  label: ReactNode
+  /**
+   * The group's name.
+   *
+   * A `string`, not a `ReactNode`, and the flyout is why: collapsed, this is
+   * the trigger's whole accessible name and the panel's as well, and neither
+   * can be built out of arbitrary nodes.
+   */
+  label: string
   /** The trigger's leading glyph. */
   startIcon?: LucideIcon
-  /** Open on first render, without controlling it. */
+  /**
+   * Open on first render, without controlling it. Applies to the expanded
+   * disclosure only — the collapsed rail's flyout owns its own state, because
+   * it is a hover-and-click popup rather than a section of the rail.
+   */
   defaultOpen?: boolean
-  /** Open state, controlled. */
+  /** Open state of the expanded disclosure, controlled. */
   open?: boolean
-  /** Called when the group opens or closes. */
+  /** Called when the expanded disclosure opens or closes. */
   onOpenChange?: (open: boolean) => void
   className?: string
 }
@@ -315,24 +326,87 @@ function SideNavGroup({
   className,
 }: SideNavGroupProps) {
   const parent = useContext(NavContext)
+  const [flyoutOpen, setFlyoutOpen] = useState(false)
   const childCtx = useMemo<NavContextValue>(
     () => ({ ...parent, indent: true }),
     [parent],
   )
+  /*
+    Inside the flyout the rail's collapse does not apply: the rows show their
+    labels, and they are not sitting under a visible parent row, so they take no
+    indent either. Only the size carries through.
+  */
+  const flyoutCtx = useMemo<NavContextValue>(
+    () => ({ collapsed: false, size: parent.size, indent: false }),
+    [parent.size],
+  )
 
   /*
-    Collapsed, there is nowhere to put the children: the panel would open into a
-    56px rail and every row inside it would be an indistinguishable icon. Figma
-    does not draw this case either. The trigger stays as a plain item so the
-    rail keeps its shape, and the group's own rows are unreachable until it is
-    expanded — the honest behavior, and the reason a flyout is the obvious next
-    thing to build here.
+    Collapsed, the panel has nowhere to open into: a 56px rail would hold a
+    column of indistinguishable icons. So the group becomes a **flyout** — the
+    rows appear beside the rail, at their expanded width, which is the only
+    place there is room for them.
+
+    Opens on hover after 200ms and on click, both of which Base UI's Popover
+    trigger gives us. Hover is what makes a rail browsable without committing to
+    a click, and the 200ms is what stops it firing while the pointer crosses on
+    its way somewhere else. Escape and outside-click close it; clicking a row
+    closes it too, which is why the open state is held here rather than left
+    uncontrolled — a flyout still standing over the page after you have followed
+    a link out of it is the thing that makes this pattern feel broken.
+
+    **No tooltip on this trigger, unlike every other collapsed row.** It has no
+    children, so `NavItem` does not wrap it — and it must not, because the
+    tooltip and the flyout would both answer the same hover. The flyout carries
+    the group's name in its own header instead, which is more than the tooltip
+    was saying.
   */
   if (parent.collapsed) {
     return (
-      <NavItem startIcon={startIcon} className={className}>
-        {label}
-      </NavItem>
+      <Popover open={flyoutOpen} onOpenChange={setFlyoutOpen}>
+        <Popover.Trigger
+          openOnHover
+          delay={200}
+          closeDelay={120}
+          render={<NavItem startIcon={startIcon} aria-label={label} className={className} />}
+        />
+        <Popover.Popup
+          side="right"
+          align="start"
+          sideOffset={8}
+          // The expanded rail's width. The flyout is the group as it would have
+          // looked had there been room, so it is the same 224 rather than the
+          // Popover's own 324 default.
+          width={224}
+          label={label}
+          className={cn(
+            // Repainted onto the navigation tier. The rows inside are NavItems,
+            // which draw with --nav-*; on the Popover's own semantic surface a
+            // `neutral-inverse` label would be near-white text on white. It also
+            // reads correctly: the flyout is the rail continuing outward, not a
+            // dialog that happens to hold links.
+            'border-transparent bg-nav-background p-2 text-nav-content-primary',
+            // gap-0, matching an expanded section, where the header sits
+            // straight on top of the first row.
+            'gap-0',
+          )}
+        >
+          {/*
+            Not `Popover.Title`, which renders a real heading. `SideNav.Section`
+            already decided against headings for group labels — four of them in
+            the page outline is noise rather than structure — and a flyout is the
+            same label by another route. The name still reaches assistive tech,
+            through the popup's `label`.
+          */}
+          <span className="px-3 py-1 text-sm text-nav-content-subtle">{label}</span>
+          <NavContext.Provider value={flyoutCtx}>
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+            <div className="flex flex-col" onClick={() => setFlyoutOpen(false)}>
+              {children}
+            </div>
+          </NavContext.Provider>
+        </Popover.Popup>
+      </Popover>
     )
   }
 

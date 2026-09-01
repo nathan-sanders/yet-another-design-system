@@ -157,11 +157,40 @@ open and close are one CSS transition on a height Base UI measures for us —
 
 Base UI unmounts a closed panel, so there is nothing in the DOM to measure until it opens.
 
-**A collapsed group flattens to a plain item.** There is nowhere to put the children in a 56px rail
-— the panel would open into a column of indistinguishable icons — and Figma does not draw the case.
-The trigger stays a plain row and the group's own pages are unreachable until the rail is expanded.
-That is the honest behavior rather than a good one, and it is the clearest argument for the flyout
-that should come next.
+**A collapsed group opens sideways.** There is nowhere to put the children in a 56px rail — a panel
+would open into a column of indistinguishable icons — so the group becomes a **flyout**, on Base UI's
+`Popover`, showing the rows beside the rail at the 224px they would have had in the expanded one.
+Figma draws none of this; it was the gap left when the rail first landed.
+
+`Popover` and not `Menu`, because the rows are the caller's own `NavItem`s and they stay links.
+`Menu` would need each child turned into a `Menu.Item` with `role="menuitem"`, which means
+transforming children the component does not own and losing `aria-current` on the way.
+
+**Opens on hover after 200ms as well as on click.** Hover is what makes a rail browsable without
+committing to a click, and the delay is what stops it firing while the pointer crosses on its way
+somewhere else. Escape and an outside click close it, and so does clicking a row — which is why the
+open state is held rather than left uncontrolled: a flyout still standing over the page after you
+have followed a link out of it is the thing that makes this pattern feel broken.
+
+**The panel is repainted onto the navigation tier.** `Popover`'s own surface is semantic, and the
+rows inside draw with `--nav-*` — on `neutral-inverse` that is near-white text on a white panel. It
+is `bg-nav-background` with `p-2` and `gap-0`, so it reads as the rail continuing outward rather than
+a dialog that happens to hold links.
+
+**The group trigger is the one collapsed row with no tooltip.** It has no children, so `NavItem` does
+not wrap it — and it must not, because the tooltip and the flyout would both answer the same hover.
+The panel carries the group's name in its own header instead, which says more than the tooltip did.
+That header is a `span`, not `Popover.Title`: Title renders a real heading, and `SideNav.Section`
+already decided group labels do not belong in the page outline. The name still reaches assistive tech
+through the popup's `label`.
+
+**`label` narrowed from `ReactNode` to `string`** for this. Collapsed, it is the trigger's whole
+accessible name and the panel's as well, and neither can be built out of arbitrary nodes.
+
+**Focus moves into the panel when it is opened by click**, so the rows are reachable straight away.
+`Popover`'s own story says a popover "leaves focus on the trigger" and both are true — that one is
+`defaultOpen`, where nothing the user did asked for focus. The play function asserts it, because the
+first version of that test assumed the opposite and failed.
 
 **`TopNav` is not built on `Tabs`, though it looks like a strip of them.** Tabs' own doc rules it
 out: a set of `href` links is "a `<nav>` of anchors and a different accessibility contract" — no
@@ -216,6 +245,7 @@ At `neutral-inverse` on Stone, against the Figma frames:
 | Collapsed section header | the 1px rule itself | 1px, subtle @ 40% |
 | Rule: space above / below | equal | 8 / 8, rows still flush at 0 |
 | Logo travel during collapse | none | x and y both 0 across the 224→56 animation |
+| Collapsed group flyout | not drawn | 224 wide, `nav-background`, p-2, opens on hover at 200ms |
 | Floating on / off | shadow / none | `shadow-low` / `none` |
 | Root / sections / utilities gap | 12 / 8 / 0 | 12 / 8 / 0 |
 | Collapsed header: gap, height | 0, 80 | 0, 80 |

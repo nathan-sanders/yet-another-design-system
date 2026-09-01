@@ -111,7 +111,18 @@ now just `Action Items` and `Type` — and the old `Breadcumbs` spelling went wi
 arrangement from the `breadcrumbs` slot rather than from a prop was right before that and is simply
 uncontested now.
 
-**Still open:** the root of *both* variants binds `strokeBottomWeight` to `border-width/border` while
-its `strokes` array is empty. It paints nothing — the visible rule is the Divider child — so it costs
-only confusion, and it is the kind of thing a future reader takes as evidence the border belongs on
-the root. Checked again after the other two were fixed rather than assumed to have gone with them.
+**Fixed on 2026-09-01, from this side:** the root of both variants bound `strokeBottomWeight` to
+`border-width/border` while its `strokes` array was empty. It painted nothing — the visible rule is
+the Divider child — so it cost only confusion, and it was the kind of thing a future reader takes as
+evidence the border belongs on the root.
+
+**It was invisible in the Figma UI, which is why it needed a script to find and to remove.** A
+stroke-weight binding has nowhere to show itself when there are no stroke paints: the panel renders
+the stroke section empty, and the binding sits underneath it. `setBoundVariable('strokeBottomWeight',
+null)` on the two variant roots. The unbind was guarded on `strokes.length === 0` so it could only
+touch a binding that was genuinely dead — if a paint had appeared in the meantime the binding would
+have been doing real work, and the script would have skipped it and said so.
+
+The Divider child is untouched and still draws the rule, so nothing about the component's appearance
+changed. The plain `strokeBottomWeight: 1` value remains, which is inert: it is the weight of a
+stroke that does not exist.
