@@ -265,6 +265,12 @@ export type { SliderProps, SliderMark } from './components/Slider'
 export { Switch } from './components/Switch'
 export type { SwitchProps } from './components/Switch'
 
+export { ThemeControl } from './components/ThemeControl'
+export type { ThemeControlProps, Theme } from './components/ThemeControl'
+
+export { TopBar } from './components/TopBar'
+export type { TopBarProps } from './components/TopBar'
+
 export { Tabs } from './components/Tabs'
 export type {
   TabsProps,
