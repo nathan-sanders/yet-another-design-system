@@ -44,9 +44,8 @@ const meta = {
               name="Nathan Sanders"
               size="x-small"
               status="online"
-              // See the SideNav story: `surface` has no nav option, so the
-              // status ring is re-pointed at the nav background here.
-              className="[&_[data-status]]:ring-nav-background"
+              // See the SideNav story: the ring has to name what is behind it.
+              surface="nav"
             />
           }
           aria-label="Hi, Nathan!"

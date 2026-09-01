@@ -50,8 +50,18 @@ Both rings on this component are a band of the **background** showing through: t
 between overlapping circles, and the status dot's ring against the photo. That only works if it is
 painted in the color behind the avatar, and **CSS has no way to ask what that is** — there is no
 "background of whatever contains me". So it is a prop: `canvas` (default) | `card-primary` |
-`card-subtle` | `card-emphasized`, the four `--surface-*` fills the theme has. The border tokens are
-not offered; `surface-border` is a line, not a fill, and nothing is drawn on top of one.
+`card-subtle` | `card-emphasized` | `nav`. The border tokens are not offered; `surface-border` is a
+line, not a fill, and nothing is drawn on top of one.
+
+**`nav` is the odd one, added 2026-09-01 for the navigation components.** The other four name
+`--surface-*`, the theme-aware semantic fills; `nav` names `--nav-background`, which belongs to the
+navigation theme tier and does not follow `.dark` on six of its seven modes. It is here because
+`SideNav` and `TopNav` put an avatar in a nav row and Figma binds that status ring to the nav
+`Background` — without it the default `canvas` ring is a pale disc on a dark rail. It went in as an
+arbitrary variant on the caller first (`[&_[data-status]]:ring-nav-background`) and that was the
+tell: a prop that exists so nobody hardcodes the ring should not need hardcoding around. The rule
+this list follows is not "semantic tokens only" but **"fills something can sit on top of"**, and a
+nav surface is one. A second component-scoped tier would join it on the same terms.
 
 It was a hardcoded `outline-surface-canvas` until this landed, which was right on the page and
 wrong everywhere else. `--surface-canvas` is `neutral-100` against a card's white in light and

@@ -203,14 +203,17 @@ At `neutral-inverse` on Stone, against the Figma frames:
 on `blue`). Swept by compositing each token over what is actually behind it and computing the WCAG
 ratio, because `npm test` runs axe only at the default ramp and none of these modes is the default.
 
-## Two things the library cannot express yet
+## What this pulled into a neighbouring component
 
-**`Avatar`'s `surface` enum has no nav option.** The status dot rings itself in the colour behind it
-so it reads as a cut-out, and `surface` knows only `canvas` and the three card surfaces — so on a
-dark rail the default `canvas` ring is a pale disc. Figma binds that ring to the nav `Background`.
-The stories re-point it with `[&_[data-status]]:ring-nav-background` rather than widening another
-component's API from inside this one. Adding `'nav'` to `AvatarSurface` is the real fix, and it is a
-three-line change to `Avatar/styles.ts` whenever that is wanted.
+**`Avatar` gained a `nav` surface.** The status dot rings itself in the colour behind it so it reads
+as a cut-out, and it cannot work out what that is — that is what `surface` is for. Its four values
+all named `--surface-*`, so on a dark rail the default `canvas` ring was a pale disc where Figma
+binds the nav `Background`. This shipped once as an arbitrary variant on the caller
+(`[&_[data-status]]:ring-nav-background`), and that was the tell: a prop whose entire job is to stop
+people hardcoding the ring should not need hardcoding around. `AvatarSurface` now has `nav`, wired
+through all three of its maps — the group outline, the status ring and the status fill — and both
+nav stories use the prop. See `Avatar/CLAUDE.md` for why a component-scoped tier is allowed in an
+otherwise semantic list.
 
 **The logo is a story fixture, not a component.** `story-logo.tsx` is the YADS wordmark, unexported
 and not in the barrel: both bars take a `logo` slot precisely so the brand mark stays the

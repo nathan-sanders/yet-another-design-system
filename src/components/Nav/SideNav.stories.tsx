@@ -79,15 +79,11 @@ const meta = {
               name="Nathan Sanders"
               size="x-small"
               status="online"
-              /*
-                The status dot rings itself in the surface behind it so it reads
-                as a cut-out, and `surface` only knows the semantic surfaces —
-                there is no `nav` among them, so the default `canvas` ring is a
-                pale disc on a dark rail. Figma binds that ring to the nav
-                Background. Re-pointed here rather than by widening Avatar's
-                enum, which is a change to a different component.
-              */
-              className="[&_[data-status]]:ring-nav-background"
+              // The status dot rings itself in the surface behind it so it
+              // reads as a cut-out, and it cannot work out what that is — hence
+              // the prop. `nav` is the navigation theme's own background, which
+              // is what Figma binds this ring to.
+              surface="nav"
             />
           }
         >

@@ -6,7 +6,7 @@ import { AvatarGroup } from './AvatarGroup'
 import samplePhoto from './sample-photo.png'
 
 const sizes = ['x-small', 'small', 'base', 'large', 'x-large'] as const
-const surfaces = ['canvas', 'card-primary', 'card-subtle', 'card-emphasized'] as const
+const surfaces = ['canvas', 'card-primary', 'card-subtle', 'card-emphasized', 'nav'] as const
 
 /** The fill each `surface` value names, so a story can sit a group on its own surface. */
 const SURFACE_CLASS: Record<(typeof surfaces)[number], string> = {
@@ -14,14 +14,18 @@ const SURFACE_CLASS: Record<(typeof surfaces)[number], string> = {
   'card-primary': 'bg-surface-background-primary',
   'card-subtle': 'bg-surface-background-subtle',
   'card-emphasized': 'bg-surface-background-emphasized',
+  // The one that is not a --surface-* fill: the navigation theme's own
+  // background, which is what an avatar in a SideNav or TopNav row sits on.
+  nav: 'bg-nav-background',
 }
 
-/** `card-emphasized` is the dark one, so its label has to flip. */
+/** `card-emphasized` and `nav` are the dark ones, so their labels have to flip. */
 const SURFACE_LABEL_CLASS: Record<(typeof surfaces)[number], string> = {
   canvas: 'text-content-subtle',
   'card-primary': 'text-content-subtle',
   'card-subtle': 'text-content-subtle',
   'card-emphasized': 'text-content-inverse',
+  nav: 'text-nav-content-primary',
 }
 
 const team = [
