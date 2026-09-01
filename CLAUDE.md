@@ -500,6 +500,8 @@ settled once, against the Figma file, for a reason that is written down.
 | [NavItem](src/components/Nav/CLAUDE.md) | one row of a navigation bar | Figma's `Type` axis is a size; the 1px inside stroke is an `inset-ring`, not a border |
 | [SideNav](src/components/Nav/CLAUDE.md) | the application rail | 224 expanded, 56 collapsed; collapsed labels become tooltips and headers become a rule; groups are Base UI's `Collapsible` |
 | [TopNav](src/components/Nav/CLAUDE.md) | the horizontal bar | app or site; the page list centres because both ends are `flex-1`; `floating` is only the shadow |
+| [TopBar](src/components/TopBar/CLAUDE.md) | the page header beside a SideNav | breadcrumbs, search and actions; a `<header>`, so exactly one per page |
+| [ThemeControl](src/components/ThemeControl/CLAUDE.md) | the light/dark switch | reports the intent and never touches the document |
 | [Tabs](src/components/Tabs/CLAUDE.md) | switch between panels | sliding indicator, in pure CSS |
 | [Banner](src/components/Banner/CLAUDE.md) | a persistent page message | four severities, optional actions |
 | [Toast](src/components/Toast/CLAUDE.md) | a notification that leaves | a stack that collapses |
