@@ -150,11 +150,21 @@ additions, no removals, and only **two** value differences — both applied here
   It sits 10%-over-10% on `Action/Ghost/Background Hover`, so it reads as a denser edge rather than a
   distinct ring, which is the intent.
 
-  **The code is one step ahead of Figma here, deliberately.** `Action/Ghost/Border Hover` still says
-  `opacity-0` in the file, because the Plugin API cannot write the new composed values —
-  `setValueForMode` answers `Composed color variable values are not supported`. Reading them works
-  fine; authoring one is a manual edit. Until it is made in Figma, a fresh diff will flag this token,
-  and that flag is expected rather than new drift.
+  Figma has caught up — the token reads `opacity/opacity-10` in both modes. It had to be fixed by
+  hand: **the Plugin API cannot write the new composed values.** `setValueForMode` answers
+  `Composed color variable values are not supported`, so `use_figma` can read a `COMPOSE_COLOR`
+  expression but never author one, and any change to one of these twelve tokens is a manual edit in
+  the Figma UI. Do not route around that by writing a flat `#rrggbbaa` back: it would regress the
+  token from a ramp-following alias to a hex frozen at Stone, which is the exact bug the collection
+  was created to fix.
+
+Both sides agree as of 2026-08-31, and that is a measurement too: FNV-1a fingerprints of
+`name|light|dark`, folded per top-level group in the export's own encoding, match across all eight
+groups and over all 180 tokens (`020c3225`). That is the cheap form of the diff — two short outputs
+instead of two full dumps — and it is the one to reach for when checking whether Figma and
+`tokens/*.json` have drifted. Give the value encoder a **loud failure** for an unrecognized shape
+(return null and collect the nulls), or a `COMPOSE_COLOR` stringifies to `"[object Object]"` and the
+dump looks clean while hiding twelve tokens.
 
 The 181st variable is **`Status`, a BOOLEAN sitting in a color collection** with the value `false` in
 both modes. It is almost certainly a stray. Leave it out of the export: `generate.py` would resolve
