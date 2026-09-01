@@ -56,6 +56,27 @@ both the fix for the story and the escape hatch for a page that genuinely needs 
 same story also had to give its two trails distinct names: two `<nav>`s both called "Breadcrumb" are
 one landmark twice over as far as `landmark-unique` is concerned.
 
+**The search fills the centre and stops at 600px, and only wears a fill when there is a centre to
+be in.** A ghost field on a bare bar has no edges, so "centred" is something you take on trust; the
+`surface-overlay-subtle` wash — 10% of the neutral, the same token the ghost hover uses — gives it a
+boundary you can actually see sitting between the trail and the actions. Without breadcrumbs there is
+nothing to be centred between, and the fill would be a box around a search field for its own sake, so
+it is left off.
+
+`max-w-150`, not `max-w-[600px]`: Tailwind v4 reads a bare number as that many `--spacing` steps, so
+150 × 0.25rem is exactly 600px, and it matches the `max-w-100` and `max-w-200` already in the
+library. It also scales with the root font size, which an arbitrary pixel value would not.
+
+**The cap rarely bites, and that is the point.** All three children are `flex-1`, so the two ends stay
+equal and the search is centred by symmetry rather than by a rule; it takes its third of whatever is
+left. On a 1552px bar that is 504px, and the 600 only applies past roughly 1840. Sizing the ends to
+content instead would let the search grow further but would stop it being centred, because the trail
+and the actions are not the same width.
+
+**This changed the no-breadcrumbs arrangement too, which Figma does not.** One sizing rule is easier
+to hold than two, so the search grows there as well — up to 600px at the left edge, where Figma draws
+a fixed 259. If that is wrong, the fix is a second branch in the same `cn` call, not a new prop.
+
 **The search is `appearance="ghost"`, in the stories at least.** Figma instantiates
 `Input Group / Appearance=Ghost`, which draws no border until focus — the bar reads as a magnifier
 and a placeholder rather than a boxed field, and the default appearance puts a second rectangle
@@ -74,9 +95,12 @@ At the default theme, against the Figma frames:
 | Height / padding / gap | 56 / 12 / 8 | 56 min (57 with the rule) / 12 / 8 |
 | Bottom rule | 1px `Surface/Border` | 1px solid, `Surface/Border` |
 | Background | none | transparent |
-| Search width | 259 (→ `w-64`) | 256 |
+| Search cap | 600px | `max-w-150` → `600px` |
+| Search width, 1552px bar | fills its third | 504, and 270 on an 852px bar |
+| Search fill, with / without a trail | wash / none | `surface-overlay-subtle` at 10% / transparent |
+| Search radius | 8 (`rounded-md`) | 8 |
 | `Type=Default` search position | left edge | 12px from the left, i.e. the padding |
-| `Type=Breadcrumbs` search | centred by equal FILL ends | 468 either side |
+| `Type=Breadcrumbs` search | centred | equal either side at both widths |
 
 ## Figma defects
 

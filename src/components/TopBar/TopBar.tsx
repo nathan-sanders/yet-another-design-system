@@ -57,9 +57,20 @@ export interface TopBarProps
    */
   breadcrumbs?: ReactNode
   /**
-   * The search field, usually an `Autocomplete`. A fixed 16rem — Figma draws
-   * 259px, which is 3px off `width/w-64` and reads as hand-sizing rather than a
-   * decision.
+   * The search field, usually an `Autocomplete`.
+   *
+   * It fills the space it is given up to **600px** (`max-w-150` — 150 spacing
+   * steps, the same idiom as the `max-w-100` and `max-w-200` elsewhere in the
+   * library, rather than an arbitrary pixel value). Figma draws a fixed 259px,
+   * which is 3px off a token and reads as hand-sizing; letting it grow is what
+   * makes it look centred rather than merely placed in the middle.
+   *
+   * **With `breadcrumbs`, the wrapper takes a `surface-overlay-subtle` fill.**
+   * A ghost field on a bare bar has no edges, so "centred" is something you have
+   * to take on trust — the 10% wash gives it a boundary you can actually see
+   * sitting between the trail and the actions. Without a trail there is no
+   * centre to demonstrate, and the fill would just be a box around a search
+   * field, so it is left off.
    */
   search?: ReactNode
   /** The controls at the end — a `Button`, a `ThemeControl`. Figma's Action Items. */
@@ -85,7 +96,24 @@ export function TopBar({ breadcrumbs, search, actions, className, ...props }: To
         <div className="flex min-w-0 flex-1 items-center">{breadcrumbs}</div>
       ) : null}
 
-      {search ? <div className="w-64 shrink-0">{search}</div> : null}
+      {search ? (
+        <div
+          className={cn(
+            // Grows into whatever the two ends leave, capped at 600px. Three
+            // `flex-1` children make the ends equal, so the cap keeps it centred
+            // rather than letting it swallow the bar on a wide screen.
+            'min-w-0 max-w-150 flex-1',
+            // rounded-md = border-radius/rounded-md (8), the radius Figma
+            // already binds on its Search frame.
+            'rounded-md',
+            // The boundary only earns its place when there is something to be
+            // centred between. See the `search` prop's note.
+            breadcrumbs ? 'bg-surface-overlay-subtle' : null,
+          )}
+        >
+          {search}
+        </div>
+      ) : null}
 
       {/*
         Always rendered, even with nothing in it. It is the right-hand half of

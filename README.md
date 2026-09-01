@@ -171,7 +171,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **ThemeControl** | The light/dark switch; a ghost icon-only Button whose glyph is the theme you would *get* (a moon while light). Reports the intent through `onThemeChange` and never touches the document — the theme has to survive a reload and sync with a user setting, and both are the app's call |
 | **Toast** | 3 types (default, success, danger) with description, action and dismiss slots; fired from a `useToast()` hook into a stack that collapses into one card and expands on hover, in pure CSS |
 | **Token** | One chosen value as a pill; view-only or interactive × 2 sizes (24/20) × default/hover/focus/disabled, with icon, avatar and remove slots |
-| **TopBar** | The page header that sits above the content beside a `SideNav`; breadcrumbs, a search field and an actions slot, with the search centred when a trail is present. A `<header>`, so one per page — semantic tokens, not the navigation theme |
+| **TopBar** | The page header that sits above the content beside a `SideNav`; breadcrumbs, a search field and an actions slot. The search fills the centre up to 600px and takes a `surface-overlay-subtle` wash when a trail is present, so its boundary is visible where it is centred. A `<header>`, so one per page — semantic tokens, not the navigation theme |
 | **TopNav** | The horizontal bar, for an app or a marketing site; logo, a centred page list and end utilities, with `floating` toggling the drop shadow. No collapse — Figma draws none, and which breakpoint and what it collapses into are decisions the file does not make |
 | **Tooltip** | One look, as in Figma; 4 sides × 3 alignments, with collision flipping |
 
