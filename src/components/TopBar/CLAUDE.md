@@ -78,10 +78,14 @@ At the default theme, against the Figma frames:
 | `Type=Default` search position | left edge | 12px from the left, i.e. the padding |
 | `Type=Breadcrumbs` search | centred by equal FILL ends | 468 either side |
 
-## Figma defects, not fixed
+## Figma defects
 
-- The `Breadcrumbs` BOOLEAN property duplicates the `Type` variant; one of the two is redundant.
-- The root's `strokeBottomWeight` is bound to `border-width/border` with an empty `strokes` array —
-  a dead binding left over from before the Divider child.
-- `Breadcumbs#40004486:77` was the old spelling; the property is now `Breadcrumbs#40004511:123`, so
-  that one is fixed.
+**Fixed at source on 2026-09-01:** the redundant `Breadcrumbs` BOOLEAN is gone — the properties are
+now just `Action Items` and `Type` — and the old `Breadcumbs` spelling went with it. Deriving the
+arrangement from the `breadcrumbs` slot rather than from a prop was right before that and is simply
+uncontested now.
+
+**Still open:** the root of *both* variants binds `strokeBottomWeight` to `border-width/border` while
+its `strokes` array is empty. It paints nothing — the visible rule is the Divider child — so it costs
+only confusion, and it is the kind of thing a future reader takes as evidence the border belongs on
+the root. Checked again after the other two were fixed rather than assumed to have gone with them.

@@ -45,8 +45,19 @@ value here.
 `theme="light"` and sun at `theme="dark"`; the uncontrolled button flips its own label from
 "Switch to dark theme" to "Switch to light theme" on click.
 
-## Figma defect, not fixed
+## Figma caught up, 2026-09-01
 
-The Button instance inside each variant is **42px wide inside a 40px component** — a 2px overhang —
-and still carries a leftover `Label Text` of `"Add Policy"` with the label switched off. Neither
-affects the render; both would be tidier gone.
+Both defects recorded here are fixed at source, and one of them was the file being wrong rather than
+the button.
+
+**The 2px "overhang" was the component frame, not the Button.** The instance was 42 wide inside a
+40px component; Figma is now 42×32 throughout, and **42 is the correct number** — `border-box` on a
+ghost icon Button gives `12 + 1 + 16 + 1 + 12`, padding and border either side of a 16px glyph. This
+component already measured 42×32, so nothing changed here. Worth keeping because the arithmetic is
+not obvious: a 40px-looking button is 42 the moment it has a 1px border.
+
+**The leftover `Label Text` of `"Add Policy"` is gone**, and what replaced it is a useful
+corroboration rather than just tidier: `Theme=Light` now reads `"Dark"` and `Theme=Dark` reads
+`"Light"`. The hidden label names the **destination**, which is exactly the direction this component
+takes for its icon and its accessible name. Two sides agreeing on the confusing half of the design is
+worth more than either saying it alone.
