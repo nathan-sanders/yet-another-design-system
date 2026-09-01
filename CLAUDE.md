@@ -166,9 +166,32 @@ instead of two full dumps — and it is the one to reach for when checking wheth
 (return null and collect the nulls), or a `COMPOSE_COLOR` stringifies to `"[object Object]"` and the
 dump looks clean while hiding twelve tokens.
 
-The 181st variable is **`Status`, a BOOLEAN sitting in a color collection** with the value `false` in
-both modes. It is almost certainly a stray. Leave it out of the export: `generate.py` would resolve
-it to nothing and emit a broken `--status: False;` line.
+The 181st variable was **`Status`, a BOOLEAN sitting in a color collection** with the value `false`
+in both modes — it would have made `generate.py` emit a broken `--status: False;` line. It was
+**deleted on 2026-08-31 at Nathan's instruction**, and `Semantic Theme` is now 180 variables, all
+`COLOR`.
+
+**It was not a stray, and it is worth knowing why the first read said it was.** `Status` was doing
+real work: bound to `visible` on a `Status` instance inside the `Start Slot Items` slot of all six
+`Nav Item` variants (`Type=Primary|Secondary` × `State=Default|Hover|Selected`), so one switch
+flipped the status indicator across the whole set. A BOOLEAN in a color collection *looks* like a
+mis-click, and it was not — **check the bindings before calling a variable unused.** The six
+instances were unbound first and pinned to their resolved value (`visible: false`), so nothing was
+left dangling and no other binding on them was touched.
+
+To restore the switch: create a BOOLEAN variable in a single-mode collection (not `Semantic Theme`,
+which would put the export problem straight back) and rebind `visible` on
+
+```
+40004485:27348  Type=Secondary, State=Default    40004485:27351  Type=Primary,   State=Hover
+40004485:27349  Type=Primary,   State=Selected   40004485:27352  Type=Secondary, State=Hover
+40004485:27350  Type=Secondary, State=Selected   40004485:27353  Type=Primary,   State=Default
+```
+
+**A removed variable still resolves by id.** `getVariableByIdAsync` kept returning
+`{id, name: "Status"}` after `remove()`, in a later script run, with the variable gone from the
+collection. So "does the id still resolve" is not a deletion test — check
+`collection.variableIds.indexOf(id)`, or look the name up through the collection.
 
 ### The navigation theme tier — in Figma, not yet in code
 
