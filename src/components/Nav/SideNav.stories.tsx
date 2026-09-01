@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 import {
   Bell,
   ChartNoAxesColumn,
@@ -122,6 +123,54 @@ export const Playground: Story = {}
  */
 export const Collapsed: Story = {
   args: { defaultCollapsed: true },
+}
+
+/**
+ * Collapsed, a group cannot open downward — a 56px rail would hold a column of
+ * indistinguishable icons — so it opens **sideways**, at the width it would have
+ * had in the expanded rail.
+ *
+ * It opens on hover after 200ms as well as on click, which is what makes a rail
+ * browsable without committing; Escape and an outside click close it, and so
+ * does following a row out of it. The group trigger is the one collapsed row
+ * with no tooltip: the flyout answers the same hover, and it carries the group's
+ * name in its own header.
+ */
+export const CollapsedFlyout: Story = {
+  parameters: { controls: { disable: true } },
+  args: { defaultCollapsed: true },
+  play: async ({ canvasElement }) => {
+    const rail = within(canvasElement)
+    // The trigger has no children collapsed, so its name is the `label` prop.
+    await userEvent.click(await rail.findByRole('button', { name: 'Atlas' }))
+
+    // Portalled to <body>, so it is not inside the canvas element.
+    const flyout = await within(document.body).findByRole('dialog')
+    // `findByRole` resolves on the frame the popup is inserted, which is the
+    // frame it still carries `data-starting-style` — opacity 0, and
+    // `toBeVisible` is right to say so. Dialog's finding, same shape.
+    await waitFor(() => expect(flyout).toBeVisible())
+
+    // Named by the popup's `label`, which is the group's own name. Not a
+    // `Popover.Title`: that renders a real heading, and `SideNav.Section`
+    // already decided group labels do not belong in the page outline.
+    await expect(flyout).toHaveAccessibleName('Atlas')
+
+    // The rows are inside it, with their labels back — the whole point of
+    // opening sideways rather than downward.
+    await expect(within(flyout).getByRole('link', { name: 'Overview' })).toBeVisible()
+    await expect(within(flyout).getByRole('link', { name: 'Tasks' })).toBeVisible()
+
+    // Focus moves into the panel, so the rows are reachable straight away —
+    // which is what you want from a flyout you opened deliberately.
+    //
+    // Dialog's story says a popover "leaves focus on the trigger", and both are
+    // true: that one is `defaultOpen`, where nothing the user did asked for
+    // focus. Opened by click, Base UI moves it. Asserted rather than assumed,
+    // because the first version of this test assumed the other way round and
+    // failed.
+    await waitFor(() => expect(flyout.contains(document.activeElement)).toBe(true))
+  },
 }
 
 /**
