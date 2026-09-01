@@ -135,10 +135,11 @@ export const Controlled: Story = {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [collapsed, setCollapsed] = useState(false)
     return (
-      <div className="flex h-full gap-4">
+      <div className="flex h-full gap-2 p-2">
         <SideNav {...args} collapsed={collapsed} onCollapsedChange={setCollapsed} />
         <p className="self-start text-base text-content-subtle">
-          The rail is {collapsed ? 'collapsed' : 'expanded'}.
+          The rail is {collapsed ? 'collapsed' : 'expanded'}. Watch the logo while it moves — it
+          stays where it is, and only the rail around it changes width.
         </p>
       </div>
     )
@@ -153,7 +154,9 @@ export const Controlled: Story = {
 export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
-    <div className="flex h-full gap-6">
+    // 8px around the rail and 8px between it and the page — the app frame both
+    // Figma examples draw (`pad:8 gap:8` on the frame holding the two).
+    <div className="flex h-full gap-2 p-2">
       <SideNav {...args} />
       <main className="flex-1 rounded-lg border border-surface-border bg-surface-background-primary p-6">
         <h1 className="text-lg font-semibold text-content-emphasized">Home</h1>
@@ -176,7 +179,7 @@ export const Docked: Story = {
   parameters: { controls: { disable: true } },
   args: { floating: false },
   render: (args) => (
-    <div className="flex h-full gap-0 overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary p-2">
+    <div className="flex h-full gap-2 rounded-lg border border-surface-border p-2">
       <SideNav {...args} />
       <main className="flex-1 p-6">
         <h1 className="text-lg font-semibold text-content-emphasized">Home</h1>

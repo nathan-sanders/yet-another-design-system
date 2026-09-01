@@ -141,13 +141,21 @@ export function SideNav({
         {/*
           Figma's Header frame. Expanded it is a 12px-gapped row with the logo
           and the toggle pushed apart; collapsed it stacks them with **no gap**
-          at all, two 40px squares making an 80px block. The collapsed gap was
-          12 here and that is the spacing that read as too loose.
+          at all, two 40px squares making an 80px block.
+
+          `items-start`, not `items-center`, and that is the whole fix for the
+          logo drifting during the collapse. The width animates over 410ms but
+          the flex direction flips on the same frame the state does, so for the
+          length of the animation the logo is centred in a box that is still
+          most of 224px wide and slides left as it shrinks. Left-aligned it
+          starts and ends at x=8 and never moves. Figma agrees — the collapsed
+          Header's counter-axis alignment is MIN, not CENTER; the two look
+          identical at rest only because the box ends up exactly 40 wide.
         */}
         <div
           className={cn(
             'flex shrink-0',
-            collapsed ? 'flex-col items-center gap-0' : 'items-center justify-between gap-3',
+            collapsed ? 'flex-col items-start gap-0' : 'items-center justify-between gap-3',
           )}
         >
           {logo ? (
@@ -228,26 +236,37 @@ function SideNavSection({ children, header, className, ...props }: SideNavSectio
   const { collapsed } = useContext(NavContext)
 
   return (
-    <div className={cn('flex flex-col', className)} {...props}>
+    /*
+      `gap-2` only when collapsed, and only between the rule and the rows —
+      which is why the rows need their own wrapper below. Expanded, Figma's
+      Nav Section List is gap 0: the header text sits straight on top of the
+      first row.
+
+      **Collapsed, the 8px is what centres the rule.** The space between one
+      section's last row and the next section's first row is the Nav Sections
+      gap above the rule and this gap below it. Figma currently draws 8 above
+      and 12 below, so the rule sits high in that span; 8 on both sides is what
+      "vertically centred" actually means, and it keeps both halves on
+      `spacing/2` — 10 and 10 would centre it too but there is no token for 10.
+    */
+    <div className={cn('flex flex-col', collapsed && 'gap-2', className)} {...props}>
       {header ? (
         collapsed ? (
           /*
             Collapsed, Figma swaps the header text for a rule — its
-            `Nav Section Header / Collapsed=True` is a 12px band holding a 1px
-            line, which is how the groups stay legible once their names are
-            gone. `aria-hidden`, and not the library's `Divider`: that renders
-            `role="separator"`, and a separator with no name between two groups
-            of links is noise to a screen reader rather than structure — the
-            call Accordion made about its own item rules.
+            `Nav Section Header / Collapsed=True` is now the 1px line itself,
+            where it used to be a 12px band holding one. `aria-hidden`, and not
+            the library's `Divider`: that renders `role="separator"`, and a
+            separator with no name between two groups of links is noise to a
+            screen reader rather than structure — the call Accordion made about
+            its own item rules.
 
             `nav-content-subtle` at 40%: Figma carries the opacity on the
             Divider *instance* rather than on the paint, so the stroke reads as
             a full-strength Nav Content/Subtle and only the node is faded. Both
             halves are needed — the token alone is twice as strong as drawn.
           */
-          <div aria-hidden className="flex h-3 items-center">
-            <span className="h-px w-full bg-nav-content-subtle/40" />
-          </div>
+          <span aria-hidden className="h-px w-full shrink-0 bg-nav-content-subtle/40" />
         ) : (
           // px-3 = spacing/3, py-1 = spacing/1, text-sm = 12/20, and the one
           // place `nav-content-subtle` paints text. Not a heading element:
@@ -257,7 +276,13 @@ function SideNavSection({ children, header, className, ...props }: SideNavSectio
           <span className="px-3 py-1 text-sm text-nav-content-subtle">{header}</span>
         )
       ) : null}
-      {children}
+      {/*
+        Figma's Pages slot. It exists here for the same reason it does there:
+        the section's gap belongs between the header and the rows, and the rows
+        themselves are flush. Without this wrapper `gap-2` would push every row
+        in the section apart as well.
+      */}
+      <div className="flex flex-col">{children}</div>
     </div>
   )
 }

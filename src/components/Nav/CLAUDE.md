@@ -70,8 +70,8 @@ token — worth knowing, because an `Icon` in a nav row otherwise takes `current
 by accident. Getting this wrong is invisible in a screenshot and obvious in a diff.
 
 **The collapsed section header is a rule, not nothing.** The first reading had the header simply
-absent when collapsed; the variant now holds a 12px band with a 1px line, which is what keeps the
-groups legible once their names are gone. It is `aria-hidden` and deliberately **not** the library's
+absent when collapsed; the variant is now the 1px line itself — it was briefly a 12px band holding
+one — and it is what keeps the groups legible once their names are gone. It is `aria-hidden` and deliberately **not** the library's
 `Divider`: that renders `role="separator"`, and an unnamed separator between two groups of links is
 noise to a screen reader rather than structure — the same call Accordion made about its own item
 rules.
@@ -91,12 +91,34 @@ same x as its parent's. Measured at 68px for both.
 
 **The row gap is 4, not 8.** `spacing/1`. Easy to carry over wrong from the padding, which is 8.
 
+**The rule is centred by making both sides 8, and Figma is not there yet.** The space between one
+section's last row and the next section's first row is the Nav Sections gap *above* the rule and the
+Nav Section List's own gap *below* it. Figma draws 8 above and 12 below, which puts the rule high in
+that span; both at 8 is what "vertically centred" actually means, and it keeps each half on
+`spacing/2`. 10 and 10 would centre it inside Figma's 21px span too, but there is no token for 10 and
+inventing one for a single gap is worse than tightening it. **Figma's Nav Section List gap wants
+changing from 12 to 8** for the two to agree.
+
+That gap needs the rows in their own wrapper, which is why `SideNav.Section` renders a Pages `div`
+around `children` exactly as Figma has a Pages slot. Without it, a gap meant for the space under the
+header would push every row in the section apart as well.
+
 **Three different gaps stack down the rail, and only one of them is 12.** The root is `spacing/3`
 (12) between header, sections and utilities; the **Nav Sections slot is `spacing/2` (8)** between one
 section and the next, in both variants; and the utilities are flush at 0. The collapsed header is
 flush too — logo and toggle are two 40px squares making an 80px block with **no gap at all**, where
 the expanded header is a 12px row with them pushed apart. Both the sections gap and the collapsed
 header gap were 12 here at first, which is what read as too loose.
+
+**The logo must be left-aligned, or it travels while the rail animates.** The collapsed header is a
+column and the expanded one is a row, and the direction flips on the same frame the state does —
+while the *width* takes 410ms to get there. With `items-center` the logo spends that whole animation
+being centred in a box that is still most of 224px wide, sliding left as it shrinks; Nathan called it
+out as too much movement, and it is. `items-start` pins it at x=8 from the first frame to the last —
+measured across ten samples while the rail went 224 → 56, with the logo's x and y both moving zero
+pixels. Figma agrees and always did: the collapsed Header's counter-axis alignment is MIN. The two
+look identical at rest only because the content box ends up exactly 40 wide, which is how it went in
+wrong.
 
 **The collapse toggle is 40×40 because it has no label, not because the rail is collapsed.** It was
 stretching across everything to the right of the logo: the row recipe is `w-full`, and `iconOnly` was
@@ -187,7 +209,9 @@ At `neutral-inverse` on Stone, against the Figma frames:
 | Parent vs child label x | equal | 68 / 68 |
 | New indicator | 8px, top-right of the slot | 8px, offset 0,0 from that corner |
 | Hover background + border | Bg Hover + Border Hover | both applied, height stable at 40 |
-| Collapsed section header | 12px band, 1px rule | 12 / 1 |
+| Collapsed section header | the 1px rule itself | 1px, subtle @ 40% |
+| Rule: space above / below | equal | 8 / 8, rows still flush at 0 |
+| Logo travel during collapse | none | x and y both 0 across the 224→56 animation |
 | Floating on / off | shadow / none | `shadow-low` / `none` |
 | Root / sections / utilities gap | 12 / 8 / 0 | 12 / 8 / 0 |
 | Collapsed header: gap, height | 0, 80 | 0, 80 |
@@ -202,6 +226,13 @@ At `neutral-inverse` on Stone, against the Figma frames:
 **Contrast: 46 mode × theme × ramp combinations, none below 4.5:1**, worst 4.82 (`nav-content-subtle`
 on `blue`). Swept by compositing each token over what is actually behind it and computing the WCAG
 ratio, because `npm test` runs axe only at the default ramp and none of these modes is the default.
+
+## The frame around it
+
+Both Figma examples (`40004487:28309`, `40004494:28818`) put the rail in an app frame with **8px of
+padding and an 8px gap** — around the rail, and between it and the page. The component does not own
+that and should not: a nav does not know what is beside it. The stories draw it so the composition is
+the one the file shows.
 
 ## What this pulled into a neighbouring component
 
