@@ -91,13 +91,17 @@ same x as its parent's. Measured at 68px for both.
 
 **The row gap is 4, not 8.** `spacing/1`. Easy to carry over wrong from the padding, which is 8.
 
-**The rule is centred by making both sides 8, and Figma is not there yet.** The space between one
-section's last row and the next section's first row is the Nav Sections gap *above* the rule and the
-Nav Section List's own gap *below* it. Figma draws 8 above and 12 below, which puts the rule high in
-that span; both at 8 is what "vertically centred" actually means, and it keeps each half on
-`spacing/2`. 10 and 10 would centre it inside Figma's 21px span too, but there is no token for 10 and
-inventing one for a single gap is worse than tightening it. **Figma's Nav Section List gap wants
-changing from 12 to 8** for the two to agree.
+**The rule is centred because both sides are 8.** The space between one section's last row and the
+next section's first row is the Nav Sections gap *above* the rule and the Nav Section List's own gap
+*below* it. Figma briefly drew 8 above and 12 below, which put the rule high in that span; both at 8
+is what "vertically centred" actually means, and it keeps each half on `spacing/2`. 10 and 10 would
+have centred it inside the old 21px span too, but there is no token for 10 and inventing one for a
+single gap is worse than tightening it.
+
+**Both sides agree as of 2026-09-01.** Nathan set the Nav Section List gap to 8 in Figma, and the
+collapsed variant is now 129 tall — `1 + 8 + 120`, which is exactly what this renders. That number is
+the cheap way to check the two have not drifted again: if the variant is 133, the gap went back to
+12.
 
 That gap needs the rows in their own wrapper, which is why `SideNav.Section` renders a Pages `div`
 around `children` exactly as Figma has a Pages slot. Without it, a gap meant for the space under the
