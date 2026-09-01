@@ -22,11 +22,17 @@ NEUTRAL_SCALES = ["stone", "taupe", "mauve", "mist", "olive",
                   "slate", "gray", "zinc", "neutral"]
 NEUTRAL_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
-# The ramp a semantic alias means when it says "Stone". Figma has no Neutral
-# collection — a semantic token aliases the *primitive* Stone scale — so the
-# reinterpretation happens here: @Stone/N resolves to the tier, not the ramp.
-# Same shape as the border-radius/rounded-md -> --radius-md translation below.
-# This one retires only if Figma grows a real neutral collection of its own.
+# The ramp a semantic alias means when it says "Stone": @Stone/N resolves to the
+# tier, not the ramp. Same shape as the border-radius/rounded-md -> --radius-md
+# translation below.
+#
+# Figma DID grow a real neutral collection on 2026-08-31 -- "Neutral Palette",
+# 50..950 across the same nine modes -- and every semantic neutral now aliases
+# it. The rule survives anyway because nobody has seen how the exporter spells
+# an alias into it: those variables are named bare numbers, so "@800" carries no
+# ramp and "@Neutral/800" collides with Tailwind's Neutral, which Data Viz uses.
+# One re-export settles it. Until then the JSON on disk still says @Stone/N, and
+# that was verified against Figma by diff, not assumed.
 #
 # There was a second rule beside it, renaming Decorative/Stone to
 # Decorative/Neutral. Figma has since renamed it at source, so it is gone.

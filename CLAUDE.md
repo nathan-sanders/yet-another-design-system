@@ -95,9 +95,22 @@ Three things that are easy to get wrong:
 - **The ramp is orthogonal to the theme.** It composes with `.dark` instead of multiplying against
   it — the semantic layer already decides which step each theme uses.
 
-**A semantic alias to `@Stone/N` means the tier, not the ramp.** Figma has no neutral collection —
-a semantic token aliases the *primitive* Stone scale — so `generate.py` reinterprets it and emits
-`var(--neutral-N)`. That rule retires only if Figma grows a collection of its own.
+**A semantic alias to `@Stone/N` means the tier, not the ramp.** `generate.py` reinterprets it and
+emits `var(--neutral-N)`. The rule exists because the tier used to have no counterpart in Figma —
+a semantic token could only alias the *primitive* Stone scale.
+
+**Figma grew the collection on 2026-08-31, and the rule still has not retired.** The file now has a
+real `Neutral Palette` collection: eleven variables named `50`…`950`, and nine modes — Stone, Taupe,
+Mauve, Mist, Olive, Slate, Gray, Zinc, Neutral — in that order, each mode aliasing the matching
+Tailwind ramp. That is `NEUTRAL_SCALES` × `NEUTRAL_STEPS` exactly, mirrored at source, and every
+neutral in the semantic layer now aliases it instead of Stone.
+
+What blocks the retirement is not the collection, it is the **export encoding**, which nobody has
+seen yet. The exporter writes an alias as `@<variable name>`, and these variables are named bare
+numbers, so `@Neutral Palette::800` has no obvious spelling: `@800` carries no ramp at all, and
+`@Neutral/800` collides head-on with Tailwind's Neutral ramp, which `Data Viz` really does use.
+**One real re-export settles it** — until then `NEUTRAL_ROLE = "Stone"` is still the correct reading
+of the JSON on disk, and that was measured, not assumed (see below).
 
 There was a second rule beside it renaming `Decorative/Stone` to `Decorative/Neutral`, written into
 the generator rather than the JSON so a re-export could not undo it. Figma has since renamed it at
@@ -112,8 +125,49 @@ a swap look half-applied. They are matched by RGB against the default ramp and e
 `#ffffff99` and `#00000080` do not match and stay literal, which is right — white and black are not
 neutrals in the swappable sense. The Data Viz accessibility border used to sit in that list too; on
 2026-08-27 Figma moved it from `#162020`/`#f3f4f4` to `#1b1816`/`#f5f5f5`, which *are* the neutral at
-56%, so it now re-points onto `--neutral-900`/`--neutral-100` and follows the ramp like the rest. The
-old value carried a faint teal cast (`oklch(23.4% 0.0143 196.218)`) that froze on every ramp.
+some alpha, so it now re-points onto `--neutral-900`/`--neutral-100` and follows the ramp like the
+rest. The old value carried a faint teal cast (`oklch(23.4% 0.0143 196.218)`) that froze on every ramp.
+
+**That RGB matching is now a confirmed guess rather than a live one.** The same 2026-08-31 change
+also declares the alpha in Figma: those twelve values are no longer flat hex but a
+`VARIABLE_EXPRESSION` with `expressionFunction: "COMPOSE_COLOR"` and two arguments — a color alias
+and an opacity alias, the second pointing at the `opacity/opacity-N` FLOAT variables in the `Design
+Tokens` collection. So Figma now states the pair the generator was inferring, and states it the same
+way: `Surface/Inner Shadow` light is `Neutral Palette::800 × opacity-10`, which is precisely the
+`color-mix(… var(--neutral-800) 10% …)` already being emitted. White and black stay white and black
+there too (`Surface/Drop Shadow` dark is `Black × opacity-50`), so the "do not match, stay literal"
+branch is right for the same reason it always was.
+
+**The whole thing was checked by diff, not by eye.** Reading all 181 Semantic Theme variables with
+both modes resolved and comparing against `tokens/semantic.json` gave 180 names identical, no
+additions, no removals, and only **two** value differences — both applied here:
+
+- `Action/Ghost/Border Hover` **dark** went from 10% to 0%, so the ghost button's hover border is
+  now invisible in both themes and matches `Action/Ghost/Border`. The 10% was the odd one out.
+- `Data Viz/Utility/Accessibility Overlay` went from 56% to 55% in both themes — the 8-bit `8f`
+  became a round `opacity-55`, which is the same value written honestly.
+
+The 181st variable is **`Status`, a BOOLEAN sitting in a color collection** with the value `false` in
+both modes. It is almost certainly a stray. Leave it out of the export: `generate.py` would resolve
+it to nothing and emit a broken `--status: False;` line.
+
+### The navigation theme tier — in Figma, not yet in code
+
+A second swappable collection landed alongside the neutral one: **`Navigation Theme`**, seven
+variables (`Background`, `Nav Content/Primary`, `Nav Content/Subtle`, `Nav Item/Background Hover`,
+`Nav Item/Border Hover`, `Nav Item/Background Selected`, `Nav Item/Border Selected`) across seven
+modes — Neutral Inverse, Neutral, Blue Inverse, Blue, Purple Inverse, Purple, Transparent.
+
+Two things about it are worth knowing before building anything on it:
+
+- **It is not theme-aware, on purpose.** Six of the seven modes are absolute — `Neutral` is a white
+  nav in dark mode too. Only `Transparent` aliases back into `Semantic Theme`, so only that one
+  follows `.dark`. That is the opposite of how the neutral tier composes, and it is the design.
+- **The neutral modes go through `Neutral Palette`**, so a nav on `Neutral`/`Neutral Inverse` still
+  follows `data-neutral`, while the Blue and Purple modes are pinned to Tailwind ramps.
+
+Nothing in the library consumes it yet — there are no navigation components — and the token names
+will move while the components are being drawn, so no CSS tier has been generated for it.
 
 **Contrast is not automatic.** The ramps differ in lightness at the same step, so a pair that clears
 4.5:1 on Stone is not guaranteed to on Olive. `npm test` runs axe on every story but only at the

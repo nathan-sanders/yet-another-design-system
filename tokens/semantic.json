@@ -29,7 +29,7 @@
 {"n":"Action/Overlay/Background Hover","light":"#0a0807bf","dark":"#ffffffbf"},
 {"n":"Action/Ghost/Background Hover","light":"#2924231a","dark":"#f5f5f51a"},
 {"n":"Action/Ghost/Border","light":"#29242300","dark":"#f5f5f500"},
-{"n":"Action/Ghost/Border Hover","light":"#29242300","dark":"#f5f5f51a"},
+{"n":"Action/Ghost/Border Hover","light":"#29242300","dark":"#f5f5f500"},
 {"n":"Action/Destructive/Background Hover","light":"@Red/200","dark":"@Red/900"},
 {"n":"Action/Destructive/Border","light":"@Red/300","dark":"@Red/800"},
 {"n":"Action/Destructive/Border Hover","light":"@Red/500","dark":"@Red/600"},
@@ -176,7 +176,7 @@
 {"n":"Data Viz/Mono/C09","light":"@Pink/800","dark":"@Pink/100"},
 {"n":"Data Viz/Mono/C10","light":"@Pink/900","dark":"@Pink/50"},
 {"n":"Data Viz/Sentiment/Positive","light":"@Green/500","dark":"@Green/500"},
-{"n":"Data Viz/Utility/Accessibility Overlay","light":"#1b18168f","dark":"#f5f5f58f"},
+{"n":"Data Viz/Utility/Accessibility Overlay","light":"#1b18168c","dark":"#f5f5f58c"},
 {"n":"Data Viz/Sentiment/Negative","light":"@Red/600","dark":"@Red/600"},
 {"n":"Data Viz/Sentiment/Neutral","light":"@Neutral/500","dark":"@Neutral/500"}
 ]
