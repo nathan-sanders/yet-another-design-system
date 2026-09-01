@@ -73,9 +73,11 @@ left. On a 1552px bar that is 504px, and the 600 only applies past roughly 1840.
 content instead would let the search grow further but would stop it being centred, because the trail
 and the actions are not the same width.
 
-**This changed the no-breadcrumbs arrangement too, which Figma does not.** One sizing rule is easier
-to hold than two, so the search grows there as well — up to 600px at the left edge, where Figma draws
-a fixed 259. If that is wrong, the fix is a second branch in the same `cn` call, not a new prop.
+**This changed the no-breadcrumbs arrangement too, which Figma does not — and that is deliberate.**
+One sizing rule is easier to hold than two, so the search grows there as well: up to 600px at the
+left edge, where Figma draws a fixed 259. It was raised as a deviation and **Nathan confirmed the
+single rule on 2026-09-01**, so this is a decision rather than drift. Do not "restore" the fixed width
+to match the file without asking; the file is the side that is behind.
 
 **The search is `appearance="ghost"`, in the stories at least.** Figma instantiates
 `Input Group / Appearance=Ghost`, which draws no border until focus — the bar reads as a magnifier
