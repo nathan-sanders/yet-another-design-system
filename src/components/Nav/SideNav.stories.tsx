@@ -13,13 +13,9 @@ import {
 
 import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
+import { Logo } from './story-logo'
 import { NavItem } from './NavItem'
 import { SideNav } from './SideNav'
-
-/** The brand mark Figma draws in the 40px header square. */
-function Logo() {
-  return <span className="text-base font-semibold tracking-tight">Yet</span>
-}
 
 /**
  * The vertical navigation rail of an application.
@@ -76,7 +72,25 @@ const meta = {
         <NavItem href="#alerts" startIcon={Bell} newIndicator>
           Notifications
         </NavItem>
-        <NavItem href="#account" start={<Avatar name="Nathan Sanders" size="x-small" />}>
+        <NavItem
+          href="#account"
+          start={
+            <Avatar
+              name="Nathan Sanders"
+              size="x-small"
+              status="online"
+              /*
+                The status dot rings itself in the surface behind it so it reads
+                as a cut-out, and `surface` only knows the semantic surfaces —
+                there is no `nav` among them, so the default `canvas` ring is a
+                pale disc on a dark rail. Figma binds that ring to the nav
+                Background. Re-pointed here rather than by widening Avatar's
+                enum, which is a change to a different component.
+              */
+              className="[&_[data-status]]:ring-nav-background"
+            />
+          }
+        >
           Hi, Nathan!
         </NavItem>
       </>
@@ -84,7 +98,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="h-[36rem]">
+      // The rail is `h-full`, so it needs a parent with a real height to fill.
+      // 100dvh less the 3rem the global preview decorator's `p-6` takes off the
+      // top and bottom — which makes the story as tall as the frame it is in,
+      // and puts the utilities where a real app would have them.
+      <div className="h-[calc(100dvh-3rem)]">
         <Story />
       </div>
     ),

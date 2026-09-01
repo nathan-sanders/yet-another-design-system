@@ -5,6 +5,7 @@ import { PanelLeft } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
+import { Tooltip } from '../Tooltip'
 import { NavContext, type NavContextValue } from './context'
 import { NavItem } from './NavItem'
 import { navSurface } from './styles'
@@ -137,10 +138,16 @@ export function SideNav({
       {...props}
     >
       <NavContext.Provider value={ctx}>
+        {/*
+          Figma's Header frame. Expanded it is a 12px-gapped row with the logo
+          and the toggle pushed apart; collapsed it stacks them with **no gap**
+          at all, two 40px squares making an 80px block. The collapsed gap was
+          12 here and that is the spacing that read as too loose.
+        */}
         <div
           className={cn(
-            'flex shrink-0 gap-3',
-            collapsed ? 'flex-col items-center' : 'items-center justify-between',
+            'flex shrink-0',
+            collapsed ? 'flex-col items-center gap-0' : 'items-center justify-between gap-3',
           )}
         >
           {logo ? (
@@ -152,12 +159,23 @@ export function SideNav({
             the label names the action rather than the state — "Collapse
             navigation" while it is open.
           */}
-          <NavItem
-            startIcon={PanelLeft}
-            aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
-            aria-expanded={!collapsed}
-            onClick={toggle}
-          />
+          {/*
+            Tooltipped in both states, which is the one place a nav tooltip is
+            not about the rail being collapsed: the toggle never has a label, so
+            it is the only control here that is unexplained even at full width.
+            The tooltip text and the accessible name are the same string on
+            purpose — a visible label that is not part of the accessible name is
+            a WCAG 2.5.3 failure, and keeping them identical makes that
+            impossible to get wrong later.
+          */}
+          <Tooltip label={collapsed ? 'Expand' : 'Collapse'} side="right">
+            <NavItem
+              startIcon={PanelLeft}
+              aria-label={collapsed ? 'Expand' : 'Collapse'}
+              aria-expanded={!collapsed}
+              onClick={toggle}
+            />
+          </Tooltip>
         </div>
 
         {top}
@@ -167,13 +185,16 @@ export function SideNav({
           shrink below its content without it, which would push the utilities
           off the bottom instead of scrolling.
 
+          `gap-2` — Figma's Nav Sections slot is 8, in both the expanded and the
+          collapsed variant. It is the root that uses 12.
+
           The negative margins are not a trick: `overflow-y-auto` establishes a
           clip box, and the focus ring paints 4px outside the row it is on, so
           without them the first and last rows lose the outer half of their
           ring. The padding pushes the clip box out by exactly that 4px and the
           margin takes the space back, leaving the layout where it was.
         */}
-        <div className="-mx-1 -my-1 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-1 py-1">
+        <div className="-mx-1 -my-1 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1 py-1">
           {children}
         </div>
 
@@ -217,12 +238,15 @@ function SideNavSection({ children, header, className, ...props }: SideNavSectio
             gone. `aria-hidden`, and not the library's `Divider`: that renders
             `role="separator"`, and a separator with no name between two groups
             of links is noise to a screen reader rather than structure — the
-            call Accordion made about its own item rules. The line is
-            `nav-content-primary`, which is what Figma binds; at 1px it reads as
-            a hairline rather than the full-strength stroke the name suggests.
+            call Accordion made about its own item rules.
+
+            `nav-content-subtle` at 40%: Figma carries the opacity on the
+            Divider *instance* rather than on the paint, so the stroke reads as
+            a full-strength Nav Content/Subtle and only the node is faded. Both
+            halves are needed — the token alone is twice as strong as drawn.
           */
           <div aria-hidden className="flex h-3 items-center">
-            <span className="h-px w-full bg-nav-content-primary" />
+            <span className="h-px w-full bg-nav-content-subtle/40" />
           </div>
         ) : (
           // px-3 = spacing/3, py-1 = spacing/1, text-sm = 12/20, and the one

@@ -74,8 +74,13 @@ absent when collapsed; the variant now holds a 12px band with a 1px line, which 
 groups legible once their names are gone. It is `aria-hidden` and deliberately **not** the library's
 `Divider`: that renders `role="separator"`, and an unnamed separator between two groups of links is
 noise to a screen reader rather than structure — the same call Accordion made about its own item
-rules. Figma binds the line to `Nav Content/Primary`, which sounds far too strong and at 1px reads as
-a hairline.
+rules.
+
+The line is **`nav-content-subtle` at 40%**, and reading only the paint gets that wrong. Figma carries
+the opacity on the Divider *instance* while the stroke underneath stays a full-strength
+`Nav Content/Subtle`, so a reader that looks at `strokes[0]` alone — as the first one here did —
+reports the token at 100% and misses the fade entirely. Check `node.opacity` up the chain, not just
+the paint.
 
 **The start slot is one 24px box, and the indent is a second one.** Figma's `Icon` and `Avatar`
 frames are both 24×24 with the glyph centred — a 16px icon lands at 4,4 and a 20px avatar at 2,2,
@@ -85,6 +90,25 @@ indent is 24px for a reason worth keeping: `8 padding + 24 box + 4 gap` puts a c
 same x as its parent's. Measured at 68px for both.
 
 **The row gap is 4, not 8.** `spacing/1`. Easy to carry over wrong from the padding, which is 8.
+
+**Three different gaps stack down the rail, and only one of them is 12.** The root is `spacing/3`
+(12) between header, sections and utilities; the **Nav Sections slot is `spacing/2` (8)** between one
+section and the next, in both variants; and the utilities are flush at 0. The collapsed header is
+flush too — logo and toggle are two 40px squares making an 80px block with **no gap at all**, where
+the expanded header is a 12px row with them pushed apart. Both the sections gap and the collapsed
+header gap were 12 here at first, which is what read as too loose.
+
+**The collapse toggle is 40×40 because it has no label, not because the rail is collapsed.** It was
+stretching across everything to the right of the logo: the row recipe is `w-full`, and `iconOnly` was
+keyed off `collapsed` rather than off whether there is a label to show. Deriving it from the label —
+the library's own rule about a value that already says it — fixes the toggle, the collapsed rail and
+`TopNav`'s icon utilities with one condition.
+
+**The toggle is tooltipped in both states, which no other row is.** Everywhere else a tooltip appears
+only once the label has come off. The toggle never has a label, so at full width it is the one
+control in the rail that is otherwise unexplained. `Collapse` when open and `Expand` when collapsed,
+and the accessible name is the *same string* — a visible label that is not part of the accessible
+name is a WCAG 2.5.3 failure, and keeping them identical makes that impossible to get wrong later.
 
 **The collapsed rail grows a tooltip, which Figma does not draw.** A 40x40 item with its label
 hidden has no accessible name at all: axe fails it, and a screen reader has nothing to read. The name
@@ -165,6 +189,10 @@ At `neutral-inverse` on Stone, against the Figma frames:
 | Hover background + border | Bg Hover + Border Hover | both applied, height stable at 40 |
 | Collapsed section header | 12px band, 1px rule | 12 / 1 |
 | Floating on / off | shadow / none | `shadow-low` / `none` |
+| Root / sections / utilities gap | 12 / 8 / 0 | 12 / 8 / 0 |
+| Collapsed header: gap, height | 0, 80 | 0, 80 |
+| Collapse toggle | 40 × 40 | 40 × 40 |
+| Collapsed rule | subtle @ 40%, 1px | `oklab(… / 0.4)`, 1px |
 | Item type, default / small | 14/24 · 12/20 | 14/24 · 12/20, weight 600 when selected |
 | Rail width, expanded / collapsed | 224 / 56 | 224 / 56 |
 | Collapsed item | 40 × 40 | 40 × 40 |
@@ -174,6 +202,21 @@ At `neutral-inverse` on Stone, against the Figma frames:
 **Contrast: 46 mode × theme × ramp combinations, none below 4.5:1**, worst 4.82 (`nav-content-subtle`
 on `blue`). Swept by compositing each token over what is actually behind it and computing the WCAG
 ratio, because `npm test` runs axe only at the default ramp and none of these modes is the default.
+
+## Two things the library cannot express yet
+
+**`Avatar`'s `surface` enum has no nav option.** The status dot rings itself in the colour behind it
+so it reads as a cut-out, and `surface` knows only `canvas` and the three card surfaces — so on a
+dark rail the default `canvas` ring is a pale disc. Figma binds that ring to the nav `Background`.
+The stories re-point it with `[&_[data-status]]:ring-nav-background` rather than widening another
+component's API from inside this one. Adding `'nav'` to `AvatarSurface` is the real fix, and it is a
+three-line change to `Avatar/styles.ts` whenever that is wanted.
+
+**The logo is a story fixture, not a component.** `story-logo.tsx` is the YADS wordmark, unexported
+and not in the barrel: both bars take a `logo` slot precisely so the brand mark stays the
+application's business. It is drawn with `fill="currentColor"` rather than the `#F5F5F5` the exported
+SVG carries, which is what makes it follow the nav theme through all seven modes instead of staying
+near-white on the light ones.
 
 ## Traps hit while building this
 

@@ -176,7 +176,12 @@ export function NavItem({
     props: {
       ...props,
       className: cn(
-        navItem({ size: resolvedSize, selected, iconOnly: ctx.collapsed && !showLabel }),
+        // Derived, not passed: an item with no visible label is a 40x40 square
+        // wherever it is — the collapsed rail, the toggle in an expanded rail's
+        // header, an icon utility in the top bar. Keying this off `collapsed`
+        // instead left the header's toggle stretching across everything to the
+        // right of the logo, because the row recipe is `w-full`.
+        navItem({ size: resolvedSize, selected, iconOnly: !showLabel }),
         className,
       ),
       href: disabled ? undefined : href,

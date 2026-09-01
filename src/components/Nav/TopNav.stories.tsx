@@ -3,12 +3,9 @@ import { Bell, CircleHelp, Search, ShoppingCart } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
+import { Logo } from './story-logo'
 import { NavItem } from './NavItem'
 import { TopNav } from './TopNav'
-
-function Logo() {
-  return <span className="text-base font-semibold tracking-tight">Yet</span>
-}
 
 /**
  * The horizontal navigation bar — of an application, or of a marketing or
@@ -42,7 +39,16 @@ const meta = {
         <NavItem startIcon={Bell} aria-label="Notifications" newIndicator />
         <NavItem
           href="#account"
-          start={<Avatar name="Nathan Sanders" size="x-small" />}
+          start={
+            <Avatar
+              name="Nathan Sanders"
+              size="x-small"
+              status="online"
+              // See the SideNav story: `surface` has no nav option, so the
+              // status ring is re-pointed at the nav background here.
+              className="[&_[data-status]]:ring-nav-background"
+            />
+          }
           aria-label="Hi, Nathan!"
         />
       </>
