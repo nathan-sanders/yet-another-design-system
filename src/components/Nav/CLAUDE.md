@@ -267,6 +267,36 @@ At `neutral-inverse` on Stone, against the Figma frames:
 on `blue`). Swept by compositing each token over what is actually behind it and computing the WCAG
 ratio, because `npm test` runs axe only at the default ramp and none of these modes is the default.
 
+## ResponsiveNav
+
+`TopNav` above 768px, `MobileNav` below it — the swap `TopNav`'s record has been owing since the
+family landed.
+
+**`md:`, and the component owns it.** 768 is the library's one phone boundary; `BentoGrid` already
+collapses there and its record gives the reason this follows — *the caller writes no breakpoint of
+their own*. There is deliberately no `breakpoint` prop: two components disagreeing about where a
+phone stops is worse than not being able to move the line.
+
+**A CSS swap, not a `matchMedia` hook.** Both bars render and one is `display: none`, which works on
+a server, through hydration, and on the first paint. A hook would render nothing until JavaScript
+ran and then flash the wrong bar. It also means `tailwind-merge` has to keep `hidden md:flex`
+together on `TopNav` — `hidden` replaces the base `flex`, and `md:flex` is a different variant group,
+so the pair survives.
+
+**Both bars take the same `aria-label`, and that is safe rather than sloppy.** A hidden element is
+out of the accessibility tree entirely, so only one landmark is ever exposed — verified at seven
+widths, exactly one visible at each, the other `display: none`. Giving them different names would
+put a name in the tree that depends on the window width, which is worse.
+
+**`pages` and `sections` are separate props on purpose.** They are not the same tree: a top bar
+carries the handful of pages that fit, while the sheet carries the whole navigation — headers,
+groups and all. Flattening one into the other would have to discard that structure, and a component
+that silently drops content is worse than one that asks for both. The `sections` tree is the one
+`SideNav` already takes, so an app with a rail has it written.
+
+Measured: `TopNav` at 1100, 900, 800, 769 and 768; `MobileNav` at 700 and 420. `md:` is
+`min-width: 768px`, so 768 itself is the wide bar and the swap happens below it.
+
 ## MobileNav
 
 **It is the component `TopNav`'s record was waiting for.** That one left a responsive collapse undone

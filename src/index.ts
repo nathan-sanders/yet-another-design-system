@@ -190,11 +190,12 @@ export type { LinkProps, LinkSize } from './components/Link'
 export { LineSeries } from './components/LineSeries'
 export type { LineSeriesProps, LineSeriesSeries, LineInterpolation } from './components/LineSeries'
 
-export { MobileNav, NavItem, SideNav, TopNav } from './components/Nav'
+export { MobileNav, NavItem, ResponsiveNav, SideNav, TopNav } from './components/Nav'
 export type {
   MobileNavProps,
   NavItemProps,
   NavItemSize,
+  ResponsiveNavProps,
   SideNavProps,
   SideNavSectionProps,
   SideNavGroupProps,
