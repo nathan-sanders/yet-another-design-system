@@ -14,7 +14,7 @@ const NEUTRALS = ['stone', 'taupe', 'mauve', 'mist', 'olive',
 
 /** The seven navigation themes, Figma's order — the same list as generate.py. */
 const NAV_THEMES = ['neutral-inverse', 'neutral', 'blue-inverse', 'blue',
-                    'purple-inverse', 'purple', 'transparent']
+                    'purple-inverse', 'purple', 'canvas']
 
 const titleCase = (v: string) =>
   v.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
