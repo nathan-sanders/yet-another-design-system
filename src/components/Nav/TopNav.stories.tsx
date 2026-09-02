@@ -12,7 +12,7 @@ import { TopNav } from './TopNav'
  * commerce site, which is the case that has no side rail at all.
  *
  * Same navigation theme tier as `SideNav`, so the **Nav** toolbar moves it
- * through the seven modes and only `canvas` follows light/dark.
+ * through all thirty-seven modes and only `canvas` follows light/dark.
  */
 const meta = {
   title: 'Components/TopNav',

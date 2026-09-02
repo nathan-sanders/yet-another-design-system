@@ -40,8 +40,8 @@ NEUTRAL_ROLE = "Stone"
 
 # ---------- the navigation theme ----------
 # A second swappable collection, and deliberately NOT built like the neutral
-# one. Six of its seven modes are absolute: a nav on "neutral" is white in dark
-# mode too, because a navigation surface is a brand decision, not a reading
+# one. All but one of its modes are absolute: a nav on "neutral" is white in
+# dark mode too, because a navigation surface is a brand decision, not a reading
 # preference. Only "canvas" aliases back into the semantic layer, so only that
 # mode follows .dark -- which falls out for free, since those aliases resolve to
 # --surface-* / --content-* and .dark redefines those on the same <html> element.
@@ -52,8 +52,51 @@ NEUTRAL_ROLE = "Stone"
 # is what the new name says. Renamed in Figma 2026-09-02.
 #
 # The order is Figma's, and the first entry is Figma's default mode.
-NAV_MODES = ["neutral-inverse", "neutral", "blue-inverse", "blue",
-             "purple-inverse", "purple", "canvas"]
+NAV_MODES = ["neutral-inverse", "neutral", "canvas", "blue-inverse", "blue",
+             "purple-inverse", "purple", "pink-inverse", "pink"]
+
+# The ramps Figma has no room for. A variable collection can only hold so many
+# modes, and Navigation Theme is full at nine -- so the rest of the palette is
+# built here instead. These are NOT in navigation.json, which stays exactly what
+# it says it is: the Figma export, and nothing else. A re-export overwrites that
+# file wholesale, and anything hand-added to it would go with it.
+#
+# Tailwind's own spectrum order, minus the three the export already carries.
+NAV_CODE_RAMPS = ["red", "orange", "amber", "yellow", "lime", "green",
+                  "emerald", "teal", "cyan", "sky", "indigo", "violet",
+                  "fuchsia", "rose"]
+
+# Each one is Blue's recipe with the ramp name swapped -- read out of the export
+# rather than written down here, so there is exactly one copy of it. Retune Blue
+# in Figma and all twenty-eight derived modes follow on the next run.
+NAV_RECIPE = "blue"
+
+# ...with one correction, and it is about contrast rather than taste.
+#
+# Nav Content/Subtle in the light variant is 12px text on a step-50 background
+# -- the SideNav group headers -- so it owes 4.5:1, not the 3:1 a glyph owes.
+# Blue clears that at step 600 with almost nothing to spare (4.82:1), and it
+# only clears it because blue is unusually dark at 600. Thirteen of the
+# seventeen ramps do not: yellow is 2.83:1, amber 3.08, teal 3.51, rose 4.10.
+# Step 700 clears it on every ramp in the palette, worst green at 4.72:1.
+#
+# So the derived ramps take 700 there, and Blue's own 600 is left alone -- it
+# passes, and it is Figma's value, which this file does not get to overrule.
+# One step for all fourteen rather than a per-ramp table: indigo and violet
+# would scrape through at 600, but "the two that happen to be dark enough" is
+# not a rule anybody can hold in their head, and the visual weight of a group
+# header should not wander across the family.
+#
+# None of this touches the inverse variant, which clears 4.5:1 at step 300 on
+# every ramp (worst rose, 5.01:1), or Nav Content/Primary, which clears it on
+# all three of its grounds (worst green, 4.72:1).
+#
+# The rule is enforced rather than trusted: nav-contrast.test.ts measures every
+# pair the Nav components actually paint, over every mode, and a ramp added
+# above that fails will fail the suite instead of shipping.
+NAV_RECIPE_OVERRIDES = {
+    ("Nav Content/Subtle", "light"): 700,
+}
 
 def load(name):
     with open(os.path.join(T, name)) as f:
@@ -75,6 +118,36 @@ prims = load("primitives.json")
 sem = load("semantic.json")
 dims = load("dimensions.json") + load_optional("motion.json")
 navs = load("navigation.json")
+
+# Derive the code-only modes, one ramp at a time, straight onto the rows the
+# export just produced. They come out in the same "@Teal/900" shape a Figma
+# alias has, so everything downstream -- resolve(), nav_slug(), nav_block(), the
+# @theme inline exposure -- stays generic over NAV_MODES and needs to know
+# nothing about where a mode came from.
+NAV_STEP_RE = re.compile(r"@([A-Za-z]+)/(\d+)$")
+_prim_names = {p["n"] for p in prims}
+
+for _ramp in NAV_CODE_RAMPS:
+    _title = _ramp.capitalize()
+    for _row in navs:
+        for _variant, _src in (("inverse", NAV_RECIPE + "-inverse"),
+                               ("light", NAV_RECIPE)):
+            _m = NAV_STEP_RE.match(_row[_src])
+            if not _m:
+                # Blue stopped being a plain ramp step, so there is no recipe
+                # left to copy. Fail rather than emit twenty-eight wrong modes.
+                raise SystemExit(
+                    f"navigation: cannot derive from {_src} — "
+                    f"{_row['n']} is {_row[_src]!r}, not a @Ramp/step alias")
+            _step = NAV_RECIPE_OVERRIDES.get((_row["n"], _variant),
+                                             int(_m.group(2)))
+            if f"{_title}/{_step}" not in _prim_names:
+                raise SystemExit(
+                    f"navigation: {_title}/{_step} is not in primitives.json, "
+                    f"so {_ramp} has no step for {_row['n']}")
+            _row[f"{_ramp}-inverse" if _variant == "inverse" else _ramp] = \
+                f"@{_title}/{_step}"
+    NAV_MODES += [f"{_ramp}-inverse", _ramp]
 
 def slug(name):
     """Figma variable name -> CSS custom property name (without the leading --).
@@ -476,11 +549,11 @@ out.append(".dark {")
 out += dark_lines
 out.append("}")
 out.append("")
-out.append("/* ---- 2b. The navigation theme. Seven tokens across seven modes, switched by ---- */")
+out.append("/* ---- 2b. The navigation theme. Seven tokens across %d modes, switched by ---- */" % len(NAV_MODES))
 out.append("/*     one attribute: <html data-nav-theme=\"blue-inverse\">. Neutral Inverse is    */")
 out.append("/*     the default, and also has its own block so the attribute is never a lie.  */")
 out.append("/*                                                                              */")
-out.append("/*     Sits AFTER the semantic block on purpose. Six of the modes are absolute   */")
+out.append("/*     Sits AFTER the semantic block on purpose. All but one mode is absolute    */")
 out.append("/*     -- a nav on \"neutral\" stays white in dark mode, because a navigation      */")
 out.append("/*     surface is a brand decision and not a reading preference. Only            */")
 out.append("/*     \"canvas\" aliases --surface-* / --content-*, and so only that mode         */")
@@ -488,6 +561,16 @@ out.append("/*     follows .dark. That asymmetry is the design, not an oversight
 out.append("/*                                                                              */")
 out.append("/*     The neutral modes alias Figma's Neutral Palette, which is this file's     */")
 out.append("/*     --neutral-* tier, so a nav on one still follows data-neutral as well.     */")
+out.append("/*                                                                              */")
+out.append("/*     The first nine modes are Figma's, in Figma's order. The other twenty-     */")
+out.append("/*     eight are derived in generate.py from Blue's own steps, because a Figma   */")
+out.append("/*     variable collection cannot hold any more modes than this one already has. */")
+out.append("/*     So they are not in navigation.json, and retuning Blue in Figma retunes    */")
+out.append("/*     every one of them -- bar one correction, which is contrast and not      */")
+out.append("/*     taste. Nav Content/Subtle is step 700 in the light variant, not Blue's    */")
+out.append("/*     600: those group headers are 12px text on a step-50 background, and 600   */")
+out.append("/*     clears 4.5:1 on four ramps out of seventeen. nav-contrast.test.ts holds   */")
+out.append("/*     every mode to that, so a ramp that fails cannot quietly ship.             */")
 out += nav_lines
 out.append("")
 out.append("/* ---- 4. Expose semantic tokens as color utilities (bg-*, text-*, border-*). ---- */")

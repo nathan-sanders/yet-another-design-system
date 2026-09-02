@@ -8,7 +8,7 @@
  *
  * `fill="currentColor"` rather than the `#F5F5F5` the exported SVG carries —
  * Figma binds the mark to `Nav Content/Primary`, and inheriting is how it
- * follows the nav theme through all seven modes instead of staying near-white
+ * follows the nav theme through every mode instead of staying near-white
  * on the light ones. It is 36×16, which centres inside the 40px logo slot.
  */
 export function Logo() {

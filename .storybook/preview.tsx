@@ -12,9 +12,27 @@ import '../src/styles/theme.css'
 const NEUTRALS = ['stone', 'taupe', 'mauve', 'mist', 'olive',
                   'slate', 'gray', 'zinc', 'neutral']
 
-/** The seven navigation themes, Figma's order — the same list as generate.py. */
-const NAV_THEMES = ['neutral-inverse', 'neutral', 'blue-inverse', 'blue',
-                    'purple-inverse', 'purple', 'canvas']
+/** The nine navigation themes Figma holds, in Figma's order. */
+const NAV_FIGMA_THEMES = ['neutral-inverse', 'neutral', 'canvas',
+                          'blue-inverse', 'blue', 'purple-inverse', 'purple',
+                          'pink-inverse', 'pink']
+
+/**
+ * ...and the fourteen ramps generate.py derives, because a Figma variable
+ * collection cannot hold any more modes than that one already has.
+ *
+ * Mirrors the *shape* of generate.py, not just its output — NAV_FIGMA_THEMES is
+ * its NAV_MODES and this is its NAV_CODE_RAMPS, so the two stay comparable at a
+ * glance. Thirty-seven, in the same order the stylesheet emits them.
+ */
+const NAV_CODE_RAMPS = ['red', 'orange', 'amber', 'yellow', 'lime', 'green',
+                        'emerald', 'teal', 'cyan', 'sky', 'indigo', 'violet',
+                        'fuchsia', 'rose']
+
+const NAV_THEMES = [
+  ...NAV_FIGMA_THEMES,
+  ...NAV_CODE_RAMPS.flatMap((ramp) => [`${ramp}-inverse`, ramp]),
+]
 
 const titleCase = (v: string) =>
   v.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
@@ -65,11 +83,11 @@ const preview: Preview = {
     // are orthogonal: the ramp is theme-independent, and the semantic layer
     // picks which of its steps each theme uses.
     //
-    // The nav theme is the odd one out, and the toolbar is how you see it. Six
-    // of its seven modes are absolute, so switching Theme to Dark moves the
-    // page around a nav that does not move with it. Only Transparent follows
-    // the theme — and the neutral modes still follow the ramp, because they
-    // alias the same --neutral-* tier the semantic layer does.
+    // The nav theme is the odd one out, and the toolbar is how you see it. All
+    // but one of its thirty-seven modes are absolute, so switching Theme to
+    // Dark moves the page around a nav that does not move with it. Only Canvas
+    // follows the theme — and the neutral modes still follow the ramp, because
+    // they alias the same --neutral-* tier the semantic layer does.
     (Story, context) => {
       const dark = context.globals.theme === 'dark'
       const neutral = context.globals.neutral as string
