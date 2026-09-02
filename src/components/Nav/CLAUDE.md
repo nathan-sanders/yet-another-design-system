@@ -322,6 +322,39 @@ already declined for group labels.
 **Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
 Dialog has no drag affordance — it would be an invention, not a port.
 
+### The enter is a keyframe animation, and the exit told us why it had to be
+
+Nathan's report was precise and it is the whole diagnosis: **the exit slid correctly and the enter
+did not.** Both used the same value, the same easing and the same duration, so the difference could
+only be in what the two are doing.
+
+The exit animates an element that has been on screen all along. The enter animates a **brand-new**
+one — and a CSS transition on a newly-inserted element only runs if the browser paints its starting
+style before that style is removed. That is a real and well-known fragility, and Base UI's
+`data-starting-style` exists to paper over it. It is evidently not enough here.
+
+A keyframe animation states its own `from`, so there is nothing to miss. `slide-in-from-bottom` and
+`slide-out-to-bottom` are motion primitives in the token layer (`theme.css` section 4b), driven off
+Base UI's `data-open` / `data-closed` and parameterised by the same duration and easing tokens as
+everything else. They live in the token layer because a keyframe cannot be written inline — Tailwind
+can only name one that already exists in the stylesheet.
+
+**No overshoot.** `ease-standard` does not overshoot mathematically (both its control points sit at
+y=1, so its output stays within 0..1), and the keyframes travel plainly from 100% to 0.
+
+### What could not be verified from here, and it is worth knowing before the next attempt
+
+Three capture methods — `page.screenshot`, a paused-and-scrubbed timeline, and a CDP screencast —
+all showed the sheet at its **settled** position for the whole animation, under both a transition and
+a keyframe animation. A *static* `translate` on the same element rendered correctly in the same
+tooling, which is what proves the captures are the unreliable part rather than the CSS.
+
+So headless capture cannot confirm this animation. `getComputedStyle().translate` and
+`getAnimations()` both report it running correctly, and neither is evidence of what reaches a screen.
+**The only reliable check is a person looking at a real browser.** Two "fixed" claims were made here
+on the strength of instruments that could not see the thing they were measuring; do not make a third
+that way.
+
 ### The fade was hiding the slide
 
 Nathan's prototype is a Figma **Move In** — the sheet travels and does not fade. The first version

@@ -1225,6 +1225,29 @@
   --icon-stroke-weight: 1.5;
 }
 
+/* ---- 4b. Motion primitives. Keyframes, which the duration and easing ---- */
+/*     tokens above parameterise. Here rather than in a component because a  */
+/*     keyframe cannot be written inline: Tailwind can only reference one    */
+/*     that already exists in the stylesheet.                                */
+/*                                                                           */
+/*     A sheet that enters is a NEW element, and a CSS transition on one is  */
+/*     only as reliable as the browser's willingness to paint its starting   */
+/*     style first. An animation states its own `from`, so it does not care. */
+@keyframes slide-in-from-bottom {
+  from { translate: 0 100%; }
+  to   { translate: 0 0; }
+}
+
+@keyframes slide-out-to-bottom {
+  from { translate: 0 0; }
+  to   { translate: 0 100%; }
+}
+
+@theme {
+  --animate-slide-in-from-bottom: slide-in-from-bottom var(--transition-duration-medium) var(--ease-standard) both;
+  --animate-slide-out-to-bottom: slide-out-to-bottom var(--transition-duration-medium) var(--ease-standard) both;
+}
+
 /* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */
 /*    replacing animation with an instant state change. Applied globally    */
 /*    so no component has to remember to.                                   */

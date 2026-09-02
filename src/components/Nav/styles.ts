@@ -147,26 +147,32 @@ export const navSheet = tv({
 
       It faded as well at first, and that is what stopped it reading as a slide:
       the sheet is transparent exactly while it is furthest down, so the travel
-      you are meant to see happens while there is nothing to see, and it arrives
-      looking like a dissolve. Nathan's prototype is a Figma *Move In*, which
-      does not fade at all. The backdrop still fades — that one is a dissolve by
-      nature — so the two are deliberately different and not an oversight.
+      you are meant to see happens while there is nothing to see. Nathan's
+      reference is a plain slide in from the bottom, with no fade and no
+      overshoot. The backdrop still fades — that one is a dissolve by nature and
+      has nowhere to travel from.
 
-      `duration-medium` rather than Toast's `medium-min`: `ease-standard` is
-      steeply front-loaded (half the distance in the first fifth of the time),
-      so a short duration spends most of its frames on a settle nobody can see
-      and the motion reads as a snap. The extra 100ms is what makes the travel
-      legible.
+      **A keyframe animation, not a transition, and that is the point.** A sheet
+      that enters is a brand-new element, and a CSS transition on one only runs
+      if the browser paints the starting style before it is removed. That is a
+      real and well-known fragility, and it is the difference between this and
+      the exit, which animates an element that has been on screen all along —
+      exactly the asymmetry Nathan saw, where the exit slid correctly and the
+      enter did not. An animation states its own `from`, so there is nothing to
+      miss.
 
-      `transition-[translate]` and **not** `transition-transform`: Tailwind v4
-      compiles `translate-y-full` to the standalone `translate` property, not to
-      `transform`. `transition-transform` happens to work, since v4 expands it
-      to all four, but it names something this does not animate. Same trap as
-      `rotate-180` on the group chevron, one property along.
+      `slide-in-from-bottom` / `slide-out-to-bottom` are motion primitives in
+      the token layer (`theme.css` section 4b), parameterised by the same
+      duration and easing tokens everything else here uses. They live there
+      because a keyframe cannot be written inline — Tailwind can only name one
+      that already exists in the stylesheet.
+
+      `duration-medium` (410ms) rather than Toast's `medium-min`: `ease-standard`
+      is steeply front-loaded, so a shorter duration spends most of its frames on
+      a settle nobody can see and reads as a snap.
     */
-    'transition-[translate] duration-medium ease-standard',
-    'data-[starting-style]:translate-y-full',
-    'data-[ending-style]:translate-y-full',
+    'data-open:animate-slide-in-from-bottom',
+    'data-closed:animate-slide-out-to-bottom',
   ],
 })
 
