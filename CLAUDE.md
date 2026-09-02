@@ -212,9 +212,13 @@ Two things about it are worth knowing before building anything else on it:
   ways once the tier existed: `--nav-content-primary` moves between light and dark on `Canvas` and
   holds on the other six.
 - **`Canvas` was `Transparent` until 2026-09-02**, and its `Background` was `Surface/Canvas` at alpha
-  0, so the bar dissolved into the page. It is the canvas colour itself now: the nav sits flush with
-  the page rather than disappearing into it, which is what the new name says. The `data-nav-theme`
-  attribute value changed with it — an app pinning `transparent` needs the new spelling.
+  0. The look did not change and the mechanism did: matching the canvas exactly is indistinguishable
+  from being see-through while nothing is behind it, but `MobileNav`'s sheet paints the same token and
+  opens *over* the page, where alpha 0 would have shown the content straight through its rows. A solid
+  colour equal to the canvas keeps the transparent appearance and gives the sheet something to sit on;
+  the name followed, saying what the value is rather than what it looks like. **Treat it as a
+  constraint** — an alpha-0 background here breaks the sheet. The `data-nav-theme` attribute value
+  changed with it, so an app pinning `transparent` needs the new spelling.
 - **The neutral modes go through `Neutral Palette`**, so a nav on `Neutral`/`Neutral Inverse` still
   follows `data-neutral`, while the Blue and Purple modes are pinned to Tailwind ramps. That falls
   out for free: `Neutral Palette` is the same eleven steps as `--neutral-*`, so an alias into it

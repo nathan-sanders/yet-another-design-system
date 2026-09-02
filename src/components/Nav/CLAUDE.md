@@ -35,10 +35,23 @@ back into the semantic layer, and it is the only mode that follows `.dark` — m
 `--nav-content-primary` moves between light and dark on `canvas` and holds on the other six.
 
 `canvas` was called `transparent` until 2026-09-02, and its `Background` was `Surface/Canvas` at
-alpha 0 — the bar dissolved into the page. It is the canvas colour itself now, so the nav sits flush
-with the page rather than disappearing into it, which is what the new name says. **The
-`data-nav-theme` attribute value changed with it**, so any app pinning `transparent` needs the new
-spelling. The two neutral modes still follow `<html data-neutral>`, because they alias Figma's
+alpha 0. **The look did not change; the mechanism did, and `MobileNav` is why.**
+
+The bar still reads as having no surface of its own — matching the canvas exactly is
+indistinguishable from being see-through, as long as nothing is behind it. But `MobileNav`'s sheet
+paints `--nav-background` too, and it opens *over* the page: at alpha 0 the sheet would have been
+genuinely see-through, with the content it covers showing through the rows. Making the token a solid
+colour that happens to equal the canvas keeps the transparent appearance where it is wanted and gives
+the sheet something to sit on. The rename followed, because `canvas` says what the value is where
+`transparent` said what it looked like.
+
+**So this is a constraint, not an incidental value.** Do not "restore" an alpha-0 background for a
+see-through nav: it would break the sheet, and the two are the same token. Verified after the change —
+the sheet's background resolves to exactly `--surface-canvas`, opaque, in both themes, and the scrim
+above it is what separates sheet from page.
+
+**The `data-nav-theme` attribute value changed with it**, so any app pinning `transparent` needs the
+new spelling. The two neutral modes still follow `<html data-neutral>`, because they alias Figma's
 `Neutral Palette`, which is this repo's `--neutral-*` tier.
 
 The generator's own note is in `generate.py` section 1c and in `theme.css` section 2b.

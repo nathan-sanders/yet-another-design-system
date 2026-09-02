@@ -134,6 +134,13 @@ export const navSheet = tv({
     // drawing with --nav-*; on a semantic surface a `neutral-inverse` label
     // would be near-white text on white. Same call as the collapsed-group
     // flyout.
+    //
+    // **This surface has to be opaque, and one mode is only opaque on purpose.**
+    // `canvas` matches the page's own background so a bar reads as having no
+    // surface at all — but the sheet opens over content, so an alpha-0 value
+    // there would show the page straight through these rows. That mode was
+    // transparent until 2026-09-02 and was made solid for this component. See
+    // `CLAUDE.md`; do not turn it back.
     'bg-nav-background text-nav-content-primary font-sans',
     // Figma's `Elevation/Drop Shadow/High - Top` — offset (0, -16), which is
     // what makes it read as lifting off the bottom edge.
