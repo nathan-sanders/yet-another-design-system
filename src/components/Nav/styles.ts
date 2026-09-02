@@ -143,20 +143,30 @@ export const navSheet = tv({
     // finding, in Dialog's spelling.
     'outline-none',
     /*
-      The slide. Toast is the precedent — the same duration, the same pair of
-      starting/ending styles.
+      The slide, and **translate only — no opacity**.
 
-      `transition-[translate,…]` and **not** `transition-transform`: Tailwind v4
+      It faded as well at first, and that is what stopped it reading as a slide:
+      the sheet is transparent exactly while it is furthest down, so the travel
+      you are meant to see happens while there is nothing to see, and it arrives
+      looking like a dissolve. Nathan's prototype is a Figma *Move In*, which
+      does not fade at all. The backdrop still fades — that one is a dissolve by
+      nature — so the two are deliberately different and not an oversight.
+
+      `duration-medium` rather than Toast's `medium-min`: `ease-standard` is
+      steeply front-loaded (half the distance in the first fifth of the time),
+      so a short duration spends most of its frames on a settle nobody can see
+      and the motion reads as a snap. The extra 100ms is what makes the travel
+      legible.
+
+      `transition-[translate]` and **not** `transition-transform`: Tailwind v4
       compiles `translate-y-full` to the standalone `translate` property, not to
-      `transform`. Naming the wrong one animates nothing and looks like the
-      popup simply appearing. Same trap as `rotate-180` on the group chevron,
-      one property along. `transition-transform` would in fact work — v4 expands
-      it to `transform, translate, scale, rotate` — but it says something this
-      does not do, and opacity has to be in the list regardless.
+      `transform`. `transition-transform` happens to work, since v4 expands it
+      to all four, but it names something this does not animate. Same trap as
+      `rotate-180` on the group chevron, one property along.
     */
-    'transition-[translate,opacity] duration-medium-min ease-standard',
-    'data-[starting-style]:translate-y-full data-[starting-style]:opacity-0',
-    'data-[ending-style]:translate-y-full data-[ending-style]:opacity-0',
+    'transition-[translate] duration-medium ease-standard',
+    'data-[starting-style]:translate-y-full',
+    'data-[ending-style]:translate-y-full',
   ],
 })
 

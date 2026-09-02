@@ -322,6 +322,28 @@ already declined for group labels.
 **Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
 Dialog has no drag affordance — it would be an invention, not a port.
 
+### The fade was hiding the slide
+
+Nathan's prototype is a Figma **Move In** — the sheet travels and does not fade. The first version
+here animated `translate` *and* `opacity` together, copying Toast, and that is what stopped it
+reading as a slide: the sheet is transparent exactly while it is furthest down, so the travel you are
+meant to see happens while there is nothing to see, and it arrives looking like a dissolve.
+
+Translate only now. The backdrop still fades, which is deliberate rather than an inconsistency — a
+scrim is a dissolve by nature and has nowhere to travel from.
+
+`duration-medium` (410ms) rather than Toast's `medium-min` (310). `ease-standard` is steeply
+front-loaded — measured at **49% of the distance in the first 60ms**, 80% by 120ms — so a short
+duration spends most of its frames on a settle nobody can see, and the motion reads as a snap. The
+extra 100ms is what makes the travel legible rather than what makes it slower.
+
+The start point is worth pinning because the rect cannot show it (see below): the sheet is 388 tall
+and settles flush to the bottom edge, so `translate-y-full` puts its top at exactly the viewport
+bottom — **fully off-screen**, computed rather than eyeballed.
+
+If it still wants tuning, the only lever left is a second easing curve. The library has exactly one,
+`ease-standard`, and adding another is a token decision rather than a component one.
+
 ### The bar moved when the sheet opened, and it was not animating
 
 Nathan caught this: with the bar at the **top**, opening the sheet slid the bar in as well. It looks
