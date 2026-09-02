@@ -26,6 +26,14 @@ export type {
 export { AreaSeries } from './components/AreaSeries'
 export type { AreaSeriesProps, AreaSeriesSeries, AreaInterpolation, AreaFill } from './components/AreaSeries'
 
+export { AspectRatio } from './components/AspectRatio'
+export type {
+  AspectRatioProps,
+  AspectRatioName,
+  AspectRatioFit,
+  AspectRatioShape,
+} from './components/AspectRatio'
+
 export { Avatar, AvatarGroup } from './components/Avatar'
 export type {
   AvatarProps,
