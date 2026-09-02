@@ -31,6 +31,15 @@ import { describe, expect, it } from 'vitest'
  * Two things are deliberately not checked: the `item-border-*` strokes, which are
  * decoration a background has already separated, and the `nav-content-subtle/40`
  * rule in `SideNav`, which is `aria-hidden` and owes nothing.
+ *
+ * **A Figma-sourced mode that fails belongs fixed in Figma, not tolerated here.**
+ * `Pink` shipped at 4.16:1 on 2026-09-02 — Blue's recipe on a ramp not dark
+ * enough at step 600 to carry it — and was carried as a named exception for
+ * exactly as long as it took to move the variable to `Pink/700` at source. An
+ * override in `generate.py` would have been the drift this tier exists to avoid,
+ * and a lowered threshold would have weakened all thirty-seven modes to excuse
+ * one. If this test goes red on a mode from the export, that is the shape of
+ * the fix.
  */
 
 const THEME = readFileSync(join(import.meta.dirname, 'theme.css'), 'utf8')
@@ -43,21 +52,6 @@ const PAIRS: { foreground: string; background: string; minimum: number }[] = [
   { foreground: 'content-subtle', background: 'background', minimum: 4.5 },
   { foreground: 'content-subtle', background: 'item-background-hover', minimum: 3 },
 ]
-
-/**
- * The one pair that fails, and it comes from Figma rather than from here.
- *
- * `Pink` was added to the `Navigation Theme` collection on 2026-09-02 following
- * Blue's recipe, and `Pink/600` on `Pink/50` is 4.16:1 — Blue passes the same
- * shape at 4.82:1 only because blue is unusually dark at 600. The fix is a step
- * in Figma, not an override here: `tokens/navigation.json` is the export, and
- * code that quietly disagreed with it would be the drift this tier exists to
- * avoid. **Delete this entry once Figma moves Pink's Nav Content/Subtle to 700.**
- *
- * It is listed rather than tolerated by a lowered threshold, so it stays one
- * named, dated fact instead of a weaker rule for all thirty-seven modes.
- */
-const KNOWN: string[] = ['pink: content-subtle on background']
 
 /** `--color-blue-50: oklch(97% 0.014 254.604)` → the literal, by name. */
 const primitives = new Map(
@@ -143,7 +137,6 @@ describe('navigation theme contrast', () => {
       for (const { foreground, background, minimum } of PAIRS) {
         const ratio = contrast(tokens[foreground], tokens[background])
         if (ratio >= minimum) continue
-        if (KNOWN.includes(`${mode}: ${foreground} on ${background}`)) continue
         failures.push(
           `  ${mode}: ${foreground} (${tokens[foreground]}) on ` +
             `${background} (${tokens[background]}) is ${ratio.toFixed(2)}:1, ` +
@@ -157,22 +150,5 @@ describe('navigation theme contrast', () => {
       'Below threshold — for a derived ramp, adjust NAV_RECIPE_OVERRIDES in ' +
         `generate.py and re-run it:\n${failures.join('\n')}`,
     ).toEqual([])
-  })
-
-  it('the known Figma failure is still there, and is still only one', () => {
-    // A guard on the allowlist itself: once Figma bumps Pink, this fails and
-    // tells you to delete the entry, rather than letting it sit forever.
-    const stale = KNOWN.filter((entry) => {
-      const [mode, pair] = entry.split(': ')
-      const [foreground, background] = pair.split(' on ')
-      const tokens = modes.get(mode)
-      if (!tokens) return true
-      const owed = PAIRS.find(
-        (p) => p.foreground === foreground && p.background === background,
-      )!.minimum
-      return contrast(tokens[foreground], tokens[background]) >= owed
-    })
-
-    expect(stale, 'now passing — delete it from KNOWN').toEqual([])
   })
 })

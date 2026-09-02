@@ -1022,7 +1022,7 @@
 :root[data-nav-theme="pink"] {
   --nav-background: var(--color-pink-50);
   --nav-content-primary: var(--color-pink-950);
-  --nav-content-subtle: var(--color-pink-600);
+  --nav-content-subtle: var(--color-pink-700);
   --nav-item-background-hover: var(--color-pink-100);
   --nav-item-border-hover: var(--color-pink-200);
   --nav-item-background-selected: var(--color-pink-200);
