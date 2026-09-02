@@ -38,11 +38,24 @@ gives a *stadium* — two semicircles either side of a straight run — and only
 radius bends with the box into a true ellipse. At `1/1` the two are indistinguishable, which
 is exactly how this gets shipped wrong.
 
-## What is code-first
+## What came from Astryx, and what Figma now says
 
-`fit` and `shape` come from Meta's Astryx AspectRatio, not from Figma. **The Figma set is
-being extended to match** (Ratio × Fit × Shape), so this is a sync in progress rather than the
-standing code-first debt `BentoGrid` carries.
+`fit` and `shape` come from Meta's Astryx AspectRatio; Figma had only `Ratio`. **The set has
+been extended to match** — `Ratio` (6) × `Fit` (3) × `Shape` (2) = 36 variants — so there is no
+code-first debt here of the kind `BentoGrid` carries. Two things about how those variants are
+drawn are worth knowing before touching them:
+
+- **Ellipse is an `ELLIPSE` node, not a corner radius.** Figma's `cornerRadius` is absolute
+  pixels, so the largest radius a 240×135 frame can take still draws a stadium. `Fit=Cover` and
+  `Fit=Contain` put the image on the ellipse itself; `Fit=Center` needs the ellipse as a *mask*,
+  because there the shape is the clip and not the content.
+- **`Fit=Contain, Shape=Ellipse` looks broken and is correct.** What paints is the ellipse
+  intersected with the letterboxed picture, which comes out as a squircle with flat sides. CSS
+  does exactly the same thing: `object-fit: contain` leaves the bands transparent, and a box
+  that paints nothing has nothing to show through them.
+- **`Fit=Center, Shape=Ellipse` is indistinguishable from the rectangle** whenever the content
+  is small enough to sit inside the oval — which, at natural size, it usually is. Also correct,
+  and also worth not "fixing".
 
 - **`fit` is optional on purpose.** Left off, the children are rendered as passed and style
   themselves — the shadcn behaviour the Figma description links to, and the right default for
