@@ -197,20 +197,37 @@ collection. So "does the id still resolve" is not a deletion test — check
 
 A second swappable collection alongside the neutral one: **`Navigation Theme`**, seven variables
 (`Background`, `Nav Content/Primary`, `Nav Content/Subtle`, `Nav Item/Background Hover`,
-`Nav Item/Border Hover`, `Nav Item/Background Selected`, `Nav Item/Border Selected`) across seven
-modes — Neutral Inverse, Neutral, Blue Inverse, Blue, Purple Inverse, Purple, Canvas.
+`Nav Item/Border Hover`, `Nav Item/Background Selected`, `Nav Item/Border Selected`) across
+**thirty-seven modes** — Neutral and Neutral Inverse, Canvas, and a light/inverse pair for each of
+the seventeen chromatic Tailwind ramps.
 
 It is in code as of 2026-09-01: `tokens/navigation.json`, section 1c of `generate.py`, section 2b of
 `theme.css`, and `NavItem` / `SideNav` / `TopNav` consuming it. The switch is one attribute,
 `<html data-nav-theme="blue-inverse">`, exactly like the neutral tier's.
 
-Two things about it are worth knowing before building anything else on it:
+**Nine of those modes are Figma's and twenty-eight are not, and the split is a hard limit rather
+than a preference.** A Figma variable collection holds a bounded number of modes and this one is
+full, so Blue, Purple, Pink, the two neutrals and Canvas come from the export, and the other
+fourteen ramps are derived in `generate.py` from Blue's own steps. `tokens/navigation.json` stays
+what it says it is — the export, and nothing else — because a re-export overwrites that file
+wholesale and anything hand-added to it would go with it. **Adding a ramp is one word in
+`NAV_CODE_RAMPS`**, and retuning Blue in Figma retunes all twenty-eight on the next run.
 
-- **It is not theme-aware, on purpose.** Six of the seven modes are absolute — `Neutral` is a white
+Three things about it are worth knowing before building anything else on it:
+
+- **It is not theme-aware, on purpose.** All but one mode is absolute — `Neutral` is a white
   nav in dark mode too. Only `Canvas` aliases back into `Semantic Theme`, so only that one follows
   `.dark`. That is the opposite of how the neutral tier composes, and it is the design. Measured both
   ways once the tier existed: `--nav-content-primary` moves between light and dark on `Canvas` and
-  holds on the other six.
+  holds everywhere else.
+- **Blue's recipe does not generalize, and that was measured the hard way.** Every derived mode is
+  Blue's steps with the ramp name swapped — except `Nav Content/Subtle` in the light variant, which
+  is step **700** rather than Blue's 600. Those are the 12px `SideNav` group headers on a step-50
+  background, so they owe 4.5:1, and blue clears it at 600 only because blue is unusually dark
+  there (4.82:1). Thirteen of the seventeen ramps do not: yellow is 2.83:1, amber 3.08, teal 3.51.
+  **The generalization was checked by measurement and it failed** — the recipe is a starting point,
+  not a law, and `src/styles/nav-contrast.test.ts` now holds every mode to the threshold rather
+  than trusting a sweep.
 - **`Canvas` was `Transparent` until 2026-09-02**, and its `Background` was `Surface/Canvas` at alpha
   0. The look did not change and the mechanism did: matching the canvas exactly is indistinguishable
   from being see-through while nothing is behind it, but `MobileNav`'s sheet paints the same token and
@@ -220,9 +237,17 @@ Two things about it are worth knowing before building anything else on it:
   constraint** — an alpha-0 background here breaks the sheet. The `data-nav-theme` attribute value
   changed with it, so an app pinning `transparent` needs the new spelling.
 - **The neutral modes go through `Neutral Palette`**, so a nav on `Neutral`/`Neutral Inverse` still
-  follows `data-neutral`, while the Blue and Purple modes are pinned to Tailwind ramps. That falls
+  follows `data-neutral`, while every chromatic mode is pinned to a Tailwind ramp. That falls
   out for free: `Neutral Palette` is the same eleven steps as `--neutral-*`, so an alias into it
-  lands on the tier the semantic layer already uses.
+  lands on the tier the semantic layer already uses. It is also why the neutral family needs no
+  nav themes of its own — those two modes already cover all nine neutral ramps.
+
+**One mode fails contrast, and it is Figma's.** `Pink` light puts `Nav Content/Subtle` at
+`Pink/600` on `Pink/50`, which is 4.16:1 — the same shape as Blue, on a ramp that is not dark
+enough at 600 to carry it. The fix is a step in Figma, not an override in `generate.py`: code that
+quietly disagreed with the export is the drift this tier exists to avoid. It is carried as a single
+named entry in `KNOWN` in `nav-contrast.test.ts`, with a second test that fails once Figma moves it
+so the entry cannot outlive the problem.
 
 **The export needs a value encoder that fails loudly, and this is where that was proved.** The first
 read of the collection came back with all forty-nine values `null` — not because Figma refused, but

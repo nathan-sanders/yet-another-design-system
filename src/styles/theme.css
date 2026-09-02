@@ -907,11 +907,11 @@
   --data-viz-sentiment-neutral: var(--color-neutral-500);
 }
 
-/* ---- 2b. The navigation theme. Seven tokens across seven modes, switched by ---- */
+/* ---- 2b. The navigation theme. Seven tokens across 37 modes, switched by ---- */
 /*     one attribute: <html data-nav-theme="blue-inverse">. Neutral Inverse is    */
 /*     the default, and also has its own block so the attribute is never a lie.  */
 /*                                                                              */
-/*     Sits AFTER the semantic block on purpose. Six of the modes are absolute   */
+/*     Sits AFTER the semantic block on purpose. All but one mode is absolute    */
 /*     -- a nav on "neutral" stays white in dark mode, because a navigation      */
 /*     surface is a brand decision and not a reading preference. Only            */
 /*     "canvas" aliases --surface-* / --content-*, and so only that mode         */
@@ -919,6 +919,16 @@
 /*                                                                              */
 /*     The neutral modes alias Figma's Neutral Palette, which is this file's     */
 /*     --neutral-* tier, so a nav on one still follows data-neutral as well.     */
+/*                                                                              */
+/*     The first nine modes are Figma's, in Figma's order. The other twenty-     */
+/*     eight are derived in generate.py from Blue's own steps, because a Figma   */
+/*     variable collection cannot hold any more modes than this one already has. */
+/*     So they are not in navigation.json, and retuning Blue in Figma retunes    */
+/*     every one of them -- bar one correction, which is contrast and not      */
+/*     taste. Nav Content/Subtle is step 700 in the light variant, not Blue's    */
+/*     600: those group headers are 12px text on a step-50 background, and 600   */
+/*     clears 4.5:1 on four ramps out of seventeen. nav-contrast.test.ts holds   */
+/*     every mode to that, so a ramp that fails cannot quietly ship.             */
 :root {
   --nav-background: var(--neutral-900);
   --nav-content-primary: var(--neutral-100);
@@ -947,6 +957,16 @@
   --nav-item-border-hover: var(--neutral-200);
   --nav-item-background-selected: var(--neutral-200);
   --nav-item-border-selected: var(--neutral-300);
+}
+
+:root[data-nav-theme="canvas"] {
+  --nav-background: var(--surface-canvas);
+  --nav-content-primary: var(--content-primary);
+  --nav-content-subtle: var(--content-subtle);
+  --nav-item-background-hover: var(--surface-overlay-subtle);
+  --nav-item-border-hover: var(--surface-overlay-subtle);
+  --nav-item-background-selected: var(--surface-background-primary);
+  --nav-item-border-selected: var(--surface-overlay-subtle);
 }
 
 :root[data-nav-theme="blue-inverse"] {
@@ -989,14 +1009,304 @@
   --nav-item-border-selected: var(--color-purple-300);
 }
 
-:root[data-nav-theme="canvas"] {
-  --nav-background: var(--surface-canvas);
-  --nav-content-primary: var(--content-primary);
-  --nav-content-subtle: var(--content-subtle);
-  --nav-item-background-hover: var(--surface-overlay-subtle);
-  --nav-item-border-hover: var(--surface-overlay-subtle);
-  --nav-item-background-selected: var(--surface-background-primary);
-  --nav-item-border-selected: var(--surface-overlay-subtle);
+:root[data-nav-theme="pink-inverse"] {
+  --nav-background: var(--color-pink-900);
+  --nav-content-primary: var(--color-pink-50);
+  --nav-content-subtle: var(--color-pink-300);
+  --nav-item-background-hover: var(--color-pink-950);
+  --nav-item-border-hover: var(--color-pink-800);
+  --nav-item-background-selected: var(--color-pink-700);
+  --nav-item-border-selected: var(--color-pink-600);
+}
+
+:root[data-nav-theme="pink"] {
+  --nav-background: var(--color-pink-50);
+  --nav-content-primary: var(--color-pink-950);
+  --nav-content-subtle: var(--color-pink-600);
+  --nav-item-background-hover: var(--color-pink-100);
+  --nav-item-border-hover: var(--color-pink-200);
+  --nav-item-background-selected: var(--color-pink-200);
+  --nav-item-border-selected: var(--color-pink-300);
+}
+
+:root[data-nav-theme="red-inverse"] {
+  --nav-background: var(--color-red-900);
+  --nav-content-primary: var(--color-red-50);
+  --nav-content-subtle: var(--color-red-300);
+  --nav-item-background-hover: var(--color-red-950);
+  --nav-item-border-hover: var(--color-red-800);
+  --nav-item-background-selected: var(--color-red-700);
+  --nav-item-border-selected: var(--color-red-600);
+}
+
+:root[data-nav-theme="red"] {
+  --nav-background: var(--color-red-50);
+  --nav-content-primary: var(--color-red-950);
+  --nav-content-subtle: var(--color-red-700);
+  --nav-item-background-hover: var(--color-red-100);
+  --nav-item-border-hover: var(--color-red-200);
+  --nav-item-background-selected: var(--color-red-200);
+  --nav-item-border-selected: var(--color-red-300);
+}
+
+:root[data-nav-theme="orange-inverse"] {
+  --nav-background: var(--color-orange-900);
+  --nav-content-primary: var(--color-orange-50);
+  --nav-content-subtle: var(--color-orange-300);
+  --nav-item-background-hover: var(--color-orange-950);
+  --nav-item-border-hover: var(--color-orange-800);
+  --nav-item-background-selected: var(--color-orange-700);
+  --nav-item-border-selected: var(--color-orange-600);
+}
+
+:root[data-nav-theme="orange"] {
+  --nav-background: var(--color-orange-50);
+  --nav-content-primary: var(--color-orange-950);
+  --nav-content-subtle: var(--color-orange-700);
+  --nav-item-background-hover: var(--color-orange-100);
+  --nav-item-border-hover: var(--color-orange-200);
+  --nav-item-background-selected: var(--color-orange-200);
+  --nav-item-border-selected: var(--color-orange-300);
+}
+
+:root[data-nav-theme="amber-inverse"] {
+  --nav-background: var(--color-amber-900);
+  --nav-content-primary: var(--color-amber-50);
+  --nav-content-subtle: var(--color-amber-300);
+  --nav-item-background-hover: var(--color-amber-950);
+  --nav-item-border-hover: var(--color-amber-800);
+  --nav-item-background-selected: var(--color-amber-700);
+  --nav-item-border-selected: var(--color-amber-600);
+}
+
+:root[data-nav-theme="amber"] {
+  --nav-background: var(--color-amber-50);
+  --nav-content-primary: var(--color-amber-950);
+  --nav-content-subtle: var(--color-amber-700);
+  --nav-item-background-hover: var(--color-amber-100);
+  --nav-item-border-hover: var(--color-amber-200);
+  --nav-item-background-selected: var(--color-amber-200);
+  --nav-item-border-selected: var(--color-amber-300);
+}
+
+:root[data-nav-theme="yellow-inverse"] {
+  --nav-background: var(--color-yellow-900);
+  --nav-content-primary: var(--color-yellow-50);
+  --nav-content-subtle: var(--color-yellow-300);
+  --nav-item-background-hover: var(--color-yellow-950);
+  --nav-item-border-hover: var(--color-yellow-800);
+  --nav-item-background-selected: var(--color-yellow-700);
+  --nav-item-border-selected: var(--color-yellow-600);
+}
+
+:root[data-nav-theme="yellow"] {
+  --nav-background: var(--color-yellow-50);
+  --nav-content-primary: var(--color-yellow-950);
+  --nav-content-subtle: var(--color-yellow-700);
+  --nav-item-background-hover: var(--color-yellow-100);
+  --nav-item-border-hover: var(--color-yellow-200);
+  --nav-item-background-selected: var(--color-yellow-200);
+  --nav-item-border-selected: var(--color-yellow-300);
+}
+
+:root[data-nav-theme="lime-inverse"] {
+  --nav-background: var(--color-lime-900);
+  --nav-content-primary: var(--color-lime-50);
+  --nav-content-subtle: var(--color-lime-300);
+  --nav-item-background-hover: var(--color-lime-950);
+  --nav-item-border-hover: var(--color-lime-800);
+  --nav-item-background-selected: var(--color-lime-700);
+  --nav-item-border-selected: var(--color-lime-600);
+}
+
+:root[data-nav-theme="lime"] {
+  --nav-background: var(--color-lime-50);
+  --nav-content-primary: var(--color-lime-950);
+  --nav-content-subtle: var(--color-lime-700);
+  --nav-item-background-hover: var(--color-lime-100);
+  --nav-item-border-hover: var(--color-lime-200);
+  --nav-item-background-selected: var(--color-lime-200);
+  --nav-item-border-selected: var(--color-lime-300);
+}
+
+:root[data-nav-theme="green-inverse"] {
+  --nav-background: var(--color-green-900);
+  --nav-content-primary: var(--color-green-50);
+  --nav-content-subtle: var(--color-green-300);
+  --nav-item-background-hover: var(--color-green-950);
+  --nav-item-border-hover: var(--color-green-800);
+  --nav-item-background-selected: var(--color-green-700);
+  --nav-item-border-selected: var(--color-green-600);
+}
+
+:root[data-nav-theme="green"] {
+  --nav-background: var(--color-green-50);
+  --nav-content-primary: var(--color-green-950);
+  --nav-content-subtle: var(--color-green-700);
+  --nav-item-background-hover: var(--color-green-100);
+  --nav-item-border-hover: var(--color-green-200);
+  --nav-item-background-selected: var(--color-green-200);
+  --nav-item-border-selected: var(--color-green-300);
+}
+
+:root[data-nav-theme="emerald-inverse"] {
+  --nav-background: var(--color-emerald-900);
+  --nav-content-primary: var(--color-emerald-50);
+  --nav-content-subtle: var(--color-emerald-300);
+  --nav-item-background-hover: var(--color-emerald-950);
+  --nav-item-border-hover: var(--color-emerald-800);
+  --nav-item-background-selected: var(--color-emerald-700);
+  --nav-item-border-selected: var(--color-emerald-600);
+}
+
+:root[data-nav-theme="emerald"] {
+  --nav-background: var(--color-emerald-50);
+  --nav-content-primary: var(--color-emerald-950);
+  --nav-content-subtle: var(--color-emerald-700);
+  --nav-item-background-hover: var(--color-emerald-100);
+  --nav-item-border-hover: var(--color-emerald-200);
+  --nav-item-background-selected: var(--color-emerald-200);
+  --nav-item-border-selected: var(--color-emerald-300);
+}
+
+:root[data-nav-theme="teal-inverse"] {
+  --nav-background: var(--color-teal-900);
+  --nav-content-primary: var(--color-teal-50);
+  --nav-content-subtle: var(--color-teal-300);
+  --nav-item-background-hover: var(--color-teal-950);
+  --nav-item-border-hover: var(--color-teal-800);
+  --nav-item-background-selected: var(--color-teal-700);
+  --nav-item-border-selected: var(--color-teal-600);
+}
+
+:root[data-nav-theme="teal"] {
+  --nav-background: var(--color-teal-50);
+  --nav-content-primary: var(--color-teal-950);
+  --nav-content-subtle: var(--color-teal-700);
+  --nav-item-background-hover: var(--color-teal-100);
+  --nav-item-border-hover: var(--color-teal-200);
+  --nav-item-background-selected: var(--color-teal-200);
+  --nav-item-border-selected: var(--color-teal-300);
+}
+
+:root[data-nav-theme="cyan-inverse"] {
+  --nav-background: var(--color-cyan-900);
+  --nav-content-primary: var(--color-cyan-50);
+  --nav-content-subtle: var(--color-cyan-300);
+  --nav-item-background-hover: var(--color-cyan-950);
+  --nav-item-border-hover: var(--color-cyan-800);
+  --nav-item-background-selected: var(--color-cyan-700);
+  --nav-item-border-selected: var(--color-cyan-600);
+}
+
+:root[data-nav-theme="cyan"] {
+  --nav-background: var(--color-cyan-50);
+  --nav-content-primary: var(--color-cyan-950);
+  --nav-content-subtle: var(--color-cyan-700);
+  --nav-item-background-hover: var(--color-cyan-100);
+  --nav-item-border-hover: var(--color-cyan-200);
+  --nav-item-background-selected: var(--color-cyan-200);
+  --nav-item-border-selected: var(--color-cyan-300);
+}
+
+:root[data-nav-theme="sky-inverse"] {
+  --nav-background: var(--color-sky-900);
+  --nav-content-primary: var(--color-sky-50);
+  --nav-content-subtle: var(--color-sky-300);
+  --nav-item-background-hover: var(--color-sky-950);
+  --nav-item-border-hover: var(--color-sky-800);
+  --nav-item-background-selected: var(--color-sky-700);
+  --nav-item-border-selected: var(--color-sky-600);
+}
+
+:root[data-nav-theme="sky"] {
+  --nav-background: var(--color-sky-50);
+  --nav-content-primary: var(--color-sky-950);
+  --nav-content-subtle: var(--color-sky-700);
+  --nav-item-background-hover: var(--color-sky-100);
+  --nav-item-border-hover: var(--color-sky-200);
+  --nav-item-background-selected: var(--color-sky-200);
+  --nav-item-border-selected: var(--color-sky-300);
+}
+
+:root[data-nav-theme="indigo-inverse"] {
+  --nav-background: var(--color-indigo-900);
+  --nav-content-primary: var(--color-indigo-50);
+  --nav-content-subtle: var(--color-indigo-300);
+  --nav-item-background-hover: var(--color-indigo-950);
+  --nav-item-border-hover: var(--color-indigo-800);
+  --nav-item-background-selected: var(--color-indigo-700);
+  --nav-item-border-selected: var(--color-indigo-600);
+}
+
+:root[data-nav-theme="indigo"] {
+  --nav-background: var(--color-indigo-50);
+  --nav-content-primary: var(--color-indigo-950);
+  --nav-content-subtle: var(--color-indigo-700);
+  --nav-item-background-hover: var(--color-indigo-100);
+  --nav-item-border-hover: var(--color-indigo-200);
+  --nav-item-background-selected: var(--color-indigo-200);
+  --nav-item-border-selected: var(--color-indigo-300);
+}
+
+:root[data-nav-theme="violet-inverse"] {
+  --nav-background: var(--color-violet-900);
+  --nav-content-primary: var(--color-violet-50);
+  --nav-content-subtle: var(--color-violet-300);
+  --nav-item-background-hover: var(--color-violet-950);
+  --nav-item-border-hover: var(--color-violet-800);
+  --nav-item-background-selected: var(--color-violet-700);
+  --nav-item-border-selected: var(--color-violet-600);
+}
+
+:root[data-nav-theme="violet"] {
+  --nav-background: var(--color-violet-50);
+  --nav-content-primary: var(--color-violet-950);
+  --nav-content-subtle: var(--color-violet-700);
+  --nav-item-background-hover: var(--color-violet-100);
+  --nav-item-border-hover: var(--color-violet-200);
+  --nav-item-background-selected: var(--color-violet-200);
+  --nav-item-border-selected: var(--color-violet-300);
+}
+
+:root[data-nav-theme="fuchsia-inverse"] {
+  --nav-background: var(--color-fuchsia-900);
+  --nav-content-primary: var(--color-fuchsia-50);
+  --nav-content-subtle: var(--color-fuchsia-300);
+  --nav-item-background-hover: var(--color-fuchsia-950);
+  --nav-item-border-hover: var(--color-fuchsia-800);
+  --nav-item-background-selected: var(--color-fuchsia-700);
+  --nav-item-border-selected: var(--color-fuchsia-600);
+}
+
+:root[data-nav-theme="fuchsia"] {
+  --nav-background: var(--color-fuchsia-50);
+  --nav-content-primary: var(--color-fuchsia-950);
+  --nav-content-subtle: var(--color-fuchsia-700);
+  --nav-item-background-hover: var(--color-fuchsia-100);
+  --nav-item-border-hover: var(--color-fuchsia-200);
+  --nav-item-background-selected: var(--color-fuchsia-200);
+  --nav-item-border-selected: var(--color-fuchsia-300);
+}
+
+:root[data-nav-theme="rose-inverse"] {
+  --nav-background: var(--color-rose-900);
+  --nav-content-primary: var(--color-rose-50);
+  --nav-content-subtle: var(--color-rose-300);
+  --nav-item-background-hover: var(--color-rose-950);
+  --nav-item-border-hover: var(--color-rose-800);
+  --nav-item-background-selected: var(--color-rose-700);
+  --nav-item-border-selected: var(--color-rose-600);
+}
+
+:root[data-nav-theme="rose"] {
+  --nav-background: var(--color-rose-50);
+  --nav-content-primary: var(--color-rose-950);
+  --nav-content-subtle: var(--color-rose-700);
+  --nav-item-background-hover: var(--color-rose-100);
+  --nav-item-border-hover: var(--color-rose-200);
+  --nav-item-background-selected: var(--color-rose-200);
+  --nav-item-border-selected: var(--color-rose-300);
 }
 
 /* ---- 4. Expose semantic tokens as color utilities (bg-*, text-*, border-*). ---- */

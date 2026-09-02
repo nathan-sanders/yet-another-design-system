@@ -13,7 +13,7 @@ const sizes = ['default', 'small'] as const
  *
  * Its colors come from the navigation theme tier, so it only looks right on a
  * nav surface — which is what the wrapper in these stories is. Use the **Nav**
- * toolbar to move it through the seven themes; six of them do not follow the
+ * toolbar to move it through the thirty-seven themes; all but `canvas` do not follow the
  * light/dark switch, on purpose.
  */
 const meta = {
@@ -90,7 +90,7 @@ export const AllVariants: Story = {
  * The slots. A start slot takes an icon or an `Avatar`; the end slot takes
  * whatever the row needs to say, a `Badge` in Figma's composition. The status
  * dot draws its ring in the nav background, so it stays a cut-out on every one
- * of the seven themes.
+ * of the thirty-seven themes.
  */
 export const Slots: Story = {
   parameters: { controls: { disable: true } },

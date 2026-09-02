@@ -29,10 +29,15 @@ Both draw from the *semantic* theme rather than the navigation one, and Top Bar 
 ## The token tier
 
 Every color here is `--nav-*`, from the `Navigation Theme` collection, switched by
-`<html data-nav-theme="…">`. It is not the semantic tier and does not behave like it: **six of the
-seven modes are absolute**, so a nav on `neutral` is white in dark mode too. Only `canvas` aliases
-back into the semantic layer, and it is the only mode that follows `.dark` — measured, not assumed:
-`--nav-content-primary` moves between light and dark on `canvas` and holds on the other six.
+`<html data-nav-theme="…">`. It is not the semantic tier and does not behave like it: **all but one
+of its thirty-seven modes are absolute**, so a nav on `neutral` is white in dark mode too. Only
+`canvas` aliases back into the semantic layer, and it is the only mode that follows `.dark` —
+measured, not assumed: `--nav-content-primary` moves between light and dark on `canvas` and holds
+everywhere else.
+
+Nine modes come from Figma and twenty-eight are derived in `generate.py`, because the Figma
+collection is full. Nothing here has to know which is which — a mode is a `:root[data-nav-theme=…]`
+block either way. See the tier's entry in the root `CLAUDE.md` before adding a ramp.
 
 `canvas` was called `transparent` until 2026-09-02, and its `Background` was `Surface/Canvas` at
 alpha 0. **The look did not change; the mechanism did, and `MobileNav` is why.**
@@ -281,9 +286,18 @@ At `neutral-inverse` on Stone, against the Figma frames:
 | Top bar height / radius / padding | 56 / 12 / 8,12 | 56 / 12 / 8px 12px |
 | Group panel | one row | settles at 40, chevron at 180° |
 
-**Contrast: 46 mode × theme × ramp combinations, none below 4.5:1**, worst 4.82 (`nav-content-subtle`
-on `blue`). Swept by compositing each token over what is actually behind it and computing the WCAG
-ratio, because `npm test` runs axe only at the default ramp and none of these modes is the default.
+**Contrast is checked by `src/styles/nav-contrast.test.ts`, not by a sweep.** It reads the generated
+stylesheet, resolves every mode's tokens back to their OKLCH literals, and measures each pair these
+components actually paint — `content-primary` on all three of its grounds at 4.5:1, `content-subtle`
+on the bar at 4.5:1 because a group header is 12px text, and `content-subtle` on a hovered row at
+3:1 because the only thing there is the expand chevron. It exists because `npm test` runs axe at the
+default nav theme only, so thirty-six of the thirty-seven modes are never rendered.
+
+The hand sweep it replaced (46 combinations, worst 4.82 on `blue`) **had the right answer for the
+wrong reason and would not have scaled.** 4.82 is `nav-content-subtle` on `blue`, which is the
+*best* case in the palette, not a comfortable floor: every ramp that is lighter than blue at step
+600 fails, which is thirteen of the seventeen. One ramp checked by hand cannot tell you that. The
+one exception the test tolerates is `pink`, whose value is Figma's — see the root `CLAUDE.md`.
 
 ## ResponsiveNav
 
@@ -499,7 +513,7 @@ otherwise semantic list.
 **The logo is a story fixture, not a component.** `story-logo.tsx` is the YADS wordmark, unexported
 and not in the barrel: both bars take a `logo` slot precisely so the brand mark stays the
 application's business. It is drawn with `fill="currentColor"` rather than the `#F5F5F5` the exported
-SVG carries, which is what makes it follow the nav theme through all seven modes instead of staying
+SVG carries, which is what makes it follow the nav theme through every mode instead of staying
 near-white on the light ones.
 
 ## Traps hit while building this

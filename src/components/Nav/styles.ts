@@ -10,8 +10,8 @@ import { focusRing } from '../../lib/focus'
  *
  * Every color here comes from the **navigation theme** tier (`--nav-*`), not
  * the semantic one. That tier is switched by `<html data-nav-theme="…">` and
- * six of its seven modes are absolute, so a nav does not follow `.dark` unless
- * it is on `canvas`. See the section-2b comment in `theme.css`.
+ * all but one of its thirty-seven modes is absolute, so a nav does not follow
+ * `.dark` unless it is on `canvas`. See the section-2b comment in `theme.css`.
  */
 
 export const navItem = tv({
