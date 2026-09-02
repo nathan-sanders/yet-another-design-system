@@ -551,6 +551,7 @@ settled once, against the Figma file, for a reason that is written down.
 | [TreeMap](src/components/TreeMap/CLAUDE.md) | parts of a whole, past a donut's limit | the only chart whose marks carry their own text |
 | [Radial](src/components/Radial/CLAUDE.md) | how much, per category, on a common scale | one Figma drawing hiding two rules; the track is what makes it honest |
 | [Sankey](src/components/Sankey/CLAUDE.md) | where a quantity went, stage to stage | the file draws nothing at all; a ribbon takes the color it left with |
+| [AspectRatio](src/components/AspectRatio/CLAUDE.md) | a box that keeps its shape | five named ratios plus a number for Figma's `Custom`; the only component that paints nothing, and the first whose Figma set was widened to meet the code |
 
 ### Data visualization
 

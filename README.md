@@ -134,6 +134,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 |---|---|
 | **Accordion** | A stack of sections, single- or multi-open (`multiple`); card or flush (`container`); optional leading icon, heading level 2–6 |
 | **AlertDialog** | The same surface asking you to confirm something you cannot undo — `role="alertdialog"`, a required description saying what will happen, and no close button. Base UI hands over every part but the Root, so these are literally Dialog's |
+| **AspectRatio** | A box that holds a shape while it resizes: `1/1`, `5/4`, `4/5`, `16/9`, `9/16`, or any number as Figma's `Custom`; `fit` cover/contain/center sizes the child, `shape` clips it to a rectangle or a true ellipse. Paints nothing itself |
 | **Autocomplete** | Free text with suggestions that do not constrain it; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, a magnifier in the start slot, and rows that can carry an avatar or a sub-label. Looks like a Combobox and differs on the one rule: an off-list value stands |
 | **Avatar** | Photo, initials or `+N` at 5 sizes (20/24/36/40/128); online/offline/unavailable status, each with its own shape; `surface` names the fill behind it (the four `--surface-*` plus `nav`) so both rings read as gaps rather than halos |
 | **AvatarGroup** | Overlapping row at one shared size, with an overflow circle |
