@@ -296,8 +296,11 @@ default nav theme only, so thirty-six of the thirty-seven modes are never render
 The hand sweep it replaced (46 combinations, worst 4.82 on `blue`) **had the right answer for the
 wrong reason and would not have scaled.** 4.82 is `nav-content-subtle` on `blue`, which is the
 *best* case in the palette, not a comfortable floor: every ramp that is lighter than blue at step
-600 fails, which is thirteen of the seventeen. One ramp checked by hand cannot tell you that. The
-one exception the test tolerates is `pink`, whose value is Figma's — see the root `CLAUDE.md`.
+600 fails, which is thirteen of the seventeen. One ramp checked by hand cannot tell you that.
+
+It caught one real failure on its first run, and the failure was Figma's: `pink` light at 4.16:1,
+Blue's recipe on a ramp not dark enough at step 600. Fixed in Figma rather than overridden here —
+`Nav Content/Subtle` now aliases `Pink/700`. See the root `CLAUDE.md` for why that direction matters.
 
 ## ResponsiveNav
 

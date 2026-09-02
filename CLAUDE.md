@@ -242,12 +242,13 @@ Three things about it are worth knowing before building anything else on it:
   lands on the tier the semantic layer already uses. It is also why the neutral family needs no
   nav themes of its own — those two modes already cover all nine neutral ramps.
 
-**One mode fails contrast, and it is Figma's.** `Pink` light puts `Nav Content/Subtle` at
-`Pink/600` on `Pink/50`, which is 4.16:1 — the same shape as Blue, on a ramp that is not dark
-enough at 600 to carry it. The fix is a step in Figma, not an override in `generate.py`: code that
-quietly disagreed with the export is the drift this tier exists to avoid. It is carried as a single
-named entry in `KNOWN` in `nav-contrast.test.ts`, with a second test that fails once Figma moves it
-so the entry cannot outlive the problem.
+**A Figma mode failed contrast once, and the fix went to Figma.** `Pink` shipped on 2026-09-02 with
+`Nav Content/Subtle` at `Pink/600` on `Pink/50` — 4.16:1, Blue's shape on a ramp not dark enough at
+600 to carry it. It was **fixed at source**: the variable now aliases `Pink/700` (5.39:1), and the
+export followed. An override in `generate.py` would have been quicker and would have been the exact
+drift this tier exists to prevent; a lowered threshold would have weakened all thirty-seven modes to
+excuse one. **That is the shape of the fix when `nav-contrast.test.ts` goes red on a mode from the
+export** — the derived ramps are the only ones `NAV_RECIPE_OVERRIDES` gets to speak for.
 
 **The export needs a value encoder that fails loudly, and this is where that was proved.** The first
 read of the collection came back with all forty-nine values `null` — not because Figma refused, but
