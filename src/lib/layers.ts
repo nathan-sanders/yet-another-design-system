@@ -34,3 +34,17 @@
  * more reliably when there is only one of it.
  */
 export const overlayLayer = 'z-40'
+
+/**
+ * The layer a viewport-pinned navigation bar sits on.
+ *
+ * `MobileNav` fixes itself to the top or bottom edge of the screen, which puts
+ * it in the same argument this file exists for: a `fixed` element left on
+ * `z-index: auto` is punched through by any positioned `z-10` on the page.
+ *
+ * **30, and the gap below 40 is the point.** The bar has to sit *under* the
+ * scrim of its own bottom sheet — Figma's bottom placement draws the open sheet
+ * covering the bar completely — so it cannot share `overlayLayer`. Below the
+ * popups, above the page: 30 says both at once.
+ */
+export const navLayer = 'z-30'

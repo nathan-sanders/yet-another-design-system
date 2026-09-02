@@ -108,5 +108,57 @@ export const navSurface = tv({
   },
 })
 
+/**
+ * The bottom sheet `MobileNav` opens, which is Figma's "Mobile Navigation
+ * Popover" (`40004531:35587`).
+ *
+ * It is a Base UI Dialog popup rather than a Popover: modal, focus-trapped, and
+ * dismissed by Escape. `Dialog.Popup` could not be reused — it hardcodes
+ * centring on a Viewport that takes no `className` — so `MobileNav` composes the
+ * raw parts and this recipe dresses the popup.
+ */
+export const navSheet = tv({
+  base: [
+    // Figma is 393 wide, which is the whole phone viewport, and HUGs its
+    // content with no cap at all. The cap and the scroll inside are additions:
+    // enough sections would otherwise push the sheet off the top of the screen,
+    // taking the first one with it.
+    'flex w-full max-h-[85dvh] flex-col',
+    // Top corners only — Figma binds `rounded-lg` to the top two and
+    // `rounded-none` to the bottom, because the sheet is flush with the edge.
+    'rounded-t-lg',
+    // padding [12, 12, 32, 12]: spacing/3 around, and spacing/8 at the bottom,
+    // which is the home-indicator safe area rather than a visual decision.
+    'px-3 pt-3 pb-8',
+    // The navigation tier, not the semantic one. The rows inside are NavItems
+    // drawing with --nav-*; on a semantic surface a `neutral-inverse` label
+    // would be near-white text on white. Same call as the collapsed-group
+    // flyout.
+    'bg-nav-background text-nav-content-primary font-sans',
+    // Figma's `Elevation/Drop Shadow/High - Top` — offset (0, -16), which is
+    // what makes it read as lifting off the bottom edge.
+    'shadow-high-top',
+    // Base UI spreads tabIndex -1 onto the popup and focuses it when nothing
+    // inside is tabbable; the browser would paint its own ring there. Dialog's
+    // finding, in Dialog's spelling.
+    'outline-none',
+    /*
+      The slide. Toast is the precedent — the same duration, the same pair of
+      starting/ending styles.
+
+      `transition-[translate,…]` and **not** `transition-transform`: Tailwind v4
+      compiles `translate-y-full` to the standalone `translate` property, not to
+      `transform`. Naming the wrong one animates nothing and looks like the
+      popup simply appearing. Same trap as `rotate-180` on the group chevron,
+      one property along. `transition-transform` would in fact work — v4 expands
+      it to `transform, translate, scale, rotate` — but it says something this
+      does not do, and opacity has to be in the list regardless.
+    */
+    'transition-[translate,opacity] duration-medium-min ease-standard',
+    'data-[starting-style]:translate-y-full data-[starting-style]:opacity-0',
+    'data-[ending-style]:translate-y-full data-[ending-style]:opacity-0',
+  ],
+})
+
 export type NavItemVariants = VariantProps<typeof navItem>
 export type NavItemSize = NonNullable<NavItemVariants['size']>
