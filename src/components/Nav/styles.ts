@@ -143,35 +143,30 @@ export const navSheet = tv({
     // finding, in Dialog's spelling.
     'outline-none',
     /*
-      The slide, and **translate only — no opacity**.
+      **It fades in and slides out, and that asymmetry is the decision.**
 
-      It faded as well at first, and that is what stopped it reading as a slide:
-      the sheet is transparent exactly while it is furthest down, so the travel
-      you are meant to see happens while there is nothing to see. Nathan's
-      reference is a plain slide in from the bottom, with no fade and no
-      overshoot. The backdrop still fades — that one is a dissolve by nature and
-      has nowhere to travel from.
+      The entrance was a slide from the bottom through several attempts and
+      never read right to Nathan — it kept looking like the sheet appeared
+      mid-screen and then shifted. The exit, animating the same distance with
+      the same curve, was right from the first try. The difference is what the
+      two are animating: the exit moves an element that has been on screen all
+      along, while the entrance moves a brand-new one, and a newly-inserted
+      element is exactly where transform animations are least dependable —
+      whether it is driven by a transition or by keyframes.
 
-      **A keyframe animation, not a transition, and that is the point.** A sheet
-      that enters is a brand-new element, and a CSS transition on one only runs
-      if the browser paints the starting style before it is removed. That is a
-      real and well-known fragility, and it is the difference between this and
-      the exit, which animates an element that has been on screen all along —
-      exactly the asymmetry Nathan saw, where the exit slid correctly and the
-      enter did not. An animation states its own `from`, so there is nothing to
-      miss.
+      Rather than keep chasing it, the entrance is now a plain fade. It is
+      honest about what it is, it cannot half-render, and it matches the
+      backdrop it arrives with — both on `duration-fast`, so the scrim and the
+      sheet resolve together instead of the sheet outlasting it.
 
-      `slide-in-from-bottom` / `slide-out-to-bottom` are motion primitives in
-      the token layer (`theme.css` section 4b), parameterised by the same
-      duration and easing tokens everything else here uses. They live there
-      because a keyframe cannot be written inline — Tailwind can only name one
-      that already exists in the stylesheet.
+      The exit keeps `duration-medium`: leaving is the one that benefits from
+      being readable, and it demonstrably works.
 
-      `duration-medium` (410ms) rather than Toast's `medium-min`: `ease-standard`
-      is steeply front-loaded, so a shorter duration spends most of its frames on
-      a settle nobody can see and reads as a snap.
+      Driven off Base UI's `data-open` / `data-closed`. The keyframes are motion
+      primitives in the token layer (`theme.css` section 4b) because Tailwind can
+      only name a keyframe that already exists in the stylesheet.
     */
-    'data-open:animate-slide-in-from-bottom',
+    'data-open:animate-fade-in',
     'data-closed:animate-slide-out-to-bottom',
   ],
 })
