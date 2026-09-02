@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from 'react'
+import { Children, isValidElement, useCallback, useMemo, useState } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { ChevronsUpDown } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
+import { dismissesOverlay } from './dismiss'
 import { navLayer, overlayLayer } from '../../lib/layers'
 import { Dialog } from '../Dialog'
 import { backdrop, viewport } from '../Dialog/styles'
@@ -47,6 +48,44 @@ import { navItem, navSheet, navSurface } from './styles'
  * same reason: the sheet is where the hand is, not where its trigger is.
  */
 
+/**
+ * The row the user is currently on, found in the tree the sheet was given.
+ *
+ * The trigger names where you are, and the sheet already knows: exactly one
+ * `NavItem` in it carries `selected`. Reading it from there rather than making
+ * the caller pass the same fact twice is what keeps the pill from disagreeing
+ * with the list — a nav that says "Home" while Inbox is highlighted is a bug
+ * nobody would write on purpose, and a duplicated prop is how it happens.
+ *
+ * Walks `SideNav.Section`, `SideNav.Group` and fragments alike by recursing
+ * through `children`, and stops at the first match.
+ */
+function findSelected(node: ReactNode): { label?: string; icon?: LucideIcon } | null {
+  let found: { label?: string; icon?: LucideIcon } | null = null
+  Children.forEach(node, (child) => {
+    if (found || !isValidElement(child)) return
+    const props = child.props as {
+      selected?: boolean
+      children?: ReactNode
+      startIcon?: LucideIcon
+    }
+    if (props.selected === true) {
+      found = {
+        // Only a string is usable as a trigger label; anything richer is the
+        // caller's own composition and cannot be flattened honestly.
+        label: typeof props.children === 'string' ? props.children : undefined,
+        icon: props.startIcon,
+      }
+      return
+    }
+    if (props.children != null) {
+      const deeper = findSelected(props.children)
+      if (deeper) found = deeper
+    }
+  })
+  return found
+}
+
 const bar = {
   // min-h-14 = height/h-14 (56px). gap-4 = spacing/4 (16), px-3 = spacing/3,
   // py-2 = spacing/2 — Figma's 8/12/8/12. `rounded-lg` and the fill come from
@@ -80,13 +119,19 @@ export interface MobileNavProps
   /** The brand mark, in the 40px square at the start of the bar. */
   logo?: ReactNode
   /**
-   * The section you are currently in, which is what the trigger pill reads.
-   * It is a label rather than a lookup: the bar cannot know which of the rows
-   * in the sheet is selected without inspecting children, and a prop that says
-   * it is both simpler and honest.
+   * What the trigger pill reads.
+   *
+   * **Optional, and usually best left out.** By default it is taken from the
+   * `NavItem` in `children` that carries `selected`, so the pill follows the
+   * user wherever they navigate without anything being kept in sync by hand.
+   * Pass it only to override that — for a label that differs from the row's own
+   * text, or a tree with no selected row.
    */
-  section: string
-  /** The glyph beside that label. Figma draws `house`. */
+  section?: string
+  /**
+   * The glyph beside that label. Also derived from the selected row's
+   * `startIcon` when omitted. Figma draws `house`.
+   */
   sectionIcon?: LucideIcon
   /** The icon buttons at the end of the bar. They default to `size="small"`. */
   utilities?: ReactNode
@@ -163,6 +208,14 @@ export function MobileNav({
 
   const label = props['aria-label']
 
+  /*
+    Derived unless overridden. `children` is the same tree the rail would take,
+    so the selected row is already in it and there is nothing to keep in step.
+  */
+  const selected = useMemo(() => findSelected(children), [children])
+  const resolvedSection = section ?? selected?.label
+  const resolvedIcon = sectionIcon ?? selected?.icon
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <nav
@@ -195,14 +248,21 @@ export function MobileNav({
             // Figma: FILL with layoutGrow 1 — the pill absorbs everything left
             // between the logo and the utilities.
           >
-            {sectionIcon ? (
+            {resolvedIcon ? (
               <span className="flex size-6 shrink-0 items-center justify-center">
-                <Icon icon={sectionIcon} />
+                <Icon icon={resolvedIcon} />
               </span>
             ) : null}
             {/* truncate, and Figma agrees: the trigger's label is the one text
                 in the family set to ENDING truncation with maxLines 1. */}
-            <span className="min-w-0 flex-1 truncate px-1 text-left">{section}</span>
+            {/*
+              No label at all means neither a `section` nor a selected row was
+              given. The pill still has to say something, so the landmark's own
+              name stands in rather than leaving an unnamed button.
+            */}
+            <span className="min-w-0 flex-1 truncate px-1 text-left">
+              {resolvedSection ?? label}
+            </span>
             {/* `chevrons-up-down`, the stepper glyph — not a disclosure
                 chevron. It is the one part of the pill on Nav Content/Subtle. */}
             <Icon icon={ChevronsUpDown} className="shrink-0 text-nav-content-subtle" />
@@ -280,7 +340,9 @@ export function MobileNav({
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
               <div
                 className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
-                onClick={() => setOpen(false)}
+                onClick={(event) => {
+                  if (dismissesOverlay(event)) setOpen(false)
+                }}
               >
                 {children}
               </div>

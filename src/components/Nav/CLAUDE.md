@@ -322,6 +322,32 @@ already declined for group labels.
 **Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
 Dialog has no drag affordance — it would be an invention, not a port.
 
+### A disclosure inside an overlay is not a departure
+
+Both overlays dismiss themselves when you pick a row — one still standing over the page after you
+have followed a link out of it is what makes the pattern feel broken. The first version did that on
+**any** click inside, which meant a `SideNav.Group` in the sheet could not be collapsed at all: it
+dismissed instead of folding. Nathan found it in the sheet; the flyout had the same latent bug and is
+fixed with it.
+
+`aria-expanded` is the test, in `dismiss.ts`, and it is the right one rather than a convenience —
+it is precisely the attribute marking a control as toggling something rather than going somewhere.
+Anything carrying it stays; everything else is navigation and dismisses.
+
+### The trigger is derived, not declared
+
+`MobileNav`'s pill names where you are, and the sheet already knows: exactly one `NavItem` in it
+carries `selected`. `section` and `sectionIcon` are now optional and read from that row by default.
+
+Making the caller pass the same fact twice is how a nav ends up saying "Home" while Inbox is
+highlighted — a bug nobody writes on purpose and that a duplicated prop invites. The props remain as
+overrides for a label that differs from the row's own text, or a tree with no selected row; with
+neither, the landmark's own name stands in rather than leaving an unnamed button.
+
+`findSelected` recurses through `children`, so `SideNav.Section`, `SideNav.Group` and fragments all
+work, and it stops at the first match. Only a **string** child is usable — anything richer is the
+caller's own composition and cannot be flattened honestly.
+
 ### It fades in and slides out, and the asymmetry is the decision
 
 The entrance was a slide from the bottom through four attempts and never read right. The exit — same

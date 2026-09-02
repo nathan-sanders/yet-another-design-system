@@ -5,6 +5,7 @@ import { PanelLeft } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
+import { dismissesOverlay } from './dismiss'
 import { Popover } from '../Popover'
 import { Tooltip } from '../Tooltip'
 import { NavContext, type NavContextValue } from './context'
@@ -401,7 +402,12 @@ function SideNavGroup({
           <span className="px-3 py-1 text-sm text-nav-content-subtle">{label}</span>
           <NavContext.Provider value={flyoutCtx}>
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-            <div className="flex flex-col" onClick={() => setFlyoutOpen(false)}>
+            <div
+              className="flex flex-col"
+              onClick={(event) => {
+                if (dismissesOverlay(event)) setFlyoutOpen(false)
+              }}
+            >
               {children}
             </div>
           </NavContext.Provider>
