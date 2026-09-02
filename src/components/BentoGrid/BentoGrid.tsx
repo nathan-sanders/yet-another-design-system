@@ -60,8 +60,14 @@ const bentoGrid = tv({
       4: 'md:grid-cols-4',
     },
 
-    /** The gutter, on both axes. spacing/4 and spacing/6. */
+    /**
+     * The gutter, on both axes. spacing/2, spacing/4 and spacing/6. `tight` is
+     * the same 8px MetricGrid calls `tight`, and for the same use: a dense
+     * board of small tiles, where 16px between them reads as drift rather than
+     * separation.
+     */
     gap: {
+      tight: 'gap-2',
       default: 'gap-4',
       loose: 'gap-6',
     },

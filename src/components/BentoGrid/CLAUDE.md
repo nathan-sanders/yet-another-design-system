@@ -19,8 +19,12 @@ Each one is a bento principle with somewhere to live, rather than a knob:
 
 - **`columns` 2 | 3 | 4, default 4** — four is the count that divides, so halves and quarters both
   land and an anchor cell can sit beside two tiles with no leftover.
-- **`gap` default | loose** — `spacing/4` and `spacing/6`, one value on both axes, so a 2-wide cell
-  is exactly two tiles plus one gutter and the mosaic stays on its grid.
+- **`gap` tight | default | loose** — `spacing/2`, `spacing/4` and `spacing/6`, one value on both
+  axes, so a 2-wide cell is exactly two tiles plus one gutter and the mosaic stays on its grid.
+  `tight` is the same 8px `MetricGrid` calls `tight`, and it is named for it: the two grids are
+  siblings, and the ask here was for a "small" gap, which would have made `gap` the one place in the
+  library where `small` means a gutter rather than a control height. Reach for it on a dense board of
+  small tiles, where 16px starts to read as drift rather than separation.
 - **`colSpan` 1–4 and `rowSpan` 1–3 on the Cell** — the varied box sizes hierarchy is made of.
 
 **Everything is written behind `md:`, including the column count.** The base is `grid-cols-1`, so

@@ -14,7 +14,7 @@ const meta = {
   component: BentoGrid,
   argTypes: {
     columns: { control: 'inline-radio', options: columns },
-    gap: { control: 'inline-radio', options: ['default', 'loose'] },
+    gap: { control: 'inline-radio', options: ['tight', 'default', 'loose'] },
   },
   args: {
     columns: 4,
@@ -94,15 +94,19 @@ export const Columns: Story = {
 }
 
 /**
- * The two gutters — `spacing/4` and `spacing/6`. One value for both axes, so a
- * cell spanning two columns is exactly two tiles plus one gap wide and the
- * mosaic stays on its grid.
+ * The three gutters — `spacing/2`, `spacing/4` and `spacing/6`. One value for
+ * both axes, so a cell spanning two columns is exactly two tiles plus one gap
+ * wide and the mosaic stays on its grid.
+ *
+ * `tight` is the 8px `MetricGrid` calls `tight`, and it is for the same thing:
+ * a dense board of small tiles, where 16px between them starts to read as drift
+ * rather than separation.
  */
 export const Gap: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col gap-8">
-      {(['default', 'loose'] as const).map((gap) => (
+      {(['tight', 'default', 'loose'] as const).map((gap) => (
         <div key={gap} className="flex flex-col gap-2">
           <span className="text-sm text-content-subtle">gap={gap}</span>
           <BentoGrid columns={3} gap={gap}>
