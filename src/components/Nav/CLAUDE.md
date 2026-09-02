@@ -12,6 +12,9 @@ either. The same reason `Card/styles.ts` and `Menu/styles.ts` exist.
 | Nav Section List (`Collapsed`) | `40004504:29320` | `SideNav.Section` |
 | Nav Section Header (`Collapsed`) | `40004511:33365` | `SideNav.Section`'s `header` prop |
 | Top Navigation (`Floating`) | `40004511:34404` | `TopNav` |
+| Mobile Navigation (`Floating`) | `40004531:35584` | `MobileNav` |
+| Mobile Nav Section Trigger | `40004531:35355` | the pill inside it, not exported |
+| Mobile Navigation Popover | `40004531:35587` | its bottom sheet, not exported |
 | Status → the `New Indicator` boolean | `40004485:27341` | `NavItem`'s `newIndicator` prop |
 
 The file moved under this component on 2026-09-01, after the first version landed. `Nav Item` gained
@@ -227,9 +230,12 @@ focus inner border, a token decision rather than a component one. Worth raising 
 tier is opened. (Figma draws that ring at `rounded-md` while the item is `rounded-lg`; `ring` follows
 the element's own radius, which is the better answer, so it was not copied.)
 
-**No collapse or responsive menu on `TopNav`.** Figma draws neither, and both are decisions rather
-than omissions — which breakpoint, whether the list becomes a `Menu` or a drawer, what happens to the
-utilities. Guessing would put a component in the library that no design agreed to.
+**No collapse or responsive menu on `TopNav`, and there will not be one.** This entry used to say
+Figma drew neither and that guessing which breakpoint, and whether the list became a `Menu` or a
+drawer, would put a component in the library no design agreed to. Figma has since answered — and the
+answer was not a narrower `TopNav`. It is `MobileNav`: a different bar, with a section trigger and a
+bottom sheet. So `TopNav` keeps its single shape, and a responsive app swaps the component rather
+than collapsing this one.
 
 ## Measured
 
@@ -260,6 +266,142 @@ At `neutral-inverse` on Stone, against the Figma frames:
 **Contrast: 46 mode × theme × ramp combinations, none below 4.5:1**, worst 4.82 (`nav-content-subtle`
 on `blue`). Swept by compositing each token over what is actually behind it and computing the WCAG
 ratio, because `npm test` runs axe only at the default ramp and none of these modes is the default.
+
+## MobileNav
+
+**It is the component `TopNav`'s record was waiting for.** That one left a responsive collapse undone
+because which breakpoint and what it collapses into were questions Figma had not answered. It has
+now, and the answer is not a narrower `TopNav` — it is a different bar, with a section trigger and a
+sheet behind it. `children` are the sheet's contents, and they are the *same* `SideNav.Section` and
+`NavItem` tree the rail takes, so a responsive app writes its navigation once.
+
+**It positions itself, which nothing else in this family does.** `SideNav`, `TopNav` and `TopBar` are
+all placed by the application on the grounds that a nav does not know what is beside it. A phone nav
+pinned to a viewport edge is close to the definition of the thing, and Figma's example frames pin it
+with constraints, so `placement` (`bottom` default, `top`) applies `fixed inset-x-2` and the 8px
+inset the file draws. Agreed with Nathan as a deliberate break from the rule.
+
+**No `w-full` on the bar, and the reason is not obvious.** `placement` pins it with `inset-x-2`, and
+a width of 100% *alongside* a left/right pair over-constrains the box — the browser keeps `left`,
+drops `right`, and the bar runs past the edge it was meant to be inset from. Measured that way before
+it came out: 358 wide in a 358 box, hanging 7px off the right. The insets size it now.
+
+**A second stacking layer.** `lib/layers.ts` grew `navLayer = 'z-30'`. The bar has to sit *under* the
+scrim of its own sheet — Figma's bottom placement draws the open sheet covering it — so it cannot
+share `overlayLayer`, and it cannot sit on `auto` either or a page's own `z-10` punches through it.
+Below the popups, above the page.
+
+**The trigger pill is the `navItem` recipe, not the `NavItem` component.** Its fill, border and
+semibold label are exactly what `selected: true` draws, and Figma binds precisely those two tokens.
+But `NavItem`'s `selected` also sets `aria-current="page"`, and this is a disclosure button that
+opens a dialog, not the entry for the page you are on. Taking the recipe keeps the look and drops the
+wrong ARIA; Base UI supplies `aria-haspopup="dialog"` and `aria-expanded` instead. Same call the
+`SideNav.Group` flyout trigger makes, from the other direction.
+
+**The sheet composes Dialog's raw parts, because `Dialog.Popup` cannot be a bottom sheet.** That
+wrapper hardcodes centring on a `Viewport` that takes no `className`, so no caller can move it —
+`Dialog.tsx` says the raw parts exist for "the shapes the wrappers above cannot express", and this is
+one. The cost of going raw is that `overlayLayer` has to be re-applied to both fixed siblings by
+hand, exactly as `DialogPopup` does; `backdrop()` and `viewport()` are imported from
+`Dialog/styles.ts`, which exports them at module level even though the barrel does not.
+
+**A visible scrim, which Figma does not draw.** The sheet is modal either way — focus trapped,
+Escape closes, the page behind inert — and the dim is the only thing that shows it. Undimmed,
+content that cannot be touched still looks like it can. Agreed with Nathan; it is one line
+(`backdrop()`) to drop back if the file wins.
+
+**The sheet is capped and scrolls, which Figma also does not draw.** Its popover HUGs with no max
+height at all; enough sections would push it off the top of the screen, taking the first one with it.
+`max-h-[85dvh]` with the sections scrolling inside. Note the `dvh` resolves against the *viewport*,
+not a story's phone frame — correct on a phone, generous in Storybook.
+
+**Named by the bar's `aria-label`, not a `Dialog.Title`.** Figma draws no title; the sheet opens
+straight onto its first section header. A Title renders a real heading, which `SideNav.Section`
+already declined for group labels.
+
+**Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
+Dialog has no drag affordance — it would be an invention, not a port.
+
+### It fades in and slides out, and the asymmetry is the decision
+
+The entrance was a slide from the bottom through four attempts and never read right. The exit — same
+distance, same curve, same keyframes — was right the first time and every time after. That difference
+is the whole finding, and it is not arbitrary: **the exit animates an element that has been on screen
+all along, while the entrance animates a brand-new one.** A newly-inserted element is exactly where
+transform animations are least dependable, whether driven by a transition or by keyframes, and Base
+UI's `data-starting-style` exists to paper over that and was not enough here.
+
+So the entrance is a plain fade, at Nathan's call after the fourth attempt. It is honest about what it
+is, it cannot half-render, and it shares `duration-fast` with the backdrop so the scrim and the sheet
+resolve together instead of one outlasting the other. The exit keeps `duration-medium`: leaving is the
+motion that benefits from being readable, and it demonstrably works.
+
+Measured: enter is `fade-in`, 175ms, opacity 0 → 1 over 22 steps with `transform: none` and the
+sheet's top fixed at 359 throughout — no movement at all, which is the point. Exit is
+`slide-out-to-bottom` over 50 distinct transforms.
+
+There is deliberately no `slide-in-from-bottom` left in the token layer. It was written, it went
+unused, and an unused token is worse than an absent one.
+
+### Motion cannot be verified from here, and it cost four attempts
+
+Three "fixed" claims were made on instruments that cannot see this animation. **Headless capture is
+blind to it**: `page.screenshot` (including with `animations: 'allow'`), a paused-and-scrubbed
+timeline, and a CDP screencast all showed the sheet at its settled position for the entire run, under
+both a transition and keyframes. The control that proves the captures are the unreliable half — a
+*static* transform on the same element renders correctly in the same tooling and moves the sheet
+200px on demand.
+
+`getComputedStyle()` and `getAnimations()` establish only that the browser *intends* to animate.
+Neither is evidence that motion reaches a screen. Base UI's popup compounds it: mid-animation its
+computed transform read `matrix(1,0,0,1,0,326)` while `getBoundingClientRect` stayed at the settled
+359 — the signature of a compositor-promoted animation, which an isolated repro of the same CSS did
+**not** show.
+
+**A person looking at a real browser is the only check that counts for motion here.** Do not report
+an animation fixed on the strength of anything in this list.
+
+### The bar moved when the sheet opened, and it was not animating
+
+Nathan caught this: with the bar at the **top**, opening the sheet slid the bar in as well. It looks
+wrong immediately and it is worth writing down, because the bar had no animation of its own — nothing
+in its own styles was ever going to explain it.
+
+The chain, measured rather than guessed:
+
+1. An element translated 100% out of view **still takes up layout**. Entering, the sheet hung a
+   screen's height below the viewport and enlarged the scrollable area behind it: the container's
+   `scrollHeight` went 678 → **1066** the instant it mounted.
+2. Base UI focused the popup, so the browser scrolled to bring it into view — `scrollTop` → **388**.
+3. A `fixed` element resolves against the nearest ancestor carrying a `transform`, and scrolls with
+   that box. So the bar travelled with it, back down to rest as the sheet slid up and the overflow
+   shrank away.
+
+The tell that settles it: `navTop + scrollTop` was **constant** across every frame. The bar was not
+sliding, it was being scrolled.
+
+The fix is `overflow-hidden` on the Viewport, which stops the off-screen sheet creating any overflow
+to scroll to. It is also just correct — a sheet has no business rendering outside the screen it is
+sliding onto. Verified after: the bar holds one position across every frame of both the open and the
+close, in both placements, while the sheet still runs its 39 interpolated steps in and 38 out.
+
+**Not a story artefact, though a story is where it showed.** The phone frame's `transform` is what
+made the bar resolve against a scrollable box, so portalling to `<body>` on a real phone would have
+hidden it — Base UI locks body scroll. The overflow was real either way, and worth removing at the
+source rather than papering over in the story.
+
+### The measurement that nearly filed a working animation as broken
+
+`getBoundingClientRect()` does **not** reflect the standalone `translate` property mid-transition.
+Sampled in the *same* animation frames, the rect gave 3 distinct values while `getComputedStyle().translate`
+gave 39 — and at the fourth frame the rect already read the settled position while the element was
+still 89% off-screen. The first pass read the rect, saw two values, and concluded the sheet was
+snapping into place.
+
+Read `getComputedStyle(el).translate`, or `el.getAnimations()`, which reported two running
+`CSSTransition`s (`translate` and `opacity`) over 310ms. Related, and the same family: Tailwind v4
+compiles `translate-y-full` to `translate`, not `transform`, so the transition has to name
+`translate` — `transition-transform` happens to work only because v4 expands it to all four.
 
 ## The frame around it
 

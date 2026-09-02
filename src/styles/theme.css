@@ -1225,6 +1225,36 @@
   --icon-stroke-weight: 1.5;
 }
 
+/* ---- 4b. Motion primitives. Keyframes, which the duration and easing ---- */
+/*     tokens above parameterise. Here rather than in a component because a  */
+/*     keyframe cannot be written inline: Tailwind can only reference one    */
+/*     that already exists in the stylesheet.                                */
+/*                                                                           */
+/*     A sheet that enters is a NEW element, and a CSS transition on one is  */
+/*     only as reliable as the browser's willingness to paint its starting   */
+/*     style first. An animation states its own `from`, so it does not care. */
+/*     `transform: translateY()`, not the standalone `translate` property —   */
+/*     `transform` is the path every browser composites reliably.            */
+/*                                                                           */
+/*     There is no `slide-in-from-bottom` to pair with the slide out, and    */
+/*     that asymmetry is deliberate: an entering sheet fades, a leaving one  */
+/*     slides. See src/components/Nav/CLAUDE.md for why the entrance is not  */
+/*     the exit reversed.                                                    */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-out-to-bottom {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+@theme {
+  --animate-fade-in: fade-in var(--transition-duration-fast) var(--ease-standard) both;
+  --animate-slide-out-to-bottom: slide-out-to-bottom var(--transition-duration-medium) var(--ease-standard) both;
+}
+
 /* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */
 /*    replacing animation with an instant state change. Applied globally    */
 /*    so no component has to remember to.                                   */
