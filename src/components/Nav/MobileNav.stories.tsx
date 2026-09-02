@@ -168,6 +168,91 @@ export const Docked: Story = {
 }
 
 /**
+ * The two things the trigger and the sheet have to get right together.
+ *
+ * **Pick a row and the pill follows it.** `section` and `sectionIcon` are not
+ * passed here at all — they are read from whichever `NavItem` carries
+ * `selected`, so the pill cannot end up saying "Home" while Inbox is
+ * highlighted. That is the failure a duplicated prop invites, and the reason
+ * this is derived rather than declared.
+ *
+ * **Collapsing a group does not dismiss the sheet.** Press *Atlas* and it folds
+ * in place. Both overlays used to close on any click inside, which meant a
+ * parent section could not be collapsed at all — only dismissed. `aria-expanded`
+ * is what separates a disclosure from a departure.
+ */
+export const LiveSelection: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [current, setCurrent] = useState('Home')
+    const pages = [
+      { label: 'Home', icon: House },
+      { label: 'Inbox', icon: Inbox },
+      { label: 'Analytics', icon: ChartNoAxesColumn },
+    ]
+    return (
+      <Phone label="pick a row — the pill follows it">
+        {(frame) => (
+          <MobileNav
+            {...args}
+            container={frame}
+            section={undefined}
+            sectionIcon={undefined}
+          >
+            <SideNav.Section header="Workspace">
+              {pages.map((p) => (
+                <NavItem
+                  key={p.label}
+                  startIcon={p.icon}
+                  selected={current === p.label}
+                  onClick={() => setCurrent(p.label)}
+                >
+                  {p.label}
+                </NavItem>
+              ))}
+            </SideNav.Section>
+            <SideNav.Section header="Projects">
+              <SideNav.Group label="Atlas" startIcon={Folder} defaultOpen>
+                {['Overview', 'Tasks'].map((l) => (
+                  <NavItem key={l} selected={current === l} onClick={() => setCurrent(l)}>
+                    {l}
+                  </NavItem>
+                ))}
+              </SideNav.Group>
+              <NavItem
+                startIcon={Users}
+                selected={current === 'Team'}
+                onClick={() => setCurrent('Team')}
+              >
+                Team
+              </NavItem>
+            </SideNav.Section>
+          </MobileNav>
+        )}
+      </Phone>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(await canvas.findByRole('button', { name: /Home/ }))
+    const sheet = await within(canvasElement).findByRole('dialog')
+    await waitFor(() => expect(sheet).toBeVisible())
+
+    // Collapsing a group must fold it, not dismiss the sheet.
+    const group = within(sheet).getByRole('button', { name: 'Atlas' })
+    await userEvent.click(group)
+    await expect(sheet).toBeVisible()
+    await waitFor(() => expect(group).toHaveAttribute('aria-expanded', 'false'))
+
+    // Picking a row does dismiss it, and the trigger takes that row's name.
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Inbox' }))
+    await waitFor(() => expect(within(canvasElement).queryByRole('dialog')).toBeNull())
+    await expect(await canvas.findByRole('button', { name: /Inbox/ })).toBeVisible()
+  },
+}
+
+/**
  * The sheet, opened by the play function rather than by `defaultOpen`.
  *
  * A modal dialog `aria-hidden`s the rest of the page while it is open, so a
