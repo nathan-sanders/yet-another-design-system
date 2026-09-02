@@ -322,6 +322,35 @@ already declined for group labels.
 **Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
 Dialog has no drag affordance — it would be an invention, not a port.
 
+### The bar moved when the sheet opened, and it was not animating
+
+Nathan caught this: with the bar at the **top**, opening the sheet slid the bar in as well. It looks
+wrong immediately and it is worth writing down, because the bar had no animation of its own — nothing
+in its own styles was ever going to explain it.
+
+The chain, measured rather than guessed:
+
+1. An element translated 100% out of view **still takes up layout**. Entering, the sheet hung a
+   screen's height below the viewport and enlarged the scrollable area behind it: the container's
+   `scrollHeight` went 678 → **1066** the instant it mounted.
+2. Base UI focused the popup, so the browser scrolled to bring it into view — `scrollTop` → **388**.
+3. A `fixed` element resolves against the nearest ancestor carrying a `transform`, and scrolls with
+   that box. So the bar travelled with it, back down to rest as the sheet slid up and the overflow
+   shrank away.
+
+The tell that settles it: `navTop + scrollTop` was **constant** across every frame. The bar was not
+sliding, it was being scrolled.
+
+The fix is `overflow-hidden` on the Viewport, which stops the off-screen sheet creating any overflow
+to scroll to. It is also just correct — a sheet has no business rendering outside the screen it is
+sliding onto. Verified after: the bar holds one position across every frame of both the open and the
+close, in both placements, while the sheet still runs its 39 interpolated steps in and 38 out.
+
+**Not a story artefact, though a story is where it showed.** The phone frame's `transform` is what
+made the bar resolve against a scrollable box, so portalling to `<body>` on a real phone would have
+hidden it — Base UI locks body scroll. The overflow was real either way, and worth removing at the
+source rather than papering over in the story.
+
 ### The measurement that nearly filed a working animation as broken
 
 `getBoundingClientRect()` does **not** reflect the standalone `translate` property mid-transition.

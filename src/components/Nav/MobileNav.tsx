@@ -239,8 +239,26 @@ export function MobileNav({
           `items-end` bottom-anchors the sheet where Dialog's viewport centres
           it, and `p-0` lets it run full-bleed to the screen edges. Both merge
           over the shared recipe rather than forking it.
+
+          **`overflow-hidden` is the one that stops the bar moving.** An element
+          translated 100% out of view still takes up layout: entering, the sheet
+          hangs a screen's height below the viewport and enlarges the scrollable
+          area behind it. Base UI then focuses the popup, the browser scrolls to
+          bring it into view, and everything anchored to that scroll box travels
+          — including a `fixed` bar, which resolves against the same box
+          whenever an ancestor carries a transform.
+
+          Measured before the fix: the container's `scrollHeight` went 678 →
+          1066 the instant the sheet mounted, `scrollTop` jumped to 388, and the
+          bar's top tracked it exactly (`navTop + scrollTop` constant) all the
+          way back down as the sheet slid up. The bar had no animation of its
+          own the entire time — it was being dragged by a scroll the sheet
+          caused.
+
+          Clipping here is also just correct: the sheet has no business
+          rendering outside the screen it is sliding onto.
         */}
-        <Dialog.Viewport className={cn(viewport(), overlayLayer, 'items-end p-0')}>
+        <Dialog.Viewport className={cn(viewport(), overlayLayer, 'items-end overflow-hidden p-0')}>
           {/*
             Named by the bar's own `aria-label` rather than a `Dialog.Title`.
             Figma draws no title — the sheet opens straight onto its first
