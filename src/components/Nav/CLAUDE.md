@@ -322,60 +322,44 @@ already declined for group labels.
 **Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
 Dialog has no drag affordance — it would be an invention, not a port.
 
-### The enter is a keyframe animation, and the exit told us why it had to be
+### It fades in and slides out, and the asymmetry is the decision
 
-Nathan's report was precise and it is the whole diagnosis: **the exit slid correctly and the enter
-did not.** Both used the same value, the same easing and the same duration, so the difference could
-only be in what the two are doing.
+The entrance was a slide from the bottom through four attempts and never read right. The exit — same
+distance, same curve, same keyframes — was right the first time and every time after. That difference
+is the whole finding, and it is not arbitrary: **the exit animates an element that has been on screen
+all along, while the entrance animates a brand-new one.** A newly-inserted element is exactly where
+transform animations are least dependable, whether driven by a transition or by keyframes, and Base
+UI's `data-starting-style` exists to paper over that and was not enough here.
 
-The exit animates an element that has been on screen all along. The enter animates a **brand-new**
-one — and a CSS transition on a newly-inserted element only runs if the browser paints its starting
-style before that style is removed. That is a real and well-known fragility, and Base UI's
-`data-starting-style` exists to paper over it. It is evidently not enough here.
+So the entrance is a plain fade, at Nathan's call after the fourth attempt. It is honest about what it
+is, it cannot half-render, and it shares `duration-fast` with the backdrop so the scrim and the sheet
+resolve together instead of one outlasting the other. The exit keeps `duration-medium`: leaving is the
+motion that benefits from being readable, and it demonstrably works.
 
-A keyframe animation states its own `from`, so there is nothing to miss. `slide-in-from-bottom` and
-`slide-out-to-bottom` are motion primitives in the token layer (`theme.css` section 4b), driven off
-Base UI's `data-open` / `data-closed` and parameterised by the same duration and easing tokens as
-everything else. They live in the token layer because a keyframe cannot be written inline — Tailwind
-can only name one that already exists in the stylesheet.
+Measured: enter is `fade-in`, 175ms, opacity 0 → 1 over 22 steps with `transform: none` and the
+sheet's top fixed at 359 throughout — no movement at all, which is the point. Exit is
+`slide-out-to-bottom` over 50 distinct transforms.
 
-**No overshoot.** `ease-standard` does not overshoot mathematically (both its control points sit at
-y=1, so its output stays within 0..1), and the keyframes travel plainly from 100% to 0.
+There is deliberately no `slide-in-from-bottom` left in the token layer. It was written, it went
+unused, and an unused token is worse than an absent one.
 
-### What could not be verified from here, and it is worth knowing before the next attempt
+### Motion cannot be verified from here, and it cost four attempts
 
-Three capture methods — `page.screenshot`, a paused-and-scrubbed timeline, and a CDP screencast —
-all showed the sheet at its **settled** position for the whole animation, under both a transition and
-a keyframe animation. A *static* `translate` on the same element rendered correctly in the same
-tooling, which is what proves the captures are the unreliable part rather than the CSS.
+Three "fixed" claims were made on instruments that cannot see this animation. **Headless capture is
+blind to it**: `page.screenshot` (including with `animations: 'allow'`), a paused-and-scrubbed
+timeline, and a CDP screencast all showed the sheet at its settled position for the entire run, under
+both a transition and keyframes. The control that proves the captures are the unreliable half — a
+*static* transform on the same element renders correctly in the same tooling and moves the sheet
+200px on demand.
 
-So headless capture cannot confirm this animation. `getComputedStyle().translate` and
-`getAnimations()` both report it running correctly, and neither is evidence of what reaches a screen.
-**The only reliable check is a person looking at a real browser.** Two "fixed" claims were made here
-on the strength of instruments that could not see the thing they were measuring; do not make a third
-that way.
+`getComputedStyle()` and `getAnimations()` establish only that the browser *intends* to animate.
+Neither is evidence that motion reaches a screen. Base UI's popup compounds it: mid-animation its
+computed transform read `matrix(1,0,0,1,0,326)` while `getBoundingClientRect` stayed at the settled
+359 — the signature of a compositor-promoted animation, which an isolated repro of the same CSS did
+**not** show.
 
-### The fade was hiding the slide
-
-Nathan's prototype is a Figma **Move In** — the sheet travels and does not fade. The first version
-here animated `translate` *and* `opacity` together, copying Toast, and that is what stopped it
-reading as a slide: the sheet is transparent exactly while it is furthest down, so the travel you are
-meant to see happens while there is nothing to see, and it arrives looking like a dissolve.
-
-Translate only now. The backdrop still fades, which is deliberate rather than an inconsistency — a
-scrim is a dissolve by nature and has nowhere to travel from.
-
-`duration-medium` (410ms) rather than Toast's `medium-min` (310). `ease-standard` is steeply
-front-loaded — measured at **49% of the distance in the first 60ms**, 80% by 120ms — so a short
-duration spends most of its frames on a settle nobody can see, and the motion reads as a snap. The
-extra 100ms is what makes the travel legible rather than what makes it slower.
-
-The start point is worth pinning because the rect cannot show it (see below): the sheet is 388 tall
-and settles flush to the bottom edge, so `translate-y-full` puts its top at exactly the viewport
-bottom — **fully off-screen**, computed rather than eyeballed.
-
-If it still wants tuning, the only lever left is a second easing curve. The library has exactly one,
-`ease-standard`, and adding another is a token decision rather than a component one.
+**A person looking at a real browser is the only check that counts for motion here.** Do not report
+an animation fixed on the strength of anything in this list.
 
 ### The bar moved when the sheet opened, and it was not animating
 
