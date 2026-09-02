@@ -24,7 +24,7 @@ import { SideNav } from './SideNav'
  * Its colors come from the **navigation theme** tier, which is switched by
  * `<html data-nav-theme="…">` — the **Nav** toolbar above. Six of the seven
  * modes are absolute, so switching **Theme** to Dark moves the page around a
- * rail that does not move with it. `transparent` is the one that follows, and
+ * rail that does not move with it. `canvas` is the one that follows, and
  * the two neutral modes follow the **Neutral** ramp as well.
  */
 const meta = {

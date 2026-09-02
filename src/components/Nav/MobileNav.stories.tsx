@@ -86,7 +86,7 @@ const utilities = (
  * sheet behind it.
  *
  * Its colors come from the **navigation theme** tier, so the **Nav** toolbar
- * moves it through all seven modes and only `transparent` follows light/dark.
+ * moves it through all seven modes and only `canvas` follows light/dark.
  */
 const meta = {
   title: 'Components/MobileNav',

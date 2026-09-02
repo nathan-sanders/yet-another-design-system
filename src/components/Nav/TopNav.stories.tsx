@@ -12,7 +12,7 @@ import { TopNav } from './TopNav'
  * commerce site, which is the case that has no side rail at all.
  *
  * Same navigation theme tier as `SideNav`, so the **Nav** toolbar moves it
- * through the seven modes and only `transparent` follows light/dark.
+ * through the seven modes and only `canvas` follows light/dark.
  */
 const meta = {
   title: 'Components/TopNav',
@@ -99,10 +99,11 @@ export const IconUtilities: Story = {
 }
 
 /**
- * `floating={false}` on the `transparent` nav theme — the combination the
- * marketing example in the docs frame draws. The shadow goes and the surface
- * dissolves into the canvas, leaving only the selected pill to say where you
- * are. Switch the **Nav** toolbar to Transparent to see it as drawn.
+ * `floating={false}` on the `canvas` nav theme — the combination the marketing
+ * example in the docs frame draws. The shadow goes and the bar takes the page's
+ * own background colour, so it sits flush with the page and only the selected
+ * pill says where you are. Switch the **Nav** toolbar to Canvas to see it as
+ * drawn.
  */
 export const Docked: Story = {
   parameters: { controls: { disable: true } },
@@ -128,8 +129,8 @@ export const Docked: Story = {
 }
 
 /**
- * Over the page it navigates. On `transparent` — the **Nav** toolbar's last
- * mode — the bar dissolves into the canvas and follows light and dark like
+ * Over the page it navigates. On `canvas` — the **Nav** toolbar's last mode —
+ * the bar paints the page's own background and follows light and dark like
  * everything else, which is the mode a marketing site usually wants.
  */
 export const InContext: Story = {

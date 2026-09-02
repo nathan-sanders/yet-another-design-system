@@ -42,14 +42,18 @@ NEUTRAL_ROLE = "Stone"
 # A second swappable collection, and deliberately NOT built like the neutral
 # one. Six of its seven modes are absolute: a nav on "neutral" is white in dark
 # mode too, because a navigation surface is a brand decision, not a reading
-# preference. Only "transparent" aliases back into the semantic layer, so only
-# that mode follows .dark -- which falls out for free, since those aliases
-# resolve to --surface-* / --content-* and .dark redefines those on the same
-# <html> element.
+# preference. Only "canvas" aliases back into the semantic layer, so only that
+# mode follows .dark -- which falls out for free, since those aliases resolve to
+# --surface-* / --content-* and .dark redefines those on the same <html> element.
+#
+# "canvas" was called "transparent" and its Background was Surface/Canvas at
+# alpha 0, so the bar dissolved into the page. It is the canvas colour itself
+# now: the nav sits flush with the page rather than disappearing into it, which
+# is what the new name says. Renamed in Figma 2026-09-02.
 #
 # The order is Figma's, and the first entry is Figma's default mode.
 NAV_MODES = ["neutral-inverse", "neutral", "blue-inverse", "blue",
-             "purple-inverse", "purple", "transparent"]
+             "purple-inverse", "purple", "canvas"]
 
 def load(name):
     with open(os.path.join(T, name)) as f:
@@ -479,7 +483,7 @@ out.append("/*                                                                  
 out.append("/*     Sits AFTER the semantic block on purpose. Six of the modes are absolute   */")
 out.append("/*     -- a nav on \"neutral\" stays white in dark mode, because a navigation      */")
 out.append("/*     surface is a brand decision and not a reading preference. Only            */")
-out.append("/*     \"transparent\" aliases --surface-* / --content-*, and so only that mode    */")
+out.append("/*     \"canvas\" aliases --surface-* / --content-*, and so only that mode         */")
 out.append("/*     follows .dark. That asymmetry is the design, not an oversight.            */")
 out.append("/*                                                                              */")
 out.append("/*     The neutral modes alias Figma's Neutral Palette, which is this file's     */")

@@ -198,7 +198,7 @@ collection. So "does the id still resolve" is not a deletion test — check
 A second swappable collection alongside the neutral one: **`Navigation Theme`**, seven variables
 (`Background`, `Nav Content/Primary`, `Nav Content/Subtle`, `Nav Item/Background Hover`,
 `Nav Item/Border Hover`, `Nav Item/Background Selected`, `Nav Item/Border Selected`) across seven
-modes — Neutral Inverse, Neutral, Blue Inverse, Blue, Purple Inverse, Purple, Transparent.
+modes — Neutral Inverse, Neutral, Blue Inverse, Blue, Purple Inverse, Purple, Canvas.
 
 It is in code as of 2026-09-01: `tokens/navigation.json`, section 1c of `generate.py`, section 2b of
 `theme.css`, and `NavItem` / `SideNav` / `TopNav` consuming it. The switch is one attribute,
@@ -207,10 +207,14 @@ It is in code as of 2026-09-01: `tokens/navigation.json`, section 1c of `generat
 Two things about it are worth knowing before building anything else on it:
 
 - **It is not theme-aware, on purpose.** Six of the seven modes are absolute — `Neutral` is a white
-  nav in dark mode too. Only `Transparent` aliases back into `Semantic Theme`, so only that one
-  follows `.dark`. That is the opposite of how the neutral tier composes, and it is the design.
-  Measured both ways once the tier existed: `--nav-content-primary` moves between light and dark on
-  `Transparent` and holds on the other six.
+  nav in dark mode too. Only `Canvas` aliases back into `Semantic Theme`, so only that one follows
+  `.dark`. That is the opposite of how the neutral tier composes, and it is the design. Measured both
+  ways once the tier existed: `--nav-content-primary` moves between light and dark on `Canvas` and
+  holds on the other six.
+- **`Canvas` was `Transparent` until 2026-09-02**, and its `Background` was `Surface/Canvas` at alpha
+  0, so the bar dissolved into the page. It is the canvas colour itself now: the nav sits flush with
+  the page rather than disappearing into it, which is what the new name says. The `data-nav-theme`
+  attribute value changed with it — an app pinning `transparent` needs the new spelling.
 - **The neutral modes go through `Neutral Palette`**, so a nav on `Neutral`/`Neutral Inverse` still
   follows `data-neutral`, while the Blue and Purple modes are pinned to Tailwind ramps. That falls
   out for free: `Neutral Palette` is the same eleven steps as `--neutral-*`, so an alias into it
@@ -223,11 +227,13 @@ would have written a file full of `undefined` and looked clean doing it. Two sha
 `valuesByMode` is keyed by the collection's own mode ids, and a composed value's `type` is
 `VARIABLE_EXPRESSION`, not `EXPRESSION`.
 
-**The one composed value is handled generally rather than special-cased.** `Background` in
-`Transparent` is `COMPOSE_COLOR(@Surface/Canvas, 0)`; `generate.py` parses the expression and emits
-`color-mix(in oklab, var(--surface-canvas) 0%, transparent)`. That is the same shape `neutral_alpha`
-already produces, and it keeps the token pointing at the token Figma points at rather than at
-`--surface-canvas-transparent`, which happens to hold the same value today.
+**The composed-value handler stays, though nothing uses it now.** `Background` in the old
+`Transparent` mode was `COMPOSE_COLOR(@Surface/Canvas, 0)`, and `generate.py` grew a general parser
+for it that emits `color-mix(in oklab, var(--x) N%, transparent)`. The 2026-09-02 rename to `Canvas`
+made that the collection's last composed value and removed it, so the parser is currently unexercised
+— and it is kept deliberately rather than pruned as dead code. `COMPOSE_COLOR` is a shape any Figma
+export can grow again at any time, and without the handler a future one would silently emit
+`/* unresolved */`. A parser for a value shape the source can produce is not dead; it is a guard.
 
 **Contrast is not automatic.** The ramps differ in lightness at the same step, so a pair that clears
 4.5:1 on Stone is not guaranteed to on Olive. `npm test` runs axe on every story but only at the

@@ -914,7 +914,7 @@
 /*     Sits AFTER the semantic block on purpose. Six of the modes are absolute   */
 /*     -- a nav on "neutral" stays white in dark mode, because a navigation      */
 /*     surface is a brand decision and not a reading preference. Only            */
-/*     "transparent" aliases --surface-* / --content-*, and so only that mode    */
+/*     "canvas" aliases --surface-* / --content-*, and so only that mode         */
 /*     follows .dark. That asymmetry is the design, not an oversight.            */
 /*                                                                              */
 /*     The neutral modes alias Figma's Neutral Palette, which is this file's     */
@@ -989,8 +989,8 @@
   --nav-item-border-selected: var(--color-purple-300);
 }
 
-:root[data-nav-theme="transparent"] {
-  --nav-background: color-mix(in oklab, var(--surface-canvas) 0%, transparent);
+:root[data-nav-theme="canvas"] {
+  --nav-background: var(--surface-canvas);
   --nav-content-primary: var(--content-primary);
   --nav-content-subtle: var(--content-subtle);
   --nav-item-background-hover: var(--surface-overlay-subtle);

@@ -30,10 +30,15 @@ Both draw from the *semantic* theme rather than the navigation one, and Top Bar 
 
 Every color here is `--nav-*`, from the `Navigation Theme` collection, switched by
 `<html data-nav-theme="…">`. It is not the semantic tier and does not behave like it: **six of the
-seven modes are absolute**, so a nav on `neutral` is white in dark mode too. Only `transparent`
-aliases back into the semantic layer, and it is the only mode that follows `.dark` — measured, not
-assumed: `--nav-content-primary` moves between light and dark on `transparent` and holds on the
-other six. The two neutral modes still follow `<html data-neutral>`, because they alias Figma's
+seven modes are absolute**, so a nav on `neutral` is white in dark mode too. Only `canvas` aliases
+back into the semantic layer, and it is the only mode that follows `.dark` — measured, not assumed:
+`--nav-content-primary` moves between light and dark on `canvas` and holds on the other six.
+
+`canvas` was called `transparent` until 2026-09-02, and its `Background` was `Surface/Canvas` at
+alpha 0 — the bar dissolved into the page. It is the canvas colour itself now, so the nav sits flush
+with the page rather than disappearing into it, which is what the new name says. **The
+`data-nav-theme` attribute value changed with it**, so any app pinning `transparent` needs the new
+spelling. The two neutral modes still follow `<html data-neutral>`, because they alias Figma's
 `Neutral Palette`, which is this repo's `--neutral-*` tier.
 
 The generator's own note is in `generate.py` section 1c and in `theme.css` section 2b.

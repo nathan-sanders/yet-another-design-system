@@ -55,7 +55,8 @@ export interface TopNavProps
   /**
    * Whether the bar is lifted off the page. Figma's `Floating` axis, and it is
    * **only the drop shadow**. `false` is what the marketing example draws: a
-   * `transparent`-themed bar dissolving into the canvas, with nothing to cast.
+   * `canvas`-themed bar painted in the page's own background colour, sitting
+   * flush with it rather than floating above it, so there is nothing to cast.
    */
   floating?: boolean
   className?: string
