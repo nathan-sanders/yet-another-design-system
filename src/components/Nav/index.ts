@@ -1,6 +1,9 @@
 export { MobileNav } from './MobileNav'
 export type { MobileNavProps } from './MobileNav'
 
+export { ResponsiveNav } from './ResponsiveNav'
+export type { ResponsiveNavProps } from './ResponsiveNav'
+
 export { NavItem } from './NavItem'
 export type { NavItemProps } from './NavItem'
 
