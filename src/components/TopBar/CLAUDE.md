@@ -126,3 +126,20 @@ have been doing real work, and the script would have skipped it and said so.
 The Divider child is untouched and still draws the rule, so nothing about the component's appearance
 changed. The plain `strokeBottomWeight: 1` value remains, which is inert: it is the weight of a
 stroke that does not exist.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Top Bar` (`40004591:41539`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Pair it with a Side Navigation. It is the page header that sits above the content, beside the rail rather than under another bar.
+- Pass breadcrumbs when the page sits somewhere in a hierarchy. The trail is also what gives the search a centre to sit in, so the arrangement follows from passing it.
+- Keep it to one per page. It is the page's banner, and a page that genuinely needs a second wants each one inside its own labelled section.
+
+**Don't**
+
+- Do not put it under a Top Navigation. Top Navigation already has a utilities slot for the things that would otherwise come here.
+- Do not treat it as the navigation. It is a header — the links in it are page chrome, and the rail beside it is what a screen reader should find as the nav.
+- Do not put a bordered field in the search slot. Ghost is what the file draws: the default appearance puts a second rectangle inside the one the bar already has.

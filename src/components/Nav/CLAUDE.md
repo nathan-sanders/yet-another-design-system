@@ -549,3 +549,27 @@ Three of the six first listed here were fixed in Figma on 2026-09-01 and are str
   array — a dead binding. The visible rule is the Divider child.
 - All seven `Navigation Theme` variables are scoped `ALL_SCOPES`, so they appear in the spacing and
   radius pickers as well as the color ones.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Navigation` (`40004487:28041`) in Figma.
+The two are one text in two places — change one and change the other.
+
+One block covers the whole family, because the file keeps `Nav Item`, `Side Navigation`,
+`Top Navigation` and `Mobile Navigation` on one page. `ResponsiveNav` has no node of its own and
+is the swap between the last two.
+
+**Do**
+
+- Name every bar. A nav is a landmark, an app with a rail usually has a second one in its header, and two unnamed landmarks of the same role cannot be told apart in a screen reader's list.
+- Reach for Responsive Nav when the layout has to work on a phone. It swaps Top Navigation for Mobile Navigation at 768px in CSS, so nobody writes a breakpoint of their own.
+- Keep a label on every item, collapsed or not. A 40px square with its text hidden has no accessible name at all; collapsed, the label becomes the tooltip so it is there for everybody.
+- Group pages into sections with headers. Collapsed, a header becomes the rule that keeps the groups apart once their names are gone.
+- Mark the page somebody is on as selected. That is what aria-current is for, and a rail without it makes you work out where you are from the content.
+
+**Don't**
+
+- Do not stack a Top Bar under a Top Navigation. Both are full-width strips, and the pair buys a second row of chrome and no information. A Top Bar belongs beside a Side Navigation.
+- Do not build navigation out of Tabs or a Menu. A set of links is a nav of anchors with a different accessibility contract: no tablist, no roving focus, and aria-current rather than aria-selected.
+- Do not narrow a Top Navigation to fit a phone. It keeps one shape on purpose — a responsive app swaps the component for Mobile Navigation rather than collapsing this one.
+- Do not put an action in a nav item. A row goes somewhere; something that acts on the page is a Button, and something that opens or folds is a disclosure.

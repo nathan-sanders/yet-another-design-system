@@ -528,10 +528,16 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Thirty-two records carry it** — every component whose Figma page
-has the block filled. The seventeen left — Nav, TopBar, ThemeControl, BentoGrid, and Chart with the
-whole data-viz family — have guidance in neither place, because they are Nathan's own architecture
-rather than a port and the guidance is his to write first.
+drift nothing in CI can catch. **Thirty-six records carry it.** What is left is `Chart` and the whole
+data-viz family — thirteen records, and the one part of the library where nobody has written down
+when to reach for which chart.
+
+**Two of the thirty-six have no Figma block to mirror, and say so where the source line goes.**
+`ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
+navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all.
+Both were written here rather than copied, and both owe the file a block — the same standing debt
+`Combobox.Empty` and Select's scroll arrows carry. **Do not read a missing block as a component
+nobody has thought about**; read the source line, which says which of the two situations it is.
 
 **Transcribing that block is not typing, and Avatar is the case that proves it.** Two of its seven
 Do's named props that do not exist here — `tooltip={false}` and a group `max` — because the rules

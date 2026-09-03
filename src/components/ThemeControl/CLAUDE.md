@@ -61,3 +61,22 @@ corroboration rather than just tidier: `Theme=Light` now reads `"Dark"` and `The
 `"Light"`. The hidden label names the **destination**, which is exactly the direction this component
 takes for its icon and its accessible name. Two sides agreeing on the confusing half of the design is
 worth more than either saying it alone.
+
+## Best practices
+
+**No Figma counterpart.** The `Theme Control` set (`40004486:27878`) sits on the `↪ Navigation`
+page, which has one Best practices block covering the navigation family, so this component has
+nowhere of its own on the canvas to carry these. Recorded as a gap in the file, like `Combobox.Empty`
+and Select's scroll arrows — if Theme Control ever gets its own page, this is the text to put on it.
+
+**Do**
+
+- Wire it up. Out of the box it changes its own icon and nothing else, and the three lines that add the class and remember the choice belong where the rest of the app's state lives.
+- Put it where the app-level controls already are — a side rail's utilities, or a top bar's actions.
+- Trust the direction. The icon is the theme you would get rather than the one you are in, and the accessible name says so out loud so nobody has to infer it from a glyph.
+
+**Don't**
+
+- Do not expect it to change the theme by itself. It never touches the document — no class toggle, no storage, no media listener — because the application owns all three.
+- Do not add a system option here. Three states are a Segmented Control or a Select, not one button.
+- Do not reach for a Switch, and do not add aria-pressed. Neither theme is on, so both would announce an off state that does not exist.

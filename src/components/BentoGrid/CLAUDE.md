@@ -52,3 +52,21 @@ on the tenth child would be wrong about it as often as it was right. It lives in
 **A block that covers one column needs no cell at all** — put it straight in the grid. The
 `Dashboard` story does exactly that for five of its seven blocks, which is also the honest picture
 of how much of this component most layouts touch.
+
+## Best practices
+
+**No Figma counterpart** — this is the one component in the library with no node behind it at all,
+so there is no Best practices block to mirror and these were written here. The grid owes the file a
+drawing, and these rules go on it when it lands.
+
+**Do**
+
+- Use it for a dashboard of Content Blocks at varied sizes. It owns the columns, the gutter and the spans; what goes in the cells is yours.
+- Keep a view to nine tiles or fewer. It stays guidance rather than a check, because it is a judgment about a whole view and a component would be wrong about it as often as it was right.
+- Put a block that covers one column straight in the grid. A cell is only needed to span, which is most of how little of this component a layout usually touches.
+
+**Don't**
+
+- Do not span wider than the grid has columns. CSS clamps it to the full width, so nothing breaks and it reads as a bug.
+- Do not build a span class out of a variable. Tailwind finds classes by scanning source text, so a template literal generates nothing and the cell silently lays out one column wide.
+- Do not write your own breakpoint around it. Everything including the column count is behind md:, so below 768px the grid is one column and the spans stop applying at the same moment.
