@@ -101,3 +101,20 @@ Button instances inside, which is ordinary Figma practice.
 The responsive footer — destructive above Cancel below 640px — is **not drawn**. It is one component
 per breakpoint in Figma and one `flex-col-reverse sm:flex-row` in code, so the canvas carries the
 desktop shape and the record carries the rest.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Alert Dialog` (`40004405:481`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Make the action label say what will happen. “Delete project” is better than “OK” or “Confirm”.
+- Say what the consequence is in the description, so the choice is made with the facts in front of it.
+- Keep Cancel as the focused option. It is what a Return key presses the moment the dialog opens.
+
+**Don't**
+
+- Do not use an alert dialog for anything that is not destructive. A plain Dialog is the right shape.
+- Do not lean on the red alone to signal danger. Somebody who cannot see it still has to know.
+- Do not close the dialog before the work finishes. Hold it open while the action runs.

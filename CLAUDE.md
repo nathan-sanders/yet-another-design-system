@@ -528,14 +528,19 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. Twenty-five records carry it, covering the components that sit on
-Base UI or Astryx.
+drift nothing in CI can catch. **Thirty-two records carry it** — every component whose Figma page
+has the block filled. The seventeen left — Nav, TopBar, ThemeControl, BentoGrid, and Chart with the
+whole data-viz family — have guidance in neither place, because they are Nathan's own architecture
+rather than a port and the guidance is his to write first.
 
-**Two kinds of record still have none, and they are not the same kind of gap.** AlertDialog, Avatar,
-Card, ContentBlock, Dialog and AspectRatio have the guidance *in Figma already* — Nathan wrote it —
-and it simply has not been copied down here yet; that is a transcription waiting to happen. Icon,
-Nav, TopBar, Chart and the data-viz family, and BentoGrid have it in neither place, because they are
-his own architecture rather than a port, and the guidance is his to write first.
+**Transcribing that block is not typing, and Avatar is the case that proves it.** Two of its seven
+Do's named props that do not exist here — `tooltip={false}` and a group `max` — because the rules
+came across from Astryx with Astryx's API still in them, and this library left both out on purpose.
+Copied down unread they would have put two uncompilable props into a file every agent loads. So
+**check each rule against the component before mirroring it**: a rule naming a prop, a variant or a
+default is a claim about this code, and the Figma page is not where that claim was tested. Where one
+is wrong, keep the advice, name the real API, and say in the record that the file is behind — as
+Avatar's now does.
 
 | Component | | |
 |---|---|---|

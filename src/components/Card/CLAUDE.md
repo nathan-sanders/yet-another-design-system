@@ -186,3 +186,23 @@ Contrast, measured across Stone / Olive / Mauve / Slate in both themes: the lowe
 classes new to the repo — here `border-surface-background-primary`,
 `hover:border-surface-background-subtle` — are simply absent and a correct component measures wrong. A
 reload does not fix it. Restart before believing any measurement.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Card` (`40004242:14759`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Pair a Card with Content Block when you need a structured header, scrollable content, and footer with actions.
+- Ask "could I reorder or remove this independently?" If yes, it's a card. If no, it's just a section of the page: use a Content Block.
+- Use cards for discrete items: a single user profile, a single notification, a single metric, a product in a grid. Each card represents one "thing" with clear interaction boundaries.
+- Spacing and alignment alone create visual grouping. Not everything needs a container; try removing the card and see if the grouping is still clear from whitespace and typography.
+- Keep padding consistent across sibling cards so they align visually in a grid or list.
+
+**Don't**
+
+- If you need a more structured container element reach for Content Block.
+- Wrap page sections in cards. "General Settings", "Notification Preferences", form groups: these are page regions, use Content Block.
+- Create identical card grids (icon + heading + text, repeated). Vary the layout or question whether cards are needed at all.
+- Nest cards inside other cards; flatten the hierarchy or use spacing and dividers instead.
