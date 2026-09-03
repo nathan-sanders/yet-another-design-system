@@ -76,3 +76,20 @@ The same day, `Menu Item` gained an `End Slot` property (`40004278:7481`, and `4
 `Type=Danger`) drawn holding a Kbd — so the menu-shortcuts case is now real `Menu.Item`s with
 `endSlot`, not a mocked-up card list. `Type=Nested` deliberately has no slot: a submenu trigger
 already spends its trailing edge on a chevron.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Kbd` (`40004242:14968`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Write the shortcut as one keys string. It splits on the plus and draws one key per keystroke.
+- Reach for mod rather than cmd or ctrl. One call site, and it resolves to the right glyph on each platform.
+- Put it in a menu row's end slot when that row has a shortcut. That is what the slot is for.
+
+**Don't**
+
+- Do not use Kbd for code, a file path or a value. It is set in the body face on purpose, because a shortcut is not code.
+- Do not spell out a modifier the glyph already says. The group is announced as one name, so the glyphs never get read out.
+- Do not let a shortcut hint be the only way to discover an action.

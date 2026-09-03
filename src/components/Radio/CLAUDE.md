@@ -38,3 +38,20 @@ group's label, its description, the required marker, the message — is `Field`'
 is what Figma says too by giving Field a `Type=Radio` variant.
 Naming: Figma calls the property `Layout`, and the prop is `orientation`, after Divider's — the
 library already spends `layout` on hug-or-fill in SegmentedControl and Tabs.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Radio Group` (`40004242:15025`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it when exactly one answer is allowed and the options need room to be explained.
+- Keep it to between two and seven options.
+- Put the question, the description and the message on a Field above the group. Each option keeps its own label.
+
+**Don't**
+
+- Do not run more than four options horizontally. They wrap awkwardly past that.
+- Do not use a radio list where the options are short and sit beside a button. That is a Segmented Control.
+- Do not offer a radio group somebody may want to answer with nothing. A radio cannot be unpicked once it is picked.

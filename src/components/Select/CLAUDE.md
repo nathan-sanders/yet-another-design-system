@@ -60,3 +60,20 @@ will want the same.
 Left out: `Backdrop` and `Arrow` (Figma draws neither), `Select.Label` (Field owns the label),
 filtering (Base UI is explicit that Combobox is the answer), and Astryx's `hasClear`, `isLoading`,
 `hasSelectAll` and `statusVariant`, none of which are in the file.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Select` (`40004242:15044`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it when the value must come from a list too long to show at once and short enough to scroll.
+- Order the options the way somebody would look for them, not the way the data arrives.
+- Let a Field label it. The trigger draws the value, never the label.
+
+**Don't**
+
+- Do not use a Select for a list you would have to search. Past scrolling, it is a Combobox.
+- Do not use one for two or three options. Radio or a Segmented Control shows them all at once.
+- Do not put the label or a real option in the placeholder. It is italic because it is not a value anybody chose.

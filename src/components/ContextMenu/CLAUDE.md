@@ -91,3 +91,20 @@ silently.
 `...props` first and the menu simply never opened: `render` hands the element Base UI's own
 `onContextMenu`, its ref and its data attributes, and a component that drops them is a trigger
 that never triggers. Nothing errors — it just does nothing, which is the part that costs time.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Context Menu` (`40004242:14854`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it as a shortcut to actions that are already reachable somewhere else on the row or the canvas.
+- Give the popup a label. A context menu has no trigger to take its name from, so without one it announces as a menu with no name at all.
+- Keep the items to what applies to the thing you right-clicked, and put a destructive row last.
+
+**Don't**
+
+- Do not make right-click the only route to an action. There is no keyboard way into a context menu, and there should not be one.
+- Do not use a context menu for navigation. A list of links announces as the wrong thing.
+- Do not swallow the browser's own menu when the trigger is disabled. Handing the gesture back is the right behavior.

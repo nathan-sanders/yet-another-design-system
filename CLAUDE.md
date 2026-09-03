@@ -522,6 +522,21 @@ lives in a `CLAUDE.md` in its own folder, and is loaded automatically when you w
 **Read that file before changing a component.** Most of what looks like a free choice in the code was
 settled once, against the Figma file, for a reason that is written down.
 
+**Most records now end in a `## Best practices` section**, which is the same text as the Best
+practices block on that component's Figma Docs page, node id cited. It answers *when to reach for
+this component and when not to*, where the rest of the record answers *how it is built* — so it is
+the half to read when you are choosing between two components rather than changing one. **The two
+copies are one text in two places**: change a rule here and change it in Figma in the same breath,
+or the file and the repo start disagreeing about what the component is for, which is the one kind of
+drift nothing in CI can catch. Twenty-five records carry it, covering the components that sit on
+Base UI or Astryx.
+
+**Two kinds of record still have none, and they are not the same kind of gap.** AlertDialog, Avatar,
+Card, ContentBlock, Dialog and AspectRatio have the guidance *in Figma already* — Nathan wrote it —
+and it simply has not been copied down here yet; that is a transcription waiting to happen. Icon,
+Nav, TopBar, Chart and the data-viz family, and BentoGrid have it in neither place, because they are
+his own architecture rather than a port, and the guidance is his to write first.
+
 | Component | | |
 |---|---|---|
 | [Accordion](src/components/Accordion/CLAUDE.md) | a stack of sections, one open at a time | height animated off a measurement Base UI publishes |

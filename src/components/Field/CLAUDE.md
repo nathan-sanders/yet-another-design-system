@@ -54,3 +54,20 @@ without it. `a11y.test` is `'error'`, so this breaks the build rather than merel
 **The disabled fade lives on the control's box, not here**, or the two multiply to 16% when both
 apply. Only the three text parts fade here, each off its own `data-disabled`.
 Left out: a `size` axis — Figma's Field has none, and the control carries its own.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Field` (`40004242:14892`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Wrap every form control in a Field, so the label, the sub-label and the message are wired to it without anybody writing an id.
+- Let the Field carry validity. Marking it invalid reaches the control inside and colors its own border.
+- Use the sub-label for what somebody needs before they answer, not for what they get told afterwards.
+
+**Don't**
+
+- Do not use the placeholder as the label. It goes the moment somebody types, and it is italic because it is not something they entered.
+- Do not add a second label to a Checkbox, Radio or Switch. Their own label is what makes the text clickable; the Field names the set above them.
+- Do not show a red message beside a neutral border. A message implies the field is invalid, and it should be marked as such.

@@ -49,3 +49,20 @@ Left out: `orientation="vertical"` (Base UI has it, Figma has no vertical varian
 omitted from the props rather than left to break quietly); Astryx's `href` link tabs, which are a
 `<nav>` of anchors and a different a11y contract; and its overflow `TabMenu` — `Menu` now
 exists, so that is a composition waiting to be written rather than a blocker.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Tabs` (`40004242:15120`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use tabs for panels of related content somebody moves between and comes back to.
+- Keep the labels short and at one level. Every panel a tab strip switches between belongs to the same page.
+- Put a count or a status in the end slot rather than crowding the label with it.
+
+**Don't**
+
+- Do not use tabs to navigate between pages. This is a tab strip; a set of page links is a nav, and it announces differently.
+- Do not put so many tabs in a strip that it has to scroll. That is a Select, or a page that wants splitting.
+- Do not hide something essential behind a tab nobody has a reason to open.

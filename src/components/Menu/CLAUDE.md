@@ -81,3 +81,20 @@ which Figma does not draw one for either. The prop takes any node, so a Badge or
 keyboard shortcut is what it is for.
 A destructive row keeps its Kbd in `Content/Primary` rather than following the red: the key is a key
 on every row, and it is the label that is dangerous.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Menu` (`40004242:15006`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for actions on a thing, opened from a button that says what the menu is for.
+- Group related items and let the separator fall between the groups rather than inside them.
+- Put a shortcut in the row's end slot, and mark a destructive row as destructive.
+
+**Don't**
+
+- Do not use a menu for navigation. A dropdown of links is a nav, and it announces as the wrong thing.
+- Do not go past one level of submenu. A flyout off a flyout is a menu that has outgrown the pattern.
+- Do not hide the only route to an action behind a menu somebody has to already know is there.

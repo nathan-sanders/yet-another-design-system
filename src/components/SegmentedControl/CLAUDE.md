@@ -50,3 +50,20 @@ This component shipped first and Figma caught up second, which is the reverse of
 direction: `large` and the Content-ramp label colors were both added to the file afterwards
 (as with Badge's four hues and Divider's `emphasis`), then synced back into the code. Large's
 `px-3` and the `content-primary` / `content-emphasized` pair came from Figma, not from us.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Segmented Control` (`40004242:15063`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for a few mutually exclusive options that all fit, sitting beside the content they change.
+- Keep the labels to a word or two, and about the same length as each other.
+- Reach for Fill when the strip sits in a fixed-width panel, and let it hug everywhere else.
+
+**Don't**
+
+- Do not use it to switch between panels of content. Tabs navigate; this is an input, and arrowing through it selects as you go.
+- Do not put more than about five segments in one strip. Past that the labels shrink and it becomes a Select.
+- Do not leave it with nothing selected. A segmented control always has exactly one, which is why it is not a group of toggles.
