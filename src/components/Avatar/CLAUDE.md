@@ -125,22 +125,26 @@ writing the inferred relationship as though it were the design.
 Mirrored from the **Best practices** block on `↪ Avatar` (`40004242:14645`) in Figma.
 The two are one text in two places — change one and change the other.
 
-**Two of these were corrected on the way down, and the file is the one that is behind.** The
-Figma text says to set `tooltip={false}` and to cap a group with `max`; neither prop exists here.
-Both are Astryx's API rather than this one's — its built-in tooltip was deliberately left out (an
-avatar that needs a name is wrapped in `Tooltip`), and `AvatarGroup` deliberately does not count
-for you, so you slice the list and hand the remainder to `AvatarGroup.Overflow`'s `count`. The
-advice underneath both is right and only the mechanism was wrong, so the rules are kept with the
-real API named. **Figma wants updating to match**, and until it is this is the one place the two
-copies knowingly differ.
+**Two of these were wrong when they came across, and both sides are now fixed.** The Figma text said
+to set `tooltip={false}` and to cap a group with `max`; neither prop exists here, in the source or in
+either story file. Both were Astryx's API rather than this one's — its built-in tooltip was left out
+deliberately (an avatar that needs a name is wrapped in `Tooltip`, as noted above), and `AvatarGroup`
+deliberately does not count for you, so you slice the list and hand the remainder to
+`AvatarGroup.Overflow`. The advice under both rules was right and only the mechanism was wrong, so
+they were kept and reworded — on the canvas and here, on 2026-09-03, so the two copies agree again.
+
+**Worth keeping as the reason the root record says to check each rule before mirroring it.** A rule
+naming a prop, a variant or a default is a claim about this code, and a Docs page is not where that
+claim was tested. These two read perfectly plausibly; nothing but opening `AvatarGroup.tsx` would
+have caught them.
 
 **Do**
 
 - Always pass a name so the avatar can show initials if the photo fails to load, and so screen readers can announce who it represents.
 - Add a status dot when knowing someone's availability matters, like in chat or team views.
 - Wrap an Avatar in `Tooltip` when it needs to show its name. There is no built-in tooltip to turn off — Astryx's was left out deliberately, and composing one is the whole answer.
-- Keep a group to three to five visible avatars when the list is long. There is no `max` prop: slice the list yourself and pass the remainder to `AvatarGroup.Overflow`.
-- Pass the real hidden count to `AvatarGroup.Overflow`'s `count`, so the accessible label matches the visible indicator.
+- Keep a group to three to five visible avatars when the list is long. There is no `max` prop — slice the list yourself and pass the remainder to `AvatarGroup.Overflow`.
+- Pass the real hidden count to count so the accessible label matches the visible indicator.
 - Use short custom text such as +12 or 99+. The indicator is circular for short counts and grows into a pill for wider counts so the number always fits.
 - Provide onClick when the overflow opens a member list, popover, or detail view.
 

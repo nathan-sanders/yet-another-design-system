@@ -539,8 +539,9 @@ came across from Astryx with Astryx's API still in them, and this library left b
 Copied down unread they would have put two uncompilable props into a file every agent loads. So
 **check each rule against the component before mirroring it**: a rule naming a prop, a variant or a
 default is a claim about this code, and the Figma page is not where that claim was tested. Where one
-is wrong, keep the advice, name the real API, and say in the record that the file is behind — as
-Avatar's now does.
+is wrong, keep the advice and reword it round the real API — **in both places, in the same sitting**,
+which is what happened to Avatar's two. A record that merely notes the file is behind leaves the
+wrong instruction sitting on the canvas where the next person reads it.
 
 | Component | | |
 |---|---|---|
