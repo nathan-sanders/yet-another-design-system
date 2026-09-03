@@ -84,3 +84,16 @@ definite width. In a shrink-to-fit parent — `inline-flex`, `w-fit`, a float �
 no intrinsic width and collapses. Constraining only the height clamps the box off its ratio
 rather than scaling it; pair a height with `w-auto` to size from the height instead. Don't
 nest them.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Aspect Ratio` (`40004379:65627`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for media that has to keep its proportions — thumbnails, video, cover art — and let the grid set the width.
+
+**Don't**
+
+- Don't reach for it as a general layout container, don't nest one inside another, and don't constrain its height on its own.

@@ -200,3 +200,20 @@ under them."* That is the file holding a behavior as guidance, which is the righ
 which is the elevation family's token doing a surface job — see the scrim section above. Drawing the
 backdrop did not fix that; it only made both sides wrong in the same way, which is at least
 honest.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Dialog` (`40004383:17074`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Give every dialog a title. It is what names the dialog for a screen reader, and it tells everybody else what they are being asked.
+- Turn the close button off when the user has to choose. A dialog that can be dismissed is a dialog whose question can be skipped.
+- Put long content in a scrolling body, so the title and the close button stay in place while the content moves under them.
+
+**Don't**
+
+- Do not use a dialog for a message. If nothing is being asked, a Banner or a Toast is the right shape.
+- Do not nest one dialog inside another. Restructure the flow into steps within a single dialog instead.
+- Do not lean on the red alone to signal danger. The action label itself should say what will happen.

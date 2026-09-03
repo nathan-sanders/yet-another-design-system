@@ -102,3 +102,19 @@ serves a stale Tailwind scan: classes new to the repo — here `pl-4`, `pb-2`, `
 that look like real bugs (a 32px header, a body with no top padding). A page reload does not fix it
 and `npm run build` disagrees with what the browser shows. Restart the dev server before believing
 any measurement of a brand-new component.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Content Block` (`40004242:14778`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use Content Block for page-level grouping: settings panels, form groups. These are sections of a page, not discrete items.
+- Content Block and cards make up the majority of page layouts, but not everything needs to be contained in a content block.
+- Start with the default variant. Use subtle and accent only to call attention to a specific region.
+- Add dividers between same-background sections that need separation.
+
+**Don't**
+
+- Use Card when you mean Content Block. Cards are for discrete items (one notification, one profile). Content Blocks are for page regions.

@@ -119,3 +119,34 @@ layout, so the two compose exactly as they do on the canvas.
 Figma variant will encode coincidences as rules, and they are invisible until the axis is drawn.
 When the file has one variant, say so in the comment — "this is the only size drawn" — rather than
 writing the inferred relationship as though it were the design.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Avatar` (`40004242:14645`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Two of these were corrected on the way down, and the file is the one that is behind.** The
+Figma text says to set `tooltip={false}` and to cap a group with `max`; neither prop exists here.
+Both are Astryx's API rather than this one's — its built-in tooltip was deliberately left out (an
+avatar that needs a name is wrapped in `Tooltip`), and `AvatarGroup` deliberately does not count
+for you, so you slice the list and hand the remainder to `AvatarGroup.Overflow`'s `count`. The
+advice underneath both is right and only the mechanism was wrong, so the rules are kept with the
+real API named. **Figma wants updating to match**, and until it is this is the one place the two
+copies knowingly differ.
+
+**Do**
+
+- Always pass a name so the avatar can show initials if the photo fails to load, and so screen readers can announce who it represents.
+- Add a status dot when knowing someone's availability matters, like in chat or team views.
+- Wrap an Avatar in `Tooltip` when it needs to show its name. There is no built-in tooltip to turn off — Astryx's was left out deliberately, and composing one is the whole answer.
+- Keep a group to three to five visible avatars when the list is long. There is no `max` prop: slice the list yourself and pass the remainder to `AvatarGroup.Overflow`.
+- Pass the real hidden count to `AvatarGroup.Overflow`'s `count`, so the accessible label matches the visible indicator.
+- Use short custom text such as +12 or 99+. The indicator is circular for short counts and grows into a pill for wider counts so the number always fits.
+- Provide onClick when the overflow opens a member list, popover, or detail view.
+
+**Don't**
+
+- Use Avatar for logos, product images, or anything that isn't a person or team. Use an image or icon instead.
+- Force a square or custom shape. Avatars are always circular to stay consistent across the system.
+- Don't nest AvatarGroups; use a single group with all avatars.
+- Do not use long labels inside the indicator; place longer participant details next to the group instead.
