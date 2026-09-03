@@ -27,3 +27,20 @@ wrap. It wraps.
 **Height trap: 32px**, and the last 2px come from an inner Span frame with 1px of vertical padding.
 Flattening it gives 30, and no round `py-*` splits the difference: 24 (line-height) + 2×1 (span) +
 2×2 (popup) + 2×1 (border). **32px is the number to check** when this changes.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Tooltip` (`40004242:15177`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it to describe what somebody is pointing at, in a few words.
+- Give an icon-only control its own label as well. A tooltip describes; it never names.
+- Share one delay across a toolbar with a Provider, so the second tooltip in a row does not make you wait again.
+
+**Don't**
+
+- Do not put anything somebody needs in order to finish the task in a tooltip. It cannot be reached by touch and it goes away.
+- Do not put a link, a button or anything else interactive inside one.
+- Do not repeat the label that is already on the control. A tooltip that says what you can already read is noise.

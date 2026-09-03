@@ -57,3 +57,20 @@ fetch dynamically imported module". Name any new Base UI subpath there.
 Left out of Astryx: `collisionBehavior: 'ignore'` (Base UI's ids always overwrite),
 `onHide(reason)`, and anchored toasts — `Toast.Positioner` and `Toast.Arrow` are attached but the
 managed viewport does not use them, and anchored toasts want their own provider.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Toast` (`40004242:15139`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it to confirm that something happened, then let it leave.
+- Keep the title to one line and put anything more in the description. The title is what names the toast.
+- Give a toast that reports a failure no timeout, so it stays until somebody dismisses it.
+
+**Don't**
+
+- Do not put the only route to an action in a toast. It goes away, and it takes the action with it.
+- Do not use toasts as a log. The stack collapses past three, and a queue of messages is a Banner or a page.
+- Do not use a toast for a message about the page. A banner stays; a toast interrupts and goes.

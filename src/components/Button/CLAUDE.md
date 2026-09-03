@@ -14,3 +14,20 @@ horizontal padding* as its labeled twin, so the width follows the icon — 42×3
 per Figma (node 40002016:6867), **not** a 32×32 square. It is derived from the absence of a label, not a prop, and
 the props are a union so `aria-label` is *required* in that form — an unlabeled icon button will
 not compile.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Button` (`40004242:14721`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Say what the button does. A verb and its object beats OK, Submit or Continue.
+- Keep one primary button per view, and let everything beside it be secondary or ghost.
+- Give an icon-only button an aria-label. The props are a union, so one without a label will not compile.
+
+**Don't**
+
+- Do not use a button to navigate. A link belongs in an anchor, which is what the Link component is for.
+- Do not lean on destructive alone to signal danger. The label itself has to say what will happen.
+- Do not reach past the default size. Small is for fitting inside something, large is for a page's main action.

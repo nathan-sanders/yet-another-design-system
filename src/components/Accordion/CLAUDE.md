@@ -156,3 +156,20 @@ measured value. A first-render measurement — the `DefaultOpen` story — is al
 `InContext`. **`DefaultOpen` is load-bearing:** the story suite's axe run happens on first render
 and a closed accordion has no panel in the DOM, so without a story that starts open the
 accessibility check would pass by looking at nothing. Menu's `Open` records the same reasoning.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Accordion` (`40004242:14626`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for detail somebody can choose to read, with a trigger that says what is inside the section.
+- Set headingLevel to the depth the page is at. A trigger is a heading, and one that skips a level is an accessibility failure rather than a matter of taste.
+- Turn Container off when the accordion already sits inside something that draws its own frame, so the borders do not double up.
+
+**Don't**
+
+- Do not hide anything on the main path through a page. A closed panel is not in the document at all until somebody opens it.
+- Do not nest an accordion inside an accordion. Content with two levels wants a different structure.
+- Do not lead a panel with a link or a button. The panel clips the top of its focus ring; anything past the first line is fine.

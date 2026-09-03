@@ -48,3 +48,20 @@ glyph as its default. Seven of the eight variants were already exposed; `Type=In
 — the default variant — was not, which is worth knowing as a shape of bug this file can carry:
 a property set on every variant *except* the default one reads as fine until someone drops in a
 fresh instance.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Banner` (`40004242:14702`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for a message about the page or the section it sits in, and leave it there while the message is true.
+- Let the type set the tone. Info and success announce politely; warning and danger interrupt what is being read.
+- Pass onDismiss only when the caller really owns the dismissal. The banner never hides itself.
+
+**Don't**
+
+- Do not use a banner to confirm something that has already finished. That is a Toast.
+- Do not stack banners. Two competing messages at the top of a page means neither one gets read.
+- Do not spend danger on something that is merely important. Keep it for what is actually wrong.

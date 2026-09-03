@@ -170,3 +170,20 @@ string). Two things about that set are deliberate:
 **And what the library owes.** Both of Astryx's "don't" rules — heavy input, and content that needs
 scrolling — point at a **Dialog**, which does not exist here. Popover landing is the evidence Card's
 record asks for.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Popover` (`40004379:42300`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Give every popover a title. It is a dialog, and a dialog with no name has nothing to announce itself as.
+- Use it for a small amount of content anchored to what was clicked: a filter, a detail, a short confirm.
+- Compose the header at the call site. A title beside a close button is a row, not a part of the component.
+
+**Don't**
+
+- Do not put a form of any weight in a popover. If it is heavy, it wants a Dialog.
+- Do not design for content that scrolls. The scroll is a floor that keeps a panel on screen, not a feature; anything longer should have been a Dialog.
+- Do not open one on hover, and do not nest one inside another. A dialog you get to by pointing is a bad contract.

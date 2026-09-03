@@ -20,3 +20,20 @@ choose the dash length (near 2/2 at 1px, and engine-dependent), so dashes are a 
 as `currentColor`, so one class swap covers solid and dashed alike.
 **Sizing:** vertical is `self-stretch` so it matches the row it sits in, plus `min-h-5` — outside
 a flex container `self-stretch` does nothing and a 0-height div renders as nothing at all.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Divider` (`40004242:14873`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Reach for one when whitespace has stopped doing the work and two groups still read as one.
+- Keep a vertical divider inside a flex row so it stretches to the height of the row beside it.
+- Save Emphasized for a seam that is a real structural break, and leave everything else on the default.
+
+**Don't**
+
+- Do not put a divider between every item in a list. Spacing separates; a line is for the boundary that matters.
+- Do not put one inside a tab strip or anywhere the parent role forbids a separator. It is a real separator in the markup, not a drawn line.
+- Do not add a divider to make a layout look finished. If nothing is being separated, take it out.

@@ -131,3 +131,20 @@ own. It follows Field on **weight** though: semibold, like every other field lab
 library.
 **Wants adding to Figma:** only the tick's `--radius/full` binding now, which is the one radius
 in the file not named `--border-radius/rounded-*` — cosmetic, both resolve to 9999.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Slider` (`40004242:15082`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Reach for it when the number is approximate: a volume, an opacity, a price filter.
+- Give it a label, or an aria-label. An unnamed slider will not compile, and a range would otherwise carry two unnamed thumbs.
+- Pass an array value when two ends are being picked. The range follows from the value rather than from a prop.
+
+**Don't**
+
+- Do not use a slider for a number somebody has to be exact about. Pair it with an input, or use the input alone.
+- Do not put the chosen value in the bounds labels. They label where the track starts and ends.
+- Do not use a slider for a handful of steps. That is a Segmented Control or a Radio Group.

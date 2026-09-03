@@ -56,3 +56,36 @@ not in Tabs: `CheckboxGroup` renders `role="group"`, which has no required-child
 it is Avatar's outside-stroke trap again: Figma draws the Divider frame 0px tall with its line
 hanging outside, where a real 1px separator takes 1px of layout. The code is right and the frame
 is the thing that cannot represent it.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Checkbox` (`40004242:14797`) and `↪ Checkbox Group` (`40004242:14816`) in Figma.
+The two are one text in two places — change one and change the other.
+
+### Checkbox
+
+**Do**
+
+- Use it for an intention that a Save button later commits.
+- Word the label as the thing being turned on, so the meaning of a tick is obvious without reading the state.
+- Wrap a set in a Field. Only the Field can carry a message, and it marks every control inside it invalid at once.
+
+**Don't**
+
+- Do not use a checkbox for something that takes effect the moment you let go. That is a Switch.
+- Do not offer indeterminate as a third thing somebody can pick. It reports the state of the boxes underneath it.
+- Do not use a lone checkbox where exactly one of several is meant. Radio is for one, checkboxes are for any number.
+
+### Checkbox Group
+
+**Do**
+
+- Reach for the group whenever the boxes belong together. It owns the array value and the parent checkbox's arithmetic.
+- Put the question on a Field above the group. The Field names the set; each box keeps its own label.
+- Pass allValues alongside a select-all option, or the parent cannot tell all from some.
+
+**Don't**
+
+- Do not compute the parent's mixed state by hand. The group already does it, and a half-selected parent drawing a tick is the usual result.
+- Do not run a long list horizontally. Vertical is easier to scan and does not wrap awkwardly.
+- Do not use a checkbox group where only one answer is allowed. Radio Group is the shape for that.

@@ -42,3 +42,20 @@ together in code while the file lets them move. **A fourth control is the point 
 **32×20 track, 14/16 knob, 40px card are the numbers to check.**
 Left out: `readOnly`, which Base UI has and Figma draws no state for — it passes through the
 spread unstyled rather than being a documented prop.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Switch` (`40004242:15101`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for a setting that takes effect the moment you let go.
+- Word the label as the thing being turned on, so on and off read correctly without checking the track.
+- Keep it beside the setting it controls, in a panel rather than in a form.
+
+**Don't**
+
+- Do not put a switch in a form that a Save button commits. That is a Checkbox: an intention, not the commit.
+- Do not use a switch to pick between two named options. Two named options are a Segmented Control.
+- Do not use one for a change that can fail or take a while. A switch says the thing is done.

@@ -121,3 +121,20 @@ owns the label); a `Hug` property, which this set does not have though Select's 
 `maxEntries`, `hasCreate`, `status`, `+N more` overflow, `endContent`, `isLabelHidden` and
 `disabledMessage`, none of which are in the file. Astryx's rule against coloring individual tokens
 is already Token's.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Combobox` (`40004242:14835`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Reach for it when the value must come from a list too long to scroll, and typing is how you find it.
+- Pass the options as items. Rows written as children are never filtered, so the search would silently match nothing.
+- Use the multi-select shape when several values are chosen: the field becomes the input, and the chosen values sit in front of the caret as Tokens.
+
+**Don't**
+
+- Do not use it when an answer off the list is still allowed. That is Autocomplete, and it is the only difference between them.
+- Do not leave the empty state out. A filter that empties the list without saying so looks broken.
+- Do not color the tokens in the field. A token is a value somebody chose, in the card color; something colored that you read is a Badge.

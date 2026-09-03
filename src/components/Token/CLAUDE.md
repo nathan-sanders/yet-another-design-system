@@ -93,3 +93,20 @@ Left out: Astryx's `color` (Badge's job), `isLabelHidden` (Astryx argues against
 breath), and `description` / `aria-description` (no Figma counterpart, thin support).
 **Naming:** `src/components/Token/` is this component; `tokens/` at the repo root is the design
 token export from Figma. Unrelated, and the collision is worth a second's care when reading a path.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Token` (`40004242:15158`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use it for one piece of data somebody chose: a tag, an active filter, a recipient.
+- Give it a remove button when the choice can be taken back. That is what most tokens are for.
+- Keep the label short. The pill is 20 or 24px tall and it does not grow to hold a sentence.
+
+**Don't**
+
+- Do not use a Token for status. Something colored that you read is a Badge; a value you chose and can take back is this.
+- Do not color tokens individually to mean something. They are all the card color on purpose.
+- Do not put a Badge in a small token's end slot. It is taller than the pill, and it makes the field around it grow.

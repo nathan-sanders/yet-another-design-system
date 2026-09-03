@@ -103,3 +103,36 @@ and `statusVariant` — none are in the file.
 Figma has since caught up: the Input and Input Group sets' `Label` and `Sub Label` properties
 are gone, so their frames are the box alone at 24 / 32 / 40 rather than 76 / 84 / 92, and match
 what the code renders.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Input` (`40004242:14930`) and `↪ Input Group` (`40004242:14949`) in Figma.
+The two are one text in two places — change one and change the other.
+
+### Input
+
+**Do**
+
+- Use it for free text with nothing to pick from: a name, an email, a URL.
+- Give it a name. A Field around it, or an aria-label for the toolbar search shape.
+- Keep Ghost for a search entry that has something beside it doing the identifying, like a magnifier or a label.
+
+**Don't**
+
+- Do not use an input where the value has to come from a known set. Select, Combobox and Radio all exist for that.
+- Do not explain the field in the placeholder. It disappears exactly when somebody needs to check what was asked.
+- Do not disable a field to make it read-only. A disabled field drops out of reach and reads at 40% opacity.
+
+### Input Group
+
+**Do**
+
+- Use it when something has to travel with the field: a leading icon, a unit, a button that acts on what was typed.
+- Put a single glyph inline and a row of actions on its own line. The two are separate decisions per addon, not one switch.
+- Disable a button inside an addon yourself. The group's fade stops pointers on the box but does not reach arbitrary children.
+
+**Don't**
+
+- Do not fill both ends with controls. A field with something attached at every edge stops reading as a field.
+- Do not put the label in an addon. Field owns the label, and these two are the control and nothing else.
+- Do not let an icon be the only thing naming the field. An icon is an affordance, not an accessible name.

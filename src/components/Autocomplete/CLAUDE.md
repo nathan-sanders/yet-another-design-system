@@ -93,3 +93,20 @@ Left out: `Autocomplete.Trigger` and `Value` (no trigger, and the value is the i
 `Clear`, `Backdrop`, `Arrow`, `Row` and `Status`, none of which Figma draws; `grid`, `inline` and
 virtualization; and `Autocomplete.Label`, because `Field` owns the label. `Clear` and `Status` are
 re-attached as raw parts for a caller who needs them.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Autocomplete` (`40004242:14664`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Reach for it when what somebody types is the answer and the suggestions only save keystrokes. A search box, a city, a tag they may be inventing.
+- Always render the empty state. A filter that empties the list without saying so looks broken, and what they typed is still a good answer.
+- Give it a name: a Field label, or an aria-label when it stands alone in a toolbar.
+
+**Don't**
+
+- Do not use it when the value has to come from the list. That is Combobox, and it is the only difference between the two.
+- Do not auto-highlight the first suggestion. It nudges towards an on-list answer, which is the one thing this control is not for.
+- Do not open the menu when somebody clicks an empty field. Suggestions are for working from, not an ambush.

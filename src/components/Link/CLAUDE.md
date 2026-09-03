@@ -86,3 +86,20 @@ always), `isStandalone` (subsumed by `size`), `tooltip` (composition — Avatar 
 the spread, and on a text link you should not use it — it replaces the visible words for a
 screen reader, which is the one thing a link's own text is already good at.
 `lucide-react` also exports a `Link` glyph — a naming collision to alias inside stories.
+
+## Best practices
+
+Mirrored from the **Best practices** block on `↪ Link` (`40004242:14987`) in Figma.
+The two are one text in two places — change one and change the other.
+
+**Do**
+
+- Use a link to navigate and a Button to act. If it changes data, it is not a link.
+- Let an inline link inherit the size and weight of the sentence around it, and pin a size only when it stands on its own.
+- Set External for a link that opens a new tab, so the arrow and the announcement come with it.
+
+**Don't**
+
+- Do not write click here or read more. The words in a link are what gets read out of context, so they have to say where it goes.
+- Do not put an aria-label on a text link. It replaces the visible words, which are already the best name the link has.
+- Do not dress a button as a link. It loses middle-click, command-click and open in new tab, and it announces as a button.
