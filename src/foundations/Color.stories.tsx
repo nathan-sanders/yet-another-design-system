@@ -64,9 +64,10 @@ export const Primitives: Story = {
         title="Neutrals"
         hint={
           <>
-            Nine of them, and the choice is a running one — see <strong>The neutral ramp</strong>.
-            Five are this system's own (<Mono>taupe</Mono>, <Mono>mauve</Mono>, <Mono>mist</Mono>,{' '}
-            <Mono>olive</Mono> alongside <Mono>stone</Mono>); the rest come from Tailwind.
+            Nine of them, all Tailwind's — <Mono>taupe</Mono>, <Mono>mauve</Mono>,{' '}
+            <Mono>mist</Mono> and <Mono>olive</Mono> arrived in 4.2 alongside the five that were
+            always there. <Mono>stone</Mono> is only the default; which one a product runs on is a
+            running choice — see <strong>The neutral ramp</strong>.
           </>
         }
       >
