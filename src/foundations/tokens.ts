@@ -201,10 +201,18 @@ export const navThemes: string[] = BLOCKS.flatMap((b) => {
   return m ? [m[1]] : []
 })
 
+/**
+ * What one mode declares, in file order — the same shape as a semantic block.
+ *
+ * A mode is the whole tier rather than a diff, so every mode declares all of
+ * these; an unknown name gives an empty list rather than a partial one.
+ */
+export function navMode(mode: string): Decl[] {
+  return block((b) => b.selector === `:root[data-nav-theme="${mode}"]`)
+}
+
 /** The seven roles a nav theme re-points, `--nav-background` … in file order. */
-export const navTokens: string[] = block(
-  (b) => b.selector === `:root[data-nav-theme="${navThemes[0]}"]`,
-).map((d) => d.name.slice(2))
+export const navTokens: string[] = navMode(navThemes[0]).map((d) => d.name.slice(2))
 
 /* -------------------------------------------------------------- dimensions */
 
