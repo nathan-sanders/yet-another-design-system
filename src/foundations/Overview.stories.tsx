@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section } from './Showcase'
+import { Mono, Page, Panel, Section, Table, Td, Th } from './Showcase'
 import {
   chromaticRamps,
   durations,
+  navMode,
+  navThemes,
+  navTokens,
   neutralRamps,
   radii,
   paint,
@@ -32,6 +35,26 @@ const EXAMPLE = 'action-primary-background'
 const exampleToken = semanticGroups
   .flatMap((g) => g.tokens)
   .find((t) => t.token === EXAMPLE)
+
+/**
+ * Three of the nav modes, one per shape of alias the tier uses — a mode reaching
+ * into the ramp tier, one reaching into the semantics, and one naming a
+ * primitive outright. Which three is a judgement call, so the
+ * names are written here; what they resolve to is not, and a mode that has been
+ * renamed drops its column rather than showing an invented value.
+ */
+const NAV_SHAPES = [
+  { mode: 'neutral-inverse', title: 'Neutral Inverse' },
+  { mode: 'canvas', title: 'Canvas' },
+  { mode: 'blue-inverse', title: 'Blue Inverse' },
+]
+
+const navShapes = NAV_SHAPES.flatMap(({ mode, title }) => {
+  const decls = navMode(mode)
+  if (!decls.length) return []
+  const alias = new Map(decls.map((d) => [d.name.slice(2), readAlias(d.value).alias]))
+  return [{ mode, title, alias }]
+})
 
 function Tier({
   step,
@@ -101,10 +124,11 @@ export const Overview: Story = {
       >
         <Section title="By the numbers">
           <Panel>
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-7">
               <Stat value={chromaticRamps.length + neutralRamps.length} label="Primitive ramps" />
               <Stat value={swappableNeutrals.length} label="Swappable neutrals" />
               <Stat value={semanticTokenCount} label="Semantic tokens" />
+              <Stat value={navThemes.length} label="Nav themes" />
               <Stat value={typeScale.length} label="Type steps" />
               <Stat value={radii.length} label="Radii" />
               <Stat value={durations.length} label="Durations" />
@@ -158,8 +182,72 @@ export const Overview: Story = {
         </Section>
 
         <Section
-          title="The two switches"
-          hint="Both are attributes on <html>, and both are orthogonal — the same public mechanism a consumer gets. The Storybook toolbar sets them."
+          title="The tier beside the semantics"
+          hint={
+            <>
+              One tier does not sit in that chain. The navigation components paint with a set of
+              roles of their own, switched by <Mono>data-nav-theme</Mono> rather than by the theme —
+              try the Nav control in the toolbar above.
+            </>
+          }
+        >
+          <Table label="The navigation roles, in three of their modes">
+            <thead>
+              <tr>
+                <Th className="w-14">Live</Th>
+                <Th>Role</Th>
+                {navShapes.map((shape) => (
+                  <Th key={shape.mode}>{shape.title}</Th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {navTokens.map((token) => (
+                <tr key={token}>
+                  <Td>
+                    <div
+                      className="h-8 w-10 rounded-xs border border-surface-border"
+                      style={{ background: `var(--${token})` }}
+                    />
+                  </Td>
+                  <Td>
+                    <Mono>{token.slice('nav-'.length)}</Mono>
+                  </Td>
+                  {navShapes.map((shape) => (
+                    <Td key={shape.mode}>
+                      <span className="whitespace-nowrap font-mono text-sm text-content-subtle">
+                        {shape.alias.get(token) ?? '—'}
+                      </span>
+                    </Td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <p className="max-w-3xl text-base text-content-subtle">
+            The Live column follows the Nav control in the toolbar; the three after it are fixed, and
+            they are the three shapes the tier uses. Neutral Inverse aliases the <em>ramp</em> tier,
+            so it moves with the neutral. Canvas aliases the <em>semantic</em> tier, so it moves with
+            the theme. Blue Inverse names a <em>primitive</em>, so it moves with neither — and that
+            is the point. A navigation surface is a brand decision rather than a reading surface, so
+            all but Canvas are absolute: the page can go dark underneath a nav that does not.
+          </p>
+          <p className="max-w-3xl text-base text-content-subtle">
+            It is the one exception to painting with semantics, and it is the same rule a tier over:
+            a nav component writes <Mono>bg-nav-background</Mono> and never reaches past it, and no
+            other component may write a <Mono>--nav-*</Mono> role at all. There is no page of its own
+            below because there is no second thing to show — the tier is the table above. Nine of the
+            modes come from Figma's Navigation Theme collection, which is full at nine, and{' '}
+            <Mono>generate.py</Mono> derives the rest from the remaining Tailwind ramps.
+            That is more than anyone can check by eye, so <Mono>nav-contrast.test.ts</Mono> measures
+            every pair the components actually paint, in every mode, and a ramp that fails cannot
+            ship.
+          </p>
+        </Section>
+
+        <Section
+          title="The three switches"
+          hint="All three are attributes on <html>, and all three are orthogonal — the same public mechanism a consumer gets. The Storybook toolbar sets them."
         >
           <Panel className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
@@ -172,9 +260,16 @@ export const Overview: Story = {
             <div className="flex flex-col gap-1">
               <Mono>data-neutral="taupe"</Mono>
               <p className="text-base text-content-subtle">
-                Repoints the ramp tier at a different neutral scale. Theme-independent, so the two
-                switches compose: {swappableNeutrals.length} neutrals × 2 themes, from one set of
+                Repoints the ramp tier at a different neutral scale. Theme-independent, so those
+                two compose: {swappableNeutrals.length} neutrals × 2 themes, from one set of
                 components.
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Mono>data-nav-theme="blue-inverse"</Mono>
+              <p className="text-base text-content-subtle">
+                Repoints the navigation tier, and only it. Orthogonal to both of the others because
+                it is mostly absolute — the page can go dark underneath a nav that does not move.
               </p>
             </div>
           </Panel>
