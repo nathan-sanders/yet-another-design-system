@@ -187,6 +187,25 @@ function strip(name: string): string {
   return name.startsWith('color-') ? name.slice('color-'.length) : name
 }
 
+/* -------------------------------------------------------------- navigation */
+
+/**
+ * The modes `data-nav-theme` can put the navigation components in, in file
+ * order. Nine come from Figma's Navigation Theme collection — a variable
+ * collection is capped at that many modes — and `generate.py` derives the rest
+ * from the remaining Tailwind ramps, so counting the stylesheet is the only way
+ * to get the real number.
+ */
+export const navThemes: string[] = BLOCKS.flatMap((b) => {
+  const m = /^:root\[data-nav-theme="([a-z-]+)"\]$/.exec(b.selector)
+  return m ? [m[1]] : []
+})
+
+/** The seven roles a nav theme re-points, `--nav-background` … in file order. */
+export const navTokens: string[] = block(
+  (b) => b.selector === `:root[data-nav-theme="${navThemes[0]}"]`,
+).map((d) => d.name.slice(2))
+
 /* -------------------------------------------------------------- dimensions */
 
 export type TypeStep = { name: string; size: string; lineHeight: string }

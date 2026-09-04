@@ -5,6 +5,8 @@ import { Link } from './components/Link'
 import { Mono, Page, Panel, Section, Table, Td, Th } from './foundations/Showcase'
 import {
   chromaticRamps,
+  navThemes,
+  navTokens,
   neutralRamps,
   semanticTokenCount,
   typeScale,
@@ -67,12 +69,19 @@ function Stat({ value, label }: { value: string | number; label: string }) {
   )
 }
 
-/** A titled block inside a Section — h3, so the heading order never skips a level. */
+/**
+ * A titled block inside a Section — h3, so the heading order never skips a level.
+ *
+ * The body is a `p` rather than a flex column. `Mono` is an inline `<code>`, and
+ * a flex container makes an anonymous item of every text run beside it — so each
+ * token name in the copy broke onto a line of its own instead of flowing with
+ * the sentence it belongs to.
+ */
 function Note({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Panel className="flex flex-1 flex-col gap-2">
       <h3 className="text-base font-semibold text-content-emphasized">{title}</h3>
-      <div className="flex flex-col gap-2 text-base text-content-subtle">{children}</div>
+      <p className="text-base text-content-subtle">{children}</p>
     </Panel>
   )
 }
@@ -120,6 +129,7 @@ export const Introduction: Story = {
           <Stat value={neutralRamps.length} label="Neutral ramps" />
           <Stat value={chromaticRamps.length} label="Color ramps" />
           <Stat value={typeScale.length} label="Type steps" />
+          <Stat value={navThemes.length} label="Nav themes" />
           <Stat value={2} label="Themes" />
         </Panel>
         <p className="max-w-2xl text-base text-content-subtle">
@@ -132,12 +142,12 @@ export const Introduction: Story = {
 
       <Section
         title="How it works"
-        hint="Three layers, each generated from the one above it. Nothing in the chain is written twice."
+        hint="Four tiers, each written in terms of the one before it. Nothing in the chain is said twice."
       >
         <Code label="The token pipeline">
           {`Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css  →  components`}
         </Code>
-        <div className="flex flex-col gap-4 md:flex-row">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Note title="Primitives">
             The raw palette — <Mono>--color-blue-500</Mono> — plus the static dimensions. Tailwind
             is the source of truth for color here, so every value ships as <Mono>oklch()</Mono>.
@@ -149,6 +159,11 @@ export const Introduction: Story = {
           <Note title="Semantics">
             Role-based and theme-aware — <Mono>--surface-canvas</Mono>,{' '}
             <Mono>--content-primary</Mono>. This is the only tier a component is allowed to touch.
+          </Note>
+          <Note title="The navigation theme">
+            The navigation components paint with {navTokens.length} roles of their own —{' '}
+            <Mono>--nav-background</Mono> and friends — rather than the semantic tier, so a nav can
+            be dark while the page it frames is light.
           </Note>
         </div>
         <p className="max-w-2xl text-base text-content-subtle">
@@ -170,35 +185,51 @@ export const Introduction: Story = {
 <div className="bg-stone-100 text-stone-800" />`}
         </Code>
         <p className="max-w-2xl text-base text-content-subtle">
-          The rule is what makes the two switches below total. Because no component reads a
-          primitive, the semantic layer is a complete choke point: change what a role points at and
-          everything follows, with no per-component work. A single component reaching for{' '}
+          The rule is what makes the switches below total. Because no component reads a primitive,
+          the semantic layer is a complete choke point: change what a role points at and everything
+          follows, with no per-component work. A single component reaching for{' '}
           <Mono>bg-stone-200</Mono> would be the one thing on the page that does not move.
+        </p>
+        <p className="max-w-2xl text-base text-content-subtle">
+          The navigation tier is the one sanctioned exception, and it is the same rule one tier
+          over: the nav components name <Mono>bg-nav-background</Mono> rather than a color, and{' '}
+          <Mono>data-nav-theme</Mono> decides what that is worth. They are the only components
+          allowed to reach for a <Mono>--nav-*</Mono> role, and they never reach past it either.
         </p>
       </Section>
 
       <Section
-        title="Two switches"
-        hint="Both are attributes on the html element, and they are orthogonal — try them from the Theme and Neutral controls in the toolbar above."
+        title="Three switches"
+        hint="All three are attributes on the html element, and they are orthogonal — try them from the Theme, Neutral and Nav controls in the toolbar above."
       >
-        <Code label="The theme and neutral switches">
-          {`<html class="dark">              <!-- dark mode -->
-<html data-neutral="taupe">     <!-- one of nine neutral ramps -->`}
+        <Code label="The theme, neutral and nav switches">
+          {`<html class="dark">                    <!-- dark mode -->
+<html data-neutral="taupe">           <!-- one of ${neutralRamps.length} neutral ramps -->
+<html data-nav-theme="blue-inverse">  <!-- one of ${navThemes.length} nav themes -->`}
         </Code>
-        <div className="flex flex-col gap-4 md:flex-row">
+        <div className="grid gap-4 md:grid-cols-3">
           <Note title="Dark mode is free">
             Color lives in the semantic layer, so a component never needs a <Mono>dark:</Mono>{' '}
             variant. The token swaps itself, and a theme toggle only adds or removes a class.
           </Note>
           <Note title="The neutral is swappable">
-            Nine ramps ship — Stone is the default. Picking one moves every surface, border, text
-            color, action, input, focus ring, shadow and neutral badge at once, in both themes.
+            Stone is the default, and there are {neutralRamps.length} to pick from. Picking one
+            moves every surface, border, text color, action, input, focus ring, shadow and neutral
+            badge at once, in both themes.
+          </Note>
+          <Note title="The nav has its own theme">
+            Its {navThemes.length} modes run from Neutral Inverse to Rose. All but Canvas are
+            absolute, so a nav stays put while the page around it switches to dark — a navigation
+            surface is a brand decision rather than a reading surface.
           </Note>
         </div>
         <p className="max-w-2xl text-base text-content-subtle">
           Contrast is not automatic, though. The ramps differ slightly in lightness at the same
           step, so a pair that clears 4.5:1 on Stone is not guaranteed to on Olive. Check before
-          shipping a non-default ramp.
+          shipping a non-default ramp. The nav tier is the exception, because it has too many modes
+          to check by eye: <Mono>nav-contrast.test.ts</Mono> measures every pair the navigation
+          components actually paint, in all {navThemes.length} modes, and a ramp that fails cannot
+          ship.
         </p>
       </Section>
 
@@ -263,7 +294,8 @@ import { Plus } from 'lucide-react'
                 <strong className="font-semibold text-content-emphasized">Components</strong>
               </Td>
               <Td className="text-content-subtle">
-                Every component, every variant, in light and dark. Each page shows the full state
+                All {componentCount} of them, every variant, in light and dark — controls, overlays
+                and the navigation set that carries its own theme. Each page shows the full state
                 matrix rather than a happy path, because each story is also a test.
               </Td>
             </tr>
@@ -281,7 +313,10 @@ import { Plus } from 'lucide-react'
         <p className="max-w-2xl text-base text-content-subtle">
           Every story runs in real Chromium and is checked with axe on every pull request, at the
           <Mono> error</Mono> level — an accessibility violation breaks the build the same way a
-          type error does.
+          type error does. Alongside it a node-side suite reads the generated stylesheet, so the
+          two failures a rendered story cannot show — a utility naming a token that does not exist,
+          and a nav mode that does not clear its contrast threshold — fail loudly rather than
+          quietly painting nothing.
         </p>
       </Section>
 
@@ -322,7 +357,8 @@ import { Plus } from 'lucide-react'
                 <Mono>npm test</Mono>
               </Td>
               <Td className="text-content-subtle">
-                Every story, in real Chromium, checked with axe
+                Every story, in real Chromium, checked with axe — plus the token and nav-contrast
+                checks, which need no browser
               </Td>
             </tr>
             <tr>
