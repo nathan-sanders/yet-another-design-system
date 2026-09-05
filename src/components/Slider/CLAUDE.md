@@ -96,8 +96,9 @@ drag. Switch's "11px reads as lag" from the other end.
 for mark labels are the numbers to check.**
 Left out: **the number input Figma draws at the trailing edge** (two for `Type=Range`), which is
 an instance of an **Input** component that lives elsewhere in the file. **Input has since been built**,
-so this is a Slider follow-up now rather than a blocker — the styling it was waiting for exists,
-and `Slider.Value` is attached in the meantime. Also
+and `NumberInput` after it — which is what that 56x32 field actually is, at exactly the default
+field height. So this is a Slider follow-up now rather than a blocker — the component it was waiting
+for exists, and `Slider.Value` is attached in the meantime. Also
 `orientation="vertical"` (Base UI and Astryx have it, Figma draws no vertical variant — omitted
 from the props rather than left to break quietly, Tabs' call), and `invalid` — **now closed as a
 deliberate non-change rather than a deferral.** Figma's `State` axis here is default | disabled

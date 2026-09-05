@@ -57,12 +57,6 @@ export const box = tv({
     // size, and which color it takes is the `appearance` variant's business.
     // Button's ghost does the same thing with a fully transparent border.
     'rounded-md border',
-    // Focus lands on the <input> inside, so the ring goes on the box and the
-    // input draws none of its own — the Checkbox `inContainer` case, and the
-    // reason CLAUDE.md warns about two rings on one control. Unlike a <button>,
-    // an <input> matches :focus-visible on a mouse click too, which is right
-    // here: Figma draws a focus state for clicking into the field.
-    ...focusRingWithin,
     // Same crossfade Checkbox and SegmentedControl use, for the same reason: the
     // border color changes on hover and on invalid, and 130ms is the shortest
     // motion token.
@@ -126,6 +120,42 @@ export const box = tv({
     },
 
     /**
+     * What fires the box's focus ring.
+     *
+     * Focus lands on the `<input>` inside rather than on the box, so the ring
+     * goes here and the input draws none of its own — the Checkbox
+     * `inContainer` case, and the reason CLAUDE.md warns about two rings on one
+     * control. Unlike a `<button>`, an `<input>` matches `:focus-visible` on a
+     * mouse click too, which is right here: Figma draws a focus state for
+     * clicking into the field.
+     *
+     * **`within` only says what it means while the box has exactly one focusable
+     * descendant.** `NumberInput` puts an Increment and a Decrement inside it,
+     * and `has-focus-visible:` does not care which of the three matched — so
+     * `input` is Combobox's answer to Combobox's problem, applied here: scope
+     * the box's ring to the caret and let each button carry its own.
+     *
+     * Base UI turns out to hold both steppers at `tabindex="-1"`, so the two
+     * spellings currently paint the same thing. Measured, not assumed — and the
+     * scoped one is still the right one, because it describes what should fire
+     * the ring rather than what happens to.
+     *
+     * This is a variant rather than an extra class the caller appends because
+     * the two spellings do **not** conflict in tailwind-merge — different
+     * variant prefixes are different keys, so `has-[input:focus-visible]:ring-2`
+     * added on top of `has-focus-visible:ring-2` leaves both live and rings the
+     * box anyway. Only replacing it works.
+     */
+    ring: {
+      within: focusRingWithin,
+      input: [
+        'has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus-focus-outer-border',
+        'has-[input:focus-visible]:ring-offset-2',
+        'has-[input:focus-visible]:ring-offset-focus-focus-inner-border',
+      ],
+    },
+
+    /**
      * Figma's `State=Invalid` on the Input set — the standalone case, where
      * there is no Field to inherit validity from. Inside one, the `has-` rule in
      * the base list above does the same job off `data-invalid`, and the two
@@ -141,7 +171,7 @@ export const box = tv({
   // applies variants in the order their keys appear, and tailwind-merge keeps the
   // last of two conflicting border colors — so an invalid ghost field keeps its
   // red border at rest rather than hiding the one state that must never hide.
-  defaultVariants: { appearance: 'default', size: 'default', invalid: false },
+  defaultVariants: { appearance: 'default', size: 'default', ring: 'within', invalid: false },
 })
 
 /**
