@@ -165,7 +165,6 @@ function DayCell({ date, outside }: { date: Date; outside: boolean }) {
           if (!disabled) onDayClick(date)
         }}
         onPointerEnter={() => onDayHover(date)}
-        onPointerLeave={() => onDayHover(null)}
       >
         {/* The file's `Highlight`. It loses to a selection, which paints over it. */}
         {isToday && !selected && <span className={todayMarker} />}
@@ -502,6 +501,11 @@ export function Calendar({
         aria-label={ariaLabel}
         className={cn('flex font-sans', className)}
         onKeyDown={onKeyDown}
+        // The preview is cleared here rather than on each cell's pointer-leave.
+        // Per-cell, moving between two adjacent days produced a frame where no
+        // day was hovered, so the tentative range collapsed and re-expanded on
+        // every step across the grid.
+        onPointerLeave={() => onDayHover(null)}
         {...props}
       >
         {months.map((month, index) => (

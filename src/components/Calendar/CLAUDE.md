@@ -96,11 +96,15 @@ Every number below came off the canvas rather than from the screenshot.
   the fill alone reproduces it. Worth knowing before someone "fixes" the missing
   border — and it also dodges a `border-y-<token>` utility, which `tokens.test.ts`
   cannot see (its regex matches `border-surface-*`, not `border-y-surface-*`).
-- **The month card is 304 tall, which is a five-row January 2025** — so the row
-  count is variable, 5 or 6, and the panel changes height as you navigate. Astryx
-  takes the other side (`hasVariableRowCount: false` by default). The file is the
-  source of truth here and nothing has asked for the other behavior yet; if it
-  ever does, the prop already has a name.
+- **The month card is 304 tall, which is a five-row January 2025** — and this is
+  the one place the code deliberately does not follow the file. A variable row
+  count meant the panel jumped 40px as you navigated between a 5-row month and a
+  6-row one; Nathan asked for Astryx's side of it, whose default is
+  `hasVariableRowCount: false`. **The grid is a fixed six rows and the card is
+  344.** No prop: a fixed grid is the only behavior anyone has asked for, and the
+  test sweeps every month of four years at three week-starts to keep it that way.
+  **The file owes a redraw here** — 344, not 304, and 481 / 433 for the two range
+  panels.
 - **The nav arrows are `ArrowLeft`/`ArrowRight`, not chevrons** — the exported
   assets are named arrow. They are ghost icon-only Buttons at the default size,
   which is what the file's instances say and where their 42 × 32 comes from.
@@ -108,13 +112,14 @@ Every number below came off the canvas rather than from the screenshot.
 - **The footer's two shapes are one component.** 136 tall at 312 wide and 88 at
   624 is `flex-wrap` plus `min-w-70 max-w-80` on the inputs, not two drawings.
 
-**One measured miss, kept deliberately: the panel is 441 tall where the file
-says 440.** Figma's footer rule is an INSIDE stroke, so its 1px lives inside the
-136; a CSS `border-t` on an auto-height element adds its 1px outside the padding
-box. Matching the file exactly would mean shaving `pt-2` to a magic 7px, trading
-a token for a number. One pixel on a 440px panel is the better side of that
-trade. The panel's **width** is exact at every variant — 312 / 536 / 848 — and
-`Type=Single` measures 312 × 304 to the pixel.
+**Widths are exact at every variant — 312 / 536 / 848.** Heights are not, for
+two separate reasons, and only one of them is a decision about the file.
+
+The six-row grid is the big one, above. On top of it there is a **1px** the
+footer costs: Figma's rule is an INSIDE stroke, so it lives inside the 136,
+where a CSS `border-t` on an auto-height element adds its pixel outside the
+padding box. Matching exactly would mean shaving `pt-2` to a magic 7px, trading
+a token for a number — not worth it for one pixel.
 
 ## The footer wrap needed a width
 
@@ -125,6 +130,37 @@ to the calendar's own width (`w-78`, or `w-156` for two months), which is what
 the file's layout means anyway: the panel is as wide as the grid, and the footer
 wraps inside it. **Do not remove that class** — the failure is silent and it
 looks like a footer bug rather than a sizing one.
+
+## Three bugs found in review, and what caused them
+
+Worth keeping, because none of them looked like what it was.
+
+**The DatePicker's month arrows did nothing.** The panel holds the visible month
+as well as the calendar does — a preset and the footer inputs both move it
+without going through the grid — and `DatePickerProps` omitted
+`defaultFocusMonth`. So setting the opening month meant `focusMonth`, a
+*controlled* prop, and nothing was updating it: the arrows fired
+`onFocusMonthChange`, the panel deferred to the prop, and the prop never moved.
+The gap was in the prop surface, not in the handler. `defaultFocusMonth` is back,
+and `DatePicker.stories` has a `Navigation` play that would have caught it —
+`Calendar` had one from the start, which is exactly why the bug lived in the one
+component that did not.
+
+**Picking a range flashed every day as a fully rounded selected cell.** Two
+causes stacked. `onDayHover(null)` was on each cell's `onPointerLeave`, so
+crossing from one day to the next left a frame with nothing hovered and the
+tentative range collapsed and re-expanded on every step. And `transition-colors`
+animated the background while the radius changed instantly — so in that frame
+every cell snapped to `rounded-md` while still painted dark. The fix is both:
+the preview clears on leaving the **grid**, and only `border-color` transitions.
+**Selection is a state, not an animation** — the only thing here that wants
+easing is the hover stroke.
+
+**`Apply` left a hole in the single-month footer.** At 312 the footer wraps, so
+the actions get a row to themselves, and two hug-width buttons pinned right left
+most of it empty. `Apply` stretches into it at `numberOfMonths === 1` only; at
+two months everything is on one line beside the inputs and stretching would just
+push them apart.
 
 ## Accessibility
 

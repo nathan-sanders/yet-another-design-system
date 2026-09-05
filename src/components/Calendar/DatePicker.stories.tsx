@@ -28,7 +28,7 @@ const meta = {
     defaultValue: { control: false },
   },
   args: {
-    focusMonth: JANUARY_2025,
+    defaultFocusMonth: JANUARY_2025,
     'aria-label': 'Choose a date range',
   },
   decorators: [
@@ -132,6 +132,40 @@ export const PresetsApply: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: 'Apply' }))
     await expect(args.onApply).toHaveBeenCalled()
+  },
+}
+
+/**
+ * The month arrows, from inside the panel.
+ *
+ * This story exists because they were dead once: `DatePicker` had no
+ * `defaultFocusMonth`, so setting the opening month meant `focusMonth` — a
+ * controlled prop — and nothing was updating it. The panel holds the month as
+ * well as the calendar does, because a preset and the footer inputs both move
+ * it without going through the grid, and a controlled prop with no setter beat
+ * both.
+ */
+export const Navigation: Story = {
+  args: { defaultValue: RANGE },
+  parameters: { controls: { disable: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await expect(canvas.getByRole('grid', { name: 'January 2025' })).toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Next month' }))
+    await waitFor(() =>
+      expect(canvas.getByRole('grid', { name: 'February 2025' })).toBeInTheDocument(),
+    )
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Previous month' }))
+    await userEvent.click(canvas.getByRole('button', { name: 'Previous month' }))
+    await waitFor(() =>
+      expect(canvas.getByRole('grid', { name: 'December 2024' })).toBeInTheDocument(),
+    )
+
+    // Moving the view does not disturb the selection.
+    await expect(canvas.getByLabelText('Start date')).toHaveValue('1/12/2025')
   },
 }
 

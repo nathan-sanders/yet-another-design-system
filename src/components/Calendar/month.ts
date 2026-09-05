@@ -147,15 +147,23 @@ export function dayKey(date: Date): string {
 }
 
 /**
- * The grid for one month, as rows of seven.
+ * How many rows every month grid has.
  *
- * **The row count varies, 5 or 6.** That is what the file draws — its month
- * card is 304px tall, which is a 5-row January 2025 exactly, where a fixed
- * 6-row grid would be 344. The cost is that the panel changes height as you
- * navigate between a 5-row month and a 6-row one. Astryx takes the other side
- * with `hasVariableRowCount: false` by default, so if that jump ever bothers
- * anyone the prop already has a name waiting for it — but the file is the
- * source of truth here, and nothing has asked yet.
+ * **Always six, never five.** The file draws five — its month card is 304px
+ * tall, which is a 5-row January 2025 exactly — and following that measurement
+ * meant the panel changed height by 40px as you navigated between a 5-row
+ * month and a 6-row one. Nathan asked for Astryx's side of it
+ * (`hasVariableRowCount: false` is its default), so the grid is fixed and the
+ * card is **344**, not the file's 304.
+ *
+ * That is a deliberate divergence from the canvas, and the file owes it a
+ * redraw. Six is the maximum any month needs: 31 days can start at most 6 days
+ * into a week, and 6 + 31 = 37, which fits in 42.
+ */
+const GRID_ROWS = 6
+
+/**
+ * The grid for one month, as six rows of seven.
  *
  * Leading and trailing cells are always computed; `hasOutsideDays` is a
  * rendering decision the caller makes from the `outside` flag, so the grid
@@ -169,9 +177,8 @@ export function buildMonth(month: Date, weekStartsOn: WeekDay = 0): CalendarDay[
   // How many cells of the previous month lead the first, given where the week
   // starts. `+ 7` before the modulo keeps it positive for a late `weekStartsOn`.
   const lead = (first.getDay() - weekStartsOn + 7) % 7
-  const rows = Math.ceil((lead + daysInMonth(first)) / 7)
 
-  return Array.from({ length: rows }, (_, row) =>
+  return Array.from({ length: GRID_ROWS }, (_, row) =>
     Array.from({ length: 7 }, (_, column) => {
       // The constructor normalizes a zero or negative day into the previous
       // month and an over-long one into the next, so one expression covers all

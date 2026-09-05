@@ -60,8 +60,15 @@ export interface DatePickerProps
    * rail. Ignored in single mode, which the file draws without one.
    */
   presets?: DatePreset[] | false
-  /** Controlled visible month. */
+  /**
+   * Controlled visible month. Pass `onFocusMonthChange` with it — the panel
+   * holds the month itself as well as the calendar does, because a preset and
+   * the footer inputs both move it without going through the grid, so a
+   * `focusMonth` with nothing updating it pins the arrows dead.
+   */
   focusMonth?: Date
+  /** Uncontrolled starting month. Defaults to the selection, else today. */
+  defaultFocusMonth?: Date
   onFocusMonthChange?: (month: Date) => void
   /** Fires with the current value when Apply is pressed. Omit to hide the actions. */
   onApply?: (value: CalendarValue) => void
@@ -156,6 +163,7 @@ export function DatePicker({
   defaultValue,
   onValueChange,
   focusMonth: focusMonthProp,
+  defaultFocusMonth,
   onFocusMonthChange,
   presets,
   onApply,
@@ -197,7 +205,9 @@ export function DatePicker({
   // The visible month is held here as well as in `Calendar`, because a preset
   // and the footer inputs both have to move it and neither goes through the
   // grid.
-  const [uncontrolledMonth, setUncontrolledMonth] = useState<Date | null>(null)
+  const [uncontrolledMonth, setUncontrolledMonth] = useState<Date | null>(
+    defaultFocusMonth ? startOfMonth(defaultFocusMonth) : null,
+  )
   const focusMonth = focusMonthProp ?? uncontrolledMonth ?? undefined
 
   const showMonth = useCallback(
@@ -224,6 +234,13 @@ export function DatePicker({
   )
 
   const [start, end] = isRange ? (value as DateRange) : [null, null]
+  /**
+   * With one month the footer wraps, so the actions get a row of their own and
+   * `Apply` stretches into it — a 312px row with two hug buttons pinned right
+   * leaves a hole where nothing is. At two months everything is on one line
+   * beside the inputs, and stretching there would just push them apart.
+   */
+  const fillActions = numberOfMonths === 1
   const presetList = presets === false ? [] : (presets ?? DATE_RANGE_PRESETS)
   const showRail = isRange && presetList.length > 0
   const showActions = onApply != null || onCancel != null
@@ -304,13 +321,23 @@ export function DatePicker({
             </div>
 
             {showActions && (
-              <div className="flex items-center justify-end gap-2">
+              <div
+                className={
+                  fillActions
+                    ? 'flex flex-1 items-center gap-2'
+                    : 'flex items-center justify-end gap-2'
+                }
+              >
                 {onCancel && (
                   <Button appearance="secondary" onClick={onCancel}>
                     {cancelLabel}
                   </Button>
                 )}
-                {onApply && <Button onClick={() => onApply(value)}>{applyLabel}</Button>}
+                {onApply && (
+                  <Button className={fillActions ? 'flex-1' : undefined} onClick={() => onApply(value)}>
+                    {applyLabel}
+                  </Button>
+                )}
               </div>
             )}
           </div>

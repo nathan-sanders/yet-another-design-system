@@ -34,21 +34,36 @@ import {
 const jan2025 = new Date(2025, 0, 1)
 
 describe('buildMonth', () => {
-  it('lays January 2025 out as the file draws it — five rows, Sunday first', () => {
+  it('lays January 2025 out Sunday-first', () => {
     const weeks = buildMonth(jan2025)
-    expect(weeks).toHaveLength(5)
     expect(weeks.every((w) => w.length === 7)).toBe(true)
     // The file's first row: 29, 30, 31 from December, then 1–4.
     expect(weeks[0].map((d) => d.date.getDate())).toEqual([29, 30, 31, 1, 2, 3, 4])
     expect(weeks[0].map((d) => d.outside)).toEqual([true, true, true, false, false, false, false])
-    // …and its last, ending on 1 February.
+    // The month's own days end on row five, and row six is all February.
     expect(weeks[4].map((d) => d.date.getDate())).toEqual([26, 27, 28, 29, 30, 31, 1])
-    expect(weeks[4][6].outside).toBe(true)
+    expect(weeks[5].map((d) => d.outside)).toEqual([true, true, true, true, true, true, true])
   })
 
-  it('grows to six rows when a month needs one', () => {
-    // March 2025 starts on a Saturday, so 31 days need 1 + 31 = 32 cells.
-    expect(buildMonth(new Date(2025, 2, 1))).toHaveLength(6)
+  /**
+   * The grid is a fixed six rows, so the panel does not change height as you
+   * navigate — Astryx's `hasVariableRowCount: false`, chosen over the file's
+   * 5-row January. The check that matters is that it is *always* six, since a
+   * single short month slipping through is the whole bug.
+   */
+  it('is six rows for every month, however short', () => {
+    for (let year = 2024; year <= 2027; year += 1) {
+      for (let m = 0; m < 12; m += 1) {
+        for (const start of [0, 1, 6] as const) {
+          expect(buildMonth(new Date(year, m, 1), start)).toHaveLength(6)
+        }
+      }
+    }
+    // February 2026 is the tightest case: 28 days starting on a Sunday fills
+    // four rows exactly, so two whole rows are trailing outside days.
+    const february = buildMonth(new Date(2026, 1, 1))
+    expect(february[0][0].date.getDate()).toBe(1)
+    expect(february[5].every((d) => d.outside)).toBe(true)
   })
 
   it('crosses the year boundary in both directions', () => {
@@ -61,6 +76,12 @@ describe('buildMonth', () => {
     const first = january[0][0]
     expect(first.date.getFullYear()).toBe(2025)
     expect(first.outside).toBe(true)
+  })
+
+  it('marks every cell outside the month, and only those', () => {
+    for (const day of buildMonth(jan2025).flat()) {
+      expect(day.outside).toBe(day.date.getMonth() !== 0)
+    }
   })
 
   it('rotates to a Monday-first week', () => {

@@ -35,7 +35,13 @@ export const dayButton = tv({
     'relative flex h-8 w-10 shrink-0 items-center justify-center',
     'border border-transparent font-sans text-base',
     'cursor-pointer select-none',
-    'transition-colors duration-fast-min ease-standard',
+    // **Only the border transitions.** `transition-colors` also animates the
+    // background, and a selection change moves the background *and* the radius
+    // — the radius instantly, the colour over 130ms. Clicking a range showed
+    // every cell snapping to `rounded-md` while still painted dark, which read
+    // as a flash of fully-rounded selected days. Hover is the only thing here
+    // that wants easing; selection is a state, not an animation.
+    'transition-[border-color] duration-fast-min ease-standard',
     // Hover is a stroke and nothing else — the file adds no fill.
     'hover:border-surface-border-emphasized',
     ...focusRing,
