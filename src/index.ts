@@ -69,6 +69,19 @@ export type {
 export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
+export { Calendar, DatePicker, DATE_RANGE_PRESETS } from './components/Calendar'
+export type {
+  CalendarProps,
+  CalendarValue,
+  DatePickerProps,
+  DatePreset,
+  DateRange,
+  DateLimits,
+  CalendarDay,
+  DaySelection,
+  WeekDay,
+} from './components/Calendar'
+
 export { Card, ClickableCard } from './components/Card'
 export type {
   CardProps,
