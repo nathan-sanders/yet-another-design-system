@@ -96,15 +96,15 @@ Every number below came off the canvas rather than from the screenshot.
   the fill alone reproduces it. Worth knowing before someone "fixes" the missing
   border — and it also dodges a `border-y-<token>` utility, which `tokens.test.ts`
   cannot see (its regex matches `border-surface-*`, not `border-y-surface-*`).
-- **The month card is 304 tall, which is a five-row January 2025** — and this is
-  the one place the code deliberately does not follow the file. A variable row
-  count meant the panel jumped 40px as you navigated between a 5-row month and a
-  6-row one; Nathan asked for Astryx's side of it, whose default is
-  `hasVariableRowCount: false`. **The grid is a fixed six rows and the card is
-  344.** No prop: a fixed grid is the only behavior anyone has asked for, and the
-  test sweeps every month of four years at three week-starts to keep it that way.
-  **The file owes a redraw here** — 344, not 304, and 481 / 433 for the two range
-  panels.
+- **The month card was 304 tall, which is a five-row January 2025.** A variable
+  row count meant the panel jumped 40px as you navigated between a 5-row month
+  and a 6-row one, so it follows Astryx instead (`hasVariableRowCount: false` is
+  its default): **a fixed six rows**. No prop — a fixed grid is the only
+  behavior anyone has asked for, and the test sweeps every month of four years
+  at three week-starts to keep it that way. **The file was redrawn to match**: a
+  sixth `Days Wrapper` was added to `Calendar Month`, and the three `Date
+  Picker` variants now measure 312 × 344, 536 × 480 and 848 × 432 — the same
+  numbers the code produces.
 - **The nav arrows are `ArrowLeft`/`ArrowRight`, not chevrons** — the exported
   assets are named arrow. They are ghost icon-only Buttons at the default size,
   which is what the file's instances say and where their 42 × 32 comes from.
@@ -112,14 +112,16 @@ Every number below came off the canvas rather than from the screenshot.
 - **The footer's two shapes are one component.** 136 tall at 312 wide and 88 at
   624 is `flex-wrap` plus `min-w-70 max-w-80` on the inputs, not two drawings.
 
-**Widths are exact at every variant — 312 / 536 / 848.** Heights are not, for
-two separate reasons, and only one of them is a decision about the file.
+**Code and file now agree on every dimension** — 312 × 344, 536 × 480,
+848 × 432.
 
-The six-row grid is the big one, above. On top of it there is a **1px** the
-footer costs: Figma's rule is an INSIDE stroke, so it lives inside the 136,
-where a CSS `border-t` on an auto-height element adds its pixel outside the
-padding box. Matching exactly would mean shaving `pt-2` to a magic 7px, trading
-a token for a number — not worth it for one pixel.
+Getting the heights there took one small thing worth knowing. Figma's footer
+rule is an INSIDE stroke, so it occupies the footer's own first pixel row and
+the footer is 136; a CSS `border-t` on an auto-height element adds its pixel
+*outside* the padding box, which made every panel a pixel tall. `-mt-px` on the
+footer pulls that pixel back, landing the rule on the boundary itself — which is
+what INSIDE means for a stroke on the top edge of a stacked frame. The
+alternative was shaving `pt-2` to a magic 7px, trading a token for a number.
 
 ## The footer wrap needed a width
 
@@ -131,7 +133,7 @@ the file's layout means anyway: the panel is as wide as the grid, and the footer
 wraps inside it. **Do not remove that class** — the failure is silent and it
 looks like a footer bug rather than a sizing one.
 
-## Three bugs found in review, and what caused them
+## Four bugs found in review, and what caused them
 
 Worth keeping, because none of them looked like what it was.
 
@@ -155,6 +157,20 @@ every cell snapped to `rounded-md` while still painted dark. The fix is both:
 the preview clears on leaving the **grid**, and only `border-color` transitions.
 **Selection is a state, not an animation** — the only thing here that wants
 easing is the hover stroke.
+
+**A multi-row range drew as square-ended slabs, not stacked pills — and the
+Figma file is what caught it.** `rangePosition` is about the *range*, so only
+the true first and last day were rounded; every other row ran square into the
+edge of the grid. The file says otherwise in plain variant names: in
+`Range - 2 Columns` the 19th and the 26th are `Selected Start` and the 25th and
+the 1st are `Selected End`, on rows that are entirely mid-range. A range is
+continuous in time and **discontinuous on screen**, one bar per week, and each
+bar needs its own ends. That is `selectionInRow`, which folds the two ends
+independently so the awkward case falls out for free: a range starting on a
+Saturday is the only day in its bar, so it draws as `single` rather than as a
+start rounded on the side nothing follows it on. **Read the variant names on a
+component set as claims about behavior** — this one was sitting in the file the
+whole time and no screenshot of a single-row range would ever have shown it.
 
 **`Apply` left a hole in the single-month footer.** At 312 the footer wraps, so
 the actions get a row to themselves, and two hug-width buttons pinned right left
@@ -222,12 +238,20 @@ month-picker Selects lose their own arrow keys to `preventDefault`.
 
 ## Best practices
 
-**Source: written here, not mirrored.** The Docs frame (`40004972:33825`) still
-carries the template — "Description goes here." and "Usage rule." on both Do and
-Don't — which the root record says is a page's normal unfilled state rather than
-evidence of neglect. These are Astryx's Calendar rules, checked against this API
-before being written down. **This component owes the file a filled block**, and
-when one is written the two copies have to move together.
+**Source: the Docs frame `40004972:33825`, Guidance block `40004972:33832`.**
+It carried the unfilled template — "Description goes here." and "Usage rule." on
+both Do and Don't — and was written on 2026-09-04, four Dos and two Don'ts, from
+Astryx's Calendar rules checked against this API first. **The two copies are one
+text in two places**: change a rule here and change it in Figma in the same
+breath.
+
+The header description was written in the same pass, to the house pattern
+(subject, then `Use it for…` with concrete examples, then the pointer at the
+component people confuse it with): *"Date Picker pairs a month grid with preset
+shortcuts and a footer that shows the selected range as text. Use it for report
+filters, booking flows, and time-off requests, where someone picks a start and
+an end date and needs to see the days around them. For one date with no presets
+or footer, use Calendar Month."*
 
 | | |
 |---|---|

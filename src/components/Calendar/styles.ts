@@ -192,6 +192,23 @@ export const presetsRail = 'flex w-56 shrink-0 flex-col gap-2 border-r border-su
  * date inputs and the actions sit on one row (88 tall), and at 312 they wrap to
  * two (136). The `min-w-70 max-w-80` on the inputs is what decides where.
  */
-export const footer = 'flex flex-wrap items-end justify-between gap-2 gap-y-4 border-t border-surface-border px-4 pt-2 pb-4'
+export const footer = [
+  'flex flex-wrap items-end justify-between gap-2 gap-y-4',
+  'border-t border-surface-border px-4 pt-2 pb-4',
+  /**
+   * `-mt-px` is what makes the rule an INSIDE stroke.
+   *
+   * Figma draws it `strokeAlign: INSIDE`, so it occupies the footer's own first
+   * pixel row and the footer is 136 tall. A CSS `border-t` on an auto-height
+   * element adds its pixel *outside* the padding box, which made the panel 441
+   * where the file says 440. Pulling the footer up by exactly that pixel lands
+   * the rule on the boundary itself — where Figma draws it — and the sums come
+   * out whole again.
+   *
+   * Safe to overlap: the pixel it covers is the calendar's own bottom padding,
+   * and the footer paints no background of its own.
+   */
+  '-mt-px',
+].join(' ')
 
 export type DayButtonVariants = VariantProps<typeof dayButton>

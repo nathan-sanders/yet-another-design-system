@@ -221,6 +221,38 @@ export function rangePosition(date: Date, range: DateRange): DaySelection {
   return isSameDay(date, start ?? end) ? 'single' : 'none'
 }
 
+/**
+ * `rangePosition` again, but for the row the day is drawn in.
+ *
+ * A range is continuous in time and **discontinuous on screen** — the grid
+ * breaks it into one bar per week, with 8px between them. So a day in the
+ * middle of the range can still be at the visible end of its bar, and it has to
+ * be rounded there or the bar runs square into the edge of the grid.
+ *
+ * The file says this outright: in `Range - 2 Columns` the 19th and the 26th are
+ * `Selected Start` and the 25th and the 1st are `Selected End`, on rows that are
+ * entirely mid-range. Missing it is what made a multi-row range render as
+ * stacked slabs rather than stacked pills.
+ *
+ * The two ends are computed independently and then folded, which is what makes
+ * the awkward cases fall out for free: a range starting on a Saturday is the
+ * only day in its bar, so it is `single`, not a `start` rounded on the side
+ * nothing follows it on.
+ */
+export function selectionInRow(
+  selection: DaySelection,
+  firstInRow: boolean,
+  lastInRow: boolean,
+): DaySelection {
+  if (selection === 'none' || selection === 'single') return selection
+  const roundedStart = selection === 'start' || firstInRow
+  const roundedEnd = selection === 'end' || lastInRow
+  if (roundedStart && roundedEnd) return 'single'
+  if (roundedStart) return 'start'
+  if (roundedEnd) return 'end'
+  return 'middle'
+}
+
 /** `date` held inside `min`/`max`. Used to pick a sensible day to open on. */
 export function clampDate(date: Date, limits: DateLimits = {}): Date {
   const { min, max } = limits

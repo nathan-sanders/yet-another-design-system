@@ -15,6 +15,7 @@ import {
   monthLabels,
   parseDateInput,
   rangePosition,
+  selectionInRow,
   weekdayLabels,
 } from './month'
 
@@ -156,6 +157,37 @@ describe('rangePosition', () => {
   it('ignores the time of day on either side', () => {
     const withTime: [Date, Date] = [new Date(2025, 0, 12, 23, 59), new Date(2025, 0, 20, 0, 1)]
     expect(rangePosition(new Date(2025, 0, 20, 18), withTime)).toBe('end')
+  })
+})
+
+/**
+ * The rule the Figma file supplied and the first implementation missed: a range
+ * is continuous in time but broken into one bar per week on screen, so a
+ * mid-range day at the edge of its row still has to be rounded there.
+ */
+describe('selectionInRow', () => {
+  it('rounds a mid-range day at either edge of its row', () => {
+    expect(selectionInRow('middle', false, false)).toBe('middle')
+    expect(selectionInRow('middle', true, false)).toBe('start')
+    expect(selectionInRow('middle', false, true)).toBe('end')
+  })
+
+  it('collapses a day that is the only one in its bar', () => {
+    // A range starting on the last day of a row, or ending on the first.
+    expect(selectionInRow('start', false, true)).toBe('single')
+    expect(selectionInRow('end', true, false)).toBe('single')
+    expect(selectionInRow('middle', true, true)).toBe('single')
+  })
+
+  it('leaves the true ends alone in the middle of a row', () => {
+    expect(selectionInRow('start', true, false)).toBe('start')
+    expect(selectionInRow('end', false, true)).toBe('end')
+    expect(selectionInRow('start', false, false)).toBe('start')
+  })
+
+  it('never touches an unselected or single day', () => {
+    expect(selectionInRow('none', true, true)).toBe('none')
+    expect(selectionInRow('single', true, false)).toBe('single')
   })
 })
 

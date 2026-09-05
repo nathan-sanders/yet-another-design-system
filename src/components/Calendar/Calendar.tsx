@@ -21,6 +21,7 @@ import {
   isSameMonth,
   monthLabels,
   rangePosition,
+  selectionInRow,
   shiftMonths,
   startOfDay,
   startOfMonth,
@@ -134,7 +135,17 @@ function firstSelected(value: CalendarValue | undefined): Date | null {
  * for and what makes a long disabled stretch traversable rather than a wall.
  * The click handler has to guard for it, since the element is still clickable.
  */
-function DayCell({ date, outside }: { date: Date; outside: boolean }) {
+function DayCell({
+  date,
+  outside,
+  firstInRow,
+  lastInRow,
+}: {
+  date: Date
+  outside: boolean
+  firstInRow: boolean
+  lastInRow: boolean
+}) {
   const { getSelection, focusedDate, today, locale, hasOutsideDays, onDayClick, onDayHover, isDisabled } =
     useCalendar()
 
@@ -143,7 +154,9 @@ function DayCell({ date, outside }: { date: Date; outside: boolean }) {
     return <div role="gridcell" className="h-8 w-10 shrink-0" />
   }
 
-  const selection: DaySelection = getSelection(date)
+  // The range's own shape, then rounded off at the edges of this week's bar —
+  // see `selectionInRow`.
+  const selection: DaySelection = selectionInRow(getSelection(date), firstInRow, lastInRow)
   const selected = selection !== 'none'
   const disabled = isDisabled(date)
   const isToday = isSameDay(date, today)
@@ -540,8 +553,16 @@ export function Calendar({
 
               {buildMonth(month, weekStartsOn).map((week) => (
                 <div key={dayKey(week[0].date)} role="row" className={gridRow}>
-                  {week.map((day) => (
-                    <DayCell key={dayKey(day.date)} date={day.date} outside={day.outside} />
+                  {week.map((day, i) => (
+                    <DayCell
+                      key={dayKey(day.date)}
+                      date={day.date}
+                      outside={day.outside}
+                      // A hidden outside day leaves a blank cell, and a blank
+                      // cell ends the bar exactly as the edge of the grid does.
+                      firstInRow={i === 0 || (!hasOutsideDays && week[i - 1].outside)}
+                      lastInRow={i === week.length - 1 || (!hasOutsideDays && week[i + 1].outside)}
+                    />
                   ))}
                 </div>
               ))}
