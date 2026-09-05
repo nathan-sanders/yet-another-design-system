@@ -93,7 +93,9 @@ export default defineConfig({
           '@base-ui/react/field',
           '@base-ui/react/checkbox-group',
           '@base-ui/react/popover',
-          '@base-ui/react/select'
+          '@base-ui/react/select',
+          '@base-ui/react/number-field',
+          '@base-ui/react/otp-field'
         ]
       },
       test: {

@@ -205,6 +205,12 @@ export type {
   InputGroupAddonAlign,
 } from './components/Input'
 
+export { NumberInput } from './components/NumberInput'
+export type { NumberInputProps } from './components/NumberInput'
+
+export { OTPInput } from './components/OTPInput'
+export type { OTPInputProps } from './components/OTPInput'
+
 export { Link } from './components/Link'
 export type { LinkProps, LinkSize } from './components/Link'
 

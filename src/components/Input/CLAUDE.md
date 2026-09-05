@@ -94,11 +94,18 @@ still looking for its consumer, as `feedback-*` was before Banner.
 **Select (19) does not get this for free.** It carries its own copy of the input chrome rather than
 importing this folder's `box`, so a ghost Select means adding the variant there too — worth deciding
 before a third copy appears.
+**`box` has a `ring` variant now, added by `NumberInput`.** It picks what fires the box's focus
+ring: `within` (the default, `focusRingWithin`, and what Input, InputGroup and Autocomplete all
+still get) or `input`, which scopes it to `has-[input:focus-visible]`. `within` only says what it
+means while the box has exactly one focusable descendant, and a NumberInput has three. **It could
+not be an extra class the caller appends** — the two spellings sit under different variant prefixes,
+so tailwind-merge reads them as different keys and leaves both live, which rings the box anyway.
+Only replacing works, which is why it is a variant.
 
 **Story trap, Banner's:** the variant matrix is a grid, not a `<table>` — both of these are
 `w-full` and would collapse to their longest word in an auto-layout cell.
 Left out: `Textarea` (Base UI has no primitive and Figma draws no multi-line variant),
-`type="number"` spinners (`NumberField` is its own component), and Astryx's `loading`, `clearable`
+`type="number"` spinners (**built since, as `NumberInput`** — its own component, and it imports this folder's `box` rather than copying it), and Astryx's `loading`, `clearable`
 and `statusVariant` — none are in the file.
 Figma has since caught up: the Input and Input Group sets' `Label` and `Sub Label` properties
 are gone, so their frames are the box alone at 24 / 32 / 40 rather than 76 / 84 / 92, and match

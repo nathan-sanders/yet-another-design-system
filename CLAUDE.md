@@ -583,6 +583,8 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Input](src/components/Input/CLAUDE.md) | a line of free text | plus `InputGroup` for attachments |
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
+| [NumberInput](src/components/NumberInput/CLAUDE.md) | an exact number, nudged by one | Input's box borrowed; the ring is scoped to the caret because the steppers are inside it |
+| [OTPInput](src/components/OTPInput/CLAUDE.md) | a code somebody was just sent | square slots at the field's own height; Base UI throws away `aria-label` on the first one |
 | [Token](src/components/Token/CLAUDE.md) | one chosen value as a pill | 20 / 24 tall, so a field full of them never grows |
 | [Combobox](src/components/Combobox/CLAUDE.md) | a long list, filtered by typing | a trigger with a searchable popup, or a tokenizer |
 | [ContentBlock](src/components/ContentBlock/CLAUDE.md) | a card that owns one region of a page | header slots, three emphases, the part a bento view is made of |
@@ -886,6 +888,8 @@ component objects*, so those recipes moved to `Combobox/styles.ts` rather than b
 Its field is `Input`'s box for the same reason from the other direction — the file draws an Input
 Group, and `focusRingWithin` is correct there because `Autocomplete.InputGroup` has exactly one
 focusable descendant. Nothing in the form family is left unbuilt against the file.
+
+**`NumberInput` and `OTPInput` have since been added, and both went code-first.** Neither was on the roadmap and neither had a Figma node — `Input`'s record had parked `type="number"` spinners as "`NumberField` is its own component" — so they are the Calendar case again: asked for directly, built, and drawn into the file in the same sitting. Two pages that had been sitting as `(In Progress)` stubs are now filled and renamed. `NumberInput` is also the first thing to touch `Input/styles.ts`'s shared `box` since Autocomplete, adding a `ring` variant because `focusRingWithin` cannot say *which* descendant should fire the ring and this box has three.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's
