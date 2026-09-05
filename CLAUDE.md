@@ -605,6 +605,8 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Radial](src/components/Radial/CLAUDE.md) | how much, per category, on a common scale | one Figma drawing hiding two rules; the track is what makes it honest |
 | [Sankey](src/components/Sankey/CLAUDE.md) | where a quantity went, stage to stage | the file draws nothing at all; a ribbon takes the color it left with |
 | [AspectRatio](src/components/AspectRatio/CLAUDE.md) | a box that keeps its shape | five named ratios plus a number for Figma's `Custom`; the only component that paints nothing, and the first whose Figma set was widened to meet the code |
+| [Calendar](src/components/Calendar/CLAUDE.md) | pick a date, or a range, from a month grid | the first component with no Base UI primitive underneath it; range mode is derived from the value's shape |
+| [DatePicker](src/components/Calendar/CLAUDE.md) | that grid in a panel, with presets and a footer | two of Figma's three variants are `numberOfMonths` and the value's shape; the file's own variant names caught a bug no screenshot would have |
 
 ### Data visualization
 
@@ -797,6 +799,13 @@ Foundational and static first:
 1. **List Item** — variants/states; native, styled.
 2. **Table Cell** — native, styled.
 3. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+
+**`Calendar` and `DatePicker` were built without ever being on this list**, and
+that is worth noting rather than quietly tidying away. The bar above is that a
+roadmap item earns its build when the file draws it *and* something has been
+reinvented in its absence; this one was asked for directly, with the Figma node
+in hand. The bar governs what to build **next** when nobody is asking — it is not
+a gate on what somebody asks for.
 
 **Dialog is built, and the entry it closes is the cleanest run of Card's rule so far.** The bar is
 that a roadmap item earns its build when the file draws it *and* something has already been
