@@ -358,14 +358,24 @@ durations and easings would live in JS objects — a second source of truth that
 which is the one thing this system exists to avoid.
 
 **When a library would earn its place:** layout animation (FLIP), drag, and spring-based gestures —
-none of which CSS does. Carousel is the one plausible candidate left on the roadmap. Reach for it
-there, per component, not as the foundation.
+none of which CSS does. **Nothing on the roadmap needs any of them, and both candidates have now
+been checked rather than assumed.**
 
-A sliding Tabs indicator used to be the other candidate, and turned out not to need anything: Base
-UI's `Tabs.Indicator` publishes the active tab's geometry as `--active-tab-left` / `--active-tab-width`,
-so the slide is a CSS transition on `translate` and `width`. Worth remembering as the general shape
-of the answer — check whether the headless primitive already measures the thing before assuming the
-animation needs JavaScript.
+A sliding Tabs indicator was the first, and turned out not to need anything: Base UI's
+`Tabs.Indicator` publishes the active tab's geometry as `--active-tab-left` / `--active-tab-width`,
+so the slide is a CSS transition on `translate` and `width`.
+
+**Carousel was the last one standing, and it fell the same way.** Astryx's own carousel was read at
+the DOM rather than from its docs, and its track is `overflow-x: auto` with `scroll-behavior:
+smooth` — the browser owns the easing, the momentum and the snap, and a design system gets all three
+for the price of two utility classes. So the general shape of the answer holds twice over: **check
+whether the platform or the headless primitive already does the thing before assuming the animation
+needs JavaScript.** A third candidate has to clear that bar before it is a candidate.
+
+`Carousel` also found the one hole in the reduced-motion rule. Section 5 clamps
+`animation-duration` and `transition-duration`, and `scroll-behavior` is neither, so a smooth scroll
+sails straight through a `prefers-reduced-motion: reduce` that stops everything else. Anything that
+scrolls programmatically owes a `motion-reduce:scroll-auto` of its own.
 
 ### Font smoothing
 
@@ -592,6 +602,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Kbd](src/components/Kbd/CLAUDE.md) | a keyboard shortcut | Figma draws the key and the group, Astryx's `keys` string API; `mod` resolves per platform |
 | [Card](src/components/Card/CLAUDE.md) | the plain container | `rounded-md` inside ContentBlock's `rounded-lg`; the border tracks the fill unless the file says otherwise |
 | [ClickableCard](src/components/Card/CLAUDE.md) | the same card as a hit target | `href` picks the element; `ghost` is the list row, `selected` is `aria-current` |
+| [Carousel](src/components/Carousel/CLAUDE.md) | a browsable set, one screen at a time | the last motion-library candidate, answered by `overflow-x: auto` and two utility classes; Figma owns the layout, Astryx the engine |
 | [Autocomplete](src/components/Autocomplete/CLAUDE.md) | free text that suggests without constraining | Combobox with one rule removed; `Input`'s box, Combobox's popup, shared not copied |
 | [Chart](src/components/Chart/CLAUDE.md) | the chrome every chart sits in | container, legend, tooltip, swatch, palette, axis rules; half the Figma page is a drawing mechanism, not an API |
 | [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
@@ -800,7 +811,13 @@ Foundational and static first:
 
 1. **List Item** — variants/states; native, styled.
 2. **Table Cell** — native, styled.
-3. Then: Indicator, Chart Legend Buttons, Carousel Pagination Button.
+3. Then: Indicator, Chart Legend Buttons.
+
+**`Carousel Pagination Button` came off this list by being built into `Carousel`** rather than
+shipped on its own. Figma models it as a component because a canvas has to draw a dot somewhere;
+nothing outside a carousel has a use for a 24px dot that grows into a 36px pill, so exporting it
+would have widened the public API to no end. Worth remembering as a shape: **a roadmap entry can be
+closed by absorbing it, and the test is whether anything else would ever import it.**
 
 **`Calendar` and `DatePicker` were built without ever being on this list**, and
 that is worth noting rather than quietly tidying away. The bar above is that a
