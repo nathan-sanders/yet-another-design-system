@@ -92,7 +92,7 @@ export type {
 } from './components/Card'
 
 export { Carousel } from './components/Carousel'
-export type { CarouselProps, CarouselHandle, CarouselGap } from './components/Carousel'
+export type { CarouselProps, CarouselHandle, CarouselGap, CarouselLayout } from './components/Carousel'
 
 export {
   ChartContainer,

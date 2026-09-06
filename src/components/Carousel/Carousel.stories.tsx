@@ -42,12 +42,14 @@ const meta = {
     hasPagination: { control: 'boolean' },
     hasSnap: { control: 'boolean' },
     hasLoop: { control: 'boolean' },
+    layout: { control: 'inline-radio', options: ['fill', 'hug'] },
   },
   args: {
     'aria-label': 'Sample slides',
     hasPagination: true,
     hasSnap: true,
     hasLoop: false,
+    layout: 'fill',
     gap: 2,
     children: slides,
   },
@@ -183,20 +185,25 @@ export const Looping: Story = {
 }
 
 /**
- * A slide is as wide as the carousel by default, which is Figma's one-per-view
- * gallery. Give the children a width of their own and the same component becomes
- * Astryx's continuous strip: several items visible, snapping each to the start
- * edge as you pan.
+ * `layout="hug"` lets each child keep the width it brought, and the same
+ * component becomes Astryx's continuous strip: several cards visible at once,
+ * each still snapping to the start edge as you pan.
+ *
+ * The default `fill` is the other half — a slide the width of the carousel,
+ * which is Figma's one-per-view gallery. It has to be a prop rather than
+ * something read off the children, because CSS cannot express "full width
+ * unless the child asked for one": a content-sized wrapper round a `w-full`
+ * child resolves circularly and collapses, which is the trap `AspectRatio`'s
+ * own record describes.
  *
  * The dots follow the item that is *most* visible, so a strip showing two and a
- * half cards marks the leftmost full one. Nothing about the component changes
- * between the two shapes — only what you put in it.
+ * half cards marks the leftmost full one.
  */
 export const MultipleVisible: Story = {
   parameters: { controls: { disable: true } },
   render: ({ children: _children, ...args }) => (
     <div className="w-100">
-      <Carousel {...args} aria-label="Feature cards" gap={3}>
+      <Carousel {...args} aria-label="Feature cards" layout="hug" gap={3}>
         {['Design system', 'Documentation', 'Sandbox', 'Library', 'Contributing'].map(
           (title) => (
             <Card key={title} className="w-50">
@@ -207,6 +214,26 @@ export const MultipleVisible: Story = {
       </Carousel>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    // The bug this story was added to show, and then did not show: with a
+    // full-width slide wrapper, five 200px cards still occupied five 400px
+    // slides and only one was ever visible. Assert the geometry rather than
+    // trusting the picture — the two look similar enough at a glance.
+    const track = canvasElement.querySelector('[aria-roledescription="carousel"] [tabindex="0"]')
+    const slides = [...(track?.children ?? [])]
+    await expect(slides).toHaveLength(5)
+    for (const s of slides) {
+      await expect(Math.round(s.getBoundingClientRect().width)).toBe(200)
+    }
+    // The actual claim of the story: the second card starts inside the visible
+    // area, so more than one item is on screen at once. Asserting that two
+    // *whole* cards fit would be wrong and was — 200 + 12 + 200 overflows 400 by
+    // the gap, which is precisely the half-card a strip is supposed to show.
+    const trackLeft = track!.getBoundingClientRect().left
+    const secondLeft = slides[1].getBoundingClientRect().left - trackLeft
+    await expect(secondLeft).toBe(212) // 200px card + gap-3
+    await expect(secondLeft).toBeLessThan(track!.clientWidth)
+  },
 }
 
 /**

@@ -145,7 +145,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Button** | 5 appearances (primary, secondary, destructive, ghost, overlay) × 3 sizes × default/hover/focus/disabled, with icon slots, plus an icon-only form |
 | **Card** | The plain container; 3 emphases (default, subtle, accent) × flat/floating, padding named as a spacing token — `rounded-md` on 12px where a `ContentBlock` is `rounded-lg` on 16, so the two are drawn to nest |
 | **ClickableCard** | The same card as a hit target; 2 emphases (default, ghost) × default/hover/focus/disabled, plus `selected`. Passing `href` picks the element — an `<a>` with one, a `<button>` without — and `selected` lands on `aria-current` |
-| **Carousel** | A browsable set of items, one screen at a time; dots and prev/next below the track, optional snap and wrap-around. Native overflow scrolling and `scroll-behavior: smooth` do the animating, so it needs no motion library |
+| **Carousel** | A browsable set of items; dots and prev/next below the track, optional snap and wrap-around. `layout` picks the shape — `fill` for one item per view, `hug` for a strip of cards. Native overflow scrolling and `scroll-behavior: smooth` do the animating, so it needs no motion library |
 | **Checkbox** | Unticked, ticked or indeterminate × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label |
 | **Checkbox.Group** | Vertical or horizontal set sharing one value, with an optional "select all" that computes its own half-selected state |
 | **Combobox** | A list too long to scroll, filtered by typing; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled — a trigger with a searchable popup, or a tokenizer whose chosen values sit in front of the caret as `Token`s |
