@@ -538,9 +538,9 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Thirty-six records carry it.** What is left is `Chart` and the whole
-data-viz family — thirteen records, and the one part of the library where nobody has written down
-when to reach for which chart.
+drift nothing in CI can catch. **Thirty-seven records carry it.** What is left is `Chart` and the
+whole data-viz family — thirteen records, and the one part of the library where nobody has written
+down when to reach for which chart.
 
 **Two of the thirty-six have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
@@ -548,6 +548,15 @@ navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still
 Both were written here rather than copied, and both owe the file a block — the same standing debt
 `Combobox.Empty` and Select's scroll arrows carry. **Do not read a missing block as a component
 nobody has thought about**; read the source line, which says which of the two situations it is.
+
+**Carousel is the first record whose block went code → file, and it exposes a second way the two
+copies can drift.** Its page shipped with the template's "Usage rule." on both sides, so the rules
+were written in the record and pushed to Figma afterwards rather than copied down. Three of them —
+`layout`, `hasLoop` and the accessible name — name things the **code** has and the Figma component
+does not, which is Avatar's problem seen from the other end: a designer reading the canvas would
+hunt the variant panel for a `layout` switch and find nothing. So the canvas text is phrased around
+the *design decision* and the record adds the prop that spells it. **When a rule names something
+only one side has, say the thing both sides share, and let each copy add its own spelling.**
 
 **Transcribing that block is not typing, and Avatar is the case that proves it.** Two of its seven
 Do's named props that do not exist here — `tooltip={false}` and a group `max` — because the rules

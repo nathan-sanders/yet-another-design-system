@@ -1,7 +1,7 @@
 # Carousel
 
-Steps through a set of items one screen at a time, with pagination for moving between
-them. Mirrors Figma's `Carousel` (`40004591:43045`) on `↪ Carousel (In Progress)`, plus
+Steps through a set of items horizontally, with dots and arrows for moving between them —
+one per screen, or a strip of narrower ones. Mirrors Figma's `Carousel` (`40004591:43045`) on `↪ Carousel (In Progress)`, plus
 `Carousel - Pagination` (`40004379:66099`) and `Carousel Pagination Button`
 (`40004379:66086`) from the pagination page. Flat-prop API, not compound:
 `<Carousel aria-label="…" hasPagination hasSnap hasLoop layout="fill" gap={2} handleRef={…}>{items}</Carousel>`.
@@ -77,6 +77,16 @@ circular layout rather than an answer. The story now asserts the geometry — fi
 the second starting at 212px inside a 400px track — since a strip and a gallery of one look similar
 enough at a glance that only the numbers separate them.
 
+**The Figma Docs page was filled in on 2026-09-05, and its description needed the edit.** It read
+"steps through a set of items one screen at a time", which was written before `layout` existed and
+described only the default; it now says "one per screen, or a strip of narrower ones". The Preview
+frames had been empty and carry three composed examples in each theme — the gallery, the strip, and
+a track with the pagination switched off. They are one component instance each, resized to 280 with
+their slides resized to match: **the component draws 400px slides, so an example at another width
+has to move its children too**, or they overflow the slot and read as a clipping bug rather than a
+narrower carousel. The placeholder art does not invert in the dark frame, which is correct — it is
+an image fill, not a token, and the dots beside it do invert.
+
 **`scrollTo` on the container, never `scrollIntoView` on the item.** `scrollIntoView` walks
 up and scrolls *every* ancestor that can scroll, so a carousel inside a scrolling page drags
 the whole page sideways and usually vertically too. The container form moves one element.
@@ -126,33 +136,38 @@ the screenshot came back with four dots and no slides: `--surface-background-sub
 
 ## Best practices
 
-**No Figma block to mirror.** The Best practices panel on `↪ Carousel (In Progress)`
-(`40004617:43173`) is still the template's "Usage rule." on both sides, which is its normal
-unfilled state rather than evidence nobody has thought about it. These are written here,
-adapted from Astryx's, **each one checked against this API** — the Avatar lesson, where two
-rules came across naming props this library does not have. The file owes a block, and this
-is the text to put in it.
+Mirrored from the **Best practices** block on `↪ Carousel (In Progress)` (`40004617:43173`) in
+Figma, filled in on 2026-09-05 — the panel had been the template's "Usage rule." on both sides
+until then. The two are one text in two places; change one and change the other.
+
+They are adapted from Astryx's, **each one checked against this component** — the Avatar lesson,
+where two rules came across naming props this library does not have. Three of them run the other
+way and are worth knowing about: `layout`, wrap-around and the accessible name are **code-only**,
+with no counterpart in the Figma component's properties, so those rules are phrased around the
+design decision rather than the prop that spells it. A designer reading the canvas and hunting the
+variant panel for a `layout` switch would not find one.
 
 **Do**
 
-- Use a carousel when the content is browsable rather than essential. Everything past the
-  first item is hidden until somebody moves, and not everybody will.
-- Give it an `aria-label` that says what is inside — "Featured products", "Team members" —
-  not what it is. The types require one for that reason.
-- Pick the shape with `layout`. `fill` (the default) is Figma's one-per-view gallery; `hug` is a
-  continuous strip of cards that brought their own width. Same component either way.
-- Reach for `hasLoop` on a small, cyclable set like a photo gallery, where coming back round
-  feels natural.
-- Keep the item width and the gap consistent, so the track reads as a decision rather than
-  as content overflowing by accident.
+- Use a carousel when the content is browsable rather than essential. Everything past the first
+  item is hidden until somebody moves, and not everybody will.
+- Name what is inside — Featured products, Team members — not the component. That name is what a
+  screen reader announces alongside the role. In code it is `aria-label`, and the types require it.
+- Decide whether a slide fills the view or hugs its content. One item per screen is a gallery;
+  several narrower ones are a strip, and it is the same component either way. In code that is
+  `layout="fill" | "hug"`.
+- Reach for wrap-around on a small, cyclable set like a photo gallery, where coming back round to
+  the first item feels natural. In code that is `hasLoop`.
+- Keep the item width and the gap consistent, so the track reads as a decision rather than as
+  content overflowing by accident.
 
 **Don't**
 
-- Do not put anything every reader must see behind it. Critical content goes above the fold,
-  not one slide to the right.
-- Do not advance it on a timer. There is no prop for it, and adding one would take the pace
+- Do not put anything every reader must see behind it. Critical content goes above the fold, not
+  one slide to the right.
+- Do not advance it on a timer. There is no property for it, and adding one would take the pace
   away from the person reading.
-- Do not nest one inside another. Two scroll containers fighting for the same arrow keys is
-  not navigable from a keyboard.
-- Do not turn `hasPagination` off unless something else on the page is doing the pointing.
-  A track with no affordance is the carousel people complain about.
+- Do not nest one inside another. Two scrolling tracks fighting for the same arrow keys is not
+  navigable from a keyboard.
+- Do not turn the pagination off unless something else on the page is doing the pointing. A track
+  with no affordance is the carousel people complain about.
