@@ -1,7 +1,7 @@
 import { Children, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import type { ComponentPropsWithRef, ReactNode, Ref } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { tv } from 'tailwind-variants'
+import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
@@ -134,6 +134,41 @@ const viewport = tv({
 })
 
 /**
+ * One slide.
+ *
+ * `shrink-0` on both, because a flex item defaults to shrinking and a track of
+ * squashed slides is the failure mode this component exists to avoid.
+ *
+ * The width is the whole of the `layout` decision, and it cannot be derived.
+ * CSS gives no way to say "full width unless the child asked for one": a
+ * content-sized wrapper round a `w-full` child — which is what `AspectRatio`
+ * is — resolves circularly and collapses to nothing, which AspectRatio's own
+ * record already warns about. So the caller has to say, and `hug` / `fill` is
+ * the word pair `Tabs` and `SegmentedControl` already use for exactly this
+ * question.
+ */
+const slide = tv({
+  base: 'shrink-0',
+  variants: {
+    layout: {
+      // Figma's gallery: one item per view, so the slide is the viewport.
+      fill: 'w-full',
+      // Astryx's strip: the child brought its own width, and forcing one here
+      // would throw it away.
+      hug: '',
+    },
+    snap: {
+      true: 'snap-start',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    layout: 'fill',
+    snap: true,
+  },
+})
+
+/**
  * The dot's hit box: 24x24, growing to 36x24 when it is the current slide, with
  * an 8px radius that the focus ring inherits.
  *
@@ -195,6 +230,9 @@ const indicator = tv({
 
 export type CarouselGap = keyof typeof GAP
 
+type SlideVariants = VariantProps<typeof slide>
+export type CarouselLayout = NonNullable<SlideVariants['layout']>
+
 /**
  * Astryx's `CarouselHandle`, same five methods. It is the escape hatch for a
  * caller that has to drive the carousel from something outside it — a thumbnail
@@ -244,6 +282,16 @@ export interface CarouselProps
    * goes to the last. The buttons then never disable.
    */
   hasLoop?: boolean
+  /**
+   * How wide a slide is. `fill` makes each one the width of the carousel, which
+   * is Figma's one-item-per-view gallery; `hug` lets each child keep the width
+   * it brought, which is Astryx's continuous strip of cards.
+   *
+   * The same word pair `Tabs` and `SegmentedControl` use, asking the same
+   * question. It has to be a prop rather than something derived from the
+   * children: CSS cannot express "full width unless the child asked for one".
+   */
+  layout?: CarouselLayout
   /** Space between items, on the spacing scale. Figma draws `2` (8px). */
   gap?: CarouselGap
   /** Astryx's imperative handle, for driving the carousel from outside it. */
@@ -256,6 +304,7 @@ export function Carousel({
   hasPagination = true,
   hasSnap = true,
   hasLoop = false,
+  layout = 'fill',
   gap = 2,
   handleRef,
   className,
@@ -379,7 +428,7 @@ export function Carousel({
             role="group"
             aria-roledescription="slide"
             aria-label={`Slide ${index + 1} of ${count}`}
-            className={cn('w-full shrink-0', hasSnap && 'snap-start')}
+            className={slide({ layout, snap: hasSnap })}
           >
             {item}
           </div>

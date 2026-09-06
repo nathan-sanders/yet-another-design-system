@@ -804,6 +804,13 @@ component usually has fewer decisions in it than it looks.
   `Surface/Background Primary` binds — Card's `padding={3}` rule again. Anything else that draws a
   knockout, a notch or a seam will hit this, and should copy the prop rather than invent a second
   spelling.
+  **Carousel adds a third case: a wrapper cannot read its child's intent about its own size.** Its
+  slides were `w-full`, which is right for Figma's one-per-view gallery and silently wrong for a
+  strip of cards — five 200px cards sat in five 400px slides and only one was ever visible. Sizing
+  the wrapper to its content instead *collapses* it, because the usual child is an `AspectRatio` and
+  that is `w-full`. Asking the child produces a circular layout rather than an answer, so the caller
+  declares it as `layout="fill" | "hug"`, reusing Tabs' and SegmentedControl's words. The general
+  form: **derive from what a child *is*, never from what it wants to be given.**
 
 ## Still to build
 

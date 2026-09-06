@@ -4,7 +4,7 @@ Steps through a set of items one screen at a time, with pagination for moving be
 them. Mirrors Figma's `Carousel` (`40004591:43045`) on `↪ Carousel (In Progress)`, plus
 `Carousel - Pagination` (`40004379:66099`) and `Carousel Pagination Button`
 (`40004379:66086`) from the pagination page. Flat-prop API, not compound:
-`<Carousel aria-label="…" hasPagination hasSnap hasLoop gap={2} handleRef={…}>{items}</Carousel>`.
+`<Carousel aria-label="…" hasPagination hasSnap hasLoop layout="fill" gap={2} handleRef={…}>{items}</Carousel>`.
 The dot row and the dot are **internal**, not exports — Figma models them separately
 because a canvas has to draw a dot somewhere, and nothing outside a carousel has a use
 for a 24px dot that grows into a pill.
@@ -58,6 +58,24 @@ overflow is a row. The cost is real and is paid with `py-1`: CSS will not let `o
 auto` sit beside `overflow-y: visible` (the used value becomes `auto` on both axes,
 confirmed by reading the computed style), so a focus ring inside a slide would be clipped
 top and bottom. The ring reaches 4px, which is exactly `py-1`, so the padding buys it back.
+
+**`layout` is a prop because it cannot be derived, and it shipped wrong once.** The first cut
+wrapped every child in `w-full`, which is right for Figma's gallery and silently wrong for
+everything else: the `MultipleVisible` story put five 200px cards into five 400px slides and showed
+exactly one at a time, while this record claimed children with their own width "give a continuous
+strip". Nathan caught it. The obvious fix — let the wrapper size to its content — is worse, because
+the common case is an `AspectRatio` child, and `AspectRatio` is `w-full`: a content-sized wrapper
+round a `w-full` child resolves circularly and collapses to nothing, which that component's own
+record already warns about. **CSS has no way to say "full width unless the child asked for one",** so
+the caller says, and the words are `hug` / `fill` — the pair `Tabs` and `SegmentedControl` already
+use for the same question.
+
+Worth reading against the root record's derive-don't-declare rule, which it refines. That rule says
+derive what the element already knows and declare what only its ancestors know. This is a third
+case: **a wrapper cannot read its child's intent about its own size**, because asking produces a
+circular layout rather than an answer. The story now asserts the geometry — five slides, 200px each,
+the second starting at 212px inside a 400px track — since a strip and a gallery of one look similar
+enough at a glance that only the numbers separate them.
 
 **`scrollTo` on the container, never `scrollIntoView` on the item.** `scrollIntoView` walks
 up and scrolls *every* ancestor that can scroll, so a carousel inside a scrolling page drags
@@ -121,8 +139,8 @@ is the text to put in it.
   first item is hidden until somebody moves, and not everybody will.
 - Give it an `aria-label` that says what is inside — "Featured products", "Team members" —
   not what it is. The types require one for that reason.
-- Let the items decide the shape. Full-width children give Figma's one-per-view gallery;
-  children with a width of their own give a continuous strip, from the same component.
+- Pick the shape with `layout`. `fill` (the default) is Figma's one-per-view gallery; `hug` is a
+  continuous strip of cards that brought their own width. Same component either way.
 - Reach for `hasLoop` on a small, cyclable set like a photo gallery, where coming back round
   feels natural.
 - Keep the item width and the gap consistent, so the track reads as a decision rather than
