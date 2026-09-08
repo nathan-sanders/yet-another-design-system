@@ -1560,9 +1560,32 @@
   to   { transform: translateY(100%); }
 }
 
+/*     `progress-indeterminate` is the third, and the first that loops. A     */
+/*     40%-wide fill crosses the track from just off one end to just off     */
+/*     the other; Astryx draws the same sweep. It is a keyframe rather      */
+/*     than a transition for the ordinary reason — there is no state        */
+/*     change to transition between.                                        */
+/*                                                                          */
+/*     `linear`, not `--ease-standard`. That curve is a fast-out easing for  */
+/*     something arriving or leaving, and a loop with no beginning and no    */
+/*     end has neither; eased, the sweep visibly hesitates at both edges     */
+/*     of every cycle. The duration is a token — `slow-max`, 1300ms, the     */
+/*     nearest step to Astryx's 1500 — because that is the rule, and the     */
+/*     scale has no 1500.                                                    */
+/*                                                                          */
+/*     Section 5 below clamps this to 1ms with one iteration under           */
+/*     prefers-reduced-motion, which would strand the fill off the end of    */
+/*     the track. ProgressBar turns the animation off instead — see          */
+/*     src/components/ProgressBar/CLAUDE.md.                                 */
+@keyframes progress-indeterminate {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(250%); }
+}
+
 @theme {
   --animate-fade-in: fade-in var(--transition-duration-fast) var(--ease-standard) both;
   --animate-slide-out-to-bottom: slide-out-to-bottom var(--transition-duration-medium) var(--ease-standard) both;
+  --animate-progress-indeterminate: progress-indeterminate var(--transition-duration-slow-max) linear infinite;
 }
 
 /* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */

@@ -267,6 +267,13 @@ export type {
   PopoverCloseProps,
 } from './components/Popover'
 
+export { ProgressBar } from './components/ProgressBar'
+export type {
+  ProgressBarProps,
+  ProgressBarType,
+  ProgressBarMark,
+} from './components/ProgressBar'
+
 export { Radar } from './components/Radar'
 export type { RadarProps } from './components/Radar'
 
