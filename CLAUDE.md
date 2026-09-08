@@ -631,6 +631,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Calendar](src/components/Calendar/CLAUDE.md) | pick a date, or a range, from a month grid | the first component with no Base UI primitive underneath it; range mode is derived from the value's shape |
 | [DatePicker](src/components/Calendar/CLAUDE.md) | that grid in a panel, with presets and a footer | two of Figma's three variants are `numberOfMonths` and the value's shape; the file's own variant names caught a bug no screenshot would have |
 | [Table](src/components/Table/CLAUDE.md) | structured data in rows and columns | numbers are mono because the value says so, not because a prop does; the rules are pseudo-elements, so the file's 32/40/56 can be asserted |
+| [Pagination](src/components/Pagination/CLAUDE.md) | move through a data set a page at a time | counts, not rows, so it is not a table component; the arithmetic is a pure module because every way it can be wrong renders perfectly |
 
 ### Data visualization
 
@@ -847,6 +848,14 @@ roadmap item earns its build when the file draws it *and* something has been
 reinvented in its absence; this one was asked for directly, with the Figma node
 in hand. The bar governs what to build **next** when nobody is asking — it is not
 a gate on what somebody asks for.
+
+**`Pagination` is the Calendar case again, and worth naming as such.** It was never on this list.
+Figma drew it (`40004379:65925`) but nothing had been reinvented in its absence — `Table` had gone
+out of its way *not* to invent it, parking the entry with "do not invent the component here" and
+shipping `rowCount`/`rowIndexStart` as the hook instead. So only half the bar was met, and it was
+built anyway because it was asked for with the node in hand. The half that was met turned out to be
+the useful half: `Table`'s record had already decided the shape, so the build was a sibling
+component and a two-prop join rather than a negotiation about where pagination belongs.
 
 **Dialog is built, and the entry it closes is the cleanest run of Card's rule so far.** The bar is
 that a roadmap item earns its build when the file draws it *and* something has already been

@@ -249,8 +249,11 @@ Each of these is an absence with a reason, not an oversight.
   widening this one to an array later is a breaking change and should not be papered over.
 - **Controlled column widths.** `onColumnResize` reports; add the controlled pair when someone needs
   to persist widths.
-- **Pagination.** There is no `Pagination` component in this library. `rowCount`/`rowIndexStart` is
-  the hook a paginated view would use; do not invent the component here.
+- **Pagination.** Still not here — but it now exists as a **sibling**, `Pagination`, and
+  `rowCount`/`rowIndexStart` is the entire join between the two. There is no `pagination` prop on
+  this component and no slot for one: Figma draws the bar with no border, background or padding, so
+  it sits *outside* the rounded scroll region, and `Table.Footer` stays a `<tfoot>` for a totals row
+  rather than a home for a Select. See `Pagination/CLAUDE.md`, and the `WithTable` story there.
 - **Loading and skeleton rows.** No `Skeleton` exists, and inventing a shimmer inside `Table` puts a
   new visual primitive in the wrong place.
 - **`onRowClick`.** A click handler on a `<tr>` is a target with no keyboard equivalent. `hasHover`
