@@ -629,6 +629,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [AspectRatio](src/components/AspectRatio/CLAUDE.md) | a box that keeps its shape | five named ratios plus a number for Figma's `Custom`; the only component that paints nothing, and the first whose Figma set was widened to meet the code |
 | [Calendar](src/components/Calendar/CLAUDE.md) | pick a date, or a range, from a month grid | the first component with no Base UI primitive underneath it; range mode is derived from the value's shape |
 | [DatePicker](src/components/Calendar/CLAUDE.md) | that grid in a panel, with presets and a footer | two of Figma's three variants are `numberOfMonths` and the value's shape; the file's own variant names caught a bug no screenshot would have |
+| [Table](src/components/Table/CLAUDE.md) | structured data in rows and columns | numbers are mono because the value says so, not because a prop does; the rules are pseudo-elements, so the file's 32/40/56 can be asserted |
 
 ### Data visualization
 
@@ -826,8 +827,12 @@ component usually has fewer decisions in it than it looks.
 Foundational and static first:
 
 1. **List Item** — variants/states; native, styled.
-2. **Table Cell** — native, styled.
-3. Then: Indicator, Chart Legend Buttons.
+2. Then: Indicator, Chart Legend Buttons.
+
+**`Table Cell` came off this list the same way**, absorbed into `Table` rather than shipped on its
+own. A table cell outside a table has nothing to be — no width, no density, no row to take its rule
+from — so exporting it would have been exporting a `<td>`. It is still there as `Table.Cell` for the
+composable API, which is the difference between absorbing a roadmap item and dropping it.
 
 **`Carousel Pagination Button` came off this list by being built into `Carousel`** rather than
 shipped on its own. Figma models it as a component because a canvas has to draw a dot somewhere;

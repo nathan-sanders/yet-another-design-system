@@ -1,0 +1,867 @@
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from 'lucide-react'
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from 'react'
+
+import { cn } from '../../lib/cn'
+import { Button } from '../Button'
+import { Checkbox } from '../Checkbox'
+import { ResizeHandle } from './ResizeHandle'
+import { TableContext, TableRowContext, useTableContext, useTableRowContext } from './context'
+import { resolveNumeric } from './numeric'
+import {
+  cell,
+  hasColumnDivider,
+  hasRowDivider,
+  head,
+  row,
+  scrollRegion,
+  tableRoot,
+  type TableAlign,
+  type TableDensity,
+  type TableDividers,
+  type TableTextOverflow,
+  type TableVerticalAlign,
+} from './styles'
+import {
+  ariaSort,
+  nextSort,
+  rowCountAttribute,
+  rowIndex,
+  selectAllState,
+  sortLabel,
+  sortRows,
+  toggleAll,
+  toggleKey,
+  type SortValue,
+  type TableSort,
+  type TableSortDirection,
+} from './rows'
+import {
+  applyResize,
+  MIN_COLUMN_WIDTH,
+  resolveWidths,
+  tableMinWidth,
+  type TableColumnWidth,
+} from './widths'
+
+/**
+ * Table — structured data in rows and columns.
+ *
+ * Drawn in Figma under `40005049:39146`: `Table Cell` (`40005049:39090`,
+ * Density × Align) and `Table Head` (`40005047:38832`, Type × Align). The file
+ * draws the two atoms; the API above them follows Meta's Astryx Table, which is
+ * the reference Nathan brought.
+ *
+ * ## Numbers are mono, and nobody has to say so
+ *
+ * A cell whose child is a real number is set in `font-mono tabular-nums` — the
+ * same pair `Metric` uses, for the same reason: a column of figures only lines
+ * up if every digit is the same width. There is no prop for it, because the
+ * value already said it, and a `numeric` prop on every cell is a prop somebody
+ * will forget on one row of a thousand.
+ *
+ * A value that is digits but arrives as a *string* — `"$1.2M"`, `"82%"` — is
+ * what a column's `numeric` flag is for. The column knows it is a money column;
+ * the cell only sees a string. See `numeric.ts`.
+ *
+ * **Alignment does not derive the same way, on purpose.** The typeface is a
+ * property of the value, so a cell can decide it and be right every time. Which
+ * edge a column hangs off is a property of the *column*, and deriving it from
+ * the data would make it unstable: an empty table would left-align and then
+ * jump right when the first rows arrived. So `align` is declared, with
+ * `numeric` supplying its default.
+ *
+ * ## Two APIs, one implementation
+ *
+ * `<Table columns data />` is the one to reach for: it owns sorting, selection,
+ * expansion and resizing, because all four need to know about every row at
+ * once. `Table.Header` / `Body` / `Row` / `Head` / `Cell` / `Footer` are the
+ * escape hatch for a layout the column definitions cannot describe.
+ *
+ * The columns API **renders through those same parts**. That is deliberate and
+ * it is the thing to preserve: two renderers would drift, and the drift would
+ * show up as a composed table that looks subtly unlike a generated one.
+ *
+ * There are no raw third-party parts to re-export here the way `Menu` does —
+ * nothing in this component sits on a Base UI primitive. The absence of a
+ * `Table.Root` is a decision, not an omission.
+ */
+
+/* ------------------------------------------------------------------ column */
+
+export interface TableColumn<T> {
+  /** Unique id — the React key, the sort key and the width key. */
+  key: Extract<keyof T, string> | (string & {})
+  /** The column heading. Figma's `colLabelText`. */
+  header: ReactNode
+  /** Omit and the column is `proportional(1)`. */
+  width?: TableColumnWidth
+  /**
+   * Which edge the value hangs off. Defaults to `right` for a `numeric`
+   * column and `left` otherwise.
+   */
+  align?: TableAlign
+  /**
+   * Set the whole column in mono, for values that are digits but not
+   * `number`s: `"$1.2M"`, `"82%"`, `"12,400"`. A real number needs no flag.
+   *
+   * This *defaults* `align` to `right` but does not force it — an order-number
+   * column wants mono for scanning and left alignment because it reads as a
+   * label. `numeric` answers "are these digits?"; `align` answers "which edge?"
+   */
+  numeric?: boolean
+  /** Replaces `row[key]`. Whatever it returns becomes the cell's children. */
+  renderCell?: (item: T, index: number) => ReactNode
+  /**
+   * What this column sorts on. Defaults to `row[key]`.
+   *
+   * Required for a `renderCell` column with no field behind it — a "Status"
+   * column built out of two other fields has nothing at `row.status` to
+   * compare, and sorting it would silently do nothing.
+   */
+  sortValue?: (item: T) => SortValue
+  /**
+   * Opt one column out when the table is `sortable`. Some columns genuinely
+   * have no order — an actions column, a thumbnail.
+   */
+  sortable?: boolean
+  /** Opt one column out when the table is `resizable`. */
+  resizable?: boolean
+}
+
+/* -------------------------------------------------------------------- root */
+
+export interface TableProps<T>
+  extends Omit<
+    ComponentPropsWithRef<'table'>,
+    /*
+      Every one of these is a deprecated presentational attribute this
+      component either owns or forbids. `rules` is the dangerous one: it is
+      typed `"none" | "groups" | "rows" | "columns" | "all"`, which is almost
+      exactly `dividers`' value set, so leaving both in the type gives a caller
+      a plausible wrong prop that fails silently.
+    */
+    'align' | 'width' | 'border' | 'rules' | 'summary' | 'frame' | 'children'
+  > {
+  /**
+   * Names the scrollable region, and becomes the table's `<caption>`.
+   *
+   * Required, and required in the *type* rather than checked at runtime: a
+   * region you can only reach by dragging is unreachable from a keyboard, so
+   * the frame takes focus, and a focusable region with no accessible name is an
+   * axe failure. Making it a required prop is what moves that from a red CI run
+   * to a red squiggle.
+   */
+  label: string
+  /**
+   * A visible caption above the table. Defaults to `label`, rendered `sr-only`
+   * — the name is always in the accessibility tree even when nothing shows it.
+   */
+  caption?: ReactNode
+
+  columns: ReadonlyArray<TableColumn<T>>
+  data: readonly T[]
+  /**
+   * Which field identifies a row.
+   *
+   * Required, where Astryx lets it fall back to the row index. An index key is
+   * fine for a static render and silently wrong the moment a sort reorders a
+   * table that has selected rows — which is exactly the moment nobody is
+   * watching for it.
+   */
+  idKey: Extract<keyof T, string>
+
+  /** Figma's `Density` axis. */
+  density?: TableDensity
+  /** Which rules to draw. Figma's cell ships `rowBorder` on, so: `rows`. */
+  dividers?: TableDividers
+  /** What body text does when it outgrows its column. Headers always truncate. */
+  textOverflow?: TableTextOverflow
+  verticalAlign?: TableVerticalAlign
+  /** A hover highlight on rows. */
+  hasHover?: boolean
+  /** A wash on every other row. See `styles.ts` for why it is not the hover fill. */
+  isStriped?: boolean
+  /** Rendered in one full-width cell when `data` is empty. */
+  emptyState?: ReactNode
+
+  /**
+   * Put a sort control on every column that has one.
+   *
+   * Off by default. Astryx's rule holds: adding every feature at once is how a
+   * table stops being readable, so each one is asked for.
+   */
+  sortable?: boolean
+  /** Controlled sort. `null` is the data's own order. */
+  sort?: TableSort | null
+  defaultSort?: TableSort | null
+  onSortChange?: (sort: TableSort | null) => void
+
+  /** Put a checkbox in every row's first cell, and a select-all in the header. */
+  selectable?: boolean
+  selectedKeys?: readonly string[]
+  defaultSelectedKeys?: readonly string[]
+  onSelectionChange?: (keys: string[]) => void
+  /**
+   * The accessible name for a row's checkbox — `"Select Acme Inc"`.
+   *
+   * A row checkbox has no visible label, and six boxes all called "Select row"
+   * is a list a screen reader cannot navigate. The default says which row by
+   * number, which is honest and poor; name the row.
+   */
+  rowLabel?: (item: T, index: number) => string
+
+  /**
+   * The detail panel for a row, or `null` for a row that does not expand.
+   *
+   * Returning a node is what puts a chevron in that row's first cell — derived,
+   * rather than a second `expandable` flag that could disagree with it.
+   */
+  renderExpanded?: (item: T, index: number) => ReactNode
+  expandedKeys?: readonly string[]
+  defaultExpandedKeys?: readonly string[]
+  onExpandedChange?: (keys: string[]) => void
+
+  /**
+   * How many rows there are across every page, for `aria-rowcount`. Set it
+   * alongside `rowIndexStart` on a paginated or windowed view so a screen
+   * reader can say "row 43 of 200" while only ten rows are rendered.
+   */
+  rowCount?: number
+  /** Where the first rendered row sits in the whole data set. 1-based. */
+  rowIndexStart?: number
+
+  /** Put a drag handle on every column's right edge. */
+  resizable?: boolean
+  /** Reports every change, from the pointer and from the keyboard alike. */
+  onColumnResize?: (key: string, width: number) => void
+}
+
+export function Table<T>({
+  label,
+  caption,
+  columns,
+  data,
+  idKey,
+  density = 'balanced',
+  dividers = 'rows',
+  textOverflow = 'wrap',
+  verticalAlign = 'middle',
+  hasHover = false,
+  isStriped = false,
+  emptyState = 'No data.',
+  sortable = false,
+  sort: sortProp,
+  defaultSort = null,
+  onSortChange,
+  selectable = false,
+  selectedKeys: selectedProp,
+  defaultSelectedKeys = [],
+  onSelectionChange,
+  rowLabel,
+  renderExpanded,
+  expandedKeys: expandedProp,
+  defaultExpandedKeys = [],
+  onExpandedChange,
+  rowCount,
+  rowIndexStart = 1,
+  resizable = false,
+  onColumnResize,
+  className,
+  ...props
+}: TableProps<T>) {
+  const [resized, setResized] = useState<Record<string, number>>({})
+  const headRefs = useRef(new Map<string, HTMLTableCellElement>())
+
+  /**
+   * What each column currently measures, for the grips to announce.
+   *
+   * A resize handle is a `separator` with an `aria-valuenow`, and until a
+   * column has been dragged that number is whatever the browser's layout gave
+   * it — which no amount of arithmetic here can predict, because a proportional
+   * column's width depends on the width of the table. So it is measured.
+   *
+   * Reading the refs during render instead would announce the floor on the
+   * first paint, because the ref callbacks have not run yet — a grip that
+   * confidently says "120" about a 300px column, to the one user who cannot
+   * see that it is wrong.
+   */
+  const [measured, setMeasured] = useState<Record<string, number>>({})
+
+  const widths = resolveWidths(columns, resized)
+  const minWidth = tableMinWidth(columns, resized)
+
+  /*
+    A string of the column keys and their declared widths, so the effect below
+    can depend on the *shape* of the layout rather than on the `columns` array —
+    which is almost always written inline at the call site and so is a new array
+    on every render.
+  */
+  const layoutKey = columns
+    .map((column) => `${column.key}:${column.width?.kind ?? 'proportional'}:${column.width?.value ?? 1}`)
+    .join('|')
+
+  useLayoutEffect(() => {
+    if (!resizable) return
+    const next: Record<string, number> = {}
+    for (const [key, element] of headRefs.current) {
+      next[key] = Math.round(element.getBoundingClientRect().width)
+    }
+    setMeasured((current) => (shallowEqual(current, next) ? current : next))
+  }, [resizable, layoutKey, resized])
+
+  /**
+   * Freeze every column to the pixel width it currently has, the first time any
+   * one of them is resized.
+   *
+   * Without this you cannot sanely drag a single column: its neighbours are
+   * still proportional, so they re-solve on every pointer move and the whole
+   * table breathes while you drag one edge. Measuring the headers once turns
+   * the layout into fixed pixels, after which a resize moves exactly the column
+   * you grabbed.
+   */
+  function freezeWidths(): Record<string, number> {
+    if (Object.keys(resized).length > 0) return resized
+    const frozen: Record<string, number> = {}
+    for (const column of columns) {
+      const element = headRefs.current.get(column.key)
+      if (element) frozen[column.key] = Math.round(element.getBoundingClientRect().width)
+    }
+    return frozen
+  }
+
+  /** What a grip announces, and what a keyboard step counts from. */
+  function widthOf(key: string, min: number): number {
+    return resized[key] ?? measured[key] ?? min
+  }
+
+  function handleResize(key: string, next: number, min: number) {
+    const base = freezeWidths()
+    const updated = applyResize(base, key, next, 0, min)
+    setResized(updated)
+    onColumnResize?.(key, updated[key])
+  }
+
+  const [uncontrolledSort, setUncontrolledSort] = useState<TableSort | null>(defaultSort)
+  const sort = sortProp === undefined ? uncontrolledSort : sortProp
+
+  function handleSort(key: string) {
+    const next = nextSort(sort, key)
+    if (sortProp === undefined) setUncontrolledSort(next)
+    onSortChange?.(next)
+  }
+
+  const sorted = sortRows(data, sort, (item, key) => {
+    const column = columns.find((candidate) => candidate.key === key)
+    if (column?.sortValue) return column.sortValue(item)
+    return item[key as keyof T] as SortValue
+  })
+
+  const [uncontrolledSelected, setUncontrolledSelected] = useState<readonly string[]>(defaultSelectedKeys)
+  const selected = selectedProp ?? uncontrolledSelected
+
+  const [uncontrolledExpanded, setUncontrolledExpanded] = useState<readonly string[]>(defaultExpandedKeys)
+  const expanded = expandedProp ?? uncontrolledExpanded
+
+  const allKeys = data.map((item) => String(item[idKey]))
+  const selectAll = selectAllState(selected.length, allKeys.length)
+
+  function commitSelection(next: string[]) {
+    if (selectedProp === undefined) setUncontrolledSelected(next)
+    onSelectionChange?.(next)
+  }
+
+  function commitExpanded(next: string[]) {
+    if (expandedProp === undefined) setUncontrolledExpanded(next)
+    onExpandedChange?.(next)
+  }
+
+  /*
+    A generated prefix, so two tables on one page cannot mint the same id for
+    their detail panels and leave one row's `aria-controls` pointing at the
+    other table's.
+  */
+  const detailPrefix = useId()
+
+  /* The chevron and the checkbox both live in the first cell, which is what the
+     file's `expand` and `checkbox` booleans on `Table Cell` mean. It also means
+     no extra empty `<th>` for axe's `empty-table-header` to find. */
+  const leadingColumn = columns[0]?.key
+
+  return (
+    <div
+      /*
+        A region you can only reach by dragging is unreachable from a keyboard,
+        and axe fails the story for it (`scrollable-region-focusable`). Giving
+        the frame focus makes the arrow keys scroll it; the label is what a
+        screen reader announces on arrival. Same three lines as
+        `foundations/Showcase.tsx`, for the same reason.
+      */
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      role="region"
+      aria-label={label}
+      className={scrollRegion}
+    >
+      <TableContext.Provider value={{ density, dividers, textOverflow, verticalAlign }}>
+        <table
+          className={cn(tableRoot, className)}
+          style={{ minWidth }}
+          aria-rowcount={rowCountAttribute(rowCount)}
+          {...props}
+        >
+          <caption className="sr-only">{caption ?? label}</caption>
+          <colgroup>
+            {widths.map((width) => (
+              <col key={width.key} style={{ width: width.css }} />
+            ))}
+          </colgroup>
+
+          <TableHeader>
+            <TableRow aria-rowindex={rowCount === undefined ? undefined : 1}>
+              {columns.map((column) => (
+                <TableHead
+                  key={column.key}
+                  ref={(element) => {
+                    if (element) headRefs.current.set(column.key, element)
+                    else headRefs.current.delete(column.key)
+                  }}
+                  align={alignOf(column)}
+                  resizeHandle={
+                    resizesOn(resizable, column) ? (
+                      <ResizeHandle
+                        label={headerText(column)}
+                        width={widthOf(column.key, column.width?.min ?? MIN_COLUMN_WIDTH)}
+                        min={column.width?.min ?? MIN_COLUMN_WIDTH}
+                        onResize={(next) =>
+                          handleResize(column.key, next, column.width?.min ?? MIN_COLUMN_WIDTH)
+                        }
+                      />
+                    ) : undefined
+                  }
+                  selectionControl={
+                    selectable && column.key === leadingColumn ? (
+                      <Checkbox
+                        /*
+                          `label`, never `aria-label`. `Checkbox` always wraps
+                          itself in a real `<label>`, and Base UI resolves that
+                          wrapper into `aria-labelledby` — which outranks
+                          `aria-label` in the name computation and points at a
+                          label whose only content is the box itself. The result
+                          is a control with no accessible name at all, and an
+                          axe failure that reads as if the attribute were
+                          missing. The sr-only text also gives this `<th>` real
+                          content, which is what keeps `empty-table-header`
+                          quiet.
+                        */
+                        label={<span className="sr-only">Select all rows</span>}
+                        checked={selectAll.checked}
+                        indeterminate={selectAll.indeterminate}
+                        onCheckedChange={() => commitSelection(toggleAll(selected, allKeys))}
+                      />
+                    ) : undefined
+                  }
+                  sortDirection={sortsOn(sortable, column) ? ariaSort(sort, column.key) : undefined}
+                  sortLabel={sortLabel(headerText(column), sort, column.key)}
+                  onSort={() => handleSort(column.key)}
+                >
+                  {column.header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-content-subtle">
+                  {emptyState}
+                </TableCell>
+              </TableRow>
+            ) : (
+              sorted.map((item, index) => {
+                const key = String(item[idKey])
+                const isSelected = selected.includes(key)
+                const detail = renderExpanded?.(item, index) ?? null
+                const isExpanded = expanded.includes(key)
+                const detailId = `${detailPrefix}-${key}`
+                const name = rowLabel?.(item, index) ?? `row ${index + 1}`
+
+                return [
+                <TableRow
+                  key={key}
+                  aria-rowindex={rowCount === undefined ? undefined : rowIndex(rowIndexStart, index)}
+                  selected={isSelected}
+                  hoverable={hasHover}
+                  /*
+                    The stripe comes from the row's index in the *data*, never
+                    from `odd:`/`even:`. An expanded row's detail panel is a
+                    `<tr>` sibling, so `:nth-child` parity flips the moment
+                    anything expands and the whole zebra shifts under the user.
+                  */
+                  striped={isStriped && index % 2 === 1}
+                >
+                  {columns.map((column) => {
+                    const content = column.renderCell
+                      ? column.renderCell(item, index)
+                      : (item[column.key as keyof T] as ReactNode)
+                    const leading = column.key === leadingColumn
+                    return (
+                      <TableCell
+                        key={column.key}
+                        align={alignOf(column)}
+                        numeric={column.numeric}
+                        spacer={sortsOn(sortable, column)}
+                        selectionControl={
+                          selectable && leading ? (
+                            <Checkbox
+                              label={<span className="sr-only">{`Select ${name}`}</span>}
+                              checked={isSelected}
+                              onCheckedChange={(checked) =>
+                                commitSelection(toggleKey(selected, key, checked === true))
+                              }
+                            />
+                          ) : undefined
+                        }
+                        expandControl={
+                          detail && leading ? (
+                            <Button
+                              appearance="ghost"
+                              size="small"
+                              startIcon={ChevronRight}
+                              /* Button `small` draws a 12px icon; the file wants
+                                 16. The className overrides the size utility,
+                                 which is what `cn`'s tailwind-merge is for. */
+                              className={cn('[&_svg]:size-4', isExpanded && 'rotate-90')}
+                              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${name}`}
+                              aria-expanded={isExpanded}
+                              aria-controls={detailId}
+                              onClick={() =>
+                                commitExpanded(toggleKey(expanded, key, !isExpanded))
+                              }
+                            />
+                          ) : undefined
+                        }
+                      >
+                        {content}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>,
+                /*
+                  Rendered only when open. `hidden` on a `<tr>` fights
+                  `display: table-row`, and leaves a row that is invisible but
+                  still in the accessibility tree.
+                */
+                detail && isExpanded ? (
+                  <TableRow key={`${key}-detail`}>
+                    <TableCell id={detailId} colSpan={columns.length}>
+                      {detail}
+                    </TableCell>
+                  </TableRow>
+                ) : null,
+                ]
+              })
+            )}
+          </TableBody>
+        </table>
+      </TableContext.Provider>
+    </div>
+  )
+}
+
+/** A numeric column right-aligns unless it says otherwise. */
+function alignOf<T>(column: TableColumn<T>): TableAlign {
+  return column.align ?? (column.numeric ? 'right' : 'left')
+}
+
+/** Whether this column draws a sort control. */
+function sortsOn<T>(sortable: boolean, column: TableColumn<T>): boolean {
+  return sortable && column.sortable !== false
+}
+
+/**
+ * Whether two width maps hold the same numbers.
+ *
+ * The layout effect runs after every render, so without this the `setMeasured`
+ * inside it would schedule another render, which would run the effect again,
+ * forever.
+ */
+function shallowEqual(a: Record<string, number>, b: Record<string, number>): boolean {
+  const keys = Object.keys(a)
+  if (keys.length !== Object.keys(b).length) return false
+  return keys.every((key) => a[key] === b[key])
+}
+
+/** Whether this column draws a resize grip. */
+function resizesOn<T>(resizable: boolean, column: TableColumn<T>): boolean {
+  return resizable && column.resizable !== false
+}
+
+/**
+ * The sort button names its column, so the header has to be a string. A header
+ * that is a node — an icon, a wrapped label — has no text to borrow, and
+ * `String(node)` would name the button "[object Object]". Fall back to the key,
+ * which is at least a word about the column.
+ */
+function headerText<T>(column: TableColumn<T>): string {
+  return typeof column.header === 'string' ? column.header : column.key
+}
+
+/* ----------------------------------------------------------------- section */
+
+export interface TableHeaderProps extends ComponentPropsWithRef<'thead'> {}
+
+function TableHeader({ className, ...props }: TableHeaderProps) {
+  return <thead className={className} {...props} />
+}
+
+export interface TableBodyProps extends ComponentPropsWithRef<'tbody'> {}
+
+function TableBody({ className, ...props }: TableBodyProps) {
+  return <tbody className={className} {...props} />
+}
+
+export interface TableFooterProps extends ComponentPropsWithRef<'tfoot'> {}
+
+function TableFooter({ className, ...props }: TableFooterProps) {
+  return <tfoot className={className} {...props} />
+}
+
+/* --------------------------------------------------------------------- row */
+
+export interface TableRowProps extends ComponentPropsWithRef<'tr'> {
+  /** Draws the selected fill, and steps its cells' rules up to emphasized. */
+  selected?: boolean
+  /** The zebra wash. A prop and not `odd:`, for the reason given in `Table`. */
+  striped?: boolean
+  hoverable?: boolean
+}
+
+function TableRow({ selected = false, striped = false, hoverable = false, className, ...props }: TableRowProps) {
+  return (
+    <TableRowContext.Provider value={{ selected }}>
+      <tr className={cn(row({ selected, striped, hoverable }), className)} {...props} />
+    </TableRowContext.Provider>
+  )
+}
+
+/* -------------------------------------------------------------------- head */
+
+export interface TableHeadProps extends Omit<ComponentPropsWithRef<'th'>, 'align' | 'abbr'> {
+  align?: TableAlign
+  /** Figma's `gridDivider`. Defaults from the table. */
+  divider?: boolean
+  /**
+   * Draws the sort control, and sets `aria-sort`.
+   *
+   * Omit it entirely for a column that does not sort — `aria-sort="none"` on a
+   * column you cannot sort announces an affordance that is not there. The value
+   * maps onto the attribute with no translation table in between, which is the
+   * point of naming it this rather than `sorted` or `direction`.
+   */
+  sortDirection?: TableSortDirection | 'none'
+  /** The sort button's accessible name. It should name the column. */
+  sortLabel?: string
+  onSort?: () => void
+  /**
+   * Figma's `checkbox` — the select-all box, drawn before the label.
+   *
+   * A slot rather than a `selected`-shaped prop, because what belongs here is
+   * *a checkbox* and `Checkbox` already knows how to be one. Name it with
+   * `label={<span className="sr-only">…</span>}`, not `aria-label` — see the
+   * comment on the columns API's own select-all.
+   */
+  selectionControl?: ReactNode
+  /**
+   * Figma's `resizeHandle`. Pass the grip; the head positions it.
+   *
+   * A slot, because in children mode the caller owns the widths and so has to
+   * own what changes them. The columns API passes its own.
+   */
+  resizeHandle?: ReactNode
+}
+
+/**
+ * Figma's `_Table Column Sort` (`40005047:38802`), which is underscored because
+ * it is a drawing, not an API: a small ghost `Button` carrying one of three
+ * arrows. Its box is 30 x 24 — `h-6 px-2` and a 1px border around a 12px icon —
+ * which is exactly the space a right-aligned cell reserves beside its value.
+ */
+const SORT_ICON = {
+  none: ArrowUpDown,
+  ascending: ArrowUp,
+  descending: ArrowDown,
+} as const
+
+function TableHead({
+  align = 'left',
+  divider,
+  sortDirection,
+  sortLabel: label,
+  onSort,
+  selectionControl,
+  resizeHandle,
+  className,
+  children,
+  ...props
+}: TableHeadProps) {
+  const table = useTableContext()
+  const columnDivider = divider ?? hasColumnDivider(table.dividers)
+  const styles = head({ align, columnDivider })
+  const labelId = useId()
+
+  return (
+    <th
+      scope="col"
+      aria-sort={sortDirection}
+      /*
+        Name the header by its *label*, not by everything inside it.
+
+        A `<th>`'s accessible name is computed from its contents, and its
+        contents include the sort button and the resize grip — both of which
+        need names of their own. Left alone, a sortable, resizable "Name" column
+        announces as "Name Sort by Name Resize Name column", and it does so on
+        every cell in that column, because a column header is what a screen
+        reader repeats as you move down it.
+
+        `aria-labelledby` pointing at the label span fixes it for arbitrary
+        children, where an `aria-label` would need the header to be a string.
+      */
+      aria-labelledby={labelId}
+      className={cn(styles.root(), className)}
+      {...props}
+    >
+      <span className={styles.line()}>
+        {selectionControl}
+        <span className={styles.sortGroup()}>
+          <span id={labelId} className={styles.label()}>
+            {children}
+          </span>
+          {sortDirection === undefined ? null : (
+            /*
+              A separate button after the label, which is what the file draws —
+              not Astryx's label-wrapped-in-a-button. Wrapping the label makes
+              the column header's accessible name "Revenue, button" and puts a
+              role announcement inside every cell's column context; it also
+              stops a sortable and a non-sortable column looking alike, which is
+              why `Table Head`'s `Type` axis has only the one value.
+
+              At 30 x 24 it clears WCAG 2.2's 24 x 24 target minimum exactly.
+              Do not "compromise" by putting an onClick on the <th> as well:
+              that is a click target with no keyboard equivalent.
+            */
+            <Button
+              appearance="ghost"
+              size="small"
+              startIcon={SORT_ICON[sortDirection]}
+              aria-label={label ?? 'Sort'}
+              onClick={onSort}
+            />
+          )}
+        </span>
+      </span>
+      {resizeHandle}
+    </th>
+  )
+}
+
+/* -------------------------------------------------------------------- cell */
+
+export interface TableCellProps
+  extends Omit<
+    /* align/width/height/valign are ours; scope and abbr belong on a `<th>`. */
+    ComponentPropsWithRef<'td'>,
+    'align' | 'width' | 'height' | 'valign' | 'scope' | 'abbr'
+  > {
+  align?: TableAlign
+  /** Force mono. A cell whose child is a real number needs no flag. */
+  numeric?: boolean
+  /** Figma's `rowBorder`. Defaults from the table. */
+  divider?: boolean
+  /** Figma's `gridDivider`. Defaults from the table. */
+  columnDivider?: boolean
+  /**
+   * Figma's `rightAlignSortSpacer` — reserve the sort button's 30px at the end
+   * of a right-aligned cell.
+   *
+   * Off by default, and **only correct when this column's header actually
+   * draws a sort button**. The file defaults it on because its default head is
+   * sortable; reserving the space under a header that has no button pushes the
+   * value 32px left of the label it is supposed to line up with. The columns
+   * API derives it from the column's sortability; in children mode it is
+   * yours to set, alongside the sort control you passed the head.
+   */
+  spacer?: boolean
+  /** Figma's `checkbox`. Pass a `Checkbox`; the cell draws the gap. */
+  selectionControl?: ReactNode
+  /** Figma's `expand`. Pass the disclosure button; the cell draws the gap. */
+  expandControl?: ReactNode
+}
+
+function TableCell({
+  align = 'left',
+  numeric,
+  divider,
+  columnDivider,
+  spacer = false,
+  selectionControl,
+  expandControl,
+  className,
+  children,
+  ...props
+}: TableCellProps) {
+  const table = useTableContext()
+  const { selected } = useTableRowContext()
+
+  const styles = cell({
+    density: table.density,
+    align,
+    verticalAlign: table.verticalAlign,
+    textOverflow: table.textOverflow,
+    numeric: resolveNumeric(numeric, children),
+    rowDivider: divider ?? hasRowDivider(table.dividers),
+    columnDivider: columnDivider ?? hasColumnDivider(table.dividers),
+    selected,
+  })
+
+  return (
+    <td className={cn(styles.root(), className)} {...props}>
+      <span className={styles.line()}>
+        {selectionControl}
+        {expandControl}
+        <span className={styles.text()}>{children}</span>
+        {/*
+          Figma's `Sort By Spacer` — the sort button's own 30 x 24 box, held
+          empty so a right-aligned value lands under its column's *label*
+          instead of under the button beside it.
+        */}
+        {align === 'right' && spacer ? <span aria-hidden="true" className={styles.spacer()} /> : null}
+      </span>
+    </td>
+  )
+}
+
+/* --------------------------------------------------------------- namespace */
+
+Table.displayName = 'Table'
+
+TableHeader.displayName = 'Table.Header'
+TableBody.displayName = 'Table.Body'
+TableFooter.displayName = 'Table.Footer'
+TableRow.displayName = 'Table.Row'
+TableHead.displayName = 'Table.Head'
+TableCell.displayName = 'Table.Cell'
+
+Table.Header = TableHeader
+Table.Body = TableBody
+Table.Footer = TableFooter
+Table.Row = TableRow
+Table.Head = TableHead
+Table.Cell = TableCell
