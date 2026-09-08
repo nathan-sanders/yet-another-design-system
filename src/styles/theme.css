@@ -611,7 +611,7 @@
   --decorative-amber-highlight: var(--color-amber-600);
   --decorative-amber-foreground: var(--color-amber-950);
   --decorative-yellow-background: var(--color-yellow-400);
-  --decorative-yellow-highlight: var(--color-yellow-600);
+  --decorative-yellow-highlight: var(--color-yellow-700);
   --decorative-yellow-foreground: var(--color-yellow-950);
   --decorative-lime-background: var(--color-lime-300);
   --decorative-lime-highlight: var(--color-lime-600);
@@ -785,7 +785,7 @@
   --feedback-danger-highlight: var(--decorative-red-highlight);
   --feedback-danger-foreground: var(--decorative-red-foreground);
   --decorative-red-background: var(--color-red-900);
-  --decorative-red-highlight: var(--color-red-600);
+  --decorative-red-highlight: var(--color-red-400);
   --decorative-red-foreground: var(--color-red-200);
   --decorative-orange-background: var(--color-orange-900);
   --decorative-orange-highlight: var(--color-orange-600);

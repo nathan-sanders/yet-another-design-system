@@ -884,11 +884,22 @@ generalizing: **a rule imported from a single-theme system has to be re-measured
 variant that vanishes into its neighbour in half the themes is worse than a variant that is not
 there.**
 
-It also turned up the first real gap in the `Feedback` ramp — `Highlight` is the same step in both
-themes, which is fine behind a 1px invalid border and not fine as a large fill on a track. Two
-pairs fall under 3:1 and are carried as named exceptions with their measured numbers in
-`src/components/ProgressBar/contrast.test.ts`, in the shape `nav-contrast.test.ts` used for `Pink`.
-**The fix is two variables in Figma**, not an override in the component.
+**It also turned up a real gap in the `Feedback` ramp, and that gap is now closed at source.**
+`Highlight` was the same step in both themes, which is fine behind a 1px invalid border and not fine
+as a large fill on a track: `Decorative/Yellow/Highlight` measured 2.33:1 on the light track and
+`Decorative/Red/Highlight` 2.16:1 on the dark one. Both are now theme-aware — Yellow/700 light with
+Yellow/600 dark, Red/600 light with Red/400 dark — changed in Figma, mirrored into
+`tokens/semantic.json`, and regenerated, for a two-line diff in `theme.css`.
+
+**This is the `Pink` precedent run end to end, and it is the pattern to copy.** A component asks a
+token for something; a test written *in that component* records the measurement rather than the
+opinion; the token moves at source; the exception is deleted. What made it cheap was checking the
+blast radius before touching anything — `Badge` binds `Background` and `Foreground` and never
+`Highlight`, so its eighteen hues did not move, and the only other consumer is the invalid border on
+`Checkbox`, `Radio` and `Input`, which improved in dark (6.05:1, from 3.67). **`Decorative/Green/Highlight`
+was already Green/700 / Green/600 for exactly the reason Yellow now is**, so the ramp was never
+uniform and the change joined an existing shape rather than inventing one. Check for that before
+arguing a token is untouchable.
 
 **`Pagination` is the Calendar case again, and worth naming as such.** It was never on this list.
 Figma drew it (`40004379:65925`) but nothing had been reinvented in its absence — `Table` had gone
