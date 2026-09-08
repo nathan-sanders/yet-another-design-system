@@ -1,9 +1,17 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from 'lucide-react'
-import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react'
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from 'react'
 
 import { cn } from '../../lib/cn'
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import { ResizeHandle } from './ResizeHandle'
 import { TableContext, TableRowContext, useTableContext, useTableRowContext } from './context'
 import { resolveNumeric } from './numeric'
 import {
@@ -34,7 +42,13 @@ import {
   type TableSort,
   type TableSortDirection,
 } from './rows'
-import { resolveWidths, tableMinWidth, type TableColumnWidth } from './widths'
+import {
+  applyResize,
+  MIN_COLUMN_WIDTH,
+  resolveWidths,
+  tableMinWidth,
+  type TableColumnWidth,
+} from './widths'
 
 /**
  * Table — structured data in rows and columns.
@@ -117,6 +131,8 @@ export interface TableColumn<T> {
    * have no order — an actions column, a thumbnail.
    */
   sortable?: boolean
+  /** Opt one column out when the table is `resizable`. */
+  resizable?: boolean
 }
 
 /* -------------------------------------------------------------------- root */
@@ -220,6 +236,11 @@ export interface TableProps<T>
   rowCount?: number
   /** Where the first rendered row sits in the whole data set. 1-based. */
   rowIndexStart?: number
+
+  /** Put a drag handle on every column's right edge. */
+  resizable?: boolean
+  /** Reports every change, from the pointer and from the keyboard alike. */
+  onColumnResize?: (key: string, width: number) => void
 }
 
 export function Table<T>({
@@ -250,11 +271,72 @@ export function Table<T>({
   onExpandedChange,
   rowCount,
   rowIndexStart = 1,
+  resizable = false,
+  onColumnResize,
   className,
   ...props
 }: TableProps<T>) {
-  const widths = resolveWidths(columns)
-  const minWidth = tableMinWidth(columns)
+  const [resized, setResized] = useState<Record<string, number>>({})
+  const headRefs = useRef(new Map<string, HTMLTableCellElement>())
+
+  /**
+   * What each column currently measures, for the grips to announce.
+   *
+   * A resize handle is a `separator` with an `aria-valuenow`, and until a
+   * column has been dragged that number is whatever the browser's layout gave
+   * it — which no amount of arithmetic here can predict, because a proportional
+   * column's width depends on the width of the table. So it is measured.
+   *
+   * Reading the refs during render instead would announce the floor on the
+   * first paint, because the ref callbacks have not run yet — a grip that
+   * confidently says "120" about a 300px column, to the one user who cannot
+   * see that it is wrong.
+   */
+  const [measured, setMeasured] = useState<Record<string, number>>({})
+
+  const widths = resolveWidths(columns, resized)
+  const minWidth = tableMinWidth(columns, resized)
+
+  useLayoutEffect(() => {
+    if (!resizable) return
+    const next: Record<string, number> = {}
+    for (const [key, element] of headRefs.current) {
+      next[key] = Math.round(element.getBoundingClientRect().width)
+    }
+    setMeasured((current) => (shallowEqual(current, next) ? current : next))
+  })
+
+  /**
+   * Freeze every column to the pixel width it currently has, the first time any
+   * one of them is resized.
+   *
+   * Without this you cannot sanely drag a single column: its neighbours are
+   * still proportional, so they re-solve on every pointer move and the whole
+   * table breathes while you drag one edge. Measuring the headers once turns
+   * the layout into fixed pixels, after which a resize moves exactly the column
+   * you grabbed.
+   */
+  function freezeWidths(): Record<string, number> {
+    if (Object.keys(resized).length > 0) return resized
+    const frozen: Record<string, number> = {}
+    for (const column of columns) {
+      const element = headRefs.current.get(column.key)
+      if (element) frozen[column.key] = Math.round(element.getBoundingClientRect().width)
+    }
+    return frozen
+  }
+
+  /** What a grip announces, and what a keyboard step counts from. */
+  function widthOf(key: string, min: number): number {
+    return resized[key] ?? measured[key] ?? min
+  }
+
+  function handleResize(key: string, next: number, min: number) {
+    const base = freezeWidths()
+    const updated = applyResize(base, key, next, 0, min)
+    setResized(updated)
+    onColumnResize?.(key, updated[key])
+  }
 
   const [uncontrolledSort, setUncontrolledSort] = useState<TableSort | null>(defaultSort)
   const sort = sortProp === undefined ? uncontrolledSort : sortProp
@@ -336,7 +418,23 @@ export function Table<T>({
               {columns.map((column) => (
                 <TableHead
                   key={column.key}
+                  ref={(element) => {
+                    if (element) headRefs.current.set(column.key, element)
+                    else headRefs.current.delete(column.key)
+                  }}
                   align={alignOf(column)}
+                  resizeHandle={
+                    resizesOn(resizable, column) ? (
+                      <ResizeHandle
+                        label={headerText(column)}
+                        width={widthOf(column.key, column.width?.min ?? MIN_COLUMN_WIDTH)}
+                        min={column.width?.min ?? MIN_COLUMN_WIDTH}
+                        onResize={(next) =>
+                          handleResize(column.key, next, column.width?.min ?? MIN_COLUMN_WIDTH)
+                        }
+                      />
+                    ) : undefined
+                  }
                   selectionControl={
                     selectable && column.key === leadingColumn ? (
                       <Checkbox
@@ -479,6 +577,24 @@ function sortsOn<T>(sortable: boolean, column: TableColumn<T>): boolean {
 }
 
 /**
+ * Whether two width maps hold the same numbers.
+ *
+ * The layout effect runs after every render, so without this the `setMeasured`
+ * inside it would schedule another render, which would run the effect again,
+ * forever.
+ */
+function shallowEqual(a: Record<string, number>, b: Record<string, number>): boolean {
+  const keys = Object.keys(a)
+  if (keys.length !== Object.keys(b).length) return false
+  return keys.every((key) => a[key] === b[key])
+}
+
+/** Whether this column draws a resize grip. */
+function resizesOn<T>(resizable: boolean, column: TableColumn<T>): boolean {
+  return resizable && column.resizable !== false
+}
+
+/**
  * The sort button names its column, so the header has to be a string. A header
  * that is a node — an icon, a wrapped label — has no text to borrow, and
  * `String(node)` would name the button "[object Object]". Fall back to the key,
@@ -553,6 +669,13 @@ export interface TableHeadProps extends Omit<ComponentPropsWithRef<'th'>, 'align
    * comment on the columns API's own select-all.
    */
   selectionControl?: ReactNode
+  /**
+   * Figma's `resizeHandle`. Pass the grip; the head positions it.
+   *
+   * A slot, because in children mode the caller owns the widths and so has to
+   * own what changes them. The columns API passes its own.
+   */
+  resizeHandle?: ReactNode
 }
 
 /**
@@ -574,6 +697,7 @@ function TableHead({
   sortLabel: label,
   onSort,
   selectionControl,
+  resizeHandle,
   className,
   children,
   ...props
@@ -581,18 +705,35 @@ function TableHead({
   const table = useTableContext()
   const columnDivider = divider ?? hasColumnDivider(table.dividers)
   const styles = head({ align, columnDivider })
+  const labelId = useId()
 
   return (
     <th
       scope="col"
       aria-sort={sortDirection}
+      /*
+        Name the header by its *label*, not by everything inside it.
+
+        A `<th>`'s accessible name is computed from its contents, and its
+        contents include the sort button and the resize grip — both of which
+        need names of their own. Left alone, a sortable, resizable "Name" column
+        announces as "Name Sort by Name Resize Name column", and it does so on
+        every cell in that column, because a column header is what a screen
+        reader repeats as you move down it.
+
+        `aria-labelledby` pointing at the label span fixes it for arbitrary
+        children, where an `aria-label` would need the header to be a string.
+      */
+      aria-labelledby={labelId}
       className={cn(styles.root(), className)}
       {...props}
     >
       <span className={styles.line()}>
         {selectionControl}
         <span className={styles.sortGroup()}>
-          <span className={styles.label()}>{children}</span>
+          <span id={labelId} className={styles.label()}>
+            {children}
+          </span>
           {sortDirection === undefined ? null : (
             /*
               A separate button after the label, which is what the file draws —
@@ -616,6 +757,7 @@ function TableHead({
           )}
         </span>
       </span>
+      {resizeHandle}
     </th>
   )
 }

@@ -3,7 +3,7 @@ import { expect, userEvent, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
 import { Table } from './Table'
-import { pixel, proportional } from './widths'
+import { MIN_COLUMN_WIDTH, pixel, proportional } from './widths'
 
 interface Row extends Record<string, unknown> {
   id: string
@@ -269,9 +269,17 @@ export const Sorting: Story = {
       await expect(canvas.getByRole('button', { name: 'Sort by Seats' })).toBeVisible()
     })
 
+    await step('but the header is still named just "Seats"', async () => {
+      // A <th>'s name is computed from its contents, and its contents include a
+      // button that needs a name of its own. Left alone this column would
+      // announce as "Seats Sort by Seats" — on every cell in it, because the
+      // column header is what gets repeated as you move down a column.
+      await expect(canvas.getByRole('columnheader', { name: 'Seats' })).toHaveAccessibleName('Seats')
+    })
+
     await step('ascending puts the smallest first', async () => {
       await userEvent.click(canvas.getByRole('button', { name: 'Sort by Seats' }))
-      await expect(canvas.getByRole('columnheader', { name: /Seats/ })).toHaveAttribute(
+      await expect(canvas.getByRole('columnheader', { name: 'Seats' })).toHaveAttribute(
         'aria-sort',
         'ascending',
       )
@@ -282,7 +290,7 @@ export const Sorting: Story = {
 
     await step('descending flips it', async () => {
       await userEvent.click(canvas.getByRole('button', { name: 'Sorted by Seats, ascending' }))
-      await expect(canvas.getByRole('columnheader', { name: /Seats/ })).toHaveAttribute(
+      await expect(canvas.getByRole('columnheader', { name: 'Seats' })).toHaveAttribute(
         'aria-sort',
         'descending',
       )
@@ -291,7 +299,7 @@ export const Sorting: Story = {
 
     await step('a third click gives the data back its own order', async () => {
       await userEvent.click(canvas.getByRole('button', { name: 'Sorted by Seats, descending' }))
-      await expect(canvas.getByRole('columnheader', { name: /Seats/ })).toHaveAttribute('aria-sort', 'none')
+      await expect(canvas.getByRole('columnheader', { name: 'Seats' })).toHaveAttribute('aria-sort', 'none')
       await expect(firstCell()).toHaveTextContent('Alice Johnson')
     })
 
@@ -305,7 +313,7 @@ export const Sorting: Story = {
     })
 
     await step('a sortable right-aligned value still lines up with its label', async () => {
-      const header = canvas.getByRole('columnheader', { name: /Seats/ })
+      const header = canvas.getByRole('columnheader', { name: 'Seats' })
       const headerLabel = header.querySelector('span > span > span')!
       const cellText = canvas.getAllByRole('cell')[2].querySelector('span > span')!
       const drift = Math.abs(
@@ -423,6 +431,82 @@ export const ExpandableRows: Story = {
       const panelId = opened.getAttribute('aria-controls')!
       await userEvent.click(opened)
       await expect(document.getElementById(panelId)).toBeNull()
+    })
+  },
+}
+
+/**
+ * Resizable columns. The grip is a 1px line in a 12px target straddling the
+ * column's right edge, and it is a focusable `separator` rather than a button:
+ * a button does one thing, and this does a continuous one.
+ *
+ * The keyboard path is the one the play function drives, and not out of
+ * convenience — a drag is the interaction that has no keyboard equivalent
+ * unless somebody writes one, so the keyboard path is the one that can actually
+ * regress unnoticed. Arrows step 8px, Shift 40, Home returns to the floor.
+ */
+export const ColumnResizing: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Resizable columns',
+    resizable: true,
+    columns: [
+      { key: 'name', header: 'Name' },
+      { key: 'region', header: 'Region' },
+      { key: 'seats', header: 'Seats', align: 'right', resizable: false },
+    ],
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('a column that opted out has no grip', async () => {
+      await expect(canvas.queryByRole('separator', { name: 'Resize Seats column' })).toBeNull()
+    })
+
+    const handle = canvas.getByRole('separator', { name: 'Resize Name column' })
+    const nameColumn = () => canvasElement.querySelectorAll('col')[0] as HTMLElement
+
+    await step('it announces the column it actually has, before anything is dragged', async () => {
+      // Not the floor. Reading the header refs during render would give 120
+      // here, because the ref callbacks have not run on the first paint — a
+      // grip confidently wrong about a column, to the one user who cannot see
+      // that it is. The measurement is a layout effect for that reason.
+      const announced = Number(handle.getAttribute('aria-valuenow'))
+      const actual = Math.round(
+        canvas.getByRole('columnheader', { name: 'Name' }).getBoundingClientRect().width,
+      )
+      await expect(announced).toBe(actual)
+      await expect(announced).toBeGreaterThan(MIN_COLUMN_WIDTH)
+    })
+
+    await step('the arrow keys widen it', async () => {
+      const before = Number(handle.getAttribute('aria-valuenow'))
+      handle.focus()
+      await userEvent.keyboard('{ArrowRight}{ArrowRight}')
+      await expect(Number(handle.getAttribute('aria-valuenow'))).toBe(before + 16)
+      // And the width actually reached the layout, not just the attribute.
+      await expect(nameColumn().style.width).toBe(`${before + 16}px`)
+    })
+
+    await step('Shift steps further', async () => {
+      const before = Number(handle.getAttribute('aria-valuenow'))
+      await userEvent.keyboard('{Shift>}{ArrowRight}{/Shift}')
+      await expect(Number(handle.getAttribute('aria-valuenow'))).toBe(before + 40)
+    })
+
+    await step('and it will not shrink past its floor', async () => {
+      await userEvent.keyboard('{Home}')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(MIN_COLUMN_WIDTH))
+      await userEvent.keyboard('{ArrowLeft}{ArrowLeft}')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(MIN_COLUMN_WIDTH))
+    })
+
+    await step('resizing one column leaves the others alone', async () => {
+      // The whole point of freezing every width on the first resize: without it
+      // the untouched columns re-solve and the table breathes as you drag.
+      const regionWidth = (canvasElement.querySelectorAll('col')[1] as HTMLElement).style.width
+      await userEvent.keyboard('{ArrowRight}')
+      await expect((canvasElement.querySelectorAll('col')[1] as HTMLElement).style.width).toBe(regionWidth)
     })
   },
 }
