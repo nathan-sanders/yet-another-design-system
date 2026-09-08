@@ -79,6 +79,15 @@ With no `format`, Base UI does not print the value at all — it prints `(value 
 as a percentage. A plain `Intl.NumberFormat` on the raw number gives "80" beside a bar reading
 "75%". Slider does not hit this because its bounds *are* raw values on the same scale.
 
+**There are four types, not Astryx's five — `neutral` has nowhere to be.** Astryx's accent is blue
+and its neutral is gray, so those are plainly different things. Here `default` is already gray
+(`Input/Selected`, Slider's fill), and every other gray in the semantic layer collides with it in one
+theme or the other: `Surface/Background Emphasized` and `Surface/Border Emphasized` are both Stone/100
+in dark, which is exactly `Input/Selected`, and `Content/Subtle` is Stone/600 in light, which is also
+exactly `Input/Selected`. It shipped with a neutral first and **the Figma dark preview is where the
+collision showed** — two rows that were identical bars. A variant that vanishes into another one in
+half the themes is worse than an absent variant.
+
 **Completion does not recolor itself.** `data-complete` is on every part and it would be one
 line, but Astryx's guidance is that the caller picks the variant for the context — a quota
 reaching 100% is bad news, not good. The component holds no opinion the file does not draw.
@@ -135,7 +144,7 @@ regression. Measured alternatives that clear 3:1 in both themes: Yellow/700 ligh
 dark (3.92 / 5.37), and Red/600 light with Red/400 dark (3.79 / 3.55) — i.e. make those two
 variables theme-aware at source. That moves `Badge` and the whole `Feedback` family with them,
 which is why it is a decision for the file rather than an override here. Lowering the threshold
-is not the alternative: it would weaken all ten pairs to excuse two.
+is not the alternative: it would weaken all eight pairs to excuse two.
 
 ## Testing
 

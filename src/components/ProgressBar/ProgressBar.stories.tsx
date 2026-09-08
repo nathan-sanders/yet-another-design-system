@@ -15,7 +15,6 @@ const types: { type: ProgressBarType; label: string; value: number }[] = [
   { type: 'success', label: 'Success', value: 80 },
   { type: 'warning', label: 'Warning', value: 50 },
   { type: 'danger', label: 'Danger', value: 92 },
-  { type: 'neutral', label: 'Neutral', value: 35 },
 ]
 
 /**
@@ -56,7 +55,7 @@ const meta = {
     value: { control: { type: 'range', min: 0, max: 100, step: 1 } },
     type: {
       control: 'select',
-      options: ['default', 'success', 'warning', 'danger', 'neutral'],
+      options: ['default', 'success', 'warning', 'danger'],
     },
     valueLabel: { control: 'boolean' },
     labelHidden: { control: 'boolean' },
@@ -92,8 +91,12 @@ type Story = StoryObj<typeof ProgressBar>
 export const Playground: Story = {}
 
 /**
- * The five semantic colors. `default` is the ordinary one — reach for a severity
+ * The four semantic colors. `default` is the ordinary one — reach for a severity
  * only when the number itself is the news, as with a quota nearly spent.
+ *
+ * There is no `neutral`, though Astryx has one: `default` is already this
+ * library's gray, and every other gray in the semantic layer collides with it in
+ * one theme or the other. See the type's own comment.
  *
  * Use the Theme switch in the toolbar for dark mode.
  */
@@ -115,7 +118,7 @@ export const Types: Story = {
       await expect(bar).toHaveAttribute('aria-valuenow', String(value))
     }
 
-    // The five fills are five different colors, which is the whole point of the
+    // The four fills are four different colors, which is the whole point of the
     // story — and the one thing a passing render does not prove.
     const fills = types.map(({ label }) =>
       getComputedStyle(fillOf(canvas.getByRole('progressbar', { name: label })))

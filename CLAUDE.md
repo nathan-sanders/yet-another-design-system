@@ -632,7 +632,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [DatePicker](src/components/Calendar/CLAUDE.md) | that grid in a panel, with presets and a footer | two of Figma's three variants are `numberOfMonths` and the value's shape; the file's own variant names caught a bug no screenshot would have |
 | [Table](src/components/Table/CLAUDE.md) | structured data in rows and columns | numbers are mono because the value says so, not because a prop does; the rules are pseudo-elements, so the file's 32/40/56 can be asserted |
 | [Pagination](src/components/Pagination/CLAUDE.md) | move through a data set a page at a time | counts, not rows, so it is not a table component; the arithmetic is a pure module because every way it can be wrong renders perfectly |
-| [ProgressBar](src/components/ProgressBar/CLAUDE.md) | how far along a task is | the first component with no Figma variants to read, so the file was drawn from it; `indeterminate` is `value={null}`, and the marks are behind the track because on-fill contrast has no answer in two themes |
+| [ProgressBar](src/components/ProgressBar/CLAUDE.md) | how far along a task is | the first component with no Figma variants to read, so the file was drawn from it; `indeterminate` is `value={null}`, and two of Astryx's rules are dropped because the token layer cannot hold them in both themes |
 
 ### Data visualization
 
@@ -865,6 +865,16 @@ Its sibling primitive is left alone deliberately. Base UI ships `meter` with the
 parts and `role="meter"`, and a bar that reports a *level* rather than a *task* is a different
 component under the same drawing. Not built, and the record says so rather than leaving the next
 person to wonder whether it was missed.
+
+**Two of Astryx's rules were dropped, both for the same reason, and both found by measuring rather
+than by reading.** Its marks take their color from whatever they sit on, and its `neutral` variant is
+a quieter gray than its accent. Neither survives a two-theme token layer: no token clears 3:1 on
+`Feedback/Warning/Highlight` in *both* themes (Yellow/600 is light in each), and every gray in the
+semantic layer collides with `Input/Selected` in one theme or the other. **The dark preview in Figma
+is where the second one showed** — two rows of the variant grid drew the identical bar. Worth
+generalizing: **a rule imported from a single-theme system has to be re-measured in both, and a
+variant that vanishes into its neighbour in half the themes is worse than a variant that is not
+there.**
 
 It also turned up the first real gap in the `Feedback` ramp — `Highlight` is the same step in both
 themes, which is fine behind a 1px invalid border and not fine as a large fill on a track. Two

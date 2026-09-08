@@ -143,7 +143,6 @@ const FILLS: { type: string; token: string }[] = [
   { type: 'success', token: 'feedback-success-highlight' },
   { type: 'warning', token: 'feedback-warning-highlight' },
   { type: 'danger', token: 'feedback-danger-highlight' },
-  { type: 'neutral', token: 'surface-background-emphasized' },
 ]
 
 /**
