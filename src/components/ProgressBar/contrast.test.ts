@@ -16,26 +16,34 @@ import { describe, expect, it } from 'vitest'
  * Same shape as `src/styles/nav-contrast.test.ts` — read the generated file,
  * resolve the OKLCH literals, hold each pair to what it owes.
  *
- * **`ProgressBar` is the first component to paint `Feedback/…/Highlight` as a
- * large fill.** Everywhere else it is a 1px invalid border against a page
- * background (`Radio`, `Checkbox`, `Input`), which is a different pairing. So
- * these two failures are new information about the ramp rather than a
- * regression, and they are carried here as named exceptions in the shape
- * `nav-contrast.test.ts` used for `Pink`: recorded with their real numbers,
- * pointing at the fix, and expected to be deleted rather than lived with.
+ * **This test found two shortfalls, and they were fixed in Figma rather than
+ * excused here.** `ProgressBar` is the first component to paint
+ * `Feedback/…/Highlight` as a large fill — everywhere else it is a 1px invalid
+ * border against a page background (`Radio`, `Checkbox`, `Input`), which is a
+ * different pairing — so it was the first thing to ask a `Highlight` for 3:1
+ * against a neutral. Two could not give it, because they were the same step in
+ * both themes while the track is not:
  *
- * **The fix is in Figma, not here.** Both come from a `Highlight` that is the
- * same step in both themes while the track is not: `Decorative/Yellow/Highlight`
- * is Yellow/600 against a Stone/200 track in light, and
- * `Decorative/Red/Highlight` is Red/600 against a Stone/700 track in dark.
- * Measured alternatives that clear 3:1 in both themes are Yellow/700 light with
- * Yellow/500 dark (3.92 / 5.37) and Red/600 light with Red/400 dark
- * (3.79 / 3.55) — i.e. make those two variables theme-aware at source. That
- * moves `Badge` and the `Feedback` family with them, which is why it is a
- * decision for the file rather than an override in this component.
+ * - `Decorative/Yellow/Highlight` was Yellow/600 in both, and yellow is
+ *   intrinsically light: 2.33:1 on a Stone/200 track. Now **Yellow/700 light,
+ *   Yellow/600 dark** — 3.92 and 3.51.
+ * - `Decorative/Red/Highlight` was Red/600 in both, and the dark track is a
+ *   fairly light Stone/700: 2.16:1. Now **Red/600 light, Red/400 dark** — 3.79
+ *   and 3.55.
  *
- * Lowering the threshold is not the alternative: it would weaken all ten pairs
- * to excuse two.
+ * Neither is a new idea in that ramp. `Decorative/Green/Highlight` was already
+ * Green/700 light and Green/600 dark, for exactly the reason Yellow now is, and
+ * `Content/Danger` already steps Red/700 → Red/500 the way Red's highlight now
+ * steps 600 → 400. What was new was a component asking the question.
+ *
+ * The change is at source — the two Figma variables, then `tokens/semantic.json`
+ * and `python3 generate.py`. `Badge` does not move with them (it binds
+ * `Background` and `Foreground`, never `Highlight`); the invalid borders on
+ * `Checkbox`, `Radio` and `Input` do, and only in dark, where Red/400 on
+ * `Input/Background` measures 6.05:1 against Red/600's 3.67.
+ *
+ * Lowering the threshold was never the alternative: it would have weakened all
+ * eight pairs to excuse two.
  */
 
 const THEME = readFileSync(join(import.meta.dirname, '../../styles/theme.css'), 'utf8')
@@ -145,17 +153,6 @@ const FILLS: { type: string; token: string }[] = [
   { type: 'danger', token: 'feedback-danger-highlight' },
 ]
 
-/**
- * The two pairs that do not clear 3:1 today, with the ratio each currently
- * measures. Written as an exact number rather than a "below threshold" flag so
- * that a change at source — in either direction — shows up as a failure here
- * and has to be looked at.
- */
-const KNOWN_SHORTFALLS: Record<string, number> = {
-  'warning light': 2.33,
-  'danger dark': 2.16,
-}
-
 describe('ProgressBar fill contrast', () => {
   it('the mark tick clears 3:1 on the surfaces it overhangs onto', () => {
     // The tick is drawn behind the track and only its 2px overhang is visible,
@@ -170,7 +167,7 @@ describe('ProgressBar fill contrast', () => {
     }
   })
 
-  it('every fill clears 3:1 against the track, or is a recorded exception', () => {
+  it('every fill clears 3:1 against the track', () => {
     const track = resolve(TRACK)
     const failures: string[] = []
 
@@ -179,20 +176,6 @@ describe('ProgressBar fill contrast', () => {
 
       for (const theme of ['light', 'dark'] as const) {
         const ratio = contrast(fill[theme], track[theme])
-        const known = KNOWN_SHORTFALLS[`${type} ${theme}`]
-
-        if (known != null) {
-          // A recorded shortfall is held to its measured value. If it improves,
-          // delete the entry; if it worsens, something moved at source.
-          expect(
-            ratio,
-            `${type} in ${theme} is a recorded shortfall — see the note at the ` +
-              'top of this file. Its measured ratio changed, so either the fix ' +
-              'landed in Figma (delete the entry) or a token moved unexpectedly.',
-          ).toBeCloseTo(known, 1)
-          continue
-        }
-
         if (ratio >= 3) continue
         failures.push(
           `  ${type} in ${theme}: ${token} (${fill[theme]}) on ` +
@@ -204,7 +187,8 @@ describe('ProgressBar fill contrast', () => {
     expect(
       failures,
       'A fill this close to its track cannot be read as a value. Fix the token ' +
-        `in Figma rather than lowering the bar here:\n${failures.join('\n')}`,
+        'in Figma and re-run `python3 generate.py` rather than lowering the bar ' +
+        `here — the note at the top of this file is the worked example:\n${failures.join('\n')}`,
     ).toEqual([])
   })
 })

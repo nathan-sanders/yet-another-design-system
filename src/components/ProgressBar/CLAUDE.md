@@ -123,30 +123,39 @@ labeled marks are folded into `aria-valuetext` — "45%, Free tier 80%" — thro
 `getAriaValueText`. A caller's own `getAriaValueText` wins outright rather than being appended
 to: somebody who has written that sentence has decided what the bar says.
 
-## The contrast debt, which belongs in Figma
+## The contrast finding, and the two tokens it moved
 
 `contrast.test.ts` holds each fill to 3:1 against the track, because that boundary *is* how the
-value is read and nothing else in the suite can check it — axe does not attempt non-text
-contrast, and a low-contrast bar renders as happily as a good one.
+value is read and nothing else in the suite can check it — axe does not attempt non-text contrast,
+and a low-contrast bar renders as happily as a good one.
 
-**Two pairs do not clear it**, and they are carried as named exceptions in the shape
-`nav-contrast.test.ts` used for `Pink`: recorded with their measured numbers, pointing at the
-fix, expected to be deleted rather than lived with.
+**Two pairs failed, and the fix went into Figma rather than into this component.** ProgressBar is
+the first thing in the library to paint a `Feedback/…/Highlight` as a large fill — everywhere else
+(`Radio`, `Checkbox`, `Input`) it is a 1px invalid border against a page background, which is a
+different pairing — so it was the first thing to ask a `Highlight` for 3:1 against a neutral. Two
+could not give it, both for the same reason: they were the same step in *both* themes while the
+track is not.
 
-| pair | measured | why |
-|---|---|---|
-| `warning`, light | 2.33:1 | Yellow/600 fill on a Stone/200 track |
-| `danger`, dark | 2.16:1 | Red/600 fill on a Stone/700 track |
+| token | was | now | on the track |
+|---|---|---|---|
+| `Decorative/Yellow/Highlight` | Yellow/600 both | **Yellow/700** light, Yellow/600 dark | 2.33 → 3.92 light; 3.51 dark |
+| `Decorative/Red/Highlight` | Red/600 both | Red/600 light, **Red/400** dark | 3.79 light; 2.16 → 3.55 dark |
 
-Both come from a `Highlight` that is the same step in both themes while the track is not.
-**ProgressBar is the first component to paint `Feedback/…/Highlight` as a large fill** —
-everywhere else (`Radio`, `Checkbox`, `Input`) it is a 1px invalid border against a page
-background, a different pairing — so this is new information about the ramp rather than a
-regression. Measured alternatives that clear 3:1 in both themes: Yellow/700 light with Yellow/500
-dark (3.92 / 5.37), and Red/600 light with Red/400 dark (3.79 / 3.55) — i.e. make those two
-variables theme-aware at source. That moves `Badge` and the whole `Feedback` family with them,
-which is why it is a decision for the file rather than an override here. Lowering the threshold
-is not the alternative: it would weaken all eight pairs to excuse two.
+**Neither is a new idea in that ramp**, which is what made the change safe rather than a
+negotiation. `Decorative/Green/Highlight` was *already* Green/700 light and Green/600 dark, for
+exactly the reason Yellow now is, so Yellow simply joins it at the same shape. And `Content/Danger`
+already steps Red/700 → Red/500, so a red highlight stepping 600 → 400 is the move the system
+makes with red anyway. What was new was a component asking the question.
+
+**The blast radius is smaller than the token names suggest.** `Badge` binds `Background` and
+`Foreground` and never `Highlight`, so its eighteen hues do not move at all. `Decorative/…/Highlight`
+has exactly two other consumers: `NavItem`'s pink notification dot, untouched, and
+`Feedback/Danger/Highlight`, which is the invalid border and ring on `Checkbox`, `Radio` and
+`Input`. That one moves in dark only, and moves the right way — Red/400 on `Input/Background`
+measures 6.05:1 where Red/600 measured 3.67.
+
+The change is at source: the two Figma variables, then `tokens/semantic.json`, then
+`python3 generate.py`. Two lines of `theme.css`, one in `:root` and one in `.dark`.
 
 ## Drawing it in Figma
 
