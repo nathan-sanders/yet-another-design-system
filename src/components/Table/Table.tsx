@@ -1,6 +1,8 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { useState, type ComponentPropsWithRef, type ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
+import { Button } from '../Button'
 import { TableContext, TableRowContext, useTableContext, useTableRowContext } from './context'
 import { resolveNumeric } from './numeric'
 import {
@@ -17,6 +19,15 @@ import {
   type TableTextOverflow,
   type TableVerticalAlign,
 } from './styles'
+import {
+  ariaSort,
+  nextSort,
+  sortLabel,
+  sortRows,
+  type SortValue,
+  type TableSort,
+  type TableSortDirection,
+} from './rows'
 import { resolveWidths, tableMinWidth, type TableColumnWidth } from './widths'
 
 /**
@@ -38,6 +49,13 @@ import { resolveWidths, tableMinWidth, type TableColumnWidth } from './widths'
  * A value that is digits but arrives as a *string* — `"$1.2M"`, `"82%"` — is
  * what a column's `numeric` flag is for. The column knows it is a money column;
  * the cell only sees a string. See `numeric.ts`.
+ *
+ * **Alignment does not derive the same way, on purpose.** The typeface is a
+ * property of the value, so a cell can decide it and be right every time. Which
+ * edge a column hangs off is a property of the *column*, and deriving it from
+ * the data would make it unstable: an empty table would left-align and then
+ * jump right when the first rows arrived. So `align` is declared, with
+ * `numeric` supplying its default.
  *
  * ## Two APIs, one implementation
  *
@@ -80,6 +98,19 @@ export interface TableColumn<T> {
   numeric?: boolean
   /** Replaces `row[key]`. Whatever it returns becomes the cell's children. */
   renderCell?: (item: T, index: number) => ReactNode
+  /**
+   * What this column sorts on. Defaults to `row[key]`.
+   *
+   * Required for a `renderCell` column with no field behind it — a "Status"
+   * column built out of two other fields has nothing at `row.status` to
+   * compare, and sorting it would silently do nothing.
+   */
+  sortValue?: (item: T) => SortValue
+  /**
+   * Opt one column out when the table is `sortable`. Some columns genuinely
+   * have no order — an actions column, a thumbnail.
+   */
+  sortable?: boolean
 }
 
 /* -------------------------------------------------------------------- root */
@@ -137,6 +168,18 @@ export interface TableProps<T>
   isStriped?: boolean
   /** Rendered in one full-width cell when `data` is empty. */
   emptyState?: ReactNode
+
+  /**
+   * Put a sort control on every column that has one.
+   *
+   * Off by default. Astryx's rule holds: adding every feature at once is how a
+   * table stops being readable, so each one is asked for.
+   */
+  sortable?: boolean
+  /** Controlled sort. `null` is the data's own order. */
+  sort?: TableSort | null
+  defaultSort?: TableSort | null
+  onSortChange?: (sort: TableSort | null) => void
 }
 
 export function Table<T>({
@@ -152,11 +195,30 @@ export function Table<T>({
   hasHover = false,
   isStriped = false,
   emptyState = 'No data.',
+  sortable = false,
+  sort: sortProp,
+  defaultSort = null,
+  onSortChange,
   className,
   ...props
 }: TableProps<T>) {
   const widths = resolveWidths(columns)
   const minWidth = tableMinWidth(columns)
+
+  const [uncontrolledSort, setUncontrolledSort] = useState<TableSort | null>(defaultSort)
+  const sort = sortProp === undefined ? uncontrolledSort : sortProp
+
+  function handleSort(key: string) {
+    const next = nextSort(sort, key)
+    if (sortProp === undefined) setUncontrolledSort(next)
+    onSortChange?.(next)
+  }
+
+  const sorted = sortRows(data, sort, (item, key) => {
+    const column = columns.find((candidate) => candidate.key === key)
+    if (column?.sortValue) return column.sortValue(item)
+    return item[key as keyof T] as SortValue
+  })
 
   return (
     <div
@@ -185,7 +247,13 @@ export function Table<T>({
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column.key} align={alignOf(column)}>
+                <TableHead
+                  key={column.key}
+                  align={alignOf(column)}
+                  sortDirection={sortsOn(sortable, column) ? ariaSort(sort, column.key) : undefined}
+                  sortLabel={sortLabel(headerText(column), sort, column.key)}
+                  onSort={() => handleSort(column.key)}
+                >
                   {column.header}
                 </TableHead>
               ))}
@@ -200,7 +268,7 @@ export function Table<T>({
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((item, index) => (
+              sorted.map((item, index) => (
                 <TableRow
                   key={String(item[idKey])}
                   hoverable={hasHover}
@@ -217,7 +285,12 @@ export function Table<T>({
                       ? column.renderCell(item, index)
                       : (item[column.key as keyof T] as ReactNode)
                     return (
-                      <TableCell key={column.key} align={alignOf(column)} numeric={column.numeric}>
+                      <TableCell
+                        key={column.key}
+                        align={alignOf(column)}
+                        numeric={column.numeric}
+                        spacer={sortsOn(sortable, column)}
+                      >
                         {content}
                       </TableCell>
                     )
@@ -235,6 +308,21 @@ export function Table<T>({
 /** A numeric column right-aligns unless it says otherwise. */
 function alignOf<T>(column: TableColumn<T>): TableAlign {
   return column.align ?? (column.numeric ? 'right' : 'left')
+}
+
+/** Whether this column draws a sort control. */
+function sortsOn<T>(sortable: boolean, column: TableColumn<T>): boolean {
+  return sortable && column.sortable !== false
+}
+
+/**
+ * The sort button names its column, so the header has to be a string. A header
+ * that is a node — an icon, a wrapped label — has no text to borrow, and
+ * `String(node)` would name the button "[object Object]". Fall back to the key,
+ * which is at least a word about the column.
+ */
+function headerText<T>(column: TableColumn<T>): string {
+  return typeof column.header === 'string' ? column.header : column.key
 }
 
 /* ----------------------------------------------------------------- section */
@@ -281,18 +369,77 @@ export interface TableHeadProps extends Omit<ComponentPropsWithRef<'th'>, 'align
   align?: TableAlign
   /** Figma's `gridDivider`. Defaults from the table. */
   divider?: boolean
+  /**
+   * Draws the sort control, and sets `aria-sort`.
+   *
+   * Omit it entirely for a column that does not sort — `aria-sort="none"` on a
+   * column you cannot sort announces an affordance that is not there. The value
+   * maps onto the attribute with no translation table in between, which is the
+   * point of naming it this rather than `sorted` or `direction`.
+   */
+  sortDirection?: TableSortDirection | 'none'
+  /** The sort button's accessible name. It should name the column. */
+  sortLabel?: string
+  onSort?: () => void
 }
 
-function TableHead({ align = 'left', divider, className, children, ...props }: TableHeadProps) {
+/**
+ * Figma's `_Table Column Sort` (`40005047:38802`), which is underscored because
+ * it is a drawing, not an API: a small ghost `Button` carrying one of three
+ * arrows. Its box is 30 x 24 — `h-6 px-2` and a 1px border around a 12px icon —
+ * which is exactly the space a right-aligned cell reserves beside its value.
+ */
+const SORT_ICON = {
+  none: ArrowUpDown,
+  ascending: ArrowUp,
+  descending: ArrowDown,
+} as const
+
+function TableHead({
+  align = 'left',
+  divider,
+  sortDirection,
+  sortLabel: label,
+  onSort,
+  className,
+  children,
+  ...props
+}: TableHeadProps) {
   const table = useTableContext()
   const columnDivider = divider ?? hasColumnDivider(table.dividers)
   const styles = head({ align, columnDivider })
 
   return (
-    <th scope="col" className={cn(styles.root(), className)} {...props}>
+    <th
+      scope="col"
+      aria-sort={sortDirection}
+      className={cn(styles.root(), className)}
+      {...props}
+    >
       <span className={styles.line()}>
         <span className={styles.sortGroup()}>
           <span className={styles.label()}>{children}</span>
+          {sortDirection === undefined ? null : (
+            /*
+              A separate button after the label, which is what the file draws —
+              not Astryx's label-wrapped-in-a-button. Wrapping the label makes
+              the column header's accessible name "Revenue, button" and puts a
+              role announcement inside every cell's column context; it also
+              stops a sortable and a non-sortable column looking alike, which is
+              why `Table Head`'s `Type` axis has only the one value.
+
+              At 30 x 24 it clears WCAG 2.2's 24 x 24 target minimum exactly.
+              Do not "compromise" by putting an onClick on the <th> as well:
+              that is a click target with no keyboard equivalent.
+            */
+            <Button
+              appearance="ghost"
+              size="small"
+              startIcon={SORT_ICON[sortDirection]}
+              aria-label={label ?? 'Sort'}
+              onClick={onSort}
+            />
+          )}
         </span>
       </span>
     </th>

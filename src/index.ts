@@ -332,6 +332,8 @@ export type {
   TableProps,
   TableColumn,
   TableColumnWidth,
+  TableSort,
+  TableSortDirection,
   TableHeaderProps,
   TableBodyProps,
   TableFooterProps,

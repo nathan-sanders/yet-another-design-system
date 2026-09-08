@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
 import { Table } from './Table'
@@ -98,7 +98,7 @@ export const Alignment: Story = {
     columns: [
       { key: 'name', header: 'Name' },
       { key: 'seats', header: 'Seats', align: 'right' },
-    ],
+    ] as const,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -229,5 +229,89 @@ export const Truncation: Story = {
       .getByRole('columnheader', { name: 'A deliberately long column heading' })
       .querySelector('span > span > span')!
     await expect(headerLabel.scrollWidth).toBeGreaterThan(headerLabel.clientWidth)
+  },
+}
+
+/**
+ * Sorting. The control is Figma's `_Table Column Sort` — a small ghost button
+ * carrying one of three arrows, sitting after the label rather than wrapped
+ * around it.
+ *
+ * A third click returns the table to its own order rather than sticking on
+ * descending: a given order is often meaningful, and losing it with no way back
+ * is losing information.
+ *
+ * This is also where the right-align spacer earns itself. `Seats` sorts, so its
+ * cells hold the button's 30px open and the numbers stay under the *label*.
+ */
+export const Sorting: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Sorting',
+    sortable: true,
+    columns: [
+      { key: 'name', header: 'Name' },
+      { key: 'role', header: 'Role', sortable: false },
+      { key: 'seats', header: 'Seats', align: 'right' },
+    ],
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const firstCell = () => canvas.getAllByRole('cell')[0]
+
+    await step('a column that opted out has no control and no aria-sort', async () => {
+      const role = canvas.getByRole('columnheader', { name: 'Role' })
+      await expect(role).not.toHaveAttribute('aria-sort')
+      await expect(within(role).queryByRole('button')).toBeNull()
+    })
+
+    await step('the button names its column', async () => {
+      await expect(canvas.getByRole('button', { name: 'Sort by Seats' })).toBeVisible()
+    })
+
+    await step('ascending puts the smallest first', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Sort by Seats' }))
+      await expect(canvas.getByRole('columnheader', { name: /Seats/ })).toHaveAttribute(
+        'aria-sort',
+        'ascending',
+      )
+      // 5, not "10" beating "9" — the comparator sorts numbers as numbers.
+      await expect(firstCell()).toHaveTextContent('Charlie Brown')
+      await expect(canvas.getByRole('button', { name: 'Sorted by Seats, ascending' })).toBeVisible()
+    })
+
+    await step('descending flips it', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Sorted by Seats, ascending' }))
+      await expect(canvas.getByRole('columnheader', { name: /Seats/ })).toHaveAttribute(
+        'aria-sort',
+        'descending',
+      )
+      await expect(firstCell()).toHaveTextContent('Diana Prince')
+    })
+
+    await step('a third click gives the data back its own order', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Sorted by Seats, descending' }))
+      await expect(canvas.getByRole('columnheader', { name: /Seats/ })).toHaveAttribute('aria-sort', 'none')
+      await expect(firstCell()).toHaveTextContent('Alice Johnson')
+    })
+
+    await step('only ever one column is sorted', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Sort by Name' }))
+      await userEvent.click(canvas.getByRole('button', { name: 'Sort by Seats' }))
+      const sortedHeaders = canvas
+        .getAllByRole('columnheader')
+        .filter((header) => (header.getAttribute('aria-sort') ?? 'none') !== 'none')
+      await expect(sortedHeaders).toHaveLength(1)
+    })
+
+    await step('a sortable right-aligned value still lines up with its label', async () => {
+      const header = canvas.getByRole('columnheader', { name: /Seats/ })
+      const headerLabel = header.querySelector('span > span > span')!
+      const cellText = canvas.getAllByRole('cell')[2].querySelector('span > span')!
+      const drift = Math.abs(
+        headerLabel.getBoundingClientRect().right - cellText.getBoundingClientRect().right,
+      )
+      await expect(drift).toBeLessThanOrEqual(1)
+    })
   },
 }

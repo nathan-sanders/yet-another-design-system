@@ -10,6 +10,8 @@ export type {
   TableCellProps,
 } from './Table'
 
+export type { TableSort, TableSortDirection } from './rows'
+
 export { pixel, proportional, MIN_COLUMN_WIDTH } from './widths'
 export type { TableColumnWidth } from './widths'
 
