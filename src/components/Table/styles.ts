@@ -168,14 +168,26 @@ export const cell = tv({
 
   variants: {
     /**
-     * Figma's `Density` axis. Every height falls out of the padding and the
-     * 24px `text-base` line-height with no explicit height anywhere:
-     * 4+24+4 = 32, 8+24+8 = 40, 16+24+16 = 56.
+     * Figma's `Density` axis.
+     *
+     * Every height falls out of the padding and the 24px `text-base`
+     * line-height, with no explicit height anywhere: 4+24+4 = 32, 8+24+8 = 40,
+     * 16+24+16 = 56.
+     *
+     * **Both axes move, not just the vertical one.** The side padding runs
+     * 8/12/16 alongside the 4/8/16 above it, so a spacious table is roomier in
+     * both directions rather than being a compact table with taller rows. Read
+     * back from the file after it was changed; the first version held the sides
+     * at 8 throughout.
+     *
+     * `head` carries the same three side values, and has to: a header whose
+     * padding did not track the cell's would put every label 4px or 8px out of
+     * line with the column under it.
      */
     density: {
       compact: { root: 'px-2 py-1' },
-      balanced: { root: 'p-2' },
-      spacious: { root: 'px-2 py-4' },
+      balanced: { root: 'px-3 py-2' },
+      spacious: { root: 'p-4' },
     },
 
     /**
@@ -275,7 +287,14 @@ export const cell = tv({
 export const head = tv({
   slots: {
     root: [
-      'relative min-h-8 bg-transparent px-2 py-1 align-middle',
+      /*
+        `h-8`, not `min-h-8`, for the file's 32px. On a table cell `height` is
+        *specified* as a minimum — the cell grows past it if its content needs
+        the room — where `min-height` is not reliably honored at all. The head
+        rendered 28px under `min-h-8`: a 20px line-height plus its 4px of
+        padding, with the constraint quietly ignored.
+      */
+      'relative h-8 bg-transparent py-1 align-middle',
       'font-sans text-sm font-normal text-content-subtle',
     ],
     line: 'flex min-w-0 items-center',
@@ -292,6 +311,19 @@ export const head = tv({
     label: 'min-w-0 truncate',
   },
   variants: {
+    /**
+     * The side padding only — the header keeps `min-h-8 py-1` at every density,
+     * which is the file's own reading: the rows get roomier and the header they
+     * sit under does not grow with them.
+     *
+     * It cannot simply be left at 8, though. The header's padding has to track
+     * the cell's or every label sits 4px or 8px out of line with its column.
+     */
+    density: {
+      compact: { root: 'px-2' },
+      balanced: { root: 'px-3' },
+      spacious: { root: 'px-4' },
+    },
     align: {
       left: { root: 'text-left', line: 'justify-start gap-2' },
       right: { root: 'text-right', line: 'justify-end gap-0' },
@@ -301,7 +333,7 @@ export const head = tv({
       false: {},
     },
   },
-  defaultVariants: { align: 'left', columnDivider: false },
+  defaultVariants: { density: 'balanced', align: 'left', columnDivider: false },
 })
 
 export type TableCellVariants = VariantProps<typeof cell>

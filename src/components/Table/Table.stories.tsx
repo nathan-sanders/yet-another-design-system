@@ -57,9 +57,15 @@ export const Playground: Story = {}
  * Figma's `Density` axis. Every height falls out of the padding plus the 24px
  * body line-height, with no explicit height anywhere: 32, 40 and 56.
  *
- * The play function measures them, because that is the claim this story makes
- * and a screenshot cannot tell 32 from 33. A real `border-b` on the cell would
- * add exactly that pixel, which is why the rules are drawn as pseudo-elements.
+ * **Both axes move.** The side padding runs 8/12/16 alongside the 4/8/16 above
+ * it, so a spacious table is roomier in both directions rather than being a
+ * compact table with taller rows. The header takes the same three side values —
+ * it has to, or every label sits out of line with the column under it — while
+ * keeping its own 32px height at every density.
+ *
+ * The play function measures all of it, because that is the claim this story
+ * makes and a screenshot cannot tell 32 from 33. A real `border-b` on the cell
+ * would add exactly that pixel, which is why the rules are pseudo-elements.
  */
 export const Density: Story = {
   parameters: { controls: { disable: true } },
@@ -72,12 +78,25 @@ export const Density: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const expected = { Compact: 32, Balanced: 40, Spacious: 56 }
+    const expected = {
+      Compact: { height: 32, side: '8px' },
+      Balanced: { height: 40, side: '12px' },
+      Spacious: { height: 56, side: '16px' },
+    }
 
-    for (const [label, height] of Object.entries(expected)) {
+    for (const [label, { height, side }] of Object.entries(expected)) {
       const table = canvas.getByRole('table', { name: label })
       const firstCell = within(table).getAllByRole('cell')[0]
+      const firstHeader = within(table).getAllByRole('columnheader')[0]
+
       await expect(Math.round(firstCell.getBoundingClientRect().height)).toBe(height)
+      await expect(getComputedStyle(firstCell).paddingLeft).toBe(side)
+      await expect(getComputedStyle(firstCell).paddingRight).toBe(side)
+
+      // The header takes the cell's side padding, or every label sits out of
+      // line with its column — but keeps its own height at every density.
+      await expect(getComputedStyle(firstHeader).paddingLeft).toBe(side)
+      await expect(Math.round(firstHeader.getBoundingClientRect().height)).toBe(32)
     }
   },
 }

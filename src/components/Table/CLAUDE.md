@@ -1,7 +1,7 @@
 # Table
 
 Structured data in rows and columns. Figma draws two atoms under **`40005049:39146`** — `Table Cell`
-(**`40005049:39090`**, Density × Align) and `Table Head` (**`40005047:38832`**, Type × Align) — plus
+(**`40005049:39090`**, Density × Align) and `Table Head` (**`40005047:38832`**, Density × Align) — plus
 `_Table Column Sort` (**`40005047:38802`**), which is a drawing and not an API. The shape of the API
 above those atoms follows Meta's **Astryx** Table, which is the reference Nathan brought.
 
@@ -66,6 +66,24 @@ over a table set `border-separate border-spacing-0`. Four reasons, in weight ord
 
 It also keeps a sticky header cheap to add later — `border-collapse: collapse` famously drops
 collapsed borders off a sticky `<th>`.
+
+## Density moves both axes
+
+The side padding runs **8/12/16** alongside the vertical **4/8/16**, so a spacious table is roomier
+in both directions rather than being a compact table with taller rows. The heights still fall out of
+the padding and the 24px line-height with nothing declared: 32, 40, 56.
+
+`Table Head` carries the same three side values and **has to** — a header whose padding did not track
+the cell's would put every label 4px or 8px out of line with the column under it. But it keeps its own
+**32px height at every density**: the rows get roomier and the header they sit under does not grow
+with them. That is the file's reading, and it is why `Table Head`'s density axis has three values for
+horizontal padding and none for vertical.
+
+**`h-8`, not `min-h-8`, for that 32px.** On a table cell `height` is specified as a *minimum* — the
+cell grows past it when its content needs the room — where `min-height` is not reliably honored at
+all. Under `min-h-8` the header rendered **28px**: a 20px line-height plus its 4px of padding, with
+the constraint quietly ignored, and nothing to see unless you measured it. `Density`'s play function
+now asserts the header's height and both side paddings alongside the row heights.
 
 **The header draws no rule of its own.** `rowBorder` is on the body cell at `top-0`, so the line
 under the header belongs to the first row and the last row has nothing under it — the container's
@@ -141,7 +159,8 @@ state, and a toggle-button state would double-announce it.
 **Figma's separate sort button beats Astryx's label-as-button.** Astryx wraps the whole header label
 in the sort control, which makes the header's name *"Revenue, button"* and puts a role announcement
 inside every cell's column context; it also cannot let a sortable and a non-sortable column share
-typography, which is why `Table Head`'s `Type` axis has only the one value. At 30 × 24 the separate
+typography — a distinction the file kept, and the reason its head has never had a "sortable" variant.
+At 30 × 24 the separate
 button clears WCAG 2.2 SC 2.5.8's 24 × 24 minimum exactly. **Do not "compromise" by also putting an
 `onClick` on the `<th>`** — that is a click target with no keyboard equivalent.
 
