@@ -510,3 +510,224 @@ export const ColumnResizing: Story = {
     })
   },
 }
+
+/**
+ * Striping, and the three fills it has to stay clear of.
+ *
+ * Hover is `surface-background-subtle` — the library's one hover fill — and a
+ * selected row is that same fill plus the emphasized rule on its cells. If the
+ * stripe used it too, then on a striped table hover would be invisible on half
+ * the rows and selection invisible on half the rows: three states, one color.
+ *
+ * So the stripe is `surface-overlay-subtle`, and the property that makes it
+ * work is that it is **translucent** — a 10% ink wash composites over the
+ * table's surface, where an opaque hover or selection replaces it outright.
+ * That is an overlay token doing a surface's job, which the file owes a
+ * drawing for.
+ *
+ * Selected and hovered share a fill on purpose — that is `Card`'s split, where
+ * the fill says "something is true of this row" and the *rule* says which
+ * thing. So the claim is three distinct fills plus a rule that steps up, and
+ * that is what the play function measures: a token edit cannot quietly collapse
+ * the fills, and cannot quietly take the rule away either.
+ */
+export const Striped: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Striped',
+    isStriped: true,
+    hasHover: true,
+    selectable: true,
+    defaultSelectedKeys: ['3'],
+    rowLabel: (item) => item.name,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const rowFor = (name: string) => canvas.getByText(name).closest('tr')!
+    const fill = (element: HTMLElement) => getComputedStyle(element).backgroundColor
+
+    /*
+      Hover is not measured here, and cannot be: `userEvent.hover` dispatches
+      pointer events but does not move a real cursor, so CSS `:hover` never
+      matches and the row reads back exactly as it did before. Same limitation
+      `ContextMenu`'s story records.
+
+      It does not need to be measured. The hover fill and the selected fill are
+      the *same token* by construction — that is `Card`'s split, where the fill
+      says something is true of this row and the rule says which thing — so
+      proving the selected fill differs from plain and from striped proves the
+      hover fill does too. The three colors below are the whole claim.
+    */
+    const plain = fill(rowFor('Alice Johnson')) // index 0 — no stripe
+    const striped = fill(rowFor('Bob Smith')) // index 1 — striped
+    const selected = fill(rowFor('Charlie Brown')) // index 2 — selected, and hover's fill
+
+    await expect(new Set([plain, striped, selected]).size).toBe(3)
+
+    /*
+      The stripe's translucency is not asserted, deliberately. It comes back
+      from `getComputedStyle` as an `oklab(... / 0.1)` string whose exact shape
+      is the browser's to change, and pattern-matching a color string is how you
+      write a test that fails on a Chromium upgrade and passes on a broken
+      token. The three distinct colors above are the property that actually
+      matters; the translucency is the mechanism, and it is written down rather
+      than measured.
+    */
+    // The selected row's rule steps up to the emphasized stroke. Without this
+    // the two rows above would be told apart by fill alone, and a selected row
+    // under the pointer would be indistinguishable from an unselected one.
+    const ruleOf = (name: string) =>
+      getComputedStyle(rowFor(name).querySelector('td')!, '::after').backgroundColor
+    await expect(ruleOf('Charlie Brown')).not.toBe(ruleOf('Alice Johnson'))
+  },
+}
+
+/**
+ * `pixel` for a column that should not move, `proportional` for one that shares
+ * what is left. Every column has a width whether you give it one or not,
+ * because `table-fixed` means the browser has stopped sizing them to content.
+ *
+ * The floor is what makes the frame scroll instead of the columns collapsing:
+ * the table refuses to go below the sum of its columns' minimums.
+ */
+export const ColumnWidths: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Column widths',
+    columns: [
+      { key: 'name', header: 'Name', width: proportional(2) },
+      { key: 'region', header: 'Region', width: proportional(1) },
+      { key: 'seats', header: 'Seats', width: pixel(72), align: 'right' },
+    ],
+  },
+  render: (args) => (
+    <div className="max-w-md">
+      <Table {...args} />
+    </div>
+  ),
+}
+
+/**
+ * A windowed view. `rowCount` and `rowIndexStart` are what let a screen reader
+ * say "row 43 of 200" while only ten rows are rendered — the row's ordinal is
+ * an accessibility concern whether or not anything on screen shows a number.
+ *
+ * ARIA counts the header row, so the header is row 1 and the first body row is
+ * row 2. That off-by-one is the kind nothing catches, because the only way to
+ * notice it is to listen.
+ */
+export const Windowed: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Windowed',
+    // Rows 41-44 of a 200-row set.
+    rowCount: 200,
+    rowIndexStart: 41,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await expect(canvas.getByRole('table')).toHaveAttribute('aria-rowcount', '201')
+    await expect(canvas.getByText('Alice Johnson').closest('tr')).toHaveAttribute('aria-rowindex', '42')
+    await expect(canvas.getByText('Diana Prince').closest('tr')).toHaveAttribute('aria-rowindex', '45')
+    await expect(canvas.getAllByRole('columnheader')[0].closest('tr')).toHaveAttribute('aria-rowindex', '1')
+  },
+}
+
+/** A table with nothing in it. The message spans every column. */
+export const Empty: Story = {
+  parameters: { controls: { disable: true } },
+  args: { label: 'Empty', data: [], emptyState: 'No team members yet.' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const cell = canvas.getByRole('cell')
+    await expect(cell).toHaveTextContent('No team members yet.')
+    await expect(cell).toHaveAttribute('colspan', '3')
+  },
+}
+
+/**
+ * The escape hatch, for a layout the column definitions cannot describe — here,
+ * a footer with a total in it.
+ *
+ * The columns API renders through these same parts, which is the thing to keep:
+ * two renderers would drift, and the drift would show up as a composed table
+ * that looks subtly unlike a generated one.
+ *
+ * Every row goes inside a `Header`, `Body` or `Footer`. A `<tr>` directly
+ * inside a `<table>` is invalid: the HTML parser inserts an implied `<tbody>`
+ * for server-rendered markup and React does not on the client, so unwrapped
+ * rows mismatch on hydration.
+ */
+export const Composable: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    // The frame is the caller's in children mode, and so is the label on it.
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+    <div
+      tabIndex={0}
+      role="region"
+      aria-label="Composed"
+      className="overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
+    >
+      <table className="w-full table-fixed border-separate border-spacing-0 font-sans">
+        <caption className="sr-only">Composed</caption>
+        <Table.Header>
+          <Table.Row>
+            <Table.Head>Name</Table.Head>
+            <Table.Head align="right">Seats</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {rows.map((item) => (
+            <Table.Row key={item.id}>
+              <Table.Cell>{item.name}</Table.Cell>
+              <Table.Cell align="right">{item.seats}</Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+        <Table.Footer>
+          <Table.Row>
+            <Table.Cell>Total</Table.Cell>
+            <Table.Cell align="right">{rows.reduce((sum, item) => sum + item.seats, 0)}</Table.Cell>
+          </Table.Row>
+        </Table.Footer>
+      </table>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // The mono rule reaches a hand-composed cell too: it is the cell's own
+    // derivation, not something the columns API sprinkles on from outside.
+    const total = canvas.getByText('188').closest('td')!
+    await expect(getComputedStyle(total.querySelector('span > span')!).fontFamily).toMatch(/Geist Mono/)
+  },
+}
+
+/**
+ * A table doing the job it exists for, at the default density and with the
+ * default Button size, composing what the library already has.
+ */
+export const InContext: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Accounts',
+    sortable: true,
+    hasHover: true,
+    selectable: true,
+    rowLabel: (item) => item.name,
+    columns: [
+      { key: 'name', header: 'Account', width: proportional(2) },
+      {
+        key: 'role',
+        header: 'Plan',
+        sortable: false,
+        renderCell: (item) => <Badge color={item.role === 'Engineer' ? 'blue' : 'neutral'}>{item.role}</Badge>,
+      },
+      { key: 'region', header: 'Region' },
+      { key: 'seats', header: 'Seats', align: 'right' },
+      { key: 'spend', header: 'Spend', numeric: true, sortValue: (item) => item.seats },
+      { key: 'uptime', header: 'Uptime %' },
+    ],
+  },
+}
