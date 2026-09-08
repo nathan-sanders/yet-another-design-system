@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, Table, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
 import { readAlias, resolve, semanticGroups, semanticTokenCount } from './tokens'
 import type { SemanticToken } from './tokens'
 
@@ -51,7 +51,7 @@ function Target({ value, theme }: { value: string; theme: 'light' | 'dark' }) {
 
 function MappingTable({ group, tokens }: { group: string; tokens: SemanticToken[] }) {
   return (
-    <Table label={`${group} tokens, with their light and dark targets`}>
+    <ShowcaseTable label={`${group} tokens, with their light and dark targets`}>
       <thead>
         <tr>
           <Th className="w-14">Live</Th>
@@ -81,7 +81,7 @@ function MappingTable({ group, tokens }: { group: string; tokens: SemanticToken[
           </tr>
         ))}
       </tbody>
-    </Table>
+    </ShowcaseTable>
   )
 }
 

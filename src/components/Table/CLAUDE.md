@@ -261,11 +261,13 @@ Each of these is an absence with a reason, not an oversight.
   has a Footer section and a totals row is a real thing. But a total is data the caller already has,
   and there is no drawing to derive one from.
 
-## Loose end
+## Showcase's table is a different object
 
-`src/foundations/Showcase.tsx` exports a documentation helper literally named `Table`, used by the
-Foundations pages. Now that `src/index.ts` exports a public `Table`, that name is confusing and worth
-renaming to `ShowcaseTable` in its own commit.
+`src/foundations/Showcase.tsx` used to export a documentation helper literally named `Table`, used by
+the eight Foundations pages. It is now **`ShowcaseTable`** — two components called `Table` in one repo
+is a five-minute detour every time somebody opens the wrong one. It hardcodes its classes rather than
+taking a recipe, has no density or alignment, and is not in `src/index.ts`. Reach for the real
+`Table` in a component story.
 
 Its `<th>` also sets `font-semibold` where `40005047:38832` measures weight **400**. The Figma is the
 specification for this component; `Showcase.tsx` predates the node, is not a component, and is

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Link } from './components/Link'
-import { Mono, Page, Panel, Section, Table, Td, Th } from './foundations/Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './foundations/Showcase'
 import {
   chromaticRamps,
   navThemes,
@@ -42,7 +42,7 @@ const STORYBOOK = 'https://nathan-sanders.github.io/yet-another-design-system/'
 /**
  * A code sample.
  *
- * `tabIndex` and the label are the same rule `Showcase.tsx`'s `Table` follows: a
+ * `tabIndex` and the label are the same rule `Showcase.tsx`'s `ShowcaseTable` follows: a
  * block that scrolls sideways is unreachable from a keyboard without them, and
  * axe fails the story on `scrollable-region-focusable`.
  */
@@ -271,7 +271,7 @@ import { Plus } from 'lucide-react'
       </Section>
 
       <Section title="How this Storybook is organized" hint="Three groups, in the order to read them.">
-        <Table label="Sidebar groups">
+        <ShowcaseTable label="Sidebar groups">
           <thead>
             <tr>
               <Th className="w-40">Group</Th>
@@ -309,7 +309,7 @@ import { Plus } from 'lucide-react'
               </Td>
             </tr>
           </tbody>
-        </Table>
+        </ShowcaseTable>
         <p className="max-w-2xl text-base text-content-subtle">
           Every story runs in real Chromium and is checked with axe on every pull request, at the
           <Mono> error</Mono> level — an accessibility violation breaks the build the same way a
@@ -321,7 +321,7 @@ import { Plus } from 'lucide-react'
       </Section>
 
       <Section title="Running it yourself" hint="Clone the repo and install, then pick a surface.">
-        <Table label="npm scripts">
+        <ShowcaseTable label="npm scripts">
           <thead>
             <tr>
               <Th className="w-64">Command</Th>
@@ -370,7 +370,7 @@ import { Plus } from 'lucide-react'
               </Td>
             </tr>
           </tbody>
-        </Table>
+        </ShowcaseTable>
         <p className="max-w-2xl text-base text-content-subtle">
           <Mono>src/styles/theme.css</Mono> is generated — never hand-edit it. When Figma changes,
           re-export the JSON into <Mono>tokens/</Mono> and run the generator.

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, Table, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
 import { fontFamilies, fontWeights, typeScale } from './tokens'
 
 /**
@@ -99,7 +99,7 @@ export const Typography: Story = {
           </>
         }
       >
-        <Table label="The type scale, with size, line height and a specimen">
+        <ShowcaseTable label="The type scale, with size, line height and a specimen">
           <thead>
             <tr>
               <Th className="w-24">Token</Th>
@@ -135,7 +135,7 @@ export const Typography: Story = {
               </tr>
             ))}
           </tbody>
-        </Table>
+        </ShowcaseTable>
       </Section>
     </Page>
   ),

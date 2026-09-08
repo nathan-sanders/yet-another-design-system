@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { cn } from '../lib/cn'
 import { focusRing } from '../lib/focus'
-import { Mono, Page, Panel, Section, Table, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
 import { durations, easings } from './tokens'
 
 /**
@@ -133,7 +133,7 @@ export const Durations: Story = {
           title="Tiers"
           hint="What each one is for. The bounds either side exist so a component can tune within a tier without leaving it."
         >
-          <Table label="What each duration tier is for">
+          <ShowcaseTable label="What each duration tier is for">
             <thead>
               <tr>
                 <Th className="w-28">Tier</Th>
@@ -165,7 +165,7 @@ export const Durations: Story = {
                 )
               })}
             </tbody>
-          </Table>
+          </ShowcaseTable>
         </Section>
 
         <Section
