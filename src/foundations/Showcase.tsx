@@ -154,11 +154,23 @@ export function ShowcaseTable({ label, children }: { label: string; children: Re
   )
 }
 
+/**
+ * A column header.
+ *
+ * **`font-normal`, matching `Table Head` (`40005047:38832`), which measures
+ * weight 400.** This was `font-semibold` — written before that node existed —
+ * and the two headers disagreeing meant a docs page and a real table set the
+ * same thing two ways.
+ *
+ * The weight has to be stated, not just left off: a `<th>` is `font-weight:
+ * bold` in the user-agent stylesheet, so dropping the class makes it heavier
+ * rather than lighter.
+ */
 export function ShowcaseTh({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <th
       scope="col"
-      className={`border-b border-surface-border px-4 py-2.5 text-left text-sm font-semibold text-content-subtle ${className}`}
+      className={`border-b border-surface-border px-4 py-2.5 text-left text-sm font-normal text-content-subtle ${className}`}
     >
       {children}
     </th>
