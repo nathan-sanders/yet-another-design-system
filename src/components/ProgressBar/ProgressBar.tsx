@@ -102,9 +102,23 @@ const labelRow = tv({
   base: 'flex items-baseline gap-2',
 })
 
-/** Figma's label: 14/500 in Content/Primary, matching Astryx's measured pair. */
+/**
+ * The label: `text-base` in Content/Primary, semibold.
+ *
+ * **14px, which is `text-base` here and not `text-sm`.** This library's type
+ * scale is one step off Tailwind's default — `text-sm` is 12px and `text-base`
+ * is 14 — so Astryx's measured 14px label is `text-base`. Getting that wrong is
+ * silent: a 12px label looks deliberate.
+ *
+ * **Semibold, not Astryx's 500.** The scale has three weights — normal,
+ * semibold, bold — and no medium. `font-medium` compiles to
+ * `font-weight: var(--font-weight-medium)`, a variable this theme never defines,
+ * so the declaration is dropped and the text renders at 400 while the class list
+ * says otherwise. Semibold is also what Field, and therefore Slider, settled on
+ * for a label above a control.
+ */
 const labelText = tv({
-  base: 'text-sm font-medium text-content-primary',
+  base: 'text-base font-semibold text-content-primary',
 
   variants: {
     hidden: { true: 'sr-only', false: '' },
@@ -113,9 +127,9 @@ const labelText = tv({
   defaultVariants: { hidden: false },
 })
 
-/** The value readout: one step quieter than the label, and never bold. */
+/** The value readout: the label's size in Content/Subtle, and never bold. */
 const valueText = tv({
-  base: 'ml-auto text-sm font-normal text-content-subtle',
+  base: 'ml-auto text-base font-normal text-content-subtle',
 })
 
 /**
