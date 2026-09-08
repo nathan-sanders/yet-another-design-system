@@ -93,17 +93,23 @@ Selects name themselves — `Items per page` and `Page` — rather than borrowin
 
 ## Best practices
 
-Mirrored from the **Best practices** block on `↪ Pagination` in Figma. The two are one text in two
-places — change one and change the other.
+Mirrored from the **Best practices** block on `↪ Pagination` (`40004591:42917`) in Figma. The two
+are one text in two places — change one and change the other.
 
 **Do**
 
-- Put it directly under the thing it pages, outside that thing's border. It draws no chrome of its own so it reads as belonging to what is above it.
-- Wire it to `Table` with `rowCount` and `rowIndexStart`. Without them a screen reader announces "row 3" on page 4, which is true of the page and false of the data.
-- Give every bar on a page its own `aria-label`. Two landmarks called "Pagination" are indistinguishable in a landmark list.
+- Put it directly under the thing it pages, outside that thing's border. It draws no chrome of its own, so it reads as belonging to what is above it.
+- Keep the range visible. It is the only part that says how much there is, and it is what tells somebody whether paging through is worth it.
+- Turn off the parts you cannot serve. A set whose total nobody has counted has no range and no page count, and the arrows still work.
 
 **Don't**
 
 - Do not use it for a set somebody would rather scroll. Under a screenful of rows, paging adds a decision without removing any work.
-- Do not hide the range to save space. It is the only part that says how much there is, and the bar wraps rather than shrinking for exactly that reason.
-- Do not leave the page jump on for thousands of pages. Past a few hundred the Select is a wall of numbers — turn it off and leave the arrows and the range.
+- Do not leave the page select on for thousands of pages. Past a few hundred it is a wall of numbers, and the arrows and the range are enough.
+- Do not stretch it wider than the thing it pages. The arrows belong under that thing's right edge, not the window's.
+
+In code those land as `hasRange`, `hasPageJump` and the width of the container you put the bar in.
+Two more that only code can say: wire it to `Table` with `rowCount` and `rowIndexStart`, or a screen
+reader announces "row 3" on page 4 — true of the page and false of the data; and give every bar on a
+page its own `aria-label`, because two landmarks called "Pagination" are indistinguishable in a
+landmark list.
