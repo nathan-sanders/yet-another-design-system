@@ -119,14 +119,21 @@ export function RampScale({ steps }: { steps: string[] }) {
 /* ------------------------------------------------------------------- table */
 
 /**
- * A table in a horizontally scrollable frame.
+ * A table in a horizontally scrollable frame, for laying out a docs page.
+ *
+ * **Named for the file, because the library now exports a real `Table`.** This
+ * one is documentation scaffolding: it hardcodes its classes instead of taking
+ * a `tv()` recipe, has no density or alignment, and is not in `src/index.ts`.
+ * Two components called `Table` in one repo is a five-minute detour every time
+ * somebody opens the wrong one. Reach for the real `Table` in a component
+ * story; this stays here for the Foundations pages.
  *
  * `tabIndex` and the label are not decoration: a region you can only reach by
  * dragging is unreachable from a keyboard, and axe fails the story for it
  * (`scrollable-region-focusable`). Giving the frame focus makes the arrow keys
  * scroll it, and the label is what a screen reader announces on arrival.
  */
-export function Table({ label, children }: { label: string; children: ReactNode }) {
+export function ShowcaseTable({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex

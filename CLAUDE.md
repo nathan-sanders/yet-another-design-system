@@ -461,7 +461,8 @@ touches, and that is what makes the Theme and Neutral toolbar switches move thes
 
 A scrollable table needs `tabIndex={0}` and a label, or axe fails the story on
 `scrollable-region-focusable` — a region you can only reach by dragging is unreachable from a
-keyboard. `Showcase.tsx`'s `Table` does this once for all of them.
+keyboard. `Showcase.tsx`'s `ShowcaseTable` does this once for all the Foundations pages, and
+`Table` does it for itself.
 
 ## Figma is the source of truth
 

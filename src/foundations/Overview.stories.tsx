@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, Table, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
 import {
   chromaticRamps,
   durations,
@@ -191,7 +191,7 @@ export const Overview: Story = {
             </>
           }
         >
-          <Table label="The navigation roles, in three of their modes">
+          <ShowcaseTable label="The navigation roles, in three of their modes">
             <thead>
               <tr>
                 <Th className="w-14">Live</Th>
@@ -223,7 +223,7 @@ export const Overview: Story = {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </ShowcaseTable>
           <p className="max-w-3xl text-base text-content-subtle">
             The Live column follows the Nav control in the toolbar; the three after it are fixed, and
             they are the three shapes the tier uses. Neutral Inverse aliases the <em>ramp</em> tier,

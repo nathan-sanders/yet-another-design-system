@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, Table, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
 import { spacingBase } from './tokens'
 
 /**
@@ -44,7 +44,7 @@ export const Spacing: Story = {
       }
     >
       <Section title="Scale" hint="Half steps exist and are used — a 4px base is what makes them land on whole pixels.">
-        <Table label="The spacing scale, as multiples of the base">
+        <ShowcaseTable label="The spacing scale, as multiples of the base">
           <thead>
             <tr>
               <Th className="w-24">Step</Th>
@@ -72,7 +72,7 @@ export const Spacing: Story = {
               </tr>
             ))}
           </tbody>
-        </Table>
+        </ShowcaseTable>
       </Section>
 
       <Section

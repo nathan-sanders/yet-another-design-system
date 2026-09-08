@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Chip, Mono, Page, Panel, RampRow, RampScale, Section, Table, Td, Th } from './Showcase'
+import { Chip, Mono, Page, Panel, RampRow, RampScale, Section, ShowcaseTable, Td, Th } from './Showcase'
 import { chromaticRamps, neutralRamps, neutralSteps, paint, swappableNeutrals } from './tokens'
 
 /**
@@ -142,7 +142,7 @@ export const NeutralRamp: Story = {
         title="The nine options"
         hint="Stone is the default, and also has its own data-neutral block so the attribute is never a lie."
       >
-        <Table label="What each data-neutral value resolves to">
+        <ShowcaseTable label="What each data-neutral value resolves to">
           <thead>
             <tr>
               <Th className="w-40">data-neutral</Th>
@@ -173,7 +173,7 @@ export const NeutralRamp: Story = {
               </tr>
             ))}
           </tbody>
-        </Table>
+        </ShowcaseTable>
       </Section>
     </Page>
   ),
