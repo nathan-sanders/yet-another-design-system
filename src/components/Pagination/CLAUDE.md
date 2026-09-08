@@ -56,18 +56,29 @@ visible item in view — page 3 at 10 per page becomes page 1 at 50. It answers 
 asked and moves the page number to a value the user did not choose. `onPageChange(1)` fires
 alongside `onPageSizeChange`, so a controlled caller is told.
 
-**`ml-auto`, not `flex-1`, and the difference is the narrow case.** Figma's `Page Navigation` frame
-is FILL with `primaryAxisAlignItems: MAX`. Translated as `flex-1` that becomes `flex-basis: 0%`,
-which lets the group squash below its own content before the row ever wraps — the buttons ride up
-against "of 10 pages" and nothing moves to a second line. An auto margin absorbs the free space on
-whichever line the group lands on, so it is flush right on row one and flush right on row two.
+**Wrapping is the narrow-width answer in both places.** 600px is what the file draws, not what it
+can only do: the root is `layoutWrap: WRAP` with `counterAxisSpacing` bound to `spacing/2`, so a
+wrapped row's gap is specified rather than guessed. `flex-wrap` plus `gap-2` — Figma's `itemSpacing`
+*and* its `counterAxisSpacing`, the same token twice — is the same rule. Dropping the range text and
+then the page size was the alternative, and it hides information to save a line. The `Narrow` story
+measures the wrap, because a screenshot of two rows and a screenshot of one squashed row are both
+"it rendered".
 
-**Wrapping is the whole of the narrow-width answer.** The file draws one fixed 600px row and a side
-panel does not have 600px. `flex-wrap` plus `gap-2` — which is Figma's `itemSpacing` *and* its
-`counterAxisSpacing`, both `spacing/2`, so the row gap is specified rather than guessed — keeps every
-control. Dropping the range text and then the page size was the alternative, and it hides
-information to save a line. The `Narrow` story measures the wrap, because a screenshot of two rows
-and a screenshot of one squashed row are both "it rendered".
+**`ml-auto`, not `flex-1`, and the same trap exists one layer down in Figma.** `Page Navigation` is
+FILL with `primaryAxisAlignItems: MAX`. Translated as `flex-1` that becomes `flex-basis: 0%`, which
+lets the group squash below its own content before the row ever wraps — the buttons ride up against
+"of 10 pages" and nothing moves to a second line. An auto margin absorbs the free space on whichever
+line the group lands on, so it is flush right on row one and flush right on row two.
+
+**Figma had the identical bug, and `layoutWrap` alone did not fix it.** WRAP was already set on the
+root and an instance narrowed to 320 still refused to break: a FILL child absorbs the squeeze before
+the parent will start a new line, exactly as `flex-basis: 0%` does. The fix is `minWidth: 244` on
+`Page Navigation` — the width it hugs to, measured off its children rather than typed — which is
+Figma's only way to say `flex-shrink: 0`. With it, 320 gives two rows 8px apart and the group flush
+right on the second, matching the code. Two caveats worth keeping: `minWidth` **cannot be overridden
+on an instance**, so it has to live on the main component; and 244 is a measurement of today's
+content, so a page count long enough to widen "of 10 pages" past its budget can still squash a
+little before it wraps. Figma has no min-content keyword to bind it to.
 
 **The text is not mono.** `Table` and `Metric` give a number `font-mono tabular-nums`; these two runs
 stay `text-base` in Inter at `Content/Subtle`, as the file binds them. They are sentences containing
