@@ -1,7 +1,9 @@
 # ProgressBar
 
 A horizontal bar reporting how far along a task is. Figma page `↪ Progress Bar`
-(`40004748:43527`).
+(`40004748:43527`), component set `Progress Bar` (`40005130:525`): `Type` Default | Success |
+Warning | Danger × `State` Default | Indeterminate | Disabled, plus the `Label`, `Label Text`,
+`Value`, `Value Text`, `Marks` and `Mark Label Text` properties.
 **Code went first and the file caught up in the same sitting.** The page was one of the empty
 `(In Progress)` scaffolds — a Docs frame with `"Description goes here."`, two blank Preview
 frames, one `"Usage rule."` card per column, and an empty Components section — so there were no
@@ -145,6 +147,36 @@ dark (3.92 / 5.37), and Red/600 light with Red/400 dark (3.79 / 3.55) — i.e. m
 variables theme-aware at source. That moves `Badge` and the whole `Feedback` family with them,
 which is why it is a decision for the file rather than an override here. Lowering the threshold
 is not the alternative: it would weaken all eight pairs to excuse two.
+
+## Drawing it in Figma
+
+The set was built from this code rather than read from the file, and four things about that are
+worth keeping — three of them because the canvas rendered a component that was wrong in a way that
+looked deliberate.
+
+**`resize()` resets the sizing mode to FIXED.** The component was made `primaryAxisSizingMode =
+'AUTO'` and then resized to set its width, which silently pinned its height at 36. The `Mark Labels`
+row is 24px of in-flow content, so with marks on it sat *below* the frame and rendered nothing — the
+tick drew, the label did not, and every other part of the component looked correct. `absoluteRender
+Bounds === null` is what found it; a screenshot only showed a missing label.
+
+**A TEXT component property is one value for the whole set.** The variants were first drawn at
+Astryx's demo values — 60 / 80 / 50 / 92 — and every one of them printed the `Value Text` default
+instead, so a Success bar 80% full read "60%". They all draw the same 60% now, which is also the
+better grid: `Type` is a color axis, and holding the value still is what makes the column show only
+what the axis changes.
+
+**A set-level render is not evidence about a variant.** Screenshotting the whole set showed the value
+text on the indeterminate column, where it is hidden — `visible === false`, `absoluteRenderBounds ===
+null`, and a screenshot of that single variant confirmed it. The set render applies the set's default
+property values. Read the node, or render the one variant.
+
+**Two idioms that do not survive the trip, and their Figma counterparts.** `ml-auto` is
+`primaryAxisAlignItems: 'MAX'` on the label row — a no-op while the label is `FILL`, and the thing
+that puts the value right when it is not. And a hidden Figma layer *collapses* where `sr-only`
+merely leaves the flow: `Label=false` in Figma removes the label from the layout, where in code the
+label is still there and still announced. The property is named `Label` rather than `Label Hidden`
+for that reason — it is not quite the same switch.
 
 ## Testing
 

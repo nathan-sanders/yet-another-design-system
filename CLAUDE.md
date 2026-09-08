@@ -861,6 +861,14 @@ sitting. Worth naming because **a scaffolded page reads exactly like a drawn one
 ten more of them are sitting there — and the difference decides whether a build starts by reading
 or by deciding.
 
+The file is not left behind: the page now has a 12-variant `Progress Bar` set (`40005130:525`), a
+filled Preview in both themes, and nine guidance cards. **Three of the build's findings are about
+the canvas lying rather than about the component** — `resize()` silently pinning a height so an
+in-flow row rendered nothing, a shared TEXT property overriding every variant's drawn value, and a
+set-level screenshot showing a node whose `absoluteRenderBounds` is `null`. All three are written up
+in the component's record; the general form is that **a Figma render is evidence about the render,
+and `absoluteRenderBounds` is evidence about the node.**
+
 Its sibling primitive is left alone deliberately. Base UI ships `meter` with the identical five
 parts and `role="meter"`, and a bar that reports a *level* rather than a *task* is a different
 component under the same drawing. Not built, and the record says so rather than leaving the next
