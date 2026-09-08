@@ -254,6 +254,9 @@ export type {
   TrendGoodDirection,
 } from './components/Metric'
 
+export { Pagination } from './components/Pagination'
+export type { PaginationProps } from './components/Pagination'
+
 export { Popover } from './components/Popover'
 export type {
   PopoverProps,
