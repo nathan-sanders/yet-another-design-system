@@ -75,35 +75,51 @@ export const tableRoot = ['w-full table-fixed border-separate border-spacing-0 f
 /**
  * A body row, and the three fills it has to keep apart.
  *
- * Hover is `surface-background-subtle` (the house's one hover fill) and
- * selected is that same fill plus the *emphasized* rule on its cells — `Card`'s
- * rule, and the reason a selected row and the row under the pointer stay
- * distinguishable when both are true at once. The hover class is repeated on
- * `selected` so the pointer cannot wash the selection off.
+ * ## The stripe is the quiet one and the hover is the loud one
  *
- * ## Why striping reaches past a token's name
+ * A zebra table has to survive hover and selection landing on either parity, so
+ * three fills have to stay distinct, and they have to stay in the right *order*
+ * — pointing at a row should always add ink, never take it away.
  *
- * If the stripe used `surface-background-subtle` too, then on a striped table
- * hover would be invisible on half the rows and selection invisible on half the
- * rows — three states, one color. `surface-overlay-subtle` is the only other
- * candidate in the token set, and the property that makes it work is that it is
- * **translucent**: a 10% ink wash composites over the table's own surface to
- * give a stripe, and an *opaque* hover or selection replaces it outright. So
- * all three read distinctly at both parities.
+ * The first pass had this backwards. It struck the stripe in
+ * `surface-overlay-subtle` and left hover on `surface-background-subtle`, which
+ * is the house's usual hover fill. Measured, the stripe composites to about 93%
+ * lightness and that hover fill is 97%: hovering a striped row made it
+ * *lighter* than it was at rest, so the pointer read as less attention rather
+ * than more, on every other row.
  *
- * That is an overlay token doing a surface's job, which is a real liberty. The
- * file owes either a `Striped` drawing or a `Surface/Background Striped` token;
- * until it has one this is the code-first route the root record already
- * documents for Badge's hues and Divider's `emphasis`. The `Striped` story
- * measures all four fills and asserts they differ, so a token edit cannot
- * quietly collapse them.
+ * So they are the other way round:
+ *
+ * - **stripe** is `surface-background-subtle` — an opaque whisper, quieter than
+ *   anything that responds to you, which is all a zebra should be.
+ * - **hover** is `surface-overlay-subtle`, and the property that earns it is
+ *   that it is **translucent**. A 10% ink wash darkens whatever it is laid
+ *   over, so a hovered row is darker than its resting state whichever parity it
+ *   is — which no opaque fill can promise once rows have two resting states.
+ *   The token set already does this: `--nav-item-background-hover` is
+ *   `surface-overlay-subtle` in the theme-following nav mode.
+ * - **selected** is the same wash *plus* the emphasized rule on its cells.
+ *   `Card`'s split: the fill says something is true of this row, the rule says
+ *   which thing, and the two stay apart when both are true at once. The hover
+ *   class is repeated so the pointer cannot wash the selection off.
+ *
+ * That is still an overlay token doing a surface's job, and the file owes
+ * either a `Striped` drawing or a pair of row-state tokens. Until it has them
+ * this is the code-first route the root record already documents for Badge's
+ * hues and Divider's `emphasis`. The `Striped` story measures all three and
+ * asserts they differ, so a token edit cannot quietly collapse them.
+ *
+ * One thing to know before moving the stripe: `surface-background-subtle` is
+ * the same stone as `surface-canvas` in both themes, so a striped table sitting
+ * on the canvas would have invisible stripes. The table's own surface is
+ * `surface-background-primary`, which is what keeps them visible.
  */
 export const row = tv({
   base: 'transition-colors duration-fast-min ease-standard',
   variants: {
-    hoverable: { true: 'hover:bg-surface-background-subtle', false: '' },
-    striped: { true: 'bg-surface-overlay-subtle', false: '' },
-    selected: { true: 'bg-surface-background-subtle hover:bg-surface-background-subtle', false: '' },
+    hoverable: { true: 'hover:bg-surface-overlay-subtle', false: '' },
+    striped: { true: 'bg-surface-background-subtle', false: '' },
+    selected: { true: 'bg-surface-overlay-subtle hover:bg-surface-overlay-subtle', false: '' },
   },
   defaultVariants: { hoverable: false, striped: false, selected: false },
 })

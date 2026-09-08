@@ -171,6 +171,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **SideNav** | The application rail; 224px expanded and 56px collapsed, with `SideNav.Section` (optional group header) and `SideNav.Group` (a disclosure built on Base UI's Collapsible). Collapsed, every label becomes both the accessible name and a tooltip, each section header becomes a 1px rule, and a group opens sideways as a 224px flyout on hover or click. `floating` toggles the drop shadow and nothing else. Logo and bottom-pinned utilities are slots |
 | **Slider** | One handle, or a pair for a range × default/disabled, with label, sub-label, bounds labels, marks and a value tooltip |
 | **Switch** | Off/on × bare/in-container × default/hover/focus/invalid/disabled, with label and sub-label — the knob grows from 14 to 16px as it slides |
+| **Table** | Structured data in rows and columns; 3 densities (32/40/56) x left/right alignment, 4 divider modes, striping and hover, with sorting, row selection, expandable rows and draggable column resizing. **Numbers set themselves in the mono face** — a cell holding a real number is a number, and a column carries `numeric` for values like `$1.2M` that are digits wearing a string. Takes `columns` + `data`, or composes from `Table.Head` / `Row` / `Cell` |
 | **Tabs** | Composed strip + panels; 3 sizes × hug/fill, with icon and end slots — the underline slides between tabs in pure CSS |
 | **ThemeControl** | The light/dark switch; a ghost icon-only Button whose glyph is the theme you would *get* (a moon while light). Reports the intent through `onThemeChange` and never touches the document — the theme has to survive a reload and sync with a user setting, and both are the app's call |
 | **Toast** | 3 types (default, success, danger) with description, action and dismiss slots; fired from a `useToast()` hook into a stack that collapses into one card and expands on hover, in pure CSS |
@@ -361,7 +362,7 @@ injects a `<style>` block per chart to map a variable onto a hex: `--data-viz-*`
 with a `.dark` block already, so a mark painted with one follows the theme with no injected CSS, no
 second palette and no `dark:` variant.
 
-Still to build: List Item, Table Cell, Indicator, Chart Legend Buttons.
+Still to build: List Item, Indicator, Chart Legend Buttons.
 
 ## Project structure
 

@@ -519,17 +519,15 @@ export const ColumnResizing: Story = {
  * stripe used it too, then on a striped table hover would be invisible on half
  * the rows and selection invisible on half the rows: three states, one color.
  *
- * So the stripe is `surface-overlay-subtle`, and the property that makes it
- * work is that it is **translucent** — a 10% ink wash composites over the
- * table's surface, where an opaque hover or selection replaces it outright.
- * That is an overlay token doing a surface's job, which the file owes a
- * drawing for.
+ * They also have to stay in the right *order*: pointing at a row should add
+ * ink, never take it away. So the stripe is the opaque whisper
+ * (`surface-background-subtle`) and hover is the translucent wash
+ * (`surface-overlay-subtle`), which darkens whatever it is laid over and so is
+ * darker than its resting state at either parity.
  *
- * Selected and hovered share a fill on purpose — that is `Card`'s split, where
- * the fill says "something is true of this row" and the *rule* says which
- * thing. So the claim is three distinct fills plus a rule that steps up, and
- * that is what the play function measures: a token edit cannot quietly collapse
- * the fills, and cannot quietly take the rule away either.
+ * Selected takes hover's fill and is told apart by its *rule* — `Card`'s split,
+ * where the fill says something is true of this row and the rule says which
+ * thing.
  */
 export const Striped: Story = {
   parameters: { controls: { disable: true } },
@@ -545,6 +543,26 @@ export const Striped: Story = {
     const canvas = within(canvasElement)
     const rowFor = (name: string) => canvas.getByText(name).closest('tr')!
     const fill = (element: HTMLElement) => getComputedStyle(element).backgroundColor
+
+    /*
+      How light a row actually looks, by painting it over the table's own
+      surface and reading the pixel back. Comparing the color *strings* would
+      not work: one of these is an opaque `oklch(...)` and another a translucent
+      `oklab(... / 0.1)`, and the whole question is what they come to once
+      composited.
+    */
+    function lightness(color: string): number {
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = 1
+      const context = canvas.getContext('2d')!
+      context.fillStyle = getComputedStyle(canvasElement.querySelector('table')!.parentElement!)
+        .backgroundColor
+      context.fillRect(0, 0, 1, 1)
+      context.fillStyle = color
+      context.fillRect(0, 0, 1, 1)
+      const [r, g, b] = context.getImageData(0, 0, 1, 1).data
+      return r + g + b
+    }
 
     /*
       Hover is not measured here, and cannot be: `userEvent.hover` dispatches
@@ -563,6 +581,22 @@ export const Striped: Story = {
     const selected = fill(rowFor('Charlie Brown')) // index 2 — selected, and hover's fill
 
     await expect(new Set([plain, striped, selected]).size).toBe(3)
+
+    /*
+      And in that order — the stripe a smaller departure from a plain row than
+      hover is. This is the assertion that would have caught the first version
+      of this component, where the stripe was the heavier of the two and
+      hovering a striped row moved it *back toward* plain: the pointer reading
+      as less attention rather than more, on every other row. Distinctness alone
+      would have passed that happily.
+
+      Stated as a distance rather than as "lighter", because the direction
+      inverts between themes: an overlay wash darkens a light table and lightens
+      a dark one. What has to hold in both is that hover departs further.
+    */
+    const departure = (color: string) => Math.abs(lightness(color) - lightness(plain))
+    await expect(departure(selected)).toBeGreaterThan(departure(striped))
+    await expect(departure(striped)).toBeGreaterThan(0)
 
     /*
       The stripe's translucency is not asserted, deliberately. It comes back
@@ -727,7 +761,7 @@ export const InContext: Story = {
       { key: 'region', header: 'Region' },
       { key: 'seats', header: 'Seats', align: 'right' },
       { key: 'spend', header: 'Spend', numeric: true, sortValue: (item) => item.seats },
-      { key: 'uptime', header: 'Uptime %' },
+      { key: 'uptime', header: 'Uptime %', align: 'right' },
     ],
   },
 }
