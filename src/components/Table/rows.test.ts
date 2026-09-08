@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { ariaSort, nextSort, rowCountAttribute, rowIndex, sortLabel, sortRows } from './rows'
+import {
+  ariaSort,
+  nextSort,
+  rowCountAttribute,
+  rowIndex,
+  selectAllState,
+  sortLabel,
+  sortRows,
+  toggleAll,
+  toggleKey,
+} from './rows'
 
 /**
  * None of this shows in a screenshot. A comparator that sorts numbers as text
@@ -126,5 +136,49 @@ describe('row numbering', () => {
     expect(rowCountAttribute(200)).toBe(201)
     expect(rowCountAttribute(-1)).toBe(-1)
     expect(rowCountAttribute(undefined)).toBeUndefined()
+  })
+})
+
+describe('selectAllState', () => {
+  it('is unchecked when nothing is selected', () => {
+    expect(selectAllState(0, 5)).toEqual({ checked: false, indeterminate: false })
+  })
+
+  it('is indeterminate when some are', () => {
+    expect(selectAllState(2, 5)).toEqual({ checked: false, indeterminate: true })
+  })
+
+  it('is checked when all are', () => {
+    expect(selectAllState(5, 5)).toEqual({ checked: true, indeterminate: false })
+  })
+
+  /** There is nothing partial about nothing. */
+  it('is unchecked, not indeterminate, for an empty table', () => {
+    expect(selectAllState(0, 0)).toEqual({ checked: false, indeterminate: false })
+  })
+})
+
+describe('toggleKey', () => {
+  it('adds and removes', () => {
+    expect(toggleKey([], 'a', true)).toEqual(['a'])
+    expect(toggleKey(['a', 'b'], 'a', false)).toEqual(['b'])
+  })
+
+  /** The bug a `filter`/`concat` pair would have: a key selected twice. */
+  it('cannot select the same row twice', () => {
+    expect(toggleKey(['a'], 'a', true)).toEqual(['a'])
+  })
+})
+
+describe('toggleAll', () => {
+  it('selects everything from empty and from partial', () => {
+    expect(toggleAll([], ['a', 'b'])).toEqual(['a', 'b'])
+    // From indeterminate it fills rather than clears: a partial selection is
+    // usually one in progress, and re-picking six rows is the expensive undo.
+    expect(toggleAll(['a'], ['a', 'b'])).toEqual(['a', 'b'])
+  })
+
+  it('clears when everything is already selected', () => {
+    expect(toggleAll(['a', 'b'], ['a', 'b'])).toEqual([])
   })
 })

@@ -130,3 +130,48 @@ export function rowCountAttribute(total: number | undefined): number | undefined
   if (total === undefined) return undefined
   return total < 0 ? -1 : total + 1
 }
+
+/* -------------------------------------------------------------- selection */
+
+/** Where a select-all checkbox sits, given how much of the table is selected. */
+export interface SelectAllState {
+  checked: boolean
+  indeterminate: boolean
+}
+
+/**
+ * The three states of a select-all box.
+ *
+ * `indeterminate` is a separate flag rather than a third value of `checked`,
+ * which is the same shape `Checkbox` already takes. An empty table reads
+ * unchecked rather than indeterminate — there is nothing partial about nothing.
+ */
+export function selectAllState(selectedCount: number, total: number): SelectAllState {
+  if (total === 0 || selectedCount === 0) return { checked: false, indeterminate: false }
+  if (selectedCount >= total) return { checked: true, indeterminate: false }
+  return { checked: false, indeterminate: true }
+}
+
+/**
+ * Add or remove one key.
+ *
+ * A `Set` round-trip rather than `filter`/`concat`, so selecting a row that is
+ * already selected cannot put it in the list twice.
+ */
+export function toggleKey(keys: readonly string[], key: string, selected: boolean): string[] {
+  const next = new Set(keys)
+  if (selected) next.add(key)
+  else next.delete(key)
+  return [...next]
+}
+
+/**
+ * What the select-all box does next.
+ *
+ * From indeterminate it selects everything rather than clearing — the box is
+ * offered as "select all", and a partial selection is usually a selection in
+ * progress. Clearing is one more click away; re-picking six rows is not.
+ */
+export function toggleAll(keys: readonly string[], allKeys: readonly string[]): string[] {
+  return keys.length >= allKeys.length ? [] : [...allKeys]
+}

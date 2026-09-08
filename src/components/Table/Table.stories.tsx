@@ -315,3 +315,114 @@ export const Sorting: Story = {
     })
   },
 }
+
+/**
+ * Row selection. The checkbox goes in the row's *first cell*, which is what the
+ * file's `checkbox` boolean on `Table Cell` means — and it means there is no
+ * extra empty column header for a screen reader to walk through.
+ *
+ * A selected row takes the hover fill plus the emphasized rule on its cells,
+ * which is `Card`'s split: the fill says "something is true of this row", the
+ * stroke says which thing, and the two stay apart when both are true at once.
+ *
+ * `rowLabel` is the prop that matters here. Six boxes all called "Select row"
+ * is a list a screen reader cannot navigate.
+ */
+export const Selection: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Selection',
+    selectable: true,
+    hasHover: true,
+    rowLabel: (item) => item.name,
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const selectAll = canvas.getByRole('checkbox', { name: 'Select all rows' })
+
+    await step('a row checkbox is named after its row', async () => {
+      // The assertion that catches the empty-name bug: `Checkbox` wraps itself
+      // in a <label>, so an `aria-label` here would compute to nothing at all.
+      await expect(canvas.getByRole('checkbox', { name: 'Select Alice Johnson' })).toBeVisible()
+    })
+
+    await step('one row makes the header indeterminate', async () => {
+      await userEvent.click(canvas.getByRole('checkbox', { name: 'Select Alice Johnson' }))
+      await expect(selectAll).toHaveAttribute('aria-checked', 'mixed')
+    })
+
+    await step('select-all fills from indeterminate rather than clearing', async () => {
+      await userEvent.click(selectAll)
+      await expect(selectAll).toBeChecked()
+      for (const item of rows) {
+        await expect(canvas.getByRole('checkbox', { name: `Select ${item.name}` })).toBeChecked()
+      }
+    })
+
+    await step('and clears when everything is selected', async () => {
+      await userEvent.click(selectAll)
+      await expect(selectAll).not.toBeChecked()
+      await expect(selectAll).toHaveAttribute('aria-checked', 'false')
+    })
+
+    await step('a selected row is not announced with aria-selected', async () => {
+      // `aria-selected` is only valid on a row inside a `grid`; on a `table` row
+      // axe fires `aria-allowed-attr`. The checkbox's own state is the state.
+      await userEvent.click(canvas.getByRole('checkbox', { name: 'Select Bob Smith' }))
+      const row = canvas.getByRole('checkbox', { name: 'Select Bob Smith' }).closest('tr')!
+      await expect(row).not.toHaveAttribute('aria-selected')
+    })
+  },
+}
+
+/**
+ * Expandable rows. A row expands because `renderExpanded` returned something
+ * for it — derived, rather than a second flag that could disagree with the
+ * panel's own existence. `Charlie Brown` returns `null` here and so has no
+ * chevron at all.
+ *
+ * The detail row is rendered only while it is open. `hidden` on a `<tr>` fights
+ * `display: table-row` and leaves a row that is invisible but still in the
+ * accessibility tree.
+ */
+export const ExpandableRows: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Expandable rows',
+    rowLabel: (item) => item.name,
+    renderExpanded: (item) =>
+      item.name === 'Charlie Brown' ? null : (
+        <span className="text-content-subtle">
+          {item.name} works in {item.region}.
+        </span>
+      ),
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('a row with no panel has no control', async () => {
+      await expect(canvas.queryByRole('button', { name: /Charlie Brown/ })).toBeNull()
+    })
+
+    await step('expanding opens the panel and points at it', async () => {
+      const trigger = canvas.getByRole('button', { name: 'Expand Alice Johnson' })
+      await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+      await userEvent.click(trigger)
+
+      const opened = canvas.getByRole('button', { name: 'Collapse Alice Johnson' })
+      await expect(opened).toHaveAttribute('aria-expanded', 'true')
+
+      // aria-controls has to resolve to something that is actually there.
+      const panel = document.getElementById(opened.getAttribute('aria-controls')!)
+      await expect(panel).toBeVisible()
+      await expect(panel).toHaveTextContent('Alice Johnson works in Platform.')
+    })
+
+    await step('collapsing removes the row rather than hiding it', async () => {
+      const opened = canvas.getByRole('button', { name: 'Collapse Alice Johnson' })
+      const panelId = opened.getAttribute('aria-controls')!
+      await userEvent.click(opened)
+      await expect(document.getElementById(panelId)).toBeNull()
+    })
+  },
+}

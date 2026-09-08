@@ -1,8 +1,9 @@
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
-import { useState, type ComponentPropsWithRef, type ReactNode } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from 'lucide-react'
+import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 import { Button } from '../Button'
+import { Checkbox } from '../Checkbox'
 import { TableContext, TableRowContext, useTableContext, useTableRowContext } from './context'
 import { resolveNumeric } from './numeric'
 import {
@@ -22,8 +23,13 @@ import {
 import {
   ariaSort,
   nextSort,
+  rowCountAttribute,
+  rowIndex,
+  selectAllState,
   sortLabel,
   sortRows,
+  toggleAll,
+  toggleKey,
   type SortValue,
   type TableSort,
   type TableSortDirection,
@@ -180,6 +186,40 @@ export interface TableProps<T>
   sort?: TableSort | null
   defaultSort?: TableSort | null
   onSortChange?: (sort: TableSort | null) => void
+
+  /** Put a checkbox in every row's first cell, and a select-all in the header. */
+  selectable?: boolean
+  selectedKeys?: readonly string[]
+  defaultSelectedKeys?: readonly string[]
+  onSelectionChange?: (keys: string[]) => void
+  /**
+   * The accessible name for a row's checkbox — `"Select Acme Inc"`.
+   *
+   * A row checkbox has no visible label, and six boxes all called "Select row"
+   * is a list a screen reader cannot navigate. The default says which row by
+   * number, which is honest and poor; name the row.
+   */
+  rowLabel?: (item: T, index: number) => string
+
+  /**
+   * The detail panel for a row, or `null` for a row that does not expand.
+   *
+   * Returning a node is what puts a chevron in that row's first cell — derived,
+   * rather than a second `expandable` flag that could disagree with it.
+   */
+  renderExpanded?: (item: T, index: number) => ReactNode
+  expandedKeys?: readonly string[]
+  defaultExpandedKeys?: readonly string[]
+  onExpandedChange?: (keys: string[]) => void
+
+  /**
+   * How many rows there are across every page, for `aria-rowcount`. Set it
+   * alongside `rowIndexStart` on a paginated or windowed view so a screen
+   * reader can say "row 43 of 200" while only ten rows are rendered.
+   */
+  rowCount?: number
+  /** Where the first rendered row sits in the whole data set. 1-based. */
+  rowIndexStart?: number
 }
 
 export function Table<T>({
@@ -199,6 +239,17 @@ export function Table<T>({
   sort: sortProp,
   defaultSort = null,
   onSortChange,
+  selectable = false,
+  selectedKeys: selectedProp,
+  defaultSelectedKeys = [],
+  onSelectionChange,
+  rowLabel,
+  renderExpanded,
+  expandedKeys: expandedProp,
+  defaultExpandedKeys = [],
+  onExpandedChange,
+  rowCount,
+  rowIndexStart = 1,
   className,
   ...props
 }: TableProps<T>) {
@@ -220,6 +271,37 @@ export function Table<T>({
     return item[key as keyof T] as SortValue
   })
 
+  const [uncontrolledSelected, setUncontrolledSelected] = useState<readonly string[]>(defaultSelectedKeys)
+  const selected = selectedProp ?? uncontrolledSelected
+
+  const [uncontrolledExpanded, setUncontrolledExpanded] = useState<readonly string[]>(defaultExpandedKeys)
+  const expanded = expandedProp ?? uncontrolledExpanded
+
+  const allKeys = data.map((item) => String(item[idKey]))
+  const selectAll = selectAllState(selected.length, allKeys.length)
+
+  function commitSelection(next: string[]) {
+    if (selectedProp === undefined) setUncontrolledSelected(next)
+    onSelectionChange?.(next)
+  }
+
+  function commitExpanded(next: string[]) {
+    if (expandedProp === undefined) setUncontrolledExpanded(next)
+    onExpandedChange?.(next)
+  }
+
+  /*
+    A generated prefix, so two tables on one page cannot mint the same id for
+    their detail panels and leave one row's `aria-controls` pointing at the
+    other table's.
+  */
+  const detailPrefix = useId()
+
+  /* The chevron and the checkbox both live in the first cell, which is what the
+     file's `expand` and `checkbox` booleans on `Table Cell` mean. It also means
+     no extra empty `<th>` for axe's `empty-table-header` to find. */
+  const leadingColumn = columns[0]?.key
+
   return (
     <div
       /*
@@ -236,7 +318,12 @@ export function Table<T>({
       className={scrollRegion}
     >
       <TableContext.Provider value={{ density, dividers, textOverflow, verticalAlign }}>
-        <table className={cn(tableRoot, className)} style={{ minWidth }} {...props}>
+        <table
+          className={cn(tableRoot, className)}
+          style={{ minWidth }}
+          aria-rowcount={rowCountAttribute(rowCount)}
+          {...props}
+        >
           <caption className="sr-only">{caption ?? label}</caption>
           <colgroup>
             {widths.map((width) => (
@@ -245,11 +332,33 @@ export function Table<T>({
           </colgroup>
 
           <TableHeader>
-            <TableRow>
+            <TableRow aria-rowindex={rowCount === undefined ? undefined : 1}>
               {columns.map((column) => (
                 <TableHead
                   key={column.key}
                   align={alignOf(column)}
+                  selectionControl={
+                    selectable && column.key === leadingColumn ? (
+                      <Checkbox
+                        /*
+                          `label`, never `aria-label`. `Checkbox` always wraps
+                          itself in a real `<label>`, and Base UI resolves that
+                          wrapper into `aria-labelledby` — which outranks
+                          `aria-label` in the name computation and points at a
+                          label whose only content is the box itself. The result
+                          is a control with no accessible name at all, and an
+                          axe failure that reads as if the attribute were
+                          missing. The sr-only text also gives this `<th>` real
+                          content, which is what keeps `empty-table-header`
+                          quiet.
+                        */
+                        label={<span className="sr-only">Select all rows</span>}
+                        checked={selectAll.checked}
+                        indeterminate={selectAll.indeterminate}
+                        onCheckedChange={() => commitSelection(toggleAll(selected, allKeys))}
+                      />
+                    ) : undefined
+                  }
                   sortDirection={sortsOn(sortable, column) ? ariaSort(sort, column.key) : undefined}
                   sortLabel={sortLabel(headerText(column), sort, column.key)}
                   onSort={() => handleSort(column.key)}
@@ -268,9 +377,19 @@ export function Table<T>({
                 </TableCell>
               </TableRow>
             ) : (
-              sorted.map((item, index) => (
+              sorted.map((item, index) => {
+                const key = String(item[idKey])
+                const isSelected = selected.includes(key)
+                const detail = renderExpanded?.(item, index) ?? null
+                const isExpanded = expanded.includes(key)
+                const detailId = `${detailPrefix}-${key}`
+                const name = rowLabel?.(item, index) ?? `row ${index + 1}`
+
+                return [
                 <TableRow
-                  key={String(item[idKey])}
+                  key={key}
+                  aria-rowindex={rowCount === undefined ? undefined : rowIndex(rowIndexStart, index)}
+                  selected={isSelected}
                   hoverable={hasHover}
                   /*
                     The stripe comes from the row's index in the *data*, never
@@ -284,19 +403,63 @@ export function Table<T>({
                     const content = column.renderCell
                       ? column.renderCell(item, index)
                       : (item[column.key as keyof T] as ReactNode)
+                    const leading = column.key === leadingColumn
                     return (
                       <TableCell
                         key={column.key}
                         align={alignOf(column)}
                         numeric={column.numeric}
                         spacer={sortsOn(sortable, column)}
+                        selectionControl={
+                          selectable && leading ? (
+                            <Checkbox
+                              label={<span className="sr-only">{`Select ${name}`}</span>}
+                              checked={isSelected}
+                              onCheckedChange={(checked) =>
+                                commitSelection(toggleKey(selected, key, checked === true))
+                              }
+                            />
+                          ) : undefined
+                        }
+                        expandControl={
+                          detail && leading ? (
+                            <Button
+                              appearance="ghost"
+                              size="small"
+                              startIcon={ChevronRight}
+                              /* Button `small` draws a 12px icon; the file wants
+                                 16. The className overrides the size utility,
+                                 which is what `cn`'s tailwind-merge is for. */
+                              className={cn('[&_svg]:size-4', isExpanded && 'rotate-90')}
+                              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${name}`}
+                              aria-expanded={isExpanded}
+                              aria-controls={detailId}
+                              onClick={() =>
+                                commitExpanded(toggleKey(expanded, key, !isExpanded))
+                              }
+                            />
+                          ) : undefined
+                        }
                       >
                         {content}
                       </TableCell>
                     )
                   })}
-                </TableRow>
-              ))
+                </TableRow>,
+                /*
+                  Rendered only when open. `hidden` on a `<tr>` fights
+                  `display: table-row`, and leaves a row that is invisible but
+                  still in the accessibility tree.
+                */
+                detail && isExpanded ? (
+                  <TableRow key={`${key}-detail`}>
+                    <TableCell id={detailId} colSpan={columns.length}>
+                      {detail}
+                    </TableCell>
+                  </TableRow>
+                ) : null,
+                ]
+              })
             )}
           </TableBody>
         </table>
@@ -381,6 +544,15 @@ export interface TableHeadProps extends Omit<ComponentPropsWithRef<'th'>, 'align
   /** The sort button's accessible name. It should name the column. */
   sortLabel?: string
   onSort?: () => void
+  /**
+   * Figma's `checkbox` — the select-all box, drawn before the label.
+   *
+   * A slot rather than a `selected`-shaped prop, because what belongs here is
+   * *a checkbox* and `Checkbox` already knows how to be one. Name it with
+   * `label={<span className="sr-only">…</span>}`, not `aria-label` — see the
+   * comment on the columns API's own select-all.
+   */
+  selectionControl?: ReactNode
 }
 
 /**
@@ -401,6 +573,7 @@ function TableHead({
   sortDirection,
   sortLabel: label,
   onSort,
+  selectionControl,
   className,
   children,
   ...props
@@ -417,6 +590,7 @@ function TableHead({
       {...props}
     >
       <span className={styles.line()}>
+        {selectionControl}
         <span className={styles.sortGroup()}>
           <span className={styles.label()}>{children}</span>
           {sortDirection === undefined ? null : (
@@ -473,6 +647,10 @@ export interface TableCellProps
    * yours to set, alongside the sort control you passed the head.
    */
   spacer?: boolean
+  /** Figma's `checkbox`. Pass a `Checkbox`; the cell draws the gap. */
+  selectionControl?: ReactNode
+  /** Figma's `expand`. Pass the disclosure button; the cell draws the gap. */
+  expandControl?: ReactNode
 }
 
 function TableCell({
@@ -481,6 +659,8 @@ function TableCell({
   divider,
   columnDivider,
   spacer = false,
+  selectionControl,
+  expandControl,
   className,
   children,
   ...props
@@ -502,6 +682,8 @@ function TableCell({
   return (
     <td className={cn(styles.root(), className)} {...props}>
       <span className={styles.line()}>
+        {selectionControl}
+        {expandControl}
         <span className={styles.text()}>{children}</span>
         {/*
           Figma's `Sort By Spacer` — the sort button's own 30 x 24 box, held
