@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
 import {
   chromaticRamps,
   durations,
@@ -194,31 +194,31 @@ export const Overview: Story = {
           <ShowcaseTable label="The navigation roles, in three of their modes">
             <thead>
               <tr>
-                <Th className="w-14">Live</Th>
-                <Th>Role</Th>
+                <ShowcaseTh className="w-14">Live</ShowcaseTh>
+                <ShowcaseTh>Role</ShowcaseTh>
                 {navShapes.map((shape) => (
-                  <Th key={shape.mode}>{shape.title}</Th>
+                  <ShowcaseTh key={shape.mode}>{shape.title}</ShowcaseTh>
                 ))}
               </tr>
             </thead>
             <tbody>
               {navTokens.map((token) => (
                 <tr key={token}>
-                  <Td>
+                  <ShowcaseTd>
                     <div
                       className="h-8 w-10 rounded-xs border border-surface-border"
                       style={{ background: `var(--${token})` }}
                     />
-                  </Td>
-                  <Td>
+                  </ShowcaseTd>
+                  <ShowcaseTd>
                     <Mono>{token.slice('nav-'.length)}</Mono>
-                  </Td>
+                  </ShowcaseTd>
                   {navShapes.map((shape) => (
-                    <Td key={shape.mode}>
+                    <ShowcaseTd key={shape.mode}>
                       <span className="whitespace-nowrap font-mono text-sm text-content-subtle">
                         {shape.alias.get(token) ?? '—'}
                       </span>
-                    </Td>
+                    </ShowcaseTd>
                   ))}
                 </tr>
               ))}

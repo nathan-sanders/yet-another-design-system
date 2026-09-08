@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
 import { fontFamilies, fontWeights, typeScale } from './tokens'
 
 /**
@@ -102,36 +102,36 @@ export const Typography: Story = {
         <ShowcaseTable label="The type scale, with size, line height and a specimen">
           <thead>
             <tr>
-              <Th className="w-24">Token</Th>
-              <Th className="w-24">Size</Th>
-              <Th className="w-32">Line height</Th>
-              <Th>Specimen</Th>
+              <ShowcaseTh className="w-24">Token</ShowcaseTh>
+              <ShowcaseTh className="w-24">Size</ShowcaseTh>
+              <ShowcaseTh className="w-32">Line height</ShowcaseTh>
+              <ShowcaseTh>Specimen</ShowcaseTh>
             </tr>
           </thead>
           <tbody>
             {typeScale.map((t) => (
               <tr key={t.name}>
-                <Td>
+                <ShowcaseTd>
                   <Mono>text-{t.name}</Mono>
-                </Td>
-                <Td>
+                </ShowcaseTd>
+                <ShowcaseTd>
                   <span className="whitespace-nowrap font-mono text-sm text-content-subtle">
                     {px(t.size)}
                   </span>
-                </Td>
-                <Td>
+                </ShowcaseTd>
+                <ShowcaseTd>
                   <span className="whitespace-nowrap font-mono text-sm text-content-subtle">
                     {t.lineHeight ? px(t.lineHeight) : '—'}
                   </span>
-                </Td>
-                <Td>
+                </ShowcaseTd>
+                <ShowcaseTd>
                   <span
                     className="text-content-emphasized"
                     style={{ fontSize: t.size, lineHeight: t.lineHeight || undefined }}
                   >
                     {SAMPLE}
                   </span>
-                </Td>
+                </ShowcaseTd>
               </tr>
             ))}
           </tbody>

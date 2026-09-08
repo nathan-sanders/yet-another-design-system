@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { cn } from '../lib/cn'
 import { focusRing } from '../lib/focus'
-import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
 import { durations, easings } from './tokens'
 
 /**
@@ -136,9 +136,9 @@ export const Durations: Story = {
           <ShowcaseTable label="What each duration tier is for">
             <thead>
               <tr>
-                <Th className="w-28">Tier</Th>
-                <Th className="w-56">Range</Th>
-                <Th>Use for</Th>
+                <ShowcaseTh className="w-28">Tier</ShowcaseTh>
+                <ShowcaseTh className="w-56">Range</ShowcaseTh>
+                <ShowcaseTh>Use for</ShowcaseTh>
               </tr>
             </thead>
             <tbody>
@@ -147,20 +147,20 @@ export const Durations: Story = {
                 const mid = inTier.find((d) => d.name === t)
                 return (
                   <tr key={t}>
-                    <Td>
+                    <ShowcaseTd>
                       <Mono>{t}</Mono>
-                    </Td>
-                    <Td>
+                    </ShowcaseTd>
+                    <ShowcaseTd>
                       <span className="whitespace-nowrap font-mono text-sm text-content-subtle">
                         {inTier[0]?.value} – {inTier[inTier.length - 1]?.value}
                         {mid && <span className="text-content-primary"> · {mid.value}</span>}
                       </span>
-                    </Td>
-                    <Td>
+                    </ShowcaseTd>
+                    <ShowcaseTd>
                       {t === 'fast' && 'State changes you should barely notice — hover, focus, a checkbox.'}
                       {t === 'medium' && 'Something appearing or leaving — a popup, a toast, a panel.'}
                       {t === 'slow' && 'Movement across the whole screen, or anything you are meant to watch.'}
-                    </Td>
+                    </ShowcaseTd>
                   </tr>
                 )
               })}

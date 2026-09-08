@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
 import { spacingBase } from './tokens'
 
 /**
@@ -47,28 +47,28 @@ export const Spacing: Story = {
         <ShowcaseTable label="The spacing scale, as multiples of the base">
           <thead>
             <tr>
-              <Th className="w-24">Step</Th>
-              <Th className="w-24">Computed</Th>
-              <Th>Width</Th>
+              <ShowcaseTh className="w-24">Step</ShowcaseTh>
+              <ShowcaseTh className="w-24">Computed</ShowcaseTh>
+              <ShowcaseTh>Width</ShowcaseTh>
             </tr>
           </thead>
           <tbody>
             {STEPS.map((n) => (
               <tr key={n}>
-                <Td>
+                <ShowcaseTd>
                   <Mono>{n}</Mono>
-                </Td>
-                <Td>
+                </ShowcaseTd>
+                <ShowcaseTd>
                   <span className="whitespace-nowrap font-mono text-sm text-content-subtle">
                     {BASE_PX * n}px
                   </span>
-                </Td>
-                <Td>
+                </ShowcaseTd>
+                <ShowcaseTd>
                   <div
                     className="h-4 rounded-xs bg-surface-background-emphasized"
                     style={{ width: `calc(var(--spacing) * ${n})` }}
                   />
-                </Td>
+                </ShowcaseTd>
               </tr>
             ))}
           </tbody>
