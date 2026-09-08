@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Link } from './components/Link'
-import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './foundations/Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './foundations/Showcase'
 import {
   chromaticRamps,
   navThemes,
@@ -274,39 +274,39 @@ import { Plus } from 'lucide-react'
         <ShowcaseTable label="Sidebar groups">
           <thead>
             <tr>
-              <Th className="w-40">Group</Th>
-              <Th>What is in it</Th>
+              <ShowcaseTh className="w-40">Group</ShowcaseTh>
+              <ShowcaseTh>What is in it</ShowcaseTh>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <strong className="font-semibold text-content-emphasized">Foundations</strong>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 The token layer itself — color, semantics, type, space, shape, elevation and
                 motion. Start at Overview; the rest of the library stops looking like a pile of
                 colors once you have read it.
-              </Td>
+              </ShowcaseTd>
             </tr>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <strong className="font-semibold text-content-emphasized">Components</strong>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 All {componentCount} of them, every variant, in light and dark — controls, overlays
                 and the navigation set that carries its own theme. Each page shows the full state
                 matrix rather than a happy path, because each story is also a test.
-              </Td>
+              </ShowcaseTd>
             </tr>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <strong className="font-semibold text-content-emphasized">Data Viz</strong>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 Charts, on Recharts, sharing one container, legend, tooltip and categorical
                 palette.
-              </Td>
+              </ShowcaseTd>
             </tr>
           </tbody>
         </ShowcaseTable>
@@ -324,50 +324,50 @@ import { Plus } from 'lucide-react'
         <ShowcaseTable label="npm scripts">
           <thead>
             <tr>
-              <Th className="w-64">Command</Th>
-              <Th>What it does</Th>
+              <ShowcaseTh className="w-64">Command</ShowcaseTh>
+              <ShowcaseTh>What it does</ShowcaseTh>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <Mono>npm run storybook</Mono>
-              </Td>
-              <Td className="text-content-subtle">This site — every component, light and dark</Td>
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">This site — every component, light and dark</ShowcaseTd>
             </tr>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <Mono>npm run dev</Mono>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 The token playground, showing every token with a dark-mode toggle
-              </Td>
+              </ShowcaseTd>
             </tr>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <Mono>npm run build</Mono>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 Type-check and build — the only step that type-checks, so it is the load-bearing
                 one
-              </Td>
+              </ShowcaseTd>
             </tr>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <Mono>npm test</Mono>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 Every story, in real Chromium, checked with axe — plus the token and nav-contrast
                 checks, which need no browser
-              </Td>
+              </ShowcaseTd>
             </tr>
             <tr>
-              <Td>
+              <ShowcaseTd>
                 <Mono>python3 generate.py</Mono>
-              </Td>
-              <Td className="text-content-subtle">
+              </ShowcaseTd>
+              <ShowcaseTd className="text-content-subtle">
                 Rebuild <Mono>theme.css</Mono> from <Mono>tokens/*.json</Mono> after a Figma export
-              </Td>
+              </ShowcaseTd>
             </tr>
           </tbody>
         </ShowcaseTable>

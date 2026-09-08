@@ -128,6 +128,13 @@ export function RampScale({ steps }: { steps: string[] }) {
  * somebody opens the wrong one. Reach for the real `Table` in a component
  * story; this stays here for the Foundations pages.
  *
+ * Its cells carry the prefix too, as `ShowcaseTh` and `ShowcaseTd`, rather than
+ * hanging off the table as `ShowcaseTable.Th`. The namespace idiom belongs to
+ * the library's compound components, and this file deliberately is not one —
+ * it uses no `cn`, no `tv`, and answers to no Figma node. A flat prefix also
+ * keeps the call sites short, which matters when a Foundations page writes
+ * forty cells in a row.
+ *
  * `tabIndex` and the label are not decoration: a region you can only reach by
  * dragging is unreachable from a keyboard, and axe fails the story for it
  * (`scrollable-region-focusable`). Giving the frame focus makes the arrow keys
@@ -147,7 +154,7 @@ export function ShowcaseTable({ label, children }: { label: string; children: Re
   )
 }
 
-export function Th({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function ShowcaseTh({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <th
       scope="col"
@@ -158,6 +165,6 @@ export function Th({ children, className = '' }: { children: ReactNode; classNam
   )
 }
 
-export function Td({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function ShowcaseTd({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <td className={`border-b border-surface-border px-4 py-2.5 align-middle ${className}`}>{children}</td>
 }

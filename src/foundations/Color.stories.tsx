@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Chip, Mono, Page, Panel, RampRow, RampScale, Section, ShowcaseTable, Td, Th } from './Showcase'
+import { Chip, Mono, Page, Panel, RampRow, RampScale, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
 import { chromaticRamps, neutralRamps, neutralSteps, paint, swappableNeutrals } from './tokens'
 
 /**
@@ -145,20 +145,20 @@ export const NeutralRamp: Story = {
         <ShowcaseTable label="What each data-neutral value resolves to">
           <thead>
             <tr>
-              <Th className="w-40">data-neutral</Th>
-              <Th>Resolves to</Th>
+              <ShowcaseTh className="w-40">data-neutral</ShowcaseTh>
+              <ShowcaseTh>Resolves to</ShowcaseTh>
             </tr>
           </thead>
           <tbody>
             {orderedNeutrals.map((ramp) => (
               <tr key={ramp.name}>
-                <Td>
+                <ShowcaseTd>
                   <Mono>{ramp.name}</Mono>
                   {ramp.name === swappableNeutrals[0] && (
                     <span className="ml-2 text-sm text-content-subtle">default</span>
                   )}
-                </Td>
-                <Td>
+                </ShowcaseTd>
+                <ShowcaseTd>
                   <div className="flex overflow-hidden rounded-xs border border-surface-border">
                     {ramp.steps.map((s) => (
                       <div
@@ -169,7 +169,7 @@ export const NeutralRamp: Story = {
                       />
                     ))}
                   </div>
-                </Td>
+                </ShowcaseTd>
               </tr>
             ))}
           </tbody>

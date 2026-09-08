@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section, ShowcaseTable, Td, Th } from './Showcase'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
 import { readAlias, resolve, semanticGroups, semanticTokenCount } from './tokens'
 import type { SemanticToken } from './tokens'
 
@@ -54,30 +54,30 @@ function MappingTable({ group, tokens }: { group: string; tokens: SemanticToken[
     <ShowcaseTable label={`${group} tokens, with their light and dark targets`}>
       <thead>
         <tr>
-          <Th className="w-14">Live</Th>
-          <Th>Token</Th>
-          <Th>Light</Th>
-          <Th>Dark</Th>
+          <ShowcaseTh className="w-14">Live</ShowcaseTh>
+          <ShowcaseTh>Token</ShowcaseTh>
+          <ShowcaseTh>Light</ShowcaseTh>
+          <ShowcaseTh>Dark</ShowcaseTh>
         </tr>
       </thead>
       <tbody>
         {tokens.map((t) => (
           <tr key={t.token}>
-            <Td>
+            <ShowcaseTd>
               <div
                 className="h-8 w-10 rounded-xs border border-surface-border"
                 style={{ background: `var(--${t.token})` }}
               />
-            </Td>
-            <Td>
+            </ShowcaseTd>
+            <ShowcaseTd>
               <Mono>{t.label}</Mono>
-            </Td>
-            <Td>
+            </ShowcaseTd>
+            <ShowcaseTd>
               <Target value={t.light} theme="light" />
-            </Td>
-            <Td>
+            </ShowcaseTd>
+            <ShowcaseTd>
               <Target value={t.dark} theme="dark" />
-            </Td>
+            </ShowcaseTd>
           </tr>
         ))}
       </tbody>
