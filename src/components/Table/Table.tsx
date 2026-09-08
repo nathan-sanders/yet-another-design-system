@@ -297,6 +297,16 @@ export function Table<T>({
   const widths = resolveWidths(columns, resized)
   const minWidth = tableMinWidth(columns, resized)
 
+  /*
+    A string of the column keys and their declared widths, so the effect below
+    can depend on the *shape* of the layout rather than on the `columns` array —
+    which is almost always written inline at the call site and so is a new array
+    on every render.
+  */
+  const layoutKey = columns
+    .map((column) => `${column.key}:${column.width?.kind ?? 'proportional'}:${column.width?.value ?? 1}`)
+    .join('|')
+
   useLayoutEffect(() => {
     if (!resizable) return
     const next: Record<string, number> = {}
@@ -304,7 +314,7 @@ export function Table<T>({
       next[key] = Math.round(element.getBoundingClientRect().width)
     }
     setMeasured((current) => (shallowEqual(current, next) ? current : next))
-  })
+  }, [resizable, layoutKey, resized])
 
   /**
    * Freeze every column to the pixel width it currently has, the first time any
