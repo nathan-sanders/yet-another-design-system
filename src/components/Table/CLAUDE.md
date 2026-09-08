@@ -269,6 +269,8 @@ is a five-minute detour every time somebody opens the wrong one. Its cells went 
 `ShowcaseTh` and `ShowcaseTd`. It hardcodes its classes rather than taking a recipe, has no density
 or alignment, and is not in `src/index.ts`. Reach for the real `Table` in a component story.
 
-Its `<th>` also sets `font-semibold` where `40005047:38832` measures weight **400**. The Figma is the
-specification for this component; `Showcase.tsx` predates the node, is not a component, and is
-deliberately left alone. Do not "fix" the Table to match the showcase.
+Its `<th>` used to set `font-semibold` where `40005047:38832` measures weight **400**, so a docs page
+and a real table set the same thing two ways. `ShowcaseTh` now matches the node. Note the weight has
+to be *stated* there rather than left off — a `<th>` is `font-weight: bold` in the user-agent
+stylesheet, so dropping the class makes it heavier, not lighter. `head`'s recipe here says
+`font-normal` for the same reason.
