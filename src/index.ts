@@ -327,6 +327,24 @@ export type {
   ToastPosition,
 } from './components/Toast'
 
+export { Table, pixel, proportional, MIN_COLUMN_WIDTH } from './components/Table'
+export type {
+  TableProps,
+  TableColumn,
+  TableColumnWidth,
+  TableHeaderProps,
+  TableBodyProps,
+  TableFooterProps,
+  TableRowProps,
+  TableHeadProps,
+  TableCellProps,
+  TableDensity,
+  TableAlign,
+  TableDividers,
+  TableTextOverflow,
+  TableVerticalAlign,
+} from './components/Table'
+
 export { Token } from './components/Token'
 export type { TokenProps, TokenSize, TokenRadius } from './components/Token'
 
