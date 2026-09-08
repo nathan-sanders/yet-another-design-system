@@ -632,6 +632,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [DatePicker](src/components/Calendar/CLAUDE.md) | that grid in a panel, with presets and a footer | two of Figma's three variants are `numberOfMonths` and the value's shape; the file's own variant names caught a bug no screenshot would have |
 | [Table](src/components/Table/CLAUDE.md) | structured data in rows and columns | numbers are mono because the value says so, not because a prop does; the rules are pseudo-elements, so the file's 32/40/56 can be asserted |
 | [Pagination](src/components/Pagination/CLAUDE.md) | move through a data set a page at a time | counts, not rows, so it is not a table component; the arithmetic is a pure module because every way it can be wrong renders perfectly |
+| [ProgressBar](src/components/ProgressBar/CLAUDE.md) | how far along a task is | the first component with no Figma variants to read, so the file was drawn from it; `indeterminate` is `value={null}`, and the marks are behind the track because on-fill contrast has no answer in two themes |
 
 ### Data visualization
 
@@ -848,6 +849,28 @@ roadmap item earns its build when the file draws it *and* something has been
 reinvented in its absence; this one was asked for directly, with the Figma node
 in hand. The bar governs what to build **next** when nobody is asking — it is not
 a gate on what somebody asks for.
+
+**`ProgressBar` is the Calendar case a fourth time, and the first with *nothing* to read.**
+`Calendar`, `Pagination`, `NumberInput` and `OTPInput` were all built off-list; the first two had
+a drawn Figma node, the second two had none. This one had a page — `↪ Progress Bar`
+(`40004748:43527`) — that was a **scaffold**: a Docs frame reading "Description goes here.", two
+blank Preview frames, one "Usage rule." card per column, and an empty Components section. So there
+was no variant list to model and the usual order ran backwards: props were settled from Base UI's
+`Progress` and Astryx's `ProgressBar`, then the file was drawn from the built component in the same
+sitting. Worth naming because **a scaffolded page reads exactly like a drawn one in a page list** —
+ten more of them are sitting there — and the difference decides whether a build starts by reading
+or by deciding.
+
+Its sibling primitive is left alone deliberately. Base UI ships `meter` with the identical five
+parts and `role="meter"`, and a bar that reports a *level* rather than a *task* is a different
+component under the same drawing. Not built, and the record says so rather than leaving the next
+person to wonder whether it was missed.
+
+It also turned up the first real gap in the `Feedback` ramp — `Highlight` is the same step in both
+themes, which is fine behind a 1px invalid border and not fine as a large fill on a track. Two
+pairs fall under 3:1 and are carried as named exceptions with their measured numbers in
+`src/components/ProgressBar/contrast.test.ts`, in the shape `nav-contrast.test.ts` used for `Pink`.
+**The fix is two variables in Figma**, not an override in the component.
 
 **`Pagination` is the Calendar case again, and worth naming as such.** It was never on this list.
 Figma drew it (`40004379:65925`) but nothing had been reinvented in its absence — `Table` had gone

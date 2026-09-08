@@ -95,7 +95,8 @@ export default defineConfig({
           '@base-ui/react/popover',
           '@base-ui/react/select',
           '@base-ui/react/number-field',
-          '@base-ui/react/otp-field'
+          '@base-ui/react/otp-field',
+          '@base-ui/react/progress'
         ]
       },
       test: {
