@@ -274,3 +274,40 @@ and a real table set the same thing two ways. `ShowcaseTh` now matches the node.
 to be *stated* there rather than left off — a `<th>` is `font-weight: bold` in the user-agent
 stylesheet, so dropping the class makes it heavier, not lighter. `head`'s recipe here says
 `font-normal` for the same reason.
+
+## Best practices
+
+The same text as the Best practices block on the Figma Docs page
+(`40005049:39138`), which is where a designer reads it.
+
+**Do**
+
+- Set numbers in the mono face so a column of figures lines up on the decimal. A cell holding a real
+  number does it on its own; a column of formatted values like `$1.2M` has to be marked numeric.
+- Match the density to the data. Compact suits a dense numeric table somebody scans down; spacious
+  suits rows carrying a name and an avatar.
+- Give a column a width when it should not just take an equal share. Columns are fixed rather than
+  sized to their content, so an omitted width means one equal share with a 120px floor — right for
+  most columns, wrong for a 64px icon column.
+- Right-align a numeric column so the digits line up on the edge they are read from. Leave an
+  identifier like an order number on the left — it reads as a label, not a quantity.
+- Name every row checkbox after its row. Six boxes all called "Select row" is a list a screen reader
+  cannot navigate.
+
+**Don't**
+
+- Don't reach for a table when the fields vary from one item to the next. A table promises that every
+  row answers the same questions; use `Card` or a list when they don't.
+- Don't turn on every feature at once. Sorting, selection, expansion and resizing each put another
+  control in the row — add only the ones the table is actually for.
+- Don't let the stripe carry meaning. It is a scanning aid, and it is deliberately quieter than hover
+  and selection so those two still read on every other row.
+- Don't reserve the sort spacer in a column that has no sort control. It holds the button's 30px open
+  so a right-aligned value stays under its label; with no button above it the value just sits short
+  of the edge.
+
+The width rule is the one to watch when this is next re-synced. It was first written as "give every
+column a width, or it has nothing to stop it collapsing" — true of Astryx, which is where the API
+came from, and **false here**: an omitted width is `proportional(1)`, which carries
+`MIN_COLUMN_WIDTH`. Checking each transcribed rule against the component is the step that catches
+this; `Avatar`'s record notes two rules that named props it did not have.
