@@ -598,7 +598,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Dialog](src/components/Dialog/CLAUDE.md) | a modal surface that blocks the page | the first genuinely modal component; `Body` is the scroll container Popover was standing in for, and the one part Figma cannot draw |
 | [AlertDialog](src/components/AlertDialog/CLAUDE.md) | confirm something you cannot undo | the sharing rule at its limit — Base UI hands over every part but the Root |
 | [Switch](src/components/Switch/CLAUDE.md) | a setting that applies at once | knob grows 14 → 16 as it slides |
-| [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value |
+| [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value; the number fields are `NumberInput` with the steppers off, and they made it controlled from the inside |
 | [Link](src/components/Link/CLAUDE.md) | inline and standalone navigation | what Button's removed `link` appearance became |
 | [Input](src/components/Input/CLAUDE.md) | a line of free text | plus `InputGroup` for attachments |
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
@@ -742,6 +742,19 @@ component usually has fewer decisions in it than it looks.
   `Combobox/styles.ts` and the field recipes stayed put — and the field itself is `Input`'s `box`
   imported outright, which is the same rule pointing at a third component. **Ask the question per
   part, not per component.**
+- **When a second control writes a primitive's state, the component has to hold that state — and
+  build Base UI's event object to report it.** Slider's number fields are the first case: two
+  controls write one value, so `Slider.Root` is given a controlled `value` and the uncontrolled case
+  is mirrored in the component (DatePicker's arrangement). A typed edit then has no Base UI event to
+  forward, because a keystroke in a sibling control is not one of the primitive's own reasons — so
+  it builds one with `createChangeEventDetails` from **`@base-ui/react/internals/createBaseUIEventDetails`**,
+  a real entry in the package's `exports` map. That is the library's **first `internals/` import**,
+  and the bar for the next one is the same: use Base UI's own factory rather than hand-copying a
+  shape that will drift. Two things to expect when you do this — clamp in *your* handler rather than
+  relying on the child control's `min`/`max`, which only bite on commit (Slider shipped `[90, 80]`
+  to `onValueChange` for one render before this was fixed), and check the primitive's own inline
+  geometry still holds at the narrower width your new control leaves behind (Slider's indicator went
+  to a negative percentage and filled the whole track).
 - **A portalled popup needs a `z-index`, and gets it from `src/lib/layers.ts`.** Being appended to
   `<body>` last does not settle painting order: every positioned element with a positive `z-index`
   paints above every one left on `auto`, whatever the document order. So a popup on `auto` is

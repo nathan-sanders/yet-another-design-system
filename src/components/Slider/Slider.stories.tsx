@@ -17,17 +17,22 @@ const meta = {
     label: { control: 'text' },
     description: { control: 'text' },
     bounds: { control: 'boolean' },
+    numberInput: { control: 'boolean' },
     valueTooltip: { control: 'boolean' },
     disabled: { control: 'boolean' },
     min: { control: 'number' },
     max: { control: 'number' },
     step: { control: 'number' },
   },
+  // `valueTooltip` is deliberately not an arg. Its default is *derived* from
+  // `numberInput` — a field already showing the value means no tooltip repeating
+  // it — and pinning it here would set every story to the same answer and hide
+  // the derivation. The control is still there to turn it on.
   args: {
     label: 'Volume',
     defaultValue: 40,
     bounds: true,
-    valueTooltip: true,
+    numberInput: true,
     disabled: false,
   },
 } satisfies Meta<typeof Slider>
@@ -63,6 +68,11 @@ type Story = StoryObj<typeof Slider>
  * different door: focus actually lands on a hidden `<input type="range">` *inside*
  * the handle, so this is `focusRingWithin` — the same export the card around a
  * Checkbox uses.
+ *
+ * The 56px field at the trailing edge is Figma's, and it is on by default because
+ * the file's boolean is. **Type in it and the handle moves; drag the handle and
+ * the number follows** — one value, two controls. Turn it off with
+ * `numberInput={false}` and the value tooltip comes back on its own.
  */
 export const Playground: Story = {}
 
@@ -142,6 +152,48 @@ export const Bounds: Story = {
       <Slider {...args} label="Bounds from min and max" />
       <Slider {...args} label="Overridden" minLabel="Quiet" maxLabel="Loud" />
       <Slider {...args} label="No bounds" bounds={false} />
+    </div>
+  ),
+}
+
+/**
+ * Figma's `Min Number Input` and `Max Number Input` — the 56x32 fields the
+ * component was built without, and the reason its own advice used to stop at
+ * "pair it with an input" without saying how.
+ *
+ * **They collapse to one prop**, the way `Min Value` and `Max Value` already do
+ * in `bounds`, and the count comes from the value like everything else here: one
+ * handle gets one field at the trailing edge, a range gets one at each end. Note
+ * where the leading one sits — *outside* the bounds label, which is Figma's order
+ * and the one thing about the row that is not obvious. The file itself does not
+ * treat the two booleans as a pair: `Type=Default` has no leading field to switch
+ * on at all.
+ *
+ * The field is `NumberInput` with `steppers={false}`, which is Input's own box at
+ * exactly the height Figma draws — no new chrome, which is why this waited for
+ * those two components rather than being invented here. It also means the number
+ * behaviour comes free: **type past a bound and it clamps on blur, and the arrow
+ * keys step it.**
+ *
+ * **Dragging pushes, typing clamps** — the one deliberate divergence, on the range
+ * below. Drag the handles into each other and they shove; type `90` into the
+ * leading field and it stops at the trailing one's 80 instead of dragging it
+ * along. A typed number that silently moves the *other* field is a bad surprise
+ * in a way a shoved handle is not.
+ */
+export const NumberInputs: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div className="flex flex-col gap-8">
+      <Slider {...args} label="One handle, one field" defaultValue={40} />
+      <Slider
+        {...args}
+        label="A range, one at each end"
+        defaultValue={[20, 80]}
+        thumbLabels={['Minimum', 'Maximum']}
+      />
+      <Slider {...args} label="No fields" numberInput={false} />
+      <Slider {...args} label="Fields without bounds labels" bounds={false} />
     </div>
   ),
 }
@@ -234,15 +286,19 @@ export const Formatted: Story = {
  * description also reaches the right element: Base UI's `Thumb` hoists
  * `aria-describedby` onto its hidden input, and the input is what takes focus.
  *
- * Turn it off when something else already shows the value — a readout beside the
- * control, or the number input this component is waiting on.
+ * **Its default is derived, and this is the story that shows what from.** A
+ * number input already puts the value on screen, so a tooltip repeating it under
+ * the cursor is the same number twice — `valueTooltip` defaults to
+ * `!numberInput`. Pass it explicitly to have both, which is what the third one
+ * here does, or neither.
  */
 export const ValueTooltip: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-8">
-      <Slider {...args} label="With the tooltip" />
-      <Slider {...args} label="Without it" valueTooltip={false} />
+      <Slider {...args} label="No field, so the tooltip" numberInput={false} />
+      <Slider {...args} label="A field, so no tooltip" />
+      <Slider {...args} label="Both, asked for" valueTooltip />
     </div>
   ),
 }
@@ -303,9 +359,14 @@ export const Unlabeled: Story = {
 }
 
 /**
- * Controlled, and reading the value back out — the case the deferred number input
- * will eventually cover properly. `onValueChange` fires as you drag;
- * `onValueCommitted` fires once you let go, which is the one to send to a server.
+ * Controlled, and reading the value back out. `onValueChange` fires as you drag
+ * **and as you type in the number field**; `onValueCommitted` fires once you let
+ * go of the handle, or once the field commits on blur or Enter — which is the one
+ * to send to a server. Watch the readout below take both.
+ *
+ * The component is controlled internally either way now, because two controls
+ * write one value and a field cannot show a number Base UI is keeping to itself.
+ * A caller who passes `value` simply replaces the mirror.
  */
 export const Controlled: Story = {
   parameters: { controls: { disable: true } },

@@ -1,10 +1,15 @@
-import { useMemo } from 'react'
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { Fragment, useCallback, useId, useMemo, useState } from 'react'
+import type { CSSProperties, ComponentPropsWithRef, ReactNode } from 'react'
 import { Slider as SliderPrimitive } from '@base-ui/react/slider'
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '@base-ui/react/internals/createBaseUIEventDetails'
 import { tv } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRingWithin } from '../../lib/focus'
+import { NumberInput } from '../NumberInput'
 import { Tooltip } from '../Tooltip'
 
 /**
@@ -13,9 +18,10 @@ import { Tooltip } from '../Tooltip'
  *
  * Mirrors the Figma component set "Slider" (node `40004155:14437`): `Type`
  * Default | Range x `State` Default | Disabled, plus the `Label`, `Sub Label`,
- * `Min Value`, `Max Value`, `Marks` and `Max Number Input` booleans. Built from
- * two private sub-components, `_Slider Track` (`40004155:14415`, `Type` Filled |
- * Empty) and `_Slider Handle` (`40004155:14467`, `State` Default | Hover | Focus).
+ * `Min Value`, `Max Value`, `Marks`, `Min Number Input` and `Max Number Input`
+ * booleans. Built from two private sub-components, `_Slider Track`
+ * (`40004155:14415`, `Type` Filled | Empty) and `_Slider Handle`
+ * (`40004155:14467`, `State` Default | Hover | Focus).
  *
  *     <Slider label="Volume" defaultValue={40} />
  *     <Slider label="Price range" defaultValue={[20, 80]} />
@@ -36,16 +42,26 @@ import { Tooltip } from '../Tooltip'
  * The same move as Avatar's `Content`, Button's icon-only and Banner's
  * `onDismiss`.
  *
- * **Left out, for now.** Figma draws a 56x32 number input at the trailing edge
- * (two of them for `Type=Range`, one at each end), an instance of an **Input**
- * component that lives elsewhere in the file and is not built here yet. Inventing
- * input styling inside Slider would put a second source of truth in the library
- * days before the real one lands, so it waits for that PR — as **Field**,
- * **Checkbox Group** and **Radio Group** already do. The current value is not
- * homeless in the meantime: it is in the handle's tooltip, and `Slider.Value` is
- * attached for a caller who wants a readout.
+ * **The number inputs have landed** — the one thing this component was waiting on
+ * when it was built, and the reason the paragraph above stops short of "use an
+ * input when the exact figure matters". Figma draws a 56x32 field at the trailing
+ * edge, and a second one at the leading edge for `Type=Range`. That field is an
+ * instance of the **Input** component, which did not exist when Slider was
+ * written; it does now, and so does **NumberInput**, which is Input's own box at
+ * exactly that height. So the field here is `NumberInput` with `steppers={false}`
+ * — no new chrome, no second source of truth, which is the whole reason the
+ * feature waited rather than being invented. See `numberInput` below for the two
+ * Figma booleans collapsing to one prop, and what the derived `valueTooltip`
+ * default does about the value now appearing twice.
  *
- * Also left out: `orientation="vertical"`. Base UI has it and so does Astryx, but
+ * **Which makes the component controlled from the inside.** Two controls now
+ * write one value, so the value is held here — mirrored uncontrolled state, or
+ * the caller's `value` when there is one — and handed to `Slider.Root` as a
+ * controlled prop. DatePicker's arrangement, and the reason `onValueChange` needs
+ * a Base UI event-details object built by hand for the typed edits; see
+ * `commitThumb`.
+ *
+ * Still left out: `orientation="vertical"`. Base UI has it and so does Astryx, but
  * Figma draws no vertical variant, so it is omitted from the props rather than
  * left to break quietly — Tabs' call.
  */
@@ -140,9 +156,51 @@ const track = tv({
   base: 'relative z-10 h-1 w-full rounded-full bg-surface-border',
 })
 
-/** The filled part, from `min` to the value. Figma's `Type=Filled` track. */
+/**
+ * The filled part, from `min` to the value. Figma's `Type=Filled` track.
+ *
+ * **The `max(0px, …)` is a guard against a negative width, and it is not
+ * theoretical.** Base UI sizes this by writing `--relative-size` — the gap
+ * between two thumb positions — and setting `width` to it inline. Under
+ * `thumbAlignment="edge"` each position carries a half-thumb inset expressed as a
+ * percentage of the control, so when a range's two thumbs hold the *same* value
+ * the subtraction lands on a rounding artifact rather than on zero, and its sign
+ * depends on how wide the control is. Measured at a 206px control: `-0.0115%`. A
+ * negative percentage is an invalid `width`, so the browser drops the declaration
+ * and the indicator falls back to filling its parent — a solid bar the width of
+ * the whole track, painting out over the bounds label and the number field beside
+ * it.
+ *
+ * The same slider measured `+0.354%` at ~310px, which is why this went unnoticed
+ * until now: **the number fields are what narrowed the control enough to flip the
+ * sign.** The bug is older than they are — drag or arrow a range's two handles
+ * together at the wrong width and the old component does it too — so this is a
+ * latent fault being fixed, not one being introduced.
+ *
+ * `!` because Base UI's `width` is an inline style and no class beats one
+ * otherwise. It is the only `!important` in the component, and it is here rather
+ * than in a `style` prop because a `style` would have to be recomputed on every
+ * pointer move to say the one static thing it needs to say.
+ *
+ * **It has to be a variant rather than part of the base, because the two shapes
+ * are sized by different properties.** A single-thumb slider gets
+ * `width: var(--start-position)` and no `--relative-size` at all; only a range
+ * gets the subtraction. Putting the guard in the base overrides the single case
+ * with a variable that is not set there, which makes the `width` invalid and
+ * fills the whole track — measured, and the reason this is spelled out: the
+ * override is only correct where the property it names is the one in use.
+ */
 const indicator = tv({
   base: 'h-full rounded-full bg-input-selected',
+
+  variants: {
+    range: {
+      true: 'w-[max(0px,var(--relative-size))]!',
+      false: '',
+    },
+  },
+
+  defaultVariants: { range: false },
 })
 
 /**
@@ -222,6 +280,70 @@ const markTick = tv({
   base: 'absolute top-1/2 h-2 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-border',
 })
 
+/**
+ * The number input's box — Figma's 56x32 `Input` instance, sitting outside the
+ * bounds label at each end of the row.
+ *
+ * **56px is a floor, not a fixed width, and the difference is Figma's own
+ * `Formatted` case failing.** The file draws 56, which leaves 32px of content
+ * between the box's two 12px paddings — exactly three digits at `text-base`, and
+ * that is all. `0`–`100` fits, `0%`–`100%` fits, and `£0`–`£1,000` does not: the
+ * story rendered `£25(` and `£75(`, clipped mid-glyph. A design system component
+ * that cannot show its own documented value is worse than one that departs from
+ * the drawn width by a few pixels, so the width is `max(56px, …)` — Figma's
+ * number wherever Figma's number is enough, and the content's own measure past
+ * that.
+ *
+ * The measure is `--slider-field-chars`, the character count of the longer of the
+ * two **formatted bounds** — the widest the field can ever have to be — set as a
+ * custom property and read back by a utility class. **The value goes in a
+ * variable and the width stays in a class** on purpose: a `style={{ width }}`
+ * would be a hard-coded pixel count that no responsive or caller override could
+ * reach past, where a custom property leaves the utility in charge.
+ *
+ * **The rate is 10px per character, and it comes out of Figma's own field rather
+ * than out of the font.** 56 less the control's 24px of `px-3` and the box's two
+ * borders leaves 32px of content for the three characters of `100`, so the file
+ * is already allotting a shade under 11px each — generous next to Inter's 8.8px
+ * digit. Taking 10 makes the three-character case land on exactly `3 × 10 + 26 =
+ * 56`, so the floor and the formula agree at the scale Figma drew and the default
+ * slider is the drawn width to the pixel.
+ *
+ * **`ch` was tried first and is the wrong unit here**, which is worth recording
+ * because it looks like the right one. `ch` resolves against the element it is
+ * written on — this box, at the inherited 16px — while the text that has to fit
+ * lives in the `<input>` inside it at `text-base`'s 14. Measured: `1ch` came out
+ * 10.09px against an 8.83px digit, so the three-character case computed 56.28 and
+ * quietly took the calc branch instead of Figma's floor. A flat rate in `rem` has
+ * no font-size context to get wrong, and no dependency on which face actually
+ * loaded.
+ *
+ * `shrink-0` keeps the track from stealing the width back when the row is tight,
+ * and the whole thing has to *replace* the box's base `w-full` rather than add to
+ * it, which is what tailwind-merge does with two `w-` utilities.
+ *
+ * **`has-[:disabled]:opacity-100` is a cancellation, not a style.** `Input`'s box
+ * fades itself when it contains a disabled control, which is right for a field
+ * standing on its own and wrong inside a disabled Slider: the root is already at
+ * `opacity-40` and the two would compound to 16%. Figma says the same thing by
+ * leaving both `State=Disabled` variants' Input instances at `State=Default` and
+ * fading the whole component once. It cancels rather than adds because the
+ * variant prefix is tailwind-merge's key — same prefix, same `opacity` utility,
+ * so the later one wins. A narrower selector would have left both live.
+ */
+const numberField = tv({
+  base: 'w-[max(3.5rem,calc(var(--slider-field-chars)*0.625rem+1.625rem))] shrink-0',
+
+  variants: {
+    disabled: {
+      true: 'has-[:disabled]:opacity-100',
+      false: '',
+    },
+  },
+
+  defaultVariants: { disabled: false },
+})
+
 /** A tick, optionally labeled. A bare number labels itself with its value. */
 export type SliderMark = number | { value: number; label?: ReactNode }
 
@@ -253,8 +375,31 @@ interface SliderBaseProps
    */
   marks?: readonly SliderMark[]
   /**
-   * The value in a tooltip above the handle. On by default because Figma's only
-   * hover state includes it.
+   * An editable number field at each end of the row — Figma's 56x32 `Input`
+   * instances, and the thing this component was built without.
+   *
+   * **Figma's `Min Number Input` and `Max Number Input` collapse to one knob**,
+   * the way `Min Value` and `Max Value` already do in `bounds`: showing one end's
+   * field without the other's is not a real case, and the file itself does not
+   * treat them as a symmetric pair — `Type=Default` has no min field to switch on
+   * at all, only the trailing one. So the *count* is derived from the value, like
+   * everything else here: one thumb gets one field at the trailing edge, a range
+   * gets one at each end. Both of Figma's booleans default true, so this does.
+   *
+   * A slider with more than two thumbs is drawn nowhere in the file; it gets a
+   * field for its first and last values and the ones in between stay drag-only.
+   *
+   * **Dragging pushes, typing clamps** — the one deliberate divergence. Base UI's
+   * thumbs shove each other along when they collide, which is right for a
+   * pointer; a typed number that silently moves the *other* field is not, so each
+   * field is bounded by its neighbor's current value instead.
+   */
+  numberInput?: boolean
+  /**
+   * The value in a tooltip above the handle. Figma's only hover state includes
+   * it, so it is on — **unless a number input is already showing the value**,
+   * which is what the default derives. Two readouts of one number is the thing
+   * this avoids; pass it explicitly to have both, or neither.
    */
   valueTooltip?: boolean
   /**
@@ -293,15 +438,25 @@ export function Slider({
   minLabel,
   maxLabel,
   marks,
-  valueTooltip = true,
+  numberInput = true,
+  // Derived, not fixed at `true`: with a number field in the row the value is
+  // already on screen, and a tooltip repeating it under the cursor is the second
+  // readout of one number. Written as a parameter default so passing either prop
+  // explicitly still wins.
+  valueTooltip = !numberInput,
   thumbLabels,
   className,
   'aria-label': ariaLabel,
   min = 0,
   max = 100,
+  step,
   format,
   locale,
   disabled = false,
+  value: valueProp,
+  defaultValue,
+  onValueChange,
+  onValueCommitted,
   ...props
 }: SliderProps) {
   // One formatter for the bounds and the tick labels, built from the same
@@ -312,10 +467,84 @@ export function Slider({
     [locale, format],
   )
 
+  // **The value is held here, and `Slider.Root` is always controlled.** Two
+  // controls now write it — the handles and the number fields — and a field
+  // cannot show a value Base UI is keeping to itself. DatePicker's arrangement:
+  // mirror the uncontrolled case in state, defer to `value` when there is one, so
+  // a caller who never asked for any of this sees no difference.
+  const [uncontrolledValue, setUncontrolledValue] = useState<number | readonly number[]>(
+    () => defaultValue ?? min,
+  )
+  const value = valueProp ?? uncontrolledValue
+
   // How many handles to draw. Figma's `Type` axis, derived from the value's
   // shape rather than asked for as a prop.
-  const values = props.value ?? props.defaultValue
-  const thumbCount = Array.isArray(values) ? values.length : 1
+  const values = useMemo(
+    () => (Array.isArray(value) ? (value as readonly number[]) : [value as number]),
+    [value],
+  )
+  const thumbCount = values.length
+
+  const setValue = useCallback(
+    (next: number | readonly number[]) => {
+      if (valueProp === undefined) setUncontrolledValue(next)
+    },
+    [valueProp],
+  )
+
+  /**
+   * A number field wrote a value.
+   *
+   * `null` is what Base UI reports for an empty field mid-edit, and it is
+   * deliberately ignored rather than clamped to `min`: the slider should not
+   * slam to zero because somebody selected the text to retype it. The field is
+   * controlled, so it re-formats back to the live value on blur anyway.
+   *
+   * The event details have to be **built** rather than forwarded, because there
+   * is no slider event here — a keystroke in a sibling control is not one of
+   * Base UI's reasons. `input-change` is the closest of the five it publishes
+   * and is literally true, and `createChangeEventDetails` is Base UI's own
+   * factory for the object, reached through the `internals/` subpath the package
+   * exports for it. Writing the shape out by hand would be a copy that drifts.
+   */
+  const commitThumb = useCallback(
+    (index: number, next: number | null, committed: boolean) => {
+      if (next == null) return
+
+      const current = Array.isArray(value) ? (value as readonly number[]) : [value as number]
+
+      // **The clamp is here, not on the field.** `NumberInput`'s own `min`/`max`
+      // only bite when the field commits, so a keystroke reaches this handler
+      // unclamped and `[90, 80]` — an unsorted range — would go straight out to a
+      // controlled caller's `onValueChange` before Base UI tidied it up on the way
+      // back in. Measured: Base UI does resolve it, to `[80, 80]`, so the *screen*
+      // was right and the value the caller saw was not. Clamping to the neighbour
+      // here is what makes "typing clamps" a rule this component keeps rather than
+      // one it gets away with.
+      const lower = index === 0 ? min : current[index - 1]
+      const upper = index === current.length - 1 ? max : current[index + 1]
+      const clamped = Math.min(Math.max(next, lower), upper)
+
+      if (current[index] === clamped) return
+
+      const updated = current.slice()
+      updated[index] = clamped
+      const merged = updated.length === 1 ? updated[0] : updated
+
+      if (valueProp === undefined) setUncontrolledValue(merged)
+      onValueChange?.(
+        merged,
+        createChangeEventDetails('input-change', undefined, undefined, {
+          activeThumbIndex: index,
+        }),
+      )
+      // A typed value is committed when the field is — on blur or Enter — which
+      // is the field's answer to letting go of a handle. Without this a
+      // server-backed slider silently drops every edit made by typing.
+      if (committed) onValueCommitted?.(merged, createGenericEventDetails('input-change'))
+    },
+    [max, min, onValueChange, onValueCommitted, value, valueProp],
+  )
 
   const resolvedMarks = useMemo(
     () =>
@@ -329,13 +558,90 @@ export function Slider({
 
   const hasMarkLabels = resolvedMarks.some((mark) => mark.label != null)
 
+  // Names the two number fields. Base UI names the *thumbs* off `Slider.Label`
+  // for free; a NumberField is a separate control in the same group and gets
+  // nothing, so an unnamed slider's fields would be unnamed too.
+  //
+  // `thumbLabels` first, because it already names the same value and a caller who
+  // wrote "Lowest price" should not then hear "Budget minimum". Otherwise the
+  // slider's own name, qualified on a range so the two fields are told apart —
+  // through `aria-labelledby` when there is a visible label, because `label` is a
+  // ReactNode and there is no string to concatenate. Two ids concatenate into one
+  // name, which is what the sr-only span below is for.
+  const nameId = useId()
+
+  // The widest the field can ever have to be: the longer of the two *formatted*
+  // bounds, so a percent or a currency slider is measured as it will read rather
+  // than as a bare number. See the `numberField` recipe for what reads it.
+  const fieldChars = useMemo(
+    () => Math.max(formatter.format(min).length, formatter.format(max).length),
+    [formatter, min, max],
+  )
+
+  const qualifierFor = (index: number) =>
+    thumbCount > 1 ? (index === 0 ? 'minimum' : 'maximum') : null
+
+  const renderNumberField = (index: number) => {
+    const qualifier = qualifierFor(index)
+    const explicit = thumbLabels?.[index]
+    const naming = explicit
+      ? { 'aria-label': explicit }
+      : label != null
+        ? { 'aria-labelledby': qualifier ? `${nameId} ${nameId}-${qualifier}` : nameId }
+        : { 'aria-label': qualifier ? `${ariaLabel} ${qualifier}` : ariaLabel }
+
+    return (
+      <Fragment key={index}>
+        {explicit == null && label != null && qualifier != null && (
+          <span id={`${nameId}-${qualifier}`} className="sr-only">
+            {qualifier}
+          </span>
+        )}
+        <NumberInput
+          // `steppers={false}` is what makes this Figma's field rather than a
+          // NumberInput: the file draws a plain `Input` instance, and without the
+          // − and + cells NumberInput renders exactly Input's box, left-aligned,
+          // at exactly the 56x32 drawn. All that is left is the number behavior,
+          // which is the reason to reach for NumberInput over Input — clamping,
+          // arrow keys, and `format`/`locale` parsing, so a field beside a
+          // percent slider takes "60" and means 0.6.
+          steppers={false}
+          disabled={disabled}
+          // Bounded by the neighbour rather than by the scale — the typing half
+          // of "dragging pushes, typing clamps". A single thumb has no neighbour
+          // and takes the scale's own ends.
+          min={index === 0 ? min : values[index - 1]}
+          max={index === thumbCount - 1 ? max : values[index + 1]}
+          step={step}
+          format={format}
+          locale={locale}
+          value={values[index]}
+          onValueChange={(next) => commitThumb(index, next, false)}
+          onValueCommitted={(next) => commitThumb(index, next, true)}
+          {...naming}
+          // On `NumberField.Root`, which is the outer element; custom properties
+          // inherit, so the class on the box below reads it from there.
+          style={{ '--slider-field-chars': fieldChars } as CSSProperties}
+          className={numberField({ disabled })}
+        />
+      </Fragment>
+    )
+  }
+
   return (
     <SliderPrimitive.Root
       min={min}
       max={max}
+      step={step}
       format={format}
       locale={locale}
       disabled={disabled}
+      value={value}
+      onValueChange={(next, eventDetails) => {
+        setValue(next)
+        onValueChange?.(next, eventDetails)
+      }}
+      onValueCommitted={onValueCommitted}
       // Base UI puts the native `disabled` attribute on each hidden range input,
       // which is what actually disables the control — this states the same thing
       // on the group, and it is load-bearing for a11y testing rather than
@@ -377,7 +683,16 @@ export function Slider({
             own" is about ownership, not about looking different, so the weight
             follows the one every other field label in the library now uses.
           */}
-          <span className="text-base font-semibold text-content-primary">{label}</span>
+          {/*
+            `id` is for the number fields, which are separate controls and get
+            nothing from `Slider.Label` — see `renderNumberField`. It goes on the
+            label text rather than on the Label frame so a `description` inside it
+            does not become part of the field's name too; the *thumbs* take the
+            whole block, which is the existing decision and is unaffected.
+          */}
+          <span id={nameId} className="text-base font-semibold text-content-primary">
+            {label}
+          </span>
           {description != null && (
             <span className="text-sm font-normal text-content-subtle">{description}</span>
           )}
@@ -385,6 +700,15 @@ export function Slider({
       )}
 
       <div className={row()}>
+        {/*
+          Figma's order, and it is the surprising half: the leading field sits
+          *outside* the min bounds label rather than between it and the track.
+          `Type=Range` draws [field] [0] ——track—— [100] [field]; `Type=Default`
+          has no leading field node at all, only the trailing one, which is why
+          this is `thumbCount > 1` rather than a second boolean.
+        */}
+        {numberInput && thumbCount > 1 && renderNumberField(0)}
+
         {bounds && <span className={bound()}>{minLabel ?? formatter.format(min)}</span>}
 
         <SliderPrimitive.Control className={control()}>
@@ -424,7 +748,7 @@ export function Slider({
           )}
 
           <SliderPrimitive.Track className={track()}>
-            <SliderPrimitive.Indicator className={indicator()} />
+            <SliderPrimitive.Indicator className={indicator({ range: thumbCount > 1 })} />
 
             {Array.from({ length: thumbCount }, (_unused, index) => {
               const thumbElement = (
@@ -481,6 +805,8 @@ export function Slider({
         </SliderPrimitive.Control>
 
         {bounds && <span className={bound()}>{maxLabel ?? formatter.format(max)}</span>}
+
+        {numberInput && renderNumberField(thumbCount - 1)}
       </div>
     </SliderPrimitive.Root>
   )

@@ -3,7 +3,8 @@
 A single line of free text, and the same field with things attached to
 it. Mirrors Figma nodes `40004050:14183` (Input, `Size` × `State`) and `40004051:14425`
 (Input Group, which adds a Start Slot, an End Slot and a `Display` property). The component
-Slider has been waiting on, and the reason its trailing number input was left unbuilt.
+Slider was waiting on — its number inputs are `NumberInput` with `steppers={false}`, which is this
+box at its default 32px, so the debt was paid without either component gaining a recipe.
 **Thirteenth Base UI component**, first on `Input`; Link was the twelfth.
 **Base UI has no Input Group** — unlike almost everything else here, it is not in their list and
 `/components/input-group` is a 404. That pattern is shadcn's; the `<input>` is still Base UI's.
