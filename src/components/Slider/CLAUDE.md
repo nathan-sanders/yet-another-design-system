@@ -2,7 +2,8 @@
 
 Drag a handle along a track to pick a number, or a pair of them to pick a range.
 Mirrors Figma node `40004155:14437`: `Type` default | range × `State` default | disabled, plus
-the `Label`, `Sub Label`, `Min Value`, `Max Value`, `Marks` and `Max Number Input` booleans.
+the `Label`, `Sub Label`, `Min Value`, `Max Value`, `Marks`, `Min Number Input` and
+`Max Number Input` booleans.
 Built from two private sub-components, `40004155:14415` (_Slider Track, `Type` Filled | Empty)
 and `40004155:14467` (_Slider Handle, `State` Default | Hover | Focus).
 **Three of its four decisions went code-first and Figma caught up second**, which is the
@@ -94,18 +95,77 @@ drag. Switch's "11px reads as lag" from the other end.
 **`overflow-clip` not ported, for the sixth time** — the handle overhangs the control by design.
 **32px row, 4px track, 24px control, 16/20 handle, 2×8 tick nubs, 8px gaps and 10px reserved
 for mark labels are the numbers to check.**
-Left out: **the number input Figma draws at the trailing edge** (two for `Type=Range`), which is
-an instance of an **Input** component that lives elsewhere in the file. **Input has since been built**,
-and `NumberInput` after it — which is what that 56x32 field actually is, at exactly the default
-field height. So this is a Slider follow-up now rather than a blocker — the component it was waiting
-for exists, and `Slider.Value` is attached in the meantime. Also
-`orientation="vertical"` (Base UI and Astryx have it, Figma draws no vertical variant — omitted
+Left out: `orientation="vertical"` (Base UI and Astryx have it, Figma draws no vertical variant — omitted
 from the props rather than left to break quietly, Tabs' call), and `invalid` — **now closed as a
 deliberate non-change rather than a deferral.** Figma's `State` axis here is default | disabled
 with no invalid, and Field's `Type` list does not include Slider, so there is no drawn treatment
 for an invalid slider and inventing one would be the second source of truth this component
 already refused once over its number input. Checkbox, Radio and Switch were migrated in the same
 PR precisely because the file *does* draw their invalid state.
+**The number inputs are built, and they were the component's one outstanding debt.** Figma draws a
+56x32 field at the trailing edge and a second at the leading edge for `Type=Range` — instances of
+the **Input** component, which did not exist when Slider was written. It does now, and `NumberInput`
+after it, so the field is **`NumberInput` with `steppers={false}`**: Input's own box, left-aligned,
+at exactly the height drawn. No new chrome, which is precisely why this waited rather than being
+invented — the same second-source-of-truth argument that still keeps `invalid` out.
+**Two Figma booleans, one prop.** `Min Number Input` and `Max Number Input` collapse to
+`numberInput`, the way `Min Value` and `Max Value` already collapse to `bounds`, and the *count* is
+derived from the value like everything else here: one thumb gets one field at the trailing edge, a
+range gets one at each end. The file itself does not treat the two as a symmetric pair —
+`Type=Default` has no leading field node at all — so a second boolean would have had nothing to
+switch. Both of Figma's default to true, so `numberInput` does.
+**The leading field sits *outside* the min bounds label**, not between it and the track. That is
+Figma's order and the one thing about the row that is not guessable:
+`[field] [0] ——track—— [100] [field]`.
+**`valueTooltip` now derives from it** — `!numberInput` — because a field already showing the value
+makes a tooltip repeating it under the cursor the same number twice. Pass either explicitly to
+override.
+**The component is now controlled from the inside.** Two controls write one value and a field cannot
+show a number Base UI is keeping to itself, so the value is held here — mirrored uncontrolled state,
+or the caller's `value` when there is one — and `Slider.Root` is always given a controlled `value`.
+DatePicker's arrangement. The consequence is that a typed edit has to *build* a Base UI event-details
+object to hand to `onValueChange`, since a keystroke in a sibling control is not one of Base UI's
+own reasons: `createChangeEventDetails('input-change', …)` from the `internals/createBaseUIEventDetails`
+subpath, which the package really does export. **This is the library's first `internals/` import**;
+writing the object out by hand would be a copy that drifts.
+**Dragging pushes, typing clamps** — a deliberate divergence, and the clamp is in `commitThumb`
+rather than on the field. `NumberInput`'s own `min`/`max` only bite when the field commits, so a
+keystroke arrives unclamped and `[90, 80]` — an unsorted range — went straight out to a controlled
+caller's `onValueChange` before Base UI tidied it on the way back in. Measured: the *screen* was
+right (Base UI resolved it to `[80, 80]`) and the value the caller saw was not. That is the shape of
+bug to watch for whenever a second control writes a primitive's state.
+**56px is a floor, not a fixed width, and Figma's own `Formatted` case is why.** 56 less 24px of
+`px-3` and two borders leaves 32px for three characters, which `100` and `100%` fit and `£1,000` does
+not — the story rendered `£25(`, clipped mid-glyph. So the width is
+`max(56px, chars × 10px + 26px)`, where `chars` is the character count of the longer **formatted
+bound** passed in as `--slider-field-chars`. **The 10px rate comes out of Figma's field, not out of
+the font**: the file allots a shade under 11px per character, and taking 10 makes the
+three-character case land on exactly 56, so the default slider is the drawn width to the pixel
+(measured: 56.00). `ch` was tried first and is the wrong unit — it resolves against the box, at the
+inherited 16px, while the text that must fit is in the `<input>` at 14, so it measured 10.09px
+against an 8.83px digit and quietly took the calc branch at the drawn scale.
+**The indicator needs `w-[max(0px,var(--relative-size))]!`, and only on a range.** Base UI sizes the
+filled track by writing `--relative-size` — the gap between two thumb positions — inline. Under
+`thumbAlignment="edge"` each position carries a half-thumb inset as a percentage of the control, so
+when a range's two thumbs hold the *same* value the subtraction lands on a rounding artifact rather
+than on zero, and **its sign depends on the control's width**: `-0.0115%` at a 206px control against
+`+0.354%` at ~310. A negative percentage is an invalid `width`, the browser drops the declaration,
+and the indicator fills its whole parent — a solid bar painting out over the bounds label and the
+field beside it. The bug is older than the fields; they are what narrowed the control enough to flip
+the sign. **It has to be a variant rather than base**, because a single-thumb slider is sized by
+`width: var(--start-position)` and has no `--relative-size` at all — put the guard in the base and
+the single case gets an invalid width and fills the track. Both halves measured.
+**Each field is named, because Base UI does not name it.** `Slider.Label` names the *thumbs*; a
+NumberField is a separate control in the same group and gets nothing. `thumbLabels` first, since it
+already names the same value; otherwise the slider's own name, qualified on a range with an sr-only
+`minimum`/`maximum` concatenated through `aria-labelledby` — `label` is a ReactNode, so there is no
+string to append to. Verified in the browser: "Disabled range minimum", "Disabled range maximum".
+**The disabled fade is cancelled, not applied.** `Input`'s box fades itself when it contains a
+disabled control, which is right standalone and wrong inside a disabled Slider — the root is already
+`opacity-40` and the two compound to 16%. `has-[:disabled]:opacity-100` cancels it, which works
+because the variant prefix is tailwind-merge's key: same prefix, same utility, later one wins. Figma
+says the same thing by leaving both `State=Disabled` variants' Input instances at `State=Default`
+and fading the whole component once. The fields are still really `disabled`.
 Worth knowing if that changes: Base UI would already do the labeling half of it —
 `ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, …)` in `SliderRoot`,
 read out of `node_modules` — so a Slider inside a Field is named by the Field without needing its

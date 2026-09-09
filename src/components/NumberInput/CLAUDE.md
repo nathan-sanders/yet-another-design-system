@@ -70,9 +70,16 @@ through, and Base UI turns off the arrow keys, the wheel and both buttons on its
 Astryx's rule too. But the library has no read-only *treatment* anywhere, and Input's own guidance
 forbids faking one with `disabled`. Neither Figma set draws it. Whoever draws the first one should
 draw all of them.
-**Slider's debt is now unblocked but not paid.** Figma draws a 56×32 number input at the Slider's
-trailing edge, two of them for `Type=Range`, behind a `Max Number Input` boolean. That is exactly
-the default field height, and this is the component it was waiting for.
+**Slider's debt is paid, and this is the component that paid it.** Figma draws a 56×32 number input
+at the Slider's trailing edge, and a second at the leading edge for `Type=Range`, behind
+`Max Number Input` / `Min Number Input`. That is exactly the default field height, so Slider renders
+it as `NumberInput` with **`steppers={false}`** — which is Input's box, left-aligned, at 32px, i.e.
+precisely the `Input` instance the file draws. Nothing was added here for it.
+Worth knowing which way the borrowing runs: Slider imports the *component*, not the recipes. It sets
+its own width through `className` (which lands on the Group, so it replaces the base `w-full`) and
+cancels this box's `has-[:disabled]:opacity-40`, because a disabled Slider already fades the whole
+row and the two would compound to 16%. **If that base fade ever moves, Slider's cancellation is the
+thing that breaks**, and it will break silently — a field 40% fainter than the row around it.
 
 ## Best practices
 
