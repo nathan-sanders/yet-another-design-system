@@ -323,6 +323,9 @@ export type {
   TabsLayout,
 } from './components/Tabs'
 
+export { TreeList } from './components/TreeList'
+export type { TreeListProps, TreeListItem } from './components/TreeList'
+
 export { TreeMap } from './components/TreeMap'
 export type { TreeMapProps, TreeMapGroup, TreeMapTile } from './components/TreeMap'
 
