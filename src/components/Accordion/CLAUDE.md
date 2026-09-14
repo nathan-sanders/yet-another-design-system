@@ -48,12 +48,21 @@ in Figma are for, and it is the thing to preserve if any of them change.
 The Panel is the standing exception, and the one place the clip does real work: without it the
 content is visible outside a collapsing box and there is no animation to see.
 
-**Which means the panel's padding is also its focus-ring clearance.** The ring needs 4px — 2px gap
-plus 2px — and the sides and bottom have 16, so anything in there keeps its ring. The **top has 0**
-since the padding change below, so a focusable element as the panel's genuine first child loses all
-4px of its ring. Measured with a probe `<a>` inserted as `firstChild`: `ringClippedAtTop: true`,
-`pixelsOfRingLost: 4`. Anything past the first line is fine. This is the trade the top padding
-bought, and the thing to reconsider if a panel ever leads with a Link or a Button.
+**The panel's padding used to be its focus-ring clearance, and is not any more.** The ring needs
+4px — 2px gap plus 2px — and the sides and bottom have 16, but the **top has 0** since the padding
+change below, so a focusable element as the panel's genuine first child lost all 4px of its ring.
+Measured with a probe `<a>` inserted as `firstChild`: `ringClippedAtTop: true`, `pixelsOfRingLost:
+4`. That was recorded as the trade the top padding bought, and a "do not lead a panel with a link"
+rule sat on the Docs page to cover it.
+
+**Closed on 2026-09-14, the same way as `SideNav.Group` and `TreeList`:** the panel is
+`overflow-clip` with `overflow-clip-margin: 4px` (`[overflow-clip-margin:--spacing(1)]`) instead of
+`overflow-hidden`. The clip still bounds the collapsing content — that is all the animation ever
+needed — and the margin lets a ring through on every side. Re-measured with the same probe `<a>`
+at the panel's top edge (`probeTop === panelTop`, padding 0) after a real Tab: ring complete on
+four sides, painting up into the header's 4px. The rule was retired from both the record and the
+Figma block. Safari does not implement the margin, so there the top of a leading link's ring is
+clipped as it always was — a degradation to the old behavior, not a new one.
 
 **The panel's padding is on an inner box, not on the panel.** The panel's height is the animated
 property, so anything adding to it has to be inside the measured element.
@@ -172,4 +181,3 @@ The two are one text in two places — change one and change the other.
 
 - Do not hide anything on the main path through a page. A closed panel is not in the document at all until somebody opens it.
 - Do not nest an accordion inside an accordion. Content with two levels wants a different structure.
-- Do not lead a panel with a link or a button. The panel clips the top of its focus ring; anything past the first line is fine.

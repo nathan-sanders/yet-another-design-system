@@ -245,8 +245,8 @@ height returns to `auto`, and Base UI exposes no mid-transition state to key it 
 collapsing content; the margin lets the ring through on every side. Measured with a real Tab into
 `Overview` in the `Playground` story: `overflow: clip / 4px`, ring complete on four sides. Safari
 does not implement the margin, so there the ring is clipped exactly as before — a degradation to the
-old behavior, not a new one. `Accordion`'s panel still has the `overflow-hidden` version, and its
-"do not lead a panel with a link" rule is the cost of that; the same one-line change would retire it.
+old behavior, not a new one. `Accordion`'s panel got the same change the same day, and retired its
+"do not lead a panel with a link" rule with it.
 
 **`focusRing`, not `focusRingUnhovered`.** A nav item is a real tab stop, not a row that takes focus
 because you pointed at it, so the `highlightItemOnHover` rule does not apply here. Verified with real
