@@ -139,7 +139,14 @@ const panel = tv({
     // The whole animation. Base UI measures the panel and publishes the result
     // as --accordion-panel-height; this transitions to it, and collapses to
     // zero for the frame before opening and the frame before closing.
-    'h-(--accordion-panel-height) overflow-hidden',
+    //
+    // `overflow-clip` with a 4px clip margin, not `overflow-hidden`. The
+    // panel's top padding is 0, so a Link or Button leading the content sat
+    // flush against the clip box and lost the top of its ring — permanently,
+    // since the class stays after the height returns to `auto`. The margin
+    // is the ring's 2+2px; the clip still bounds the collapsing content.
+    // TreeList's panel found it, SideNav.Group's got it next.
+    'h-(--accordion-panel-height) overflow-clip [overflow-clip-margin:--spacing(1)]',
     'transition-[height] duration-fast ease-standard',
     'data-[starting-style]:h-0 data-[ending-style]:h-0',
     // Base UI's own demo adds a rule here turning off a panel that is `hidden`

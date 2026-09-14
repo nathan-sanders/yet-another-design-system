@@ -202,7 +202,8 @@ export const Multiple: Story = {
  *
  * The link in the open panel is the other thing to look at: its focus ring
  * paints past the panel's padding and is not clipped, even though the panel is
- * the one element here that sets `overflow: hidden`.
+ * the one element here that clips — `overflow: clip` with a 4px clip margin,
+ * which is what lets a ring through at the top edge too.
  */
 export const DefaultOpen: Story = {
   args: { defaultValue: ['returns'] },
