@@ -89,3 +89,20 @@ export const focusRingWithin = [
   'has-focus-visible:ring-2 has-focus-visible:ring-focus-focus-outer-border',
   'has-focus-visible:ring-offset-2 has-focus-visible:ring-offset-focus-focus-inner-border',
 ]
+
+/**
+ * The ring on a direct child of the focused element — TreeList's row under its
+ * focusable `<li>`.
+ *
+ * An ARIA `treeitem` carries the tab stop, and in a nested tree that element's
+ * box holds the whole open subtree, so `focusRing` on it would ring a parent
+ * *and every child row inside it*. `focusRingWithin` looks the wrong way (up,
+ * from the focused thing to an ancestor), and Tailwind's `group-focus-visible:`
+ * matches any `.group` ancestor, so a focused parent would ring every
+ * descendant row too. `:focus-visible > &` is the only selector that says "my
+ * parent, and only my parent, has keyboard focus".
+ */
+export const focusRingFromParent = [
+  '[:focus-visible>&]:ring-2 [:focus-visible>&]:ring-focus-focus-outer-border',
+  '[:focus-visible>&]:ring-offset-2 [:focus-visible>&]:ring-offset-focus-focus-inner-border',
+]

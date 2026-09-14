@@ -408,6 +408,12 @@ layout anywhere and cannot create a scrollbar either; the problem cannot come ba
 
 `outline` is deliberately left free: Avatar uses it for the canvas ring between overlapping avatars.
 
+A fourth export, `focusRingFromParent`, paints the ring on a **direct child** of the focused element
+(`[:focus-visible>&]`). It exists for one shape: an ARIA `treeitem` holds the tab stop but its box
+contains the whole open subtree, so a ring on it would ring the parent and every child. `TreeList`
+is the only user, and the bar for a second one is the same — an element that must be focused for
+ARIA's sake while the thing that should *look* focused is inside it.
+
 Two rings on one control is the thing to watch for. A Checkbox or Radio `inContainer` hands the ring
 to the card and draws none on the box — the box is inside the card, so both would fire at once.
 
@@ -539,7 +545,7 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Thirty-seven records carry it.** What is left is `Chart` and the
+drift nothing in CI can catch. **Thirty-eight records carry it.** What is left is `Chart` and the
 whole data-viz family — thirteen records, and the one part of the library where nobody has written
 down when to reach for which chart.
 
@@ -633,6 +639,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Table](src/components/Table/CLAUDE.md) | structured data in rows and columns | numbers are mono because the value says so, not because a prop does; the rules are pseudo-elements, so the file's 32/40/56 can be asserted |
 | [Pagination](src/components/Pagination/CLAUDE.md) | move through a data set a page at a time | counts, not rows, so it is not a table component; the arithmetic is a pure module because every way it can be wrong renders perfectly |
 | [ProgressBar](src/components/ProgressBar/CLAUDE.md) | how far along a task is | the first component with no Figma variants to read, so the file was drawn from it; `indeterminate` is `value={null}`, and two of Astryx's rules are dropped because the token layer cannot hold them in both themes |
+| [TreeList](src/components/TreeList/CLAUDE.md) | a hierarchy you can fold and walk | Astryx's data API on an APG tree; the second roving tabindex after Calendar, and the first ring painted off a parent's focus rather than the focused element's |
 
 ### Data visualization
 
@@ -727,7 +734,9 @@ component usually has fewer decisions in it than it looks.
   with its visually hidden input inside it. Watch for two rings on one control, and for the opposite
   failure: a container that rings identically wherever focus is inside it says nothing. Combobox's
   tokenizer has several focusable descendants, so its box scopes the ring to the caret and each chip
-  carries its own. **One ring at a time, always on the thing that has focus.**
+  carries its own. **One ring at a time, always on the thing that has focus** — or, in TreeList's
+  case, on the row directly under it, because the focused `<li>` is also the box round every open
+  child: `focusRingFromParent`, the one ring keyed off a parent's `:focus-visible`.
 - **When Base UI hands over the same component object, share it rather than copy it.**
   `ContextMenu` is `Menu` opened by right-click — Base UI's `context-menu` subpath re-exports
   Menu's `Item`, `Group`, `SubmenuRoot` and `Popup` as the *same objects*, and Figma draws the two
@@ -921,6 +930,17 @@ shipping `rowCount`/`rowIndexStart` as the hook instead. So only half the bar wa
 built anyway because it was asked for with the node in hand. The half that was met turned out to be
 the useful half: `Table`'s record had already decided the shape, so the build was a sibling
 component and a two-prop join rather than a negotiation about where pagination belongs.
+
+**`TreeList` is the Calendar case once more, and the first roadmap-free build whose Figma page was
+drawn *and* had to be corrected.** Asked for with the node in hand and Astryx's `TreeList` as the
+reference; nothing had been reinvented in its absence (`SideNav.Group` is one level of the same
+drawing, and knows it). The file's `Tree List Item` set was complete — twelve variants, three slots
+— but two of its bindings could not ship: the Selected and Focus fills were `Surface/Background
+Subtle`, which is the canvas in both themes, and the Selected label was `Content/Subtle`. Both were
+settled with Nathan before the build and fixed at source the same day, so the file and the code
+agree; the record has the measurements. It is also the case that made **`focusRingFromParent`**
+necessary — see Focus above — and the second hand-rolled roving tabindex, because Base UI's
+`internals/composite` is a flat-list engine that knows nothing of expand and collapse.
 
 **Dialog is built, and the entry it closes is the cleanest run of Card's rule so far.** The bar is
 that a roadmap item earns its build when the file draws it *and* something has already been
