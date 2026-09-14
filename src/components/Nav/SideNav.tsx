@@ -442,7 +442,15 @@ function SideNavGroup({
         // result as --collapsible-panel-height; this transitions to it and
         // collapses to zero for the frame before opening and before closing.
         // Accordion's panel, one component over.
-        className="h-(--collapsible-panel-height) overflow-hidden transition-[height] duration-fast ease-standard data-[ending-style]:h-0 data-[starting-style]:h-0"
+        //
+        // `overflow-clip` with a 4px clip margin, not `overflow-hidden`: the
+        // rows inside are flush with the panel's box, and the focus ring
+        // paints 2+2px outside a row, so a plain clip cut the first row's ring
+        // at the top and every row's at both sides — permanently, since the
+        // class stays after the height returns to `auto`. The margin lets the
+        // ring through on every side while still bounding the collapsing
+        // content. TreeList's panel, which found it.
+        className="h-(--collapsible-panel-height) overflow-clip [overflow-clip-margin:--spacing(1)] transition-[height] duration-fast ease-standard data-[ending-style]:h-0 data-[starting-style]:h-0"
       >
         <NavContext.Provider value={childCtx}>
           <div className="flex flex-col">{children}</div>

@@ -235,6 +235,19 @@ the focus ring paints 4px outside the row. The region carries `px-1 py-1 -mx-1 -
 the clip box out by exactly that 4px and takes the space back, so the first and last rows keep a
 whole ring and the layout does not move.
 
+**`SideNav.Group`'s panel had the same clip and nobody had looked.** Its `Collapsible.Panel` was
+`overflow-hidden` — needed, because the height animation has to bound the collapsing rows — and its
+rows are flush with the panel box, so a child row's ring was cut at both sides and the first row's
+at the top as well. Not during the animation: *permanently*, because the class stays after the
+height returns to `auto`, and Base UI exposes no mid-transition state to key it off. Found while
+`TreeList` was built on the same panel, and fixed the same way on 2026-09-14: `overflow-clip` with
+`overflow-clip-margin: 4px` (`[overflow-clip-margin:--spacing(1)]`). The clip still bounds the
+collapsing content; the margin lets the ring through on every side. Measured with a real Tab into
+`Overview` in the `Playground` story: `overflow: clip / 4px`, ring complete on four sides. Safari
+does not implement the margin, so there the ring is clipped exactly as before — a degradation to the
+old behavior, not a new one. `Accordion`'s panel still has the `overflow-hidden` version, and its
+"do not lead a panel with a link" rule is the cost of that; the same one-line change would retire it.
+
 **`focusRing`, not `focusRingUnhovered`.** A nav item is a real tab stop, not a row that takes focus
 because you pointed at it, so the `highlightItemOnHover` rule does not apply here. Verified with real
 keyboard input — `:focus-visible` never matches a scripted `.focus()`, so this can only be measured
