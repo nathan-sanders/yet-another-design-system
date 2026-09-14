@@ -163,8 +163,9 @@ outside a row, and a plain `overflow-hidden` on the panel keeps clipping every c
 after the height has returned to `auto` — the class stays, and Base UI exposes no "mid-transition"
 state to key it off. The clip margin lets the ring through on every side while still bounding the
 collapsing content. Measured: `overflow: clip / overflow-clip-margin: 4px` on the open panel, and a
-level-2 row's ring complete on all four sides in the screenshot. **SideNav.Group has the
-`overflow-hidden` version of this today** and clips its child rows' rings; unrecorded there.
+level-2 row's ring complete on all four sides in the screenshot. **SideNav.Group had the
+`overflow-hidden` version of this** and clipped its child rows' rings; fixed the same day, the same
+way, and recorded in the Nav record.
 
 Two known edges, recorded rather than fixed: Safari does not implement `overflow-clip-margin`, so
 there the ring is clipped at the panel edge exactly as SideNav's is; and a grandchild opening while
