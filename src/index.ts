@@ -214,6 +214,9 @@ export type { NumberInputProps } from './components/NumberInput'
 export { OTPInput } from './components/OTPInput'
 export type { OTPInputProps } from './components/OTPInput'
 
+export { TextArea } from './components/TextArea'
+export type { TextAreaProps, TextAreaResize } from './components/TextArea'
+
 export { Link } from './components/Link'
 export type { LinkProps, LinkSize } from './components/Link'
 
