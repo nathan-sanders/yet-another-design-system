@@ -640,6 +640,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Pagination](src/components/Pagination/CLAUDE.md) | move through a data set a page at a time | counts, not rows, so it is not a table component; the arithmetic is a pure module because every way it can be wrong renders perfectly |
 | [ProgressBar](src/components/ProgressBar/CLAUDE.md) | how far along a task is | the first component with no Figma variants to read, so the file was drawn from it; `indeterminate` is `value={null}`, and two of Astryx's rules are dropped because the token layer cannot hold them in both themes |
 | [TreeList](src/components/TreeList/CLAUDE.md) | a hierarchy you can fold and walk | Astryx's data API on an APG tree; the second roving tabindex after Calendar, and the first ring painted off a parent's focus rather than the focused element's |
+| [Skeleton](src/components/Skeleton/CLAUDE.md) | the shape of content still loading | shadcn's pulse at `duration-slow` each way, so the 2s is a token; `Skeleton.Text` is a bar the font-size tall in a box the line-height tall |
 
 ### Data visualization
 

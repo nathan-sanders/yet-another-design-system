@@ -1582,10 +1582,25 @@
   to   { transform: translateX(250%); }
 }
 
+/*     `skeleton-pulse` is the fourth, and the second that loops. A placeholder */
+/*     breathes between full and half opacity; shadcn draws the same pulse   */
+/*     over a literal 2s, and this one runs `slow` (975ms) each way with      */
+/*     `alternate`, so a cycle is 1950ms — the same speed, spelled as a token.*/
+/*     `ease-in-out` is a CSS keyword like the `linear` above: a breath slows */
+/*     at both ends, and `--ease-standard` only slows at one. Not Tailwind's  */
+/*     own `animate-pulse`, whose 2s and bezier are literals Figma cannot     */
+/*     reach. Skeleton adds `motion-reduce:animate-none` for the same reason  */
+/*     ProgressBar does — see src/components/Skeleton/CLAUDE.md.              */
+@keyframes skeleton-pulse {
+  from { opacity: 1; }
+  to   { opacity: 0.5; }
+}
+
 @theme {
   --animate-fade-in: fade-in var(--transition-duration-fast) var(--ease-standard) both;
   --animate-slide-out-to-bottom: slide-out-to-bottom var(--transition-duration-medium) var(--ease-standard) both;
   --animate-progress-indeterminate: progress-indeterminate var(--transition-duration-slow-max) linear infinite;
+  --animate-skeleton-pulse: skeleton-pulse var(--transition-duration-slow) ease-in-out infinite alternate;
 }
 
 /* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */
