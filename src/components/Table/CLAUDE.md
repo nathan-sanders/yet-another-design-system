@@ -254,8 +254,10 @@ Each of these is an absence with a reason, not an oversight.
   this component and no slot for one: Figma draws the bar with no border, background or padding, so
   it sits *outside* the rounded scroll region, and `Table.Footer` stays a `<tfoot>` for a totals row
   rather than a home for a Select. See `Pagination/CLAUDE.md`, and the `WithTable` story there.
-- **Loading and skeleton rows.** No `Skeleton` exists, and inventing a shimmer inside `Table` puts a
-  new visual primitive in the wrong place.
+- **Loading and skeleton rows.** `Skeleton` now exists as a sibling, and the join is one
+  `Skeleton.Text` per cell — see its `InContext` story, which is a table of them. Give each a fixed
+  width (`w-28`): a cell's content wrapper hugs, so a percentage width measures 0px there. There is
+  still no `loading` prop on `Table`, for the same reason there is no `pagination` prop.
 - **`onRowClick`.** A click handler on a `<tr>` is a target with no keyboard equivalent. `hasHover`
   is asked for directly instead. It can come back properly alongside sticky headers.
 - **`role="grid"` with cell-level keyboard navigation.** A different component — and the reason

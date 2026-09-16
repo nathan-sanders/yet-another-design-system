@@ -298,6 +298,14 @@ export type {
 export { Select } from './components/Select'
 export type { SelectProps, SelectItemProps, SelectGroupProps, SelectSize } from './components/Select'
 
+export { Skeleton } from './components/Skeleton'
+export type {
+  SkeletonProps,
+  SkeletonAppearance,
+  SkeletonTextProps,
+  SkeletonTextSize,
+} from './components/Skeleton'
+
 export { Spark } from './components/Spark'
 export type { SparkProps, SparkType } from './components/Spark'
 
