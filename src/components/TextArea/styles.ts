@@ -28,8 +28,9 @@ import { tv, type VariantProps } from 'tailwind-variants'
  *     large    3 × 24 + 7 + 7 = 86 content + 2 border = 88
  *
  * `py-0.25` / `py-0.75` / `py-1.75` are real quarter-steps of the 4px scale,
- * the way Input's `min-h-5.5` is a half-step. The counter row, when it is on,
- * adds 20 (text-sm's line-height) + 4 (its bottom padding) to each.
+ * the way Input's `min-h-5.5` is a half-step. With a counter on, Figma adds a
+ * gap, a 20px row and the bottom padding — 88 / 104 / 116 — and the textarea
+ * reserves that strip itself (see the `counter` variant).
  */
 
 /**
@@ -59,6 +60,17 @@ export const textarea = tv({
     },
 
     /**
+     * Whether a counter is drawn in the box's corner. The textarea then keeps
+     * a strip at the bottom clear for it — the counter's line-height plus the
+     * gap above and the padding below, each the token minus the stroke, by size:
+     * 2+20+1, 4+20+3, 8+20+7. See `counter` for why it is an overlay.
+     */
+    counter: {
+      true: '',
+      false: '',
+    },
+
+    /**
      * Astryx's `resize: vertical` is the default: the person can pull the
      * field taller, never wider, so a form column keeps its width. `none` is
      * for a fixed-height slot — a card, a dialog body — where a grip would let
@@ -71,25 +83,36 @@ export const textarea = tv({
     },
   },
 
-  defaultVariants: { size: 'default', resize: 'vertical' },
+  compoundVariants: [
+    { counter: true, size: 'small', class: 'pb-5.75' }, // 23px
+    { counter: true, size: 'default', class: 'pb-6.75' }, // 27px
+    { counter: true, size: 'large', class: 'pb-8.75' }, // 35px
+  ],
+
+  defaultVariants: { size: 'default', resize: 'vertical', counter: false },
 })
 
 /**
- * The `n/max` character counter, Astryx's, drawn as a row of its own **under**
- * the text rather than floating over it.
+ * The `n/max` character counter, Astryx's, floating in the box's corner.
  *
- * Astryx absolutely positions the counter in the box's corner and pads the
- * bottom of the textarea by 28px to keep the last line clear of it. Here the
- * box is already `flex-wrap`, so the counter takes `InputGroup`'s block-end
- * slot — `order-5 w-full` — and the layout does the reserving. The textarea's
- * own scrollbar and grip stay where the browser puts them, which the overlay
- * arrangement has to work around.
+ * It was a row of its own under the text first — `InputGroup`'s block-end slot,
+ * with the layout doing the reserving — and that put the browser's resize grip
+ * in the wrong place. The grip is drawn inside the `<textarea>` at *its*
+ * bottom-right corner, so a row underneath left the grip floating a line
+ * above the box's corner. Figma draws the grip at the box's corner with the
+ * count just left of it, and the only way to get the native grip there is for
+ * the textarea to reach the bottom of the box. So the counter is an overlay —
+ * Astryx's arrangement — and the textarea pads its own bottom to keep the last
+ * line clear (the `counter` variant on `textarea`).
  *
+ * `right-2.75` / `bottom-0.75` are Figma's `spacing/3` and `spacing/1` minus the
+ * 1px stroke they share a pixel with, the same rule as the textarea's padding.
+ * `pointer-events-none` so a click on the count still lands the caret.
  * `tabular-nums` so the count does not jitter as digits change width.
  */
 export const counter = tv({
   base: [
-    'order-5 flex w-full justify-end px-3 pb-1',
+    'pointer-events-none absolute right-2.75 bottom-0.75',
     'text-sm tabular-nums select-none',
     'transition-colors duration-fast-min ease-standard',
   ],

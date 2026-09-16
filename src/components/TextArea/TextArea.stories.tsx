@@ -184,6 +184,15 @@ export const WithCounter: Story = {
     const canvas = within(canvasElement)
 
     const short = canvas.getByRole('textbox', { name: 'Status update' })
+    // The counter floats in the box's corner — Figma's spacing/3 and spacing/1
+    // from the outer edge — and the textarea reaches the bottom of the box, so
+    // the browser's resize grip lands at the box's corner beside the count.
+    const box = short.parentElement!
+    const counter = box.querySelector('span[id]')!
+    await expect(box.getBoundingClientRect().height).toBe(104) // 80 + 4 + 20
+    await expect(box.getBoundingClientRect().right - counter.getBoundingClientRect().right).toBe(12)
+    await expect(box.getBoundingClientRect().bottom - counter.getBoundingClientRect().bottom).toBe(4)
+    await expect(box.getBoundingClientRect().bottom - short.getBoundingClientRect().bottom).toBe(1)
     await expect(short).toHaveAccessibleDescription(/Keep it short/)
     await expect(short).toHaveAccessibleDescription(/32\/80/)
     await expect(short).not.toHaveAttribute('aria-invalid')
