@@ -105,7 +105,7 @@ Only replacing works, which is why it is a variant.
 
 **Story trap, Banner's:** the variant matrix is a grid, not a `<table>` — both of these are
 `w-full` and would collapse to their longest word in an auto-layout cell.
-Left out: `Textarea` (Base UI has no primitive and Figma draws no multi-line variant),
+Left out: `Textarea` (**built since, as `TextArea`** — Base UI's `Input` is `Field.Control` and takes a `<textarea>` through `render`; it imports this folder's `box` rather than copying it, and its Figma set is this set cloned and reshaped),
 `type="number"` spinners (**built since, as `NumberInput`** — its own component, and it imports this folder's `box` rather than copying it), and Astryx's `loading`, `clearable`
 and `statusVariant` — none are in the file.
 Figma has since caught up: the Input and Input Group sets' `Label` and `Sub Label` properties
