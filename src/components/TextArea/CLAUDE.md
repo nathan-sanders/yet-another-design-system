@@ -58,11 +58,18 @@ counts them as one, and so does the person typing.
 **The counter needs the value, so the uncontrolled case is mirrored in state.** Slider's and
 DatePicker's arrangement: `onValueChange` writes a local mirror when `value` is undefined, and the
 mirror is only ever read to feed the counter. The controlled case reads `value` directly.
-**The counter is a row under the text, not an overlay.** Astryx absolutely positions it in the
-corner and pads the textarea's bottom by 28px to keep the last line clear. `box` is already
-`flex-wrap`, so the counter takes `InputGroup`'s block-end slot — `order-5 w-full` — and the
-layout does the reserving: 20 (text-sm's line-height) + 4 of bottom padding on top of the box.
-The scrollbar and the grip stay where the browser puts them, which the overlay has to work around.
+**The counter is an overlay in the box's corner, and the resize grip is why.** It shipped as a
+row of its own under the text — `InputGroup`'s block-end slot, the layout doing the reserving —
+and Nathan caught the grip a full line above the box's corner. The browser draws the grip inside
+the `<textarea>` at *its* bottom-right, so anything in flow beneath the textarea pushes the grip
+up with it, while Figma draws the grip at the box's corner with the count just left of it
+(`40005236:36175`: count ends at x 268, grip spans 266–278, both on the bottom). The only way to
+put the native grip there is for the textarea to reach the bottom of the box, so the counter is
+`absolute right-2.75 bottom-0.75` — Astryx's arrangement — and the textarea reserves the strip
+itself (`counter` variant: `pb-5.75` / `pb-6.75` / `pb-8.75`, the gap + 20 + the bottom padding,
+each token minus the stroke). Measured against Figma's counter-on frame: box 104, count 12 from
+the right and 4 from the bottom, textarea 1 from the bottom. `pointer-events-none` on the
+count so a click on it still lands the caret.
 **The counter is in `aria-describedby`, and Base UI keeps it there.** `LabelableProvider`'s
 `getDescriptionProps` *appends* the Field's message ids to whatever `aria-describedby` arrives —
 `Array.from(new Set([...external, ...messageIds]))` — rather than replacing it, so a Field's

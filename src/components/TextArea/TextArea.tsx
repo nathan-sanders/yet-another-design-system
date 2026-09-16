@@ -133,7 +133,9 @@ export function TextArea({
     // The same box as Input, for the same reasons: the ring, the fade and the
     // invalid border are all read off the descendant with `has-`, and padding
     // sits on the control so the whole field is a hit target.
-    <div className={cn(box({ size, invalid: isInvalid }), className)}>
+    // `relative` for the counter, which floats in the corner — see `counter` in
+    // styles.ts for why it is not a row.
+    <div className={cn(box({ size, invalid: isInvalid }), 'relative', className)}>
       <InputPrimitive
         // Every textarea attribute rides on the render element, where it is
         // typed for a textarea — Base UI's `Input` props are typed for an
@@ -149,7 +151,7 @@ export function TextArea({
         disabled={disabled}
         aria-invalid={isInvalid || undefined}
         {...(describedBy ? { 'aria-describedby': describedBy } : {})}
-        className={textarea({ size, resize })}
+        className={textarea({ size, resize, counter: hasCounter })}
         value={value}
         defaultValue={defaultValue}
         onValueChange={(next, details) => {
