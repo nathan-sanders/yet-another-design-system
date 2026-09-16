@@ -13,15 +13,23 @@ import { tv, type VariantProps } from 'tailwind-variants'
  *
  * ## The arithmetic to check
  *
- * Figma's Input variants carry the inner padding — 2 / 4 / 8 vertically, 12
- * horizontally at every size (nodes 40004050:14183). With `rows={3}`:
+ * Figma draws the Text Area set (page `↪ Text Area`, set `40005234:609`) with
+ * the inner padding Input has — `spacing/0-5` / `spacing/1` / `spacing/2`
+ * vertically, `spacing/3` horizontally — and a three-line text block, for
+ * frames of **64 / 80 / 88**. Its stroke is *inside* the frame, so the padding
+ * the eye sees is the token minus the 1px stroke. Input's record settles how to
+ * port that: keep the box at Figma's outer height and let the content row be
+ * the box minus its two borders — which is why Input's row is 30 in a 32 box.
+ * The same rule here means the textarea's vertical padding is the token minus
+ * one, so with `rows={3}`:
  *
- *     small    3 × 20 + 2 + 2 = 64 content + 2 border = 66
- *     default  3 × 24 + 4 + 4 = 80 content + 2 border = 82
- *     large    3 × 24 + 8 + 8 = 88 content + 2 border = 90
+ *     small    3 × 20 + 1 + 1 = 62 content + 2 border = 64
+ *     default  3 × 24 + 3 + 3 = 78 content + 2 border = 80
+ *     large    3 × 24 + 7 + 7 = 86 content + 2 border = 88
  *
- * The counter row, when it is on, adds 20 (text-sm's line-height) + 4 (its
- * bottom padding) to each.
+ * `py-0.25` / `py-0.75` / `py-1.75` are real quarter-steps of the 4px scale,
+ * the way Input's `min-h-5.5` is a half-step. The counter row, when it is on,
+ * adds 20 (text-sm's line-height) + 4 (its bottom padding) to each.
  */
 
 /**
@@ -43,9 +51,11 @@ export const textarea = tv({
 
   variants: {
     size: {
-      small: 'py-0.5 text-sm', // 2px, text 12/20
-      default: 'py-1 text-base', // 4px, text 14/24
-      large: 'py-2 text-base', // 8px, text 14/24
+      // The token minus the border it shares a pixel with — see the arithmetic
+      // at the top. Figma's 2 / 4 / 8, measured from the outside of the frame.
+      small: 'py-0.25 text-sm', // 1px, text 12/20
+      default: 'py-0.75 text-base', // 3px, text 14/24
+      large: 'py-1.75 text-base', // 7px, text 14/24
     },
 
     /**

@@ -515,7 +515,8 @@ Each component gets its own folder with the component, its story, and a barrel `
 
 The deciding question is **whether the value has to come from a known set**, not how it looks.
 
-- **No** — free text, nothing to pick from: **Input**. A name, an email, a URL.
+- **No** — free text, nothing to pick from: **Input**. A name, an email, a URL. More than one
+  line of it — a description, a comment, a message: **TextArea**.
 - **No, but suggestions help** — still free text, and a value that is not on the list is still
   allowed: **Autocomplete**. A search box that remembers recent searches.
 - **Yes** — then it is only a question of how many, and whether you need to type to find one:
@@ -607,6 +608,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Slider](src/components/Slider/CLAUDE.md) | an approximate number | `range` derived from an array value; the number fields are `NumberInput` with the steppers off, and they made it controlled from the inside |
 | [Link](src/components/Link/CLAUDE.md) | inline and standalone navigation | what Button's removed `link` appearance became |
 | [Input](src/components/Input/CLAUDE.md) | a line of free text | plus `InputGroup` for attachments |
+| [TextArea](src/components/TextArea/CLAUDE.md) | more than one line of free text | Input's box made multi-line on Base UI's `Input` with `render={<textarea />}`; height is `rows`, the counter reports and never truncates |
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
 | [NumberInput](src/components/NumberInput/CLAUDE.md) | an exact number, nudged by one | Input's box borrowed; the ring is scoped to the caret because the steppers are inside it |
@@ -779,7 +781,7 @@ component usually has fewer decisions in it than it looks.
 - **Controls grow as you touch them.** Switch's knob 14 → 16 as it slides, Slider's handle 16 → 20 on
   hover, focus and drag.
 - **Field owns the label — unless the label is a hit target.** A control with nothing to name itself
-  gets its label from Field (Input, InputGroup, Select, Combobox and Autocomplete).
+  gets its label from Field (Input, InputGroup, TextArea, Select, Combobox and Autocomplete).
   Checkbox, Radio and Switch keep their own, because their `<label>` wraps the control and that is
   what makes the text clickable. **Whether the label is a real `<label>` is a third question**, and
   Field's `nativeLabel` is where it is answered: a `<button>` control wants it off, an `<input>` on.
@@ -1022,6 +1024,8 @@ component objects*, so those recipes moved to `Combobox/styles.ts` rather than b
 Its field is `Input`'s box for the same reason from the other direction — the file draws an Input
 Group, and `focusRingWithin` is correct there because `Autocomplete.InputGroup` has exactly one
 focusable descendant. Nothing in the form family is left unbuilt against the file.
+
+**`TextArea` is the ProgressBar case again** — an `(In Progress)` scaffold with nothing to read, so props were settled from Base UI's `Input` (which is `Field.Control`, and expects a `<textarea>` through `render`) and Astryx's `TextArea`, and the file was drawn from the built component in the same sitting: the Input set cloned and reshaped, `Type=Text Area` added to the Field set. Its record has the one trap that came out of it — cloning a Field variant drops every property reference and looks finished.
 
 **`NumberInput` and `OTPInput` have since been added, and both went code-first.** Neither was on the roadmap and neither had a Figma node — `Input`'s record had parked `type="number"` spinners as "`NumberField` is its own component" — so they are the Calendar case again: asked for directly, built, and drawn into the file in the same sitting. Two pages that had been sitting as `(In Progress)` stubs are now filled and renamed. `NumberInput` is also the first thing to touch `Input/styles.ts`'s shared `box` since Autocomplete, adding a `ring` variant because `focusRingWithin` cannot say *which* descendant should fire the ring and this box has three.
 

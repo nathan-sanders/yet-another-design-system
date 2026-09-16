@@ -2,7 +2,8 @@
 
 The label, sub-label and validation message around a form control. Mirrors Figma node
 `40004051:15082`, whose `Type` property swaps the control: Input, Input Group, Autocomplete,
-Select, Combobox, Checkbox, Checkbox Group, Radio. **Fourteenth Base UI component.**
+Select, Combobox, Checkbox, Checkbox Group, Radio, Text Area (added 2026-09-16 — cloning a
+variant drops its property references; TextArea's record has the fix). **Fourteenth Base UI component.**
 **This is the set that settled who owns the label**, and it is worth knowing how it was found:
 Input shipped first with its own label block, matching the Input set, and only then did the
 Field set turn up — nesting that same Input with `label={false}`. The file had been explicit all

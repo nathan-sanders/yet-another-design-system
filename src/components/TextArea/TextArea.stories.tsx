@@ -17,10 +17,10 @@ const states = [
 ] as const
 
 /**
- * The box heights at `rows={3}` — the arithmetic at the top of `styles.ts`,
- * asserted rather than trusted.
+ * The box heights at `rows={3}` — Figma's 64 / 80 / 88, the arithmetic at the
+ * top of `styles.ts`, asserted rather than trusted.
  */
-const HEIGHT = { small: 66, default: 82, large: 90 } as const
+const HEIGHT = { small: 64, default: 80, large: 88 } as const
 
 const meta = {
   title: 'Components/TextArea',
@@ -69,7 +69,7 @@ export const Playground: Story = {
  * auto-layout table cell collapses to its longest word (Input's trap).
  *
  * The play function measures the three heights. The size changes only the
- * padding and the type; three rows of it are 66 / 82 / 90 with the borders.
+ * padding and the type; three rows of it are 64 / 80 / 88 with the borders.
  */
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
@@ -232,8 +232,8 @@ export const Resize: Story = {
     await expect(getComputedStyle(canvas.getByRole('textbox', { name: 'None' })).resize).toBe('none')
     const six = canvas.getByRole('textbox', { name: 'Six rows' })
     await expect(six).toHaveAttribute('rows', '6')
-    // 6 × 24 + 8 + 2 — the size sets the padding, the rows set the height.
-    await expect(six.parentElement!.getBoundingClientRect().height).toBe(154)
+    // 6 × 24 + 3 + 3 + 2 — the size sets the padding, the rows set the height.
+    await expect(six.parentElement!.getBoundingClientRect().height).toBe(152)
   },
 }
 
