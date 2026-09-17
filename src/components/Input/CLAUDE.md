@@ -101,7 +101,10 @@ still get) or `input`, which scopes it to `has-[input:focus-visible]`. `within` 
 means while the box has exactly one focusable descendant, and a NumberInput has three. **It could
 not be an extra class the caller appends** — the two spellings sit under different variant prefixes,
 so tailwind-merge reads them as different keys and leaves both live, which rings the box anyway.
-Only replacing works, which is why it is a variant.
+Only replacing works, which is why it is a variant. **`textarea` is the third value**, added by
+`ChatComposer`: the same scoping at `has-[textarea:focus-visible]`, for a box whose caret is a
+`<textarea>` and which also holds buttons. One selector per control rather than
+`:is(input,textarea)`, so each stays readable.
 
 **Story trap, Banner's:** the variant matrix is a grid, not a `<table>` — both of these are
 `w-full` and would collapse to their longest word in an auto-layout cell.

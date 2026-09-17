@@ -93,8 +93,9 @@ record says a borderless field is only safe beside something identifying it, and
 no `InputGroup` to put an icon in. Astryx's `startIcon`, `isLoading`, `status`/`statusVariant`
 and `disabledMessage`, for the reasons Input's record gives. `isReadOnly` is the native
 `readOnly`, which passes through. An auto-growing height (`field-sizing: content`, shadcn's
-newest) is parked: neither Astryx nor the file has it, and the day a design wants it, it is one
-utility class.
+newest) was parked here: neither Astryx nor the file has it for a form field, and the day a
+design wants it, it is one utility class. **That day came with `ChatComposer`**, which is the
+field that grows — it lives next door with its own record, and this one still does not.
 
 ## Drawing it in Figma
 

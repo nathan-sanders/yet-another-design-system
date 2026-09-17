@@ -133,6 +133,25 @@ export type {
   ChartXPreset,
 } from './components/Chart'
 
+export { ChatMessage, ThoughtProcess, ToolCall, ChatComposer } from './components/Chat'
+export type {
+  ChatMessageProps,
+  ChatMessageBubbleProps,
+  ChatMessageMetadataProps,
+  ChatMessageStatusProps,
+  ChatMessageReactionsProps,
+  ChatReaction,
+  ChatDirection,
+  ChatBubbleAppearance,
+  ChatBubbleSize,
+  ChatDeliveryStatus,
+  ThoughtProcessProps,
+  ToolCallProps,
+  ToolCallStatus,
+  ChatComposerProps,
+  ChatComposerSize,
+} from './components/Chat'
+
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps, CheckboxGroupProps } from './components/Checkbox'
 
