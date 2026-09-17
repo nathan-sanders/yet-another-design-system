@@ -121,6 +121,8 @@ export function SideNav({
   // default is the ancestor's to state — once, on the shell, rather than again
   // here. An explicit prop still wins.
   const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
+  // Square corners against the window edge. Only the shell can say it.
+  const docked = shell ? !shell.frame : false
   const [uncontrolled, setUncontrolled] = useState(defaultCollapsed)
   const collapsed = collapsedProp ?? uncontrolled
 
@@ -142,7 +144,7 @@ export function SideNav({
   return (
     <nav
       className={cn(
-        navSurface({ floating }),
+        navSurface({ floating, docked }),
         sideNav.root,
         collapsed ? sideNav.collapsed : sideNav.expanded,
         className,

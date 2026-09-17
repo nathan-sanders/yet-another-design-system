@@ -100,11 +100,24 @@ export const navSurface = tv({
       true: 'shadow-low',
       false: '',
     },
+    /**
+     * Flush with the window edge — an `AppShell` with `frame={false}`. Not the
+     * same as `floating: false`: a docked bar *inside* an app frame keeps its
+     * corners, because there is canvas around it for them to sit against. Hard
+     * against the viewport there is not, and a rounded corner at the edge of
+     * the screen shows a sliver of canvas behind it. The shell sets this
+     * through context; a bar on its own is never docked to anything.
+     */
+    docked: {
+      true: 'rounded-none',
+      false: '',
+    },
   },
 
   defaultVariants: {
     // Figma's default, and the more common case: a nav lifted off the page.
     floating: true,
+    docked: false,
   },
 })
 

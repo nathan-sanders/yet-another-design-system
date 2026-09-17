@@ -58,6 +58,24 @@ because there is nothing for it to float above. In the file both docked frames a
 mode only; `contained` with `frame={false}` keeps the panel's border and radius and simply has no gap
 to the rail. Not drawn, not forbidden.
 
+**Docked, the nav squares its corners and the content takes 16px at the sides.** Both Nathan's calls
+on the first `Docked` story (2026-09-17). The corners: a `rounded-lg` bar hard against the viewport
+shows a sliver of canvas behind each corner, which a bar inside an 8px frame never does — so this is
+*not* the Nav record's `floating: false`, which keeps its radius on purpose, but a second axis,
+`navSurface({ docked })`, set only through `AppShellContext` (`!frame`). A bar on its own is never
+docked to anything. The padding: with no frame to hold the blocks off the window edge, `Content`
+does it — `px-4`, the same `spacing/4` the contained page uses, with the `-mx-1 px-1` clip trick
+dropped because 16px is room enough for a ring.
+
+**The page title row is inset 16 in floating mode, and the grid under it is not.** Read off Example 1
+by measurement: the title at x=16 of the Content Slot, the grid at x=0. The reason is alignment — a
+`ContentBlock` header is `px-4`, so a title inset 16 lines up with the block titles inside the grid,
+while the blocks themselves line up with the TopBar's edges. Measured in the `Floating` story: `h1`
+at 256 against a grid at 240 and a block title at 257 (one border in); the actions' last button ends
+16px inside the grid's right edge. Where the content already carries 16 (`contained`, or docked) the
+row is flush with it. This lives in the story's `PageTitle` fixture, which reads the context, not in
+the shell — a page title is the application's, and the file draws it as an example, not a component.
+
 **`navigation` is declared, not derived.** The shell could look at its first child's `type`, but that
 breaks the moment an application wraps its nav in a component of its own, and a layout that flips
 because of a refactor is worse than a prop. Confirmed with Nathan. `side` is a row, `top` is a column.
@@ -98,6 +116,8 @@ Against the Figma frames, in the story `play` functions (Chromium, `npm test`):
 |---|---|---|
 | Frame padding / gap (`frame`) | 8 / 8 | 8px / 8px |
 | Frame padding / gap (`frame={false}`) | 0 / 0 | 0px / `normal` |
+| Docked: rail radius / content side padding | — | 0px / 16px, margin 0 |
+| Floating: title row inset / grid | 16 / 0 | 16px / 0px — `h1` at grid + 16, on the block titles |
 | Row / column by `navigation` | side / top | `row` / `column` |
 | Floating: page border, fill | none | 0px, `rgba(0,0,0,0)` |
 | Floating: content padding | 0 · 16 | left 4px with `margin-left: -4px` · top 16px |

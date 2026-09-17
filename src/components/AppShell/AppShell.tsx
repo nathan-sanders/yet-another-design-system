@@ -140,7 +140,10 @@ function AppShellContent({ children, className, ...props }: AppShellContentProps
   const shell = useContext(AppShellContext)
 
   return (
-    <main className={cn(appShellContent({ mode: shell?.mode }), className)} {...props}>
+    <main
+      className={cn(appShellContent({ mode: shell?.mode, frame: shell?.frame }), className)}
+      {...props}
+    >
       {children}
     </main>
   )

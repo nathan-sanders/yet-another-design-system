@@ -89,7 +89,7 @@ export const appShellPage = tv({
  * both examples stack their title and grid with.
  */
 export const appShellContent = tv({
-  base: 'flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto',
+  base: 'flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-4',
   variants: {
     mode: {
       // Example 1 is `px-0 py-4`: the blocks line up with the TopBar's edges.
@@ -98,13 +98,24 @@ export const appShellContent = tv({
       // a block flush with the edge would lose the outer half of its ring. The
       // padding pushes the clip box out by exactly that and the margin takes
       // the space back, so the layout does not move.
-      floating: '-mx-1 px-1 py-4',
+      floating: '-mx-1 px-1',
       // Example 2 is `spacing/4` all round: the content sits inside the
       // bordered surface rather than on the canvas.
-      contained: 'p-4',
+      contained: 'px-4',
+    },
+    frame: {
+      true: '',
+      false: '',
     },
   },
-  defaultVariants: { mode: 'floating' },
+  compoundVariants: [
+    // Docked, the blocks would otherwise touch the window edge — there is no
+    // 8px frame to hold them off it — so the content takes `spacing/4` at the
+    // sides. Nathan's call on the docked story; the Figma frame draws an empty
+    // slot and does not say.
+    { mode: 'floating', frame: false, class: 'mx-0 px-4' },
+  ],
+  defaultVariants: { mode: 'floating', frame: true },
 })
 
 type AppShellVariants = VariantProps<typeof appShell>
