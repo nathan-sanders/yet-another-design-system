@@ -11,6 +11,15 @@ export type {
 export { AlertDialog } from './components/AlertDialog'
 export type { AlertDialogProps } from './components/AlertDialog'
 
+export { AppShell } from './components/AppShell'
+export type {
+  AppShellProps,
+  AppShellPageProps,
+  AppShellContentProps,
+  AppShellMode,
+  AppShellNavigation,
+} from './components/AppShell'
+
 export { Autocomplete } from './components/Autocomplete'
 export type {
   AutocompleteProps,

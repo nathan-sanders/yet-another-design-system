@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
+import { AppShellContext } from '../AppShell/context'
 import { NavContext, type NavContextValue } from './context'
 import { navSurface } from './styles'
 
@@ -57,6 +58,10 @@ export interface TopNavProps
    * **only the drop shadow**. `false` is what the marketing example draws: a
    * `canvas`-themed bar painted in the page's own background colour, sitting
    * flush with it rather than floating above it, so there is nothing to cast.
+   *
+   * Inside an `AppShell` the default comes from the shell: lifted in
+   * `floating`, flush in `contained` and whenever the frame is off. Setting it
+   * here overrides that. Outside a shell it is `true`.
    */
   floating?: boolean
   className?: string
@@ -66,10 +71,13 @@ export function TopNav({
   children,
   logo,
   utilities,
-  floating = true,
+  floating: floatingProp,
   className,
   ...props
 }: TopNavProps) {
+  const shell = useContext(AppShellContext)
+  // Same as SideNav: the shell states what the bar sits in, the bar reads it.
+  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
   const ctx = useMemo<NavContextValue>(
     () => ({ collapsed: false, size: 'default', indent: false }),
     [],

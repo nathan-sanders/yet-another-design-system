@@ -5,6 +5,7 @@ import { PanelLeft } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
+import { AppShellContext } from '../AppShell/context'
 import { dismissesOverlay } from './dismiss'
 import { Popover } from '../Popover'
 import { Tooltip } from '../Tooltip'
@@ -93,6 +94,10 @@ export interface SideNavProps
    * **only the drop shadow** — the radius and padding are identical either way.
    * `false` is the docked case the docs frame shows: the rail inset inside the
    * app window, still rounded, just not casting onto it.
+   *
+   * Inside an `AppShell` the default comes from the shell: lifted in
+   * `floating`, flush in `contained` and whenever the frame is off. Setting it
+   * here overrides that. Outside a shell it is `true`.
    */
   floating?: boolean
   className?: string
@@ -107,10 +112,15 @@ export function SideNav({
   onCollapsedChange,
   top,
   bottom,
-  floating = true,
+  floating: floatingProp,
   className,
   ...props
 }: SideNavProps) {
+  const shell = useContext(AppShellContext)
+  // The shell knows what the rail is sitting in and the rail does not, so the
+  // default is the ancestor's to state — once, on the shell, rather than again
+  // here. An explicit prop still wins.
+  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
   const [uncontrolled, setUncontrolled] = useState(defaultCollapsed)
   const collapsed = collapsedProp ?? uncontrolled
 
