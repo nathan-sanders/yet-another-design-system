@@ -403,58 +403,64 @@ export const InContext: Story = {
           }
           actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
         />
-        <div role="log" aria-label="Conversation" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-4">
-          <ChatMessage
-            direction="sent"
-            sender="Nathan"
-            metadata={
-              <ChatMessage.Metadata
-                timestamp={conversation.sentAt.label}
-                dateTime={conversation.sentAt.dateTime}
-              />
-            }
-          >
-            <ChatMessage.Bubble>{conversation.prompt}</ChatMessage.Bubble>
-          </ChatMessage>
-          <ThoughtProcess label={conversation.thought.summary}>
-            {conversation.thought.toolCalls.map((call) => (
-              <ToolCall key={call.label} status={call.status}>
-                {call.label}
-              </ToolCall>
-            ))}
-          </ThoughtProcess>
-          <ChatMessage
-            sender="Yet"
-            className="max-w-full"
-            metadata={
-              <ChatMessage.Metadata
-                timestamp={conversation.repliedAt.label}
-                dateTime={conversation.repliedAt.dateTime}
-                actions={<Actions />}
-              />
-            }
-          >
-            <ChatMessage.Bubble appearance="ghost">{conversation.reply}</ChatMessage.Bubble>
-          </ChatMessage>
-          <div className="p-3 text-content-emphasized">
-            <Mark />
+        {/* The log scrolls at full width; the thread inside it, like the
+            composer under it, is capped at Figma's 700 and centred. */}
+        <div role="log" aria-label="Conversation" className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div className="mx-auto flex w-full max-w-175 flex-col gap-2">
+            <ChatMessage
+              direction="sent"
+              sender="Nathan"
+              metadata={
+                <ChatMessage.Metadata
+                  timestamp={conversation.sentAt.label}
+                  dateTime={conversation.sentAt.dateTime}
+                />
+              }
+            >
+              <ChatMessage.Bubble>{conversation.prompt}</ChatMessage.Bubble>
+            </ChatMessage>
+            <ThoughtProcess label={conversation.thought.summary}>
+              {conversation.thought.toolCalls.map((call) => (
+                <ToolCall key={call.label} status={call.status}>
+                  {call.label}
+                </ToolCall>
+              ))}
+            </ThoughtProcess>
+            <ChatMessage
+              sender="Yet"
+              className="max-w-full"
+              metadata={
+                <ChatMessage.Metadata
+                  timestamp={conversation.repliedAt.label}
+                  dateTime={conversation.repliedAt.dateTime}
+                  actions={<Actions />}
+                />
+              }
+            >
+              <ChatMessage.Bubble appearance="ghost">{conversation.reply}</ChatMessage.Bubble>
+            </ChatMessage>
+            <div className="p-3 text-content-emphasized">
+              <Mark />
+            </div>
           </div>
         </div>
-        <div className="flex flex-col items-center gap-1 px-4 pb-2 pt-1">
-          <ChatComposer
-            aria-label="Reply"
-            placeholder="Reply suggestion"
-            actions={<Button appearance="ghost" startIcon={Plus} aria-label="Attach" />}
-            endActions={
-              <>
-                <ModelPicker />
-                <Button appearance="ghost" startIcon={Mic} aria-label="Dictate" />
-              </>
-            }
-          />
-          <Link href="#disclaimer" size="sm">
-            Yet is AI and AI can make mistakes
-          </Link>
+        <div className="px-4 pb-2 pt-1">
+          <div className="mx-auto flex w-full max-w-175 flex-col items-center gap-1">
+            <ChatComposer
+              aria-label="Reply"
+              placeholder="Reply suggestion"
+              actions={<Button appearance="ghost" startIcon={Plus} aria-label="Attach" />}
+              endActions={
+                <>
+                  <ModelPicker />
+                  <Button appearance="ghost" startIcon={Mic} aria-label="Dictate" />
+                </>
+              }
+            />
+            <Link href="#disclaimer" size="sm">
+              Yet is AI and AI can make mistakes
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -464,5 +470,15 @@ export const InContext: Story = {
     const log = canvas.getByRole('log', { name: 'Conversation' })
     await expect(within(log).getAllByRole('article')).toHaveLength(2)
     await expect(within(log).getByText('Nathan:')).toBeInTheDocument()
+
+    // The thread and the composer are both capped at Figma's 700 and centred
+    // in the page, edge to edge with each other.
+    const thread = log.firstElementChild!.getBoundingClientRect()
+    const composer = canvas.getByRole('textbox', { name: 'Reply' }).closest('form')!.getBoundingClientRect()
+    await expect(thread.width).toBe(700)
+    await expect(composer.width).toBe(700)
+    await expect(composer.left).toBe(thread.left)
+    const page = log.getBoundingClientRect()
+    await expect(thread.left - page.left).toBe(page.right - thread.right)
   },
 }
