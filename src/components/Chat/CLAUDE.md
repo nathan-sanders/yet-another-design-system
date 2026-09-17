@@ -169,6 +169,31 @@ cap in Chromium.
 (`actions` at the start of the row, `endActions` before the send button) cover the mock. A
 `Kbd` "⏎" hint: not drawn either; the contract lives here and in the story text.
 
+## The mark, and when it moves
+
+`story-mark.tsx` is the Yet scribble, story-only, and it has one switch: **`animate`, which is
+Nathan's thinking scribble** — the path draws itself in and back out along `stroke-dashoffset`
+while the mark wobbles a few degrees, one 1.8s loop, taken verbatim from his design file on
+2026-09-17. **Only the `ThoughtProcess` row while `thinking` gets it**; beside a reply and in the
+welcome heading the mark is a still frame. The animation lives with the mark, in the story
+file, because both are the application's — the component animates nothing. The 1.8s is a brand
+number rather than a motion token for the same reason. It rests under `prefers-reduced-motion`
+on its own, in the SVG's own `<style>`, because the global 1ms clamp would make an infinite loop
+jitter (ToolCall's spinner, again). `Thinking` measures two animations at 1800ms on the mark.
+
+## Dummy data
+
+`story-data.ts` is one conversation — about this component, so every claim in it is one this
+record makes — plus the rail's chat names and a two-person thread for `Group`. **The same words
+are on the canvas**: both mock screens (`40005203:42343`, `40005203:43108`) and the Docs Preview
+carry the prompt, the thought summary and the reply, so a designer and a developer read one
+thread. Two things had to change in the file for a real reply to fit: the sent bubble is a fixed
+480 (the code's `max-w-3/4` of a 640 column) with its text set to fill and wrap, and the reply's
+`Bubbles` slot, bubble and text are all fill — an instance hugs the text it was drawn with, and
+a long paragraph in a hugging bubble ran to 880px tall and 119 wide. The rail's chat names are
+truncated to one line with an ellipsis, which is what `NavItem` does in code and the Figma
+`Nav Item` did not.
+
 ## Stories
 
 Every geometry claim above is a play-function measurement, TextArea's idiom. Decorators are
