@@ -258,6 +258,30 @@ export const THINKING_PHRASES = [
 export const THINKING_PHRASE_INTERVAL = 2400
 
 /**
+ * The sheen on the phrase while the row thinks. The text is painted with a
+ * gradient twice its width — `content-subtle` at both ends, `content-emphasized`
+ * in the middle — clipped to the glyphs, and `animate-text-shimmer` walks that
+ * gradient across, so a band of the emphasized color sweeps through subtle
+ * text once every `slow-max`. In dark the band is lighter than the text, in
+ * light darker; either reads as a line still being worked on. Under reduced
+ * motion the sweep stops and the text paints flat in `content-subtle`,
+ * because the global 1ms clamp would strobe the band instead of resting it —
+ * ProgressBar's and Skeleton's rule.
+ *
+ * The gradient utilities (`from-` / `via-` / `to-`) are the one place these
+ * tokens are reached other than through `text-`; the semantic layer exposes
+ * every color to all of Tailwind's color utilities, so nothing new is minted.
+ */
+export const thinkingPhrase = tv({
+  base: [
+    'bg-linear-to-r from-content-subtle via-content-emphasized to-content-subtle',
+    'bg-[length:200%_100%] bg-clip-text text-transparent',
+    'animate-text-shimmer',
+    'motion-reduce:animate-none motion-reduce:bg-none motion-reduce:text-content-subtle',
+  ],
+})
+
+/**
  * The panel under a disclosure — `SideNav.Group`'s line, verbatim. Base UI
  * measures the panel and publishes `--collapsible-panel-height`; this
  * transitions to it and collapses to zero for the frame before opening and

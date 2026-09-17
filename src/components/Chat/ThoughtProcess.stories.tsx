@@ -85,6 +85,11 @@ export const Thought: Story = {
  * assuming", "Yet another pass". Pass `phrases` for an app's lines, or
  * `label` to pin one.
  *
+ * **The phrase shimmers.** A band of the emphasized color sweeps through the
+ * subtle text once every 1.3s — the library's fifth keyframe, `text-shimmer`,
+ * on `slow-max` and linear. It rests under reduced motion, where the text
+ * paints flat.
+ *
  * **The timer counts up on the left.** It starts at `elapsed` and ticks once
  * a second while the row thinks. It sits before the phrase, so the phrase's
  * changing length never moves it — and tabular figures with a small floor
@@ -92,8 +97,9 @@ export const Thought: Story = {
  *
  * `aria-busy` marks the row while it lasts. Measured: two animations running
  * on the mark, both 1800ms; the timer at 1s then 2s with the phrase not
- * moving; the phrase moving on after the interval, with a fade-in whose
- * duration is the `fast` token.
+ * moving; the shimmer on the phrase at 1300ms and linear, with the gradient
+ * clipped to the text; the phrase moving on after the interval, with a
+ * fade-in whose duration is the `fast` token.
  */
 export const Thinking: Story = {
   args: {
@@ -133,9 +139,23 @@ export const Thinking: Story = {
     await expect(timer.nextElementSibling!.getBoundingClientRect().left).toBe(phraseLeft)
     await expect(timer.getBoundingClientRect().left).toBeLessThan(phraseLeft)
 
+    // The phrase shimmers: a gradient clipped to the glyphs, walked across
+    // by the library's fifth keyframe at slow-max, linear — the easing lives
+    // on the keyframes, not the timing (Skeleton's finding).
+    const sheen = timer.nextElementSibling!.firstElementChild!
+    const [shimmer] = sheen.getAnimations() as CSSAnimation[]
+    await expect(shimmer!.animationName).toBe('text-shimmer')
+    await expect(shimmer!.effect!.getTiming().duration).toBe(1300)
+    await expect((shimmer!.effect as KeyframeEffect).getKeyframes()[0]!.easing).toBe('linear')
+    const sheenStyle = getComputedStyle(sheen)
+    await expect(sheenStyle.backgroundClip).toBe('text')
+    await expect(sheenStyle.color).toBe('rgba(0, 0, 0, 0)')
+    await expect(sheenStyle.backgroundImage).toContain('linear-gradient')
+
     // The phrases turn over, and each arrival fades in on the motion tokens.
     const [first, second] = THINKING_PHRASES
-    const phrase = () => canvas.getByText(first!, { exact: true }) ?? null
+    // getByText lands on the sheen span; the fade is on its keyed parent.
+    const phrase = () => canvas.getByText(first!, { exact: true }).parentElement!
     const fade = phrase().getAnimations()[0] as CSSAnimation
     await expect(fade.animationName).toBe('fade-in')
     await expect(fade.effect!.getTiming().duration).toBe(175)
@@ -167,8 +187,11 @@ export const OwnPhrases: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Working on it')).toBeInTheDocument()
     await expect(canvas.getByText('Running the tests')).toBeInTheDocument()
-    // A pinned label does not fade — nothing is arriving.
-    await expect(canvas.getByText('Running the tests').getAnimations()).toHaveLength(0)
+    // A pinned label does not fade — nothing is arriving — but it still
+    // shimmers, because the row is still thinking.
+    const pinned = canvas.getByText('Running the tests')
+    await expect(pinned.parentElement!.getAnimations()).toHaveLength(0)
+    await expect((pinned.getAnimations()[0] as CSSAnimation).animationName).toBe('text-shimmer')
   },
 }
 
