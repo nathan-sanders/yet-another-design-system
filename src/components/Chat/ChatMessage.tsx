@@ -17,6 +17,7 @@ import {
   type ChatBubbleSize,
   type ChatDeliveryStatus,
   type ChatDirection,
+  type ChatMessageLayout,
 } from './styles'
 
 /**
@@ -54,6 +55,11 @@ import {
  * visible-to-a-reader text, not an `aria-label`, because a live region reads
  * what is inserted, and a label on an `<article>` would be silent.
  *
+ * **A message hugs three quarters of the column unless told to fill it.**
+ * Astryx's cap, so a turn reads as coming from one side. A long assistant
+ * reply is the exception — Figma's `Agent Reply` draws it at the column's
+ * full width, and `layout="fill"` is that.
+ *
  * **Bubbles stack at `gap-1`**, which is Figma's `Bubble Group`; consecutive
  * bubbles from one sender go in one message. The metadata row sits under the
  * last of them at the same gap, and the avatar sits beside the last bubble,
@@ -76,7 +82,13 @@ export interface ChatMessageProps
   avatar?: ReactNode
   /** The row under the bubbles: a `ChatMessage.Metadata`. */
   metadata?: ReactNode
-  /** Extra classes for the outermost element. `max-w-full` widens a reply to the column. */
+  /**
+   * How wide the message may go. `hug` caps it at three quarters of the
+   * column, so it reads as a bubble from one side; `fill` gives a long-form
+   * reply the whole column — Figma's `Agent Reply`.
+   */
+  layout?: ChatMessageLayout
+  /** Extra classes for the outermost element. */
   className?: string
 }
 
@@ -86,10 +98,11 @@ export function ChatMessage({
   sender,
   avatar,
   metadata,
+  layout = 'hug',
   className,
   ...props
 }: ChatMessageProps) {
-  const styles = message({ direction, hasMetadata: Boolean(metadata) })
+  const styles = message({ direction, layout, hasMetadata: Boolean(metadata) })
   return (
     <ChatMessageContext.Provider value={direction}>
       <article className={cn(styles.root(), className)} {...props}>

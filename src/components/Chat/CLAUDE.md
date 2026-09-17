@@ -54,8 +54,13 @@ pads the avatar `pb-7` — the 24px row plus the 4px gap — and here that paddi
 `metadata` being present. The wrapper is `flex`, not a plain block: an inline `Avatar` on a
 line box carried the line's descender space under it and measured 6px low. Measured on the
 last bubble's bottom edge since.
-**Column width is `max-w-3/4`**, Astryx's cap at the nearest real fraction utility; a
-long-form reply passes `className="max-w-full"`, which the mock does.
+**`layout` is `hug` or `fill`**, Carousel's words. `hug` is `max-w-3/4` on the column —
+Astryx's cap at the nearest real fraction utility, so a turn reads as coming from one side —
+and `fill` is `w-full`, which is what Figma's `Agent Reply` draws its Bubble Group at. It is a
+prop rather than a `className` because the cap sits on the inner column and `className` lands
+on the outer `<article>`: the first cut passed `max-w-full` there and the reply stayed at
+three quarters, which the story's measurement now guards. The mock's prompt hugs and its reply
+fills.
 **The log is the caller's element, and it is `role="log"`.** A message cannot know whether it
 is in a list, so it is an `<article>` — HTML's own example is a user-submitted comment — and the
 container is the caller's `<div role="log" aria-label>`, which carries `aria-live="polite"` and
@@ -232,7 +237,7 @@ The two are one text in two places — change one and change the other.
 - Set `direction` on the message and let the bubbles and the row follow. One place decides which side a turn is on.
 - Stack a sender's consecutive bubbles in one message, with one metadata row under the last of them.
 - Wrap the messages in `role="log"` with a name, and give each message a `sender`. That is what a screen reader hears arrive.
-- Reach for a ghost bubble for a long assistant reply. It keeps the text column and drops the box.
+- Reach for a ghost bubble for a long assistant reply, and let the message fill the column. Together they read as page text.
 - Give the composer an `aria-label`. There is no Field here to name it, and a placeholder is not a name.
 - Let `streaming` swap the send button for stop. There is no `type` to set, and Enter is held back for you.
 

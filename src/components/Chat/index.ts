@@ -19,6 +19,7 @@ export type { ChatComposerProps } from './ChatComposer'
 
 export type {
   ChatDirection,
+  ChatMessageLayout,
   ChatBubbleAppearance,
   ChatBubbleSize,
   ChatDeliveryStatus,
