@@ -247,18 +247,18 @@ function Page() {
  * reads best with the **Nav** toolbar on `canvas` — that mode paints the rail in
  * the page's own background, so the panel is the only surface on screen.
  *
- * Every story here fills the viewport. The `-3rem` on the height is the global
- * decorator's `p-6`; an application would leave `h-dvh` alone.
+ * Every story here fills the viewport: the shell is `h-dvh`, and the global
+ * decorator's 24px is switched off (`canvasPadding: false`) so the only padding
+ * on screen is the shell's own 8px frame.
  */
 const meta = {
   title: 'Components/AppShell',
   component: AppShell,
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', canvasPadding: false },
   args: {
     mode: 'floating',
     navigation: 'side',
     frame: true,
-    className: 'h-[calc(100dvh-3rem)]',
     children: (
       <>
         <Rail />
