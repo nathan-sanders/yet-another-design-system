@@ -100,6 +100,19 @@ is the application's** — the file draws the Yet scribble, which is a brand, an
 makes the same call with its `logo`. `story-mark.tsx` is the story-only SVG, `Nav/story-logo`'s
 twin, with `stroke="currentColor"` so it follows `Content/Emphasized` through the theme. The
 "thinking" animation Figma names on that node is therefore the application's too.
+**While it thinks, the label rotates — and the default set is the brand.** Every 2.4 seconds
+the row says the next of its `phrases`, each arriving on `animate-fade-in` (`duration-fast`,
+`ease-standard`; keyed on the text so the span remounts and the keyframe replays). The row is on
+screen with nothing else moving, which is the one moment an assistant UI hands the system to
+speak in its own voice, so `THINKING_PHRASES` are lines from the records, said the way the
+records say them: *Thinking · Reading the record · Checking the tokens · Measuring, not assuming ·
+Asking Figma · Minding the four-pixel grid · Deriving, not declaring · Yet another pass*. An app
+passes `phrases` for its own, or `label` to pin one; a single phrase does not rotate. **The 2.4s
+is not a motion token on purpose** — it is a reading cadence, and the longest token is 1.3s;
+the crossfade is where the tokens apply. A screen reader is not told about each swap: the row is
+already `aria-busy`, and eight announcements per reply would be noise. Nathan's idea, 2026-09-17.
+The set's Figma description carries the same eight lines, and its `Thinking Phrase` text
+property is where a designer draws one of them.
 **The row is 24px and the panel is a `Card padding={3}`**, Figma's numbers; the 4px between
 them is `pt-1` *inside* the panel, so the measured height includes it and nothing jumps.
 **The hover wash goes past the file.** Figma draws the row as bare text; a row that opens

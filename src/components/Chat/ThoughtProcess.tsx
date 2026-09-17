@@ -1,11 +1,17 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { useEffect, useState, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible'
 import { ChevronDown } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
 import { Card } from '../Card'
 import { Icon } from '../Icon'
-import { disclosureChevron, disclosurePanel, disclosureTrigger } from './styles'
+import {
+  disclosureChevron,
+  disclosurePanel,
+  disclosureTrigger,
+  THINKING_PHRASE_INTERVAL,
+  THINKING_PHRASES,
+} from './styles'
 
 /**
  * ThoughtProcess — what an assistant did before it answered, folded away.
@@ -31,7 +37,14 @@ import { disclosureChevron, disclosurePanel, disclosureTrigger } from './styles'
  *
  * **Figma's two states are one prop and one slot.** `thinking` picks the
  * default label — "Thinking" while it is happening, "Thought summary" once it
- * is not — and sets `aria-busy`. The Thinking row also leads with a 24px mark,
+ * is not — and sets `aria-busy`. **While it thinks, the label rotates**
+ * through `phrases` every 2.4 seconds, each one fading in on the motion
+ * tokens. The default set is the system speaking in its own voice — "Reading
+ * the record", "Measuring, not assuming", "Yet another pass" — because the
+ * row is on screen with nothing else happening, and that is the moment a
+ * brand gets. Pass `phrases` for an app's own lines, or `label` to pin one.
+ * A screen reader is not told about each swap: the row is already `aria-busy`,
+ * and eight announcements a reply would be noise. The Thinking row also leads with a 24px mark,
  * which is the `icon` slot; the row's left padding tightens to 8px to hold
  * it, and that is derived from the slot being filled rather than from
  * `thinking`, because it is the only thing the two rows actually differ in.
@@ -51,8 +64,16 @@ export interface ThoughtProcessProps
   > {
   /** Whether it is still going. Picks the default label and marks the row busy. */
   thinking?: boolean
-  /** The row's text. Defaults to "Thinking" or "Thought summary" by `thinking`. */
+  /**
+   * The row's text. Defaults to "Thought summary", or to the rotating
+   * `phrases` while `thinking`. Set it to pin the row to one line.
+   */
   label?: ReactNode
+  /**
+   * What the row says while `thinking`, in turn — one every 2.4 seconds,
+   * looping. Defaults to the system's own lines. One entry stops the rotation.
+   */
+  phrases?: readonly string[]
   /** How long it has taken, beside the label: "4s". */
   elapsed?: ReactNode
   /** A 24px mark leading the row — the assistant's, while it thinks. */
@@ -66,12 +87,23 @@ export interface ThoughtProcessProps
 export function ThoughtProcess({
   thinking = false,
   label,
+  phrases = THINKING_PHRASES,
   elapsed,
   icon,
   children,
   className,
   ...props
 }: ThoughtProcessProps) {
+  const rotating = thinking && label === undefined && phrases.length > 1
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    if (!rotating) return
+    const id = setInterval(() => setIndex((i) => (i + 1) % phrases.length), THINKING_PHRASE_INTERVAL)
+    return () => clearInterval(id)
+  }, [rotating, phrases.length])
+
+  const text = label ?? (thinking ? (phrases[index % phrases.length] ?? 'Thinking') : 'Thought summary')
+
   return (
     <CollapsiblePrimitive.Root
       className={cn('flex flex-col items-start', className)}
@@ -80,7 +112,11 @@ export function ThoughtProcess({
     >
       <CollapsiblePrimitive.Trigger className={disclosureTrigger({ leading: Boolean(icon) })}>
         {icon}
-        <span>{label ?? (thinking ? 'Thinking' : 'Thought summary')}</span>
+        {/* Keyed on the text so each phrase mounts fresh and replays the
+            fade-in; a pinned label never remounts. */}
+        <span key={rotating ? String(text) : undefined} className={rotating ? 'animate-fade-in' : undefined}>
+          {text}
+        </span>
         {elapsed !== undefined && <span>{elapsed}</span>}
         <Icon icon={ChevronDown} className={disclosureChevron} />
       </CollapsiblePrimitive.Trigger>

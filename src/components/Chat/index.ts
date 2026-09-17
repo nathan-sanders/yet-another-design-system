@@ -9,6 +9,7 @@ export type {
 } from './ChatMessage'
 
 export { ThoughtProcess } from './ThoughtProcess'
+export { THINKING_PHRASES } from './styles'
 export type { ThoughtProcessProps } from './ThoughtProcess'
 
 export { ToolCall } from './ToolCall'
