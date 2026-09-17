@@ -12,6 +12,7 @@ import {
   disclosureTrigger,
   THINKING_PHRASE_INTERVAL,
   THINKING_PHRASES,
+  thinkingPhrase,
 } from './styles'
 
 /**
@@ -47,7 +48,10 @@ import {
  * row is on screen with nothing else happening, and that is the moment a
  * brand gets. Pass `phrases` for an app's own lines, or `label` to pin one.
  * A screen reader is not told about each swap: the row is already `aria-busy`,
- * and eight announcements a reply would be noise. The Thinking row also leads with a 24px mark,
+ * and eight announcements a reply would be noise. The phrase also carries a
+ * shimmer while it thinks — a band of `content-emphasized` sweeping through
+ * `content-subtle` text on `animate-text-shimmer` — which is the library's
+ * fifth keyframe and, like the others that loop, rests under reduced motion. The Thinking row also leads with a 24px mark,
  * which is the `icon` slot; the row's left padding tightens to 8px to hold
  * it, and that is derived from the slot being filled rather than from
  * `thinking`, because it is the only thing the two rows actually differ in.
@@ -141,9 +145,11 @@ export function ThoughtProcess({
           </span>
         )}
         {/* Keyed on the text so each phrase mounts fresh and replays the
-            fade-in; a pinned label never remounts. */}
+            fade-in; a pinned label never remounts. The shimmer sits on an
+            inner span, because `animation` is one property and the fade
+            already has it on the outer one. */}
         <span key={rotating ? String(text) : undefined} className={rotating ? 'animate-fade-in' : undefined}>
-          {text}
+          {thinking ? <span className={thinkingPhrase()}>{text}</span> : text}
         </span>
         <Icon icon={ChevronDown} className={disclosureChevron} />
       </CollapsiblePrimitive.Trigger>

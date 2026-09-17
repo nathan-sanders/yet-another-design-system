@@ -1596,11 +1596,28 @@
   to   { opacity: 0.5; }
 }
 
+/*     `text-shimmer` is the fifth, and the third that loops. A band of a     */
+/*     second color sweeps once across a run of text, the way an assistant  */
+/*     UI marks a line it is still working on. The element paints a         */
+/*     gradient twice its own width, clipped to its glyphs, and this walks  */
+/*     that gradient from one end to the other; the colors are the          */
+/*     element's own (`from-`/`via-` utilities on the content tokens), so   */
+/*     the keyframe carries none. `linear` and `slow-max`, for the reasons  */
+/*     progress-indeterminate gives — a loop with no ends wants no easing,  */
+/*     and 1300ms is the longest step. ThoughtProcess is the only user, and */
+/*     it turns the sweep off under reduced motion and paints the text      */
+/*     flat, because the 1ms clamp below would strobe it.                   */
+@keyframes text-shimmer {
+  from { background-position: 100% 0; }
+  to   { background-position: -100% 0; }
+}
+
 @theme {
   --animate-fade-in: fade-in var(--transition-duration-fast) var(--ease-standard) both;
   --animate-slide-out-to-bottom: slide-out-to-bottom var(--transition-duration-medium) var(--ease-standard) both;
   --animate-progress-indeterminate: progress-indeterminate var(--transition-duration-slow-max) linear infinite;
   --animate-skeleton-pulse: skeleton-pulse var(--transition-duration-slow) ease-in-out infinite alternate;
+  --animate-text-shimmer: text-shimmer var(--transition-duration-slow-max) linear infinite;
 }
 
 /* ---- 5. Reduced motion. Astryx: components honor the OS setting by ---- */

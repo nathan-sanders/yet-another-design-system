@@ -113,6 +113,19 @@ the crossfade is where the tokens apply. A screen reader is not told about each 
 already `aria-busy`, and eight announcements per reply would be noise. Nathan's idea, 2026-09-17.
 The set's Figma description carries the same eight lines, and its `Thinking Phrase` text
 property is where a designer draws one of them.
+**The phrase shimmers while it thinks — the library's fifth keyframe.** `text-shimmer` walks a
+gradient twice the element's width from one end to the other; the gradient is painted by the
+element (`bg-linear-to-r from-content-subtle via-content-emphasized to-content-subtle`, sized
+`200%`, `bg-clip-text text-transparent`), so the keyframe carries no color and the band is
+whatever the tokens say — darker than the text in light, lighter in dark, either reading as a
+line still being worked on. `slow-max` and `linear`, for progress-indeterminate's reasons: a
+loop with no ends wants no easing, and 1300ms is the longest step. **The sheen sits on an inner
+span** because `animation` is one property and the phrase's fade-in already has it on the
+keyed outer one; `getByText` lands on the inner span, which is what the story's assertions
+account for. Under reduced motion it stops and the text paints flat `content-subtle` —
+ProgressBar's and Skeleton's rule, because the 1ms clamp would strobe the band. A pinned
+`label` still shimmers: the row is still thinking. **Figma cannot draw it**; the set's
+description says so. Nathan's ask, 2026-09-17.
 **The timer counts up, on the left.** `elapsed` is a number of seconds already spent (default
 0), and while `thinking` the row ticks it up once a second; once thinking stops the timer is not
 shown, which is Figma's Thought row. It sits *before* the phrase — Nathan's call, and the
