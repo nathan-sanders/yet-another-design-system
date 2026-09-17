@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Button } from '../Button'
 import { Mark } from './story-mark'
+import { THINKING_PHRASES } from './styles'
 import { ThoughtProcess } from './ThoughtProcess'
 import { ToolCall } from './ToolCall'
 
@@ -78,8 +79,15 @@ export const Thought: Story = {
  * application's, like the mark itself, so it lives in the story file and not
  * in `ThoughtProcess`.
  *
+ * **The label rotates while it thinks.** Every 2.4 seconds the row says the
+ * next of its `phrases`, fading in on `duration-fast` — and the default set
+ * is the system in its own voice: "Reading the record", "Measuring, not
+ * assuming", "Yet another pass". Pass `phrases` for an app's lines, or
+ * `label` to pin one.
+ *
  * `aria-busy` marks the row while it lasts. Measured: two animations running
- * on the mark, both 1800ms, and none on a still one.
+ * on the mark, both 1800ms; the phrase moving on after the interval, with a
+ * fade-in whose duration is the `fast` token.
  */
 export const Thinking: Story = {
   args: {
@@ -109,6 +117,43 @@ export const Thinking: Story = {
       'scribble-wobble',
     ])
     for (const a of animations) await expect(a.effect!.getTiming().duration).toBe(1800)
+
+    // The phrases turn over, and each arrival fades in on the motion tokens.
+    const [first, second] = THINKING_PHRASES
+    const phrase = () => canvas.getByText(first!, { exact: true }) ?? null
+    const fade = phrase().getAnimations()[0] as CSSAnimation
+    await expect(fade.animationName).toBe('fade-in')
+    await expect(fade.effect!.getTiming().duration).toBe(175)
+    await waitFor(() => expect(canvas.getByText(second!)).toBeInTheDocument(), { timeout: 4000 })
+    await expect(canvas.queryByText(first!)).not.toBeInTheDocument()
+  },
+}
+
+/**
+ * An app's own lines, and a pinned one. `phrases` replaces the default set;
+ * `label` stops the rotation altogether — for a product whose voice is not
+ * this one, or a row that reports a specific step.
+ */
+export const OwnPhrases: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div className="flex flex-col gap-6">
+      <ThoughtProcess
+        {...args}
+        thinking
+        elapsed="2s"
+        icon={<Mark animate />}
+        phrases={['Working on it', 'Nearly there', 'One more thing']}
+      />
+      <ThoughtProcess {...args} thinking elapsed="2s" icon={<Mark animate />} label="Running the tests" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Working on it')).toBeInTheDocument()
+    await expect(canvas.getByText('Running the tests')).toBeInTheDocument()
+    // A pinned label does not fade — nothing is arriving.
+    await expect(canvas.getByText('Running the tests').getAnimations()).toHaveLength(0)
   },
 }
 

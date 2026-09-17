@@ -231,6 +231,33 @@ export const disclosureTrigger = tv({
 })
 
 /**
+ * What the Thinking row says while it waits, in turn. The row is on screen
+ * with nothing else moving, so it is the one place the system gets to speak
+ * in its own voice — and each line is a rule from the records, said the way
+ * the records say it. Astryx's composer has one phrase; this rotates.
+ * Override with `phrases`, or pin one with `label`.
+ */
+export const THINKING_PHRASES = [
+  'Thinking',
+  'Reading the record',
+  'Checking the tokens',
+  'Measuring, not assuming',
+  'Asking Figma',
+  'Minding the four-pixel grid',
+  'Deriving, not declaring',
+  'Yet another pass',
+] as const
+
+/**
+ * How long each phrase stays, in milliseconds. A reading cadence rather
+ * than a transition, which is why it is not one of the motion tokens — the
+ * longest of those is 1300ms and a line of five words wants longer than
+ * that. The crossfade between phrases *is* on the tokens: `animate-fade-in`,
+ * `duration-fast` on `ease-standard`.
+ */
+export const THINKING_PHRASE_INTERVAL = 2400
+
+/**
  * The panel under a disclosure — `SideNav.Group`'s line, verbatim. Base UI
  * measures the panel and publishes `--collapsible-panel-height`; this
  * transitions to it and collapses to zero for the frame before opening and

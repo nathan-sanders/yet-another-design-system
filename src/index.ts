@@ -133,7 +133,7 @@ export type {
   ChartXPreset,
 } from './components/Chart'
 
-export { ChatMessage, ThoughtProcess, ToolCall, ChatComposer } from './components/Chat'
+export { ChatMessage, ThoughtProcess, ToolCall, ChatComposer, THINKING_PHRASES } from './components/Chat'
 export type {
   ChatMessageProps,
   ChatMessageBubbleProps,
