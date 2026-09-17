@@ -12,6 +12,7 @@ import { NavItem, SideNav } from '../Nav'
 import { Logo } from '../Nav/story-logo'
 import { TopBar } from '../TopBar'
 import { ChatComposer } from './ChatComposer'
+import { chats } from './story-data'
 import { Mark } from './story-mark'
 
 const sizes = ['default', 'small'] as const
@@ -337,9 +338,11 @@ export const InContext: Story = {
           </NavItem>
         </SideNav.Section>
         <SideNav.Section header="Chats">
-          <NavItem href="#chat-1">Chat name one</NavItem>
-          <NavItem href="#chat-2">Chat name two</NavItem>
-          <NavItem href="#chat-3">Chat name three</NavItem>
+          {chats.map((chat, i) => (
+            <NavItem key={chat} href={`#chat-${i}`}>
+              {chat}
+            </NavItem>
+          ))}
         </SideNav.Section>
       </SideNav>
 

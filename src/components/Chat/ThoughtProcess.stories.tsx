@@ -71,13 +71,21 @@ export const Thought: Story = {
  * row's left padding tightens from 12 to 8 to hold it, which is derived from
  * the slot being filled.
  *
- * `aria-busy` marks the row while it lasts.
+ * **This is the one place the mark moves.** `<Mark animate />` runs Nathan's
+ * thinking scribble — the path draws itself in and out while the mark wobbles,
+ * on one 1.8s loop — and only the Thinking row gets it; beside a reply and in
+ * the welcome heading the mark is a still frame. The animation is the
+ * application's, like the mark itself, so it lives in the story file and not
+ * in `ThoughtProcess`.
+ *
+ * `aria-busy` marks the row while it lasts. Measured: two animations running
+ * on the mark, both 1800ms, and none on a still one.
  */
 export const Thinking: Story = {
   args: {
     thinking: true,
     elapsed: '1s',
-    icon: <Mark />,
+    icon: <Mark animate />,
     children: (
       <>
         <ToolCall status="done">Read the design system</ToolCall>
@@ -93,6 +101,14 @@ export const Thinking: Story = {
     await expect(trigger.closest('[aria-busy="true"]')).not.toBeNull()
     await expect(getComputedStyle(trigger).paddingLeft).toBe('8px')
     await expect(getComputedStyle(trigger).paddingRight).toBe('12px')
+
+    const mark = canvas.getByRole('img', { name: 'Yet, thinking' })
+    const animations = mark.getAnimations({ subtree: true }) as CSSAnimation[]
+    await expect(animations.map((a) => a.animationName).sort()).toEqual([
+      'scribble-draw',
+      'scribble-wobble',
+    ])
+    for (const a of animations) await expect(a.effect!.getTiming().duration).toBe(1800)
   },
 }
 
@@ -101,7 +117,7 @@ export const Open: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-8">
-      <ThoughtProcess {...args} thinking elapsed="1s" icon={<Mark />} defaultOpen />
+      <ThoughtProcess {...args} thinking elapsed="1s" icon={<Mark animate />} defaultOpen />
       <ThoughtProcess {...args} defaultOpen />
     </div>
   ),

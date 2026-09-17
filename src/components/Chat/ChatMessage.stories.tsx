@@ -28,6 +28,7 @@ import { Tooltip } from '../Tooltip'
 import { TopBar } from '../TopBar'
 import { ChatComposer } from './ChatComposer'
 import { ChatMessage } from './ChatMessage'
+import { chats, conversation, thread } from './story-data'
 import { Mark } from './story-mark'
 import { ThoughtProcess } from './ThoughtProcess'
 import { ToolCall } from './ToolCall'
@@ -201,25 +202,22 @@ export const Group: Story = {
       <ChatMessage
         direction="sent"
         avatar={<Avatar size="small" src={samplePhoto} name="Nathan Sanders" data-testid="avatar" />}
-        metadata={<ChatMessage.Metadata status="delivered" timestamp="11:00 AM" />}
+        metadata={<ChatMessage.Metadata status="delivered" timestamp={thread.sentAt} />}
       >
-        <ChatMessage.Bubble data-testid="first">I have a couple of questions about the new API.</ChatMessage.Bubble>
-        <ChatMessage.Bubble data-testid="second">First, how should we handle pagination?</ChatMessage.Bubble>
-        <ChatMessage.Bubble data-testid="last">And second, what is the rate limit?</ChatMessage.Bubble>
+        {thread.sent.map((text, i) => (
+          <ChatMessage.Bubble key={text} data-testid={['first', 'second', 'last'][i]}>
+            {text}
+          </ChatMessage.Bubble>
+        ))}
       </ChatMessage>
       <ChatMessage
         sender="Agent"
         avatar={<Avatar size="small" name="Agent" />}
-        metadata={<ChatMessage.Metadata timestamp="11:01 AM" actions={<Actions />} />}
+        metadata={<ChatMessage.Metadata timestamp={thread.receivedAt} actions={<Actions />} />}
       >
-        <ChatMessage.Bubble>
-          For pagination, use cursor-based with a limit parameter. The response includes a
-          nextCursor field.
-        </ChatMessage.Bubble>
-        <ChatMessage.Bubble>
-          The rate limit is 100 requests per minute per key. Past it you get a 429 with a
-          Retry-After header.
-        </ChatMessage.Bubble>
+        {thread.received.map((text) => (
+          <ChatMessage.Bubble key={text}>{text}</ChatMessage.Bubble>
+        ))}
       </ChatMessage>
     </div>
   ),
@@ -390,12 +388,11 @@ export const InContext: Story = {
           </NavItem>
         </SideNav.Section>
         <SideNav.Section header="Chats">
-          <NavItem href="#chat-0" selected>
-            My new chat
-          </NavItem>
-          <NavItem href="#chat-1">Chat name one</NavItem>
-          <NavItem href="#chat-2">Chat name two</NavItem>
-          <NavItem href="#chat-3">Chat name three</NavItem>
+          {chats.map((chat, i) => (
+            <NavItem key={chat} href={`#chat-${i}`} selected={i === 0}>
+              {chat}
+            </NavItem>
+          ))}
         </SideNav.Section>
       </SideNav>
 
@@ -403,7 +400,7 @@ export const InContext: Story = {
         <TopBar
           breadcrumbs={
             <Breadcrumbs>
-              <Breadcrumbs.Item>My new chat</Breadcrumbs.Item>
+              <Breadcrumbs.Item>{conversation.title}</Breadcrumbs.Item>
             </Breadcrumbs>
           }
           actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
@@ -412,26 +409,34 @@ export const InContext: Story = {
           <ChatMessage
             direction="sent"
             sender="Nathan"
-            metadata={<ChatMessage.Metadata timestamp="12:30 PM" dateTime="2026-09-17T12:30" />}
+            metadata={
+              <ChatMessage.Metadata
+                timestamp={conversation.sentAt.label}
+                dateTime={conversation.sentAt.dateTime}
+              />
+            }
           >
-            <ChatMessage.Bubble>User prompt</ChatMessage.Bubble>
+            <ChatMessage.Bubble>{conversation.prompt}</ChatMessage.Bubble>
           </ChatMessage>
-          <ThoughtProcess>
-            <ToolCall status="done">Read the design system</ToolCall>
-            <ToolCall status="done">Checked the token layer</ToolCall>
+          <ThoughtProcess label={conversation.thought.summary}>
+            {conversation.thought.toolCalls.map((call) => (
+              <ToolCall key={call.label} status={call.status}>
+                {call.label}
+              </ToolCall>
+            ))}
           </ThoughtProcess>
           <ChatMessage
             sender="Yet"
             className="max-w-full"
             metadata={
               <ChatMessage.Metadata
-                timestamp="12:30 PM"
-                dateTime="2026-09-17T12:30"
+                timestamp={conversation.repliedAt.label}
+                dateTime={conversation.repliedAt.dateTime}
                 actions={<Actions />}
               />
             }
           >
-            <ChatMessage.Bubble appearance="ghost">Agent response</ChatMessage.Bubble>
+            <ChatMessage.Bubble appearance="ghost">{conversation.reply}</ChatMessage.Bubble>
           </ChatMessage>
           <div className="p-3 text-content-emphasized">
             <Mark />

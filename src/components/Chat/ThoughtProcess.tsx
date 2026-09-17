@@ -37,6 +37,8 @@ import { disclosureChevron, disclosurePanel, disclosureTrigger } from './styles'
  * `thinking`, because it is the only thing the two rows actually differ in.
  * The mark itself is the application's — the file draws the Yet scribble,
  * which is a brand, and `SideNav` makes the same call with its `logo` slot.
+ * So is its motion: the stories pass `<Mark animate />` here and a still
+ * `<Mark />` everywhere else, and this component animates nothing itself.
  *
  * **What goes past the file.** The row has a hover wash; Figma draws bare
  * text, but a row that opens something is a button, and every quiet button
