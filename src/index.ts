@@ -142,6 +142,7 @@ export type {
   ChatMessageReactionsProps,
   ChatReaction,
   ChatDirection,
+  ChatMessageLayout,
   ChatBubbleAppearance,
   ChatBubbleSize,
   ChatDeliveryStatus,

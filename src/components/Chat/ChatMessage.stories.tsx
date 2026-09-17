@@ -428,7 +428,7 @@ export const InContext: Story = {
             </ThoughtProcess>
             <ChatMessage
               sender="Yet"
-              className="max-w-full"
+              layout="fill"
               metadata={
                 <ChatMessage.Metadata
                   timestamp={conversation.repliedAt.label}
@@ -477,6 +477,11 @@ export const InContext: Story = {
     const composer = canvas.getByRole('textbox', { name: 'Reply' }).closest('form')!.getBoundingClientRect()
     await expect(thread.width).toBe(700)
     await expect(composer.width).toBe(700)
+
+    // The reply fills the column; the prompt hugs three quarters of it.
+    const [prompt, reply] = within(log).getAllByRole('article')
+    await expect(reply!.firstElementChild!.getBoundingClientRect().width).toBe(700)
+    await expect(prompt!.firstElementChild!.getBoundingClientRect().width).toBeLessThanOrEqual(525)
     await expect(composer.left).toBe(thread.left)
     const page = log.getBoundingClientRect()
     await expect(thread.left - page.left).toBe(page.right - thread.right)

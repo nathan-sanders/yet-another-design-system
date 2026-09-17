@@ -44,22 +44,37 @@ export const message = tv({
     // `flex` so an inline avatar is a flex item rather than sitting on a line
     // box, which would add the line's descender space under it.
     avatar: 'flex shrink-0 self-end',
-    // Astryx caps a message at 80% / 280px; three quarters is the nearest
-    // real fraction utility. Override with `className` for a full-width reply.
-    column: 'flex min-w-0 max-w-3/4 flex-col gap-1',
+    column: 'flex min-w-0 flex-col gap-1',
   },
   variants: {
     direction: {
       sent: { root: 'flex-row-reverse', column: 'items-end' },
       received: { column: 'items-start' },
     },
+    /**
+     * How wide the column may go. `hug` is Astryx's cap on a message —
+     * 80% / 280px there, three quarters here, the nearest real fraction
+     * utility — so a short message stays a bubble and a long one leaves room
+     * to see which side it is on. `fill` takes the whole column: Figma's
+     * `Agent Reply` draws its Bubble Group at fill, because a long-form
+     * assistant reply reads as page text and wants the page's measure.
+     * Carousel's words for the same choice.
+     */
+    layout: {
+      hug: { column: 'max-w-3/4' },
+      fill: { column: 'w-full' },
+    },
     hasMetadata: {
       true: { avatar: 'pb-7' },
       false: {},
     },
   },
-  defaultVariants: { direction: 'received', hasMetadata: false },
+  defaultVariants: { direction: 'received', layout: 'hug', hasMetadata: false },
 })
+
+type MessageVariants = VariantProps<typeof message>
+/** How wide a message's column may go: a capped bubble, or the whole column. */
+export type ChatMessageLayout = NonNullable<MessageVariants['layout']>
 
 /**
  * The bubble. Figma `Bubble` (`40004252:16398`): `Direction` × `Appearance`
