@@ -113,6 +113,15 @@ the crossfade is where the tokens apply. A screen reader is not told about each 
 already `aria-busy`, and eight announcements per reply would be noise. Nathan's idea, 2026-09-17.
 The set's Figma description carries the same eight lines, and its `Thinking Phrase` text
 property is where a designer draws one of them.
+**The timer counts up, on the left.** `elapsed` is a number of seconds already spent (default
+0), and while `thinking` the row ticks it up once a second; once thinking stops the timer is not
+shown, which is Figma's Thought row. It sits *before* the phrase — Nathan's call, and the
+reason: the phrase changes length every 2.4 seconds, and a timer after it would jump with every
+line. `tabular-nums` plus a `min-w-6` floor (24px covers "59s") keep the phrase's own start still
+while the count climbs, and it moves once, at a minute. `formatElapsed` ("4s", then "1m 5s") is
+its own file with a node test, so the component file exports only a component. The Figma
+`Thinking` variants were reordered to match — `Time Thinking` before the phrase, bound to
+`spacing/6` wide — so a drawing and the row read the same way.
 **The row is 24px and the panel is a `Card padding={3}`**, Figma's numbers; the 4px between
 them is `pt-1` *inside* the panel, so the measured height includes it and nothing jumps.
 **The hover wash goes past the file.** Figma draws the row as bare text; a row that opens

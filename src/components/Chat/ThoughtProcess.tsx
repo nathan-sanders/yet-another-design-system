@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { Card } from '../Card'
 import { Icon } from '../Icon'
+import { formatElapsed } from './elapsed'
 import {
   disclosureChevron,
   disclosurePanel,
@@ -20,7 +21,7 @@ import {
  * `Process` Thinking | Thought × `Open` True | False. A quiet row above an
  * assistant's reply that opens onto a `Card` of `ToolCall`s.
  *
- *     <ThoughtProcess thinking elapsed="4s" icon={<Mark />}>
+ *     <ThoughtProcess thinking icon={<Mark />}>
  *       <ToolCall status="running">Reading the file</ToolCall>
  *     </ThoughtProcess>
  *
@@ -37,7 +38,9 @@ import {
  *
  * **Figma's two states are one prop and one slot.** `thinking` picks the
  * default label — "Thinking" while it is happening, "Thought summary" once it
- * is not — and sets `aria-busy`. **While it thinks, the label rotates**
+ * is not — and sets `aria-busy`. While it thinks a timer counts up on the
+ * left of the phrase, one tick a second from `elapsed`; it sits *before* the
+ * phrase so the phrase's changing length never moves it. **While it thinks, the label rotates**
  * through `phrases` every 2.4 seconds, each one fading in on the motion
  * tokens. The default set is the system speaking in its own voice — "Reading
  * the record", "Measuring, not assuming", "Yet another pass" — because the
@@ -74,8 +77,12 @@ export interface ThoughtProcessProps
    * looping. Defaults to the system's own lines. One entry stops the rotation.
    */
   phrases?: readonly string[]
-  /** How long it has taken, beside the label: "4s". */
-  elapsed?: ReactNode
+  /**
+   * Seconds already spent when the row mounts — for a reply that started
+   * before this screen did. While `thinking` the row counts up from here on
+   * its own, one tick a second; once it stops, the timer is not shown.
+   */
+  elapsed?: number
   /** A 24px mark leading the row — the assistant's, while it thinks. */
   icon?: ReactNode
   /** What was done: `ToolCall`s, or anything else, inside the panel's Card. */
@@ -88,7 +95,7 @@ export function ThoughtProcess({
   thinking = false,
   label,
   phrases = THINKING_PHRASES,
-  elapsed,
+  elapsed = 0,
   icon,
   children,
   className,
@@ -102,6 +109,18 @@ export function ThoughtProcess({
     return () => clearInterval(id)
   }, [rotating, phrases.length])
 
+  // The timer: the caller's starting point, then one tick a second for as
+  // long as the row thinks. Restarting from `elapsed` when it changes is what
+  // lets a caller re-seed it, and stopping when `thinking` drops is what
+  // leaves the last count in place rather than resetting to zero.
+  const [seconds, setSeconds] = useState(elapsed)
+  useEffect(() => setSeconds(elapsed), [elapsed])
+  useEffect(() => {
+    if (!thinking) return
+    const id = setInterval(() => setSeconds((n) => n + 1), 1000)
+    return () => clearInterval(id)
+  }, [thinking])
+
   const text = label ?? (thinking ? (phrases[index % phrases.length] ?? 'Thinking') : 'Thought summary')
 
   return (
@@ -112,12 +131,20 @@ export function ThoughtProcess({
     >
       <CollapsiblePrimitive.Trigger className={disclosureTrigger({ leading: Boolean(icon) })}>
         {icon}
+        {/* The timer sits before the phrase so the phrase, which changes
+            length every few seconds, never moves it. Tabular figures and a
+            floor of one spacing step under "59s" keep the phrase's own start
+            still while the count climbs. */}
+        {thinking && (
+          <span className="min-w-6 text-left tabular-nums" data-testid="thought-process-timer">
+            {formatElapsed(seconds)}
+          </span>
+        )}
         {/* Keyed on the text so each phrase mounts fresh and replays the
             fade-in; a pinned label never remounts. */}
         <span key={rotating ? String(text) : undefined} className={rotating ? 'animate-fade-in' : undefined}>
           {text}
         </span>
-        {elapsed !== undefined && <span>{elapsed}</span>}
         <Icon icon={ChevronDown} className={disclosureChevron} />
       </CollapsiblePrimitive.Trigger>
       <CollapsiblePrimitive.Panel className={cn(disclosurePanel, 'w-full')}>

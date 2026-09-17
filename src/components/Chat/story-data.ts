@@ -24,7 +24,7 @@ export const conversation = {
   sentAt: { label: '12:30 PM', dateTime: '2026-09-17T12:30' },
   thought: {
     summary: 'Checked the bubble against both surfaces',
-    elapsed: '4s',
+    elapsed: 4,
     toolCalls: [
       { status: 'done', label: 'Read tokens/semantic.json' },
       { status: 'done', label: 'Measured surface-background-subtle on both canvases' },

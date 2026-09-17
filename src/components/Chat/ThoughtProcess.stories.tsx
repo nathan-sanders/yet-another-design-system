@@ -14,7 +14,7 @@ const meta = {
   argTypes: {
     thinking: { control: 'boolean' },
     label: { control: 'text' },
-    elapsed: { control: 'text' },
+    elapsed: { control: 'number' },
   },
   args: {
     thinking: false,
@@ -85,14 +85,20 @@ export const Thought: Story = {
  * assuming", "Yet another pass". Pass `phrases` for an app's lines, or
  * `label` to pin one.
  *
+ * **The timer counts up on the left.** It starts at `elapsed` and ticks once
+ * a second while the row thinks. It sits before the phrase, so the phrase's
+ * changing length never moves it — and tabular figures with a small floor
+ * keep the phrase's own start still while the count climbs.
+ *
  * `aria-busy` marks the row while it lasts. Measured: two animations running
- * on the mark, both 1800ms; the phrase moving on after the interval, with a
- * fade-in whose duration is the `fast` token.
+ * on the mark, both 1800ms; the timer at 1s then 2s with the phrase not
+ * moving; the phrase moving on after the interval, with a fade-in whose
+ * duration is the `fast` token.
  */
 export const Thinking: Story = {
   args: {
     thinking: true,
-    elapsed: '1s',
+    elapsed: 1,
     icon: <Mark animate />,
     children: (
       <>
@@ -104,7 +110,7 @@ export const Thinking: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const trigger = canvas.getByRole('button', { name: /Thinking 1s/ })
+    const trigger = canvas.getByRole('button', { name: /1s/ })
     await expect(trigger.getBoundingClientRect().height).toBe(24)
     await expect(trigger.closest('[aria-busy="true"]')).not.toBeNull()
     await expect(getComputedStyle(trigger).paddingLeft).toBe('8px')
@@ -117,6 +123,15 @@ export const Thinking: Story = {
       'scribble-wobble',
     ])
     for (const a of animations) await expect(a.effect!.getTiming().duration).toBe(1800)
+
+    // The timer counts up from `elapsed`, on the left of the phrase, and the
+    // phrase starts where it started once the count has moved on.
+    const timer = canvas.getByTestId('thought-process-timer')
+    await expect(timer).toHaveTextContent('1s')
+    const phraseLeft = timer.nextElementSibling!.getBoundingClientRect().left
+    await waitFor(() => expect(timer).toHaveTextContent('2s'), { timeout: 2500 })
+    await expect(timer.nextElementSibling!.getBoundingClientRect().left).toBe(phraseLeft)
+    await expect(timer.getBoundingClientRect().left).toBeLessThan(phraseLeft)
 
     // The phrases turn over, and each arrival fades in on the motion tokens.
     const [first, second] = THINKING_PHRASES
@@ -141,11 +156,11 @@ export const OwnPhrases: Story = {
       <ThoughtProcess
         {...args}
         thinking
-        elapsed="2s"
+        elapsed={2}
         icon={<Mark animate />}
         phrases={['Working on it', 'Nearly there', 'One more thing']}
       />
-      <ThoughtProcess {...args} thinking elapsed="2s" icon={<Mark animate />} label="Running the tests" />
+      <ThoughtProcess {...args} thinking elapsed={2} icon={<Mark animate />} label="Running the tests" />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -162,7 +177,7 @@ export const Open: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-8">
-      <ThoughtProcess {...args} thinking elapsed="1s" icon={<Mark animate />} defaultOpen />
+      <ThoughtProcess {...args} thinking elapsed={1} icon={<Mark animate />} defaultOpen />
       <ThoughtProcess {...args} defaultOpen />
     </div>
   ),
