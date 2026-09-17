@@ -153,6 +153,16 @@ export const box = tv({
         'has-[input:focus-visible]:ring-offset-2',
         'has-[input:focus-visible]:ring-offset-focus-focus-inner-border',
       ],
+      // `input`'s twin for a box whose caret is a <textarea>. ChatComposer is
+      // the first: its box holds a send button and a row of actions, so
+      // `within` would ring the box for every one of them. One selector per
+      // control rather than `:is(input,textarea)`, so each stays readable and
+      // TextArea can adopt this one the day it gains a button.
+      textarea: [
+        'has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-focus-focus-outer-border',
+        'has-[textarea:focus-visible]:ring-offset-2',
+        'has-[textarea:focus-visible]:ring-offset-focus-focus-inner-border',
+      ],
     },
 
     /**

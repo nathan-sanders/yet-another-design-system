@@ -42,8 +42,8 @@ import { counter as counterStyle, textarea, type TextAreaResize } from './styles
  * borderless field is only safe beside something identifying it, and a textarea
  * has no `InputGroup` to put an icon in. Astryx's `startIcon`, `isLoading`,
  * `status` and `disabledMessage` are left out for the reasons Input's record
- * gives. An auto-growing height (`field-sizing: content`) is parked: neither
- * Astryx nor the file has it.
+ * gives. An auto-growing height (`field-sizing: content`) is not here either —
+ * a form field keeps its `rows`; the field that grows is `ChatComposer`.
  */
 export interface TextAreaProps
   extends Omit<
