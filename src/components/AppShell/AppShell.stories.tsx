@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, within } from 'storybook/test'
 import {
@@ -33,6 +33,7 @@ import { Radar } from '../Radar'
 import { ThemeControl, type Theme } from '../ThemeControl'
 import { TopBar } from '../TopBar'
 import { AppShell } from './AppShell'
+import { AppShellContext } from './context'
 
 // ---------------------------------------------------------------------------
 // Fixtures: the rail, the bar and the page from Figma's Example 1
@@ -117,9 +118,23 @@ function Bar() {
   )
 }
 
+/**
+ * Figma's "Page Title" row. In Example 1 it is inset `spacing/4` while the
+ * grid under it is flush — the title lines up with the block titles inside the
+ * grid, which are `px-4` themselves. Where the content already carries its own
+ * 16px (`contained`, or docked) the row is flush with it instead.
+ */
 function PageTitle() {
+  const shell = useContext(AppShellContext)
+  const inset = shell?.mode === 'floating' && shell.frame
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div
+      className={
+        inset
+          ? 'flex flex-wrap items-center justify-between gap-4 px-4'
+          : 'flex flex-wrap items-center justify-between gap-4'
+      }
+    >
       <div className="flex flex-col">
         <h1 className="text-xl font-bold text-content-emphasized">Dashboard</h1>
         <p className="text-base text-content-subtle">Subtitle goes here</p>
@@ -314,6 +329,9 @@ export const Floating: Story = {
     await expect(main.paddingLeft).toBe('4px')
     await expect(main.marginLeft).toBe('-4px')
     await expect(main.overflowY).toBe('auto')
+    // The title row is inset 16 while the grid under it is flush.
+    const title = within(canvasElement).getByRole('heading', { level: 1 })
+    await expect(getComputedStyle(title.parentElement!.parentElement!).paddingLeft).toBe('16px')
   },
 }
 
@@ -366,17 +384,24 @@ export const ContainedFloatingRail: Story = {
 
 /**
  * `frame={false}` — Figma's second pair of frames, with the rail docked to the
- * window edge and the page hard against it. No padding, no gap, and no shadow
- * on the rail, because there is nothing for it to float above.
+ * window edge and the page hard against it. No padding, no gap, no shadow on
+ * the rail and no corners on it either — a rounded corner at the edge of the
+ * screen shows a sliver of canvas behind it. The content takes 16px at the
+ * sides instead, since there is no frame to hold the blocks off the edge.
  */
 export const Docked: Story = {
   args: { frame: false },
   play: async ({ canvasElement }) => {
-    const { root, nav } = measure(canvasElement)
+    const { root, nav, main } = measure(canvasElement)
     // An unset gap computes to `normal`, not `0px`.
     await expect(root.gap).toMatch(/^(normal|0px)$/)
     await expect(root.padding).toBe('0px')
     await expect(nav.boxShadow).toBe('none')
+    // Square against the window edge, where a framed rail keeps its corners.
+    await expect(nav.borderTopLeftRadius).toBe('0px')
+    // No frame to hold the blocks off the edge, so the content does it.
+    await expect(main.paddingLeft).toBe('16px')
+    await expect(main.marginLeft).toBe('0px')
   },
 }
 

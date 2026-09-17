@@ -78,6 +78,8 @@ export function TopNav({
   const shell = useContext(AppShellContext)
   // Same as SideNav: the shell states what the bar sits in, the bar reads it.
   const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
+  // Square corners against the window edge. Only the shell can say it.
+  const docked = shell ? !shell.frame : false
   const ctx = useMemo<NavContextValue>(
     () => ({ collapsed: false, size: 'default', indent: false }),
     [],
@@ -90,7 +92,7 @@ export function TopNav({
   return (
     <nav
       className={cn(
-        navSurface({ floating }),
+        navSurface({ floating, docked }),
         // min-h-14 = height/h-14 (56px), px-3 = spacing/3, py-2 = spacing/2,
         // gap-3 = spacing/3. A min-height so a taller utility does not clip.
         'flex min-h-14 w-full items-center gap-3 px-3 py-2',

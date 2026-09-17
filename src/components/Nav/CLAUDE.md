@@ -89,6 +89,13 @@ two variants. A docked bar does **not** square its corners — the docs frame sh
 inside the app window, still `rounded-lg`, just not casting onto it. `floating` defaults to `true`,
 which is Figma's default and the more common case.
 
+**One exception, and it is a different axis.** An `AppShell` with `frame={false}` puts the bar hard
+against the viewport, where a rounded corner shows a sliver of canvas behind it. `navSurface` has a
+`docked` variant (`rounded-none`) for exactly that, and only the shell can set it — through
+`AppShellContext`, never as a prop on the bar, because a bar on its own is never docked to anything.
+`floating: false` still keeps its corners; it is the frame around the bar that decides, not the
+shadow. See `AppShell/CLAUDE.md`.
+
 **The expand chevron is the one part of a row that is not `nav-content-primary`.** Figma binds its
 stroke to `Nav Content/Subtle`, so it cannot inherit the row's color the way the start icon does, and
 has to say so. With the section header those are the only two things in the family painted with that
