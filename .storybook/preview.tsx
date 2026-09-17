@@ -101,11 +101,21 @@ const preview: Preview = {
       useEffect(() => {
         document.documentElement.dataset.navTheme = navTheme
       }, [navTheme])
+      // `parameters.canvasPadding: false` drops the 24px for a story that *is*
+      // the viewport — AppShell, whose own 8px frame is the padding, and where
+      // 24 around 8 reads as the component being wrong.
+      const padded = context.parameters.canvasPadding !== false
       return (
         // min-h-dvh so the canvas background fills the frame rather than hugging
         // the story — otherwise a short story leaves the browser's own white
         // showing below it, which reads as a bug in dark mode.
-        <div className="min-h-dvh bg-surface-canvas font-sans text-content-primary p-6">
+        <div
+          className={
+            padded
+              ? 'min-h-dvh bg-surface-canvas font-sans text-content-primary p-6'
+              : 'min-h-dvh bg-surface-canvas font-sans text-content-primary'
+          }
+        >
           <Story />
         </div>
       )
