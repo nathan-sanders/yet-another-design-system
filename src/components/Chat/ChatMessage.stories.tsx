@@ -5,15 +5,12 @@ import {
   CircleHelp,
   Copy,
   Ellipsis,
-  Maximize2,
   Mic,
   Plus,
   RefreshCw,
   Search,
-  Share,
   ThumbsDown,
   ThumbsUp,
-  X,
 } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
@@ -348,7 +345,8 @@ function ModelPicker() {
 /**
  * The conversation screen from the Figma mock (`40005203:43108`): the rail
  * with the chat list, a `TopBar` naming the chat, the log, the composer pinned
- * under it with its disclaimer, and a preview panel beside it.
+ * under it with its disclaimer. The mock's preview panel beside the log is
+ * left out for now — it is a document viewer, not a chat part.
  *
  * The agent's turn is Figma's `Agent Reply`, which is a composition rather
  * than a component: a `ThoughtProcess` above, a ghost bubble, the actions
@@ -459,21 +457,6 @@ export const InContext: Story = {
           </Link>
         </div>
       </div>
-
-      <aside
-        aria-label="Preview"
-        className="flex w-120 shrink-0 flex-col overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary"
-      >
-        {/* TopBar's geometry, not a TopBar: that is a `<header>`, and a page
-            has one. */}
-        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-surface-border px-3">
-          <span className="flex-1 text-base text-content-primary">Preview doc</span>
-          <Button appearance="ghost" startIcon={Maximize2} aria-label="Expand" />
-          <Button appearance="ghost" startIcon={Share} aria-label="Share" />
-          <Button appearance="ghost" startIcon={X} aria-label="Close" />
-        </div>
-        <div className="flex-1 overflow-y-auto p-4" />
-      </aside>
     </div>
   ),
   play: async ({ canvasElement }) => {
