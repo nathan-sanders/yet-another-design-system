@@ -514,6 +514,13 @@ padding and an 8px gap** — around the rail, and between it and the page. The c
 that and should not: a nav does not know what is beside it. The stories draw it so the composition is
 the one the file shows.
 
+**`AppShell` owns it now** (2026-09-17; see `src/components/AppShell/CLAUDE.md`). One thing about
+that reaches into this folder: both bars read `AppShellContext` for their `floating` default —
+lifted in the shell's `floating` mode, flush in `contained` and whenever the shell's frame is off. An
+explicit `floating` still wins, and a bar outside a shell is unchanged at `true`. The shell can tell
+the bar what it sits in where the bar cannot find out for itself, which is the Avatar `surface`
+exception seen from the ancestor's side.
+
 ## What this pulled into a neighbouring component
 
 **`Avatar` gained a `nav` surface.** The status dot rings itself in the colour behind it so it reads

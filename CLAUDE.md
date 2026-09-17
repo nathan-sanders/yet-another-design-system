@@ -550,10 +550,11 @@ drift nothing in CI can catch. **Thirty-eight records carry it.** What is left i
 whole data-viz family — thirteen records, and the one part of the library where nobody has written
 down when to reach for which chart.
 
-**Two of the thirty-six have no Figma block to mirror, and say so where the source line goes.**
+**Three records have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
-navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all.
-Both were written here rather than copied, and both owe the file a block — the same standing debt
+navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all;
+`AppShell` has a page of frames and examples but no component set or Docs block yet. All three were
+written here rather than copied, and all three owe the file a block — the same standing debt
 `Combobox.Empty` and Select's scroll arrows carry. **Do not read a missing block as a component
 nobody has thought about**; read the source line, which says which of the two situations it is.
 
@@ -646,6 +647,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [ChatMessage](src/components/Chat/CLAUDE.md) | one turn of a conversation | `direction` set once and read by context; the tail is one corner; the log is the caller's `role="log"`, and the default bubble only reads on `surface-background-primary` |
 | [ThoughtProcess](src/components/Chat/CLAUDE.md) | what an assistant did before it answered, folded away | a single disclosure on `Collapsible`, not an Accordion; Figma's Thinking row is `thinking` plus an `icon` slot the application fills, and while it thinks the label rotates through the system's own lines under a shimmer, the fifth keyframe |
 | [ToolCall](src/components/Chat/CLAUDE.md) | one thing an assistant did on the way | collapsible derived from `detail`; four statuses where the file draws one, and the spinner rests under reduced motion on its own |
+| [AppShell](src/components/AppShell/CLAUDE.md) | the frame an app sits in | `floating` puts the blocks on the canvas, `contained` puts them in a panel; the nav reads its shadow off the shell through context, and `Content` is the one `<main>` that scrolls |
 | [ChatComposer](src/components/Chat/CLAUDE.md) | where a message is written and sent | Input's box stacked, with `ring="textarea"` because it holds buttons; Enter sends, Shift+Enter breaks; `streaming` is Figma's Stop; the first field that grows |
 
 ### Data visualization
