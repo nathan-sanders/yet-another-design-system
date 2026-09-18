@@ -403,6 +403,21 @@ export type {
 export { Token } from './components/Token'
 export type { TokenProps, TokenSize, TokenRadius } from './components/Token'
 
+export { DragAndDrop, Sortable, DragHandle, useSortableItem } from './components/DragAndDrop'
+export { moveItem, moveBetweenContainers, findContainer, reorder } from './components/DragAndDrop'
+export { distribute, canAddBlock, COL_SPAN, GRID_COLUMNS, MIN_SPAN, MAX_BLOCKS_PER_ROW } from './components/DragAndDrop'
+export type {
+  DragAndDropProps,
+  DragAndDropOverlayProps,
+  SortableProps,
+  SortableItemProps,
+  DragHandleProps,
+  UseSortableItemOptions,
+  SortableItem,
+  Containers,
+  ColumnSpan,
+} from './components/DragAndDrop'
+
 export { VerticalBar } from './components/VerticalBar'
 export type { VerticalBarProps } from './components/VerticalBar'
 
