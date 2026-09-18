@@ -417,6 +417,15 @@ pinned to a viewport edge is close to the definition of the thing, and Figma's e
 with constraints, so `placement` (`bottom` default, `top`) applies `fixed inset-x-2` and the 8px
 inset the file draws. Agreed with Nathan as a deliberate break from the rule.
 
+**Except inside an `AppShell`, where it is placed like every other bar** (2026-09-18). The shell is
+the viewport, so a bar at the end of its column stays put with no `fixed`, and the shell's 8px frame
+*is* the inset above. A `MobileNav` that finds `AppShellContext` drops the pinning and `navLayer`,
+takes `shrink-0 md:hidden`, reads `floating` and `docked` off the context with the rail's two lines,
+and marks itself `data-mobile-nav` — which is what the shell's `:has()` reads to hide its rail or
+top bar and turn its frame into a column below 768. `placement` is not read there: the bar sits
+where the caller wrote it, after the page or before it. The rail and the top bar carry
+`data-wide-nav` for the same rule and nothing else. See `AppShell/CLAUDE.md`.
+
 **No `w-full` on the bar, and the reason is not obvious.** `placement` pins it with `inset-x-2`, and
 a width of 100% *alongside* a left/right pair over-constrains the box — the browser keeps `left`,
 drops `right`, and the bar runs past the edge it was meant to be inset from. Measured that way before
@@ -640,7 +649,7 @@ is the swap between the last two.
 **Do**
 
 - Name every bar. A nav is a landmark, an app with a rail usually has a second one in its header, and two unnamed landmarks of the same role cannot be told apart in a screen reader's list.
-- Reach for Responsive Nav when the layout has to work on a phone. It swaps Top Navigation for Mobile Navigation at 768px in CSS, so nobody writes a breakpoint of their own.
+- Reach for Responsive Nav when the layout has to work on a phone. It swaps Top Navigation for Mobile Navigation at 768px in CSS, so nobody writes a breakpoint of their own. In an App Shell with a Side Navigation, give the shell a Mobile Navigation instead and it does the same swap.
 - Keep a label on every item, collapsed or not. A 40px square with its text hidden has no accessible name at all; collapsed, the label becomes the tooltip so it is there for everybody.
 - Group pages into sections with headers. Collapsed, a header becomes the rule that keeps the groups apart once their names are gone.
 - Mark the page somebody is on as selected. That is what aria-current is for, and a rail without it makes you work out where you are from the content.

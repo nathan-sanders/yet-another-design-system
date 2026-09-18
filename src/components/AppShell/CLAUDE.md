@@ -134,6 +134,50 @@ register itself upward through context — a channel the repo does not have and 
 range (192 – 400), the collapsed rule (any resize opens the rail at the minimum, and the edge
 follows the hand from there) and the transition switch are the Nav record's.
 
+**Give the shell a `MobileNav` and it swaps to it below 768 — no prop.** Built 2026-09-18, the
+follow-up the first version left. A `responsive` prop was the obvious shape and was turned down for
+the root record's reason: a prop that can contradict the children will. Set with no phone bar there
+is no nav at all on a phone; left unset beside one there are two. The bar's *presence* is the fact,
+so the shell reads it — in CSS, with `:has()`, which sees through any wrapper (`ResponsiveNav`'s
+fragment included) where React cannot: a wrapped nav has a different `type`, the same reason
+`navigation` is declared rather than read off the first child. CSS also makes it a first-paint swap,
+on a server and through hydration, exactly as `ResponsiveNav`'s own is. Two rules in `styles.ts`,
+both `max-md:has-data-mobile-nav:…`: the frame becomes a column whatever `navigation` says (a hidden
+rail, the page and the bar in a *row* would put the bar beside the page), and every `[data-wide-nav]`
+inside hides. `SideNav`, `TopNav` and `MobileNav` carry only the markers; the breakpoint is written
+here once, the way `ResponsiveNav` writes it once for the bars — 768 is the library's one phone
+boundary and stays so. Checked by compiling the classes before trusting them: Tailwind drops a
+variant it cannot parse in silence, and `has-data-*` stacked with an arbitrary `[&_…]` was not
+obviously going to compile. It does, to
+`.max-md\:…:has([data-mobile-nav]) [data-wide-nav] { display: none }` under `(width < 48rem)`.
+
+**Inside the shell the phone bar is not `fixed` — the shell places it.** `MobileNav` is the one nav
+that pins itself, on the grounds that a phone bar at a viewport edge is close to the definition of
+the thing. In a shell that job is already done: the shell *is* the viewport (`h-dvh`, one scrolling
+`<main>`), so a bar at the end of its column stays put with no positioning at all, and the shell's
+`p-2 gap-2` frame is exactly the 8px inset Figma's phone frames draw round the bar (377 in 393).
+So a `MobileNav` that finds an `AppShellContext` drops `fixed inset-x-2 …` and `navLayer`, takes
+`shrink-0 md:hidden`, and reads `floating` and `docked` off the context with the rail's two lines —
+flush and square against the edge under `frame={false}`, like everything else. The content needs no
+padding for a bar that overlays nothing, which is the "pad the content for a fixed bar" the old
+"Left out" note was dreading; it never had to be built. `placement` is not read in a shell: the bar
+sits **where the caller wrote it** — after the page for the bottom, before it for the top — so DOM
+order is focus order (WCAG 2.4.3) and no `order-*` is needed. Outside a shell nothing changed.
+
+**`navigation="top"` needed nothing new.** `ResponsiveNav` is already a `TopNav` and a `MobileNav`
+side by side; in the shell the phone bar takes its place in the frame like any other, and the top
+bar is hidden twice over (its own `hidden md:flex` and the shell's rule). The `Responsive, top
+navigation` story proves it and is the shape to copy.
+
+**`Content` is `relative`, and a phone is where that showed.** Every `sr-only` is
+`position: absolute`, and `overflow-y-auto` only clips descendants whose containing block is inside
+it — so the 1px box under the last chart of a long page belonged to the *document*, fell out of the
+shell, and gave the window 500px of scroll under a 393px viewport (`documentElement.scrollHeight`
+1352 in 852, the box's bottom at exactly 1352). The `ChartContainer` fix (a `div` round the table)
+made that box 1px; this is what keeps a 1px box inside the region that scrolls. Any absolutely
+positioned thing in a page now scrolls with the page, which is what a scroll container should have
+promised from the start.
+
 **Heading order is the caller's to keep.** The dashboard story's `ContentBlock`s are
 `headingLevel={2}` under an `<h1>`; the default `3` fails axe's `heading-order` the moment there is
 an `h1` on the page and nothing between. Not a shell concern, but the first thing the story hit.
@@ -161,15 +205,25 @@ Against the Figma frames, in the story `play` functions (Chromium, `npm test`):
 | Contained: rail shadow | none | `none` |
 | Contained + `<SideNav floating>` | — | shadow present (prop wins) |
 | Collapsed rail width | 56 | 56 |
+| Phone (393 × 852): rail / frame direction | — | `display: none` / `column` |
+| Phone: bar inset, width, position | 8 / 377 / at the edge | 8px / 377px / `static`, bottom 8 above the frame's |
+| Phone: page bottom to bar top | 8 | 8px (the frame's gap) |
+| Phone, docked: bar left / width / radius / shadow | 0 / 393 / 0 / none | 0 / 393 / 0px / `none` |
+| Phone, top placement: bar top / page top | 8 / bar + 8 | 8px / bar bottom + 8 |
+| Phone: document scroll | none | `scrollHeight` = `clientHeight` (852) |
+| Wide (1280) with a MobileNav present | unchanged | `row`, rail 224, bar `display: none` |
 
-An unset `gap` computes to `normal`, not `0px` — the `Docked` assertion accepts either.
+An unset `gap` computes to `normal`, not `0px` — the `Docked` assertion accepts either. The phone
+rows come from the test runner at a real 393 × 852 viewport — `parameters.viewport.options` plus
+`globals.viewport.value`, which `@storybook/addon-vitest` turns into `page.viewport()`; a `md:` rule
+cannot be exercised by a phone-shaped `div`.
 
 ## Left out
 
-- **No `MobileNav` / `ResponsiveNav` handling.** `MobileNav` positions itself (`fixed`) and is the one
-  nav that does not sit in a frame; `ResponsiveNav` works in `navigation="top"` above 768 and pins
-  its bar below it, but the shell does not yet pad the content for a fixed bar. A follow-up, once a
-  phone frame is drawn on the App Shell page.
+- **A phone frame in Figma.** The swap went code-first on 2026-09-18: the `App Shell` set is eight
+  1440 × 1024 variants and the page has no 393-wide frame, so the file owes a `Navigation=Mobile`
+  drawing (Mode × Frame, from the Mobile Navigation example frames on `↪ Navigation`). Settled with
+  Nathan to leave it for a later chat; the Best practices block was updated the same day.
 - **No `TopBar` inside `navigation="top"`.** Nav's own rule: two full-width strips do not stack.
 - The three hand-rolled frames in the Nav and TopBar stories were left as they are. They are
   evidence of the reinvention, and rewriting them would turn a component PR into a story PR.
@@ -178,7 +232,9 @@ An unset `gap` computes to `normal`, not `0px` — the `Docked` assertion accept
 
 Mirrored to the **Best practices** block on `↪ App Shell` (`40005266:487`) on 2026-09-17, written
 here first and pushed to the canvas the same day — the Carousel direction. The two are one text in
-two places.
+two places. The phone rules followed on 2026-09-18: a sixth Do card (`40005298:2460`) and the
+Mobile Navigation Don't rewritten in place, and the Navigation block's Responsive Nav rule extended
+to point here.
 
 **Do**
 
@@ -192,11 +248,15 @@ two places.
 - Keep one `<h1>` in `AppShell.Content` and start blocks at `headingLevel={2}`.
 - Let the rail be resized from the seam when the app has room to give — `resizable` on the
   `SideNav`. The shell's gap is the handle; collapsed, the first pull opens the rail.
+- Give the shell a Mobile Navigation after the page and it swaps to it below 768 on its own — the
+  rail or top bar hides, the bar sits in the frame. Hand the sheet the rail's own sections so the
+  navigation is written once.
 
 **Don't**
 
 - Do not give `AppShell.Content` a height or make something inside it scroll. It is the shell's one
   scrolling region, and a second one nests scrollbars.
-- Do not put a `MobileNav` in the frame. It pins itself to the viewport and needs no shell around it.
+- Do not pin a Mobile Navigation over the shell's page. Inside the frame it is placed by the shell;
+  a second, fixed one covers content the shell already made room for.
 - Do not paint a surface on `AppShell.Page` in `floating`. If the page wants a panel, that is
   `contained`.
