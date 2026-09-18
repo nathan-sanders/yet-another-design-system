@@ -257,10 +257,22 @@ is a CSS variable on the row (`--row-height`) that the blocks and the add rail r
 `h-(--row-height)`, not an inline `height` on each block: a runtime value inline would defeat any
 responsive override, and there is one variable to change rather than four.
 
-**One departure from the prototype, on purpose.** Its pill follows the cursor along the handle and
-shows only on hover. Here it sits in the middle and shows on hover *and* on `focus-visible`, so a
-keyboard user can see which handle they are on — a cursor-following pill has nothing to follow
-from a keyboard.
+**The pill follows the pointer, as the prototype's does — and slides.** Hovering the strip puts
+the pill where the cursor is along it and it eases after the cursor at `duration-fast-min`; where
+it is says nothing about the value, only "you can grab it here", and a grab is where the hand
+already is. It is one CSS custom property, `--pill-offset`, written straight to the element on
+`pointermove` — a mousemove is not a reason to render — and read back by
+`top-(--pill-offset,50%)` / `left-(--pill-offset,50%)`, so nothing is an inline `top` a responsive
+rule could not override. Clamped to half the pill's length from either end, so it never hangs off
+the strip. **The one departure from the prototype is for the keyboard**: on `focus-visible` the
+property is unset and the fallback puts the pill in the middle, so a keyboard user can see which
+handle they are on — the prototype showed a keyboard nothing. The Figma `Hover` variant draws the
+pill centred for the same reason a canvas draws anything: it has no cursor.
+
+**Reading the pill's position mid-slide reads the wrong number.** The story asserts the property
+first (it is set synchronously) and `waitFor`s the computed `top`, because the transition is in
+flight for 130ms after the pointer event — the same class of thing as the settled-rect note in the
+root record.
 
 ## Traps written down
 
