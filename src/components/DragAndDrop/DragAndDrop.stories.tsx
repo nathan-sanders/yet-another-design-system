@@ -46,7 +46,14 @@ import { cn } from '../../lib/cn'
  * `↪ Drag and Drop` page (`40005289:447`): `Drag Handle`, `Sortable Item`
  * and `Resize Handle` sets, drawn from this code the day after it landed.
  *
- * Every story here is a test of the **keyboard** path: Tab to a grip, Space
+ * Each demo here comes in two: the story to look at, and a `…Keyboard` story
+ * that renders the identical tree and drives it. Storybook runs a play
+ * function the moment a story opens, and these tests rearrange a whole board
+ * — cards change columns, rows come and go — so a demo that carried its own
+ * test would never sit still. The pair share one `render`, which is what
+ * keeps the tested tree and the shown tree from drifting apart.
+ *
+ * Every `…Keyboard` story is a test of the **keyboard** path: Tab to a grip, Space
  * to lift, arrows to move, Space to drop. That is not a shortcut. A pointer
  * drag is the one interaction with no keyboard equivalent unless somebody
  * writes one, so the keyboard path is the one that can regress unnoticed —
@@ -136,46 +143,51 @@ function useBoard(initial: Containers<string>) {
   return [containers, setContainers, handlers] as const
 }
 
+const renderSortableList: Story['render'] = function SortableListStory() {
+  const [items, setItems] = useState(PEOPLE)
+
+  return (
+    <DragAndDrop
+      onDragEnd={({ active, over }) => {
+        if (!over || active.id === over.id) return
+        setItems((current) =>
+          reorder(current, current.indexOf(String(active.id)), current.indexOf(String(over.id))),
+        )
+      }}
+    >
+      <Sortable
+        id="people"
+        label="People"
+        items={items}
+        render={<ul aria-label="People" />}
+        className="flex w-72 flex-col gap-2"
+      >
+        {items.map((name) => (
+          <Sortable.Item key={name} id={name} label={name} render={<li />}>
+            <PersonRow name={name} />
+          </Sortable.Item>
+        ))}
+      </Sortable>
+    </DragAndDrop>
+  )
+}
+
 /**
  * One list, reordered. `Sortable` is a `<ul>` and each item a `<li>` — the
  * `render` prop is Base UI's, so a sortable list is still a list to a screen
  * reader. Each row is a plain `Card` with a `DragHandle` in it; a pointer
  * can grab the row anywhere, a keyboard grabs the grip.
- *
- * The play function lifts Alice, moves her down twice, drops her, and reads
- * the announcement that says where she landed; then lifts her again and
- * presses Escape, which is the path that has to leave the list exactly as it
- * was.
  */
-export const SortableList: Story = {
-  render: function SortableListStory() {
-    const [items, setItems] = useState(PEOPLE)
+export const SortableList: Story = { render: renderSortableList }
 
-    return (
-      <DragAndDrop
-        onDragEnd={({ active, over }) => {
-          if (!over || active.id === over.id) return
-          setItems((current) =>
-            reorder(current, current.indexOf(String(active.id)), current.indexOf(String(over.id))),
-          )
-        }}
-      >
-        <Sortable
-          id="people"
-          label="People"
-          items={items}
-          render={<ul aria-label="People" />}
-          className="flex w-72 flex-col gap-2"
-        >
-          {items.map((name) => (
-            <Sortable.Item key={name} id={name} label={name} render={<li />}>
-              <PersonRow name={name} />
-            </Sortable.Item>
-          ))}
-        </Sortable>
-      </DragAndDrop>
-    )
-  },
+/**
+ * The same list, driven. Alice is lifted, moved down twice and dropped, and
+ * the announcement that says where she landed is read; then lifted again and
+ * put back with Escape, which is the path that has to leave the list exactly
+ * as it was.
+ */
+export const SortableListKeyboard: Story = {
+  render: renderSortableList,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const list = canvas.getByRole('list', { name: 'People' })
@@ -283,6 +295,46 @@ function TaskCard({ id, onOpen }: { id: string; onOpen: (id: string) => void }) 
   )
 }
 
+const renderKanban: Story['render'] = function KanbanStory() {
+  const [containers, , handlers] = useBoard(BOARD)
+  const [opened, setOpened] = useState<string | null>(null)
+
+  return (
+    <DragAndDrop {...handlers}>
+      <div className="grid max-w-320 gap-4 lg:grid-cols-4">
+        {COLUMNS.map((column) => (
+          <ContentBlock key={column.id}>
+            <ContentBlock.Header
+              icon={column.icon}
+              titleSlot={<Badge color="neutral">{containers[column.id].length}</Badge>}
+            >
+              {column.name}
+            </ContentBlock.Header>
+            <ContentBlock.Content className="flex-1">
+              <Sortable
+                id={column.id}
+                label={column.name}
+                items={containers[column.id]}
+                role="list"
+                aria-label={column.name}
+                // A floor, so an emptied column still has a rect to drop on.
+                className="flex min-h-24 flex-1 flex-col gap-2 rounded-md"
+              >
+                {containers[column.id].map((id) => (
+                  <TaskCard key={id} id={id} onOpen={setOpened} />
+                ))}
+              </Sortable>
+            </ContentBlock.Content>
+          </ContentBlock>
+        ))}
+      </div>
+      <p className="text-content-subtle mt-4 text-sm" data-testid="opened">
+        {opened ? `Opened ${TASKS[opened].key}` : 'Click a card to open it.'}
+      </p>
+    </DragAndDrop>
+  )
+}
+
 /**
  * The kanban composition from `ClickableCard`'s stories (`40004220:13045`),
  * now with cards that move. Each column's body is a `Sortable` inside the
@@ -296,51 +348,17 @@ function TaskCard({ id, onOpen }: { id: string; onOpen: (id: string) => void }) 
  * the prototype does, and the counts in the headers follow. Click a card and
  * it still opens: the pointer sensor waits for 4px of travel before it calls
  * a press a drag.
- *
- * The play function carries a Todo card right into In Progress, then a Done
- * card into the empty column, by keyboard, and checks the columns' lists,
- * their counts, and where focus ended up.
  */
-export const Kanban: Story = {
-  render: function KanbanStory() {
-    const [containers, , handlers] = useBoard(BOARD)
-    const [opened, setOpened] = useState<string | null>(null)
+export const Kanban: Story = { render: renderKanban }
 
-    return (
-      <DragAndDrop {...handlers}>
-        <div className="grid max-w-320 gap-4 lg:grid-cols-4">
-          {COLUMNS.map((column) => (
-            <ContentBlock key={column.id}>
-              <ContentBlock.Header
-                icon={column.icon}
-                titleSlot={<Badge color="neutral">{containers[column.id].length}</Badge>}
-              >
-                {column.name}
-              </ContentBlock.Header>
-              <ContentBlock.Content className="flex-1">
-                <Sortable
-                  id={column.id}
-                  label={column.name}
-                  items={containers[column.id]}
-                  role="list"
-                  aria-label={column.name}
-                  // A floor, so an emptied column still has a rect to drop on.
-                  className="flex min-h-24 flex-1 flex-col gap-2 rounded-md"
-                >
-                  {containers[column.id].map((id) => (
-                    <TaskCard key={id} id={id} onOpen={setOpened} />
-                  ))}
-                </Sortable>
-              </ContentBlock.Content>
-            </ContentBlock>
-          ))}
-        </div>
-        <p className="text-content-subtle mt-4 text-sm" data-testid="opened">
-          {opened ? `Opened ${TASKS[opened].key}` : 'Click a card to open it.'}
-        </p>
-      </DragAndDrop>
-    )
-  },
+/**
+ * The same board, driven: a Todo card carried right into In Progress, then a
+ * Done card into the empty column, both by keyboard, checking the columns'
+ * lists, their counts and where focus ended up; then a plain click, which
+ * still opens a card.
+ */
+export const KanbanKeyboard: Story = {
+  render: renderKanban,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const column = (name: string) => canvas.getByRole('list', { name })
@@ -544,6 +562,171 @@ function ReportBlock({
   )
 }
 
+const renderDashboard: Story['render'] = function DashboardStory() {
+  const [board, setBoard] = useState<Board>(() =>
+    settle(
+      { containers: {}, order: Object.keys(ROWS), spans: {}, manual: [], heights: {} },
+      ROWS,
+    ),
+  )
+  const [labels, setLabels] = useState(BLOCKS)
+  const snapshot = useRef(board)
+  const next = useRef(1)
+
+  function addBlock(row: string) {
+    const id = `block-new-${next.current}`
+    const label = `Block ${next.current}`
+    next.current += 1
+    setLabels((current) => ({ ...current, [id]: label }))
+    setBoard((current) =>
+      settle(
+        current,
+        { ...current.containers, [row]: [...(current.containers[row] ?? []), id] },
+        current.order.includes(row) ? current.order : [...current.order, row],
+      ),
+    )
+  }
+
+  function addRow() {
+    addBlock(`row-new-${next.current}`)
+  }
+
+  function removeBlock(id: string) {
+    setBoard((current) => {
+      const row = findContainer(current.containers, id)
+      if (!row) return current
+      const containers = {
+        ...current.containers,
+        [row]: current.containers[row].filter((item) => item !== id),
+      }
+      return dropEmptyRows(settle(current, containers))
+    })
+  }
+
+  function resizeBlock(id: string, span: number) {
+    setBoard((current) => {
+      const row = findContainer(current.containers, id)
+      if (!row) return current
+      const items = current.containers[row]
+      const spans = resize(
+        items.map((item) => current.spans[item]),
+        items.indexOf(id),
+        span,
+      )
+      const nextSpans = { ...current.spans }
+      spans.forEach((value, i) => {
+        nextSpans[items[i]] = value
+      })
+      const manual = current.manual.includes(id) ? current.manual : [...current.manual, id]
+      return { ...current, spans: nextSpans, manual }
+    })
+  }
+
+  function resizeRow(row: string, height: number) {
+    setBoard((current) => ({ ...current, heights: { ...current.heights, [row]: height } }))
+  }
+
+  return (
+    <DragAndDrop
+      onDragStart={() => {
+        snapshot.current = board
+      }}
+      onDragOver={({ active, over }) => {
+        if (!over) return
+        setBoard((current) => {
+          const from = findContainer(current.containers, active.id)
+          const to = findContainer(current.containers, over.id)
+          if (!from || !to || from === to) return current
+          return settle(current, moveItem(current.containers, active.id, over.id))
+        })
+      }}
+      onDragEnd={({ active, over }) => {
+        setBoard((current) =>
+          dropEmptyRows(
+            over ? settle(current, moveItem(current.containers, active.id, over.id)) : current,
+          ),
+        )
+      }}
+      onDragCancel={() => setBoard(snapshot.current)}
+    >
+      <div className="flex max-w-320 flex-col">
+        {board.order.map((row, index) => {
+          const items = board.containers[row]
+          const spans = items.map((id) => board.spans[id] as ColumnSpan)
+          const height = board.heights[row] ?? ROW_HEIGHT
+          const name = `Row ${index + 1}`
+          return (
+            <div
+              key={row}
+              className="group flex items-start gap-2"
+              style={{ '--row-height': `${height}px` } as CSSProperties}
+            >
+              <div className="flex min-w-0 flex-1 flex-col">
+                <Sortable
+                  id={row}
+                  label={name}
+                  items={items}
+                  capacity={MAX_BLOCKS_PER_ROW}
+                  strategy={horizontalListSortingStrategy}
+                  role="list"
+                  aria-label={name}
+                  // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
+                  className="grid min-h-16 min-w-0 grid-cols-12 gap-4 rounded-lg"
+                >
+                  {items.map((id, position) => (
+                    <ReportBlock
+                      key={id}
+                      id={id}
+                      label={labels[id]}
+                      span={spans[position]}
+                      max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
+                      onRemove={removeBlock}
+                      onResize={resizeBlock}
+                    />
+                  ))}
+                </Sortable>
+                {/*
+                  The prototype's `Row Resize Spacer`: the 16px under every
+                  row is the handle for its height, and the space between
+                  rows at the same time.
+                */}
+                <ResizeHandle
+                  label={`Resize ${name} height`}
+                  orientation="horizontal"
+                  value={height}
+                  min={MIN_ROW_HEIGHT}
+                  max={MAX_ROW_HEIGHT}
+                  step={8}
+                  largeStep={40}
+                  valueText={(value) => `${value} pixels`}
+                  onResize={(value) => resizeRow(row, value)}
+                />
+              </div>
+              {/*
+                The prototype's rail: a full-height strip on the row's edge
+                that shows on hover. `focus-visible:opacity-100` so it is
+                there for a keyboard too; `disabled` keeps it in the tab
+                order at four blocks, saying no rather than vanishing.
+              */}
+              <Button
+                appearance="ghost"
+                startIcon={Plus}
+                aria-label={`Add block to ${name}`}
+                disabled={!canAddBlock(items.length)}
+                onClick={() => addBlock(row)}
+                className="h-(--row-height) w-6 shrink-0 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+              />
+            </div>
+          )
+        })}
+        <Button appearance="secondary" startIcon={Plus} onClick={addRow} className="self-start">
+          Add report block
+        </Button>
+      </div>
+    </DragAndDrop>
+  )
+}
+
 /**
  * The composable dashboard from Nathan's Figma Make prototype, and the
  * pattern Mixpanel Boards use: rows of blocks on a twelve-column grid, at
@@ -566,177 +749,17 @@ function ReportBlock({
  * the others re-share (`reflow`). The strip under a row sets its height. Both
  * are focusable separators: arrows step, Shift steps further, Home and End
  * go to the ends — and the play function drives them that way.
- *
- * The play function checks the spans the grid actually rendered, resizes by
- * column and by row, carries a block from the first row to the second by
- * keyboard, then exercises the add rail, the remove button and the add-row
- * button.
  */
-export const Dashboard: Story = {
-  render: function DashboardStory() {
-    const [board, setBoard] = useState<Board>(() =>
-      settle(
-        { containers: {}, order: Object.keys(ROWS), spans: {}, manual: [], heights: {} },
-        ROWS,
-      ),
-    )
-    const [labels, setLabels] = useState(BLOCKS)
-    const snapshot = useRef(board)
-    const next = useRef(1)
+export const Dashboard: Story = { render: renderDashboard }
 
-    function addBlock(row: string) {
-      const id = `block-new-${next.current}`
-      const label = `Block ${next.current}`
-      next.current += 1
-      setLabels((current) => ({ ...current, [id]: label }))
-      setBoard((current) =>
-        settle(
-          current,
-          { ...current.containers, [row]: [...(current.containers[row] ?? []), id] },
-          current.order.includes(row) ? current.order : [...current.order, row],
-        ),
-      )
-    }
-
-    function addRow() {
-      addBlock(`row-new-${next.current}`)
-    }
-
-    function removeBlock(id: string) {
-      setBoard((current) => {
-        const row = findContainer(current.containers, id)
-        if (!row) return current
-        const containers = {
-          ...current.containers,
-          [row]: current.containers[row].filter((item) => item !== id),
-        }
-        return dropEmptyRows(settle(current, containers))
-      })
-    }
-
-    function resizeBlock(id: string, span: number) {
-      setBoard((current) => {
-        const row = findContainer(current.containers, id)
-        if (!row) return current
-        const items = current.containers[row]
-        const spans = resize(
-          items.map((item) => current.spans[item]),
-          items.indexOf(id),
-          span,
-        )
-        const nextSpans = { ...current.spans }
-        spans.forEach((value, i) => {
-          nextSpans[items[i]] = value
-        })
-        const manual = current.manual.includes(id) ? current.manual : [...current.manual, id]
-        return { ...current, spans: nextSpans, manual }
-      })
-    }
-
-    function resizeRow(row: string, height: number) {
-      setBoard((current) => ({ ...current, heights: { ...current.heights, [row]: height } }))
-    }
-
-    return (
-      <DragAndDrop
-        onDragStart={() => {
-          snapshot.current = board
-        }}
-        onDragOver={({ active, over }) => {
-          if (!over) return
-          setBoard((current) => {
-            const from = findContainer(current.containers, active.id)
-            const to = findContainer(current.containers, over.id)
-            if (!from || !to || from === to) return current
-            return settle(current, moveItem(current.containers, active.id, over.id))
-          })
-        }}
-        onDragEnd={({ active, over }) => {
-          setBoard((current) =>
-            dropEmptyRows(
-              over ? settle(current, moveItem(current.containers, active.id, over.id)) : current,
-            ),
-          )
-        }}
-        onDragCancel={() => setBoard(snapshot.current)}
-      >
-        <div className="flex max-w-320 flex-col">
-          {board.order.map((row, index) => {
-            const items = board.containers[row]
-            const spans = items.map((id) => board.spans[id] as ColumnSpan)
-            const height = board.heights[row] ?? ROW_HEIGHT
-            const name = `Row ${index + 1}`
-            return (
-              <div
-                key={row}
-                className="group flex items-start gap-2"
-                style={{ '--row-height': `${height}px` } as CSSProperties}
-              >
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <Sortable
-                    id={row}
-                    label={name}
-                    items={items}
-                    capacity={MAX_BLOCKS_PER_ROW}
-                    strategy={horizontalListSortingStrategy}
-                    role="list"
-                    aria-label={name}
-                    // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
-                    className="grid min-h-16 min-w-0 grid-cols-12 gap-4 rounded-lg"
-                  >
-                    {items.map((id, position) => (
-                      <ReportBlock
-                        key={id}
-                        id={id}
-                        label={labels[id]}
-                        span={spans[position]}
-                        max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
-                        onRemove={removeBlock}
-                        onResize={resizeBlock}
-                      />
-                    ))}
-                  </Sortable>
-                  {/*
-                    The prototype's `Row Resize Spacer`: the 16px under every
-                    row is the handle for its height, and the space between
-                    rows at the same time.
-                  */}
-                  <ResizeHandle
-                    label={`Resize ${name} height`}
-                    orientation="horizontal"
-                    value={height}
-                    min={MIN_ROW_HEIGHT}
-                    max={MAX_ROW_HEIGHT}
-                    step={8}
-                    largeStep={40}
-                    valueText={(value) => `${value} pixels`}
-                    onResize={(value) => resizeRow(row, value)}
-                  />
-                </div>
-                {/*
-                  The prototype's rail: a full-height strip on the row's edge
-                  that shows on hover. `focus-visible:opacity-100` so it is
-                  there for a keyboard too; `disabled` keeps it in the tab
-                  order at four blocks, saying no rather than vanishing.
-                */}
-                <Button
-                  appearance="ghost"
-                  startIcon={Plus}
-                  aria-label={`Add block to ${name}`}
-                  disabled={!canAddBlock(items.length)}
-                  onClick={() => addBlock(row)}
-                  className="h-(--row-height) w-6 shrink-0 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                />
-              </div>
-            )
-          })}
-          <Button appearance="secondary" startIcon={Plus} onClick={addRow} className="self-start">
-            Add report block
-          </Button>
-        </div>
-      </DragAndDrop>
-    )
-  },
+/**
+ * The same dashboard, driven: the spans the grid rendered, a block resized
+ * by column and a row by height, a block carried from the first row into the
+ * second, a full row refusing a fifth, the add rail, the remove button and the
+ * add-row button — all by keyboard.
+ */
+export const DashboardKeyboard: Story = {
+  render: renderDashboard,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const row = (n: number) => canvas.getByRole('list', { name: `Row ${n}` })
@@ -875,6 +898,40 @@ export const Dashboard: Story = {
 // Overlay
 // ---------------------------------------------------------------------------
 
+const renderWithOverlay: Story['render'] = function WithOverlayStory() {
+  const [items, setItems] = useState(PEOPLE)
+  const [active, setActive] = useState<string | null>(null)
+
+  return (
+    <DragAndDrop
+      onDragStart={({ active }: DragStartEvent) => setActive(String(active.id))}
+      onDragCancel={() => setActive(null)}
+      onDragEnd={({ active, over }) => {
+        setActive(null)
+        if (!over || active.id === over.id) return
+        setItems((current) =>
+          reorder(current, current.indexOf(String(active.id)), current.indexOf(String(over.id))),
+        )
+      }}
+    >
+      <Sortable
+        id="people"
+        label="People"
+        items={items}
+        render={<ul aria-label="People" />}
+        className="flex w-72 flex-col gap-2"
+      >
+        {items.map((name) => (
+          <Sortable.Item key={name} id={name} label={name} render={<li />}>
+            <PersonRow name={name} />
+          </Sortable.Item>
+        ))}
+      </Sortable>
+      <DragAndDrop.Overlay>{active ? <OverlayRow name={active} /> : null}</DragAndDrop.Overlay>
+    </DragAndDrop>
+  )
+}
+
 /**
  * The same list, with `DragAndDrop.Overlay`. The carried row is now a copy
  * drawn on the library's overlay layer, portalled to `<body>`, and the row
@@ -882,44 +939,15 @@ export const Dashboard: Story = {
  * only when an item has to be carried *out of* a scroll container, which
  * would otherwise clip it at the edge; for everything else the item itself
  * moves, and the motion stays a CSS transition on the tokens.
- *
- * The play function lifts a row by keyboard and checks the copy is on the
- * overlay layer and under `<body>`, then cancels and checks it is gone.
  */
-export const WithOverlay: Story = {
-  render: function WithOverlayStory() {
-    const [items, setItems] = useState(PEOPLE)
-    const [active, setActive] = useState<string | null>(null)
+export const WithOverlay: Story = { render: renderWithOverlay }
 
-    return (
-      <DragAndDrop
-        onDragStart={({ active }: DragStartEvent) => setActive(String(active.id))}
-        onDragCancel={() => setActive(null)}
-        onDragEnd={({ active, over }) => {
-          setActive(null)
-          if (!over || active.id === over.id) return
-          setItems((current) =>
-            reorder(current, current.indexOf(String(active.id)), current.indexOf(String(over.id))),
-          )
-        }}
-      >
-        <Sortable
-          id="people"
-          label="People"
-          items={items}
-          render={<ul aria-label="People" />}
-          className="flex w-72 flex-col gap-2"
-        >
-          {items.map((name) => (
-            <Sortable.Item key={name} id={name} label={name} render={<li />}>
-              <PersonRow name={name} />
-            </Sortable.Item>
-          ))}
-        </Sortable>
-        <DragAndDrop.Overlay>{active ? <OverlayRow name={active} /> : null}</DragAndDrop.Overlay>
-      </DragAndDrop>
-    )
-  },
+/**
+ * The same list with the overlay, driven: a row lifted by keyboard, the copy
+ * found on the overlay layer under `<body>`, then cancelled and gone.
+ */
+export const WithOverlayKeyboard: Story = {
+  render: renderWithOverlay,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const overlay = () =>
