@@ -123,7 +123,7 @@ export function HeatMap({
   const hovered = hover ? { row: rows[hover.row], column: columns[hover.column], value: values[hover.row]?.[hover.column] } : null
 
   const table = (
-    <table className="sr-only">
+    <table>
       <caption>{label}</caption>
       <thead>
         <tr>

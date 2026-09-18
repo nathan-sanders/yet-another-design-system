@@ -332,6 +332,12 @@ export const Floating: Story = {
     // The title row is inset 16 while the grid under it is flush.
     const title = within(canvasElement).getByRole('heading', { level: 1 })
     await expect(getComputedStyle(title.parentElement!.parentElement!).paddingLeft).toBe('16px')
+    // The shell is the viewport, so the *document* must not scroll — only
+    // `<main>` does. It did once: every chart's screen-reader table wore
+    // `sr-only` itself, a table cannot be 1px tall, and the absolutely
+    // positioned box hung 161px below the fold. See ChartContainer.
+    const doc = document.documentElement
+    await expect(doc.scrollHeight).toBe(doc.clientHeight)
   },
 }
 
