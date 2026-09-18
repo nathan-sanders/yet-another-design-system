@@ -310,3 +310,24 @@ Same family as the animation clock never advancing there.
 - Figma's `Chart Key / Metric` and `_Swatch Label` are absorbed into `ChartLegend`'s row and
   `ChartTooltip`'s row rather than being separate components. Split them out if a third caller
   appears.
+
+## The dashboard can be the user's, and the charts follow the row
+
+`Data Viz/Dashboard` has three stories. `Reference` and `Everything` are the family's integration
+test — every chart, one `BentoGrid`, one set of rules — for a dashboard whose layout is the
+*designer's*. **`Composable` is for a dashboard whose layout is the user's**: the same charts on
+`DragAndDrop`'s rows, carried between rows by the grip, resized by the column with the strip between
+two blocks and by height with the strip under a row. Mixpanel Boards, in this library's parts. It
+owns nothing: the board's state and every change to it come from `DragAndDrop`'s `board.ts`, so it
+is a `useState<Board>` and a few handlers around parts that already exist.
+
+**The row owns the chart's height.** A chart's `height` is a number (see "A chart that fills its
+box exactly…" above — it was never a percentage), which is exactly what makes this work: the block
+passes `rowHeight - CHART_CHROME` down, where the chrome is the 48px header, the 16px under the
+content and a legend row with its 16px gap, and the plot re-measures its width on its own. A chart
+without a legend sits 40px short of the row, which is slack, not overflow; charts that size
+themselves some other way (`HeatMap`'s `cellHeight`) are not on this board for that reason.
+
+**A legend is a list.** `getAllByRole('listitem')` inside a row finds the legend entries as well as
+the blocks — the `ComposableKeyboard` story scopes to `:scope > [role="listitem"]` for that reason,
+and any test that counts a row's blocks has to.

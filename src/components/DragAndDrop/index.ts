@@ -22,3 +22,16 @@ export {
   resize,
 } from './spans'
 export type { ColumnSpan } from './spans'
+export {
+  addBlock,
+  createBoard,
+  dragEnd,
+  dragOver,
+  dropEmptyRows,
+  removeBlock,
+  resizeBlock,
+  resizeRow,
+  rowSpans,
+  settle,
+} from './board'
+export type { Board } from './board'
