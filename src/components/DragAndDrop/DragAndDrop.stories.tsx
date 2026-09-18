@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core'
@@ -17,9 +17,20 @@ import {
 
 import { DragAndDrop } from './DragAndDrop'
 import { DragHandle } from './DragHandle'
+import { ResizeHandle } from './ResizeHandle'
 import { Sortable } from './Sortable'
 import { findContainer, moveItem, reorder, type Containers } from './move'
-import { COL_SPAN, MAX_BLOCKS_PER_ROW, canAddBlock, distribute, type ColumnSpan } from './spans'
+import {
+  COL_SPAN,
+  GRID_COLUMNS,
+  MAX_BLOCKS_PER_ROW,
+  MIN_SPAN,
+  canAddBlock,
+  maxSpan,
+  reflow,
+  resize,
+  type ColumnSpan,
+} from './spans'
 import { Avatar, AvatarGroup } from '../Avatar'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
@@ -399,19 +410,86 @@ const ROWS: Containers<string> = {
   'row-3': ['block-6'],
 }
 
+/** The prototype's row is 436 tall and never shorter; these are the story's own numbers. */
+const ROW_HEIGHT = 256
+const MIN_ROW_HEIGHT = 160
+const MAX_ROW_HEIGHT = 640
+/** `gap-4` between the columns, which the span arithmetic has to know about. */
+const GRID_GAP = 16
+
+/**
+ * The whole dashboard, as one value: which blocks are in which row, the rows
+ * in order, every block's current span, which spans were set by hand, and
+ * each row's height. Kept as one object so a drag's snapshot is one
+ * assignment and Escape puts *all* of it back.
+ */
+interface Board {
+  containers: Containers<string>
+  order: string[]
+  /** Written by `resize`; re-derived by `reflow` when a row's members change. */
+  spans: Record<string, number>
+  /** Blocks somebody sized by hand: they keep their span through a reflow. */
+  manual: string[]
+  heights: Record<string, number>
+}
+
+function sameMembers(a: readonly string[], b: readonly string[]) {
+  return a.length === b.length && [...a].sort().every((id, i) => id === [...b].sort()[i])
+}
+
+/**
+ * Take a new set of containers and re-share the columns of every row whose
+ * *members* changed. A row that only reordered keeps each block's span, and a
+ * row that did not change at all keeps the proportional spans `resize` gave
+ * it — `moveItem` and the helpers below leave an untouched row's array as the
+ * same reference, which is what makes "unchanged" cheap to know. A block left
+ * alone in its row forgets its hand size: it takes the whole row anyway.
+ */
+function settle(board: Board, containers: Containers<string>, order = board.order): Board {
+  const spans = { ...board.spans }
+  const manual = new Set(board.manual)
+  for (const row of order) {
+    const items = containers[row]
+    const before = board.containers[row]
+    if (items === before) continue
+    if (items.length === 1) manual.delete(items[0])
+    if (before && sameMembers(items, before)) continue
+    reflow(items, spans, manual).forEach((span, i) => {
+      spans[items[i]] = span
+    })
+  }
+  return { ...board, containers, order, spans, manual: [...manual] }
+}
+
+function dropEmptyRows(board: Board): Board {
+  return { ...board, order: board.order.filter((row) => board.containers[row].length > 0) }
+}
+
 function ReportBlock({
   id,
   label,
   span,
+  max,
   onRemove,
+  onResize,
 }: {
   id: string
   label: string
   span: ColumnSpan
+  /** The widest this block may go; `undefined` for the last block, which has no handle. */
+  max?: number
   onRemove: (id: string) => void
+  onResize: (id: string, next: number) => void
 }) {
+  const item = useRef<HTMLDivElement>(null)
   return (
-    <Sortable.Item id={id} label={label} role="listitem" className={cn(COL_SPAN[span], 'rounded-lg')}>
+    <Sortable.Item
+      ref={item}
+      id={id}
+      label={label}
+      role="listitem"
+      className={cn(COL_SPAN[span], 'h-(--row-height) rounded-lg')}
+    >
       <ContentBlock>
         <ContentBlock.Header
           actions={
@@ -433,12 +511,34 @@ function ReportBlock({
         >
           {label}
         </ContentBlock.Header>
-        <ContentBlock.Content>
-          <div className="text-content-subtle flex h-32 items-center justify-center text-sm">
+        <ContentBlock.Content className="flex-1">
+          <div className="text-content-subtle flex flex-1 items-center justify-center text-sm">
             Report block
           </div>
         </ContentBlock.Content>
       </ContentBlock>
+      {/*
+        The prototype's `Item Resize Handle`: the 16px gap to the right of
+        every block but the last, which has nothing to its right to take
+        from. It reports columns, so one pixel unit is one twelfth of the
+        row, measured when the drag starts.
+      */}
+      {max !== undefined && (
+        <ResizeHandle
+          label={`Resize ${label}`}
+          orientation="vertical"
+          value={span}
+          min={MIN_SPAN}
+          max={max}
+          unit={() => {
+            const grid = item.current?.parentElement
+            return grid ? (grid.getBoundingClientRect().width + GRID_GAP) / GRID_COLUMNS : 1
+          }}
+          valueText={(value) => `${value} of ${GRID_COLUMNS} columns`}
+          onResize={(next) => onResize(id, next)}
+          className="absolute inset-y-0 right-0 translate-x-full"
+        />
+      )}
     </Sortable.Item>
   )
 }
@@ -456,86 +556,162 @@ function ReportBlock({
  * it and its blocks stop being drop targets for anything from another row,
  * so a carried block skips past it and the arrow keys do too. A row's "add"
  * rail appears on hover and on focus, and closes at four; the button under
- * the grid appends a row; a row whose last block is removed disappears. Resizing a block by hand is the
- * prototype's other half and is not here yet — `spans.ts` says where it
- * attaches.
+ * the grid appends a row; a row whose last block is removed disappears.
  *
- * The play function checks the spans the grid actually rendered, carries a
- * block from the first row to the second by keyboard, then exercises the
- * add rail, the remove button and the add-row button.
+ * **Resizing is the prototype's other half.** The strip between two blocks
+ * is a `ResizeHandle` that snaps the left block to a column and shares the
+ * rest among the blocks to its right in proportion (`resize`); the block is
+ * then *hand-sized* and keeps its span when the row's members change, while
+ * the others re-share (`reflow`). The strip under a row sets its height. Both
+ * are focusable separators: arrows step, Shift steps further, Home and End
+ * go to the ends — and the play function drives them that way.
+ *
+ * The play function checks the spans the grid actually rendered, resizes by
+ * column and by row, carries a block from the first row to the second by
+ * keyboard, then exercises the add rail, the remove button and the add-row
+ * button.
  */
 export const Dashboard: Story = {
   render: function DashboardStory() {
-    const [containers, setContainers, handlers] = useBoard(ROWS)
-    const [order, setOrder] = useState(Object.keys(ROWS))
+    const [board, setBoard] = useState<Board>(() =>
+      settle(
+        { containers: {}, order: Object.keys(ROWS), spans: {}, manual: [], heights: {} },
+        ROWS,
+      ),
+    )
     const [labels, setLabels] = useState(BLOCKS)
+    const snapshot = useRef(board)
     const next = useRef(1)
-
-    function dropEmptyRows(current: Containers<string>) {
-      setOrder((rows) => rows.filter((row) => current[row].length > 0))
-    }
 
     function addBlock(row: string) {
       const id = `block-new-${next.current}`
       const label = `Block ${next.current}`
       next.current += 1
       setLabels((current) => ({ ...current, [id]: label }))
-      setContainers((current) => ({ ...current, [row]: [...current[row], id] }))
+      setBoard((current) =>
+        settle(
+          current,
+          { ...current.containers, [row]: [...(current.containers[row] ?? []), id] },
+          current.order.includes(row) ? current.order : [...current.order, row],
+        ),
+      )
     }
 
     function addRow() {
-      const row = `row-new-${next.current}`
-      setContainers((current) => ({ ...current, [row]: [] }))
-      setOrder((rows) => [...rows, row])
-      addBlock(row)
+      addBlock(`row-new-${next.current}`)
     }
 
     function removeBlock(id: string) {
-      const row = findContainer(containers, id)
-      if (!row) return
-      const current = { ...containers, [row]: containers[row].filter((item) => item !== id) }
-      setContainers(current)
-      dropEmptyRows(current)
+      setBoard((current) => {
+        const row = findContainer(current.containers, id)
+        if (!row) return current
+        const containers = {
+          ...current.containers,
+          [row]: current.containers[row].filter((item) => item !== id),
+        }
+        return dropEmptyRows(settle(current, containers))
+      })
+    }
+
+    function resizeBlock(id: string, span: number) {
+      setBoard((current) => {
+        const row = findContainer(current.containers, id)
+        if (!row) return current
+        const items = current.containers[row]
+        const spans = resize(
+          items.map((item) => current.spans[item]),
+          items.indexOf(id),
+          span,
+        )
+        const nextSpans = { ...current.spans }
+        spans.forEach((value, i) => {
+          nextSpans[items[i]] = value
+        })
+        const manual = current.manual.includes(id) ? current.manual : [...current.manual, id]
+        return { ...current, spans: nextSpans, manual }
+      })
+    }
+
+    function resizeRow(row: string, height: number) {
+      setBoard((current) => ({ ...current, heights: { ...current.heights, [row]: height } }))
     }
 
     return (
       <DragAndDrop
-        {...handlers}
-        onDragEnd={({ active, over }) => {
-          // The settled board, computed once so the row list can follow it.
-          const next = over ? moveItem(containers, active.id, over.id) : containers
-          setContainers(next)
-          dropEmptyRows(next)
+        onDragStart={() => {
+          snapshot.current = board
         }}
+        onDragOver={({ active, over }) => {
+          if (!over) return
+          setBoard((current) => {
+            const from = findContainer(current.containers, active.id)
+            const to = findContainer(current.containers, over.id)
+            if (!from || !to || from === to) return current
+            return settle(current, moveItem(current.containers, active.id, over.id))
+          })
+        }}
+        onDragEnd={({ active, over }) => {
+          setBoard((current) =>
+            dropEmptyRows(
+              over ? settle(current, moveItem(current.containers, active.id, over.id)) : current,
+            ),
+          )
+        }}
+        onDragCancel={() => setBoard(snapshot.current)}
       >
-        <div className="flex max-w-320 flex-col gap-4">
-          {order.map((row, index) => {
-            const items = containers[row]
-            const spans = distribute(items.length) as ColumnSpan[]
+        <div className="flex max-w-320 flex-col">
+          {board.order.map((row, index) => {
+            const items = board.containers[row]
+            const spans = items.map((id) => board.spans[id] as ColumnSpan)
+            const height = board.heights[row] ?? ROW_HEIGHT
             const name = `Row ${index + 1}`
             return (
-              <div key={row} className="group flex items-stretch gap-2">
-                <Sortable
-                  id={row}
-                  label={name}
-                  items={items}
-                  capacity={MAX_BLOCKS_PER_ROW}
-                  strategy={horizontalListSortingStrategy}
-                  role="list"
-                  aria-label={name}
-                  // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
-                  className="grid min-h-16 min-w-0 flex-1 grid-cols-12 gap-4 rounded-lg"
-                >
-                  {items.map((id, position) => (
-                    <ReportBlock
-                      key={id}
-                      id={id}
-                      label={labels[id]}
-                      span={spans[position]}
-                      onRemove={removeBlock}
-                    />
-                  ))}
-                </Sortable>
+              <div
+                key={row}
+                className="group flex items-start gap-2"
+                style={{ '--row-height': `${height}px` } as CSSProperties}
+              >
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <Sortable
+                    id={row}
+                    label={name}
+                    items={items}
+                    capacity={MAX_BLOCKS_PER_ROW}
+                    strategy={horizontalListSortingStrategy}
+                    role="list"
+                    aria-label={name}
+                    // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
+                    className="grid min-h-16 min-w-0 grid-cols-12 gap-4 rounded-lg"
+                  >
+                    {items.map((id, position) => (
+                      <ReportBlock
+                        key={id}
+                        id={id}
+                        label={labels[id]}
+                        span={spans[position]}
+                        max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
+                        onRemove={removeBlock}
+                        onResize={resizeBlock}
+                      />
+                    ))}
+                  </Sortable>
+                  {/*
+                    The prototype's `Row Resize Spacer`: the 16px under every
+                    row is the handle for its height, and the space between
+                    rows at the same time.
+                  */}
+                  <ResizeHandle
+                    label={`Resize ${name} height`}
+                    orientation="horizontal"
+                    value={height}
+                    min={MIN_ROW_HEIGHT}
+                    max={MAX_ROW_HEIGHT}
+                    step={8}
+                    largeStep={40}
+                    valueText={(value) => `${value} pixels`}
+                    onResize={(value) => resizeRow(row, value)}
+                  />
+                </div>
                 {/*
                   The prototype's rail: a full-height strip on the row's edge
                   that shows on hover. `focus-visible:opacity-100` so it is
@@ -548,7 +724,7 @@ export const Dashboard: Story = {
                   aria-label={`Add block to ${name}`}
                   disabled={!canAddBlock(items.length)}
                   onClick={() => addBlock(row)}
-                  className="h-auto w-6 shrink-0 self-stretch px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                  className="h-(--row-height) w-6 shrink-0 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                 />
               </div>
             )
@@ -574,10 +750,57 @@ export const Dashboard: Story = {
       await expect(spans(3)).toEqual(['span 12'])
     })
 
+    await step('the handle between two blocks resizes the left one by the column', async () => {
+      const handle = canvas.getByRole('separator', { name: 'Resize Revenue' })
+      await expect(handle).toHaveAttribute('aria-valuenow', '6')
+      await expect(handle).toHaveAttribute('aria-valuemin', '3')
+      // Nine, because the neighbour keeps its three.
+      await expect(handle).toHaveAttribute('aria-valuemax', '9')
+      await expect(handle).toHaveAttribute('aria-valuetext', '6 of 12 columns')
+      handle.focus()
+      await userEvent.keyboard('{ArrowRight}')
+      await expect(spans(1)).toEqual(['span 7', 'span 5'])
+      await userEvent.keyboard('{End}')
+      await expect(spans(1)).toEqual(['span 9', 'span 3'])
+      // And it will not push the neighbour under three.
+      await userEvent.keyboard('{ArrowRight}')
+      await expect(spans(1)).toEqual(['span 9', 'span 3'])
+      await userEvent.keyboard('{Home}')
+      await expect(spans(1)).toEqual(['span 3', 'span 9'])
+      // The last block has nothing to its right, so no handle.
+      await expect(canvas.queryByRole('separator', { name: 'Resize Active users' })).toBeNull()
+    })
+
+    await step('a hand-sized block keeps its span when the row changes', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Add block to Row 1' }))
+      // Revenue stays at 3; the other two share the nine.
+      await expect(spans(1)).toEqual(['span 3', 'span 4', 'span 5'])
+      await userEvent.click(canvas.getByRole('button', { name: 'Remove Block 1' }))
+      await expect(spans(1)).toEqual(['span 3', 'span 9'])
+    })
+
+    await step('the handle under a row resizes its height', async () => {
+      const handle = canvas.getByRole('separator', { name: 'Resize Row 1 height' })
+      const height = () => within(row(1)).getAllByRole('listitem')[0].getBoundingClientRect().height
+      await expect(handle).toHaveAttribute('aria-valuenow', String(ROW_HEIGHT))
+      await expect(height()).toBe(ROW_HEIGHT)
+      handle.focus()
+      await userEvent.keyboard('{ArrowDown}')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(ROW_HEIGHT + 8))
+      // And the height actually reached the layout, not just the attribute.
+      await expect(height()).toBe(ROW_HEIGHT + 8)
+      await userEvent.keyboard('{Shift>}{ArrowUp}{/Shift}')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(ROW_HEIGHT + 8 - 40))
+      await userEvent.keyboard('{Home}')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(MIN_ROW_HEIGHT))
+      await expect(height()).toBe(MIN_ROW_HEIGHT)
+    })
+
     await step('a block is carried from the first row into the second', async () => {
       await lift(canvas.getByRole('button', { name: 'Move Revenue' }))
       await userEvent.keyboard('{ArrowDown}')
-      // Joined the row while still carried, and both rows re-shared their columns.
+      // Joined the row while still carried, and both rows re-shared their
+      // columns: Revenue keeps the three it was sized to, the rest share nine.
       await waitFor(() =>
         expect(within(row(2)).getByRole('button', { name: 'Move Revenue' })).toBeInTheDocument(),
       )

@@ -203,11 +203,49 @@ scans source text and a template literal generates nothing — `BentoGrid`'s rul
 is the prototype's: a strip on the row's edge, `opacity-0` until hover and `focus-visible`, `disabled`
 at four so it stays in the tab order and says no rather than vanishing.
 
-**Resize is the prototype's other half and is not here.** Its drag-to-resize snaps the left block to
-a column span, marks it manually sized, and redistributes the right neighbours proportionally above
-`MIN_SPAN`; there is a row-height handle too. When it comes it is a `resize(spans, index, next)`
-beside `distribute` — pure, node-tested — and a focusable `separator` shaped like `Table.ResizeHandle`
-between adjacent blocks and under each row. No new machinery from this record is needed.
+**Resize is the prototype's other half, and it landed on 2026-09-18.** Two handles, one
+component: `ResizeHandle` with an `orientation`. Between two blocks it is the prototype's
+`Item Resize Handle` — the 16px gap itself, `col-resize`, snapping the *left* block to a column —
+and under a row it is the `Row Resize Spacer`, the 16px between rows, `row-resize`, setting the
+row's height. It is `Table.ResizeHandle` made general: a focusable `separator` with
+`aria-valuenow`/`min`/`max` (a widget role owes all three, and axe checks), a pointer path on
+`setPointerCapture`, and a keyboard path — arrows step, Shift steps further, Home and End go to the
+ends — which is the path the story tests. It reports a **value in the caller's unit** rather than
+pixels: the column handle reports spans, with `unit` a function that measures one twelfth of the row
+when the drag starts, and the row handle reports pixels. `aria-valuetext` says "6 of 12 columns".
+`data-drag-ignore`, always — it sits inside a `Sortable.Item`, and a press on it is a resize.
+
+The arithmetic is `spans.ts`, tested in node, and it is the prototype's `GridRow.tsx` read
+carefully:
+
+- **`resize(spans, index, next)`** — the block takes what it asked for, clamped between `MIN_SPAN`
+  and whatever leaves every block to its *right* at `MIN_SPAN` (`maxSpan`), and the right blocks
+  share the remainder **in proportion to what they had**, so a wide neighbour stays the wide one.
+  Blocks to the left are untouched, and the last block has no handle because it has nothing to
+  take from. Largest-remainder rounding, so the row always closes on twelve — the prototype's
+  `Math.max(3, Math.round(…))` can overshoot the grid, and the test sweeps every span and every
+  target to prove this one cannot.
+- **`reflow(items, spans, manual)`** — what happens to a row when its *members* change. A block
+  somebody dragged is *hand-sized* and keeps its span; the others share what is left evenly. A
+  lone block takes the row and forgets its hand size. When the hand sizes leave the others fewer
+  than `MIN_SPAN` each, the row gives up on them and shares evenly — the honest answer, where the
+  prototype overflows.
+- **A row that only *reordered* keeps every block's span, and a row that did not change keeps the
+  proportional spans `resize` gave it.** That second one is the reason the story's `settle()`
+  reflows only rows whose array reference changed: `moveItem` and the add/remove helpers leave an
+  untouched row's array alone, which makes "unchanged" free to know. Reflowing every row on every
+  change would quietly even out a resize the moment any *other* row moved.
+
+The story keeps the dashboard as one `Board` value — containers, order, spans, the hand-sized set
+and row heights — so a drag's snapshot is one assignment and Escape restores all of it. Row height
+is a CSS variable on the row (`--row-height`) that the blocks and the add rail read back with
+`h-(--row-height)`, not an inline `height` on each block: a runtime value inline would defeat any
+responsive override, and there is one variable to change rather than four.
+
+**One departure from the prototype, on purpose.** Its pill follows the cursor along the handle and
+shows only on hover. Here it sits in the middle and shows on hover *and* on `focus-visible`, so a
+keyboard user can see which handle they are on — a cursor-following pill has nothing to follow
+from a keyboard.
 
 ## Traps written down
 
@@ -233,7 +271,9 @@ between adjacent blocks and under each row. No new machinery from this record is
 
 ## Measurements to check if this changes
 
-Grip **42 × 32** (the icon-only default `Button`: 16px glyph, 12px padding a side, 1px border);
+Resize handle **16px** across, exactly the grid gap, `cursor: col-resize` / `row-resize`,
+`role="separator"` with all three value attributes; `aria-valuemax` on a 6/6 row reads 9. Grip
+**42 × 32** (the icon-only default `Button`: 16px glyph, 12px padding a side, 1px border);
 `cursor: grab`, `touch-action: none`, `aria-roledescription: sortable`, `aria-describedby` resolving
 to a node containing "Press Space to pick this up". Lifted item `opacity: 0.5`, `z-index: 10`,
 `user-select: none`, a box-shadow ending in `0px 8px 16px` (`shadow-medium`), grip `cursor:
@@ -255,6 +295,8 @@ Written here first; the file owes a Docs block, and when it exists this is the t
   boundary, `onDragEnd` for settling, and a snapshot for Escape.
 - Mark a control that must not start a drag — a remove button, a menu trigger — `data-drag-ignore`.
 - Give a container that has a limit a `capacity`, and give one that can empty a minimum height.
+- Put a `ResizeHandle` in the gap, at the gap's size, and never on the last block — it has nothing
+  to its right to take from.
 - Reach for `DragAndDrop.Overlay` only when an item is carried out of a scroll container. Everything
   else moves in place, on the tokens.
 
@@ -265,6 +307,7 @@ Written here first; the file owes a Docs block, and when it exists this is the t
 - Don't put a ring on the card inside the item. The drop ring belongs on the item wrapper, where it
   cannot fight the card's focus ring.
 - Don't test a pointer drag. Drive the grip with the keyboard and assert the DOM order, the container
-  membership and what the live region said.
+  membership and what the live region said — and drive a resize handle the same way, asserting the
+  spans the grid rendered.
 - Don't reach for this to reorder a short, static list — a "move up / move down" pair of buttons is
   smaller, and a keyboard user does not have to learn a mode.
