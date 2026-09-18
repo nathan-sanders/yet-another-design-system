@@ -20,6 +20,13 @@ export interface NavContextValue {
   size: NavItemSize
   /** Items are children of an open group, so they carry the 16px indent. */
   indent: boolean
+  /**
+   * The rail's expanded width in pixels, for the one thing that has to match
+   * it from outside the rail's box: a collapsed group's flyout, which is the
+   * group as it would have looked had there been room. Unset by `TopNav`, and
+   * `SideNav.Group` falls back to the drawn 224.
+   */
+  width?: number
 }
 
 export const NavContext = createContext<NavContextValue>({

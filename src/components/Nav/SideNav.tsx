@@ -1,11 +1,12 @@
 import { useCallback, useContext, useMemo, useState } from 'react'
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import type { CSSProperties, ComponentPropsWithRef, ReactNode } from 'react'
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible'
 import { PanelLeft } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
 import { AppShellContext } from '../AppShell/context'
+import { ResizeHandle } from '../Resize'
 import { dismissesOverlay } from './dismiss'
 import { Popover } from '../Popover'
 import { Tooltip } from '../Tooltip'
@@ -53,15 +54,43 @@ import { navSurface } from './styles'
  * **Collapsed, the rail is 56px and every label becomes a tooltip.** That part
  * is `NavItem`'s doing; see its note on why an unlabelled icon is not shippable
  * even though Figma draws no tooltip.
+ *
+ * **`resizable` puts a `ResizeHandle` on the rail's right edge.** Inside a
+ * framed `AppShell` the handle *is* the shell's 8px gap — the same width,
+ * sitting exactly in it; docked, or outside a shell, it straddles the seam,
+ * 4px each side, as `Table`'s does. It sets the **expanded** width, between
+ * `minWidth` and `maxWidth`; the collapsed rail is always 56. Resizing a
+ * collapsed rail expands it: the handle reports the rail's real width, so
+ * the edge follows the hand, and the first change lands on `minWidth` — a
+ * rail cannot be expanded to less than that — after which the edge tracks
+ * the pointer. Shrinking a collapsed rail does nothing. The width goes in a
+ * custom property a utility reads back (`w-(--side-nav-width)`), never an
+ * inline `width`, and the rail's width transition is switched off for the
+ * length of a pointer drag so the edge does not trail the hand.
  */
 
 const sideNav = {
-  root: 'flex h-full flex-col gap-3 p-2 transition-[width] duration-medium ease-standard',
+  root: 'flex h-full flex-col gap-3 p-2',
+  // The collapse and the keyboard steps ease; a pointer drag switches it off
+  // (`transition-none`) so the edge does not trail the hand by 410ms.
+  transition: 'transition-[width] duration-medium ease-standard',
   // 224px and 56px, Figma's two variants. w-14 is the 40px item plus the root's
   // 8px padding either side.
   expanded: 'w-56',
+  // A width the user has set. The value lives in the variable, the width in
+  // the class: Popover's arrangement, so nothing here is an inline `width` a
+  // responsive rule could not reach past.
+  sized: 'w-(--side-nav-width)',
   collapsed: 'w-14',
 }
+
+/** Figma's drawn width; the default when nobody has resized. */
+export const SIDE_NAV_WIDTH = 224
+/** The icon rail: the 40px item plus 8px of padding either side. Not resizable. */
+export const SIDE_NAV_COLLAPSED_WIDTH = 56
+export const SIDE_NAV_MIN_WIDTH = 192
+export const SIDE_NAV_MAX_WIDTH = 400
+
 
 export interface SideNavProps
   extends Omit<ComponentPropsWithRef<'nav'>, 'children' | 'className'> {
@@ -100,6 +129,23 @@ export interface SideNavProps
    * here overrides that. Outside a shell it is `true`.
    */
   floating?: boolean
+  /**
+   * Draws a `ResizeHandle` on the right edge so the user can set the expanded
+   * width. Inside a framed `AppShell` the handle is the shell's 8px gap; docked
+   * or outside a shell it straddles the seam. Collapsed, the rail stays 56 and
+   * any resize expands it.
+   */
+  resizable?: boolean
+  /** The expanded width in pixels. Controlled; clamped to `minWidth`..`maxWidth`. */
+  width?: number
+  /** The starting expanded width when `width` is not controlled. Figma's 224. */
+  defaultWidth?: number
+  /** Called with the next width as the handle moves — every step of a drag, so persist on your own schedule. */
+  onWidthChange?: (width: number) => void
+  /** The narrowest the expanded rail can be made. 192 (`w-48`). */
+  minWidth?: number
+  /** The widest. 400 (`w-100`). */
+  maxWidth?: number
   className?: string
 }
 
@@ -113,6 +159,12 @@ export function SideNav({
   top,
   bottom,
   floating: floatingProp,
+  resizable = false,
+  width: widthProp,
+  defaultWidth = SIDE_NAV_WIDTH,
+  onWidthChange,
+  minWidth = SIDE_NAV_MIN_WIDTH,
+  maxWidth = SIDE_NAV_MAX_WIDTH,
   className,
   ...props
 }: SideNavProps) {
@@ -126,19 +178,35 @@ export function SideNav({
   const [uncontrolled, setUncontrolled] = useState(defaultCollapsed)
   const collapsed = collapsedProp ?? uncontrolled
 
-  const toggle = useCallback(() => {
-    const next = !collapsed
-    if (collapsedProp === undefined) setUncontrolled(next)
-    onCollapsedChange?.(next)
-  }, [collapsed, collapsedProp, onCollapsedChange])
+  const setCollapsed = useCallback(
+    (next: boolean) => {
+      if (collapsedProp === undefined) setUncontrolled(next)
+      onCollapsedChange?.(next)
+    },
+    [collapsedProp, onCollapsedChange],
+  )
+  const toggle = useCallback(() => setCollapsed(!collapsed), [collapsed, setCollapsed])
+
+  const clampWidth = (next: number) => Math.max(minWidth, Math.min(maxWidth, next))
+  const [uncontrolledWidth, setUncontrolledWidth] = useState(defaultWidth)
+  const width = clampWidth(widthProp ?? uncontrolledWidth)
+  const setWidth = (next: number) => {
+    if (widthProp === undefined) setUncontrolledWidth(next)
+    onWidthChange?.(next)
+  }
+  // A pointer drag is in flight: the width transition is off for its length.
+  const [resizing, setResizing] = useState(false)
+  // Only a rail somebody can resize, or has sized, carries the variable; every
+  // other rail renders exactly the `w-56` it always did.
+  const sized = resizable || widthProp !== undefined
 
   const ctx = useMemo<NavContextValue>(
-    () => ({ collapsed, size: 'default', indent: false }),
-    [collapsed],
+    () => ({ collapsed, size: 'default', indent: false, width }),
+    [collapsed, width],
   )
   const utilityCtx = useMemo<NavContextValue>(
-    () => ({ collapsed, size: 'small', indent: false }),
-    [collapsed],
+    () => ({ collapsed, size: 'small', indent: false, width }),
+    [collapsed, width],
   )
 
   return (
@@ -146,9 +214,13 @@ export function SideNav({
       className={cn(
         navSurface({ floating, docked }),
         sideNav.root,
-        collapsed ? sideNav.collapsed : sideNav.expanded,
+        resizing ? 'transition-none' : sideNav.transition,
+        collapsed ? sideNav.collapsed : sized ? sideNav.sized : sideNav.expanded,
+        // The handle is positioned off this box.
+        resizable && 'relative',
         className,
       )}
+      style={sized ? ({ '--side-nav-width': `${width}px` } as CSSProperties) : undefined}
       {...props}
     >
       <NavContext.Provider value={ctx}>
@@ -228,6 +300,44 @@ export function SideNav({
           </NavContext.Provider>
         ) : null}
       </NavContext.Provider>
+
+      {resizable ? (
+        /*
+          The handle reports the rail's *real* width, so the edge follows the
+          hand: collapsed it says 56, with 56 as its floor, and any change from
+          there expands the rail — clamped up to `minWidth`, because there is
+          no such thing as a 64px expanded rail. Shrinking a collapsed rail
+          clamps back to 56 and never fires. `aria-valuemin` moves with the
+          state so `valuenow` is never below it.
+
+          Where it sits is the shell's fact, read off the context the rail
+          already has: a framed shell has an 8px gap and the handle is that
+          gap; docked, or with no shell, there is no gap and it straddles the
+          seam — 4px over the rail's own padding, 4px over the page's — which
+          is `Table`'s arrangement. `z-10` so the straddling half paints over
+          the page's positioned children, as Table's does.
+        */
+        <ResizeHandle
+          label={`Resize ${props['aria-label']}`}
+          orientation="vertical"
+          value={collapsed ? SIDE_NAV_COLLAPSED_WIDTH : width}
+          min={collapsed ? SIDE_NAV_COLLAPSED_WIDTH : minWidth}
+          max={maxWidth}
+          step={8}
+          largeStep={40}
+          valueText={(value) => (collapsed ? 'Collapsed' : `${value} pixels`)}
+          onResize={(next) => {
+            if (collapsed) setCollapsed(false)
+            setWidth(clampWidth(next))
+          }}
+          onResizeStart={() => setResizing(true)}
+          onResizeEnd={() => setResizing(false)}
+          className={cn(
+            'absolute inset-y-0 right-0 z-10 w-2',
+            shell?.frame ? 'translate-x-full' : 'translate-x-1/2',
+          )}
+        />
+      ) : null}
     </nav>
   )
 }
@@ -388,9 +498,10 @@ function SideNavGroup({
           align="start"
           sideOffset={8}
           // The expanded rail's width. The flyout is the group as it would have
-          // looked had there been room, so it is the same 224 rather than the
-          // Popover's own 324 default.
-          width={224}
+          // looked had there been room, so it is the rail's own width — the
+          // drawn 224, or whatever the user has resized it to — rather than
+          // the Popover's own 324 default.
+          width={parent.width ?? SIDE_NAV_WIDTH}
           label={label}
           className={cn(
             // Repainted onto the navigation tier. The rows inside are NavItems,
