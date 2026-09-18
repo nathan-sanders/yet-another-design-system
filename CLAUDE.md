@@ -667,7 +667,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [ToolCall](src/components/Chat/CLAUDE.md) | one thing an assistant did on the way | collapsible derived from `detail`; four statuses where the file draws one, and the spinner rests under reduced motion on its own |
 | [AppShell](src/components/AppShell/CLAUDE.md) | the frame an app sits in | `floating` puts the blocks on the canvas, `contained` puts them in a panel; the nav reads its shadow off the shell through context, and `Content` is the one `<main>` that scrolls |
 | [ChatComposer](src/components/Chat/CLAUDE.md) | where a message is written and sent | Input's box stacked, with `ring="textarea"` because it holds buttons; Enter sends, Shift+Enter breaks; `streaming` is Figma's Stop; the first field that grows |
-| [DragAndDrop](src/components/DragAndDrop/CLAUDE.md) | the drag foundation: a root, sortable containers and items, a grip, a resize handle | `@dnd-kit`, the first library to clear the motion bar; pointer from anywhere on the item, keyboard from the grip only; `ResizeHandle` is Table's grip made general and reports the caller's unit; the kanban and the dashboard are its stories, not components; no Figma node yet |
+| [DragAndDrop](src/components/DragAndDrop/CLAUDE.md) | the drag foundation: a root, sortable containers and items, a grip, a resize handle | `@dnd-kit`, the first library to clear the motion bar; pointer from anywhere on the item, keyboard from the grip only; `ResizeHandle` is Table's grip made general and reports the caller's unit; the kanban and the dashboard are its stories, not components; drawn into the file the next day as three sets |
 
 ### Data visualization
 
