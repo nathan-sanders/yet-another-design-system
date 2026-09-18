@@ -122,6 +122,18 @@ a different reason: the square-cornered `<main>` inside would otherwise paint th
 rounded corners. No clip margin is needed there because the TopBar is `p-3` and Content `p-4`, so
 every ring inside has at least 12px before it reaches that edge.
 
+**The rail is resizable from the seam, and the shell owns none of it.** `resizable` on the
+`SideNav` (2026-09-18) puts a `ResizeHandle` on the rail's right edge; the shell's part is to be
+the reason the handle is 8px wide and to say, through `AppShellContext.frame`, whether there is a
+gap for it to sit in. Framed, the handle *is* the gap — `w-2`, flush with the rail on one side and
+the page on the other, which the `Resizable rail, keyboard` story asserts to the pixel. Docked,
+there is no gap and it straddles the seam, 4px each side, Table's arrangement. Settled with Nathan
+against an `AppShell` prop: the handle has to read and change the rail's width and its collapsed
+state, both of which live on the rail, and a shell-owned handle would have needed the rail to
+register itself upward through context — a channel the repo does not have and did not need. The
+range (192 – 400), the collapsed rule (any resize opens the rail at the minimum, and the edge
+follows the hand from there) and the transition switch are the Nav record's.
+
 **Heading order is the caller's to keep.** The dashboard story's `ContentBlock`s are
 `headingLevel={2}` under an `<h1>`; the default `3` fails axe's `heading-order` the moment there is
 an `h1` on the page and nothing between. Not a shell concern, but the first thing the story hit.
@@ -178,6 +190,8 @@ two places.
 - Put a `TopBar` beside a `SideNav` and the actions in a `TopNav`'s `utilities`. The shell does not
   stop you stacking a bar under a bar; Nav's rule does.
 - Keep one `<h1>` in `AppShell.Content` and start blocks at `headingLevel={2}`.
+- Let the rail be resized from the seam when the app has room to give — `resizable` on the
+  `SideNav`. The shell's gap is the handle; collapsed, the first pull opens the rail.
 
 **Don't**
 

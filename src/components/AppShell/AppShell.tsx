@@ -62,6 +62,11 @@ import {
  * the rail stays put and the page moves under the bar, which is what an app
  * shell is for.
  *
+ * **The rail can be resized from the seam, and that is the rail's to offer.**
+ * `resizable` on the `SideNav` draws a `ResizeHandle` that is exactly this
+ * shell's 8px gap; the shell's only part is to say, through context, whether
+ * the gap exists. See `SideNav`.
+ *
  * **Not a Base UI component.** A layout frame has no headless primitive; this is
  * three `div`s and a `main`, like `BentoGrid`.
  */
