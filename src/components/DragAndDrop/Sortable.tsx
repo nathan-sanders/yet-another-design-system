@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { ComponentPropsWithRef, ReactNode, Ref } from 'react'
-import { useDroppable, type UniqueIdentifier } from '@dnd-kit/core'
+import { useDndContext, useDroppable, type UniqueIdentifier } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, type SortingStrategy } from '@dnd-kit/sortable'
 import { useRender } from '@base-ui/react/use-render'
 
@@ -40,6 +40,13 @@ export interface SortableProps extends Omit<ComponentPropsWithRef<'div'>, 'id'> 
   /** The ordered ids this container holds. */
   items: UniqueIdentifier[]
   /**
+   * The most items this container will take. At the limit it stops being a
+   * drop target for anything carried in from *another* container — the
+   * pointer cannot land on it, the arrow keys skip it — while its own items
+   * still sort among themselves. Leave it off for a container with no limit.
+   */
+  capacity?: number
+  /**
    * How the neighbours shift as an item passes them. Vertical by default — a
    * list, a column. A row of blocks wants `horizontalListSortingStrategy`.
    */
@@ -53,6 +60,7 @@ export function Sortable({
   id,
   label,
   items,
+  capacity,
   strategy = verticalListSortingStrategy,
   render,
   className,
@@ -61,8 +69,24 @@ export function Sortable({
   ...props
 }: SortableProps) {
   const data = useMemo<SortableContainerData>(() => ({ type: 'container', label }), [label])
-  const { setNodeRef, isOver } = useDroppable({ id, data })
-  const context = useMemo(() => ({ id, label }), [id, label])
+
+  /*
+    Full means "full to something from elsewhere": an item lifted from this
+    container can be put back down in it, and one that `onDragOver` has just
+    carried in still counts as ours. **Ours is `items.includes(active.id)`**,
+    read off the prop, and not `active.data.current.containerId` — that ref
+    is updated by the item's own render, which comes *after* this one, so at
+    the exact moment a carried-in block makes the row full it still reads the
+    old container. The row then refuses the block it just took, the collision
+    falls back to where it came from, `onDragOver` moves it back, and the two
+    rows hand it to each other until React gives up. The prop has no lag.
+  */
+  const { active } = useDndContext()
+  const accepting =
+    capacity === undefined || items.length < capacity || active === null || items.includes(active.id)
+
+  const { setNodeRef, isOver } = useDroppable({ id, data, disabled: !accepting })
+  const context = useMemo(() => ({ id, label, accepting }), [id, label, accepting])
 
   const element = useRender({
     render,

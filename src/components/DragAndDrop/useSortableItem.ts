@@ -88,7 +88,17 @@ export function useSortableItem({ id, label, disabled }: UseSortableItemOptions)
     transition,
     isDragging,
     isOver,
-  } = useSortable({ id, disabled, data })
+  } = useSortable({
+    id,
+    /*
+      A container that has hit its `capacity` stops being a drop target for
+      anything from outside it — and so do its items, or a foreign block could
+      still land *between* two of them. Its own items keep sorting among
+      themselves, and stay draggable out.
+    */
+    disabled: { draggable: disabled, droppable: disabled || container?.accepting === false },
+    data,
+  })
 
   const pointerActivator = listeners?.onPointerDown as PointerEventHandler | undefined
   const keyboardActivator = listeners?.onKeyDown as KeyboardEventHandler | undefined

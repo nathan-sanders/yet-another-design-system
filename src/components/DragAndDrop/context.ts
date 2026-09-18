@@ -14,6 +14,8 @@ import type { KeyboardEventHandler } from 'react'
 export interface SortableContainerContextValue {
   id: string
   label: string
+  /** False while the container is full and something from elsewhere is being carried. */
+  accepting: boolean
 }
 
 export const SortableContainerContext = createContext<SortableContainerContextValue | null>(null)
