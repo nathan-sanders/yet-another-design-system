@@ -20,15 +20,17 @@ BentoGrid still carries is closed here.
 | Thing | Node | Became |
 |---|---|---|
 | App Shell (`Mode` × `Navigation` × `Frame`, 8 variants) | `40005265:10346` | `AppShell` — defaults Floating / Side / True, the code's |
+| `Content` slot | `Content#40005268:9` | `AppShell.Content` |
 | Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005266:487` | this record's Best practices |
 
 **The set was drawn *from* the code, the Sankey direction.** Each variant is one of the four frames
 cloned, with the page surface, the content padding and the nav's `Floating` set per the recipes in
-`styles.ts`; the Top variants gained a `Page` wrapper so all eight share one layer structure. Two
-things the canvas cannot say and the code does: `Content Slot` is a plain FRAME, not a SLOT, because
-the Plugin API cannot create one — convert it by hand in the UI if a slot is wanted; and the
-contained Page's stroke is `INSIDE` with `strokesIncludedInLayout` on, which is CSS's border-box
-(the content sits 1px in). The Docs preview's `Contained` instances carry an explicit `Navigation
+`styles.ts`; the Top variants gained a `Page` wrapper so all eight share one layer structure. `Content` is a
+real SLOT (`Content#40005268:9`, one property on the set, bound to the frame in each variant with
+`stretchChildOnInsert` on so a dropped grid fills it) — the Plugin API grew slot support since the
+Dialog page found it could not make one, and the root record's note on that is stale. One thing the
+canvas says differently from the code: the contained Page's stroke is `INSIDE` with
+`strokesIncludedInLayout` on, which is CSS's border-box (the content sits 1px in). The Docs preview's `Contained` instances carry an explicit `Navigation
 Theme = Canvas` mode, which is the pairing the mode is drawn for.
 
 The four source frames stayed on the page as they were.
