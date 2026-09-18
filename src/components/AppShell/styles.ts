@@ -79,8 +79,18 @@ export const appShellPage = tv({
         'overflow-clip',
       ],
     },
+    frame: {
+      true: '',
+      false: '',
+    },
   },
-  defaultVariants: { mode: 'floating' },
+  compoundVariants: [
+    // Docked, the panel is hard against the window edge, where a rounded
+    // corner shows canvas behind it — the same reason the nav squares off.
+    // The border stays: it is what separates the panel from the nav.
+    { mode: 'contained', frame: false, class: 'rounded-none' },
+  ],
+  defaultVariants: { mode: 'floating', frame: true },
 })
 
 /**

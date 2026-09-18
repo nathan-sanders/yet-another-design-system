@@ -406,6 +406,25 @@ export const Docked: Story = {
 }
 
 /**
+ * Both axes off the default at once: the page is a bordered panel and the
+ * frame is gone. The panel squares its corners for the same reason the rail
+ * does — hard against the window edge, a rounded corner shows canvas behind
+ * it — and keeps its border, which is what separates it from the rail.
+ */
+export const ContainedDocked: Story = {
+  name: 'Contained, docked',
+  args: { mode: 'contained', frame: false },
+  globals: { navTheme: 'canvas' },
+  play: async ({ canvasElement }) => {
+    const { nav, page, main } = measure(canvasElement)
+    await expect(nav.borderTopLeftRadius).toBe('0px')
+    await expect(page.borderTopLeftRadius).toBe('0px')
+    await expect(page.borderTopWidth).toBe('1px')
+    await expect(main.padding).toBe('16px')
+  },
+}
+
+/**
  * `navigation="top"`: the frame becomes a column, and the nav is a `TopNav`.
  * No `TopBar` — Nav's own rule says the two full-width strips do not stack,
  * so the actions live in the bar's `utilities`.

@@ -119,7 +119,10 @@ function AppShellPage({ children, className, ...props }: AppShellPageProps) {
   const shell = useContext(AppShellContext)
 
   return (
-    <div className={cn(appShellPage({ mode: shell?.mode }), className)} {...props}>
+    <div
+      className={cn(appShellPage({ mode: shell?.mode, frame: shell?.frame }), className)}
+      {...props}
+    >
       {children}
     </div>
   )

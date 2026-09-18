@@ -73,9 +73,11 @@ context is the ancestor declaring it so the caller does not have to.
 
 **`frame` is the 8px.** Figma draws each layout twice, once inside `spacing/2` and once docked to
 the window edge with neither. The docked pair is `frame={false}`, and the nav's shadow goes with it
-because there is nothing for it to float above. In the file both docked frames are drawn floating-
-mode only; `contained` with `frame={false}` keeps the panel's border and radius and simply has no gap
-to the rail. Not drawn, not forbidden.
+because there is nothing for it to float above. In the file both docked frames were drawn floating-
+mode only; `contained` with `frame={false}` was first built keeping the panel's radius, and Nathan
+squared it (2026-09-17): hard against the window edge a rounded corner shows canvas behind it, the
+same reason the nav squares off. The border stays — it is what separates the panel from the rail.
+Both the two Figma variants and the `Contained, docked` story assert it.
 
 **Docked, the nav squares its corners and the content takes 16px at the sides.** Both Nathan's calls
 on the first `Docked` story (2026-09-17). The corners: a `rounded-lg` bar hard against the viewport
@@ -136,6 +138,7 @@ Against the Figma frames, in the story `play` functions (Chromium, `npm test`):
 | Frame padding / gap (`frame`) | 8 / 8 | 8px / 8px |
 | Frame padding / gap (`frame={false}`) | 0 / 0 | 0px / `normal` |
 | Docked: rail radius / content side padding | — | 0px / 16px, margin 0 |
+| Contained + docked: page radius / border | 0 / 1 | 0px / 1px |
 | Floating: title row inset / grid | 16 / 0 | 16px / 0px — `h1` at grid + 16, on the block titles |
 | Row / column by `navigation` | side / top | `row` / `column` |
 | Floating: page border, fill | none | 0px, `rgba(0,0,0,0)` |
