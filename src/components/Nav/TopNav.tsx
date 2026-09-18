@@ -98,6 +98,9 @@ export function TopNav({
         'flex min-h-14 w-full items-center gap-3 px-3 py-2',
         className,
       )}
+      // The marker an `AppShell` hides below 768 when it also holds a
+      // `MobileNav`. Only a marker: the breakpoint and the rule are the shell's.
+      data-wide-nav=""
       {...props}
     >
       <NavContext.Provider value={ctx}>

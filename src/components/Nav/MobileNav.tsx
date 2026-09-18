@@ -1,4 +1,4 @@
-import { Children, isValidElement, useCallback, useMemo, useState } from 'react'
+import { Children, isValidElement, useCallback, useContext, useMemo, useState } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { ChevronsUpDown } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { dismissesOverlay } from './dismiss'
 import { navLayer, overlayLayer } from '../../lib/layers'
+import { AppShellContext } from '../AppShell/context'
 import { Dialog } from '../Dialog'
 import { backdrop, viewport } from '../Dialog/styles'
 import { Icon } from '../Icon'
@@ -46,6 +47,16 @@ import { navItem, navSheet, navSurface } from './styles'
  * **The sheet always comes from the bottom**, including when the bar is at the
  * top. Figma draws it that way in both example frames and it is right for the
  * same reason: the sheet is where the hand is, not where its trigger is.
+ *
+ * **Inside an `AppShell` it does not pin itself — the shell places it.** The
+ * shell is the viewport (`h-dvh`, one scrolling `<main>`), so a bar at the end
+ * of its column stays put with no `fixed` at all, and the shell's 8px frame is
+ * exactly the inset Figma's phone frames draw (377 in 393). So in a shell the
+ * bar is an ordinary flex child, hidden from `md:` up, with `floating` and
+ * `docked` read off the shell the way the rail reads them; and below 768 the
+ * shell hides its rail or top bar for it. The caller writes it where it
+ * appears — after the page for `bottom`, before it for `top` — so the DOM
+ * order is the focus order. Outside a shell nothing here has changed.
  */
 
 /**
@@ -138,12 +149,20 @@ export interface MobileNavProps
   /**
    * Which edge the bar is pinned to. `bottom` is the default, and the one to
    * reach for — a bar at the top of a phone is a long way from the thumb.
+   *
+   * Inside an `AppShell` the bar is not pinned: it sits in the shell's frame
+   * wherever the caller put it among the shell's children, and this prop is
+   * not read.
    */
   placement?: 'bottom' | 'top'
   /**
    * Whether the bar is lifted off the page. Figma's `Floating` axis, and as on
    * both other bars it is **only the drop shadow** — the radius and padding are
    * identical either way.
+   *
+   * Inside an `AppShell` the default comes from the shell, as it does for the
+   * rail: lifted in `floating`, flush in `contained` and whenever the frame is
+   * off. Setting it here overrides that. Outside a shell it is `true`.
    */
   floating?: boolean
   /** Sheet open state, controlled. */
@@ -174,7 +193,7 @@ export function MobileNav({
   sectionIcon,
   utilities,
   placement = 'bottom',
-  floating = true,
+  floating: floatingProp,
   open: openProp,
   defaultOpen = false,
   onOpenChange,
@@ -182,6 +201,10 @@ export function MobileNav({
   className,
   ...props
 }: MobileNavProps) {
+  const shell = useContext(AppShellContext)
+  // The rail's two reads, verbatim: the shell knows what the bar sits in.
+  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
+  const docked = shell ? !shell.frame : false
   const [uncontrolled, setUncontrolled] = useState(defaultOpen)
   const open = openProp ?? uncontrolled
 
@@ -220,12 +243,18 @@ export function MobileNav({
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <nav
         className={cn(
-          navSurface({ floating }),
+          navSurface({ floating, docked }),
           bar.root,
-          bar[placement],
-          navLayer,
+          // In a shell the bar is a flex child of the frame, gone from `md:` up
+          // — the frame's own column and gap place it. Not `fixed`, so no
+          // `navLayer` either: there is nothing positioned to paint over.
+          // `shrink-0` because it sits in a column beside a page that scrolls.
+          shell ? 'shrink-0 md:hidden' : [bar[placement], navLayer],
           className,
         )}
+        // The marker the shell's `:has()` reads to hide its wide nav and turn
+        // its frame into a column below 768. Harmless outside a shell.
+        data-mobile-nav=""
         {...props}
       >
         <NavContext.Provider value={barCtx}>

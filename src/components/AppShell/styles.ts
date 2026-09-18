@@ -20,6 +20,25 @@ export const appShell = tv({
     // to work against. `min-h-0` so nothing inside can grow it.
     'flex h-dvh min-h-0 w-full',
     'bg-surface-canvas font-sans text-base text-content-primary',
+    // **The phone swap, and the shell owns it.** Give the shell a `MobileNav`
+    // and below `md:` (768, the library's one phone boundary — BentoGrid's and
+    // ResponsiveNav's) the rail or the top bar steps aside for it. Nothing is
+    // declared: a `responsive` prop could be set with no phone bar to swap to
+    // (no nav at all on a phone) or left unset beside one (two navs), and a
+    // prop that can contradict the children will. The presence of the bar is
+    // the fact, and `:has()` reads it — through any wrapper, ResponsiveNav's
+    // fragment included, which is more than React could do: a wrapped nav has
+    // a different `type`, the same reason `navigation` is declared rather than
+    // read off the first child. And it is CSS, so the first paint is right, on
+    // a server and through hydration, exactly as ResponsiveNav's own swap is.
+    //
+    // Two rules. The frame becomes a column whatever `navigation` says — a
+    // hidden rail, the page and the bar in a *row* would put the bar beside
+    // the page — and every wide nav inside it hides. The navs carry only the
+    // two markers (`data-mobile-nav`, `data-wide-nav`); the breakpoint is
+    // written here once, the way ResponsiveNav writes it once for the bars.
+    'max-md:has-data-mobile-nav:flex-col',
+    'max-md:has-data-mobile-nav:[&_[data-wide-nav]]:hidden',
   ],
   variants: {
     /**
@@ -99,7 +118,15 @@ export const appShellPage = tv({
  * both examples stack their title and grid with.
  */
 export const appShellContent = tv({
-  base: 'flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-4',
+  // `relative` makes the scroll region the containing block for anything
+  // absolutely positioned inside the page — which is every `sr-only`, since
+  // that utility is `position: absolute`. Without it a hidden 1px box at the
+  // foot of a long page belongs to the *document*: `overflow-y-auto` only
+  // clips descendants whose containing block is inside it, so the box fell
+  // out of the shell and the window grew 500px of scroll under a phone. The
+  // ChartContainer fix (a `div` round the table) made the box 1px; this is
+  // what keeps a 1px box inside the region that scrolls.
+  base: 'relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-4',
   variants: {
     mode: {
       // Example 1 is `px-0 py-4`: the blocks line up with the TopBar's edges.
