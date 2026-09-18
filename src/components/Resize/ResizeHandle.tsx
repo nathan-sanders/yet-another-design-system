@@ -5,26 +5,44 @@ import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
 
 /**
- * ResizeHandle — the strip between two blocks, or under a row, that you
- * drag to change a size.
+ * ResizeHandle — the strip you drag to change a size: the gap between two
+ * dashboard blocks, the seam beside an application's rail, the edge of a
+ * table column.
  *
- * Mirrors the prototype's two handles — `Item Resize Handle` between blocks
- * (16px wide, `ew-resize`) and `Row Resize Spacer` under a row (16px tall,
- * `ns-resize`) — as one component with an `orientation`. Both are the same
- * idea as `Table.ResizeHandle`, and this is that component made general: it
- * reports a **value in the caller's unit** rather than pixels, so the column
- * handle reports spans and the row handle reports pixels, and the arithmetic
- * that snaps a drag to a column lives in `spans.ts` where it is tested.
+ * Mirrors the `Resize Handle` set on the Figma page `↪ Resize`
+ * (`40005289:41760`, Orientation vertical | horizontal × State default | hover
+ * | focus). It began life inside `DragAndDrop`, where the composable dashboard
+ * needed both a drag and a resize, and moved out on 2026-09-18: a resize is not
+ * a drag, and the handle's other callers — `Table`'s columns, `SideNav`'s
+ * rail — have no drag anywhere near them. It is `Table.ResizeHandle` made
+ * general: it reports a **value in the caller's unit** rather than pixels, so
+ * the dashboard's column handle reports spans and the rail's reports pixels,
+ * and the arithmetic that snaps a value lives with the caller, where it is
+ * tested.
+ *
+ * **A handle is the gap it sits in, at the gap's size.** Between dashboard
+ * blocks that is 16px, and `w-4` is the default; beside the rail the shell's
+ * gap is 8, and the rail passes `w-2`. A handle wider than its gap is a handle
+ * lying over something.
  *
  * **A focusable `separator`, not a button.** A button does one thing; this
  * does a continuous one. Being focusable makes `separator` a widget role,
  * which obliges `aria-valuenow` / `valuemin` / `valuemax` — axe checks for
  * exactly that, and a screen reader has nothing to say without them. The
- * keyboard path is the one the story tests: arrows step, Shift steps
+ * keyboard path is the one the stories test: arrows step, Shift steps
  * further, Home and End go to the ends.
  *
- * **`data-drag-ignore`**, always: the handle sits inside a `Sortable.Item`,
- * and a press on it is a resize, never the start of a drag.
+ * **`data-drag-ignore`, always.** It is the contract with `DragAndDrop`: a
+ * `Sortable.Item` starts a drag from a press anywhere on itself *except* on an
+ * element carrying this attribute (`useSortableItem`), so a handle inside one
+ * is a resize and never a lift. Outside a drag root the attribute is inert and
+ * costs nothing, which is why it is unconditional rather than a prop.
+ *
+ * **`onResizeStart` / `onResizeEnd` bracket a pointer drag**, and only that.
+ * A keystroke is one resize, complete in itself; a drag is a stream of them,
+ * and a caller whose size is on a CSS transition needs to know when the stream
+ * starts and stops so it can switch the transition off for its length — a
+ * 400ms ease trailing the pointer reads as a broken handle.
  *
  * **The pill follows the pointer along the strip**, as the prototype's does:
  * hovering a 160px-tall handle near its top puts the pill near the top, and
@@ -106,6 +124,13 @@ export interface ResizeHandleProps {
   largeStep?: number
   /** Reads the value for a screen reader — "6 of 12 columns" rather than "6". */
   valueText?: (value: number) => string
+  /**
+   * A pointer drag has begun. Not fired for a keystroke: a caller uses the
+   * pair to hold a size transition off while the pointer is down.
+   */
+  onResizeStart?: () => void
+  /** The pointer drag has ended. */
+  onResizeEnd?: () => void
   className?: string
 }
 
@@ -120,6 +145,8 @@ export function ResizeHandle({
   step = 1,
   largeStep = step,
   valueText,
+  onResizeStart,
+  onResizeEnd,
   className,
 }: ResizeHandleProps) {
   const start = useRef<{ at: number; value: number; unit: number } | null>(null)
@@ -142,8 +169,19 @@ export function ResizeHandle({
       will, because a fast drag outruns the block it is widening — and the
       moves keep arriving here instead of at whatever is under the cursor.
     */
-    event.currentTarget.setPointerCapture(event.pointerId)
+    /*
+      Guarded, because a pointer that is not active cannot be captured and the
+      call throws — which a real press never is, and a synthetic one (a test's
+      `userEvent.pointer`) always is. Without capture the drag still works
+      while the pointer stays on the strip, which is all a test needs.
+    */
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId)
+    } catch {
+      // No active pointer to capture; see above.
+    }
     event.preventDefault()
+    onResizeStart?.()
   }
 
   /*
@@ -175,7 +213,16 @@ export function ResizeHandle({
   function handlePointerUp(event: ReactPointerEvent<HTMLSpanElement>) {
     if (!start.current) return
     start.current = null
-    event.currentTarget.releasePointerCapture(event.pointerId)
+    /*
+      The browser releases capture on its own at pointerup; this is for a
+      cancel. Guarded, because releasing a pointer that is no longer active
+      throws, and the caller's `onResizeEnd` has to run either way — a rail
+      left with its transition off is worse than a capture left to expire.
+    */
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    onResizeEnd?.()
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLSpanElement>) {
@@ -213,6 +260,8 @@ export function ResizeHandle({
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
+      // A touch the browser takes back for a scroll ends the drag the same way.
+      onPointerCancel={handlePointerUp}
       onKeyDown={handleKeyDown}
       className={cn(handle({ orientation }), className)}
     >

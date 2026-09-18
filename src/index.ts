@@ -403,7 +403,10 @@ export type {
 export { Token } from './components/Token'
 export type { TokenProps, TokenSize, TokenRadius } from './components/Token'
 
-export { DragAndDrop, Sortable, DragHandle, ResizeHandle, useSortableItem } from './components/DragAndDrop'
+export { ResizeHandle } from './components/Resize'
+export type { ResizeHandleProps, ResizeHandleOrientation } from './components/Resize'
+
+export { DragAndDrop, Sortable, DragHandle, useSortableItem } from './components/DragAndDrop'
 export { moveItem, moveBetweenContainers, findContainer, reorder } from './components/DragAndDrop'
 export {
   distribute,
@@ -422,8 +425,6 @@ export type {
   SortableProps,
   SortableItemProps,
   DragHandleProps,
-  ResizeHandleProps,
-  ResizeHandleOrientation,
   UseSortableItemOptions,
   SortableItem,
   Containers,

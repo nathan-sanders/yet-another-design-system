@@ -17,7 +17,6 @@ import {
   GRID_COLUMNS,
   MAX_BLOCKS_PER_ROW,
   MIN_SPAN,
-  ResizeHandle,
   Sortable,
   createBoard,
   dragEnd,
@@ -29,6 +28,7 @@ import {
   rowSpans,
   type ColumnSpan,
 } from '../DragAndDrop'
+import { ResizeHandle } from '../Resize'
 import { HeatMap } from '../HeatMap'
 import { LineSeries } from '../LineSeries'
 import { MetricCard, MetricGrid } from '../Metric'
