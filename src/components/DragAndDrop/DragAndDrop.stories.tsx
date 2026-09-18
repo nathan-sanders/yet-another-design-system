@@ -772,6 +772,24 @@ export const Dashboard: Story = {
       await expect(canvas.queryByRole('separator', { name: 'Resize Active users' })).toBeNull()
     })
 
+    await step('the pill follows the pointer along the handle, and returns to the middle', async () => {
+      const handle = canvas.getByRole('separator', { name: 'Resize Revenue' })
+      const pill = handle.firstElementChild as HTMLElement
+      const rect = handle.getBoundingClientRect()
+      // A real cursor cannot be moved here, but the pointer events can be sent
+      // with coordinates, and the position is read off them — not off :hover.
+      await userEvent.pointer({ target: handle, coords: { clientX: rect.left + 8, clientY: rect.top + 100 } })
+      await expect(handle.style.getPropertyValue('--pill-offset')).toBe('100px')
+      // The pill *slides* there, so the computed position needs the transition to end.
+      await waitFor(() => expect(getComputedStyle(pill).top).toBe('100px'))
+      // Clamped: the pill stays inside the strip rather than hanging off its end.
+      await userEvent.pointer({ target: handle, coords: { clientX: rect.left + 8, clientY: rect.top + 2 } })
+      await expect(handle.style.getPropertyValue('--pill-offset')).toBe('20px')
+      await userEvent.unhover(handle)
+      await expect(handle.style.getPropertyValue('--pill-offset')).toBe('')
+      await waitFor(() => expect(getComputedStyle(pill).top).toBe(`${Math.round(rect.height / 2)}px`))
+    })
+
     await step('a hand-sized block keeps its span when the row changes', async () => {
       await userEvent.click(canvas.getByRole('button', { name: 'Add block to Row 1' }))
       // Revenue stays at 3; the other two share the nine.

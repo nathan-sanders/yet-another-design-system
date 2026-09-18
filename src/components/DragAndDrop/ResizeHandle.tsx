@@ -26,14 +26,26 @@ import { focusRing } from '../../lib/focus'
  * **`data-drag-ignore`**, always: the handle sits inside a `Sortable.Item`,
  * and a press on it is a resize, never the start of a drag.
  *
- * The prototype's pill follows the cursor along the strip; here it sits in
- * the middle and shows on hover *and* on focus, so a keyboard user can see
- * which handle they are on. That is the one departure, and it is deliberate.
+ * **The pill follows the pointer along the strip**, as the prototype's does:
+ * hovering a 160px-tall handle near its top puts the pill near the top, and
+ * it slides after the cursor at `duration-fast-min` — the same follow the
+ * prototype draws, with an easing the prototype did not have. Where the pill
+ * is says nothing about the value; it says "you can grab it here", and a
+ * grab is where the hand already is. The position is one CSS custom
+ * property written straight to the element on `pointermove` — no React
+ * state, because a mousemove is not a reason to render — and a utility
+ * class reads it back, so nothing here is an inline `top` a responsive rule
+ * could not override.
+ *
+ * A keyboard has no cursor to follow, so on focus the pill sits in the
+ * middle: the property is cleared when the pointer leaves, and the utility's
+ * fallback is the centre. That is the one place this departs from the
+ * prototype, which showed nothing to a keyboard at all.
  */
 
 const handle = tv({
   base: [
-    'group/handle flex shrink-0 items-center justify-center rounded-sm',
+    'group/handle relative flex shrink-0 rounded-sm',
     // Without this a drag on a touch device scrolls the page instead.
     'touch-none select-none',
     'hover:bg-surface-overlay-subtle transition-colors duration-fast-min ease-standard',
@@ -51,17 +63,24 @@ const handle = tv({
 
 const pill = tv({
   base: [
-    'bg-surface-border-emphasized rounded-full opacity-0',
-    'transition-opacity duration-fast-min ease-standard',
+    'bg-surface-border-emphasized absolute rounded-full opacity-0',
+    // Opacity and the position along the strip both ease; the position is
+    // what makes the pill *slide* after the pointer rather than jump to it.
+    'transition-[opacity,top,left] duration-fast-min ease-standard',
     'group-hover/handle:opacity-100 group-focus-visible/handle:opacity-100',
   ],
   variants: {
     orientation: {
-      vertical: 'h-10 w-1',
-      horizontal: 'h-1 w-10',
+      // `--pill-offset` is where the pointer is along the strip; without it,
+      // the middle — which is where a keyboard finds it.
+      vertical: 'left-1/2 h-10 w-1 -translate-x-1/2 -translate-y-1/2 top-(--pill-offset,50%)',
+      horizontal: 'top-1/2 h-1 w-10 -translate-x-1/2 -translate-y-1/2 left-(--pill-offset,50%)',
     },
   },
 })
+
+/** Half the pill's length: the pill stays inside the strip rather than hanging off its ends. */
+const PILL_REACH = 20
 
 export type ResizeHandleOrientation = 'vertical' | 'horizontal'
 
@@ -127,7 +146,26 @@ export function ResizeHandle({
     event.preventDefault()
   }
 
+  /*
+    Where along the strip the pointer is, clamped so the pill never hangs off
+    either end. Written to the element directly: a mousemove is not a reason
+    to render, and the class reads the property back on the next paint.
+  */
+  function followPointer(event: ReactPointerEvent<HTMLSpanElement>) {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const along = vertical ? event.clientY - rect.top : event.clientX - rect.left
+    const length = vertical ? rect.height : rect.width
+    const offset = Math.max(PILL_REACH, Math.min(length - PILL_REACH, along))
+    event.currentTarget.style.setProperty('--pill-offset', `${Math.round(offset)}px`)
+  }
+
+  function handlePointerLeave(event: ReactPointerEvent<HTMLSpanElement>) {
+    // Back to the middle for the keyboard; the pill has faded out by then.
+    if (!start.current) event.currentTarget.style.removeProperty('--pill-offset')
+  }
+
   function handlePointerMove(event: ReactPointerEvent<HTMLSpanElement>) {
+    followPointer(event)
     if (!start.current) return
     const travelled = (vertical ? event.clientX : event.clientY) - start.current.at
     const next = clamp(start.current.value + travelled / start.current.unit)
@@ -171,7 +209,9 @@ export function ResizeHandle({
       tabIndex={0}
       data-drag-ignore
       onPointerDown={handlePointerDown}
+      onPointerEnter={followPointer}
       onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
       onKeyDown={handleKeyDown}
       className={cn(handle({ orientation }), className)}
