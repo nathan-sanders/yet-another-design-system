@@ -272,7 +272,7 @@ export function TreeMap({
   )
 
   const table = (
-    <table className="sr-only">
+    <table>
       <caption>{label}</caption>
       <thead>
         <tr>

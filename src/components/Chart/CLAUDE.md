@@ -102,6 +102,17 @@ user with one sentence where everyone else has thirty-one days of data.
 opaque to assistive technology, so a table inside it would be announced to nobody. Easy to get
 backwards, and nothing would flag it.
 
+**`sr-only` is on a wrapper `div`, not on the table — and that was a bug, not a style.** The utility
+is `position: absolute; height: 1px; overflow: hidden`, and a `<table>` treats `height` as a
+*minimum*, so a table wearing it stays as tall as its rows: invisible, but an 800px absolutely
+positioned box hanging below the chart. Nothing between it and the document was positioned, so it
+became document overflow — the first full-height `AppShell` grew a page scrollbar, and the page
+scrolled with the pointer over the rail (Nathan, 2026-09-17). Measured: `documentElement.scrollHeight`
+1161 in a 1000px viewport with the table's bottom at exactly 1161; 1000 once wrapped. The container
+wraps whatever it renders, so the six charts that pass their own `table` hand in a bare `<table>`,
+and the `Floating` shell story asserts the document does not scroll. The same family as
+`Table.Cell`'s min-height note: a table element ignores half of what CSS says about height.
+
 Recharts' `accessibilityLayer` is set on each chart for keyboard traversal of the points.
 
 ## Motion

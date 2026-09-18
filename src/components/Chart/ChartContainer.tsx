@@ -98,7 +98,9 @@ export interface ChartContainerProps {
    *
    * The default builds one row per `data` row with a column per series, which is
    * right for anything with an x axis. A pie is shaped the other way round — one
-   * row *is* one slice — so `Donut` and `Gauge` pass their own.
+   * row *is* one slice — so `Donut` and `Gauge` pass their own. Hand in a bare
+   * `<table>`: the container hides it, and `sr-only` on a table does not work
+   * (see the render below).
    */
   table?: ReactNode
   /**
@@ -225,9 +227,21 @@ export function ChartContainer({
         {/*
           The same numbers, reachable. Outside the `role="img"` element on
           purpose: inside it, nothing here would ever be announced.
+
+          `sr-only` goes on a wrapper `div`, never on the `<table>` itself. The
+          utility is `position: absolute; height: 1px; overflow: hidden`, and a
+          table treats `height` as a minimum — so a table wearing it stays as
+          tall as its rows, invisible but 800px of absolutely positioned box
+          hanging below the chart. With nothing positioned between it and the
+          document that box became *document* overflow: a full-height AppShell
+          grew a page scrollbar, and the page scrolled when the pointer was over
+          the nav. A div respects the 1px and clips the table inside it. Every
+          chart that hands in its own `table` is wrapped here too, so none of
+          them carries the class.
         */}
+        <div className="sr-only">
         {table ?? (
-        <table className="sr-only">
+        <table>
           <caption>{label}</caption>
           <thead>
             <tr>
@@ -251,6 +265,7 @@ export function ChartContainer({
           </tbody>
         </table>
         )}
+        </div>
       </div>
     </ChartContext.Provider>
   )
