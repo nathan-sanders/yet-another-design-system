@@ -141,6 +141,16 @@ the item does not jump. After a keyboard drop dnd-kit's `RestoreFocus` refocuses
 next frame — which is the cross-container case, where the grip that had focus is a new element. The
 stories assert `document.activeElement` is the item's grip after the drop.
 
+**Each demo story has a `…Keyboard` twin, and the twin is the test.** Storybook runs a play
+function the moment a story opens, and these tests rearrange the whole board — cards change
+columns, rows come and go, spans and heights change — so a `Kanban` that carried its own test
+never sat still, and read as an animation bug on load (Nathan's words, 2026-09-18). `Kanban`,
+`Dashboard`, `SortableList` and `WithOverlay` are now the stories to look at, with no `play`;
+`KanbanKeyboard` and the rest render the *identical* tree through one shared `render` function
+and drive it. Sharing the function, not copying the JSX, is what keeps "a demo story is a claim"
+true: the tested tree and the shown tree cannot drift. Eight stories, all under axe; four of them
+also drive the keyboard.
+
 **The stories drive the keyboard path only.** A drag is the one interaction with no keyboard
 equivalent unless somebody writes one, so it is the path that regresses unnoticed; a synthetic
 pointer drag in a browser runner is flaky in a way that teaches nothing. `ResizeHandle`'s ruling.
