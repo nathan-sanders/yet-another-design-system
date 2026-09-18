@@ -19,18 +19,17 @@ import { DragAndDrop } from './DragAndDrop'
 import { DragHandle } from './DragHandle'
 import { ResizeHandle } from './ResizeHandle'
 import { Sortable } from './Sortable'
-import { findContainer, moveItem, reorder, type Containers } from './move'
 import {
-  COL_SPAN,
-  GRID_COLUMNS,
-  MAX_BLOCKS_PER_ROW,
-  MIN_SPAN,
-  canAddBlock,
-  maxSpan,
-  reflow,
-  resize,
-  type ColumnSpan,
-} from './spans'
+  addBlock,
+  createBoard,
+  dragEnd,
+  dragOver,
+  removeBlock,
+  resizeBlock,
+  resizeRow,
+} from './board'
+import { findContainer, moveItem, reorder, type Containers } from './move'
+import { COL_SPAN, GRID_COLUMNS, MAX_BLOCKS_PER_ROW, MIN_SPAN, canAddBlock, maxSpan, type ColumnSpan } from './spans'
 import { Avatar, AvatarGroup } from '../Avatar'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
@@ -436,54 +435,6 @@ const MAX_ROW_HEIGHT = 640
 /** `gap-4` between the columns, which the span arithmetic has to know about. */
 const GRID_GAP = 16
 
-/**
- * The whole dashboard, as one value: which blocks are in which row, the rows
- * in order, every block's current span, which spans were set by hand, and
- * each row's height. Kept as one object so a drag's snapshot is one
- * assignment and Escape puts *all* of it back.
- */
-interface Board {
-  containers: Containers<string>
-  order: string[]
-  /** Written by `resize`; re-derived by `reflow` when a row's members change. */
-  spans: Record<string, number>
-  /** Blocks somebody sized by hand: they keep their span through a reflow. */
-  manual: string[]
-  heights: Record<string, number>
-}
-
-function sameMembers(a: readonly string[], b: readonly string[]) {
-  return a.length === b.length && [...a].sort().every((id, i) => id === [...b].sort()[i])
-}
-
-/**
- * Take a new set of containers and re-share the columns of every row whose
- * *members* changed. A row that only reordered keeps each block's span, and a
- * row that did not change at all keeps the proportional spans `resize` gave
- * it — `moveItem` and the helpers below leave an untouched row's array as the
- * same reference, which is what makes "unchanged" cheap to know. A block left
- * alone in its row forgets its hand size: it takes the whole row anyway.
- */
-function settle(board: Board, containers: Containers<string>, order = board.order): Board {
-  const spans = { ...board.spans }
-  const manual = new Set(board.manual)
-  for (const row of order) {
-    const items = containers[row]
-    const before = board.containers[row]
-    if (items === before) continue
-    if (items.length === 1) manual.delete(items[0])
-    if (before && sameMembers(items, before)) continue
-    reflow(items, spans, manual).forEach((span, i) => {
-      spans[items[i]] = span
-    })
-  }
-  return { ...board, containers, order, spans, manual: [...manual] }
-}
-
-function dropEmptyRows(board: Board): Board {
-  return { ...board, order: board.order.filter((row) => board.containers[row].length > 0) }
-}
-
 function ReportBlock({
   id,
   label,
@@ -563,67 +514,17 @@ function ReportBlock({
 }
 
 const renderDashboard: Story['render'] = function DashboardStory() {
-  const [board, setBoard] = useState<Board>(() =>
-    settle(
-      { containers: {}, order: Object.keys(ROWS), spans: {}, manual: [], heights: {} },
-      ROWS,
-    ),
-  )
+  const [board, setBoard] = useState(() => createBoard(ROWS))
   const [labels, setLabels] = useState(BLOCKS)
   const snapshot = useRef(board)
   const next = useRef(1)
 
-  function addBlock(row: string) {
+  function add(row: string) {
     const id = `block-new-${next.current}`
     const label = `Block ${next.current}`
     next.current += 1
     setLabels((current) => ({ ...current, [id]: label }))
-    setBoard((current) =>
-      settle(
-        current,
-        { ...current.containers, [row]: [...(current.containers[row] ?? []), id] },
-        current.order.includes(row) ? current.order : [...current.order, row],
-      ),
-    )
-  }
-
-  function addRow() {
-    addBlock(`row-new-${next.current}`)
-  }
-
-  function removeBlock(id: string) {
-    setBoard((current) => {
-      const row = findContainer(current.containers, id)
-      if (!row) return current
-      const containers = {
-        ...current.containers,
-        [row]: current.containers[row].filter((item) => item !== id),
-      }
-      return dropEmptyRows(settle(current, containers))
-    })
-  }
-
-  function resizeBlock(id: string, span: number) {
-    setBoard((current) => {
-      const row = findContainer(current.containers, id)
-      if (!row) return current
-      const items = current.containers[row]
-      const spans = resize(
-        items.map((item) => current.spans[item]),
-        items.indexOf(id),
-        span,
-      )
-      const nextSpans = { ...current.spans }
-      spans.forEach((value, i) => {
-        nextSpans[items[i]] = value
-      })
-      const manual = current.manual.includes(id) ? current.manual : [...current.manual, id]
-      return { ...current, spans: nextSpans, manual }
-    })
-  }
-
-  function resizeRow(row: string, height: number) {
-    setBoard((current) => ({ ...current, heights: { ...current.heights, [row]: height } }))
+    setBoard((current) => addBlock(current, row, id))
   }
 
   return (
@@ -632,20 +533,10 @@ const renderDashboard: Story['render'] = function DashboardStory() {
         snapshot.current = board
       }}
       onDragOver={({ active, over }) => {
-        if (!over) return
-        setBoard((current) => {
-          const from = findContainer(current.containers, active.id)
-          const to = findContainer(current.containers, over.id)
-          if (!from || !to || from === to) return current
-          return settle(current, moveItem(current.containers, active.id, over.id))
-        })
+        if (over) setBoard((current) => dragOver(current, active.id, over.id))
       }}
       onDragEnd={({ active, over }) => {
-        setBoard((current) =>
-          dropEmptyRows(
-            over ? settle(current, moveItem(current.containers, active.id, over.id)) : current,
-          ),
-        )
+        setBoard((current) => dragEnd(current, active.id, over ? over.id : null))
       }}
       onDragCancel={() => setBoard(snapshot.current)}
     >
@@ -680,8 +571,10 @@ const renderDashboard: Story['render'] = function DashboardStory() {
                       label={labels[id]}
                       span={spans[position]}
                       max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
-                      onRemove={removeBlock}
-                      onResize={resizeBlock}
+                      onRemove={(block) => setBoard((current) => removeBlock(current, block))}
+                      onResize={(block, span) =>
+                        setBoard((current) => resizeBlock(current, block, span))
+                      }
                     />
                   ))}
                 </Sortable>
@@ -699,7 +592,7 @@ const renderDashboard: Story['render'] = function DashboardStory() {
                   step={8}
                   largeStep={40}
                   valueText={(value) => `${value} pixels`}
-                  onResize={(value) => resizeRow(row, value)}
+                  onResize={(value) => setBoard((current) => resizeRow(current, row, value))}
                 />
               </div>
               {/*
@@ -713,13 +606,18 @@ const renderDashboard: Story['render'] = function DashboardStory() {
                 startIcon={Plus}
                 aria-label={`Add block to ${name}`}
                 disabled={!canAddBlock(items.length)}
-                onClick={() => addBlock(row)}
+                onClick={() => add(row)}
                 className="h-(--row-height) w-6 shrink-0 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
               />
             </div>
           )
         })}
-        <Button appearance="secondary" startIcon={Plus} onClick={addRow} className="self-start">
+        <Button
+          appearance="secondary"
+          startIcon={Plus}
+          onClick={() => add(`row-new-${next.current}`)}
+          className="self-start"
+        >
           Add report block
         </Button>
       </div>

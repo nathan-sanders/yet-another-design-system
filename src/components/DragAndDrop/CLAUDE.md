@@ -261,8 +261,15 @@ carefully:
   untouched row's array alone, which makes "unchanged" free to know. Reflowing every row on every
   change would quietly even out a resize the moment any *other* row moved.
 
-The story keeps the dashboard as one `Board` value — containers, order, spans, the hand-sized set
-and row heights — so a drag's snapshot is one assignment and Escape restores all of it. Row height
+**The dashboard is one `Board` value, and it lives in `board.ts`, not in the story.** Containers,
+order, spans, the hand-sized set and row heights, with every change a pure function — `createBoard`,
+`addBlock`, `removeBlock`, `resizeBlock`, `resizeRow`, `dragOver`, `dragEnd`, `settle`,
+`dropEmptyRows`, `rowSpans` — and thirteen node tests pinning how `move.ts` and `spans.ts` compose
+across a whole board. It moved out of the story on 2026-09-18, the day `Data Viz/Dashboard` grew a
+`Composable` story of real charts on the same rows: two stories with the same 150 lines of state
+would have drifted, and the arithmetic was already the kind of thing this folder tests in node. A
+story keeps a `useState<Board>` and a snapshot ref for Escape, and calls these from its handlers;
+the board never sees React. A drag's snapshot is one assignment and Escape restores all of it. Row height
 is a CSS variable on the row (`--row-height`) that the blocks and the add rail read back with
 `h-(--row-height)`, not an inline `height` on each block: a runtime value inline would defeat any
 responsive override, and there is one variable to change rather than four.
