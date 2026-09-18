@@ -19,7 +19,7 @@ import { DragAndDrop } from './DragAndDrop'
 import { DragHandle } from './DragHandle'
 import { Sortable } from './Sortable'
 import { findContainer, moveItem, reorder, type Containers } from './move'
-import { COL_SPAN, canAddBlock, distribute, type ColumnSpan } from './spans'
+import { COL_SPAN, MAX_BLOCKS_PER_ROW, canAddBlock, distribute, type ColumnSpan } from './spans'
 import { Avatar, AvatarGroup } from '../Avatar'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
@@ -452,9 +452,11 @@ function ReportBlock({
  *
  * Each row is a `Sortable` on `horizontalListSortingStrategy` — blocks slide
  * sideways as one passes, and a block carried up or down joins the other row
- * while it is still being carried. A row's "add" rail appears on hover and
- * on focus, and closes at four; the button under the grid appends a row; a
- * row whose last block is removed disappears. Resizing a block by hand is the
+ * while it is still being carried. **A row at `capacity` refuses a fifth**:
+ * it and its blocks stop being drop targets for anything from another row,
+ * so a carried block skips past it and the arrow keys do too. A row's "add"
+ * rail appears on hover and on focus, and closes at four; the button under
+ * the grid appends a row; a row whose last block is removed disappears. Resizing a block by hand is the
  * prototype's other half and is not here yet — `spans.ts` says where it
  * attaches.
  *
@@ -499,12 +501,11 @@ export const Dashboard: Story = {
     return (
       <DragAndDrop
         {...handlers}
-        onDragEnd={(event) => {
-          handlers.onDragEnd(event)
-          setContainers((current) => {
-            dropEmptyRows(current)
-            return current
-          })
+        onDragEnd={({ active, over }) => {
+          // The settled board, computed once so the row list can follow it.
+          const next = over ? moveItem(containers, active.id, over.id) : containers
+          setContainers(next)
+          dropEmptyRows(next)
         }}
       >
         <div className="flex max-w-320 flex-col gap-4">
@@ -518,10 +519,12 @@ export const Dashboard: Story = {
                   id={row}
                   label={name}
                   items={items}
+                  capacity={MAX_BLOCKS_PER_ROW}
                   strategy={horizontalListSortingStrategy}
                   role="list"
                   aria-label={name}
-                  className="grid min-w-0 flex-1 grid-cols-12 gap-4 rounded-lg"
+                  // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
+                  className="grid min-h-16 min-w-0 flex-1 grid-cols-12 gap-4 rounded-lg"
                 >
                   {items.map((id, position) => (
                     <ReportBlock
@@ -589,6 +592,22 @@ export const Dashboard: Story = {
       )
       // Four is the row's ceiling.
       await expect(canvas.getByRole('button', { name: 'Add block to Row 2' })).toBeDisabled()
+    })
+
+    await step('a full row refuses a fifth block, from the keyboard and so from the pointer', async () => {
+      // Row 2 is full. Row 1 has one block; carried down, it has to skip row 2
+      // entirely — the row and its blocks are no longer drop targets for it.
+      await lift(canvas.getByRole('button', { name: 'Move Active users' }))
+      await userEvent.keyboard('{ArrowDown}')
+      await waitFor(() =>
+        expect(within(row(3)).getByRole('button', { name: 'Move Active users' })).toBeInTheDocument(),
+      )
+      await expect(spans(2)).toEqual(['span 3', 'span 3', 'span 3', 'span 3'])
+      await userEvent.keyboard('{Escape}')
+      await waitFor(() =>
+        expect(within(row(1)).getByRole('button', { name: 'Move Active users' })).toBeInTheDocument(),
+      )
+      await expect(spans(1)).toEqual(['span 12'])
     })
 
     await step('the rail adds a block to a row', async () => {

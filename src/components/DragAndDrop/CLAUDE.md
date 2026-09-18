@@ -92,6 +92,24 @@ that is the whole reason an item can be carried into an *empty* container: with 
 with, the container's rect is the target and `over.id` is the container's id, which `moveItem`
 reads as "append". The `Kanban` story's fourth column starts empty for exactly this path.
 
+**A container can be full, and full is enforced at the droppable.** `Sortable`'s `capacity` is
+the dashboard's four-to-a-row: at the limit the container and *every item in it* stop being drop
+targets for anything from another container, so the pointer cannot land there and the arrow keys
+skip past it, while its own items still sort among themselves and can be lifted out. This is the
+fix for the first bug the story shipped with (2026-09-18): a fifth block carried into a full row
+gave `distribute(5)` a 2-column span the class map cannot draw, and four blocks collapsed to the
+width of their titles. Refusing at the droppable is what makes the refusal true for both sensors at
+once; a guard in `onDragOver` alone would have left the keyboard announcing a slot it could not
+take.
+
+**"Ours" is `items.includes(active.id)`, never `active.data.current.containerId`.** The first
+version read the carried item's container off its data, and it looped until React gave up: that ref
+is written by the item's own render, which comes *after* the container's, so at the exact moment a
+carried-in block makes a row full the row still sees the old container, refuses the block it just
+took, the collision falls back to the source row, `onDragOver` moves it back, and the two rows hand
+it to each other. The `items` prop has no lag. **A container knows its members synchronously; the
+carried item's data does not.**
+
 **`closestCorners`, not `pointerWithin`.** Pointer-within has no pointer on a keyboard drag, so it
 returns nothing; and it never lands on an empty container, because the carried item's rect does not
 overlap it. Corners does both. **Containers are measured continuously** (`MeasuringStrategy.Always`):
@@ -203,6 +221,12 @@ between adjacent blocks and under each row. No new machinery from this record is
   `rounded-lg` passes it as `className`, or the ring has the wrong radius.
 - **`ContentBlock.Content` cannot be the `render` target** of a `Sortable` — its `children` is
   required, and the render element carries none. The kanban wraps the `Sortable` in it instead.
+- **A row emptied mid-drag has no height** unless it is given one, so the block that left it
+  cannot be carried back. The `Dashboard` story's rows are `min-h-16`; the kanban's columns
+  `min-h-24`. A container that can empty owes itself a floor.
+- **Do not call another setter inside a `setState` updater.** The dashboard's first `onDragEnd`
+  removed empty rows from inside `setContainers((current) => …)`; updaters must be pure. It now
+  computes the settled board once with `moveItem` and sets both states from it.
 - **A stale Storybook** from an earlier session serves a stale Tailwind scan, and `cursor-grab`,
   `touch-none`, `ring-inset` and the `col-span-*` map were all new to the repo. Restart before
   believing a measurement. This record's numbers were read off a fresh server on a different port.
@@ -230,6 +254,7 @@ Written here first; the file owes a Docs block, and when it exists this is the t
 - Keep the container state yourself and let `moveItem` change it. `onDragOver` for crossing a
   boundary, `onDragEnd` for settling, and a snapshot for Escape.
 - Mark a control that must not start a drag — a remove button, a menu trigger — `data-drag-ignore`.
+- Give a container that has a limit a `capacity`, and give one that can empty a minimum height.
 - Reach for `DragAndDrop.Overlay` only when an item is carried out of a scroll container. Everything
   else moves in place, on the tokens.
 
