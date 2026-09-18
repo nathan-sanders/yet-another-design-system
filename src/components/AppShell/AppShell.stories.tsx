@@ -27,7 +27,7 @@ import { ContentBlock } from '../ContentBlock'
 import { Donut } from '../Donut'
 import { LineSeries } from '../LineSeries'
 import { MetricCard, MetricGrid } from '../Metric'
-import { NavItem, SideNav, TopNav } from '../Nav'
+import { MobileNav, NavItem, ResponsiveNav, SideNav, TopNav } from '../Nav'
 import { Logo } from '../Nav/story-logo'
 import { Radar } from '../Radar'
 import { ThemeControl, type Theme } from '../ThemeControl'
@@ -46,30 +46,67 @@ const recent = [
   { value: 'design tokens', label: 'design tokens' },
 ]
 
+/**
+ * The navigation, written once. The rail takes it as `children`, and so does
+ * the phone sheet — `MobileNav` takes the same tree on purpose, so a responsive
+ * app never keeps two copies in step.
+ */
+const sections = (
+  <>
+    <SideNav.Section header="Workspace">
+      <NavItem href="#dashboard" startIcon={House} selected>
+        Dashboard
+      </NavItem>
+      <NavItem href="#inbox" startIcon={Inbox} end={<Badge>3</Badge>}>
+        Inbox
+      </NavItem>
+      <NavItem href="#analytics" startIcon={ChartNoAxesColumn}>
+        Analytics
+      </NavItem>
+    </SideNav.Section>
+    <SideNav.Section header="Projects">
+      <SideNav.Group label="Atlas" startIcon={Folder} defaultOpen>
+        <NavItem href="#overview">Overview</NavItem>
+        <NavItem href="#tasks">Tasks</NavItem>
+      </SideNav.Group>
+      <SideNav.Group label="Beacon" startIcon={Folder}>
+        <NavItem href="#beacon-overview">Overview</NavItem>
+      </SideNav.Group>
+    </SideNav.Section>
+  </>
+)
+
 function Rail(props: { defaultCollapsed?: boolean; floating?: boolean; resizable?: boolean }) {
   return (
     <SideNav aria-label="Main" logo={<Logo />} utilities={<UtilityRows />} {...props}>
-      <SideNav.Section header="Workspace">
-        <NavItem href="#dashboard" startIcon={House} selected>
-          Dashboard
-        </NavItem>
-        <NavItem href="#inbox" startIcon={Inbox} end={<Badge>3</Badge>}>
-          Inbox
-        </NavItem>
-        <NavItem href="#analytics" startIcon={ChartNoAxesColumn}>
-          Analytics
-        </NavItem>
-      </SideNav.Section>
-      <SideNav.Section header="Projects">
-        <SideNav.Group label="Atlas" startIcon={Folder} defaultOpen>
-          <NavItem href="#overview">Overview</NavItem>
-          <NavItem href="#tasks">Tasks</NavItem>
-        </SideNav.Group>
-        <SideNav.Group label="Beacon" startIcon={Folder}>
-          <NavItem href="#beacon-overview">Overview</NavItem>
-        </SideNav.Group>
-      </SideNav.Section>
+      {sections}
     </SideNav>
+  )
+}
+
+/**
+ * The phone bar. Its `utilities` are icon-only — a 56px bar has no room for
+ * the rail's labelled rows — and those rows go into the sheet instead, as one
+ * more section under the navigation, which is where a phone keeps them.
+ */
+function Phone(props: { placement?: 'bottom' | 'top' }) {
+  return (
+    <MobileNav
+      aria-label="Main"
+      logo={<Logo />}
+      utilities={
+        <>
+          <NavItem href="#help" startIcon={CircleHelp} aria-label="Help" />
+          <NavItem href="#alerts" startIcon={Bell} aria-label="Notifications" newIndicator />
+        </>
+      }
+      {...props}
+    >
+      {sections}
+      <SideNav.Section header="Account">
+        <UtilityRows />
+      </SideNav.Section>
+    </MobileNav>
   )
 }
 
@@ -602,5 +639,247 @@ export const ResizableRailDocked: Story = {
     const rect = handle.getBoundingClientRect()
     await expect(rect.width).toBe(8)
     await expect(rect.left + 4).toBe(nav.getBoundingClientRect().right)
+  },
+}
+
+// ---------------------------------------------------------------------------
+// Responsive: the shell swaps to a `MobileNav` below 768.
+
+/**
+ * A phone, the size of Figma's Mobile Navigation frames (393 × 852). The test
+ * runner sets the browser to it for the stories that name it; in Storybook
+ * pick it from the Viewport toolbar, or just drag the canvas under 768.
+ */
+const phone = {
+  viewport: {
+    options: {
+      phone: { name: 'Phone', styles: { width: '393px', height: '852px' } },
+    },
+  },
+}
+
+/** Every measurement the responsive stories make, read off the two bars. */
+function measureBars(canvasElement: HTMLElement) {
+  const root = canvasElement.querySelector<HTMLElement>('#shell')!
+  const wide = root.querySelector<HTMLElement>('nav[data-wide-nav]')!
+  const mobile = root.querySelector<HTMLElement>('nav[data-mobile-nav]')!
+  return { root, wide, mobile, shell: getComputedStyle(root) }
+}
+
+/**
+ * **Give the shell a `MobileNav` and it swaps to it on a phone.** No prop:
+ * the shell reads the bar's presence in CSS, so below 768 the rail hides, the
+ * frame turns into a column, and the bar sits at the bottom of it — *in* the
+ * frame, not pinned over the page. The shell's 8px is exactly the inset Figma
+ * draws round the phone bar, the content needs no padding for a bar that
+ * covers nothing, and `frame={false}` docks it to the edge like the rail.
+ *
+ * The sheet is the rail's own tree (`sections`, written once), plus the
+ * account rows as a last section; the bar's utilities are icon-only. Above
+ * 768 the same children are the ordinary rail-and-page shell, untouched.
+ *
+ * Write the bar **after** the page for the bottom, before it for the top —
+ * where it appears is where it is in the DOM, so the tab order matches.
+ */
+export const Responsive: Story = {
+  args: {
+    children: (
+      <>
+        <Rail />
+        <Page />
+        <Phone />
+      </>
+    ),
+  },
+  parameters: { ...phone, controls: { disable: true } },
+  globals: { viewport: { value: 'phone' } },
+  play: async ({ canvasElement, step }) => {
+    const { root, wide, mobile, shell } = measureBars(canvasElement)
+    const canvas = within(canvasElement)
+
+    await step('the rail is gone and the bar is the one landmark named Main', async () => {
+      await expect(getComputedStyle(wide).display).toBe('none')
+      await expect(mobile.checkVisibility()).toBe(true)
+      const visible = [...canvasElement.querySelectorAll('nav[aria-label="Main"]')].filter((n) =>
+        n.checkVisibility(),
+      )
+      await expect(visible).toHaveLength(1)
+      await expect(visible[0]).toBe(mobile)
+    })
+
+    await step('the bar sits in the frame, not over the page', async () => {
+      await expect(shell.flexDirection).toBe('column')
+      await expect(getComputedStyle(mobile).position).toBe('static')
+      // 8 in from the bottom and both sides — Figma's 377 in 393 — with the
+      // shell's own padding doing it, and the shadow the floating shell gives.
+      const frame = root.getBoundingClientRect()
+      const bar = mobile.getBoundingClientRect()
+      await expect(frame.width).toBe(393)
+      await expect(bar.left).toBe(frame.left + 8)
+      await expect(bar.width).toBe(frame.width - 16)
+      await expect(bar.bottom).toBe(frame.bottom - 8)
+      await expect(getComputedStyle(mobile).boxShadow).not.toBe('none')
+      // The page ends 8 above the bar: the frame's gap, nothing overlapped.
+      const page = canvasElement.querySelector<HTMLElement>('main')!.parentElement!
+      await expect(page.getBoundingClientRect().bottom).toBe(bar.top - 8)
+      // Still one scroll region, and it is not the document.
+      const doc = document.documentElement
+      await expect(doc.scrollHeight).toBe(doc.clientHeight)
+    })
+
+    await step('the pill opens the sheet, on the rail\'s tree', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: /Dashboard/ }))
+      const sheet = await within(document.body).findByRole('dialog', { name: 'Main' })
+      // The sheet fades in, and `toBeVisible` reads opacity — wait it out.
+      await waitFor(() =>
+        expect(within(sheet).getByRole('link', { name: /Inbox/ })).toBeVisible(),
+      )
+      await expect(within(sheet).getByRole('link', { name: /Hi, Nathan!/ })).toBeVisible()
+      await userEvent.keyboard('{Escape}')
+      await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull())
+    })
+  },
+}
+
+/**
+ * The bar before the page, so it sits at the top of the frame. Same 8px, from
+ * the other edge; the sheet still comes from the bottom, where the hand is.
+ */
+export const ResponsiveTop: Story = {
+  name: 'Responsive, top placement',
+  args: {
+    children: (
+      <>
+        <Rail />
+        <Phone placement="top" />
+        <Page />
+      </>
+    ),
+  },
+  parameters: { ...phone, controls: { disable: true } },
+  globals: { viewport: { value: 'phone' } },
+  play: async ({ canvasElement }) => {
+    const { root, wide, mobile } = measureBars(canvasElement)
+    await expect(getComputedStyle(wide).display).toBe('none')
+    const frame = root.getBoundingClientRect()
+    const bar = mobile.getBoundingClientRect()
+    await expect(bar.top).toBe(frame.top + 8)
+    await expect(bar.left).toBe(frame.left + 8)
+    const page = canvasElement.querySelector<HTMLElement>('main')!.parentElement!
+    await expect(page.getBoundingClientRect().top).toBe(bar.bottom + 8)
+  },
+}
+
+/**
+ * `frame={false}` on a phone: the bar is full-bleed against the bottom edge,
+ * square-cornered and flush, for the reason the docked rail is — a rounded
+ * corner at the edge of the screen shows canvas behind it.
+ */
+export const ResponsiveDocked: Story = {
+  name: 'Responsive, docked',
+  args: { ...Responsive.args, frame: false },
+  parameters: { ...phone, controls: { disable: true } },
+  globals: { viewport: { value: 'phone' } },
+  play: async ({ canvasElement }) => {
+    const { root, mobile } = measureBars(canvasElement)
+    const frame = root.getBoundingClientRect()
+    const bar = mobile.getBoundingClientRect()
+    await expect(bar.left).toBe(frame.left)
+    await expect(bar.width).toBe(frame.width)
+    await expect(bar.bottom).toBe(frame.bottom)
+    await expect(getComputedStyle(mobile).borderTopLeftRadius).toBe('0px')
+    await expect(getComputedStyle(mobile).boxShadow).toBe('none')
+  },
+}
+
+/**
+ * The same children at a desktop width: the rail, the page, and no phone bar
+ * anywhere — `display: none`, so out of the accessibility tree, which is what
+ * lets both bars share one `aria-label`.
+ */
+export const ResponsiveWide: Story = {
+  name: 'Responsive, wide',
+  args: Responsive.args,
+  parameters: { controls: { disable: true } },
+  play: async ({ canvasElement }) => {
+    const { wide, mobile, shell } = measureBars(canvasElement)
+    await expect(shell.flexDirection).toBe('row')
+    await expect(getComputedStyle(mobile).display).toBe('none')
+    await expect(wide.checkVisibility()).toBe(true)
+    await expect(wide.getBoundingClientRect().width).toBe(224)
+    const visible = [...canvasElement.querySelectorAll('nav[aria-label="Main"]')].filter((n) =>
+      n.checkVisibility(),
+    )
+    await expect(visible).toHaveLength(1)
+  },
+}
+
+/**
+ * `navigation="top"` needs nothing new: `ResponsiveNav` is already a `TopNav`
+ * and a `MobileNav` side by side, and inside the shell the phone bar takes its
+ * place in the frame like any other. The bar lands at the bottom because the
+ * `ResponsiveNav` renders it after the top bar — put the `ResponsiveNav`
+ * after the page if the phone bar should be under the content.
+ */
+export const ResponsiveTopNavigation: Story = {
+  name: 'Responsive, top navigation',
+  args: {
+    navigation: 'top',
+    children: (
+      <>
+        <ResponsiveNav
+          aria-label="Main"
+          logo={<Logo />}
+          utilities={
+            <>
+              <NavItem href="#signin">Sign in</NavItem>
+              <NavItem
+                href="#cart"
+                startIcon={ShoppingCart}
+                end={<Badge>3</Badge>}
+                aria-label="Cart"
+              />
+            </>
+          }
+          pages={
+            <>
+              <NavItem href="#home" selected>
+                Home
+              </NavItem>
+              <NavItem href="#products">Products</NavItem>
+              <NavItem href="#about">About</NavItem>
+            </>
+          }
+          sections={
+            <SideNav.Section header="Shop">
+              <NavItem href="#home" startIcon={House} selected>
+                Home
+              </NavItem>
+              <NavItem href="#products" startIcon={ShoppingCart}>
+                Products
+              </NavItem>
+              <NavItem href="#about">About</NavItem>
+            </SideNav.Section>
+          }
+        />
+        <AppShell.Page>
+          <AppShell.Content>
+            <PageTitle />
+            <Dashboard />
+          </AppShell.Content>
+        </AppShell.Page>
+      </>
+    ),
+  },
+  parameters: { ...phone, controls: { disable: true } },
+  globals: { viewport: { value: 'phone' } },
+  play: async ({ canvasElement }) => {
+    const { root, wide, mobile } = measureBars(canvasElement)
+    await expect(getComputedStyle(wide).display).toBe('none')
+    await expect(getComputedStyle(mobile).position).toBe('static')
+    const frame = root.getBoundingClientRect()
+    const bar = mobile.getBoundingClientRect()
+    await expect(bar.top).toBe(frame.top + 8)
+    await expect(bar.width).toBe(frame.width - 16)
   },
 }

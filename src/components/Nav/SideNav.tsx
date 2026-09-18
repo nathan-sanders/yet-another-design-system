@@ -221,6 +221,9 @@ export function SideNav({
         className,
       )}
       style={sized ? ({ '--side-nav-width': `${width}px` } as CSSProperties) : undefined}
+      // The marker an `AppShell` hides below 768 when it also holds a
+      // `MobileNav`. Only a marker: the breakpoint and the rule are the shell's.
+      data-wide-nav=""
       {...props}
     >
       <NavContext.Provider value={ctx}>
