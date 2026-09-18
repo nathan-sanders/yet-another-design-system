@@ -550,12 +550,13 @@ drift nothing in CI can catch. **Thirty-eight records carry it.** What is left i
 whole data-viz family — thirteen records, and the one part of the library where nobody has written
 down when to reach for which chart.
 
-**Three records have no Figma block to mirror, and say so where the source line goes.**
+**Two records have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
-navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all;
-`AppShell` has a page of frames and examples but no component set or Docs block yet. All three were
-written here rather than copied, and all three owe the file a block — the same standing debt
-`Combobox.Empty` and Select's scroll arrows carry. **Do not read a missing block as a component
+navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all.
+Both were written here rather than copied, and both owe the file a block — the same standing debt
+`Combobox.Empty` and Select's scroll arrows carry. `AppShell` was a third for a few hours: built
+code-first against a page of frames, and drawn into the file as an eight-variant set with a Docs
+block the same day. **Do not read a missing block as a component
 nobody has thought about**; read the source line, which says which of the two situations it is.
 
 **Carousel is the first record whose block went code → file, and it exposes a second way the two

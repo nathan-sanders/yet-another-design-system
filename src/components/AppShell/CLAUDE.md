@@ -13,8 +13,25 @@ was met on both halves.
 
 ## Figma
 
-Page `↪ App Shell (In Progress)` (`40004484:26623`). **There is no component set yet** — four frames
-and two worked examples. Code went first; the file owes a component, as BentoGrid's did.
+Page `↪ App Shell` (`40004484:26623`). Code went first against four frames and two worked examples;
+the file caught up the same day (2026-09-17) with a component set and a Docs frame, so the debt
+BentoGrid still carries is closed here.
+
+| Thing | Node | Became |
+|---|---|---|
+| App Shell (`Mode` × `Navigation` × `Frame`, 8 variants) | `40005265:10346` | `AppShell` — defaults Floating / Side / True, the code's |
+| Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005266:487` | this record's Best practices |
+
+**The set was drawn *from* the code, the Sankey direction.** Each variant is one of the four frames
+cloned, with the page surface, the content padding and the nav's `Floating` set per the recipes in
+`styles.ts`; the Top variants gained a `Page` wrapper so all eight share one layer structure. Two
+things the canvas cannot say and the code does: `Content Slot` is a plain FRAME, not a SLOT, because
+the Plugin API cannot create one — convert it by hand in the UI if a slot is wanted; and the
+contained Page's stroke is `INSIDE` with `strokesIncludedInLayout` on, which is CSS's border-box
+(the content sits 1px in). The Docs preview's `Contained` instances carry an explicit `Navigation
+Theme = Canvas` mode, which is the pairing the mode is drawn for.
+
+The four source frames stayed on the page as they were.
 
 | Frame | Node | Became |
 |---|---|---|
@@ -142,8 +159,9 @@ An unset `gap` computes to `normal`, not `0px` — the `Docked` assertion accept
 
 ## Best practices
 
-**No Figma block to mirror yet** — the page has frames and examples but no Docs block, so these were
-written here. They go on the canvas when the component set lands.
+Mirrored to the **Best practices** block on `↪ App Shell` (`40005266:487`) on 2026-09-17, written
+here first and pushed to the canvas the same day — the Carousel direction. The two are one text in
+two places.
 
 **Do**
 
