@@ -96,7 +96,14 @@ export default defineConfig({
           '@base-ui/react/select',
           '@base-ui/react/number-field',
           '@base-ui/react/otp-field',
-          '@base-ui/react/progress'
+          '@base-ui/react/progress',
+          // The drag foundation's engine. Only DragAndDrop's stories import
+          // these, so they are named here for Toast's reason: a subpath the
+          // scanner has not seen is discovered mid-run and reloads the page
+          // under the test.
+          '@dnd-kit/core',
+          '@dnd-kit/sortable',
+          '@dnd-kit/utilities'
         ]
       },
       test: {

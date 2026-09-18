@@ -358,8 +358,21 @@ durations and easings would live in JS objects — a second source of truth that
 which is the one thing this system exists to avoid.
 
 **When a library would earn its place:** layout animation (FLIP), drag, and spring-based gestures —
-none of which CSS does. **Nothing on the roadmap needs any of them, and both candidates have now
-been checked rather than assumed.**
+none of which CSS does. **Two candidates were checked and fell; the third, drag, cleared the bar on
+2026-09-17 and is `@dnd-kit`.** See `DragAndDrop/CLAUDE.md` for the full record; the short version
+is that a drag is a *gesture*, not an animation. The platform check was done first: HTML5 drag and
+drop exists, and has no keyboard path, no touch on half the devices that matter, and a drag image
+the token layer cannot style — which is also why the Figma Make prototype the request came with,
+built on react-dnd's HTML5 backend, was read for its interaction model and not ported. `@dnd-kit`
+is headless in the strict sense (it renders nothing but two hidden accessibility nodes), ships the
+keyboard sensor and the live region, and expresses every transition as a plain CSS string on
+`style` — so the durations and the easing are still `--transition-duration-fast` and
+`--ease-standard`, and the reduced-motion clamp still wins. The one exception is the opt-in
+`DragAndDrop.Overlay`'s drop animation, which is a Web Animations call and reads the tokens off the
+stylesheet as numbers at the moment it fires. The rule this leaves is the one the two failures had
+already written: **check what the platform or the headless primitive already does before assuming
+the motion needs JavaScript**, and when a library does earn its place, its numbers still come from
+the tokens.
 
 A sliding Tabs indicator was the first, and turned out not to need anything: Base UI's
 `Tabs.Indicator` publishes the active tab's geometry as `--active-tab-left` / `--active-tab-width`,
@@ -654,6 +667,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [ToolCall](src/components/Chat/CLAUDE.md) | one thing an assistant did on the way | collapsible derived from `detail`; four statuses where the file draws one, and the spinner rests under reduced motion on its own |
 | [AppShell](src/components/AppShell/CLAUDE.md) | the frame an app sits in | `floating` puts the blocks on the canvas, `contained` puts them in a panel; the nav reads its shadow off the shell through context, and `Content` is the one `<main>` that scrolls |
 | [ChatComposer](src/components/Chat/CLAUDE.md) | where a message is written and sent | Input's box stacked, with `ring="textarea"` because it holds buttons; Enter sends, Shift+Enter breaks; `streaming` is Figma's Stop; the first field that grows |
+| [DragAndDrop](src/components/DragAndDrop/CLAUDE.md) | the drag foundation: a root, sortable containers and items, a grip | `@dnd-kit`, the first library to clear the motion bar; pointer from anywhere on the item, keyboard from the grip only; the kanban and the dashboard are its stories, not components; no Figma node yet |
 
 ### Data visualization
 

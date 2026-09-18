@@ -48,3 +48,10 @@ export const overlayLayer = 'z-40'
  * popups, above the page: 30 says both at once.
  */
 export const navLayer = 'z-30'
+
+/**
+ * `overlayLayer` as the number it sets, for the one consumer that cannot take
+ * a class: dnd-kit's `DragOverlay` writes `z-index` inline. Same layer, same
+ * reasoning, one more spelling — keep the two in step.
+ */
+export const overlayLayerIndex = 40
