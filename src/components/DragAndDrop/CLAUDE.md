@@ -2,10 +2,25 @@
 
 The drag foundation: a root (`DragAndDrop`), a container of items that can be reordered and moved
 between containers (`Sortable` / `Sortable.Item`), the grip you carry one by (`DragHandle`), and
-the arithmetic underneath (`move.ts`, `spans.ts`). **No Figma node.** This is the third record
-written code-first — `BentoGrid` and `ThemeControl` are the other two — and it owes the file a grip
-button, a lifted-card state and a drop ring, plus a Docs block for the Best practices at the end.
-Read that as a debt, not as a component nobody has thought about.
+the arithmetic underneath (`move.ts`, `spans.ts`). Mirrors the `↪ Drag and Drop` page
+(**`40005289:447`**), drawn on 2026-09-18 from the built code — the third record to go code → file
+after `BentoGrid` and `ThemeControl`, and like `AppShell` the file caught up within a day. Three
+sets on it: **`Drag Handle`** (`40005289:480`, State default | hover | focus), **`Sortable Item`**
+(`40005289:41745`, State rest | lifted | over, with a `Content` slot), and **`Resize Handle`**
+(`40005289:41760`, Orientation vertical | horizontal × State default | hover | focus). The Docs
+frame is `40005289:41938`. No `Sortable` container set, on purpose: a container draws nothing of
+its own except the inset ring an *empty* one shows while a card is carried over it, and that is one
+frame in the Docs preview rather than a set whose resting variant would be invisible.
+
+**What the file draws that the code derives.** `Drag Handle` is a ghost icon-only `Button` instance
+with the grip glyph swapped in — the same composition `DragHandle.tsx` makes at runtime — so its
+three variants are Button's three states and it has no properties of its own. `Sortable Item`'s
+`Lifted` binds `opacity` to `opacity/opacity-50` and takes the `Elevation/Drop Shadow/Medium`
+effect style; `Over` is a 2px `Surface/Border Emphasized` stroke, align OUTSIDE (a ring, not an
+inset). `Resize Handle` binds its thickness to `width/w-4` / `height/h-4`, its pill to `w-1 × h-10`
+(or `w-10 × h-1`) in `Surface/Border Emphasized`, `Hover` fills `Surface/Overlay Subtle`, and
+`Focus` is the shared `Focus Ring` instance — the pill is at opacity 0 in `Default`, so the resting
+variant is invisible on the canvas, which is also what the code renders.
 
 Built 2026-09-17 from Nathan's Figma Make prototype *Composable Grid Layout* (file
 `CBkiXb5N9223tUMrpwayUG`), which was read for its **interaction model** and not ported: it is
@@ -283,31 +298,38 @@ computes to `transform 0.175s cubic-bezier(0.24, 1, 0.4, 1)`. Dashboard spans re
 
 ## Best practices
 
-Written here first; the file owes a Docs block, and when it exists this is the text to put on it.
+Mirrored from the **Best practices** block on `↪ Drag and Drop` (Docs frame `40005289:41938`).
+The two are one text in two places — change one and change the other. Where a rule names a thing
+only the code has, the canvas says the design decision and the prop is in parentheses here.
 
 **Do**
 
-- Give every item and container a `label` that says what it is. The grip is named after it and the
-  live region reads it; an id is not a name.
-- Put the grip *beside* a clickable card inside the item, never inside it. The item wrapper is what
+- Give every item and container a name that says what it is (`label`). The grip is named after it
+  and the screen reader reads it; an id is not a name.
+- Put the grip beside a clickable card inside the item, never inside it. The item wrapper is what
   lets the two coexist.
-- Keep the container state yourself and let `moveItem` change it. `onDragOver` for crossing a
-  boundary, `onDragEnd` for settling, and a snapshot for Escape.
-- Mark a control that must not start a drag — a remove button, a menu trigger — `data-drag-ignore`.
-- Give a container that has a limit a `capacity`, and give one that can empty a minimum height.
-- Put a `ResizeHandle` in the gap, at the gap's size, and never on the last block — it has nothing
-  to its right to take from.
-- Reach for `DragAndDrop.Overlay` only when an item is carried out of a scroll container. Everything
-  else moves in place, on the tokens.
+- Keep the container state yourself and let the drag report into it: one handler for crossing a
+  boundary (`onDragOver`), one for settling (`onDragEnd`), and a snapshot so Escape can put
+  everything back.
+- Mark a control that must not start a drag — a remove button, a menu trigger — so a press on it
+  stays a press (`data-drag-ignore`).
+- Give a container that has a limit a `capacity`, and one that can empty a minimum height. A full
+  row refuses a fifth block; an emptied row keeps a place to come back to.
+- Put a resize handle in the gap, at the gap's size, and never on the last block — it has nothing to
+  its right to take from.
 
 **Don't**
 
-- Don't make a draggable card a link. An `<a>` is natively draggable and the browser's drag wins;
-  use `onClick`, or take responsibility for `draggable={false}`.
+- Don't make a draggable card a link. A link is natively draggable and the browser's own drag wins;
+  use a click action instead (`onClick`, or take responsibility for `draggable={false}`).
 - Don't put a ring on the card inside the item. The drop ring belongs on the item wrapper, where it
   cannot fight the card's focus ring.
-- Don't test a pointer drag. Drive the grip with the keyboard and assert the DOM order, the container
-  membership and what the live region said — and drive a resize handle the same way, asserting the
-  spans the grid rendered.
-- Don't reach for this to reorder a short, static list — a "move up / move down" pair of buttons is
-  smaller, and a keyboard user does not have to learn a mode.
+- Don't reach for the overlay by default. The item itself moves, on the motion tokens; the overlay
+  copy (`DragAndDrop.Overlay`) is only for an item carried out of a scroll container.
+- Don't reach for this to reorder a short, static list — a move up / move down pair is smaller, and
+  a keyboard user does not have to learn a mode.
+
+One rule from the first draft of this list is not on the canvas, because it is about the tests and
+not the component: **don't test a pointer drag** — drive the grip and the handles with the keyboard
+and assert the DOM order, the container membership, the rendered spans and what the live region
+said. It lives in the "keyboard path only" section above, where it belongs.

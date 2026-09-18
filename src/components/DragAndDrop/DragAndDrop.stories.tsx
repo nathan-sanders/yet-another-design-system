@@ -41,9 +41,10 @@ import { Token } from '../Token'
 import { cn } from '../../lib/cn'
 
 /**
- * The drag foundation: a root, sortable containers and items, and the grip
- * you carry an item by. No Figma node yet — the file owes a grip button, a
- * lifted state and a drop ring, and the record says so.
+ * The drag foundation: a root, sortable containers and items, the grip you
+ * carry an item by, and the handle you resize one with. Mirrors the
+ * `↪ Drag and Drop` page (`40005289:447`): `Drag Handle`, `Sortable Item`
+ * and `Resize Handle` sets, drawn from this code the day after it landed.
  *
  * Every story here is a test of the **keyboard** path: Tab to a grip, Space
  * to lift, arrows to move, Space to drop. That is not a shortcut. A pointer
