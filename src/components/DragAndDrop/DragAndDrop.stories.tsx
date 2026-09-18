@@ -17,7 +17,7 @@ import {
 
 import { DragAndDrop } from './DragAndDrop'
 import { DragHandle } from './DragHandle'
-import { ResizeHandle } from './ResizeHandle'
+import { ResizeHandle } from '../Resize'
 import { Sortable } from './Sortable'
 import {
   addBlock,

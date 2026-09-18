@@ -273,6 +273,51 @@ focus inner border, a token decision rather than a component one. Worth raising 
 tier is opened. (Figma draws that ring at `rounded-md` while the item is `rounded-lg`; `ring` follows
 the element's own radius, which is the better answer, so it was not copied.)
 
+**The rail can be resized from its seam, and the API is the rail's.** `resizable` on `SideNav`
+(2026-09-18) draws a `ResizeHandle` on the right edge; `width` / `defaultWidth` / `onWidthChange`
+are the width, `minWidth` / `maxWidth` its range — 192 to 400, default the drawn 224 — in the
+repo's `prop ?? state` idiom. Settled with Nathan against putting it on `AppShell`: the handle has
+to read and change the rail's width *and* its collapsed state, both of which already live here,
+where the shell would have needed a child-to-parent channel the repo does not have. What the shell
+does supply is the one fact the rail cannot know — whether there is a gap — through the
+`AppShellContext` it already reads for `floating`.
+
+**The handle is the gap.** Inside a framed shell it is `w-2` and `translate-x-full`: 8px, sitting
+exactly in the shell's `gap-2`, left edge on the rail's right and right edge on the page's left,
+which the `Resizable rail, keyboard` story asserts. Docked (`frame={false}`), or outside a shell,
+there is no gap, so it straddles the seam — `translate-x-1/2`, 4px over the rail's own `p-2` and
+4px over the page's — which is `Table`'s arrangement and Nathan's call for the docked case. `z-10`
+so the straddling half paints over the page's positioned children, as Table's does. The handle's
+own decisions are in `Resize/CLAUDE.md`.
+
+**The width is a variable a utility reads, never an inline `width`.** `--side-nav-width` on the
+`<nav>` and `w-(--side-nav-width)` in the class list — Popover's arrangement — and only when a
+width is in play (`resizable`, or a controlled `width`). Every other rail renders exactly the
+`w-56` it always did, which is what keeps the existing 224 / 56 assertions green. Collapsed is
+`w-14` regardless: the icon rail is not resizable.
+
+**Resizing a collapsed rail expands it, and the edge follows the hand.** The handle reports the
+rail's *real* width — 56 collapsed, with 56 as `aria-valuemin` so `valuenow` is never below its
+floor — and any change from 56 sets `collapsed` false and the width to `max(minWidth, next)`, since
+there is no such thing as a 64px expanded rail. So a drag from the collapsed edge lands on 192 at
+the first pixel and tracks the pointer once the hand is past it; ArrowRight from collapsed opens the
+rail at 192. Shrinking a collapsed rail clamps back to 56 and never fires — ArrowLeft does nothing,
+which is right. `aria-valuetext` says "Collapsed" there and "224 pixels" otherwise. The alternative
+— expanding to the remembered width and resizing from *that* — was considered and dropped: the
+edge would no longer be under the hand.
+
+**The width transition is off for the length of a pointer drag.** The rail eases `width` over
+`duration-medium` for the collapse, and a keyboard step is meant to ease too; a pointer drag on a
+410ms ease trails the hand by that much and reads as a broken handle. `onResizeStart` /
+`onResizeEnd` set a `resizing` flag that swaps `transition-[width]` for `transition-none` —
+measured in the pane: `transition-property: none` during the drag, `width` again after, and the
+rail at 244 / 264 / 284 for three 20px moves.
+
+**The flyout follows the width.** A collapsed group's panel was a hard 224 — "the expanded rail's
+width" — and is now `NavContext.width`, set by the rail and read by `SideNav.Group`, falling back
+to 224 where nothing set it (`TopNav`). Measured: rail resized to 400, collapsed, the Atlas flyout
+opens 400 wide.
+
 **No collapse or responsive menu on `TopNav`, and there will not be one.** This entry used to say
 Figma drew neither and that guessing which breakpoint, and whether the list became a `Menu` or a
 drawer, would put a component in the library no design agreed to. Figma has since answered — and the
@@ -302,6 +347,12 @@ At `neutral-inverse` on Stone, against the Figma frames:
 | Collapsed rule | subtle @ 40%, 1px | `oklab(… / 0.4)`, 1px |
 | Item type, default / small | 14/24 · 12/20 | 14/24 · 12/20, weight 600 when selected |
 | Rail width, expanded / collapsed | 224 / 56 | 224 / 56 |
+| Resizable rail: range / default | — | 192 – 400 / 224; collapsed stays 56 |
+| Resize handle, framed shell | — | 8 wide, `left` = rail `right`, `right` = page `left` |
+| Resize handle, docked | — | 8 wide, centred on the rail's edge |
+| Drag from collapsed | — | 192 at the first move, then the hand's travel; ArrowLeft no-op |
+| Width transition during a drag / after | — | `none` / `width` |
+| Flyout width after a resize to 400 | — | 400 |
 | Collapsed item | 40 × 40 | 40 × 40 |
 | Top bar height / radius / padding | 56 / 12 / 8,12 | 56 / 12 / 8px 12px |
 | Group panel | one row | settles at 40, chevron at 180° |
@@ -593,6 +644,7 @@ is the swap between the last two.
 - Keep a label on every item, collapsed or not. A 40px square with its text hidden has no accessible name at all; collapsed, the label becomes the tooltip so it is there for everybody.
 - Group pages into sections with headers. Collapsed, a header becomes the rule that keeps the groups apart once their names are gone.
 - Mark the page somebody is on as selected. That is what aria-current is for, and a rail without it makes you work out where you are from the content.
+- Let the rail be resized from its seam when the app has room to give (`resizable`). The handle is the shell's gap, the range is 192 to 400, and a collapsed rail opens on the first pull rather than pretending 56 can be resized.
 
 **Don't**
 

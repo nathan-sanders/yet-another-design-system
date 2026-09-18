@@ -4,23 +4,25 @@ The drag foundation: a root (`DragAndDrop`), a container of items that can be re
 between containers (`Sortable` / `Sortable.Item`), the grip you carry one by (`DragHandle`), and
 the arithmetic underneath (`move.ts`, `spans.ts`). Mirrors the `↪ Drag and Drop` page
 (**`40005289:447`**), drawn on 2026-09-18 from the built code — the third record to go code → file
-after `BentoGrid` and `ThemeControl`, and like `AppShell` the file caught up within a day. Three
-sets on it: **`Drag Handle`** (`40005289:480`, State default | hover | focus), **`Sortable Item`**
-(`40005289:41745`, State rest | lifted | over, with a `Content` slot), and **`Resize Handle`**
-(`40005289:41760`, Orientation vertical | horizontal × State default | hover | focus). The Docs
-frame is `40005289:41938`. No `Sortable` container set, on purpose: a container draws nothing of
-its own except the inset ring an *empty* one shows while a card is carried over it, and that is one
-frame in the Docs preview rather than a set whose resting variant would be invisible.
+after `BentoGrid` and `ThemeControl`, and like `AppShell` the file caught up within a day. Two
+sets on it: **`Drag Handle`** (`40005289:480`, State default | hover | focus) and **`Sortable
+Item`** (`40005289:41745`, State rest | lifted | over, with a `Content` slot). The Docs frame is
+`40005289:41938`. No `Sortable` container set, on purpose: a container draws nothing of its own
+except the inset ring an *empty* one shows while a card is carried over it, and that is one frame
+in the Docs preview rather than a set whose resting variant would be invisible.
+
+**`Resize Handle` was the third set here and is now its own component**, `Resize`, on its own
+page `↪ Resize` — Nathan moved the set on 2026-09-18 and the code followed the same day. A resize
+is not a drag, and the handle's other callers (`Table`, the `AppShell` rail) have no drag near
+them. The dashboard story imports it like any other caller; what stays here is the contract
+(`data-drag-ignore`, below) and the dashboard's arithmetic. See `Resize/CLAUDE.md`.
 
 **What the file draws that the code derives.** `Drag Handle` is a ghost icon-only `Button` instance
 with the grip glyph swapped in — the same composition `DragHandle.tsx` makes at runtime — so its
 three variants are Button's three states and it has no properties of its own. `Sortable Item`'s
 `Lifted` binds `opacity` to `opacity/opacity-50` and takes the `Elevation/Drop Shadow/Medium`
 effect style; `Over` is a 2px `Surface/Border Emphasized` stroke, align OUTSIDE (a ring, not an
-inset). `Resize Handle` binds its thickness to `width/w-4` / `height/h-4`, its pill to `w-1 × h-10`
-(or `w-10 × h-1`) in `Surface/Border Emphasized`, `Hover` fills `Surface/Overlay Subtle`, and
-`Focus` is the shared `Focus Ring` instance — the pill is at opacity 0 in `Default`, so the resting
-variant is invisible on the canvas, which is also what the code renders.
+inset).
 
 Built 2026-09-17 from Nathan's Figma Make prototype *Composable Grid Layout* (file
 `CBkiXb5N9223tUMrpwayUG`), which was read for its **interaction model** and not ported: it is
@@ -229,16 +231,15 @@ is the prototype's: a strip on the row's edge, `opacity-0` until hover and `focu
 at four so it stays in the tab order and says no rather than vanishing.
 
 **Resize is the prototype's other half, and it landed on 2026-09-18.** Two handles, one
-component: `ResizeHandle` with an `orientation`. Between two blocks it is the prototype's
-`Item Resize Handle` — the 16px gap itself, `col-resize`, snapping the *left* block to a column —
-and under a row it is the `Row Resize Spacer`, the 16px between rows, `row-resize`, setting the
-row's height. It is `Table.ResizeHandle` made general: a focusable `separator` with
-`aria-valuenow`/`min`/`max` (a widget role owes all three, and axe checks), a pointer path on
-`setPointerCapture`, and a keyboard path — arrows step, Shift steps further, Home and End go to the
-ends — which is the path the story tests. It reports a **value in the caller's unit** rather than
-pixels: the column handle reports spans, with `unit` a function that measures one twelfth of the row
-when the drag starts, and the row handle reports pixels. `aria-valuetext` says "6 of 12 columns".
-`data-drag-ignore`, always — it sits inside a `Sortable.Item`, and a press on it is a resize.
+component: `ResizeHandle` (now `Resize/`) with an `orientation`. Between two blocks it is the
+prototype's `Item Resize Handle` — the 16px gap itself, `col-resize`, snapping the *left* block to
+a column — and under a row it is the `Row Resize Spacer`, the 16px between rows, `row-resize`,
+setting the row's height. What is the dashboard's about it: the column handle reports **spans**,
+with `unit` a function that measures one twelfth of the row when the drag starts, so the snap is
+`spans.ts`'s arithmetic and not the handle's; `aria-valuetext` says "6 of 12 columns"; and the
+handle sits inside a `Sortable.Item`, where **`data-drag-ignore`** is what keeps a press on it a
+resize rather than a lift. The handle's own decisions — the separator role, the pill, the guarded
+capture, `onResizeStart`/`onResizeEnd` — are in `Resize/CLAUDE.md`.
 
 The arithmetic is `spans.ts`, tested in node, and it is the prototype's `GridRow.tsx` read
 carefully:
@@ -274,22 +275,11 @@ is a CSS variable on the row (`--row-height`) that the blocks and the add rail r
 `h-(--row-height)`, not an inline `height` on each block: a runtime value inline would defeat any
 responsive override, and there is one variable to change rather than four.
 
-**The pill follows the pointer, as the prototype's does — and slides.** Hovering the strip puts
-the pill where the cursor is along it and it eases after the cursor at `duration-fast-min`; where
-it is says nothing about the value, only "you can grab it here", and a grab is where the hand
-already is. It is one CSS custom property, `--pill-offset`, written straight to the element on
-`pointermove` — a mousemove is not a reason to render — and read back by
-`top-(--pill-offset,50%)` / `left-(--pill-offset,50%)`, so nothing is an inline `top` a responsive
-rule could not override. Clamped to half the pill's length from either end, so it never hangs off
-the strip. **The one departure from the prototype is for the keyboard**: on `focus-visible` the
-property is unset and the fallback puts the pill in the middle, so a keyboard user can see which
-handle they are on — the prototype showed a keyboard nothing. The Figma `Hover` variant draws the
-pill centred for the same reason a canvas draws anything: it has no cursor.
-
-**Reading the pill's position mid-slide reads the wrong number.** The story asserts the property
-first (it is set synchronously) and `waitFor`s the computed `top`, because the transition is in
-flight for 130ms after the pointer event — the same class of thing as the settled-rect note in the
-root record.
+**The pill follows the pointer, as the prototype's does — and slides.** The mechanism is the
+handle's and is recorded in `Resize/CLAUDE.md`; what is the prototype's is the idea, and the one
+departure from it: on `focus-visible` the pill sits in the middle so a keyboard user can see
+which handle they are on, where the prototype showed a keyboard nothing. The `DashboardKeyboard`
+story still asserts the follow, because the dashboard is where it was asked for.
 
 ## Traps written down
 
@@ -344,8 +334,6 @@ only the code has, the canvas says the design decision and the prop is in parent
   stays a press (`data-drag-ignore`).
 - Give a container that has a limit a `capacity`, and one that can empty a minimum height. A full
   row refuses a fifth block; an emptied row keeps a place to come back to.
-- Put a resize handle in the gap, at the gap's size, and never on the last block — it has nothing to
-  its right to take from.
 
 **Don't**
 
@@ -357,6 +345,9 @@ only the code has, the canvas says the design decision and the prop is in parent
   copy (`DragAndDrop.Overlay`) is only for an item carried out of a scroll container.
 - Don't reach for this to reorder a short, static list — a move up / move down pair is smaller, and
   a keyboard user does not have to learn a mode.
+
+The rule about putting a resize handle in the gap moved to `↪ Resize` with the handle, on
+2026-09-18, in both places.
 
 One rule from the first draft of this list is not on the canvas, because it is about the tests and
 not the component: **don't test a pointer drag** — drive the grip and the handles with the keyboard

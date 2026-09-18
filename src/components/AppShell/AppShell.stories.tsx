@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 import {
   Bell,
   Calendar,
@@ -46,7 +46,7 @@ const recent = [
   { value: 'design tokens', label: 'design tokens' },
 ]
 
-function Rail(props: { defaultCollapsed?: boolean; floating?: boolean }) {
+function Rail(props: { defaultCollapsed?: boolean; floating?: boolean; resizable?: boolean }) {
   return (
     <SideNav aria-label="Main" logo={<Logo />} utilities={<UtilityRows />} {...props}>
       <SideNav.Section header="Workspace">
@@ -491,5 +491,116 @@ export const CollapsedRail: Story = {
   play: async ({ canvasElement }) => {
     const nav = within(canvasElement).getByRole('navigation', { name: 'Main' })
     await expect(nav.getBoundingClientRect().width).toBe(56)
+  },
+}
+
+/**
+ * `resizable` on the `SideNav`: drag the seam between the rail and the page to
+ * set the rail's width, between 192 and 400. The handle is the shell's 8px gap
+ * — the same width, sitting exactly in it — and the arrow keys step it too.
+ * Collapse the rail and drag the seam again: it expands to wherever you let go.
+ */
+export const ResizableRail: Story = {
+  name: 'Resizable rail',
+  args: {
+    children: (
+      <>
+        <Rail resizable />
+        <Page />
+      </>
+    ),
+  },
+  parameters: { controls: { disable: true } },
+}
+
+/**
+ * The same shell, driven. The handle is a `separator` that says the rail's
+ * width, fills the gap exactly, steps by keyboard, and — collapsed — expands
+ * the rail on the first step rather than sizing the icon rail.
+ */
+export const ResizableRailKeyboard: Story = {
+  name: 'Resizable rail, keyboard',
+  args: ResizableRail.args,
+  parameters: { controls: { disable: true } },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const nav = canvas.getByRole('navigation', { name: 'Main' })
+    const page = canvasElement.querySelector<HTMLElement>('main')!.parentElement!
+    const handle = canvas.getByRole('separator', { name: 'Resize Main' })
+    const navWidth = () => nav.getBoundingClientRect().width
+
+    await step('the handle is the gap: 8 wide, from the rail\'s edge to the page\'s', async () => {
+      await expect(handle).toHaveAttribute('aria-valuenow', '224')
+      await expect(handle).toHaveAttribute('aria-valuemin', '192')
+      await expect(handle).toHaveAttribute('aria-valuemax', '400')
+      await expect(handle).toHaveAttribute('aria-valuetext', '224 pixels')
+      const rect = handle.getBoundingClientRect()
+      await expect(rect.width).toBe(8)
+      await expect(rect.left).toBe(nav.getBoundingClientRect().right)
+      await expect(rect.right).toBe(page.getBoundingClientRect().left)
+      await expect(navWidth()).toBe(224)
+    })
+
+    await step('the arrows step the width and it reaches the layout', async () => {
+      handle.focus()
+      await userEvent.keyboard('{ArrowRight}')
+      await expect(handle).toHaveAttribute('aria-valuenow', '232')
+      // The rail eases there over `duration-medium`.
+      await waitFor(() => expect(navWidth()).toBe(232))
+      await userEvent.keyboard('{Shift>}{ArrowRight}{/Shift}')
+      await expect(handle).toHaveAttribute('aria-valuenow', '272')
+      await userEvent.keyboard('{End}')
+      await expect(handle).toHaveAttribute('aria-valuenow', '400')
+      await waitFor(() => expect(navWidth()).toBe(400))
+      await userEvent.keyboard('{Home}')
+      await expect(handle).toHaveAttribute('aria-valuenow', '192')
+      await waitFor(() => expect(navWidth()).toBe(192))
+      // The page moved with it: the handle is still exactly the gap.
+      const rect = handle.getBoundingClientRect()
+      await expect(rect.left).toBe(nav.getBoundingClientRect().right)
+      await expect(rect.right).toBe(page.getBoundingClientRect().left)
+    })
+
+    await step('collapsed, the handle says so and shrinking does nothing', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Collapse' }))
+      await waitFor(() => expect(navWidth()).toBe(56))
+      await expect(handle).toHaveAttribute('aria-valuenow', '56')
+      await expect(handle).toHaveAttribute('aria-valuemin', '56')
+      await expect(handle).toHaveAttribute('aria-valuetext', 'Collapsed')
+      handle.focus()
+      await userEvent.keyboard('{ArrowLeft}')
+      await expect(handle).toHaveAttribute('aria-valuenow', '56')
+      await expect(navWidth()).toBe(56)
+    })
+
+    await step('growing a collapsed rail expands it, no narrower than the minimum', async () => {
+      await userEvent.keyboard('{ArrowRight}')
+      await expect(handle).toHaveAttribute('aria-valuenow', '192')
+      await expect(handle).toHaveAttribute('aria-valuemin', '192')
+      await expect(canvas.getByRole('button', { name: 'Collapse' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      )
+      await waitFor(() => expect(navWidth()).toBe(192))
+    })
+  },
+}
+
+/**
+ * Docked, there is no gap for the handle to be, so it straddles the seam —
+ * still 8px, centred on the rail's edge, 4px over the rail's own padding and
+ * 4px over the page's. `Table`'s arrangement.
+ */
+export const ResizableRailDocked: Story = {
+  name: 'Resizable rail, docked',
+  args: { ...ResizableRail.args, frame: false },
+  parameters: { controls: { disable: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const nav = canvas.getByRole('navigation', { name: 'Main' })
+    const handle = canvas.getByRole('separator', { name: 'Resize Main' })
+    const rect = handle.getBoundingClientRect()
+    await expect(rect.width).toBe(8)
+    await expect(rect.left + 4).toBe(nav.getBoundingClientRect().right)
   },
 }
