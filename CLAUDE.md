@@ -495,9 +495,13 @@ keyboard. `Showcase.tsx`'s `ShowcaseTable` does this once for all the Foundation
   old token" — check one by id first.
 - Colors come back as `{r,g,b,a}` 0–1 floats — convert to hex.
 - **Three authoring limits found building the Dialog page, all of which shape what a component can
-  be in this file.** There is no `figma.createSlot` — reading the property *throws* rather than
-  returning undefined — and `detachInstance()` turns a `SLOT` into a plain `FRAME`, so a slot can
-  only be made by hand in the UI. `componentPropertyReferences` accepts only `characters`, `visible`
+  be in this file — and the first has since lifted.** There was no `figma.createSlot` — reading the
+  property *threw* — so a slot could only be made by hand in the UI. As of 2026-09-17 the API has
+  `ComponentNode.createSlot()` and a `SLOT` component-property type: `set.addComponentProperty(name,
+  'SLOT', '', { slotSettings })` on the set, then `frame.componentPropertyReferences = { slotContentId:
+  key }` on the frame in each variant turns an existing frame into a slot (App Shell's `Content` was
+  made that way). The binding **renames the layer to the property's name**, so read it back by type,
+  not by the old name. `detachInstance()` still turns a `SLOT` into a plain `FRAME`. `componentPropertyReferences` accepts only `characters`, `visible`
   and `mainComponent`, so a **nested instance's** property (a Button's `Label Text` inside a
   component) cannot be bound to an outer property — add one anyway and you get a control wired to
   nothing. And `page.clone()` turns the page's `COMPONENT` into an `INSTANCE` of the original, which
