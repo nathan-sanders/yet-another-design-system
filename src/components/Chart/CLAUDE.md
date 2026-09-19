@@ -10,6 +10,8 @@ Figma page: **↪ Data Viz (In Progress)** (`40004316:13427`). Sections `Legend 
 (`40004318:14768`). The page's `Docs` frame (`40005299:57194`) was filled on 2026-09-18: its Preview
 is the `Examples` dashboard grid (`40004343:27776`) cloned into Light and Dark, and its Best
 practices block is the text at the end of this file.
+`Grids` also holds `_Chart Grid / Vertical` (`40005367:19398`), the vertical-gridline grid
+`HorizontalBar` draws on; its own section is `Horizontal Bar` (`40005369:19339`).
 
 ## Half the Figma page does not become code, and that is the main thing to know
 

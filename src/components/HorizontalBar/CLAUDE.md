@@ -4,12 +4,26 @@ A magnitude per named category, as rows. **Read [Chart/CLAUDE.md](../Chart/CLAUD
 [VerticalBar/CLAUDE.md](../VerticalBar/CLAUDE.md) first** — this is that chart on its side, and
 only what changes when it turns is written here.
 
-Figma's `Horizontal Bar` (`FIGMA_MAIN`), section `FIGMA_SECTION`, with `Horizontal Bar / Bar`
-(`FIGMA_BAR_SET`), `_Horizontal Bar / Horizontal Bars` (`FIGMA_BARS_SET`) and, in the Grids section,
-`_Chart Grid / Vertical` (`FIGMA_GRID_SET`). **The drawing was made from the code**, 2026-09-19 — the
+Figma's `Horizontal Bar` (`40005370:20289`), section `40005369:19339`, with `Horizontal Bar / Bar`
+(`40005369:44615`), `_Horizontal Bar / Horizontal Bars` (`40005370:20288`) and, in the Grids section,
+`_Chart Grid / Vertical` (`40005367:19398`). **The drawing was made from the code**, 2026-09-19 — the
 Scatter and Sankey route. Nothing existed for it in the file: no section, no node, no vertical-
 gridline grid. So the code is the older authority here, and the file's numbers are the code's
-sample data (`sliceData(8)`, `channelData()`) scaled into the file's own plot box.
+sample data (`sliceData(8)` on the 0–6k scale `niceMax` gives it) scaled into the file's own plot box.
+
+Three things the drawing settled that a screenshot would not show:
+
+- **The grid's rows are `FILL`, not `SPACE_BETWEEN`.** Eight category rows and eight bar rows each
+  take an equal share of the 276px plot (34.5 each), which is exactly Recharts' band — so the labels
+  and the bars agree by construction rather than by eye. The label column is 96 + 16, not
+  `_Chart Grid`'s 40 + 16, because a category name is not a five-character number.
+- **The Bar set's `Group` bars are 16 thick, where the vertical set's are 24.** The code's rule is
+  that a grouped row is sized so each bar *reaches* 16 (`BAR_GROUP_THICKNESS`), and the drawing
+  follows the code. Single and Stacked are 16 as on the vertical set; the code caps at 24 and takes
+  60% of a 32px row, so it draws 19 — the file draws the segment's intrinsic size, as the vertical
+  file does.
+- **`_Chart Hover Bar` was not carried over.** The vertical `Stacked` variant holds one; a
+  horizontal hover band is a different drawing and nothing on the page needed it yet.
 
 ## Why it is a chart and not a `direction` on VerticalBar
 

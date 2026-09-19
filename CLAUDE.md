@@ -564,7 +564,7 @@ the half to read when you are choosing between two components rather than changi
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
 drift nothing in CI can catch. **Thirty-nine records carry it.** The data-viz family shares one: the `↪ Data Viz`
-page has a single Docs frame for all fourteen charts, so `Chart`'s record holds the family's rules —
+page has a single Docs frame for all fifteen charts, so `Chart`'s record holds the family's rules —
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
 
