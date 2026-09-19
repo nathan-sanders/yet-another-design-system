@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { LineSeries } from './LineSeries'
 import { dailyData, hourlyData, monthlyData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const SERIES = [
   { key: 'sessions', label: 'Sessions' },
@@ -30,6 +31,7 @@ const meta = {
     legend: 'horizontal',
     height: 280,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof LineSeries>
 
 export default meta
@@ -158,11 +160,8 @@ export const Dense: Story = {
  * becomes in code.
  */
 export const Narrow: Story = {
-  render: (args) => (
-    <div className="w-[420px]">
-      <LineSeries {...args} data={dailyData(31)} legend="vertical" />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-[420px]' },
+  render: (args) => <LineSeries {...args} data={dailyData(31)} legend="vertical" />,
 }
 
 /**

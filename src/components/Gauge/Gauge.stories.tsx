@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Gauge } from './Gauge'
 import { gaugeData } from '../Chart/sample-data'
 import { Badge } from '../Badge'
+import { onSurface } from '../Chart/story-surface'
 
 const meta = {
   title: 'Data Viz/Gauge',
@@ -21,6 +22,7 @@ const meta = {
     legend: 'horizontal',
     height: 200,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Gauge>
 
 export default meta
@@ -35,11 +37,8 @@ type Story = StoryObj<typeof meta>
  * figure underneath.
  */
 export const Playground: Story = {
-  render: (args) => (
-    <div className="w-100">
-      <Gauge {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-100' },
+  render: (args) => <Gauge {...args} />,
 }
 
 /**
@@ -52,32 +51,28 @@ export const Playground: Story = {
  * are different components pretending to be one prop.
  */
 export const WithMetric: Story = {
+  parameters: { surfaceWidth: 'w-100' },
   render: (args) => (
-    <div className="w-100">
-      <Gauge
-        {...args}
-        center={
-          <>
-            <span className="text-content-subtle text-sm">Quarterly target</span>
-            <span className="flex items-center gap-2">
-              <span className="text-content-emphasized font-mono text-2xl font-bold tabular-nums">1,234</span>
-              <Badge color="green" startIcon={TrendingUp}>
-                8%
-              </Badge>
-            </span>
-          </>
-        }
-      />
-    </div>
+    <Gauge
+      {...args}
+      center={
+        <>
+          <span className="text-content-subtle text-sm">Quarterly target</span>
+          <span className="flex items-center gap-2">
+            <span className="text-content-emphasized font-mono text-2xl font-bold tabular-nums">1,234</span>
+            <Badge color="green" startIcon={TrendingUp}>
+              8%
+            </Badge>
+          </span>
+        </>
+      }
+    />
   ),
 }
 
 /** The interactive legend works here too — see `Donut` for what it guarantees. */
 export const InteractiveLegend: Story = {
   args: { interactiveLegend: true },
-  render: (args) => (
-    <div className="w-100">
-      <Gauge {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-100' },
+  render: (args) => <Gauge {...args} />,
 }

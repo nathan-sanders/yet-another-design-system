@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Radar } from './Radar'
 import { radarData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const SERIES = [
   { key: 'modelA', label: 'Model A' },
@@ -27,6 +28,7 @@ const meta = {
     legend: 'horizontal',
     height: 340,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Radar>
 
 export default meta
@@ -42,11 +44,8 @@ type Story = StoryObj<typeof meta>
  * drawn as a polygon over the top.
  */
 export const Playground: Story = {
-  render: (args) => (
-    <div className="w-100">
-      <Radar {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-100' },
+  render: (args) => <Radar {...args} />,
 }
 
 /**
@@ -79,11 +78,8 @@ export const Points: Story = {
  */
 export const WithScale: Story = {
   args: { showScale: true },
-  render: (args) => (
-    <div className="w-100">
-      <Radar {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-100' },
+  render: (args) => <Radar {...args} />,
 }
 
 /**
@@ -101,9 +97,6 @@ export const WithScale: Story = {
  */
 export const Overlap: Story = {
   args: { interactiveLegend: true },
-  render: (args) => (
-    <div className="w-100">
-      <Radar {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-100' },
+  render: (args) => <Radar {...args} />,
 }

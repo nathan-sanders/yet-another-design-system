@@ -3,6 +3,7 @@ import { expect, waitFor, within } from 'storybook/test'
 
 import { Scatter, type ScatterSeries } from './Scatter'
 import { scatterData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const SAMPLE = scatterData()
 const QUADRANT_LABELS = { top: 'High impact', bottom: 'Low impact', left: 'Low effort', right: 'High effort' }
@@ -31,6 +32,7 @@ const meta = {
     legend: 'horizontal',
     height: 280,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Scatter>
 
 export default meta
@@ -190,11 +192,8 @@ export const InteractiveLegend: Story = {
  * breakpoint keeps its scale and only sheds labels.
  */
 export const Narrow: Story = {
-  render: (args) => (
-    <div className="w-[420px]">
-      <Scatter {...args} legend="vertical" />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-[420px]' },
+  render: (args) => <Scatter {...args} legend="vertical" />,
 }
 
 /**

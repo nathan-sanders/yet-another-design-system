@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { AreaSeries } from './AreaSeries'
 import { dailyData, monthlyData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 /** Ordered largest-first, which is what an opaque `solid` fill requires. */
 const SERIES = [
@@ -30,6 +31,7 @@ const meta = {
     legend: 'horizontal',
     height: 280,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof AreaSeries>
 
 export default meta

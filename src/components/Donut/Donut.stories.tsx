@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Donut } from './Donut'
 import { sliceData } from '../Chart/sample-data'
 import { formatFullNumber } from '../Chart'
+import { onSurface } from '../Chart/story-surface'
 
 const DATA = sliceData(6)
 const TOTAL = DATA.reduce((sum, row) => sum + (row.sessions as number), 0)
@@ -24,6 +25,7 @@ const meta = {
     interactiveLegend: false,
     height: 280,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Donut>
 
 export default meta

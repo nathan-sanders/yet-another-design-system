@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { TreeMap } from './TreeMap'
 import { treeMapData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const meta = {
   title: 'Data Viz/TreeMap',
@@ -18,6 +19,7 @@ const meta = {
     showValues: false,
     height: 320,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof TreeMap>
 
 export default meta
