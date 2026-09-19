@@ -14,7 +14,7 @@ import { isOutlineMarker, markerShape, type ChartMarker } from './shapes'
  *
  * ## The three groups
  *
- * - **`colorSwatch`** — a plain 16px rounded square. The key for a chart whose
+ * - **`colorSwatch`** — a plain 14px rounded square. The key for a chart whose
  *   marks are *areas*: a donut slice, a bar, a heat-map cell. There is no line
  *   and no point to echo, so the key is just the color.
  * - **The eleven markers** — a 24px line with the series' shape sitting on it.
@@ -63,9 +63,9 @@ const LINE_WIDTH = 2
 const MARKER_SIZE = 12
 /** Ring thickness at swatch scale. A plot point uses 1.5; both are read from Figma, neither is derived. */
 const MARKER_STROKE = 2
-/** The plain color key: a 16px rounded square, `border-radius/rounded-xs`. */
-const COLOR_SWATCH_SIZE = 16
-const COLOR_SWATCH_RADIUS = 4
+/** The plain color key: a 14px square with a 3.5px radius, read off `Style=Color Swatch` (it was 16 / 4 until 2026-09-18). */
+const COLOR_SWATCH_SIZE = 14
+const COLOR_SWATCH_RADIUS = 3.5
 
 /**
  * How far each line piece runs in from the edge when a hollow marker splits it.

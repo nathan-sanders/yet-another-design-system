@@ -75,6 +75,18 @@ rather than approximate is Figma's own second size — the plot point's square i
 8.67 against Figma's circle of 9. Measured back out of the DOM, all seven shapes land on the file's
 numbers exactly.
 
+**The ring is inside the shape, and the corners are round — both caught against the file on
+2026-09-18.** A hollow marker is the same size as its solid twin: Figma's ring is an *inside* stroke,
+and SVG's default is a stroke down the middle, so the first version drew every outline shape a
+stroke-width too big. The path is now inset by half the ring before it is stroked. Corners: 2px on
+the square, triangle and hexagon at swatch size and 1.75 on the diamond, read off the shape paths;
+at plot-point size the triangle and hexagon keep 2 and the square and diamond are sharp. Read per
+shape per size like a stroke, never scaled. And Figma rounds a polygon *inside its bounds* — the arcs
+still touch the node's edges — where a plain fillet pulls a 60° apex in by the whole radius, so
+`fitPolygon` grows the sharp triangle until its rounded outline fills the box the file states. The
+X was the same lesson from the other side: the file's 11.4 includes the stroke's square ends, so the
+arms are drawn 10 wide. The color swatch is 14 with a 3.5 radius (it was 16 / 4).
+
 **The hexagon is written from half-extents, not an angle sweep.** Six vertices at 60° off one radius
 gives a *regular* hexagon, 11.6 across for 13.4 tall. Figma's is 12 across. Stating both extents hits
 the number and is easier to check against the file than trigonometry is.
