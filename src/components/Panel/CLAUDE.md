@@ -22,6 +22,7 @@ code the same day.
 |---|---|---|
 | Panel (`Floating` False \| True) | `40005378:45634` | `Panel`, its `floating` prop; `Content` slot = `Panel.Body`'s room |
 | Panel instances in the two layout frames | `40005378:45648` (floating), `40005378:45664` (contained) | the `Floating` and `InContext` stories |
+| Phone layouts, 393 × 852 | `40005382:1401` (floating), `40005382:1519` (contained) | the `Phone` story: Page, then the Panel full-width at 320, then the bar |
 | Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005378:45680` | this record's Best practices |
 | Components section | `40005378:45840` | — |
 
@@ -35,7 +36,14 @@ Actions slot swapped to the `x` icon and named `Close`. Below it a `Content` fra
 ways, padded `0 / spacing/4 / spacing/4 / spacing/4`, bound to the set's one `Content` SLOT
 (`stretchChildOnInsert` on). **Every dimension is a variable**, Nathan's rule for the build.
 
-**What it cannot draw.** `side`, `resizable`, the width range and the phone split. A Figma
+**The phone frames are the App Shell's `Navigation=Mobile` variants, detached, with a Panel
+put between the Page and the bar.** An instance of `40005300:6252` / `40005300:6364`,
+`detachInstance()`d so a sibling could be inserted — a slot takes content, not a sibling — and
+the Panel instance set `FILL` across and 320 tall. The geometry came out as the code measures it
+with nothing adjusted: Page 8 → 452, Panel at 460 (the frame's gap), 377 × 320, bar at 788.
+Floating in the floating shell, flat in the contained one, the shell's default either way.
+
+**What it cannot draw.** `side`, `resizable`, the width range and the split's *resizing*. A Figma
 property is a variant, a boolean, a text or a swap, and none of those is a number or a
 breakpoint; the layout frames above show the desktop arrangement and the record carries the
 rest. The header's title is the nested instance's own `Header Text` property, because a nested
