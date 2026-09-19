@@ -94,7 +94,7 @@ export const Columns: Story = {
 }
 
 /**
- * The three gutters — `spacing/2`, `spacing/3` and `spacing/6`. One value for
+ * The three gutters — `spacing/2`, `spacing/3` and `spacing/5`. One value for
  * both axes, so a cell spanning two columns is exactly two tiles plus one gap
  * wide and the mosaic stays on its grid.
  *
