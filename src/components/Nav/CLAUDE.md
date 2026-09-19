@@ -526,7 +526,9 @@ token is worse than an absent one. `fade-in` stays; it is ThoughtProcess's cross
 
 Measured: the sheet settles with its bottom on the frame's inner bottom and its width the frame's,
 `data-swipe-direction="down"`, `border-top-width: 0px`, and `getAnimations()` reports one
-`CSSTransition` on `translate` while it is moving.
+`CSSTransition` on `translate` while it is moving. And **seen**: Nathan watched it in a real browser
+the same day and called the animation good — the check the next section says is the only one that
+counts, and the one the four earlier attempts never passed.
 
 ### Motion cannot be verified from here, and it cost four attempts
 
