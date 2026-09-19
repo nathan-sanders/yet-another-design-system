@@ -6,7 +6,7 @@ export type { ChartLegendProps, ChartLegendType } from './ChartLegend'
 
 export { ChartTooltip } from './ChartTooltip'
 export { chartTooltipWrapperStyle } from './styles'
-export type { ChartTooltipProps, ChartTooltipPayloadEntry } from './ChartTooltip'
+export type { ChartTooltipProps, ChartTooltipPayloadEntry, ChartTooltipRow } from './ChartTooltip'
 
 export { ChartSwatch } from './Swatch'
 export type { ChartSwatchProps, ChartSwatchShape } from './Swatch'
@@ -64,6 +64,7 @@ export {
   CHART_BREAKPOINT,
   chartGridProps,
   xAxisProps,
+  numericXAxisProps,
   yAxisProps,
   formatCompactNumber,
   formatFullNumber,

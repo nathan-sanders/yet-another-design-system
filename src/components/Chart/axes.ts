@@ -229,6 +229,48 @@ export function xAxisProps({ wide = true, count = 0 }: XAxisOptions = {}) {
   }
 }
 
+/** Ticks on a numeric x axis, either side of the breakpoint. Four and two intervals, so the same nice top serves both. */
+const NUMERIC_X_TICKS_WIDE = 5
+const NUMERIC_X_TICKS_NARROW = 3
+
+/**
+ * `XAxis` props for an axis that measures a **number** rather than counting
+ * categories or dates — a scatter's x.
+ *
+ * It keeps everything `xAxisProps` pins (the emphasized baseline, no tick
+ * marks, the mono labels) and swaps the interval rule for a tick count, because
+ * a numeric axis has no points to skip: Recharts places the ticks and only the
+ * count is a decision. Five wide and three narrow — four intervals and two —
+ * and the top is rounded for the *wider* case. Four intervals divide by two,
+ * so a top that is round at five ticks is round at three, and the domain does
+ * not shift when the chart crosses the breakpoint. `axes.test.ts` pins that.
+ *
+ * Five is fewer than the sixteen a date axis carries, and the reason is the
+ * label. Nine ticks over a 2,000 range means a step of 250, and the compact
+ * formatter writes 1,250 as `1.3k` — a label that is round to read and wrong
+ * to trust. Four intervals keep every step on the 1 / 2 / 5 ladder, where the
+ * compact form is exact. The y axis has the same count for the same reason.
+ *
+ * The floor is `yAxisProps`' rule: zero when the data is non-negative,
+ * otherwise Recharts' own.
+ */
+export function numericXAxisProps({ wide = true }: Pick<XAxisOptions, 'wide'> = {}) {
+  return {
+    type: 'number' as const,
+    axisLine: { stroke: axisLine, strokeWidth: 1 },
+    tickLine: false as const,
+    tickMargin: TICK_MARGIN,
+    tick: { className: TICK_CLASS },
+    tickCount: wide ? NUMERIC_X_TICKS_WIDE : NUMERIC_X_TICKS_NARROW,
+    domain: [
+      (dataMin: number) => (dataMin >= 0 ? 0 : dataMin),
+      (dataMax: number) => niceMax(dataMax, NUMERIC_X_TICKS_WIDE),
+    ] as [(min: number) => number, (max: number) => number],
+    allowDecimals: false,
+    tickFormatter: formatCompactNumber,
+  }
+}
+
 /**
  * Round a step up to something a reader can count in: 1, 1.5, 2, 2.5, 5 or 10
  * times a power of ten. The ladder is the usual one plus 1.5, which is worth

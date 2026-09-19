@@ -318,6 +318,9 @@ export type { RadioProps, RadioGroupProps } from './components/Radio'
 export { Sankey } from './components/Sankey'
 export type { SankeyProps, SankeyNodeDef, SankeyFlow } from './components/Sankey'
 
+export { Scatter } from './components/Scatter'
+export type { ScatterProps, ScatterSeries, ScatterPoint, QuadrantOptions, QuadrantLabels, Quadrant } from './components/Scatter'
+
 export { SegmentedControl } from './components/SegmentedControl'
 export type {
   SegmentedControlProps,

@@ -63,6 +63,21 @@ export interface ChartTooltipPayloadEntry {
   payload?: Record<string, unknown>
 }
 
+/**
+ * One row, when a chart builds its own rather than matching series to payload.
+ *
+ * `swatch` is optional: a row that describes a *value* rather than a series —
+ * a scatter's "Spend 1,240" under a heading that already names the series —
+ * has no mark to echo, and drawing a second copy of the same key on every row
+ * would say nothing the heading has not.
+ */
+export interface ChartTooltipRow {
+  key: string
+  label: string
+  value?: number | string
+  swatch?: { shape: ChartSwatchShape; color: string }
+}
+
 export interface ChartTooltipProps {
   /** Recharts sets this. Nothing renders when the pointer is off the plot. */
   active?: boolean
@@ -84,6 +99,17 @@ export interface ChartTooltipProps {
   swatch?: ChartSwatchShape
   /** How the heading reads. Defaults to the raw x value. */
   formatLabel?: (label: unknown) => ReactNode
+  /**
+   * Build the rows from the payload yourself.
+   *
+   * The default walks the series and matches each to a payload entry by
+   * `dataKey`, which is the shape of every chart with an x axis and one value
+   * per series. A **scatter** has neither: Recharts hands it two entries — `x`
+   * and `y` — for one point, and the series is on the datum, not the entry.
+   * Rather than teach the matcher a second shape it does not need, the chart
+   * says what the rows are. The heading still comes through `formatLabel`.
+   */
+  rows?: (payload: ChartTooltipPayloadEntry[]) => ChartTooltipRow[]
   /** How a value reads. Defaults to a thousands-separated integer. */
   formatValue?: (value: number | string | undefined) => ReactNode
   /**
@@ -134,6 +160,7 @@ export function ChartTooltip({
   series: seriesProp,
   swatch,
   formatLabel = (value) => String(value ?? ''),
+  rows: buildRows,
   formatValue = (value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? '')),
   showTotal = false,
   className,
@@ -148,29 +175,36 @@ export function ChartTooltip({
   // Walk the caller's series order and pick the matching payload entry, rather
   // than walking the payload — Recharts orders that by draw order, which is not
   // the legend's order once a series is hidden.
-  const rows = contextSeries.flatMap((s) => {
+  const matched = contextSeries.flatMap((s) => {
     const entry = payload.find((p) => p.dataKey === s.key)
-    return entry ? [{ series: s, value: entry.value }] : []
+    return entry
+      ? [{ key: s.key, label: s.label, value: entry.value, swatch: { shape: s.swatchShape, color: s.color } }]
+      : []
   })
 
   // Fall back to the payload when there is no context — a chart used bare, or a
   // series drawn outside the resolved list.
-  const items = rows.length
-    ? rows
-    : payload.map((entry) => ({
-        series: seriesByKey(contextSeries, entry.dataKey) ?? {
-          key: String(entry.dataKey),
-          label: String(entry.name ?? entry.dataKey),
-          // A datum may carry its own color, and for some charts it is the only
-          // one there is. `TreeMap` is the case: every tile shares one `dataKey`,
-          // so the entry's `color` is the series color — of which a treemap has
-          // none — and the fallback painted every swatch in `currentColor`,
-          // which is the text color. Every tile's key came out black.
-          color: pickColor(entry) ?? 'currentColor',
-          swatchShape: 'colorSwatch' as const,
-        },
-        value: entry.value,
-      }))
+  const items: ChartTooltipRow[] = buildRows
+    ? buildRows(payload)
+    : matched.length
+      ? matched
+      : payload.map((entry) => {
+          const s = seriesByKey(contextSeries, entry.dataKey)
+          return s
+            ? { key: s.key, label: s.label, value: entry.value, swatch: { shape: s.swatchShape, color: s.color } }
+            : {
+                key: String(entry.dataKey),
+                label: String(entry.name ?? entry.dataKey),
+                value: entry.value,
+                // A datum may carry its own color, and for some charts it is the
+                // only one there is. `TreeMap` is the case: every tile shares one
+                // `dataKey`, so the entry's `color` is the series color — of which
+                // a treemap has none — and the fallback painted every swatch in
+                // `currentColor`, which is the text color. Every tile's key came
+                // out black.
+                swatch: { shape: 'colorSwatch' as const, color: pickColor(entry) ?? 'currentColor' },
+              }
+        })
 
   const total = items.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0)
 
@@ -195,10 +229,12 @@ export function ChartTooltip({
 
       <ul className="flex list-none flex-col">
         {items.map((item) => (
-          <li key={item.series.key} className="flex items-center gap-1">
-            <ChartSwatch shape={item.series.swatchShape} color={item.series.color} />
-            <span className="text-content-subtle min-w-0 flex-1 truncate text-base">{item.series.label}</span>
-            <span className="text-content-primary font-mono text-base tabular-nums">{formatValue(item.value)}</span>
+          <li key={item.key} className="flex items-center gap-1">
+            {item.swatch ? <ChartSwatch shape={item.swatch.shape} color={item.swatch.color} /> : null}
+            <span className="text-content-subtle min-w-0 flex-1 truncate text-base">{item.label}</span>
+            {item.value === undefined ? null : (
+              <span className="text-content-primary font-mono text-base tabular-nums">{formatValue(item.value)}</span>
+            )}
           </li>
         ))}
       </ul>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatCompactNumber, formatDateTick, inferXPreset, niceMax, tickInterval } from './axes'
+import { formatCompactNumber, formatDateTick, inferXPreset, niceMax, numericXAxisProps, tickInterval } from './axes'
 
 /**
  * The axis rules are the part of Figma's chart page that became arithmetic
@@ -126,6 +126,36 @@ describe('niceMax', () => {
   it('survives empty and degenerate data', () => {
     expect(niceMax(0, 5)).toBe(4)
     expect(niceMax(Number.NaN, 5)).toBe(4)
+  })
+})
+
+describe('numericXAxisProps', () => {
+  /**
+   * The scatter's x axis draws five ticks wide and three narrow, and its top is
+   * rounded for the wider case. Four intervals divide by two, so the same top
+   * is round at both counts — which is what keeps the domain still when a chart
+   * crosses the breakpoint instead of jumping to a different round number.
+   */
+  it('keeps the same domain either side of the breakpoint', () => {
+    const wide = numericXAxisProps({ wide: true })
+    const narrow = numericXAxisProps({ wide: false })
+    expect(wide.tickCount).toBe(5)
+    expect(narrow.tickCount).toBe(3)
+
+    for (const max of [7, 93, 456, 1800, 12345, 987654]) {
+      const top = wide.domain[1](max)
+      expect(narrow.domain[1](max)).toBe(top)
+      expect(top).toBeGreaterThanOrEqual(max)
+      // Round at four intervals, and therefore round at two.
+      const step = top / 2
+      expect(Number.isInteger(step) || Number.isInteger(step * 2)).toBe(true)
+    }
+  })
+
+  it('floors at zero only when the data is non-negative', () => {
+    const { domain } = numericXAxisProps()
+    expect(domain[0](12)).toBe(0)
+    expect(domain[0](-12)).toBe(-12)
   })
 })
 
