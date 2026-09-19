@@ -308,8 +308,8 @@ const MAX_ROW_HEIGHT = 600
  * without a legend sits 40px short, which is slack, not overflow.
  */
 const CHART_CHROME = 104
-/** `gap-4` between the columns, which the span arithmetic has to know about. */
-const GRID_GAP = 16
+/** `gap-3` between the columns, which the span arithmetic has to know about. */
+const GRID_GAP = 12
 
 /**
  * Every block the dashboard can hold, by id: a title and the chart, drawn at
@@ -518,7 +518,7 @@ const renderComposable: Story['render'] = function ComposableStory() {
                 role="list"
                 aria-label={name}
                 // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
-                className="grid min-h-16 min-w-0 grid-cols-12 gap-4 rounded-lg"
+                className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg"
               >
                 {items.map((id, position) => (
                   <ChartBlock

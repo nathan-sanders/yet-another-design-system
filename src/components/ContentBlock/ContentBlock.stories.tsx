@@ -235,7 +235,7 @@ export const LongTitle: Story = {
 export const HeadingLevels: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex max-w-100 flex-col gap-4">
+    <div className="flex max-w-100 flex-col gap-3">
       <h2 className="text-lg font-semibold text-content-emphasized">Performance</h2>
       {[
         { level: 3, title: 'Total followers', body: '3.5k' },
@@ -329,7 +329,7 @@ export const ActionsOnAccent: Story = {
 export const EmphasisInContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="grid max-w-3xl grid-cols-3 gap-4">
+    <div className="grid max-w-3xl grid-cols-3 gap-3">
       {(
         [
           { title: 'Total sales', value: '12,847', emphasis: 'accent' },
