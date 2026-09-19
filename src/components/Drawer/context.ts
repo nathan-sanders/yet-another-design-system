@@ -1,6 +1,6 @@
-import { createContext } from 'react'
+import { createContext } from "react";
 
-import type { DrawerSide } from './styles'
+import type { DrawerSide } from "./styles";
 
 /**
  * What the root tells the popup: which edge the drawer is on *after* the
@@ -11,8 +11,11 @@ import type { DrawerSide } from './styles'
  * Deliberately not exported from the barrel.
  */
 export interface DrawerContextValue {
-  side: DrawerSide
-  modal: boolean
+  side: DrawerSide;
+  modal: boolean;
 }
 
-export const DrawerContext = createContext<DrawerContextValue>({ side: 'right', modal: true })
+export const DrawerContext = createContext<DrawerContextValue>({
+  side: "right",
+  modal: true,
+});

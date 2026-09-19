@@ -1,4 +1,4 @@
-export { Drawer } from './Drawer'
+export { Drawer } from "./Drawer";
 export type {
   DrawerProps,
   DrawerPopupProps,
@@ -8,5 +8,5 @@ export type {
   DrawerBodyProps,
   DrawerCloseProps,
   DrawerHeadingLevel,
-} from './Drawer'
-export type { DrawerSide } from './styles'
+} from "./Drawer";
+export type { DrawerSide } from "./styles";
