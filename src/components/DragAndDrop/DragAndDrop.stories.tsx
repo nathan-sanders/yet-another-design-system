@@ -300,7 +300,7 @@ const renderKanban: Story['render'] = function KanbanStory() {
 
   return (
     <DragAndDrop {...handlers}>
-      <div className="grid max-w-320 gap-4 lg:grid-cols-4">
+      <div className="grid max-w-320 gap-3 lg:grid-cols-4">
         {COLUMNS.map((column) => (
           <ContentBlock key={column.id}>
             <ContentBlock.Header

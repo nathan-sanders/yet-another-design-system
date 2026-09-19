@@ -237,7 +237,7 @@ export const Kanban: Story = {
     ]
 
     return (
-      <div className="grid max-w-280 gap-4 lg:grid-cols-3">
+      <div className="grid max-w-280 gap-3 lg:grid-cols-3">
         {columns.map((column) => (
           <ContentBlock key={column.name}>
             <ContentBlock.Header
@@ -380,7 +380,7 @@ export const EmailList: Story = {
     const open = messages[openIndex]!
 
     return (
-      <div className="grid max-w-320 gap-4 lg:grid-cols-[22.75rem_1fr]">
+      <div className="grid max-w-320 gap-3 lg:grid-cols-[22.75rem_1fr]">
         <ContentBlock>
           <ContentBlock.Header
             actions={
