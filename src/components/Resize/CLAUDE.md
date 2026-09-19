@@ -17,13 +17,13 @@ Drag and Drop page. The set kept its id.
 | Docs frame (header, Light + Dark preview, Do / Don't) | `40005293:55859` | this record's Best practices |
 | Components section | `40005293:55874` | — |
 
-What the file draws: the strip is `width/w-4` across (or `height/h-4`), a
+What the file draws, and the code renders: the strip is `width/w-3` across (or `height/h-3`), a
 `w-1 × h-10` pill in `Surface/Border Emphasized` (`w-10 × h-1` horizontal), `Hover` fills the
 strip with `Surface/Overlay Subtle`, and `Focus` is the shared `Focus Ring` instance. The pill is
 at opacity 0 in `Default`, so the resting variant is invisible on the canvas — which is also what
-the code renders. The file has one width; the code's is the gap it sits in (below), and since the
-dashboard gutter went to 12px the code's default is `w-3`. The file still draws 16 and is owed
-the change.
+the code renders. The file has one width; the code's is the gap it sits in (below). Both were 16
+until 2026-09-19, when the dashboard gutter went to 12 and the set was rebound to `w-3` / `h-3`;
+the Docs previews hug 4px narrower as a result.
 
 ## Why it left DragAndDrop
 
