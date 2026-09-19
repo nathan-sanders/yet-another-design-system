@@ -19,7 +19,7 @@ BentoGrid still carries is closed here.
 
 | Thing | Node | Became |
 |---|---|---|
-| App Shell (`Mode` × `Navigation` × `Frame`, 8 variants) | `40005265:10346` | `AppShell` — defaults Floating / Side / True, the code's |
+| App Shell (`Mode` × `Navigation` × `Frame`, 12 variants) | `40005265:10346` | `AppShell` — defaults Floating / Side / True, the code's; `Navigation=Mobile` is the shell with a `MobileNav` child, below 768 |
 | `Content` slot | `Content#40005268:9` | `AppShell.Content` |
 | Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005266:487` | this record's Best practices |
 
@@ -32,6 +32,22 @@ Dialog page found it could not make one, and the root record's note on that is s
 canvas says differently from the code: the contained Page's stroke is `INSIDE` with
 `strokesIncludedInLayout` on, which is CSS's border-box (the content sits 1px in). The Docs preview's `Contained` instances carry an explicit `Navigation
 Theme = Canvas` mode, which is the pairing the mode is drawn for.
+
+**`Navigation=Mobile` was added on 2026-09-18, the day after the swap shipped in code** — four
+393 × 852 variants (`40005300:6252` floating framed, `40005300:6364` contained framed,
+`40005300:6476` floating docked, `40005300:6588` contained docked), each the matching `Top` variant
+cloned, resized, and its bar swapped for a `Mobile Navigation` instance *after* the Page — the
+order the code asks for. `Floating=True` only on floating-and-framed, the shell's rule; docked, the
+instance's four radii are rebound to `border-radius/rounded-none`, exactly as the docked Top bar's
+are. The geometry came out as the code measures it without adjustment: Page at 8,8 377 × 772, bar
+at 8,788 377 × 56 framed; Page 393 × 796 over a 393 × 56 bar docked. Two things worth knowing
+before doing it again: **a variant clone drops the Content slot's property reference** (the frame
+comes back as a plain `FRAME` with `{}` and renders identically), so rewire `slotContentId` and
+read it back in a *later* script — the type reads `FRAME` in the script that sets it and `SLOT` in
+the next; and **re-setting the reference on a node that already is a `SLOT` throws**
+("Slot property cannot be applied to this frame node") and rolls the whole script back, so test
+for the reference before writing it. The set grew to 6994 wide and the `Components` section to 7186.
+The Docs Preview does not yet show a phone; the set does.
 
 The four source frames stayed on the page as they were.
 
@@ -220,10 +236,9 @@ cannot be exercised by a phone-shaped `div`.
 
 ## Left out
 
-- **A phone frame in Figma.** The swap went code-first on 2026-09-18: the `App Shell` set is eight
-  1440 × 1024 variants and the page has no 393-wide frame, so the file owes a `Navigation=Mobile`
-  drawing (Mode × Frame, from the Mobile Navigation example frames on `↪ Navigation`). Settled with
-  Nathan to leave it for a later chat; the Best practices block was updated the same day.
+- **A phone in the Docs Preview.** The set has its `Navigation=Mobile` variants (2026-09-18) but
+  the Light / Dark preview frames on the Docs page still show only the rail-and-page shell. A
+  phone example there is a drawing, not a decision.
 - **No `TopBar` inside `navigation="top"`.** Nav's own rule: two full-width strips do not stack.
 - The three hand-rolled frames in the Nav and TopBar stories were left as they are. They are
   evidence of the reinvention, and rewriting them would turn a component PR into a story PR.
