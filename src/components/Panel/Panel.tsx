@@ -292,6 +292,8 @@ export function Panel({
       data-panel=""
       data-starting-style={status === 'starting' ? '' : undefined}
       data-ending-style={status === 'ending' ? '' : undefined}
+      // On for the whole of either transition: the clip box reads it.
+      data-transitioning={status !== 'open' ? '' : undefined}
       onKeyDown={handleKeyDown}
       {...props}
     >
@@ -381,9 +383,9 @@ export interface PanelHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'ch
 }
 
 /**
- * The title row: ContentBlock's header, with a × on the end. Same recipe,
- * same 48px, same 16 either side, so a panel's title lines up with the
- * block titles on the page beside it.
+ * The title row: ContentBlock's header with a × on the end, at the TopBar's
+ * height — 56 on 12 of padding rather than the block's 48 on 8 — so the
+ * panel's title row lines up with the bar beside it.
  */
 function PanelHeader({ children, icon, titleSlot, actions, closeButton = true, ...props }: PanelHeaderProps) {
   const { headingLevel } = useContext(PanelContext)
@@ -396,6 +398,7 @@ function PanelHeader({ children, icon, titleSlot, actions, closeButton = true, .
       titleSlot={titleSlot}
       actions={actions}
       end={closeButton ? <PanelClose /> : null}
+      height="bar"
       {...props}
     />
   )

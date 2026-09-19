@@ -100,7 +100,9 @@ second component uses them, and a copy would drift. `BlockHeader` takes the head
 `<h3>` colored by its emphasis, Panel an `<h2>`, Drawer a Base UI `Title` so the popup's
 `aria-labelledby` reaches it. It has one slot this header does not expose, `end`, which is
 where the × goes — outside the caller's `actions` gap, so a caller never has to know it is
-there. Nothing measured moved: the stories below still read 48 / 8 / 16.
+there. The recipe has one axis, `height`: `block` is this header's 48 on 8, `bar` is Panel's and
+Drawer's 56 on 12, the TopBar's height, so a title row beside the bar lines up with it (Nathan's
+call, 2026-09-19). Nothing measured moved here: the stories below still read 48 / 8 / 16.
 
 ## Measurements to check if this changes
 

@@ -1,6 +1,8 @@
 import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
+import type { VariantProps } from 'tailwind-variants'
+
 import { cn } from '../../lib/cn'
 import { Icon } from '../Icon'
 import { header } from './styles'
@@ -25,6 +27,8 @@ export interface BlockHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'ch
    * there.
    */
   end?: ReactNode
+  /** `block` (48, ContentBlock's) or `bar` (56, the TopBar's — Panel's and Drawer's). */
+  height?: NonNullable<VariantProps<typeof header>['height']>
 }
 
 /**
@@ -38,11 +42,12 @@ export function BlockHeader({
   titleSlot,
   actions,
   end,
+  height = 'block',
   className,
   ...props
 }: BlockHeaderProps) {
   return (
-    <div className={cn(header(), className)} {...props}>
+    <div className={cn(header({ height }), className)} {...props}>
       {/*
         Figma's "Span": the icon, the title and the header slot travel together
         as one group, so the actions push against the group rather than against

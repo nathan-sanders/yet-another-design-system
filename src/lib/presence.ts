@@ -3,10 +3,13 @@ import { flushSync } from 'react-dom'
 
 /**
  * Where an element is in its life: `starting` is the one commit it spends in
- * its entrance styles, `open` is at rest, `ending` is the exit transition
- * running before it leaves the DOM.
+ * its entrance styles, `entering` is the entrance transition running, `open`
+ * is at rest, `ending` is the exit transition running before it leaves the
+ * DOM. A caller that has to do something only *while* the element moves — clip
+ * it, say — reads `entering` and `ending`; one that only needs the attributes
+ * Base UI would write reads `starting` and `ending`.
  */
-export type PresenceStatus = 'starting' | 'open' | 'ending'
+export type PresenceStatus = 'starting' | 'entering' | 'open' | 'ending'
 
 /**
  * Keeps an element mounted for the length of its exit transition, and gives
@@ -44,8 +47,8 @@ export function usePresence(open: boolean, ref: RefObject<HTMLElement | null>) {
     setState({ mounted: true, status: 'ending' })
   }
   if (open && state.mounted && state.status === 'ending') {
-    // Reopened mid-exit: back to rest from wherever the transition got to.
-    setState({ mounted: true, status: 'open' })
+    // Reopened mid-exit: back in from wherever the transition got to.
+    setState({ mounted: true, status: 'entering' })
   }
 
   useLayoutEffect(() => {
@@ -54,21 +57,23 @@ export function usePresence(open: boolean, ref: RefObject<HTMLElement | null>) {
 
     if (state.status === 'starting') {
       void element.getBoundingClientRect()
-      setState({ mounted: true, status: 'open' })
+      setState({ mounted: true, status: 'entering' })
       return
     }
 
-    if (state.status === 'ending') {
+    if (state.status === 'entering' || state.status === 'ending') {
+      const ending = state.status === 'ending'
       let cancelled = false
-      const unmount = () => {
+      const settle = () => {
         if (cancelled) return
-        // flushSync, so the browser never paints the settled exit frame.
-        flushSync(() => setState({ mounted: false, status: 'open' }))
+        // flushSync on the way out, so the browser never paints the settled exit frame.
+        if (ending) flushSync(() => setState({ mounted: false, status: 'open' }))
+        else setState({ mounted: true, status: 'open' })
       }
-      // getAnimations() flushes style, so the exit transition exists to be read.
+      // getAnimations() flushes style, so the transition exists to be read.
       const animations = element.getAnimations()
-      if (animations.length === 0) unmount()
-      else void Promise.allSettled(animations.map((animation) => animation.finished)).then(unmount)
+      if (animations.length === 0) settle()
+      else void Promise.allSettled(animations.map((animation) => animation.finished)).then(settle)
       return () => {
         cancelled = true
       }

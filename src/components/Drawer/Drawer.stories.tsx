@@ -64,23 +64,34 @@ function Filters() {
   )
 }
 
+function renderPlayground() {
+  return (
+    <Drawer>
+      <Drawer.Trigger
+        render={
+          <Button appearance="secondary" startIcon={ListFilter}>
+            Filters
+          </Button>
+        }
+      />
+      <Drawer.Popup>
+        <Filters />
+      </Drawer.Popup>
+    </Drawer>
+  )
+}
+
 /**
  * The ordinary shape. Click the trigger to open it; Escape, the scrim, the ×
  * or either button closes it, and focus returns to the trigger on the way out.
  *
  * **Opened in `play`, never `defaultOpen`** — a modal drawer inerts everything
  * outside its portal, and on a docs page that is every other story. Dialog's
- * rule, for Dialog's reason.
+ * rule, for Dialog's reason. It opens and stays open; the closing is driven
+ * in the twin below, so this one sits still once it is there.
  */
 export const Playground: Story = {
-  render: () => (
-    <Drawer>
-      <Drawer.Trigger render={<Button appearance="secondary" startIcon={ListFilter}>Filters</Button>} />
-      <Drawer.Popup>
-        <Filters />
-      </Drawer.Popup>
-    </Drawer>
-  ),
+  render: renderPlayground,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const trigger = canvas.getByRole('button', { name: 'Filters' })
@@ -109,19 +120,34 @@ export const Playground: Story = {
       await expect(style.borderLeftWidth).toBe('1px')
     })
 
-    await step('the header is ContentBlock\'s, with a close on the end', async () => {
+    await step("the header is the TopBar's height, with a close on the end", async () => {
       const dialog = within(document.body).getByRole('dialog')
-      const heading = within(dialog).getByRole('heading', { name: 'Filters', level: 2 })
+      const heading = within(dialog).getByRole('heading', {
+        name: 'Filters',
+        level: 2,
+      })
       const header = heading.closest('div')!.parentElement!
-      await expect(header.getBoundingClientRect().height).toBe(48)
+      await expect(header.getBoundingClientRect().height).toBe(56)
+      await expect(getComputedStyle(header).paddingTop).toBe('12px')
       await expect(within(dialog).getByRole('button', { name: 'Close' })).toBeVisible()
     })
+  },
+}
 
-    await step('Escape closes it and focus returns to the trigger', async () => {
-      await userEvent.keyboard('{Escape}')
-      await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull())
-      await expect(document.activeElement).toBe(trigger)
+/** The same drawer, driven through a close: Escape shuts it and focus returns to the trigger. */
+export const PlaygroundDriven: Story = {
+  name: 'Playground, driven',
+  render: renderPlayground,
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('button', {
+      name: 'Filters',
     })
+    await userEvent.click(trigger)
+    const dialog = await within(document.body).findByRole('dialog')
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true))
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull())
+    await expect(document.activeElement).toBe(trigger)
   },
 }
 
@@ -162,7 +188,11 @@ export const Bottom: Story = {
     </Drawer>
   ),
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Open from the bottom' }))
+    await userEvent.click(
+      within(canvasElement).getByRole('button', {
+        name: 'Open from the bottom',
+      }),
+    )
     const dialog = await within(document.body).findByRole('dialog')
     await waitFor(() => expect(dialog.getBoundingClientRect().bottom).toBe(window.innerHeight))
     const rect = dialog.getBoundingClientRect()
@@ -222,59 +252,88 @@ export const NonModal: Story = {
  * so it is controlled, and `finalFocus` says where focus goes when it closes
  * — the item that opened it is gone by then. Dialog's InContext, for a drawer.
  */
-export const InContext: Story = {
-  render: function InContextStory() {
-    const [open, setOpen] = useState(false)
-    const moreRef = useRef<HTMLButtonElement>(null)
+function InContextScreen() {
+  const [open, setOpen] = useState(false)
+  const moreRef = useRef<HTMLButtonElement>(null)
 
-    return (
-      <div className="w-160 rounded-lg border border-surface-border bg-surface-background-primary p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-col">
-            <span className="font-semibold">Q3 engagement report</span>
-            <span className="text-sm text-content-subtle">Edited 2 hours ago</span>
-          </div>
-
-          <Menu>
-            <Menu.Trigger
-              render={<Button ref={moreRef} appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
-            />
-            <Menu.Popup align="end">
-              <Menu.Item startIcon={Pencil} onClick={() => setOpen(true)}>
-                Edit details
-              </Menu.Item>
-              <Menu.Item startIcon={Trash} destructive>
-                Delete
-              </Menu.Item>
-            </Menu.Popup>
-          </Menu>
+  return (
+    <div className="w-160 rounded-lg border border-surface-border bg-surface-background-primary p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-col">
+          <span className="font-semibold">Q3 engagement report</span>
+          <span className="text-sm text-content-subtle">Edited 2 hours ago</span>
         </div>
 
-        <Drawer open={open} onOpenChange={setOpen}>
-          <Drawer.Popup finalFocus={moreRef}>
-            <Drawer.Header>Edit details</Drawer.Header>
-            <Drawer.Body className="flex flex-col gap-4">
-              <Drawer.Description>Changes save when you apply them.</Drawer.Description>
-              <Field label="Name">
-                <Input defaultValue="Q3 engagement report" />
-              </Field>
-              <div className="flex justify-end gap-2">
-                <Drawer.Close render={<Button appearance="secondary">Cancel</Button>} />
-                <Drawer.Close render={<Button>Apply</Button>} />
-              </div>
-            </Drawer.Body>
-          </Drawer.Popup>
-        </Drawer>
+        <Menu>
+          <Menu.Trigger
+            render={
+              <Button ref={moreRef} appearance="ghost" startIcon={Ellipsis} aria-label="More" />
+            }
+          />
+          <Menu.Popup align="end">
+            <Menu.Item startIcon={Pencil} onClick={() => setOpen(true)}>
+              Edit details
+            </Menu.Item>
+            <Menu.Item startIcon={Trash} destructive>
+              Delete
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu>
       </div>
-    )
-  },
+
+      <Drawer open={open} onOpenChange={setOpen}>
+        <Drawer.Popup finalFocus={moreRef}>
+          <Drawer.Header>Edit details</Drawer.Header>
+          <Drawer.Body className="flex flex-col gap-4">
+            <Drawer.Description>Changes save when you apply them.</Drawer.Description>
+            <Field label="Name">
+              <Input defaultValue="Q3 engagement report" />
+            </Field>
+            <div className="flex justify-end gap-2">
+              <Drawer.Close render={<Button appearance="secondary">Cancel</Button>} />
+              <Drawer.Close render={<Button>Apply</Button>} />
+            </div>
+          </Drawer.Body>
+        </Drawer.Popup>
+      </Drawer>
+    </div>
+  )
+}
+
+export const InContext: Story = {
+  render: () => <InContextScreen />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(canvas.getByRole('button', { name: 'More' }))
-    await userEvent.click(await within(document.body).findByRole('menuitem', { name: 'Edit details' }))
-    const dialog = await within(document.body).findByRole('dialog', { name: 'Edit details' })
+    await userEvent.click(
+      await within(document.body).findByRole('menuitem', {
+        name: 'Edit details',
+      }),
+    )
+    const dialog = await within(document.body).findByRole('dialog', {
+      name: 'Edit details',
+    })
     await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true))
     await expect(dialog).toHaveAccessibleDescription('Changes save when you apply them.')
+  },
+}
+
+/** The same screen, driven through a close: Apply shuts it and focus lands on More. */
+export const InContextDriven: Story = {
+  name: 'InContext, driven',
+  render: () => <InContextScreen />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'More' }))
+    await userEvent.click(
+      await within(document.body).findByRole('menuitem', {
+        name: 'Edit details',
+      }),
+    )
+    const dialog = await within(document.body).findByRole('dialog', {
+      name: 'Edit details',
+    })
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true))
     await userEvent.click(within(dialog).getByRole('button', { name: 'Apply' }))
     await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull())
     await expect(document.activeElement).toBe(canvas.getByRole('button', { name: 'More' }))
@@ -304,7 +363,7 @@ const phone = {
 export const Phone: Story = {
   parameters: phone,
   globals: { viewport: { value: 'phone' } },
-  render: Playground.render,
+  render: renderPlayground,
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('button', { name: 'Filters' }))
     const dialog = await within(document.body).findByRole('dialog')

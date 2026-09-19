@@ -8,9 +8,15 @@ import { tv, type VariantProps } from 'tailwind-variants'
  * positioned off. It never clips: the handle is translated *outside* it, into
  * the shell's gap, and an `overflow-clip` here would swallow it.
  *
- * The **clip** bounds the card while the aside animates, anchored to the edge
- * the panel enters from, so the visible part grows *from* that edge. That is
- * what makes an in-flow width transition read as a slide rather than a reveal.
+ * The **clip** bounds the card while the aside animates — and only then. The
+ * card is anchored to the aside's *near* edge, so as the aside grows the card
+ * travels in from the far one: its leading edge is where the aside's leading
+ * edge is, and the rest hangs past the viewport until the width catches up.
+ * That is what makes an in-flow width transition read as the panel sliding in
+ * and pushing the page, rather than the page sliding aside to reveal a panel
+ * that was already there (which is what anchoring it to the *far* edge did,
+ * and what it looked like). At rest the clip is off, so the card's shadow
+ * paints; on, it would have been the thing clipping the shadow.
  *
  * The **card** is held at the variable's size so nothing inside reflows while
  * the aside is moving, and it carries the surface: Figma's 384-wide
@@ -18,7 +24,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
  */
 export const panel = tv({
   base: [
-    'relative flex shrink-0 outline-none',
+    'group relative flex shrink-0 outline-none',
     // Desktop: the width is the variable; the height is the row's.
     'w-(--panel-width)',
     // Phone: the full width of the column; the height is the second variable.
@@ -76,13 +82,19 @@ export const panel = tv({
 })
 
 export const panelClip = tv({
-  base: 'flex h-full w-full overflow-clip',
+  base: [
+    'flex h-full w-full',
+    // Clipped only while the aside is moving; the aside is the `group`.
+    'group-data-transitioning:overflow-clip',
+  ],
   variants: {
     side: {
-      // Enters from the right; on a phone, from the bottom.
-      right: 'md:justify-end max-md:items-end',
-      // Enters from the left; on a phone — written before the page, so above it — from the top.
-      left: 'md:justify-start max-md:items-start',
+      // Anchored to the left edge, so it travels in from the right; on a
+      // phone, anchored to the top, so it travels up from the bottom.
+      right: 'md:justify-start max-md:items-start',
+      // The mirror: anchored right, in from the left; on a phone — written
+      // before the page, so above it — anchored to the bottom, down from the top.
+      left: 'md:justify-end max-md:items-end',
     },
   },
   defaultVariants: {

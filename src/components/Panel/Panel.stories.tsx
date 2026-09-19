@@ -139,8 +139,8 @@ function Page({ open, onOpenChange }: { open: boolean; onOpenChange: (open: bool
           <BentoGrid.Cell colSpan={2}>
             <Block title="Overview">
               <p className="text-content-subtle">
-                Open the details panel from the bar. It pushes this page over rather than
-                covering it, and you can work in either.
+                Open the details panel from the bar. It pushes this page over rather than covering
+                it, and you can work in either.
               </p>
             </Block>
           </BentoGrid.Cell>
@@ -202,7 +202,11 @@ function Details() {
 const meta = {
   title: 'Components/Panel',
   component: Panel,
-  parameters: { layout: 'fullscreen', canvasPadding: false, controls: { disable: true } },
+  parameters: {
+    layout: 'fullscreen',
+    canvasPadding: false,
+    controls: { disable: true },
+  },
   // Every story renders its own shell; these only satisfy the required props.
   args: { 'aria-label': 'Details', children: null },
 } satisfies Meta<typeof Panel>
@@ -224,25 +228,67 @@ function measure(canvasElement: HTMLElement) {
 }
 
 // ---------------------------------------------------------------------------
+// Each story that changes state has a driven twin, DragAndDrop's arrangement:
+// Storybook runs a play function the moment a story opens, and a Playground
+// that opened, resized and closed itself on load read as an animation bug.
+// The twins render the identical tree through the same function and drive it;
+// the demos sit still. Stories whose play only *measures* keep it.
+
+/** A shell with the panel on a `useState`, closed or open to start. */
+function Shell({
+  defaultOpen = false,
+  resizable = false,
+  side = 'right',
+  mode,
+  frame,
+  floating,
+  phone = false,
+}: {
+  defaultOpen?: boolean
+  resizable?: boolean
+  side?: 'right' | 'left'
+  mode?: 'floating' | 'contained'
+  frame?: boolean
+  floating?: boolean
+  phone?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  const panel = (
+    <Panel
+      aria-label="Details"
+      side={side}
+      open={open}
+      onOpenChange={setOpen}
+      resizable={resizable}
+      floating={floating}
+    >
+      <Details />
+    </Panel>
+  )
+  return (
+    <AppShell id="shell" mode={mode} frame={frame}>
+      <Rail />
+      {side === 'left' && panel}
+      <Page open={open} onOpenChange={setOpen} />
+      {side === 'right' && panel}
+      {phone && <PhoneBar />}
+    </AppShell>
+  )
+}
 
 /**
  * The ordinary shape: the bar's Details button toggles the panel, which slides
- * in from the right beside the page. Closed, it is not in the DOM — the page
- * has the whole row, with no gap left where the panel was.
+ * in from the right and pushes the page over. Closed, it is not in the DOM —
+ * the page has the whole row, with no gap left where the panel was.
  */
 export const Playground: Story = {
-  render: function PlaygroundStory() {
-    const [open, setOpen] = useState(false)
-    return (
-      <AppShell id="shell">
-        <Rail />
-        <Page open={open} onOpenChange={setOpen} />
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen}>
-          <Details />
-        </Panel>
-      </AppShell>
-    )
-  },
+  render: () => <Shell />,
+}
+
+/** The same shell, driven: opened, measured, closed by Escape and by the ×. */
+export const PlaygroundDriven: Story = {
+  name: 'Playground, driven',
+  render: () => <Shell />,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const { shell, page, aside } = measure(canvasElement)
@@ -255,7 +301,9 @@ export const Playground: Story = {
 
     await step('open, it is a landmark beside the page, 384 wide, 8 from it', async () => {
       await userEvent.click(toggle)
-      const panel = await canvas.findByRole('complementary', { name: 'Details' })
+      const panel = await canvas.findByRole('complementary', {
+        name: 'Details',
+      })
       // It slides in over `duration-medium`; the number is at the end of it.
       await waitFor(() => expect(panel.getBoundingClientRect().width).toBe(384))
       await expect(panel.getBoundingClientRect().left).toBe(page.getBoundingClientRect().right + 8)
@@ -266,11 +314,27 @@ export const Playground: Story = {
       await expect(canvasElement.closest('[aria-hidden="true"]')).toBeNull()
     })
 
-    await step('the header is ContentBlock\'s, with a close on the end', async () => {
+    await step(
+      'settled, nothing clips: the transition marker is gone and the shadow paints',
+      async () => {
+        const panel = aside()!
+        await waitFor(() => expect(panel.hasAttribute('data-transitioning')).toBe(false))
+        await expect(getComputedStyle(panel.firstElementChild!).overflow).toBe('visible')
+        await expect(
+          getComputedStyle(panel.firstElementChild!.firstElementChild!).boxShadow,
+        ).not.toBe('none')
+      },
+    )
+
+    await step("the header is the TopBar's height, with a close on the end", async () => {
       const panel = canvas.getByRole('complementary', { name: 'Details' })
-      const heading = within(panel).getByRole('heading', { name: 'Details', level: 2 })
+      const heading = within(panel).getByRole('heading', {
+        name: 'Details',
+        level: 2,
+      })
       const header = heading.closest('div')!.parentElement!
-      await expect(header.getBoundingClientRect().height).toBe(48)
+      await expect(header.getBoundingClientRect().height).toBe(56)
+      await expect(getComputedStyle(header).paddingTop).toBe('12px')
       await expect(within(panel).getByRole('button', { name: 'Close' })).toBeVisible()
     })
 
@@ -283,7 +347,9 @@ export const Playground: Story = {
 
     await step('the × closes it too', async () => {
       await userEvent.click(toggle)
-      const panel = await canvas.findByRole('complementary', { name: 'Details' })
+      const panel = await canvas.findByRole('complementary', {
+        name: 'Details',
+      })
       await userEvent.click(within(panel).getByRole('button', { name: 'Close' }))
       await waitFor(() => expect(aside()).toBeNull())
       await expect(document.activeElement).toBe(toggle)
@@ -293,29 +359,24 @@ export const Playground: Story = {
 
 /**
  * `resizable` draws the handle on the seam — exactly the shell's 8px gap, on
- * the panel's near edge. The arrow keys move the separator: ArrowLeft grows a
- * right-hand panel, because the panel is on the far side of the line.
+ * the panel's near edge. Drag it, or focus it and use the arrows: ArrowLeft
+ * grows a right-hand panel, because the panel is on the far side of the line.
  */
 export const Resizable: Story = {
-  render: function ResizableStory() {
-    const [open, setOpen] = useState(true)
-    return (
-      <AppShell id="shell">
-        <Rail />
-        <Page open={open} onOpenChange={setOpen} />
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen} resizable>
-          <Details />
-        </Panel>
-      </AppShell>
-    )
-  },
+  render: () => <Shell defaultOpen resizable />,
+}
+
+/** The same shell, driven by the keyboard. */
+export const ResizableKeyboard: Story = {
+  name: 'Resizable, keyboard',
+  render: () => <Shell defaultOpen resizable />,
   play: async ({ canvasElement, step }) => {
     const { page, aside, handle } = measure(canvasElement)
     const panel = aside()!
     const separator = handle()!
     const width = () => panel.getBoundingClientRect().width
 
-    await step('the handle is the gap: 8 wide, from the page\'s edge to the panel\'s', async () => {
+    await step("the handle is the gap: 8 wide, from the page's edge to the panel's", async () => {
       await expect(separator).toHaveAttribute('aria-orientation', 'vertical')
       await expect(separator).toHaveAttribute('aria-valuenow', '384')
       await expect(separator).toHaveAttribute('aria-valuemin', '320')
@@ -364,18 +425,13 @@ export const Resizable: Story = {
  * DOM order is layout order, and tab order.
  */
 export const Left: Story = {
-  render: function LeftStory() {
-    const [open, setOpen] = useState(true)
-    return (
-      <AppShell id="shell">
-        <Rail />
-        <Panel aria-label="Details" side="left" open={open} onOpenChange={setOpen} resizable>
-          <Details />
-        </Panel>
-        <Page open={open} onOpenChange={setOpen} />
-      </AppShell>
-    )
-  },
+  render: () => <Shell defaultOpen resizable side="left" />,
+}
+
+/** The same shell, driven: the handle is on the right edge and ArrowRight grows it. */
+export const LeftKeyboard: Story = {
+  name: 'Left, keyboard',
+  render: () => <Shell defaultOpen resizable side="left" />,
   play: async ({ canvasElement }) => {
     const { page, aside, handle } = measure(canvasElement)
     const panel = aside()!
@@ -397,18 +453,7 @@ export const Left: Story = {
  * without saying so twice. An explicit `floating={false}` still wins.
  */
 export const Floating: Story = {
-  render: function FloatingStory() {
-    const [open, setOpen] = useState(true)
-    return (
-      <AppShell id="shell">
-        <Rail />
-        <Page open={open} onOpenChange={setOpen} />
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen}>
-          <Details />
-        </Panel>
-      </AppShell>
-    )
-  },
+  render: () => <Shell defaultOpen />,
   play: async ({ canvasElement }) => {
     const { card } = measure(canvasElement)
     const style = getComputedStyle(card()!)
@@ -424,18 +469,7 @@ export const Floating: Story = {
  */
 export const FloatingOverridden: Story = {
   name: 'Floating, overridden',
-  render: function FloatingOverriddenStory() {
-    const [open, setOpen] = useState(true)
-    return (
-      <AppShell id="shell">
-        <Rail />
-        <Page open={open} onOpenChange={setOpen} />
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen} floating={false}>
-          <Details />
-        </Panel>
-      </AppShell>
-    )
-  },
+  render: () => <Shell defaultOpen floating={false} />,
   play: async ({ canvasElement }) => {
     const { card } = measure(canvasElement)
     await expect(getComputedStyle(card()!).boxShadow).toBe('none')
@@ -445,62 +479,77 @@ export const FloatingOverridden: Story = {
 /**
  * A contained shell on the canvas nav theme: the page is a card and the panel
  * is a second one, flush like the rail, 8 apart. The panel is opened from a
- * Menu item here rather than a button — the ordinary relationship between the
- * two — and `finalFocus` says where focus goes when it closes, because the
- * item that opened it is gone by then.
+ * Menu item rather than a button — the ordinary relationship between the two
+ * — and `finalFocus` says where focus goes when it closes, because the item
+ * that opened it is gone by then.
  */
+function ContainedShell() {
+  const [open, setOpen] = useState(false)
+  const moreRef = useRef<HTMLButtonElement>(null)
+  return (
+    <AppShell id="shell" mode="contained">
+      <Rail />
+      <AppShell.Page>
+        <TopBar
+          actions={
+            <Menu>
+              <Menu.Trigger
+                render={
+                  <Button ref={moreRef} appearance="ghost" startIcon={Ellipsis} aria-label="More" />
+                }
+              />
+              <Menu.Popup align="end">
+                <Menu.Item startIcon={Pencil} onClick={() => setOpen(true)}>
+                  Edit details
+                </Menu.Item>
+                <Menu.Item startIcon={Trash} destructive>
+                  Delete
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu>
+          }
+        />
+        <AppShell.Content>
+          <BentoGrid columns={2}>
+            <BentoGrid.Cell colSpan={2}>
+              <Block title="Overview">
+                <p className="text-content-subtle">Open the details from the More menu.</p>
+              </Block>
+            </BentoGrid.Cell>
+          </BentoGrid>
+        </AppShell.Content>
+      </AppShell.Page>
+      <Panel aria-label="Details" open={open} onOpenChange={setOpen} finalFocus={moreRef}>
+        <Details />
+      </Panel>
+    </AppShell>
+  )
+}
+
 export const InContext: Story = {
   globals: { navTheme: 'canvas' },
-  render: function InContextStory() {
-    const [open, setOpen] = useState(false)
-    const moreRef = useRef<HTMLButtonElement>(null)
-    return (
-      <AppShell id="shell" mode="contained">
-        <Rail />
-        <AppShell.Page>
-          <TopBar
-            actions={
-              <Menu>
-                <Menu.Trigger
-                  render={
-                    <Button ref={moreRef} appearance="ghost" startIcon={Ellipsis} aria-label="More" />
-                  }
-                />
-                <Menu.Popup align="end">
-                  <Menu.Item startIcon={Pencil} onClick={() => setOpen(true)}>
-                    Edit details
-                  </Menu.Item>
-                  <Menu.Item startIcon={Trash} destructive>
-                    Delete
-                  </Menu.Item>
-                </Menu.Popup>
-              </Menu>
-            }
-          />
-          <AppShell.Content>
-            <BentoGrid columns={2}>
-              <BentoGrid.Cell colSpan={2}>
-                <Block title="Overview">
-                  <p className="text-content-subtle">Open the details from the More menu.</p>
-                </Block>
-              </BentoGrid.Cell>
-            </BentoGrid>
-          </AppShell.Content>
-        </AppShell.Page>
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen} finalFocus={moreRef}>
-          <Details />
-        </Panel>
-      </AppShell>
-    )
-  },
+  render: () => <ContainedShell />,
+}
+
+/** The same screen, driven: the menu opens it, the × closes it, focus lands on More. */
+export const InContextDriven: Story = {
+  name: 'InContext, driven',
+  globals: { navTheme: 'canvas' },
+  render: () => <ContainedShell />,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const { page, aside, card } = measure(canvasElement)
 
     await step('a menu item opens it, and focus lands inside', async () => {
       await userEvent.click(canvas.getByRole('button', { name: 'More' }))
-      await userEvent.click(await within(document.body).findByRole('menuitem', { name: 'Edit details' }))
-      const panel = await canvas.findByRole('complementary', { name: 'Details' })
+      await userEvent.click(
+        await within(document.body).findByRole('menuitem', {
+          name: 'Edit details',
+        }),
+      )
+      const panel = await canvas.findByRole('complementary', {
+        name: 'Details',
+      })
       await waitFor(() => expect(panel.contains(document.activeElement)).toBe(true))
       await waitFor(() =>
         expect(panel.getBoundingClientRect().left).toBe(page.getBoundingClientRect().right + 8),
@@ -529,18 +578,7 @@ export const InContext: Story = {
  * the rail, and the handle straddles the seam — still 8, 4 over each side.
  */
 export const Docked: Story = {
-  render: function DockedStory() {
-    const [open, setOpen] = useState(true)
-    return (
-      <AppShell id="shell" frame={false}>
-        <Rail />
-        <Page open={open} onOpenChange={setOpen} />
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen} resizable>
-          <Details />
-        </Panel>
-      </AppShell>
-    )
-  },
+  render: () => <Shell defaultOpen resizable frame={false} />,
   play: async ({ canvasElement }) => {
     const { page, aside, card, handle } = measure(canvasElement)
     const panel = aside()!
@@ -577,19 +615,15 @@ const phone = {
 export const Phone: Story = {
   parameters: phone,
   globals: { viewport: { value: 'phone' } },
-  render: function PhoneStory() {
-    const [open, setOpen] = useState(true)
-    return (
-      <AppShell id="shell">
-        <Rail />
-        <Page open={open} onOpenChange={setOpen} />
-        <Panel aria-label="Details" open={open} onOpenChange={setOpen} resizable>
-          <Details />
-        </Panel>
-        <PhoneBar />
-      </AppShell>
-    )
-  },
+  render: () => <Shell defaultOpen resizable phone />,
+}
+
+/** The same phone, driven: the column measured and the split dragged by keyboard. */
+export const PhoneKeyboard: Story = {
+  name: 'Phone, keyboard',
+  parameters: phone,
+  globals: { viewport: { value: 'phone' } },
+  render: () => <Shell defaultOpen resizable phone />,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
     const { shell, page, aside, handle } = measure(canvasElement)
@@ -616,7 +650,9 @@ export const Phone: Story = {
       // Two in the DOM, one in the accessibility tree: the role query already
       // skips the `display: none` one, which is the point of the swap.
       await expect(panel.querySelectorAll('[role="separator"]')).toHaveLength(2)
-      const separators = canvas.getAllByRole('separator', { name: 'Resize Details' })
+      const separators = canvas.getAllByRole('separator', {
+        name: 'Resize Details',
+      })
       await expect(separators).toHaveLength(1)
       const separator = separators[0]
       await expect(separator).toHaveAttribute('aria-orientation', 'horizontal')

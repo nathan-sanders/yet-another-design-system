@@ -16,10 +16,25 @@ export const header = tv({
     // glyph at 16 and the box at 8. The bet fails on a header with no actions,
     // which is why both sides are 16 now. The cost is an icon-only action
     // reading optically inset, at 16 + the Button's 12.
-    'min-h-12 px-4 py-2',
+    'px-4',
     // A min-height rather than a height: a title that wraps grows the row
     // instead of spilling out of it. Accordion's trigger makes the same call.
   ],
+  variants: {
+    /**
+     * How tall the row is. `block` is ContentBlock's 48 on 8 of padding.
+     * `bar` is Panel's and Drawer's 56 on 12 — the TopBar's height, so a
+     * panel's title row lines up with the bar beside it (Nathan's call,
+     * 2026-09-19). Either way the 32px a default Button needs is there.
+     */
+    height: {
+      block: 'min-h-12 py-2',
+      bar: 'min-h-14 py-3',
+    },
+  },
+  defaultVariants: {
+    height: 'block',
+  },
 })
 
 export const title = tv({
