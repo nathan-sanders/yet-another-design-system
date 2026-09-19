@@ -7,7 +7,9 @@ and each chart imports them rather than copying.
 
 Figma page: **↪ Data Viz (In Progress)** (`40004316:13427`). Sections `Legend & Tooltip`
 (`40004318:14467`), `Grids` (`40004318:14336`), `X-Axis` (`40004318:14868`), `Y-Axis`
-(`40004318:14768`).
+(`40004318:14768`). The page's `Docs` frame (`40005299:57194`) was filled on 2026-09-18: its Preview
+is the `Examples` dashboard grid (`40004343:27776`) cloned into Light and Dark, and its Best
+practices block is the text at the end of this file.
 
 ## Half the Figma page does not become code, and that is the main thing to know
 
@@ -357,3 +359,34 @@ themselves some other way (`HeatMap`'s `cellHeight`) are not on this board for t
 **A legend is a list.** `getAllByRole('listitem')` inside a row finds the legend entries as well as
 the blocks — the `ComposableKeyboard` story scopes to `:scope > [role="listitem"]` for that reason,
 and any test that counts a row's blocks has to.
+
+## Best practices
+
+The same text as the Best practices block on the `↪ Data Viz` Docs frame (`40005299:57201`). Change
+a rule here and change it there in the same sitting. These are the family's rules — the ones that hold
+across every chart — and each chart's own record adds the ones that are its alone.
+
+**Do**
+
+- Pick the chart by the question. Change over time is a line or an area, amounts per category a
+  bar, parts of one whole a donut, two measures against each other a scatter.
+- Keep the legend on, even for one series. The swatch is what says which color and shape mean the
+  thing the title names.
+- Keep every series in the order the data was given. Color and marker come from position, which is
+  what lets two charts on one dashboard agree.
+- Put a chart inside a Content Block. The block owns the title and the overflow menu; the chart owns
+  the plot.
+- Give every chart a label that says what it shows, as a sentence. It is the accessible name and the
+  hidden table's caption.
+
+**Don't**
+
+- Don't put more than twelve series on one chart. Past twelve the scale returns gray on purpose;
+  group, facet or filter instead.
+- Don't color text in the series color. Identity comes from the swatch beside it, and three of the
+  twelve hues are illegible as text.
+- Don't add a target as a series. A benchmark takes the neutral gray and a dashed line, and no
+  categorical slot.
+- Don't dash a gridline. A dashed line means a projection or a benchmark, and it has to stay the only
+  dashed thing on the plot.
+- Don't animate a chart. Motion comes from the tokens, not from the chart library.

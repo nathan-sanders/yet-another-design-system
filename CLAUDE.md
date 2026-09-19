@@ -563,9 +563,10 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Thirty-eight records carry it.** What is left is `Chart` and the
-whole data-viz family — thirteen records, and the one part of the library where nobody has written
-down when to reach for which chart.
+drift nothing in CI can catch. **Thirty-nine records carry it.** The data-viz family shares one: the `↪ Data Viz`
+page has a single Docs frame for all fourteen charts, so `Chart`'s record holds the family's rules —
+which chart answers which question, and the rules that hold across all of them — and each chart's
+own record adds only what is its alone.
 
 **Two records have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
