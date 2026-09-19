@@ -64,7 +64,7 @@ export const Playground: Story = {
 export const Emphasis: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="grid max-w-200 gap-4 sm:grid-cols-3">
+    <div className="grid max-w-200 gap-3 sm:grid-cols-3">
       {emphases.map((emphasis) => (
         <Card key={emphasis} emphasis={emphasis}>
           <p className="font-semibold">Card Title</p>
@@ -86,7 +86,7 @@ export const Emphasis: Story = {
 export const Floating: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="grid max-w-140 gap-4 sm:grid-cols-2">
+    <div className="grid max-w-140 gap-3 sm:grid-cols-2">
       {[false, true].map((floating) => (
         <Card key={String(floating)} floating={floating}>
           <p className="font-semibold">{floating ? 'floating' : 'flat'}</p>
@@ -111,7 +111,7 @@ export const Floating: Story = {
 export const Padding: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="grid max-w-200 gap-4 sm:grid-cols-2">
+    <div className="grid max-w-200 gap-3 sm:grid-cols-2">
       {paddings.map((padding) => (
         <Card key={padding} padding={padding}>
           <p className="font-semibold">padding={`{${padding}}`}</p>
