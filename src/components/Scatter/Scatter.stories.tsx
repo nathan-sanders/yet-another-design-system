@@ -61,17 +61,18 @@ export const Playground: Story = {
  * `quadrant` swaps the grid and the tick labels for a crosshair with a label
  * at each end — `_Quadrant Grid` in the file — because a threshold is a line
  * the reader compares against, not a number they look up. The thresholds
- * default to the middle of each axis; pass `x` and `y` to put the lines where
- * the decision actually is. The hidden data table gains a `Quadrant` column
- * so a screen reader gets the box the crosshair encodes by position.
+ * default to the middle of each axis, which is what the file draws; see
+ * `QuadrantThresholds` for putting the lines where the decision actually is.
+ * The hidden data table gains a `Quadrant` column so a screen reader gets the
+ * box the crosshair encodes by position.
  *
  * The domain is pinned from every series, including any switched off in the
  * legend, so hiding one cannot move the crosshair.
  */
 export const Quadrant: Story = {
   args: {
-    label: 'Signups against spend, by campaign, split at 1,000 spend and 300 signups',
-    quadrant: { x: 1000, y: 300, labels: QUADRANT_LABELS },
+    label: 'Signups against spend, by campaign, split down the middle of each axis',
+    quadrant: { labels: QUADRANT_LABELS },
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
@@ -93,6 +94,22 @@ export const Quadrant: Story = {
     const table = canvas.getByRole('table', { name: args.label })
     expect(within(table).getByRole('columnheader', { name: 'Quadrant' })).toBeInTheDocument()
     expect(within(table).getAllByRole('cell', { name: /impact · .* effort/ }).length).toBe(pointCount(args.series))
+  },
+}
+
+/**
+ * The crosshair where the decision is.
+ *
+ * A threshold is rarely the middle of the axis: here the lines sit at 1,000
+ * of spend and 300 signups, and every point's box in the hidden table moves
+ * with them. This is the half of the form Figma cannot draw — `_Quadrant
+ * Grid`'s lines are pinned to the center of their frame — so the file shows
+ * the default and the code carries the number.
+ */
+export const QuadrantThresholds: Story = {
+  args: {
+    label: 'Signups against spend, by campaign, split at 1,000 spend and 300 signups',
+    quadrant: { x: 1000, y: 300, labels: QUADRANT_LABELS },
   },
 }
 

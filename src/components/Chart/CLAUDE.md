@@ -128,6 +128,13 @@ never an accessibility hole — but 400ms is close enough to `--transition-durat
 look like it came from the system when it did not. So Recharts' tween is off and the movement is put
 back through `wrapperStyle` referencing the tokens as custom properties.
 
+**`ChartTooltip` has a `rows` render prop, and one caller.** Its default matcher walks the series
+and finds each one's payload entry by `dataKey` — the shape of every chart with one value per series.
+`Scatter` is the chart that shape does not fit: Recharts hands it two entries, `x` and `y`, for one
+point, with the series on the datum. Rather than teach the matcher a second shape, the chart says what
+its rows are. A row's swatch is optional, because a row describing a *value* under a heading that
+already names the series has nothing to echo.
+
 **`wrapperClassName` is a trap:** Recharts puts it on `DefaultTooltipContent`, not on `Tooltip`.
 Passing it to `Tooltip` type-checks and does nothing at all. Use `wrapperStyle`.
 
@@ -304,9 +311,6 @@ Same family as the animation clock never advancing there.
 
 ## Left for later, deliberately
 
-- **`_Quadrant Grid`** has no chart built on it in Figma yet.
-- **`Scatter` (`40004378:41242`) is an empty section**, like `Sankey` was before `Sankey` was built.
-  Nothing is built against it.
 - Figma's `Chart Key / Metric` and `_Swatch Label` are absorbed into `ChartLegend`'s row and
   `ChartTooltip`'s row rather than being separate components. Split them out if a third caller
   appears.
