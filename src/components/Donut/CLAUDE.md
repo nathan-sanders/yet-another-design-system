@@ -61,5 +61,6 @@ It is `pointer-events-none`, so hovering *through* the total onto the slices beh
 ## When not to use it
 
 Past about six slices the small ones are arcs of a few degrees and the legend is doing the work the
-chart was supposed to. Group the tail into "Other", or use `VerticalBar`, which stays readable at any
-count. Figma's own example uses six, and `TooManySlices` shows eight so the failure is on record.
+chart was supposed to. Group the tail into "Other", or use a bar chart, which stays readable at any
+count — `HorizontalBar` when the slices have names, since every row is labeled. Figma's own example
+uses six, and `TooManySlices` shows eight so the failure is on record.

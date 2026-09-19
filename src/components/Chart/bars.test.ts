@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { barSegment, BAR_SEGMENT_GAP } from './bars'
+import { barSegment, horizontalBarHeight, BAR_ROW_HEIGHT, BAR_SEGMENT_GAP } from './bars'
 
 /**
  * The stacked-bar geometry, pinned.
@@ -106,5 +106,82 @@ describe('barSegment', () => {
   it('only carries the accessibility border when asked', () => {
     expect(geometry(barSegment()(BAR)).stroke).toBeUndefined()
     expect(geometry(barSegment({ accessibilityOverlay: true })(BAR)).stroke).toContain('accessibility-overlay')
+  })
+
+  /**
+   * The same rule turned on its side. `HorizontalBar` stacks left to right, so
+   * the gap comes off the **right** edge and the rightmost segment is the whole
+   * one. Recharts hands the shape the same props; only the axis it grows along
+   * has changed, and so the assertions are the vertical ones on x and width.
+   */
+  describe('horizontal', () => {
+    const ROW = { x: 100, y: 50, width: 40, height: 18, fill: 'red' }
+
+    it('takes the gap off the right of a segment that is not the rightmost', () => {
+      const g = geometry(barSegment({ orientation: 'horizontal', isTop: false, gap: BAR_SEGMENT_GAP })(ROW))
+      expect(g.x).toBe(100)
+      expect(g.width).toBe(39)
+      // The top and bottom edges have not moved.
+      expect(g.y).toBe(50)
+      expect(g.height).toBe(18)
+    })
+
+    it('leaves the rightmost segment whole', () => {
+      const g = geometry(barSegment({ orientation: 'horizontal', isTop: true, gap: BAR_SEGMENT_GAP })(ROW))
+      expect(g).toMatchObject({ x: 100, width: 40 })
+    })
+
+    it('separates every pair in a row and stays welded to the left baseline', () => {
+      const baseline = 56
+      const widths = [120, 60, 30]
+      let cursor = baseline
+      const row = widths.map((width, index) => {
+        const segment = geometry(
+          barSegment({ orientation: 'horizontal', isTop: index === widths.length - 1, gap: BAR_SEGMENT_GAP })({
+            x: cursor,
+            y: 0,
+            width,
+            height: 18,
+            fill: 'red',
+          }),
+        )
+        cursor += width
+        return segment
+      })
+
+      for (let i = 0; i < row.length - 1; i++) {
+        const gap = row[i + 1].x - (row[i].x + row[i].width)
+        expect(gap).toBe(BAR_SEGMENT_GAP)
+      }
+      expect(row[0].x).toBe(baseline)
+    })
+
+    it('normalizes a left-of-axis bar into a positive rectangle', () => {
+      const g = geometry(barSegment({ orientation: 'horizontal' })({ x: 100, y: 50, width: -30, height: 18, fill: 'red' }))
+      expect(g.x).toBe(70)
+      expect(g.width).toBe(30)
+      expect(g.height).toBe(18)
+    })
+  })
+})
+
+/**
+ * The default height follows the rows, the way a table's does. Pinned as
+ * arithmetic because every way it can be wrong renders perfectly.
+ */
+describe('horizontalBarHeight', () => {
+  it('gives a single or stacked chart one table row per category, plus the axis', () => {
+    expect(horizontalBarHeight(8)).toBe(8 * BAR_ROW_HEIGHT + 34)
+    expect(horizontalBarHeight(8, { seriesCount: 3, stacked: true })).toBe(8 * BAR_ROW_HEIGHT + 34)
+  })
+
+  it('grows a grouped row so each of its bars still reaches 16', () => {
+    // Three bars at 16 with two 4px gaps is 56, and the band only spends 80% of
+    // itself on bars, so the row is 70.
+    expect(horizontalBarHeight(4, { seriesCount: 3 })).toBe(4 * 70 + 34)
+  })
+
+  it('never collapses to the chrome alone', () => {
+    expect(horizontalBarHeight(0)).toBe(BAR_ROW_HEIGHT + 34)
   })
 })

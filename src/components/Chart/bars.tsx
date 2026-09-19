@@ -49,8 +49,20 @@ import { accessibilityOverlay as accessibilityOverlayColor } from './palette'
  *
  * Recharts reports a bar below the axis with a negative `height` and a `y` at
  * its top. Normalizing to a positive rectangle first means everything below
- * reads the same for both directions, and the gap still comes off the side
- * facing the rest of the stack.
+ * reads the same for both directions. The gap is still taken off the far-from-
+ * origin edge of the *normalized* rectangle, which is right for a positive
+ * stack and would weld a stack that grows negative; both bar charts leave
+ * negative stacks to Recharts' own domain, so that case is not drawn here.
+ *
+ * ## 4. The same segment on its side
+ *
+ * `HorizontalBar` is `VerticalBar` turned ninety degrees, and the segment turns
+ * with it: `orientation: 'horizontal'` takes the gap off each segment's
+ * **right** edge instead of its top, and the exemption belongs to the
+ * **rightmost** segment. The left edge is never touched, so the row stays
+ * welded to the zero baseline on the left — the same anchoring rule, one axis
+ * over. Recharts calls this chart `layout="vertical"`, after its category axis;
+ * the word here describes the bar.
  */
 
 /** Figma's `Segment` corner radius. */
@@ -76,11 +88,17 @@ export interface BarSegmentProps {
 
 export interface BarSegmentOptions {
   /**
-   * Whether this segment sits at the **top** of its stack — the one with nothing
-   * above it to separate from, which therefore keeps its full height so the
-   * stack's total stays accurate. Everything else gives up a pixel off its top.
+   * Whether this is the **outermost** segment of its stack — the top of a
+   * column, or the right end of a row — the one with nothing beyond it to
+   * separate from, which therefore keeps its full length so the stack's total
+   * stays accurate. Everything else gives up a pixel off its outer edge.
    */
   isTop?: boolean
+  /**
+   * Which way the bar runs. Describes the *bar*, not Recharts' `layout`, which
+   * names the category axis and so uses the opposite word.
+   */
+  orientation?: 'vertical' | 'horizontal'
   /** Off for an unstacked bar, where there is nothing to separate from. */
   gap?: number
   /** Corner radius before clamping. */
@@ -107,6 +125,7 @@ export interface BarSegmentOptions {
  */
 export function barSegment({
   isTop = true,
+  orientation = 'vertical',
   gap = 0,
   radius = BAR_RADIUS,
   accessibilityOverlay = false,
@@ -117,16 +136,19 @@ export function barSegment({
 
     // Normalize a below-axis bar (negative height, y at its top) into a plain
     // positive rectangle before doing anything else.
-    const width = Math.abs(rawWidth)
+    const fullWidth = Math.abs(rawWidth)
     const fullHeight = Math.abs(rawHeight)
     const x = rawWidth < 0 ? (props.x ?? 0) + rawWidth : (props.x ?? 0)
     const top = rawHeight < 0 ? (props.y ?? 0) + rawHeight : (props.y ?? 0)
 
-    // Off the top, so the gap opens against the segment above and the bottom of
-    // the stack stays welded to the baseline.
+    // Off the outer edge, so the gap opens against the next segment out and the
+    // baseline edge of the stack is never touched: the top of a column, the
+    // right end of a row.
     const inset = isTop ? 0 : gap
-    const height = Math.max(0, fullHeight - inset)
-    const y = top + inset
+    const horizontal = orientation === 'horizontal'
+    const height = horizontal ? fullHeight : Math.max(0, fullHeight - inset)
+    const y = horizontal ? top : top + inset
+    const width = horizontal ? Math.max(0, fullWidth - inset) : fullWidth
 
     if (height <= 0 || width <= 0) return <g />
 
@@ -146,4 +168,36 @@ export function barSegment({
       />
     )
   }
+}
+
+/** A row of a horizontal bar chart: Table's row height, so a list of bars sits at a list's rhythm. */
+export const BAR_ROW_HEIGHT = 32
+/** A bar inside a horizontal group: Figma's `Segment` thickness, and the floor the row is sized to keep. */
+export const BAR_GROUP_THICKNESS = 16
+/** Recharts' default x-axis height plus the plot's 4px top margin. */
+const HORIZONTAL_BAR_CHROME = 34
+/** Figma's gap between the bars of one group — `barGap`. */
+export const BAR_GROUP_GAP = 4
+/** `barCategoryGap` for a grouped chart, as a fraction Recharts takes off *each* side of the band. */
+const GROUPED_CATEGORY_GAP = 0.1
+
+/**
+ * How tall a `HorizontalBar` is when the caller does not say.
+ *
+ * A horizontal bar's height is a function of how many rows it has, the way a
+ * table's is — the chart exists for the case where every category needs its
+ * own labeled row, and a fixed height would thin those rows out exactly when
+ * there were most of them. Single and stacked rows take Table's 32; a grouped
+ * row is sized so each of its `n` bars, after `barGap` and the 20% of the band
+ * that `barCategoryGap` spends on air, still reaches Figma's 16.
+ */
+export function horizontalBarHeight(
+  rows: number,
+  { seriesCount = 1, stacked = false }: { seriesCount?: number; stacked?: boolean } = {},
+): number {
+  const grouped = !stacked && seriesCount > 1
+  const row = grouped
+    ? Math.ceil((BAR_GROUP_THICKNESS * seriesCount + BAR_GROUP_GAP * (seriesCount - 1)) / (1 - 2 * GROUPED_CATEGORY_GAP))
+    : BAR_ROW_HEIGHT
+  return Math.max(1, rows) * row + HORIZONTAL_BAR_CHROME
 }

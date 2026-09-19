@@ -313,6 +313,7 @@ and one categorical palette.
 | **LineSeries** | Change over time, for up to 12 series; curve or linear × points on/off, with gridline count, a horizontal, vertical or absent legend, and an x-axis preset inferred from the data unless you name one |
 | **AreaSeries** | A magnitude over time, as a filled shape; curve or linear × solid or gradient fill — a solid area is opaque, so the surface-colored edge along its top is what separates one from the one behind it |
 | **VerticalBar** | A magnitude per category; grouped or stacked × total label on/off, with an optional accessibility overlay. Figma's three bar types are the one `stacked` boolean |
+| **HorizontalBar** | The same chart on its side, for categories whose names need the room: every row is labeled, the value axis carries the gridlines, and the height follows the row count unless you set it |
 | **Spark** | A shape at the size of a word; line, bar or area. The one chart that is not a `ChartContainer`, and the type makes you choose: either a `label` or an explicit `decorative` |
 | **Donut** | Parts of one whole, with a free-form center slot; hovering a slice raises a halo around it rather than resizing it |
 | **Gauge** | The same parts-of-a-whole folded into a half circle — Donut's data shape, slice separator and halo, but the fold turns the hole into a shelf, so the radius has to be computed |

@@ -564,7 +564,7 @@ the half to read when you are choosing between two components rather than changi
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
 drift nothing in CI can catch. **Thirty-nine records carry it.** The data-viz family shares one: the `↪ Data Viz`
-page has a single Docs frame for all fourteen charts, so `Chart`'s record holds the family's rules —
+page has a single Docs frame for all fifteen charts, so `Chart`'s record holds the family's rules —
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
 
@@ -646,6 +646,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
 | [AreaSeries](src/components/AreaSeries/CLAUDE.md) | how much, over time | two fills that are different drawings; opaque areas make paint order part of the API |
 | [VerticalBar](src/components/VerticalBar/CLAUDE.md) | how much, per category | Figma's three bar types are one boolean; rounded stacked segments Recharts cannot draw |
+| [HorizontalBar](src/components/HorizontalBar/CLAUDE.md) | how much, per named category, when the label needs the room | VerticalBar on its side; the gap moves to the right edge, every row is labeled, and the height follows the rows |
 | [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labeled or decorative, enforced by the type |
 | [Donut](src/components/Donut/CLAUDE.md) | parts of one whole | a slice is a series with one value; hover is a halo that does not resize the slice |
 | [Gauge](src/components/Gauge/CLAUDE.md) | how far along | a donut folded in half, which turns the hole into a shelf; the radius has to be computed |

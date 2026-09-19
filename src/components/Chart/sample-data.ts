@@ -155,6 +155,38 @@ export function treeMapData() {
 }
 
 /**
+ * One row per acquisition channel with the same three series `dailyData`
+ * carries, for the horizontal bar — so VerticalBar's `SERIES` array, and its
+ * colors, apply unchanged. Descending by sessions, which is how a reader
+ * expects a ranked list to arrive.
+ */
+export function channelData(): Record<string, unknown>[] {
+  return [
+    { channel: 'Organic search', sessions: 1840, signups: 620, conversions: 210 },
+    { channel: 'Direct', sessions: 1310, signups: 410, conversions: 150 },
+    { channel: 'Paid search', sessions: 960, signups: 380, conversions: 170 },
+    { channel: 'Social', sessions: 720, signups: 190, conversions: 60 },
+    { channel: 'Email', sessions: 540, signups: 260, conversions: 120 },
+    { channel: 'Referral', sessions: 310, signups: 90, conversions: 40 },
+  ]
+}
+
+/**
+ * Category names too long for a column label, for the horizontal bar's
+ * `LongLabels` story — the case the chart exists for.
+ */
+export function longLabelData(): Record<string, unknown>[] {
+  return [
+    { question: 'Setting up single sign-on', responses: 412 },
+    { question: 'Exporting a report as a PDF', responses: 356 },
+    { question: 'Inviting a teammate to a workspace', responses: 298 },
+    { question: 'Changing the billing contact', responses: 187 },
+    { question: 'Restoring a deleted dashboard', responses: 121 },
+    { question: 'Connecting a data warehouse', responses: 74 },
+  ]
+}
+
+/**
  * One row per ring, for the radial bar chart — completion against a shared
  * ceiling, which is the case the form is for.
  */

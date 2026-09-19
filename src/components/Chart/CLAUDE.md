@@ -10,6 +10,8 @@ Figma page: **↪ Data Viz (In Progress)** (`40004316:13427`). Sections `Legend 
 (`40004318:14768`). The page's `Docs` frame (`40005299:57194`) was filled on 2026-09-18: its Preview
 is the `Examples` dashboard grid (`40004343:27776`) cloned into Light and Dark, and its Best
 practices block is the text at the end of this file.
+`Grids` also holds `_Chart Grid / Vertical` (`40005367:19398`), the vertical-gridline grid
+`HorizontalBar` draws on; its own section is `Horizontal Bar` (`40005369:19339`).
 
 ## Half the Figma page does not become code, and that is the main thing to know
 
@@ -382,7 +384,8 @@ across every chart — and each chart's own record adds the ones that are its al
 **Do**
 
 - Pick the chart by the question. Change over time is a line or an area, amounts per category a
-  bar, parts of one whole a donut, two measures against each other a scatter.
+  bar — on its side when the category names need the room — parts of one whole a donut, two
+  measures against each other a scatter.
 - Keep the legend on, even for one series. The swatch is what says which color and shape mean the
   thing the title names.
 - Keep every series in the order the data was given. Color and marker come from position, which is

@@ -103,8 +103,8 @@ export const VerticalLegend: Story = {
  *
  * At eight rings the bands are thin enough that the color is hard to match
  * against the legend, and the innermost arcs are short enough that comparing
- * them is guesswork. `VerticalBar` stays readable at any count and puts every
- * value on one baseline; reach for it when the exact comparison is the point
+ * them is guesswork. `HorizontalBar` stays readable at any count and puts every
+ * named row on one baseline; reach for it when the exact comparison is the point
  * rather than the shape.
  */
 export const TooManyRings: Story = {

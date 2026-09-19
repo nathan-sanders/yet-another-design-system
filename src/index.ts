@@ -121,8 +121,11 @@ export {
   markerForIndex,
   chartMarkers,
   chartGridProps,
+  verticalGridProps,
   xAxisProps,
   yAxisProps,
+  categoryYAxisProps,
+  valueXAxisProps,
   formatCompactNumber,
   formatFullNumber,
   formatDateTick,
@@ -218,6 +221,9 @@ export type { GaugeProps } from './components/Gauge'
 
 export { HeatMap, heatScale } from './components/HeatMap'
 export type { HeatMapProps, HeatScaleOptions } from './components/HeatMap'
+
+export { HorizontalBar } from './components/HorizontalBar'
+export type { HorizontalBarProps } from './components/HorizontalBar'
 
 export { Icon } from './components/Icon'
 export type { IconProps } from './components/Icon'

@@ -188,17 +188,31 @@ export function formatDateTick(
 /**
  * `CartesianGrid` props.
  *
- * **Horizontal lines only.** Vertical gridlines would box every point into a
- * cell and the chart would start reading as a table; the x labels already say
- * where a point sits. Solid, never dashed — a dashed gridline competes with a
- * dashed *series*, which in this library means a projection or a benchmark and
- * has to stay the only dashed thing on the plot.
+ * **Gridlines run perpendicular to the value axis and never along the category
+ * axis.** For every chart whose value is y, that means horizontal lines only:
+ * vertical gridlines would box every point into a cell and the chart would
+ * start reading as a table, and the x labels already say where a point sits.
+ * Solid, never dashed — a dashed gridline competes with a dashed *series*,
+ * which in this library means a projection or a benchmark and has to stay the
+ * only dashed thing on the plot.
  */
 export const chartGridProps = {
   stroke: gridline,
   strokeWidth: 1,
   vertical: false,
   horizontal: true,
+} as const
+
+/**
+ * The same rule for a chart whose value axis is **x** — `HorizontalBar`. The
+ * lines still cross the bars at every labeled value; only the axis they are
+ * measuring has turned.
+ */
+export const verticalGridProps = {
+  stroke: gridline,
+  strokeWidth: 1,
+  vertical: true,
+  horizontal: false,
 } as const
 
 export interface XAxisOptions {
@@ -345,6 +359,68 @@ export function yAxisProps({ lines = 5 }: YAxisOptions = {}) {
     ] as [(min: number) => number, (max: number) => number],
     allowDecimals: false,
     width: Y_AXIS_WIDTH,
+    tickMargin: TICK_MARGIN,
+    tick: { className: TICK_CLASS },
+    tickFormatter: formatCompactNumber,
+  }
+}
+
+/**
+ * `YAxis` props for an axis that names **categories** — `HorizontalBar`'s
+ * rows.
+ *
+ * It is `xAxisProps` turned on its side: the emphasized baseline comes with it,
+ * because zero is now the left edge the bars grow from, and the tick marks
+ * stay off for the same reason. What does *not* come with it is the interval
+ * rule. A date axis thins its labels because the points are closer than the
+ * labels are wide; a category row is as tall as its label, and a chart with
+ * more rows is taller, not sparser. So every row is labeled (`interval: 0` —
+ * Recharts' default `preserveEnd` silently drops labels on rows tighter than a
+ * label's height), and the axis measures its own width from the longest label
+ * rather than taking `Y_AXIS_WIDTH`, which was sized for a five-character
+ * number. Recharts does that measurement after the first render, so the plot
+ * settles on the second pass; there is no cap, and a paragraph for a category
+ * name will take the plot with it.
+ *
+ * Both `type`s are stated. Neither axis infers its type from the chart's
+ * `layout` — a `YAxis` is `number` unless told otherwise.
+ */
+export function categoryYAxisProps() {
+  return {
+    type: 'category' as const,
+    axisLine: { stroke: axisLine, strokeWidth: 1 },
+    tickLine: false as const,
+    tickMargin: TICK_MARGIN,
+    tick: { className: TICK_CLASS },
+    interval: 0 as const,
+    width: 'auto' as const,
+  }
+}
+
+/**
+ * `XAxis` props for an axis that measures the **value** of a bar —
+ * `HorizontalBar`'s x. `yAxisProps` on its side: no axis line, because the
+ * gridlines already run the full height at every labeled value and the
+ * baseline belongs to the category axis; the caller's line count; the top
+ * rounded by `niceMax` so every tick is a number a reader can count in; and
+ * the zero floor whenever the data allows it.
+ *
+ * Not `numericXAxisProps`, which is Scatter's: that one draws the baseline
+ * (a scatter has no category axis to carry it) and fixes its ticks at five and
+ * three by breakpoint, where a bar chart's gridline count is the caller's, as
+ * it is on every other bar chart.
+ */
+export function valueXAxisProps({ lines = 5 }: YAxisOptions = {}) {
+  return {
+    type: 'number' as const,
+    axisLine: false as const,
+    tickLine: false as const,
+    tickCount: lines,
+    domain: [
+      (dataMin: number) => (dataMin >= 0 ? 0 : dataMin),
+      (dataMax: number) => niceMax(dataMax, lines),
+    ] as [(min: number) => number, (max: number) => number],
+    allowDecimals: false,
     tickMargin: TICK_MARGIN,
     tick: { className: TICK_CLASS },
     tickFormatter: formatCompactNumber,

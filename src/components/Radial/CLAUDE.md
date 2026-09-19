@@ -135,5 +135,5 @@ hiding is a filter over the result, so it can never repaint the rings the reader
 
 A reader compares arc lengths at different radii, which is harder than comparing bars on a shared
 baseline. It is right when the shape — a few values against a common ceiling — is the message, and
-wrong when the exact comparison is; `VerticalBar` is the answer there and stays readable at any
-count. Past about eight rings the bands are too thin to carry a color, which `TooManyRings` shows.
+wrong when the exact comparison is; `HorizontalBar` is the answer there — the same named rows on one
+baseline, readable at any count. Past about eight rings the bands are too thin to carry a color, which `TooManyRings` shows.
