@@ -1,6 +1,6 @@
-import { createContext, type RefObject } from "react";
+import { createContext, type RefObject } from 'react'
 
-import type { PanelSide } from "./styles";
+import type { PanelSide } from './styles'
 
 /**
  * Set once on `Panel` and read by `Panel.Header` and `Panel.Close`: which
@@ -9,14 +9,14 @@ import type { PanelSide } from "./styles";
  * Deliberately not exported from the barrel.
  */
 export interface PanelContextValue {
-  headingLevel: 2 | 3 | 4 | 5 | 6;
-  close: () => void;
+  headingLevel: 2 | 3 | 4 | 5 | 6
+  close: () => void
 }
 
 export const PanelContext = createContext<PanelContextValue>({
   headingLevel: 2,
   close: () => {},
-});
+})
 
 /**
  * What a `Panel` tells a `Panel` written inside it, so the two stack — Base
@@ -30,18 +30,17 @@ export const PanelContext = createContext<PanelContextValue>({
  * panel has no side of its own. `content` is the *immediate* parent's content
  * box, which the nested panel makes `inert` for as long as it is open (see
  * `Panel` for why that is imperative). `report` is how a level tells the ones
- * behind it that it opened or closed; each level forwards it, so the root
- * counts the whole chain and every level counts what is in front of it.
+ * behind it that it opened or closed, and hands them its `close`; each level
+ * forwards it, so the root counts the whole chain, every level counts what is
+ * in front of it, and any level can send what is in front of it away.
  */
 export interface PanelStackContextValue {
-  container: HTMLElement | null;
-  content: RefObject<HTMLDivElement | null>;
-  side: PanelSide;
-  stacked: boolean;
-  resizing: boolean;
-  report: (id: string, open: boolean) => void;
+  container: HTMLElement | null
+  content: RefObject<HTMLDivElement | null>
+  side: PanelSide
+  stacked: boolean
+  resizing: boolean
+  report: (id: string, open: boolean, close: () => void) => void
 }
 
-export const PanelStackContext = createContext<PanelStackContextValue | null>(
-  null,
-);
+export const PanelStackContext = createContext<PanelStackContextValue | null>(null)

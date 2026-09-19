@@ -105,7 +105,12 @@ each end; a bottom sheet steps up, takes it as `mx-*`, and takes the front sheet
 line up behind one another. Widths never change. `Drawer.Content` fades to 0 behind a front
 drawer and comes back while it is being swiped, Base UI's demo; the levels behind are
 `aria-hidden` by Base UI's own focus management, so only the front is live. On a phone every
-level is a bottom sheet, because every Root runs `usePhone` for itself.
+level is a bottom sheet, because every Root runs `usePhone` for itself. **The peeking edge is a
+way back, for free:** what is under the pointer there is the *front* drawer's own viewport
+(`fixed inset-0`, over everything behind it), and Base UI's outside-press dismisses a modal
+dialog on a press on any ancestor of its popup that is not the portal — which is the viewport.
+The stacked story presses `document.elementFromPoint` there rather than the popup behind, which
+a real pointer can never reach.
 
 **The viewport is `overflow-clip`, not `hidden`, and stacking is what found it.** `hidden`
 is still a scroll container: a `focus()` into a popup that is still sliding in scrolls the

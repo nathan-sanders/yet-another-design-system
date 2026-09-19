@@ -207,6 +207,18 @@ un-inerting in a layout effect *before* the passive focus-out is deterministic. 
 only the front panel because the nested handler prevents default on the way and the parent's
 handler already returned on `defaultPrevented` — React bubbles through the portal once.
 
+*The peeking edge is a way back.* Nathan asked the day it landed, and it is the drawer's
+behavior seen from the panel's side: a click on a covered card closes every panel in front of
+it, deepest first — one level back from the card just behind, all the way back from the root's.
+Each `report` carries the child's `close`, so a level holds a `Map` of what is in front of it
+rather than a `Set`. The guard is DOM containment: the panels in front are React children of
+this card's content (their clicks bubble through), but DOM children of the *root's* aside, so
+`currentTarget.contains(target)` is false for a click inside them. The card is `cursor-pointer`
+while covered and nothing else — it is a pointer shortcut; the front panel's × and Escape stay
+the keyboard path — and focus lands on the clicked level's landmark on its own, because a
+mousedown on a non-focusable element focuses the closest focusable ancestor and the aside is
+`tabIndex={-1}`.
+
 **`aria-label` is required.** It names the landmark — a page can have several `complementary`
 regions — and it names the handle ("Resize Details"), SideNav's reason.
 
@@ -279,7 +291,7 @@ The two are one text in two places — change one and change the other.
   and above the bar on its own.
 - Give it an `aria-label` that says what it holds — it names the landmark and the resize handle.
 - Open a follow-up step as a Panel written inside the first one; it stacks over its parent, 12px
-  in, and the page moves over by the same 12.
+  in, and the page moves over by the same 12. The edge that peeks out is a way back.
 
 **Don't**
 

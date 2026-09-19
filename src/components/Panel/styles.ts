@@ -1,4 +1,4 @@
-import { tv, type VariantProps } from "tailwind-variants";
+import { tv, type VariantProps } from 'tailwind-variants'
 
 /**
  * The Panel is three boxes, and each has one job.
@@ -34,28 +34,27 @@ import { tv, type VariantProps } from "tailwind-variants";
  * the panel is under the page, so the stack peeks out *above* the front card:
  * the same numbers on the other axis.
  */
-export const PANEL_STACK =
-  "[--panel-stack:calc(var(--nested-panels,0)*var(--spacing)*3)]";
+export const PANEL_STACK = '[--panel-stack:calc(var(--nested-panels,0)*var(--spacing)*3)]'
 
 export const panel = tv({
   base: [
-    "relative flex shrink-0 outline-none",
+    'relative flex shrink-0 outline-none',
     PANEL_STACK,
     // Desktop: the width is the variable plus the stack; the height is the row's.
-    "w-[calc(var(--panel-width)+var(--panel-stack))]",
+    'w-[calc(var(--panel-width)+var(--panel-stack))]',
     // Phone: the full width of the column; the height is the second variable plus the stack.
-    "max-md:h-[calc(var(--panel-height)+var(--panel-stack))] max-md:w-full",
+    'max-md:h-[calc(var(--panel-height)+var(--panel-stack))] max-md:w-full',
     // The slide is the size going 0 → variable. Each regime animates only its
     // own axis, so both presence classes are breakpoint-scoped: an unscoped
     // `data-[starting-style]:w-0` would zero the width on a phone as well.
-    "md:data-[starting-style]:w-0 md:data-[ending-style]:w-0",
-    "max-md:data-[starting-style]:h-0 max-md:data-[ending-style]:h-0",
-    "transition-[width,height,margin] duration-medium ease-standard",
+    'md:data-[starting-style]:w-0 md:data-[ending-style]:w-0',
+    'max-md:data-[starting-style]:h-0 max-md:data-[ending-style]:h-0',
+    'transition-[width,height,margin] duration-medium ease-standard',
   ],
   variants: {
     side: {
-      right: "",
-      left: "",
+      right: '',
+      left: '',
     },
     /**
      * Inside a framed shell the 8px gap would snap in a frame before the width
@@ -63,13 +62,13 @@ export const panel = tv({
      * the page still until the panel is actually there.
      */
     framed: {
-      true: "",
-      false: "",
+      true: '',
+      false: '',
     },
     /** A pointer drag is in flight: the transition is off for its length. SideNav's switch. */
     resizing: {
-      true: "transition-none",
-      false: "",
+      true: 'transition-none',
+      false: '',
     },
     /**
      * The phone's arrangement at every width: under the page, full width,
@@ -79,52 +78,52 @@ export const panel = tv({
      */
     stacked: {
       true: [
-        "h-[calc(var(--panel-height)+var(--panel-stack))] w-full",
-        "md:data-[starting-style]:w-full md:data-[ending-style]:w-full",
-        "data-[starting-style]:h-0 data-[ending-style]:h-0",
+        'h-[calc(var(--panel-height)+var(--panel-stack))] w-full',
+        'md:data-[starting-style]:w-full md:data-[ending-style]:w-full',
+        'data-[starting-style]:h-0 data-[ending-style]:h-0',
       ],
-      false: "",
+      false: '',
     },
   },
   compoundVariants: [
     {
-      side: "right",
+      side: 'right',
       framed: true,
       class: [
-        "md:data-[starting-style]:-ml-2 md:data-[ending-style]:-ml-2",
-        "max-md:data-[starting-style]:-mt-2 max-md:data-[ending-style]:-mt-2",
+        'md:data-[starting-style]:-ml-2 md:data-[ending-style]:-ml-2',
+        'max-md:data-[starting-style]:-mt-2 max-md:data-[ending-style]:-mt-2',
       ],
     },
     {
-      side: "left",
+      side: 'left',
       framed: true,
       class: [
-        "md:data-[starting-style]:-mr-2 md:data-[ending-style]:-mr-2",
-        "max-md:data-[starting-style]:-mb-2 max-md:data-[ending-style]:-mb-2",
+        'md:data-[starting-style]:-mr-2 md:data-[ending-style]:-mr-2',
+        'max-md:data-[starting-style]:-mb-2 max-md:data-[ending-style]:-mb-2',
       ],
     },
     {
-      side: "right",
+      side: 'right',
       framed: true,
       stacked: true,
       class:
-        "md:data-[starting-style]:ml-0 md:data-[ending-style]:ml-0 data-[starting-style]:-mt-2 data-[ending-style]:-mt-2",
+        'md:data-[starting-style]:ml-0 md:data-[ending-style]:ml-0 data-[starting-style]:-mt-2 data-[ending-style]:-mt-2',
     },
     {
-      side: "left",
+      side: 'left',
       framed: true,
       stacked: true,
       class:
-        "md:data-[starting-style]:mr-0 md:data-[ending-style]:mr-0 data-[starting-style]:-mb-2 data-[ending-style]:-mb-2",
+        'md:data-[starting-style]:mr-0 md:data-[ending-style]:mr-0 data-[starting-style]:-mb-2 data-[ending-style]:-mb-2',
     },
   ],
   defaultVariants: {
-    side: "right",
+    side: 'right',
     framed: false,
     resizing: false,
     stacked: false,
   },
-});
+})
 
 /**
  * A nested panel's aside: absolutely positioned inside the root's, on the far
@@ -141,94 +140,94 @@ export const panel = tv({
  */
 export const panelNested = tv({
   base: [
-    "absolute flex outline-none",
+    'absolute flex outline-none',
     PANEL_STACK,
     // The inset eases too, so a level stepping back moves on the same clock
     // as the one sliding in over it.
-    "transition-[width,height,inset] duration-medium ease-standard",
+    'transition-[width,height,inset] duration-medium ease-standard',
   ],
   variants: {
     side: {
-      right: "",
-      left: "",
+      right: '',
+      left: '',
     },
     stacked: {
-      true: "",
-      false: "",
+      true: '',
+      false: '',
     },
     /** The root's handle is being dragged: every level follows the variable with no easing. */
     resizing: {
-      true: "transition-none",
-      false: "",
+      true: 'transition-none',
+      false: '',
     },
   },
   compoundVariants: [
     {
-      side: "right",
+      side: 'right',
       stacked: false,
       class: [
         // Desktop: on the right edge, in by the stack, sized by the width.
-        "md:inset-y-(--panel-stack) md:right-(--panel-stack) md:w-(--panel-width)",
-        "md:data-[starting-style]:w-0 md:data-[ending-style]:w-0",
+        'md:inset-y-(--panel-stack) md:right-(--panel-stack) md:w-(--panel-width)',
+        'md:data-[starting-style]:w-0 md:data-[ending-style]:w-0',
         // Phone: under the page, so on the bottom edge and up by the stack.
-        "max-md:inset-x-(--panel-stack) max-md:bottom-(--panel-stack) max-md:h-(--panel-height)",
-        "max-md:data-[starting-style]:h-0 max-md:data-[ending-style]:h-0",
+        'max-md:inset-x-(--panel-stack) max-md:bottom-(--panel-stack) max-md:h-(--panel-height)',
+        'max-md:data-[starting-style]:h-0 max-md:data-[ending-style]:h-0',
       ],
     },
     {
-      side: "left",
+      side: 'left',
       stacked: false,
       class: [
-        "md:inset-y-(--panel-stack) md:left-(--panel-stack) md:w-(--panel-width)",
-        "md:data-[starting-style]:w-0 md:data-[ending-style]:w-0",
+        'md:inset-y-(--panel-stack) md:left-(--panel-stack) md:w-(--panel-width)',
+        'md:data-[starting-style]:w-0 md:data-[ending-style]:w-0',
         // A left panel sits above the page on a phone, so its stack peeks below.
-        "max-md:inset-x-(--panel-stack) max-md:top-(--panel-stack) max-md:h-(--panel-height)",
-        "max-md:data-[starting-style]:h-0 max-md:data-[ending-style]:h-0",
+        'max-md:inset-x-(--panel-stack) max-md:top-(--panel-stack) max-md:h-(--panel-height)',
+        'max-md:data-[starting-style]:h-0 max-md:data-[ending-style]:h-0',
       ],
     },
     {
-      side: "right",
+      side: 'right',
       stacked: true,
       class: [
-        "inset-x-(--panel-stack) bottom-(--panel-stack) h-(--panel-height)",
-        "data-[starting-style]:h-0 data-[ending-style]:h-0",
+        'inset-x-(--panel-stack) bottom-(--panel-stack) h-(--panel-height)',
+        'data-[starting-style]:h-0 data-[ending-style]:h-0',
       ],
     },
     {
-      side: "left",
+      side: 'left',
       stacked: true,
       class: [
-        "inset-x-(--panel-stack) top-(--panel-stack) h-(--panel-height)",
-        "data-[starting-style]:h-0 data-[ending-style]:h-0",
+        'inset-x-(--panel-stack) top-(--panel-stack) h-(--panel-height)',
+        'data-[starting-style]:h-0 data-[ending-style]:h-0',
       ],
     },
   ],
   defaultVariants: {
-    side: "right",
+    side: 'right',
     stacked: false,
     resizing: false,
   },
-});
+})
 
 export const panelClip = tv({
   base: [
-    "flex h-full w-full",
+    'flex h-full w-full',
     // The stack's inset, on the axis the stack peeks along; the card is
     // `h-full` / `w-full` inside, so padding here is what shrinks it at the ends.
-    "transition-[padding] duration-medium ease-standard",
+    'transition-[padding] duration-medium ease-standard',
   ],
   variants: {
     side: {
       // Anchored to the left edge, so it travels in from the right; on a
       // phone, anchored to the top, so it travels up from the bottom.
-      right: "md:justify-start max-md:items-start",
+      right: 'md:justify-start max-md:items-start',
       // The mirror: anchored right, in from the left; on a phone — written
       // before the page, so above it — anchored to the bottom, down from the top.
-      left: "md:justify-end max-md:items-end",
+      left: 'md:justify-end max-md:items-end',
     },
     stacked: {
-      true: "",
-      false: "",
+      true: '',
+      false: '',
     },
     /**
      * The root's clip carries the stack's inset — its card is in-flow, so
@@ -236,81 +235,87 @@ export const panelClip = tv({
      * positioned by the same number already, so its clip pads nothing.
      */
     nested: {
-      true: "",
-      false: "",
+      true: '',
+      false: '',
     },
     /** Clipped only while the aside is moving; the aside writes the status. */
     transitioning: {
-      true: "overflow-clip",
-      false: "",
+      true: 'overflow-clip',
+      false: '',
     },
     /** The root's handle is being dragged: no easing on the padding either. */
     resizing: {
-      true: "transition-none",
-      false: "",
+      true: 'transition-none',
+      false: '',
     },
   },
   compoundVariants: [
-    { side: "right", stacked: true, class: "md:justify-start md:items-start" },
-    { side: "left", stacked: true, class: "md:justify-start md:items-end" },
+    { side: 'right', stacked: true, class: 'md:justify-start md:items-start' },
+    { side: 'left', stacked: true, class: 'md:justify-start md:items-end' },
     {
       nested: false,
       stacked: false,
-      class: "md:py-(--panel-stack) max-md:px-(--panel-stack)",
+      class: 'md:py-(--panel-stack) max-md:px-(--panel-stack)',
     },
-    { nested: false, stacked: true, class: "px-(--panel-stack)" },
+    { nested: false, stacked: true, class: 'px-(--panel-stack)' },
   ],
   defaultVariants: {
-    side: "right",
+    side: 'right',
     stacked: false,
     nested: false,
     transitioning: false,
     resizing: false,
   },
-});
+})
 
 export const panelCard = tv({
   base: [
-    "flex shrink-0 flex-col",
+    'flex shrink-0 flex-col',
     // Held at the variables, so the content does not reflow while the aside animates.
-    "h-full w-(--panel-width)",
-    "max-md:h-(--panel-height) max-md:w-full",
+    'h-full w-(--panel-width)',
+    'max-md:h-(--panel-height) max-md:w-full',
     // ContentBlock's default surface. Only that one: a panel is a region of
     // the page, not a bento cell, so there is no subtle or accent here.
-    "rounded-lg border border-surface-border bg-surface-background-primary",
-    "font-sans text-base text-content-primary",
+    'rounded-lg border border-surface-border bg-surface-background-primary',
+    'font-sans text-base text-content-primary',
     // The square-cornered scrolling Body inside would otherwise paint through
     // the rounded corners — the contained Page's reason and spelling. The
     // Header's and the Body's `px-4` leave every ring inside 16px of room, so
     // no clip margin is needed.
-    "overflow-clip",
+    'overflow-clip',
   ],
   variants: {
     /** ContentBlock's `Floating`: the low shadow lifts the card off the canvas. */
     floating: {
-      true: "shadow-low",
-      false: "",
+      true: 'shadow-low',
+      false: '',
     },
     /**
      * Docked to the window edge, a rounded corner shows canvas behind it —
      * navSurface's rule, and the contained Page's.
      */
     docked: {
-      true: "rounded-none",
-      false: "",
+      true: 'rounded-none',
+      false: '',
     },
     /** The phone's size at every width; see `panel`. */
     stacked: {
-      true: "h-(--panel-height) w-full",
-      false: "",
+      true: 'h-(--panel-height) w-full',
+      false: '',
+    },
+    /** A panel is in front of it: the edge that peeks is a way back to this level. */
+    covered: {
+      true: 'cursor-pointer',
+      false: '',
     },
   },
   defaultVariants: {
     floating: false,
     docked: false,
     stacked: false,
+    covered: false,
   },
-});
+})
 
 /**
  * The column inside the card that the Header and the Body stack in. It exists
@@ -321,23 +326,23 @@ export const panelCard = tv({
  * nested-drawer demo hides the parent's content the same way.
  */
 export const panelContent = tv({
-  base: "flex min-h-0 flex-1 flex-col transition-opacity duration-medium ease-standard",
+  base: 'flex min-h-0 flex-1 flex-col transition-opacity duration-medium ease-standard',
   variants: {
     covered: {
-      true: "opacity-0",
-      false: "",
+      true: 'opacity-0',
+      false: '',
     },
   },
   defaultVariants: {
     covered: false,
   },
-});
+})
 
 export const panelBody = tv({
   // Dialog's Body, with ContentBlock's Content padding. `first:pt-4` puts the
   // 16 back for a panel with no Header — derived from position, not a prop.
-  base: "min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4",
-});
+  base: 'min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4',
+})
 
-type PanelVariants = VariantProps<typeof panel>;
-export type PanelSide = NonNullable<PanelVariants["side"]>;
+type PanelVariants = VariantProps<typeof panel>
+export type PanelSide = NonNullable<PanelVariants['side']>
