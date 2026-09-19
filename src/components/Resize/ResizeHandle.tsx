@@ -21,7 +21,7 @@ import { focusRing } from '../../lib/focus'
  * tested.
  *
  * **A handle is the gap it sits in, at the gap's size.** Between dashboard
- * blocks that is 16px, and `w-4` is the default; beside the rail the shell's
+ * blocks that is 12px, and `w-3` is the default; beside the rail the shell's
  * gap is 8, and the rail passes `w-2`. A handle wider than its gap is a handle
  * lying over something.
  *
@@ -72,9 +72,9 @@ const handle = tv({
   variants: {
     orientation: {
       // The line is vertical: it sits between two blocks and resizes width.
-      vertical: 'h-full w-4 cursor-col-resize',
+      vertical: 'h-full w-3 cursor-col-resize',
       // The line is horizontal: it sits under a row and resizes height.
-      horizontal: 'h-4 w-full cursor-row-resize',
+      horizontal: 'h-3 w-full cursor-row-resize',
     },
   },
 })
@@ -177,7 +177,7 @@ export function ResizeHandle({
       unit: typeof unit === 'function' ? unit() : unit,
     }
     /*
-      Capture, so the pointer can leave the 16px strip mid-drag — which it
+      Capture, so the pointer can leave the 12px strip mid-drag — which it
       will, because a fast drag outruns the block it is widening — and the
       moves keep arriving here instead of at whatever is under the cursor.
     */

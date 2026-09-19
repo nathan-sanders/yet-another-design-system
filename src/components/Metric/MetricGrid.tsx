@@ -7,7 +7,8 @@ import { cn } from '../../lib/cn'
  * MetricGrid — the row of metric cards a dashboard opens with.
  *
  * Figma's `Metric Grid` (`40004342:15698`): a horizontal run of `Metric Card`s
- * at a 16px gap.
+ * at a 16px gap. The code's default is 12px, matching `BentoGrid`; the file
+ * still says 16 and is owed the change.
  *
  * ## Why this is not `BentoGrid`
  *
@@ -50,9 +51,9 @@ const metricGrid = tv({
       5: 'md:grid-cols-5',
       6: 'md:grid-cols-6',
     },
-    /** The gutter. `default` is Figma's 16px. */
+    /** The gutter. `default` is 12px, the same as BentoGrid's (Figma still draws 16). */
     gap: {
-      default: 'gap-4',
+      default: 'gap-3',
       tight: 'gap-2',
     },
   },

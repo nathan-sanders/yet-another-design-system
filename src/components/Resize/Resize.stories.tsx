@@ -6,7 +6,7 @@ import { Card } from '../Card'
 import { ResizeHandle } from './ResizeHandle'
 
 // ---------------------------------------------------------------------------
-// Fixture: two panels beside each other with the handle *as* the 16px gap, and
+// Fixture: two panels beside each other with the handle *as* the 12px gap, and
 // one panel above a handle that sets its height. The same tree in every story
 // so the `Keyboard` twin tests exactly what `Vertical` and `Horizontal` show.
 
@@ -93,7 +93,7 @@ function Panels({ show }: { show: 'vertical' | 'horizontal' | 'both' }) {
 
 /**
  * The strip you drag to change a size. It sits *in* the gap between two
- * things, at the gap's own width — 16px here, 8px beside an app's rail — and
+ * things, at the gap's own width — 12px here, 8px beside an app's rail — and
  * is a focusable `separator`: the arrow keys step it, Shift steps further, Home
  * and End go to the ends, and a screen reader hears the value.
  *
@@ -120,7 +120,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * A vertical handle between two panels: it is the 16px gap, and dragging it
+ * A vertical handle between two panels: it is the 12px gap, and dragging it
  * sets the width of the panel to its left. Hover anywhere along the strip and
  * the pill comes to the pointer.
  */
@@ -153,9 +153,9 @@ export const Keyboard: Story = {
       await expect(handle).toHaveAttribute('aria-valuemin', String(MIN_WIDTH))
       await expect(handle).toHaveAttribute('aria-valuemax', String(MAX_WIDTH))
       await expect(handle).toHaveAttribute('aria-valuetext', '240 pixels')
-      // It is the gap: 16 wide, flush with both panels.
+      // It is the gap: 12 wide, flush with both panels.
       const rect = handle.getBoundingClientRect()
-      await expect(rect.width).toBe(16)
+      await expect(rect.width).toBe(12)
       await expect(rect.left).toBe(sidebar().getBoundingClientRect().right)
       await expect(getComputedStyle(handle).cursor).toBe('col-resize')
     })
@@ -181,7 +181,7 @@ export const Keyboard: Story = {
     await step('the horizontal handle steps a height with the vertical arrows', async () => {
       const handle = canvas.getByRole('separator', { name: 'Resize Preview height' })
       await expect(handle).toHaveAttribute('aria-orientation', 'horizontal')
-      await expect(handle.getBoundingClientRect().height).toBe(16)
+      await expect(handle.getBoundingClientRect().height).toBe(12)
       await expect(getComputedStyle(handle).cursor).toBe('row-resize')
       handle.focus()
       await userEvent.keyboard('{ArrowDown}')

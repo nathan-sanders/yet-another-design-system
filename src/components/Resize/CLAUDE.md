@@ -1,7 +1,7 @@
 # Resize
 
 One component, `ResizeHandle`: the strip you drag to change a size. Between two dashboard blocks
-it is the 16px gap itself and sets the left block's column span; under a row it sets the row's
+it is the 12px gap itself and sets the left block's column span; under a row it sets the row's
 height; beside the application rail it is the shell's 8px gap and sets the rail's width. A
 focusable `separator`, not a button, with a pointer path on capture and a keyboard path the
 stories test.
@@ -17,11 +17,13 @@ Drag and Drop page. The set kept its id.
 | Docs frame (header, Light + Dark preview, Do / Don't) | `40005293:55859` | this record's Best practices |
 | Components section | `40005293:55874` | — |
 
-What the file draws, and the code renders: the strip is `width/w-4` across (or `height/h-4`), a
+What the file draws: the strip is `width/w-4` across (or `height/h-4`), a
 `w-1 × h-10` pill in `Surface/Border Emphasized` (`w-10 × h-1` horizontal), `Hover` fills the
 strip with `Surface/Overlay Subtle`, and `Focus` is the shared `Focus Ring` instance. The pill is
 at opacity 0 in `Default`, so the resting variant is invisible on the canvas — which is also what
-the code renders. The file has one width; the code's is the gap it sits in (below).
+the code renders. The file has one width; the code's is the gap it sits in (below), and since the
+dashboard gutter went to 12px the code's default is `w-3`. The file still draws 16 and is owed
+the change.
 
 ## Why it left DragAndDrop
 
@@ -49,8 +51,8 @@ Being focusable makes `separator` a widget role, which obliges `aria-valuenow` /
 handles report pixels with `unit` left at 1. The arithmetic that snaps a value belongs with the
 caller, where it is tested — `spans.ts` in node, the rail's clamp in its story.
 
-**A handle is the gap it sits in, at the gap's size.** Between dashboard blocks that is 16 and
-`w-4` is the default; beside the rail the shell's gap is 8 and the rail passes `w-2`. A handle
+**A handle is the gap it sits in, at the gap's size.** Between dashboard blocks that is 12 and
+`w-3` is the default; beside the rail the shell's gap is 8 and the rail passes `w-2`. A handle
 wider than its gap is a handle lying over something; narrower, and the gap has a dead strip in it.
 Where there is no gap — a docked rail, a table column — it straddles the seam instead, half over
 each side, which is what `Table`'s grip has always done.
@@ -124,7 +126,7 @@ code has, the canvas says the design decision and the prop is in parentheses her
 
 **Do**
 
-- Put the handle in the gap, at the gap's size. The 16px between dashboard blocks, the 8px beside
+- Put the handle in the gap, at the gap's size. The 12px between dashboard blocks, the 8px beside
   the rail — never wider than the space it sits in, and never on the last block in a row, which
   has nothing to its right to take from.
 - Name what it resizes (`label`): "Resize Revenue", "Resize Main". The name is what a screen reader
