@@ -86,7 +86,7 @@ here does.
 ## Why `MetricGrid` exists next to `BentoGrid`
 
 It very nearly does not, and the question was asked before building it: `BentoGrid` already does
-columns and a gutter, and its default gap is the same 16px.
+columns and a gutter.
 
 **The difference is what happens on a phone.** `BentoGrid` collapses to one column, which is right
 for content blocks — a chart at half a phone's width is unreadable. Four *numbers* are not: they stay

@@ -12,7 +12,7 @@ import { cn } from '../../lib/cn'
  * ## Why this is not `BentoGrid`
  *
  * It very nearly is, and the question was asked before building it. `BentoGrid`
- * already does columns and a gutter, and its default gap is the same 16px.
+ * already does columns and a gutter.
  *
  * **The difference is what happens on a phone, and it is the whole reason this
  * exists.** `BentoGrid` collapses to a single column, which is right for
