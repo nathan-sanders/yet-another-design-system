@@ -169,8 +169,9 @@ page and the drawer are *usually* used together, it is a `Panel`.
   needs the whole app wrapped in a `Provider`; an application can do it with the raw parts.
 - **`Drawer.VirtualKeyboardProvider`.** For a bottom sheet full of fields on a phone; raw part,
   available.
-- **Migrating `MobileNav`'s sheet onto this.** Its record left out "a drag handle and
-  drag-to-dismiss" because Dialog had none; Drawer has both. Plausible, separate.
+- ~~**Migrating `MobileNav`'s sheet onto this.**~~ Done 2026-09-19: the sheet is the raw parts
+  with `drawerPopup({ side: 'bottom' })` under the nav tier, so it slides and swipes like this
+  does. The Nav record has it.
 
 ## Best practices
 

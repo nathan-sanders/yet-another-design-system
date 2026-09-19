@@ -7,8 +7,8 @@ import { cn } from '../../lib/cn'
 import { dismissesOverlay } from './dismiss'
 import { navLayer, overlayLayer } from '../../lib/layers'
 import { AppShellContext } from '../AppShell/context'
-import { Dialog } from '../Dialog'
-import { backdrop, viewport } from '../Dialog/styles'
+import { Drawer } from '../Drawer'
+import { drawerBackdrop, drawerViewport } from '../Drawer/styles'
 import { Icon } from '../Icon'
 import { NavContext, type NavContextValue } from './context'
 import { navItem, navSheet, navSurface } from './styles'
@@ -47,6 +47,13 @@ import { navItem, navSheet, navSurface } from './styles'
  * **The sheet always comes from the bottom**, including when the bar is at the
  * top. Figma draws it that way in both example frames and it is right for the
  * same reason: the sheet is where the hand is, not where its trigger is.
+ *
+ * **The sheet is a `Drawer`, on the navigation tier.** It composes Base UI's
+ * Drawer raw parts and wears `drawerPopup`'s bottom recipe under the nav
+ * surface, so it opens and closes exactly as a `Drawer` does on a phone —
+ * slides up, slides down, swipes down to dismiss with the scrim thinning
+ * under the finger. Until 2026-09-19 it was Dialog's raw parts with a fade
+ * in; the Nav record has why, and why this is what resolved it.
  *
  * **Inside an `AppShell` it does not pin itself — the shell places it.** The
  * shell is the viewport (`h-dvh`, one scrolling `<main>`), so a bar at the end
@@ -182,7 +189,7 @@ export interface MobileNavProps
    * phone frame with a working sheet inside it, and what an app wants if it
    * renders into its own root rather than `<body>`.
    */
-  container?: React.ComponentProps<typeof Dialog.Portal>['container']
+  container?: React.ComponentProps<typeof Drawer.Portal>['container']
   className?: string
 }
 
@@ -240,7 +247,9 @@ export function MobileNav({
   const resolvedIcon = sectionIcon ?? selected?.icon
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    // Always `down`: the sheet comes from the bottom at every width, so there
+    // is no `usePhone` here — that hook is for a side that has to flip.
+    <Drawer.Root open={open} onOpenChange={setOpen} swipeDirection="down">
       <nav
         className={cn(
           navSurface({ floating, docked }),
@@ -270,9 +279,10 @@ export function MobileNav({
             also sets `aria-current="page"`, and this is a disclosure button
             that opens a dialog, not the entry for the page you are on. Taking
             the recipe keeps the look and drops the wrong ARIA; Base UI supplies
-            `aria-haspopup="dialog"` and `aria-expanded` in its place.
+            `aria-haspopup="dialog"` and `aria-expanded` in its place
+            (`Drawer.Trigger` *is* Dialog's trigger).
           */}
-          <Dialog.Trigger
+          <Drawer.Trigger
             className={cn(navItem({ selected: true }), 'min-w-0 flex-1')}
             // Figma: FILL with layoutGrow 1 — the pill absorbs everything left
             // between the logo and the utilities.
@@ -295,7 +305,7 @@ export function MobileNav({
             {/* `chevrons-up-down`, the stepper glyph — not a disclosure
                 chevron. It is the one part of the pill on Nav Content/Subtle. */}
             <Icon icon={ChevronsUpDown} className="shrink-0 text-nav-content-subtle" />
-          </Dialog.Trigger>
+          </Drawer.Trigger>
 
           {utilities ? (
             // `[&>*]:w-auto` undoes `navItem`'s `w-full`, which is right in a
@@ -308,78 +318,80 @@ export function MobileNav({
       </nav>
 
       {/*
-        The raw Dialog parts, because `Dialog.Popup` hardcodes centring on a
-        Viewport that takes no `className` — a caller cannot turn it into a
-        bottom sheet. `Dialog.tsx` says the raw parts exist for "the shapes the
-        wrappers above cannot express", and this is one. The cost of going raw
-        is that `overlayLayer` has to be re-applied to both fixed siblings by
-        hand, exactly as `DialogPopup` does.
+        Drawer's raw parts, because `Drawer.Popup` paints the semantic surface
+        with a border and its own padding, and this sheet is on the navigation
+        tier with Figma's own numbers. `Drawer.tsx` says the raw parts exist
+        for "shapes the wrappers cannot express", and this is one. The cost of
+        going raw is that `overlayLayer` has to be re-applied to both fixed
+        siblings by hand, exactly as `DrawerPopup` does — and that the
+        `Drawer.Content` wrapper has to be remembered, which Base UI uses to
+        let text be selected with a mouse without starting a swipe.
       */}
-      <Dialog.Portal container={container}>
+      <Drawer.Portal container={container}>
         {/*
           A visible scrim, which Figma does not draw. The sheet is modal either
           way — focus trapped, Escape closes, the page behind inert — and the
           dim is the only thing that shows it. Undimmed, content that cannot be
           touched still looks like it can, which reads as broken rather than as
-          modal.
+          modal. Drawer's recipe, so it thins as the sheet is swiped down.
         */}
-        <Dialog.Backdrop className={cn(backdrop(), overlayLayer)} />
+        <Drawer.Backdrop className={cn(drawerBackdrop(), overlayLayer)} />
         {/*
-          `items-end` bottom-anchors the sheet where Dialog's viewport centres
-          it, and `p-0` lets it run full-bleed to the screen edges. Both merge
-          over the shared recipe rather than forking it.
+          Drawer's bottom viewport: `items-end`, full-bleed, and `overflow-clip`.
 
-          **`overflow-hidden` is the one that stops the bar moving.** An element
-          translated 100% out of view still takes up layout: entering, the sheet
-          hangs a screen's height below the viewport and enlarges the scrollable
-          area behind it. Base UI then focuses the popup, the browser scrolls to
-          bring it into view, and everything anchored to that scroll box travels
-          — including a `fixed` bar, which resolves against the same box
-          whenever an ancestor carries a transform.
+          **The clip is the one that stops the bar moving.** An element
+          translated 100% out of view still takes up layout: entering, the
+          sheet hangs a screen's height below the viewport and would enlarge
+          the scrollable area behind it. Base UI then focuses the popup, the
+          browser scrolls to bring it into view, and everything anchored to
+          that scroll box travels — including a `fixed` bar, which resolves
+          against the same box whenever an ancestor carries a transform.
 
-          Measured before the fix: the container's `scrollHeight` went 678 →
-          1066 the instant the sheet mounted, `scrollTop` jumped to 388, and the
-          bar's top tracked it exactly (`navTop + scrollTop` constant) all the
-          way back down as the sheet slid up. The bar had no animation of its
-          own the entire time — it was being dragged by a scroll the sheet
-          caused.
-
-          Clipping here is also just correct: the sheet has no business
-          rendering outside the screen it is sliding onto.
+          Measured before the fix (then `overflow-hidden` on Dialog's
+          viewport): the container's `scrollHeight` went 678 → 1066 the instant
+          the sheet mounted, `scrollTop` jumped to 388, and the bar's top
+          tracked it exactly (`navTop + scrollTop` constant) all the way back
+          down as the sheet slid up. `clip` is that fix one step on — Drawer's
+          finding — because `hidden` is still a scroll container a `focus()`
+          can scroll, and `clip` cannot be scrolled by anything.
         */}
-        <Dialog.Viewport className={cn(viewport(), overlayLayer, 'items-end overflow-hidden p-0')}>
+        <Drawer.Viewport className={cn(drawerViewport({ side: 'bottom' }), overlayLayer)}>
           {/*
-            Named by the bar's own `aria-label` rather than a `Dialog.Title`.
+            Named by the bar's own `aria-label` rather than a `Drawer.Title`.
             Figma draws no title — the sheet opens straight onto its first
             section header — and a Title renders a real heading, which
             `SideNav.Section` already declined for group labels.
           */}
-          <Dialog.RawPopup aria-label={label} className={navSheet()}>
-            <NavContext.Provider value={sheetCtx}>
-              {/*
-                gap-2 between sections is Figma's Nav Sections slot. The scroll
-                is the other half of the height cap: with it the sheet stops
-                growing, without it the cap would just clip.
+          <Drawer.RawPopup aria-label={label} className={navSheet()}>
+            <Drawer.Content className="flex min-h-0 flex-1 flex-col">
+              <NavContext.Provider value={sheetCtx}>
+                {/*
+                  gap-2 between sections is Figma's Nav Sections slot. The
+                  scroll is the other half of the height cap: with it the sheet
+                  stops growing, without it the cap would just clip. A swipe
+                  yields to it — Base UI only starts the dismiss once the
+                  scrolled region is at its top.
 
-                Clicking a row closes the sheet — the same call the collapsed
-                group's flyout makes, for the same reason. A sheet still
-                covering the page after you have followed a link out of it is
-                what makes the pattern feel broken.
-              */}
-              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-              <div
-                className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
-                onClick={(event) => {
-                  if (dismissesOverlay(event)) setOpen(false)
-                }}
-              >
-                {children}
-              </div>
-            </NavContext.Provider>
-          </Dialog.RawPopup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+                  Clicking a row closes the sheet — the same call the collapsed
+                  group's flyout makes, for the same reason. A sheet still
+                  covering the page after you have followed a link out of it is
+                  what makes the pattern feel broken.
+                */}
+                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                <div
+                  className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
+                  onClick={(event) => {
+                    if (dismissesOverlay(event)) setOpen(false)
+                  }}
+                >
+                  {children}
+                </div>
+              </NavContext.Provider>
+            </Drawer.Content>
+          </Drawer.RawPopup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
   )
 }
 

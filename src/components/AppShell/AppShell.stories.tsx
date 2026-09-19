@@ -730,10 +730,11 @@ export const Responsive: Story = {
     await step('the pill opens the sheet, on the rail\'s tree', async () => {
       await userEvent.click(canvas.getByRole('button', { name: /Dashboard/ }))
       const sheet = await within(document.body).findByRole('dialog', { name: 'Main' })
-      // The sheet fades in, and `toBeVisible` reads opacity — wait it out.
-      await waitFor(() =>
-        expect(within(sheet).getByRole('link', { name: /Inbox/ })).toBeVisible(),
-      )
+      // It slides in over `duration-medium`, a Drawer's bottom sheet; the
+      // numbers are at the end of it. Portalled to <body>, so the viewport.
+      await waitFor(() => expect(sheet.getBoundingClientRect().bottom).toBe(window.innerHeight))
+      await expect(sheet).toHaveAttribute('data-swipe-direction', 'down')
+      await expect(within(sheet).getByRole('link', { name: /Inbox/ })).toBeVisible()
       await expect(within(sheet).getByRole('link', { name: /Hi, Nathan!/ })).toBeVisible()
       await userEvent.keyboard('{Escape}')
       await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull())
