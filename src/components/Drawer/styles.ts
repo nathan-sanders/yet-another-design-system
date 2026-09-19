@@ -1,7 +1,7 @@
-import { tv, type VariantProps } from "tailwind-variants";
+import { tv, type VariantProps } from 'tailwind-variants'
 
-import { cn } from "../../lib/cn";
-import { backdrop } from "../Dialog/styles";
+import { cn } from '../../lib/cn'
+import { backdrop } from '../Dialog/styles'
 
 /**
  * The scrim: Dialog's, reused rather than copied — Base UI's `Drawer.Backdrop`
@@ -12,11 +12,7 @@ import { backdrop } from "../Dialog/styles";
  * transition is off so it follows the finger.
  */
 export const drawerBackdrop = () =>
-  cn(
-    backdrop(),
-    "opacity-[calc(1-var(--drawer-swipe-progress,0))]",
-    "data-swiping:transition-none",
-  );
+  cn(backdrop(), 'opacity-[calc(1-var(--drawer-swipe-progress,0))]', 'data-swiping:transition-none')
 
 /**
  * Where in the viewport the popup sits. `overflow-clip`, MobileNav's finding
@@ -29,23 +25,23 @@ export const drawerBackdrop = () =>
  * takes them back.
  */
 export const drawerViewport = tv({
-  base: "fixed inset-0 flex overflow-clip",
+  base: 'fixed inset-0 flex overflow-clip',
   variants: {
     side: {
-      right: "items-stretch justify-end",
-      left: "items-stretch justify-start",
-      bottom: "items-end justify-center",
+      right: 'items-stretch justify-end',
+      left: 'items-stretch justify-start',
+      bottom: 'items-end justify-center',
     },
     modal: {
-      true: "",
-      false: "pointer-events-none",
+      true: '',
+      false: 'pointer-events-none',
     },
   },
   defaultVariants: {
-    side: "right",
+    side: 'right',
     modal: true,
   },
-});
+})
 
 /**
  * The surface.
@@ -86,57 +82,57 @@ export const drawerViewport = tv({
  */
 export const drawerPopup = tv({
   base: [
-    "group/popup relative flex min-h-0 flex-col outline-none",
-    "bg-surface-background-primary font-sans text-base text-content-primary",
-    "overscroll-contain touch-auto",
-    "[--drawer-stack:max(0px,calc((var(--nested-drawers,0)-clamp(0,var(--drawer-swipe-progress,0),1))*var(--spacing)*3))]",
-    "transition-[translate,margin,width,height] duration-medium ease-standard",
-    "data-swiping:transition-none data-swiping:select-none",
-    "data-nested-drawer-swiping:transition-none",
+    'group/popup relative flex min-h-0 flex-col outline-none',
+    'bg-surface-background-primary font-sans text-base text-content-primary',
+    'overscroll-contain touch-auto',
+    '[--drawer-stack:max(0px,calc((var(--nested-drawers,0)-clamp(0,var(--drawer-swipe-progress,0),1))*var(--spacing)*3))]',
+    'transition-[translate,margin,width,height] duration-medium ease-standard',
+    'data-swiping:transition-none data-swiping:select-none',
+    'data-nested-drawer-swiping:transition-none',
     // The bleed, past the edge the drawer sits on.
-    "after:pointer-events-none after:absolute after:bg-surface-background-primary",
+    'after:pointer-events-none after:absolute after:bg-surface-background-primary',
   ],
   variants: {
     side: {
       right: [
-        "self-stretch w-(--drawer-width) max-w-full my-(--drawer-stack)",
-        "rounded-l-lg border-l border-surface-border shadow-high-left",
-        "translate-x-[calc(var(--drawer-swipe-movement-x,0px)-var(--drawer-stack))]",
-        "data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full",
-        "after:inset-y-0 after:left-full after:w-12",
+        'self-stretch w-(--drawer-width) max-w-full my-(--drawer-stack)',
+        'rounded-l-lg border-l border-surface-border shadow-high-left',
+        'translate-x-[calc(var(--drawer-swipe-movement-x,0px)-var(--drawer-stack))]',
+        'data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full',
+        'after:inset-y-0 after:left-full after:w-12',
       ],
       left: [
-        "self-stretch w-(--drawer-width) max-w-full my-(--drawer-stack)",
-        "rounded-r-lg border-r border-surface-border shadow-high-right",
-        "translate-x-[calc(var(--drawer-swipe-movement-x,0px)+var(--drawer-stack))]",
-        "data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full",
-        "after:inset-y-0 after:right-full after:w-12",
+        'self-stretch w-(--drawer-width) max-w-full my-(--drawer-stack)',
+        'rounded-r-lg border-r border-surface-border shadow-high-right',
+        'translate-x-[calc(var(--drawer-swipe-movement-x,0px)+var(--drawer-stack))]',
+        'data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full',
+        'after:inset-y-0 after:right-full after:w-12',
       ],
       bottom: [
         // MobileNav's cap: never the whole screen, so the scrim still says
         // there is a page behind it.
-        "w-[calc(100%-2*var(--drawer-stack))] max-h-[85dvh] mx-(--drawer-stack)",
+        'w-[calc(100%-2*var(--drawer-stack))] max-h-[85dvh] mx-(--drawer-stack)',
         // Base UI measures the popup into `--drawer-height`; behind a front
         // sheet, the front one's height instead, so the two align.
-        "h-(--drawer-height,auto)",
-        "data-nested-drawer-open:h-(--drawer-frontmost-height,var(--drawer-height))",
-        "pb-[env(safe-area-inset-bottom,0px)]",
-        "rounded-t-lg border-t border-surface-border shadow-high-top",
-        "translate-y-[calc(var(--drawer-swipe-movement-y,0px)-var(--drawer-stack))]",
-        "data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full",
-        "after:inset-x-0 after:top-full after:h-12",
+        'h-(--drawer-height,auto)',
+        'data-nested-drawer-open:h-(--drawer-frontmost-height,var(--drawer-height))',
+        'pb-[env(safe-area-inset-bottom,0px)]',
+        'rounded-t-lg border-t border-surface-border shadow-high-top',
+        'translate-y-[calc(var(--drawer-swipe-movement-y,0px)-var(--drawer-stack))]',
+        'data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full',
+        'after:inset-x-0 after:top-full after:h-12',
       ],
     },
     modal: {
-      true: "",
-      false: "pointer-events-auto",
+      true: '',
+      false: 'pointer-events-auto',
     },
   },
   defaultVariants: {
-    side: "right",
+    side: 'right',
     modal: true,
   },
-});
+})
 
 /**
  * Base UI's `Content`: the column the Header and the Body stack in. Behind a
@@ -146,17 +142,17 @@ export const drawerPopup = tv({
  */
 export const drawerContent = tv({
   base: [
-    "flex min-h-0 flex-1 flex-col",
-    "transition-opacity duration-medium ease-standard",
-    "group-data-nested-drawer-open/popup:opacity-0",
-    "group-data-nested-drawer-swiping/popup:opacity-100",
+    'flex min-h-0 flex-1 flex-col',
+    'transition-opacity duration-medium ease-standard',
+    'group-data-nested-drawer-open/popup:opacity-0',
+    'group-data-nested-drawer-swiping/popup:opacity-100',
   ],
-});
+})
 
 /** Dialog's Body with ContentBlock's padding — Panel.Body's recipe, for the same reasons. */
 export const drawerBody = tv({
-  base: "min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4",
-});
+  base: 'min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4',
+})
 
-type DrawerVariants = VariantProps<typeof drawerPopup>;
-export type DrawerSide = NonNullable<DrawerVariants["side"]>;
+type DrawerVariants = VariantProps<typeof drawerPopup>
+export type DrawerSide = NonNullable<DrawerVariants['side']>

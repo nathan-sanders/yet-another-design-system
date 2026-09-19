@@ -7,32 +7,33 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
+} from 'react'
 import type {
   CSSProperties,
   ComponentPropsWithRef,
   KeyboardEvent,
+  MouseEvent,
   ReactNode,
   RefObject,
-} from "react";
-import { createPortal } from "react-dom";
-import type { LucideIcon } from "lucide-react";
-import { X } from "lucide-react";
-import { useRender } from "@base-ui/react/use-render";
+} from 'react'
+import { createPortal } from 'react-dom'
+import type { LucideIcon } from 'lucide-react'
+import { X } from 'lucide-react'
+import { useRender } from '@base-ui/react/use-render'
 
-import { cn } from "../../lib/cn";
-import { usePresence } from "../../lib/presence";
-import { AppShellContext } from "../AppShell/context";
-import { Button } from "../Button";
-import { BlockHeader } from "../ContentBlock/BlockHeader";
-import { HEADING, title } from "../ContentBlock/styles";
-import { ResizeHandle } from "../Resize";
+import { cn } from '../../lib/cn'
+import { usePresence } from '../../lib/presence'
+import { AppShellContext } from '../AppShell/context'
+import { Button } from '../Button'
+import { BlockHeader } from '../ContentBlock/BlockHeader'
+import { HEADING, title } from '../ContentBlock/styles'
+import { ResizeHandle } from '../Resize'
 import {
   PanelContext,
   PanelStackContext,
   type PanelContextValue,
   type PanelStackContextValue,
-} from "./context";
+} from './context'
 import {
   panel,
   panelBody,
@@ -41,7 +42,7 @@ import {
   panelContent,
   panelNested,
   type PanelSide,
-} from "./styles";
+} from './styles'
 
 /**
  * Panel — a region beside the page that pushes the page over to make room.
@@ -122,81 +123,81 @@ import {
  * page is.
  */
 
-export type PanelHeadingLevel = 2 | 3 | 4 | 5 | 6;
+export type PanelHeadingLevel = 2 | 3 | 4 | 5 | 6
 
 /** Figma's card. */
-export const PANEL_WIDTH = 384;
-export const PANEL_MIN_WIDTH = 320;
-export const PANEL_MAX_WIDTH = 640;
+export const PANEL_WIDTH = 384
+export const PANEL_MIN_WIDTH = 320
+export const PANEL_MAX_WIDTH = 640
 /** The phone split: how tall the panel is under the page. */
-export const PANEL_HEIGHT = 320;
-export const PANEL_MIN_HEIGHT = 160;
+export const PANEL_HEIGHT = 320
+export const PANEL_MIN_HEIGHT = 160
 /** Leaves an 852 phone about 200px of page above the bar. */
-export const PANEL_MAX_HEIGHT = 560;
+export const PANEL_MAX_HEIGHT = 560
 
 export interface PanelProps extends Omit<
-  ComponentPropsWithRef<"aside">,
-  "children" | "className" | "aria-label"
+  ComponentPropsWithRef<'aside'>,
+  'children' | 'className' | 'aria-label'
 > {
   /** A `Panel.Header` and a `Panel.Body`, or any content. */
-  children: ReactNode;
+  children: ReactNode
   /**
    * What the panel is, as its accessible name: "Details", "Chat". Required —
    * it names the landmark, and the resize handle ("Resize Details").
    */
-  "aria-label": string;
+  'aria-label': string
   /** Whether the panel is open. Controlled; pair with `onOpenChange`. */
-  open?: boolean;
+  open?: boolean
   /** Whether the panel starts open. Uncontrolled. */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean
   /** Called when the panel asks to close — Escape, or its own × — or is opened. */
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void
   /**
    * The edge it enters from, and the edge the handle sits on. `right` is the
    * default and the Figma frame. The caller puts the panel where it goes in
    * the DOM — after the Page for `right`, before it for `left` — because DOM
    * order is layout order, and tab order. A nested panel takes the root's.
    */
-  side?: PanelSide;
+  side?: PanelSide
   /** Draw the handle on the seam, so the user can drag the panel wider. Root only. */
-  resizable?: boolean;
+  resizable?: boolean
   /** The width in pixels. Controlled; pair with `onWidthChange`. */
-  width?: number;
+  width?: number
   /** The starting width. Uncontrolled. Figma's 384. */
-  defaultWidth?: number;
+  defaultWidth?: number
   /** Every step of a drag, so persist on your own schedule. */
-  onWidthChange?: (width: number) => void;
-  minWidth?: number;
-  maxWidth?: number;
+  onWidthChange?: (width: number) => void
+  minWidth?: number
+  maxWidth?: number
   /** Below 768, the height in pixels. Controlled; pair with `onHeightChange`. */
-  height?: number;
+  height?: number
   /** Below 768, the starting height. Uncontrolled. */
-  defaultHeight?: number;
-  onHeightChange?: (height: number) => void;
-  minHeight?: number;
-  maxHeight?: number;
+  defaultHeight?: number
+  onHeightChange?: (height: number) => void
+  minHeight?: number
+  maxHeight?: number
   /**
    * The heading `Panel.Header` renders. Default 2: a panel is a section of the
    * page, one step under its `<h1>`.
    */
-  headingLevel?: PanelHeadingLevel;
+  headingLevel?: PanelHeadingLevel
   /**
    * Lift the card off the canvas with the low drop shadow — ContentBlock's
    * `Floating`. Defaults to the shell's mode: lifted in a floating framed
    * shell, flush otherwise.
    */
-  floating?: boolean;
+  floating?: boolean
   /**
    * What to focus when the panel opens, instead of the panel itself. A field,
    * usually. Dialog's prop.
    */
-  initialFocus?: RefObject<HTMLElement | null>;
+  initialFocus?: RefObject<HTMLElement | null>
   /**
    * Where focus goes when the panel closes, when the thing that opened it is
    * gone — a Menu item, say. Otherwise focus returns to the opener.
    */
-  finalFocus?: RefObject<HTMLElement | null>;
-  className?: string;
+  finalFocus?: RefObject<HTMLElement | null>
+  className?: string
 }
 
 export function Panel({
@@ -204,7 +205,7 @@ export function Panel({
   open: openProp,
   defaultOpen = false,
   onOpenChange,
-  side: sideProp = "right",
+  side: sideProp = 'right',
   resizable = false,
   width: widthProp,
   defaultWidth = PANEL_WIDTH,
@@ -224,51 +225,48 @@ export function Panel({
   onKeyDown,
   ...props
 }: PanelProps) {
-  const label = props["aria-label"];
-  const shell = useContext(AppShellContext);
-  const framed = shell?.frame === true;
-  const docked = shell ? !shell.frame : false;
+  const label = props['aria-label']
+  const shell = useContext(AppShellContext)
+  const framed = shell?.frame === true
+  const docked = shell ? !shell.frame : false
   // A panel written inside a panel: it stacks over its parent rather than
   // taking a place in the row. Reading a stack context is the whole test.
-  const stack = useContext(PanelStackContext);
-  const nested = stack !== null;
+  const stack = useContext(PanelStackContext)
+  const nested = stack !== null
   // A column shell has no "beside": the panel stacks under the page at every width.
-  const stacked = nested ? stack.stacked : shell?.navigation === "top";
+  const stacked = nested ? stack.stacked : shell?.navigation === 'top'
   // The stack is one region, so every level is on the root's side.
-  const side = nested ? stack.side : sideProp;
+  const side = nested ? stack.side : sideProp
   // The nav's rule: the shell states the fact once, an explicit prop wins.
-  const floating =
-    floatingProp ?? (shell ? shell.mode === "floating" && shell.frame : false);
+  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : false)
 
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-  const open = openProp ?? uncontrolledOpen;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen)
+  const open = openProp ?? uncontrolledOpen
   const setOpen = (next: boolean) => {
-    if (openProp === undefined) setUncontrolledOpen(next);
-    onOpenChange?.(next);
-  };
+    if (openProp === undefined) setUncontrolledOpen(next)
+    onOpenChange?.(next)
+  }
 
-  const clampWidth = (next: number) =>
-    Math.max(minWidth, Math.min(maxWidth, next));
-  const [uncontrolledWidth, setUncontrolledWidth] = useState(defaultWidth);
-  const width = clampWidth(widthProp ?? uncontrolledWidth);
+  const clampWidth = (next: number) => Math.max(minWidth, Math.min(maxWidth, next))
+  const [uncontrolledWidth, setUncontrolledWidth] = useState(defaultWidth)
+  const width = clampWidth(widthProp ?? uncontrolledWidth)
   const setWidth = (next: number) => {
-    if (widthProp === undefined) setUncontrolledWidth(next);
-    onWidthChange?.(next);
-  };
+    if (widthProp === undefined) setUncontrolledWidth(next)
+    onWidthChange?.(next)
+  }
 
-  const clampHeight = (next: number) =>
-    Math.max(minHeight, Math.min(maxHeight, next));
-  const [uncontrolledHeight, setUncontrolledHeight] = useState(defaultHeight);
-  const height = clampHeight(heightProp ?? uncontrolledHeight);
+  const clampHeight = (next: number) => Math.max(minHeight, Math.min(maxHeight, next))
+  const [uncontrolledHeight, setUncontrolledHeight] = useState(defaultHeight)
+  const height = clampHeight(heightProp ?? uncontrolledHeight)
   const setHeight = (next: number) => {
-    if (heightProp === undefined) setUncontrolledHeight(next);
-    onHeightChange?.(next);
-  };
+    if (heightProp === undefined) setUncontrolledHeight(next)
+    onHeightChange?.(next)
+  }
 
   // A pointer drag is in flight: the size transition is off for its length.
   // The root's drag is every level's: the nested asides follow the variable.
-  const [ownResizing, setResizing] = useState(false);
-  const resizing = nested ? stack.resizing : ownResizing;
+  const [ownResizing, setResizing] = useState(false)
+  const resizing = nested ? stack.resizing : ownResizing
 
   /*
     The root's aside is where every nested panel portals to, so it is held in
@@ -276,40 +274,43 @@ export function Panel({
     `defaultOpen` chain renders the root and its nested panel in one commit.
     A nested panel passes the root's element straight through.
   */
-  const asideRef = useRef<HTMLElement>(null);
-  const [ownContainer, setOwnContainer] = useState<HTMLElement | null>(null);
-  const container = nested ? stack.container : ownContainer;
+  const asideRef = useRef<HTMLElement>(null)
+  const [ownContainer, setOwnContainer] = useState<HTMLElement | null>(null)
+  const container = nested ? stack.container : ownContainer
   const setAside = useCallback((element: HTMLElement | null) => {
-    asideRef.current = element;
-    setOwnContainer(element);
-  }, []);
+    asideRef.current = element
+    setOwnContainer(element)
+  }, [])
   // A nested panel cannot enter until there is somewhere to enter into.
-  const { mounted, status } = usePresence(
-    open && (!nested || container !== null),
-    asideRef,
-  );
+  const { mounted, status } = usePresence(open && (!nested || container !== null), asideRef)
 
   /*
     The stack's count. Each level keeps the ids of the open panels in front of
     it and forwards every report to the level behind, so the root counts the
     whole chain — `--nested-panels` is what positions each aside. Reported as
     `open`, not `mounted`: the parent starts coming forward the moment the
-    front panel starts leaving, on the same duration.
+    front panel starts leaving, on the same duration. Each report carries the
+    child's `close`, so a covered panel can send everything in front of it
+    away — that is what a click on its peeking edge does.
   */
-  const id = useId();
-  const openDescendants = useRef(new Set<string>());
-  const [nestedCount, setNestedCount] = useState(0);
+  const close = useCallback(() => {
+    if (openProp === undefined) setUncontrolledOpen(false)
+    onOpenChange?.(false)
+  }, [openProp, onOpenChange])
+  const id = useId()
+  const openDescendants = useRef(new Map<string, () => void>())
+  const [nestedCount, setNestedCount] = useState(0)
   const report = useCallback(
-    (child: string, childOpen: boolean) => {
-      const set = openDescendants.current;
-      if (childOpen) set.add(child);
-      else set.delete(child);
-      setNestedCount(set.size);
-      stack?.report(child, childOpen);
+    (child: string, childOpen: boolean, childClose: () => void) => {
+      const map = openDescendants.current
+      if (childOpen) map.set(child, childClose)
+      else map.delete(child)
+      setNestedCount(map.size)
+      stack?.report(child, childOpen, childClose)
     },
     [stack],
-  );
-  const contentRef = useRef<HTMLDivElement>(null);
+  )
+  const contentRef = useRef<HTMLDivElement>(null)
 
   /*
     Inert is set on the parent's content by the *nested* panel, imperatively,
@@ -321,19 +322,19 @@ export function Panel({
     the focus-out, which a layout effect here is and a re-render is not.
   */
   useLayoutEffect(() => {
-    if (!stack) return;
-    const content = stack.content.current;
-    if (content) content.inert = open;
+    if (!stack) return
+    const content = stack.content.current
+    if (content) content.inert = open
     return () => {
-      if (content) content.inert = false;
-    };
-  }, [stack, open]);
+      if (content) content.inert = false
+    }
+  }, [stack, open])
 
   useEffect(() => {
-    if (!stack) return;
-    stack.report(id, open);
-    return () => stack.report(id, false);
-  }, [stack, id, open]);
+    if (!stack) return
+    stack.report(id, open, close)
+    return () => stack.report(id, false, close)
+  }, [stack, id, open, close])
 
   /*
     Focus in when the panel opens — but not when it starts open. A panel that
@@ -342,16 +343,16 @@ export function Panel({
     Popover's rule. The element that had focus is remembered so the close can
     hand it back.
   */
-  const openerRef = useRef<Element | null>(null);
-  const wasMountedRef = useRef(mounted);
+  const openerRef = useRef<Element | null>(null)
+  const wasMountedRef = useRef(mounted)
   useEffect(() => {
-    const wasMounted = wasMountedRef.current;
-    wasMountedRef.current = mounted;
-    if (!mounted || wasMounted) return;
-    openerRef.current = document.activeElement;
-    const target = initialFocus?.current ?? asideRef.current;
-    target?.focus({ preventScroll: true });
-  }, [mounted, initialFocus]);
+    const wasMounted = wasMountedRef.current
+    wasMountedRef.current = mounted
+    if (!mounted || wasMounted) return
+    openerRef.current = document.activeElement
+    const target = initialFocus?.current ?? asideRef.current
+    target?.focus({ preventScroll: true })
+  }, [mounted, initialFocus])
 
   /*
     Focus out as the panel starts to leave, while it is still in the DOM —
@@ -360,45 +361,51 @@ export function Panel({
     the panel is unmounted by now, which is what `finalFocus` is for.
   */
   useEffect(() => {
-    if (status !== "ending") return;
-    const aside = asideRef.current;
-    if (!aside || !aside.contains(document.activeElement)) return;
-    const opener = openerRef.current;
+    if (status !== 'ending') return
+    const aside = asideRef.current
+    if (!aside || !aside.contains(document.activeElement)) return
+    const opener = openerRef.current
     const target =
-      finalFocus?.current ??
-      (opener instanceof HTMLElement && opener.isConnected ? opener : null);
-    target?.focus({ preventScroll: true });
-  }, [status, finalFocus]);
+      finalFocus?.current ?? (opener instanceof HTMLElement && opener.isConnected ? opener : null)
+    target?.focus({ preventScroll: true })
+  }, [status, finalFocus])
 
-  const close = useCallback(() => {
-    if (openProp === undefined) setUncontrolledOpen(false);
-    onOpenChange?.(false);
-  }, [openProp, onOpenChange]);
-  const ctx = useMemo<PanelContextValue>(
-    () => ({ headingLevel, close }),
-    [headingLevel, close],
-  );
+  const ctx = useMemo<PanelContextValue>(() => ({ headingLevel, close }), [headingLevel, close])
   const stackCtx = useMemo<PanelStackContextValue>(
     () => ({ container, content: contentRef, side, stacked, resizing, report }),
     [container, side, stacked, resizing, report],
-  );
+  )
 
-  if (!mounted) return null;
+  if (!mounted) return null
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
-    onKeyDown?.(event);
+    onKeyDown?.(event)
     // A Menu or Popover inside has already stopped its own Escape; a Combobox
     // prevents default on the one that clears its input. Both leave this
     // alone — and so does a nested panel's, which has closed itself and
     // prevented default on the way, so Escape closes only the front panel.
-    if (event.key !== "Escape" || event.defaultPrevented) return;
-    event.preventDefault();
-    setOpen(false);
+    if (event.key !== 'Escape' || event.defaultPrevented) return
+    event.preventDefault()
+    setOpen(false)
   }
 
-  const right = side === "right";
-  const handleLabel = `Resize ${label}`;
-  const covered = nestedCount > 0;
+  const right = side === 'right'
+  const handleLabel = `Resize ${label}`
+  const covered = nestedCount > 0
+
+  /*
+    The peeking edge goes back to this level: a click on a covered card closes
+    every panel in front of it, deepest first. A pointer shortcut only — the
+    front panel's × and Escape are the keyboard path — and only for a click
+    that landed on *this* card: the panels in front are React children of the
+    content here, so their clicks bubble through, but they are DOM children of
+    the root's aside, not of this card, which is what the containment test
+    tells apart.
+  */
+  function handleCardClick(event: MouseEvent<HTMLDivElement>) {
+    if (!covered || !event.currentTarget.contains(event.target as Node)) return
+    for (const closeChild of [...openDescendants.current.values()].reverse()) closeChild()
+  }
 
   const inside = (
     <div
@@ -406,40 +413,38 @@ export function Panel({
         side,
         stacked,
         nested,
-        transitioning: status !== "open",
+        transitioning: status !== 'open',
         resizing,
       })}
     >
-      <div className={panelCard({ floating, docked, stacked })}>
+      <div className={panelCard({ floating, docked, stacked, covered })} onClick={handleCardClick}>
         <div ref={contentRef} className={panelContent({ covered })}>
           <PanelStackContext.Provider value={stackCtx}>
-            <PanelContext.Provider value={ctx}>
-              {children}
-            </PanelContext.Provider>
+            <PanelContext.Provider value={ctx}>{children}</PanelContext.Provider>
           </PanelStackContext.Provider>
         </div>
       </div>
     </div>
-  );
+  )
 
   const presence = {
-    "data-starting-style": status === "starting" ? "" : undefined,
-    "data-ending-style": status === "ending" ? "" : undefined,
+    'data-starting-style': status === 'starting' ? '' : undefined,
+    'data-ending-style': status === 'ending' ? '' : undefined,
     // On for the whole of either transition: the clip box reads it.
-    "data-transitioning": status !== "open" ? "" : undefined,
+    'data-transitioning': status !== 'open' ? '' : undefined,
     // How many are in front of it, and that there are any: Base UI's
     // `--nested-drawers` / `data-nested-drawer-open`, for a panel.
-    "data-nested-panel-open": covered ? "" : undefined,
-  };
+    'data-nested-panel-open': covered ? '' : undefined,
+  }
 
   if (nested) {
     // No container yet means no root aside to portal into; presence waits for it.
-    if (!container) return null;
+    if (!container) return null
     return createPortal(
       <aside
         ref={setAside}
         className={cn(panelNested({ side, stacked, resizing }), className)}
-        style={{ "--nested-panels": nestedCount } as CSSProperties}
+        style={{ '--nested-panels': nestedCount } as CSSProperties}
         tabIndex={-1}
         data-nested=""
         {...presence}
@@ -449,7 +454,7 @@ export function Panel({
         {inside}
       </aside>,
       container,
-    );
+    )
   }
 
   return (
@@ -458,9 +463,9 @@ export function Panel({
       className={cn(panel({ side, framed, resizing, stacked }), className)}
       style={
         {
-          "--panel-width": `${width}px`,
-          "--panel-height": `${height}px`,
-          "--nested-panels": nestedCount,
+          '--panel-width': `${width}px`,
+          '--panel-height': `${height}px`,
+          '--nested-panels': nestedCount,
         } as CSSProperties
       }
       // Focusable by script, not by Tab: the landmark takes focus on open so a
@@ -486,7 +491,7 @@ export function Panel({
           <ResizeHandle
             label={handleLabel}
             orientation="vertical"
-            sized={right ? "after" : "before"}
+            sized={right ? 'after' : 'before'}
             value={width}
             min={minWidth}
             max={maxWidth}
@@ -497,11 +502,11 @@ export function Panel({
             onResizeStart={() => setResizing(true)}
             onResizeEnd={() => setResizing(false)}
             className={cn(
-              "absolute inset-y-0 z-10 w-2",
-              stacked ? "hidden" : "max-md:hidden",
-              right
-                ? ["left-0", framed ? "-translate-x-full" : "-translate-x-1/2"]
-                : ["right-0", framed ? "translate-x-full" : "translate-x-1/2"],
+              'absolute inset-y-0 z-10 w-2',
+              stacked ? 'hidden' : 'max-md:hidden',
+              right ?
+                ['left-0', framed ? '-translate-x-full' : '-translate-x-1/2']
+              : ['right-0', framed ? 'translate-x-full' : 'translate-x-1/2'],
             )}
           />
           {/*
@@ -513,7 +518,7 @@ export function Panel({
           <ResizeHandle
             label={handleLabel}
             orientation="horizontal"
-            sized={right ? "after" : "before"}
+            sized={right ? 'after' : 'before'}
             value={height}
             min={minHeight}
             max={maxHeight}
@@ -524,39 +529,36 @@ export function Panel({
             onResizeStart={() => setResizing(true)}
             onResizeEnd={() => setResizing(false)}
             className={cn(
-              "absolute inset-x-0 z-10 h-2",
-              stacked ? "flex" : "hidden max-md:flex",
-              right
-                ? ["top-0", framed ? "-translate-y-full" : "-translate-y-1/2"]
-                : ["bottom-0", framed ? "translate-y-full" : "translate-y-1/2"],
+              'absolute inset-x-0 z-10 h-2',
+              stacked ? 'flex' : 'hidden max-md:flex',
+              right ?
+                ['top-0', framed ? '-translate-y-full' : '-translate-y-1/2']
+              : ['bottom-0', framed ? 'translate-y-full' : 'translate-y-1/2'],
             )}
           />
         </>
       )}
     </aside>
-  );
+  )
 }
 
-Panel.displayName = "Panel";
+Panel.displayName = 'Panel'
 
-export interface PanelHeaderProps extends Omit<
-  ComponentPropsWithRef<"div">,
-  "children"
-> {
+export interface PanelHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** The title. Keep it short — "Details", not a sentence. */
-  children: ReactNode;
+  children: ReactNode
   /** A 16px icon before the title. Pass the component: `icon={Info}`. */
-  icon?: LucideIcon;
+  icon?: LucideIcon
   /** After the title, left-aligned with it — a Badge, usually. ContentBlock's slot. */
-  titleSlot?: ReactNode;
+  titleSlot?: ReactNode
   /** Controls for the panel, pushed to the right edge. Default-size ghost Buttons fit. */
-  actions?: ReactNode;
+  actions?: ReactNode
   /**
    * The ghost × after the actions, which closes the panel. On by default;
    * `false` removes it — put a `Panel.Close` somewhere else, or let Escape
    * and the caller's own control do it.
    */
-  closeButton?: boolean;
+  closeButton?: boolean
 }
 
 /**
@@ -572,8 +574,8 @@ function PanelHeader({
   closeButton = true,
   ...props
 }: PanelHeaderProps) {
-  const { headingLevel } = useContext(PanelContext);
-  const Heading = HEADING[headingLevel];
+  const { headingLevel } = useContext(PanelContext)
+  const Heading = HEADING[headingLevel]
 
   return (
     <BlockHeader
@@ -585,14 +587,14 @@ function PanelHeader({
       height="bar"
       {...props}
     />
-  );
+  )
 }
 
-PanelHeader.displayName = "Panel.Header";
+PanelHeader.displayName = 'Panel.Header'
 
-export interface PanelBodyProps extends ComponentPropsWithRef<"div"> {
+export interface PanelBodyProps extends ComponentPropsWithRef<'div'> {
   /** Extra classes for the scrolling region. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -601,18 +603,18 @@ export interface PanelBodyProps extends ComponentPropsWithRef<"div"> {
  * so unlike Dialog's this one is always wanted.
  */
 function PanelBody({ className, ...props }: PanelBodyProps) {
-  return <div className={cn(panelBody(), className)} {...props} />;
+  return <div className={cn(panelBody(), className)} {...props} />
 }
 
-PanelBody.displayName = "Panel.Body";
+PanelBody.displayName = 'Panel.Body'
 
 export interface PanelCloseProps {
   /** Accessible name for the default icon button. Ignored when `render` is given. */
-  label?: string;
+  label?: string
   /** Replace the × with your own element — a "Done" button, say. Dialog's shape. */
-  render?: useRender.RenderProp;
+  render?: useRender.RenderProp
   /** Extra classes for the button. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -620,19 +622,17 @@ export interface PanelCloseProps {
  * outright, Dialog.Close's contract without Base UI's part — there is no
  * root here to wire it to, only the context.
  */
-function PanelClose({ label = "Close", render, className }: PanelCloseProps) {
-  const { close } = useContext(PanelContext);
+function PanelClose({ label = 'Close', render, className }: PanelCloseProps) {
+  const { close } = useContext(PanelContext)
 
   return useRender({
-    render: render ?? (
-      <Button appearance="ghost" startIcon={X} aria-label={label} />
-    ),
+    render: render ?? <Button appearance="ghost" startIcon={X} aria-label={label} />,
     props: { onClick: close, className },
-  });
+  })
 }
 
-PanelClose.displayName = "Panel.Close";
+PanelClose.displayName = 'Panel.Close'
 
-Panel.Header = PanelHeader;
-Panel.Body = PanelBody;
-Panel.Close = PanelClose;
+Panel.Header = PanelHeader
+Panel.Body = PanelBody
+Panel.Close = PanelClose

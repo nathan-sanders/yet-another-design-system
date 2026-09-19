@@ -1,21 +1,16 @@
-import { useContext, useMemo } from "react";
-import type {
-  CSSProperties,
-  ComponentPropsWithRef,
-  ReactElement,
-  ReactNode,
-} from "react";
-import type { LucideIcon } from "lucide-react";
-import { X } from "lucide-react";
-import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
+import { useContext, useMemo } from 'react'
+import type { CSSProperties, ComponentPropsWithRef, ReactElement, ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import { X } from 'lucide-react'
+import { Drawer as DrawerPrimitive } from '@base-ui/react/drawer'
 
-import { cn } from "../../lib/cn";
-import { overlayLayer } from "../../lib/layers";
-import { usePhone } from "../../lib/viewport";
-import { Button } from "../Button";
-import { BlockHeader } from "../ContentBlock/BlockHeader";
-import { title } from "../ContentBlock/styles";
-import { DrawerContext, type DrawerContextValue } from "./context";
+import { cn } from '../../lib/cn'
+import { overlayLayer } from '../../lib/layers'
+import { usePhone } from '../../lib/viewport'
+import { Button } from '../Button'
+import { BlockHeader } from '../ContentBlock/BlockHeader'
+import { title } from '../ContentBlock/styles'
+import { DrawerContext, type DrawerContextValue } from './context'
 import {
   drawerBackdrop,
   drawerBody,
@@ -23,7 +18,7 @@ import {
   drawerPopup,
   drawerViewport,
   type DrawerSide,
-} from "./styles";
+} from './styles'
 
 /**
  * Drawer — a surface that slides in from an edge of the screen, over the page.
@@ -71,24 +66,24 @@ import {
 
 export interface DrawerProps extends Omit<
   ComponentPropsWithRef<typeof DrawerPrimitive.Root>,
-  "swipeDirection"
+  'swipeDirection'
 > {
   /**
    * The edge the drawer comes from, and swipes back to. `right` by default,
    * `Panel`'s side. Below 768 `right` and `left` become `bottom`.
    */
-  side?: DrawerSide;
+  side?: DrawerSide
 }
 
 /**
  * Which way a swipe dismisses, per side. Base UI's words for it are the
  * direction of travel, so a bottom sheet swipes `down`.
  */
-const SWIPE: Record<DrawerSide, "right" | "left" | "down"> = {
-  right: "right",
-  left: "left",
-  bottom: "down",
-};
+const SWIPE: Record<DrawerSide, 'right' | 'left' | 'down'> = {
+  right: 'right',
+  left: 'left',
+  bottom: 'down',
+}
 
 /**
  * The root. Everything Base UI puts here arrives free — `open`, `defaultOpen`,
@@ -97,58 +92,43 @@ const SWIPE: Record<DrawerSide, "right" | "left" | "down"> = {
  * `side`'s to set. The phone rule is applied here, once, and the popup reads
  * the result through context so the classes and the gesture cannot disagree.
  */
-export function Drawer({
-  side = "right",
-  modal = true,
-  children,
-  ...props
-}: DrawerProps) {
-  const phone = usePhone();
-  const effective: DrawerSide = phone && side !== "bottom" ? "bottom" : side;
+export function Drawer({ side = 'right', modal = true, children, ...props }: DrawerProps) {
+  const phone = usePhone()
+  const effective: DrawerSide = phone && side !== 'bottom' ? 'bottom' : side
   const ctx = useMemo<DrawerContextValue>(
     () => ({ side: effective, modal: modal !== false }),
     [effective, modal],
-  );
+  )
 
   return (
-    <DrawerPrimitive.Root
-      swipeDirection={SWIPE[effective]}
-      modal={modal}
-      {...props}
-    >
-      {typeof children === "function" ? (
-        // Base UI's payload form: a detached trigger's payload arrives as an
-        // argument, and the provider has to wrap what the function returns.
-        (arg) => (
-          <DrawerContext.Provider value={ctx}>
-            {children(arg)}
-          </DrawerContext.Provider>
-        )
-      ) : (
-        <DrawerContext.Provider value={ctx}>{children}</DrawerContext.Provider>
-      )}
+    <DrawerPrimitive.Root swipeDirection={SWIPE[effective]} modal={modal} {...props}>
+      {typeof children === 'function'
+        ? // Base UI's payload form: a detached trigger's payload arrives as an
+          // argument, and the provider has to wrap what the function returns.
+          (arg) => <DrawerContext.Provider value={ctx}>{children(arg)}</DrawerContext.Provider>
+        : <DrawerContext.Provider value={ctx}>{children}</DrawerContext.Provider>}
     </DrawerPrimitive.Root>
-  );
+  )
 }
 
-Drawer.displayName = "Drawer";
+Drawer.displayName = 'Drawer'
 
 export interface DrawerPopupProps extends Omit<
   ComponentPropsWithRef<typeof DrawerPrimitive.Popup>,
-  "className" | "render" | "aria-label"
+  'className' | 'render' | 'aria-label'
 > {
   /**
    * The drawer's width in pixels, for `right` and `left`. Figma's `Panel` is
    * 384 and this matches it; a bottom sheet is the viewport's width.
    */
-  width?: number;
+  width?: number
   /**
    * The drawer's accessible name, for a drawer with no `Drawer.Title`. Prefer a
    * Title — it names the drawer *and* shows the name to everybody.
    */
-  label?: string;
+  label?: string
   /** Extra classes for the surface. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -161,48 +141,36 @@ export interface DrawerPopupProps extends Omit<
  * popup, because Base UI uses it to let text be selected with a mouse without
  * starting a swipe.
  */
-function DrawerPopup({
-  children,
-  width = 384,
-  label,
-  className,
-  ...props
-}: DrawerPopupProps) {
-  const { side, modal } = useContext(DrawerContext);
+function DrawerPopup({ children, width = 384, label, className, ...props }: DrawerPopupProps) {
+  const { side, modal } = useContext(DrawerContext)
 
   return (
     <DrawerPrimitive.Portal>
-      {modal && (
-        <DrawerPrimitive.Backdrop
-          className={cn(drawerBackdrop(), overlayLayer)}
-        />
-      )}
+      {modal && <DrawerPrimitive.Backdrop className={cn(drawerBackdrop(), overlayLayer)} />}
       <DrawerPrimitive.Viewport
         className={cn(drawerViewport({ side, modal }), overlayLayer)}
         // On the viewport rather than the popup, Dialog's two reasons: it
         // inherits, and Base UI writes its own variables onto the popup's style.
-        style={{ "--drawer-width": `${width}px` } as CSSProperties}
+        style={{ '--drawer-width': `${width}px` } as CSSProperties}
       >
         <DrawerPrimitive.Popup
           className={cn(drawerPopup({ side, modal }), className)}
           // Spread only when it is a string: an `aria-*` prop forwarded as
           // undefined deletes what Base UI computed. Popover's guard.
-          {...(label != null && { "aria-label": label })}
+          {...(label != null && { 'aria-label': label })}
           {...props}
         >
-          <DrawerPrimitive.Content className={drawerContent()}>
-            {children}
-          </DrawerPrimitive.Content>
+          <DrawerPrimitive.Content className={drawerContent()}>{children}</DrawerPrimitive.Content>
         </DrawerPrimitive.Popup>
       </DrawerPrimitive.Viewport>
     </DrawerPrimitive.Portal>
-  );
+  )
 }
 
-DrawerPopup.displayName = "Drawer.Popup";
+DrawerPopup.displayName = 'Drawer.Popup'
 
 /** Which heading the title sits in. Dialog's prop, for Dialog's reason. */
-export type DrawerHeadingLevel = 2 | 3 | 4 | 5 | 6;
+export type DrawerHeadingLevel = 2 | 3 | 4 | 5 | 6
 
 /** Dialog's map: elements, because Base UI's Title takes `render`. */
 const HEADINGS: Record<DrawerHeadingLevel, ReactElement> = {
@@ -211,16 +179,16 @@ const HEADINGS: Record<DrawerHeadingLevel, ReactElement> = {
   4: <h4 />,
   5: <h5 />,
   6: <h6 />,
-};
+}
 
 export interface DrawerTitleProps extends Omit<
   ComponentPropsWithRef<typeof DrawerPrimitive.Title>,
-  "className" | "render"
+  'className' | 'render'
 > {
   /** Which heading element to render. */
-  headingLevel?: DrawerHeadingLevel;
+  headingLevel?: DrawerHeadingLevel
   /** Extra classes for the title. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -228,61 +196,49 @@ export interface DrawerTitleProps extends Omit<
  * `aria-labelledby` at it. `Drawer.Header` renders one; use this directly for
  * a header of your own shape.
  */
-function DrawerTitle({
-  headingLevel = 2,
-  className,
-  ...props
-}: DrawerTitleProps) {
+function DrawerTitle({ headingLevel = 2, className, ...props }: DrawerTitleProps) {
   return (
     <DrawerPrimitive.Title
       render={HEADINGS[headingLevel]}
       className={cn(title(), className)}
       {...props}
     />
-  );
+  )
 }
 
-DrawerTitle.displayName = "Drawer.Title";
+DrawerTitle.displayName = 'Drawer.Title'
 
 export interface DrawerDescriptionProps extends Omit<
   ComponentPropsWithRef<typeof DrawerPrimitive.Description>,
-  "className" | "render"
+  'className' | 'render'
 > {
   /** Extra classes for the description. */
-  className?: string;
+  className?: string
 }
 
 /** The body paragraph, which Base UI points `aria-describedby` at. Dialog's. */
 function DrawerDescription({ className, ...props }: DrawerDescriptionProps) {
-  return (
-    <DrawerPrimitive.Description
-      className={cn("text-content-subtle", className)}
-      {...props}
-    />
-  );
+  return <DrawerPrimitive.Description className={cn('text-content-subtle', className)} {...props} />
 }
 
-DrawerDescription.displayName = "Drawer.Description";
+DrawerDescription.displayName = 'Drawer.Description'
 
-export interface DrawerHeaderProps extends Omit<
-  ComponentPropsWithRef<"div">,
-  "children"
-> {
+export interface DrawerHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** The title. Keep it short — "Filters", not a sentence. */
-  children: ReactNode;
+  children: ReactNode
   /** A 16px icon before the title. Pass the component: `icon={Filter}`. */
-  icon?: LucideIcon;
+  icon?: LucideIcon
   /** After the title, left-aligned with it — a Badge, usually. ContentBlock's slot. */
-  titleSlot?: ReactNode;
+  titleSlot?: ReactNode
   /** Controls for the drawer, pushed to the right edge. Default-size ghost Buttons fit. */
-  actions?: ReactNode;
+  actions?: ReactNode
   /**
    * The ghost × after the actions. On by default; `false` removes it — put
    * a `Drawer.Close` somewhere else, or let the scrim and Escape do it.
    */
-  closeButton?: boolean;
+  closeButton?: boolean
   /** Which heading the title sits in. */
-  headingLevel?: DrawerHeadingLevel;
+  headingLevel?: DrawerHeadingLevel
 }
 
 /**
@@ -303,23 +259,21 @@ function DrawerHeader({
   return (
     <BlockHeader
       icon={icon}
-      heading={
-        <DrawerTitle headingLevel={headingLevel}>{children}</DrawerTitle>
-      }
+      heading={<DrawerTitle headingLevel={headingLevel}>{children}</DrawerTitle>}
       titleSlot={titleSlot}
       actions={actions}
       end={closeButton ? <DrawerClose /> : null}
       height="bar"
       {...props}
     />
-  );
+  )
 }
 
-DrawerHeader.displayName = "Drawer.Header";
+DrawerHeader.displayName = 'Drawer.Header'
 
-export interface DrawerBodyProps extends ComponentPropsWithRef<"div"> {
+export interface DrawerBodyProps extends ComponentPropsWithRef<'div'> {
   /** Extra classes for the scrolling region. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -328,56 +282,49 @@ export interface DrawerBodyProps extends ComponentPropsWithRef<"div"> {
  * viewport, so it is always wanted there; a short bottom sheet can leave it out.
  */
 function DrawerBody({ className, ...props }: DrawerBodyProps) {
-  return <div className={cn(drawerBody(), className)} {...props} />;
+  return <div className={cn(drawerBody(), className)} {...props} />
 }
 
-DrawerBody.displayName = "Drawer.Body";
+DrawerBody.displayName = 'Drawer.Body'
 
 export interface DrawerCloseProps extends Omit<
   ComponentPropsWithRef<typeof DrawerPrimitive.Close>,
-  "className"
+  'className'
 > {
   /** Accessible name for the default icon button. Ignored when `render` is given. */
-  label?: string;
+  label?: string
   /** Extra classes for the button. */
-  className?: string;
+  className?: string
 }
 
 /**
  * The dismiss button. Dialog's part: the default *is* the × and `render`
  * replaces it outright — `<Drawer.Close render={<Button>Done</Button>} />`.
  */
-function DrawerClose({
-  label = "Close",
-  render,
-  className,
-  ...props
-}: DrawerCloseProps) {
+function DrawerClose({ label = 'Close', render, className, ...props }: DrawerCloseProps) {
   return (
     <DrawerPrimitive.Close
-      render={
-        render ?? <Button appearance="ghost" startIcon={X} aria-label={label} />
-      }
+      render={render ?? <Button appearance="ghost" startIcon={X} aria-label={label} />}
       className={className}
       {...props}
     />
-  );
+  )
 }
 
-DrawerClose.displayName = "Drawer.Close";
+DrawerClose.displayName = 'Drawer.Close'
 
 /**
  * The trigger. Used with `render`, so the caller's own element becomes the
  * button. A Link trigger needs `nativeButton={false}` alongside it — Dialog's
  * note.
  */
-Drawer.Trigger = DrawerPrimitive.Trigger;
-Drawer.Popup = DrawerPopup;
-Drawer.Header = DrawerHeader;
-Drawer.Title = DrawerTitle;
-Drawer.Description = DrawerDescription;
-Drawer.Body = DrawerBody;
-Drawer.Close = DrawerClose;
+Drawer.Trigger = DrawerPrimitive.Trigger
+Drawer.Popup = DrawerPopup
+Drawer.Header = DrawerHeader
+Drawer.Title = DrawerTitle
+Drawer.Description = DrawerDescription
+Drawer.Body = DrawerBody
+Drawer.Close = DrawerClose
 
 /**
  * The raw parts, for shapes the wrappers cannot express — Dialog's escape
@@ -385,10 +332,10 @@ Drawer.Close = DrawerClose;
  * A `RawPopup` outside a `Viewport` loses swipe handling, and Base UI only
  * warns about it.
  */
-Drawer.Root = DrawerPrimitive.Root;
-Drawer.Portal = DrawerPrimitive.Portal;
-Drawer.Backdrop = DrawerPrimitive.Backdrop;
-Drawer.Viewport = DrawerPrimitive.Viewport;
-Drawer.RawPopup = DrawerPrimitive.Popup;
-Drawer.Content = DrawerPrimitive.Content;
-Drawer.createHandle = DrawerPrimitive.createHandle;
+Drawer.Root = DrawerPrimitive.Root
+Drawer.Portal = DrawerPrimitive.Portal
+Drawer.Backdrop = DrawerPrimitive.Backdrop
+Drawer.Viewport = DrawerPrimitive.Viewport
+Drawer.RawPopup = DrawerPrimitive.Popup
+Drawer.Content = DrawerPrimitive.Content
+Drawer.createHandle = DrawerPrimitive.createHandle
