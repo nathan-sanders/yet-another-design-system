@@ -40,6 +40,8 @@ export interface PanelStackContextValue {
   side: PanelSide
   stacked: boolean
   resizing: boolean
+  /** How many levels down this panel is; the root is 0. */
+  depth: number
   report: (id: string, open: boolean, close: () => void) => void
 }
 

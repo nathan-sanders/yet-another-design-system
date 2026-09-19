@@ -110,7 +110,9 @@ way back, for free:** what is under the pointer there is the *front* drawer's ow
 (`fixed inset-0`, over everything behind it), and Base UI's outside-press dismisses a modal
 dialog on a press on any ancestor of its popup that is not the portal — which is the viewport.
 The stacked story presses `document.elementFromPoint` there rather than the popup behind, which
-a real pointer can never reach.
+a real pointer can never reach. The nested viewport is `cursor-pointer` (`data-nested`, which Base UI
+writes) and the popup resets to `cursor-auto`, so the peeking edge says it is a way back and the
+front drawer's own controls keep their cursors.
 
 **The viewport is `overflow-clip`, not `hidden`, and stacking is what found it.** `hidden`
 is still a scroll container: a `focus()` into a popup that is still sliding in scrolls the

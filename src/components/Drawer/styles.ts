@@ -25,7 +25,13 @@ export const drawerBackdrop = () =>
  * takes them back.
  */
 export const drawerViewport = tv({
-  base: 'fixed inset-0 flex overflow-clip',
+  base: [
+    'fixed inset-0 flex overflow-clip',
+    // Behind a nested drawer, what the pointer meets on the peeking edge of the
+    // level behind is this viewport, and a press on it goes back a level: say
+    // so. The popup resets it, so its own controls keep their cursors.
+    'data-nested:cursor-pointer',
+  ],
   variants: {
     side: {
       right: 'items-stretch justify-end',
@@ -82,7 +88,7 @@ export const drawerViewport = tv({
  */
 export const drawerPopup = tv({
   base: [
-    'group/popup relative flex min-h-0 flex-col outline-none',
+    'group/popup relative flex min-h-0 cursor-auto flex-col outline-none',
     'bg-surface-background-primary font-sans text-base text-content-primary',
     'overscroll-contain touch-auto',
     '[--drawer-stack:max(0px,calc((var(--nested-drawers,0)-clamp(0,var(--drawer-swipe-progress,0),1))*var(--spacing)*3))]',

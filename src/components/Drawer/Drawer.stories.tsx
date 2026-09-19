@@ -568,6 +568,8 @@ export const StackedDriven: Story = {
       const point = { x: front.left - 6, y: front.top + 200 }
       const hit = document.elementFromPoint(point.x, point.y)!
       await expect(hit.contains(popup('Advanced'))).toBe(true)
+      await expect(getComputedStyle(hit).cursor).toBe('pointer')
+      await expect(getComputedStyle(popup('Advanced')!).cursor).toBe('auto')
       await userEvent.pointer({ keys: '[MouseLeft]', target: hit, coords: point })
       await waitFor(() => expect(popup('Advanced')).toBeNull())
       await expect(popup('Security')).not.toBeNull()

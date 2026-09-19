@@ -320,11 +320,21 @@ export function Panel({
     `inert` — comes after that commit's effects. `focus()` on an element inside
     an inert subtree does nothing, so the opener has to be un-inerted *before*
     the focus-out, which a layout effect here is and a re-render is not.
+
+    Setting it, though, is a passive effect. A `defaultOpen` chain mounts every
+    level in one commit, and a layout effect in the child runs before the
+    parent's ref is attached — the content was null, and the middle of a
+    three-deep phone stack was never inerted. After the commit it is there.
   */
   useLayoutEffect(() => {
-    if (!stack) return
+    if (!stack || open) return
     const content = stack.content.current
-    if (content) content.inert = open
+    if (content) content.inert = false
+  }, [stack, open])
+  useEffect(() => {
+    if (!stack || !open) return
+    const content = stack.content.current
+    if (content) content.inert = true
     return () => {
       if (content) content.inert = false
     }
@@ -371,9 +381,11 @@ export function Panel({
   }, [status, finalFocus])
 
   const ctx = useMemo<PanelContextValue>(() => ({ headingLevel, close }), [headingLevel, close])
+  // How deep this level is; the root is 0. A nested aside paints at its depth.
+  const depth = nested ? stack.depth + 1 : 0
   const stackCtx = useMemo<PanelStackContextValue>(
-    () => ({ container, content: contentRef, side, stacked, resizing, report }),
-    [container, side, stacked, resizing, report],
+    () => ({ container, content: contentRef, side, stacked, resizing, depth, report }),
+    [container, side, stacked, resizing, depth, report],
   )
 
   if (!mounted) return null
@@ -444,7 +456,10 @@ export function Panel({
       <aside
         ref={setAside}
         className={cn(panelNested({ side, stacked, resizing }), className)}
-        style={{ '--nested-panels': nestedCount } as CSSProperties}
+        // The depth is the paint order. A `defaultOpen` chain commits every
+        // level at once and React appends the portals deepest-first, so DOM
+        // order cannot be trusted to put the front panel on top.
+        style={{ '--nested-panels': nestedCount, '--panel-depth': depth } as CSSProperties}
         tabIndex={-1}
         data-nested=""
         {...presence}
