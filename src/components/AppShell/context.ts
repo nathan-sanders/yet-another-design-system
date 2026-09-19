@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import type { AppShellMode } from './styles'
+import type { AppShellMode, AppShellNavigation } from './styles'
 
 /**
  * What the shell tells the things inside it.
@@ -22,6 +22,12 @@ export interface AppShellContextValue {
   mode: AppShellMode
   /** The 8px frame is on. Off, a nav sits flush with the window edge and casts nothing. */
   frame: boolean
+  /**
+   * Row or column. `Panel` reads it: in a `top` shell there is no "beside the
+   * page", so the panel takes the phone's arrangement at every width — under
+   * the page, full width, sized by height.
+   */
+  navigation: AppShellNavigation
 }
 
 export const AppShellContext = createContext<AppShellContextValue | null>(null)

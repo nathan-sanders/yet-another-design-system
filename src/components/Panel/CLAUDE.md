@@ -23,6 +23,7 @@ code the same day.
 | Panel (`Floating` False \| True) | `40005378:45634` | `Panel`, its `floating` prop; `Content` slot = `Panel.Body`'s room |
 | Panel instances in the two layout frames | `40005378:45648` (floating), `40005378:45664` (contained) | the `Floating` and `InContext` stories |
 | Phone layouts, 393 × 852 | `40005382:1401` (floating), `40005382:1519` (contained) | the `Phone` story: Page, then the Panel full-width at 320, then the bar |
+| `Panel` boolean on the App Shell set | `Panel#40005385:0` on `40005265:10346` | a Panel instance in all twelve shell variants, off by default; see the AppShell record |
 | Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005378:45680` | this record's Best practices |
 | Components section | `40005378:45840` | — |
 
@@ -132,6 +133,13 @@ of the line from the rail's point of view, so it passes **`sized="after"`**, the
 component added to `ResizeHandle`: dragging toward the start grows it, and ArrowLeft grows a
 right-hand panel, because the arrow moves the *separator* and the value follows. Step 8, Shift
 40, 320–640, `aria-valuetext` "384 pixels" — the rail's numbers.
+
+**A `navigation="top"` shell stacks it at every width.** A column has no "beside the page", so
+the panel reads `navigation` off the shell's context and, in a top shell, takes the phone's
+arrangement on a desktop too: `stacked` on the three recipes overrides the `md:` classes at
+their own prefix, and the handle swap is `hidden` / `flex` outright instead of breakpoint-scoped.
+Found when the Figma set gained its `Panel` boolean and the four `Navigation=Top` variants needed
+an answer the code did not have. The `Top navigation, keyboard` story measures it.
 
 **Below 768 it is under the page, and the handle turns horizontal.** Nathan's call: "split the
 available space vertically and you can drag the resize handle to make the panel or page content
