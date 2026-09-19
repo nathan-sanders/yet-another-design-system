@@ -86,6 +86,7 @@ export default defineConfig({
           '@base-ui/react/menu',
           '@base-ui/react/context-menu',
           '@base-ui/react/dialog',
+          '@base-ui/react/drawer',
           '@base-ui/react/switch',
           '@base-ui/react/slider',
           '@base-ui/react/use-render',

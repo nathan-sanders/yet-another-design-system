@@ -39,6 +39,11 @@ export const appShell = tv({
     // written here once, the way ResponsiveNav writes it once for the bars.
     'max-md:has-data-mobile-nav:flex-col',
     'max-md:has-data-mobile-nav:[&_[data-wide-nav]]:hidden',
+    // A `Panel` does the same on its own: below 768 it cannot sit beside the
+    // page, so it goes under it — a column, in DOM order, which puts a right
+    // panel between the page and a bottom bar. It hides no nav; a phone shell
+    // with a rail and no `MobileNav` was already the case not to build.
+    'max-md:has-data-panel:flex-col',
   ],
   variants: {
     /**
