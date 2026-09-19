@@ -196,6 +196,18 @@ export type {
   ContextMenuTriggerProps,
 } from './components/ContextMenu'
 
+export { Drawer } from './components/Drawer'
+export type {
+  DrawerProps,
+  DrawerPopupProps,
+  DrawerHeaderProps,
+  DrawerTitleProps,
+  DrawerDescriptionProps,
+  DrawerBodyProps,
+  DrawerCloseProps,
+  DrawerHeadingLevel,
+  DrawerSide,
+} from './components/Drawer'
 export { Dialog } from './components/Dialog'
 export type {
   DialogProps,
