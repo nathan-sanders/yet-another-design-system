@@ -432,8 +432,8 @@ const ROWS: Containers<string> = {
 const ROW_HEIGHT = 256
 const MIN_ROW_HEIGHT = 160
 const MAX_ROW_HEIGHT = 640
-/** `gap-4` between the columns, which the span arithmetic has to know about. */
-const GRID_GAP = 16
+/** `gap-3` between the columns, which the span arithmetic has to know about. */
+const GRID_GAP = 12
 
 function ReportBlock({
   id,
@@ -488,7 +488,7 @@ function ReportBlock({
         </ContentBlock.Content>
       </ContentBlock>
       {/*
-        The prototype's `Item Resize Handle`: the 16px gap to the right of
+        The prototype's `Item Resize Handle`: the 12px gap to the right of
         every block but the last, which has nothing to its right to take
         from. It reports columns, so one pixel unit is one twelfth of the
         row, measured when the drag starts.
@@ -562,7 +562,7 @@ const renderDashboard: Story['render'] = function DashboardStory() {
                   role="list"
                   aria-label={name}
                   // A floor, so a row emptied mid-drag keeps a rect its block can come back to.
-                  className="grid min-h-16 min-w-0 grid-cols-12 gap-4 rounded-lg"
+                  className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg"
                 >
                   {items.map((id, position) => (
                     <ReportBlock
@@ -579,7 +579,7 @@ const renderDashboard: Story['render'] = function DashboardStory() {
                   ))}
                 </Sortable>
                 {/*
-                  The prototype's `Row Resize Spacer`: the 16px under every
+                  The prototype's `Row Resize Spacer`: the 12px under every
                   row is the handle for its height, and the space between
                   rows at the same time.
                 */}

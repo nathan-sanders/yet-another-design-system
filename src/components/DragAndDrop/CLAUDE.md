@@ -232,8 +232,8 @@ at four so it stays in the tab order and says no rather than vanishing.
 
 **Resize is the prototype's other half, and it landed on 2026-09-18.** Two handles, one
 component: `ResizeHandle` (now `Resize/`) with an `orientation`. Between two blocks it is the
-prototype's `Item Resize Handle` — the 16px gap itself, `col-resize`, snapping the *left* block to
-a column — and under a row it is the `Row Resize Spacer`, the 16px between rows, `row-resize`,
+prototype's `Item Resize Handle` — the gap itself (16px then, 12px since the gutters moved), `col-resize`, snapping the *left* block to
+a column — and under a row it is the `Row Resize Spacer`, the same gap between rows, `row-resize`,
 setting the row's height. What is the dashboard's about it: the column handle reports **spans**,
 with `unit` a function that measures one twelfth of the row when the drag starts, so the snap is
 `spans.ts`'s arithmetic and not the handle's; `aria-valuetext` says "6 of 12 columns"; and the
@@ -305,7 +305,7 @@ story still asserts the follow, because the dashboard is where it was asked for.
 
 ## Measurements to check if this changes
 
-Resize handle **16px** across, exactly the grid gap, `cursor: col-resize` / `row-resize`,
+Resize handle **12px** across, exactly the grid gap, `cursor: col-resize` / `row-resize`,
 `role="separator"` with all three value attributes; `aria-valuemax` on a 6/6 row reads 9. Grip
 **42 × 32** (the icon-only default `Button`: 16px glyph, 12px padding a side, 1px border);
 `cursor: grab`, `touch-action: none`, `aria-roledescription: sortable`, `aria-describedby` resolving
