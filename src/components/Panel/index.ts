@@ -6,12 +6,12 @@ export {
   PANEL_HEIGHT,
   PANEL_MIN_HEIGHT,
   PANEL_MAX_HEIGHT,
-} from './Panel'
+} from "./Panel";
 export type {
   PanelProps,
   PanelHeaderProps,
   PanelBodyProps,
   PanelCloseProps,
   PanelHeadingLevel,
-} from './Panel'
-export type { PanelSide } from './styles'
+} from "./Panel";
+export type { PanelSide } from "./styles";
