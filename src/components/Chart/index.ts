@@ -11,7 +11,16 @@ export type { ChartTooltipProps, ChartTooltipPayloadEntry, ChartTooltipRow } fro
 export { ChartSwatch } from './Swatch'
 export type { ChartSwatchProps, ChartSwatchShape } from './Swatch'
 
-export { barSegment, BAR_RADIUS, BAR_SEGMENT_GAP, BAR_MAX_WIDTH } from './bars'
+export {
+  barSegment,
+  horizontalBarHeight,
+  BAR_RADIUS,
+  BAR_SEGMENT_GAP,
+  BAR_MAX_WIDTH,
+  BAR_ROW_HEIGHT,
+  BAR_GROUP_GAP,
+  BAR_GROUP_THICKNESS,
+} from './bars'
 
 export {
   DONUT_INNER_RATIO,
@@ -63,9 +72,12 @@ export type { ChartMonoScale } from './palette'
 export {
   CHART_BREAKPOINT,
   chartGridProps,
+  verticalGridProps,
   xAxisProps,
   numericXAxisProps,
   yAxisProps,
+  categoryYAxisProps,
+  valueXAxisProps,
   formatCompactNumber,
   formatFullNumber,
   formatDateTick,

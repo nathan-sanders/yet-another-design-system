@@ -58,8 +58,8 @@ import { activeSliceShape } from './slices'
  *
  * Past about six slices the small ones become unreadable arcs and the legend
  * does the work the chart was supposed to. Group the tail into "Other", or use
- * `VerticalBar`, which stays readable at any count. Figma's own example uses
- * six.
+ * a bar chart, which stays readable at any count — `HorizontalBar` when the
+ * slices have names, since it labels every row. Figma's own example uses six.
  */
 
 export interface DonutProps {

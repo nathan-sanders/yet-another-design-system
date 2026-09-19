@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatCompactNumber, formatDateTick, inferXPreset, niceMax, numericXAxisProps, tickInterval } from './axes'
+import {
+  categoryYAxisProps,
+  formatCompactNumber,
+  formatDateTick,
+  inferXPreset,
+  niceMax,
+  numericXAxisProps,
+  tickInterval,
+  valueXAxisProps,
+  yAxisProps,
+} from './axes'
 
 /**
  * The axis rules are the part of Figma's chart page that became arithmetic
@@ -156,6 +166,45 @@ describe('numericXAxisProps', () => {
     const { domain } = numericXAxisProps()
     expect(domain[0](12)).toBe(0)
     expect(domain[0](-12)).toBe(-12)
+  })
+})
+
+/**
+ * `HorizontalBar`'s two axes are the vertical chart's turned on their side, and
+ * the test is that they agree with the originals on everything that carries
+ * over — so a stacked bar of the same data has the same scale whichever way it
+ * points.
+ */
+describe('valueXAxisProps', () => {
+  it('rounds the top exactly as the y axis would, for the same line count', () => {
+    for (const lines of [2, 3, 5, 8]) {
+      const x = valueXAxisProps({ lines })
+      const y = yAxisProps({ lines })
+      expect(x.tickCount).toBe(y.tickCount)
+      for (const max of [7, 93, 456, 1800, 12345]) {
+        expect(x.domain[1](max)).toBe(y.domain[1](max))
+      }
+    }
+  })
+
+  it('floors at zero only when the data is non-negative', () => {
+    const { domain } = valueXAxisProps()
+    expect(domain[0](12)).toBe(0)
+    expect(domain[0](-12)).toBe(-12)
+  })
+
+  it('draws no axis line, because the baseline belongs to the category axis', () => {
+    expect(valueXAxisProps().axisLine).toBe(false)
+    expect(categoryYAxisProps().axisLine).toMatchObject({ strokeWidth: 1 })
+  })
+})
+
+describe('categoryYAxisProps', () => {
+  it('labels every row and sizes itself to the longest label', () => {
+    const props = categoryYAxisProps()
+    expect(props.type).toBe('category')
+    expect(props.interval).toBe(0)
+    expect(props.width).toBe('auto')
   })
 })
 

@@ -382,7 +382,8 @@ across every chart — and each chart's own record adds the ones that are its al
 **Do**
 
 - Pick the chart by the question. Change over time is a line or an area, amounts per category a
-  bar, parts of one whole a donut, two measures against each other a scatter.
+  bar — on its side when the category names need the room — parts of one whole a donut, two
+  measures against each other a scatter.
 - Keep the legend on, even for one series. The swatch is what says which color and shape mean the
   thing the title names.
 - Keep every series in the order the data was given. Color and marker come from position, which is

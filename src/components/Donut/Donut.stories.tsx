@@ -88,8 +88,9 @@ export const VerticalLegend: Story = {
  *
  * At eight slices the small ones are arcs of a few degrees and the legend is
  * doing the work the chart was supposed to. The answer is to group the tail into
- * "Other" or to use `VerticalBar`, which stays readable at any count. Figma's
- * own example uses six, and that is about the limit.
+ * "Other" or to use a bar chart, which stays readable at any count —
+ * `HorizontalBar` when the slices have names, since it labels every row.
+ * Figma's own example uses six, and that is about the limit.
  */
 export const TooManySlices: Story = {
   args: { data: sliceData(8), label: 'Sessions by browser, eight slices' },

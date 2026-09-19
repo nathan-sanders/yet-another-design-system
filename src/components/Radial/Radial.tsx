@@ -48,8 +48,8 @@ import {
  *
  * A reader compares arc lengths at different radii, which is harder than
  * comparing bar lengths on a shared baseline. Use it when the shape — a few
- * values against a common ceiling — is the point, and `VerticalBar` when the
- * exact comparison is. Past about eight rings the bands are too thin to carry a
+ * values against a common ceiling — is the point, and `HorizontalBar` when the
+ * exact comparison is: the same named rows on one baseline. Past about eight rings the bands are too thin to carry a
  * color and the whole thing becomes a target.
  */
 
