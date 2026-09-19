@@ -52,6 +52,10 @@ export const Playground: Story = {
   play: async ({ canvasElement, args }) => {
     // A marker per point, and no more — the claim the story is named for.
     await waitFor(() => expect(markers(canvasElement).length).toBe(pointCount(args.series)))
+    // And a key that is the marker alone: no line under any legend swatch.
+    const legend = within(canvasElement).getByRole('list')
+    expect(legend.querySelectorAll('svg line').length).toBe(0)
+    expect(legend.querySelectorAll('svg').length).toBe(args.series.length)
   },
 }
 

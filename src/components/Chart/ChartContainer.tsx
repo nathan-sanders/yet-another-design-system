@@ -82,6 +82,16 @@ export interface ChartContainerProps {
    */
   swatch?: ChartSwatchShape
   /**
+   * Whether a marker key draws the line under its shape. On by default.
+   *
+   * A marker swatch is a *point on a line* — Figma's `_Swatch` draws every
+   * marker style that way, and it is right for every chart whose points sit
+   * on one. `Scatter` passes `false`: its points sit on nothing, and a key
+   * with a line under it would describe a mark the plot does not have. The
+   * legend and the tooltip both read it from context.
+   */
+  swatchLine?: boolean
+  /**
    * Let the reader switch series off by clicking the legend.
    *
    * Figma models this as `Chart Legend Buttons` and puts it on Donut, Gauge and
@@ -144,6 +154,7 @@ export function ChartContainer({
   children,
   header,
   swatch,
+  swatchLine = true,
   interactiveLegend = false,
   table,
   overlay,
@@ -199,11 +210,12 @@ export function ChartContainer({
       series: resolved,
       visibleSeries,
       hidden,
+      swatchLine,
       wide,
       plotWidth,
       toggleSeries: interactiveLegend ? toggleSeries : undefined,
     }),
-    [resolved, visibleSeries, hidden, wide, plotWidth, interactiveLegend, toggleSeries],
+    [resolved, visibleSeries, hidden, swatchLine, wide, plotWidth, interactiveLegend, toggleSeries],
   )
 
   return (

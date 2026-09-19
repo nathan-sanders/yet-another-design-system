@@ -467,6 +467,9 @@ export function Scatter({
       label={label}
       height={height}
       className={className}
+      // The key is the marker alone: these points sit on nothing, and a line
+      // under the shape would describe a chart that is not here.
+      swatchLine={false}
       interactiveLegend={interactiveLegend}
       table={table}
       header={legend === false ? undefined : <ChartLegend type={legend} />}

@@ -39,6 +39,17 @@ import { isOutlineMarker, markerShape, type ChartMarker } from './shapes'
  * than a boolean: passing `'none'` here yields the ring, and passing the real
  * surface token yields the filled marker a plot point needs. One function, both
  * behaviors, no extra flag.
+
+ *
+ * ## A marker with no line under it
+ *
+ * The eleven marker styles all draw the rule, because in Figma's `_Swatch` a
+ * marker is a *point on a line* — the line chart's key. A scatter's marks are
+ * points on nothing, and a key that draws a line the plot does not have is a
+ * key describing a different chart. `line={false}` drops the line and leaves
+ * the marker centered in the same box; the chart says it once through
+ * `ChartContainer`'s `swatchLine`, and the legend and tooltip rows follow. With
+ * no line to hide, an outline marker is the same ring it always was.
  */
 
 /** Every style Figma's `_Swatch` offers. */
@@ -82,9 +93,15 @@ export interface ChartSwatchProps extends Omit<ComponentPropsWithRef<'svg'>, 'co
   shape?: ChartSwatchShape
   /** The series color. Pass a `var(--data-viz-…)` reference from `palette.ts`, not a hex. */
   color: string
+  /**
+   * Draw the line under a marker. On by default — a marker key is a point on
+   * a line. Off for a chart whose points sit on nothing, where the line would
+   * describe a mark the plot does not have.
+   */
+  line?: boolean
 }
 
-export function ChartSwatch({ shape = 'colorSwatch', color, className, ...props }: ChartSwatchProps) {
+export function ChartSwatch({ shape = 'colorSwatch', color, line = true, className, ...props }: ChartSwatchProps) {
   const center = BOX / 2
 
   return (
@@ -124,7 +141,7 @@ export function ChartSwatch({ shape = 'colorSwatch', color, className, ...props 
         />
       ) : (
         <>
-          {isOutlineMarker(shape) ? (
+          {!line ? null : isOutlineMarker(shape) ? (
             <>
               <line
                 x1={0}

@@ -230,7 +230,9 @@ export function ChartTooltip({
       <ul className="flex list-none flex-col">
         {items.map((item) => (
           <li key={item.key} className="flex items-center gap-1">
-            {item.swatch ? <ChartSwatch shape={item.swatch.shape} color={item.swatch.color} /> : null}
+            {item.swatch ? (
+              <ChartSwatch shape={item.swatch.shape} color={item.swatch.color} line={chart?.swatchLine ?? true} />
+            ) : null}
             <span className="text-content-subtle min-w-0 flex-1 truncate text-base">{item.label}</span>
             {item.value === undefined ? null : (
               <span className="text-content-primary font-mono text-base tabular-nums">{formatValue(item.value)}</span>

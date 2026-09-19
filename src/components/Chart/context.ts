@@ -132,6 +132,14 @@ export interface ChartContextValue {
   /** Keys currently switched off in the legend. */
   hidden: ReadonlySet<string>
   /**
+   * Whether a marker key draws the line under its shape. `true` for every
+   * chart whose points sit on a line; `Scatter` sets it off, because its
+   * points sit on nothing and a key with a line would describe a chart that
+   * is not there. Travels by context so the legend row and the tooltip row
+   * cannot disagree about it.
+   */
+  swatchLine: boolean
+  /**
    * Toggle one series. Present only when the chart was given an interactive
    * legend — the legend uses its absence to decide whether to render rows or
    * buttons, so a static legend cannot accidentally look clickable.
