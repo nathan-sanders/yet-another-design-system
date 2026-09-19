@@ -90,11 +90,17 @@ matcher a second shape, `ChartTooltip` grew a `rows` render prop and the chart s
 are: heading = the point's `label` if it has one, otherwise the series; a swatch row naming the
 series only when the heading did not already; then the two measures. Every other chart is untouched.
 
-## The legend key is the marker, rule and all
+## The legend key is the marker alone
 
-`_Swatch` has no "marker without a line" style, so a scatter's key is the same rule-and-marker the
-line chart draws. The alternative was `colorSwatch`, and it loses the second identity channel at the
-moment it matters most — twelve series on one plot is where the shapes are doing the separating.
+A marker swatch is a *point on a line*, and the line is right for every chart whose points sit on
+one. A scatter's points sit on nothing, so a key with a line under the shape describes a chart that
+is not there. Nathan caught it on the first render (2026-09-18) and fixed the file first: `_Swatch`
+now carries a **`Line` boolean**, wired to the line layer of all eleven marker variants, and the
+Scatter set's legend switches it off. The code followed the file's word — `line` on `ChartSwatch`,
+`swatchLine` on `ChartContainer`, read by the legend row and the tooltip row through context so the
+two cannot disagree — and `Scatter` is the one caller that sets it. `colorSwatch` was the other way
+to lose the line, and it loses the second identity channel at the moment it matters most: twelve
+series on one plot is where the shapes are doing the separating.
 
 ## What the Figma build had to change, and why it is allowed
 

@@ -104,19 +104,21 @@ export interface ChartLegendProps {
 function LegendItem({
   shape,
   color,
+  line,
   label,
   hidden = false,
   onToggle,
 }: {
   shape: ChartSwatchShape
   color: string
+  line: boolean
   label: ReactNode
   hidden?: boolean
   onToggle?: () => void
 }) {
   const content = (
     <>
-      <ChartSwatch shape={shape} color={hidden ? placeholder : color} />
+      <ChartSwatch shape={shape} color={hidden ? placeholder : color} line={line} />
       <span className={cn('text-content-subtle text-base', hidden && 'line-through')}>{label}</span>
     </>
   )
@@ -208,6 +210,7 @@ export function ChartLegend({
           key={s.key}
           shape={s.swatchShape}
           color={s.color}
+          line={chart?.swatchLine ?? true}
           label={s.label}
           hidden={chart?.hidden.has(s.key) ?? false}
           onToggle={toggle ? () => toggle(s.key) : undefined}

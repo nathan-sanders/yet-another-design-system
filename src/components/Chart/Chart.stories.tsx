@@ -49,6 +49,27 @@ export const Swatches: Story = {
   ),
 }
 
+/**
+ * The eleven markers with `line={false}` — the scatter's key.
+ *
+ * A marker swatch is a point on a line, and every chart whose points sit on
+ * one keeps the line. A scatter's points sit on nothing, so its key is the
+ * shape alone, centered in the same 24px box. `Scatter` sets this once through
+ * `ChartContainer`'s `swatchLine`; nothing else needs to.
+ */
+export const MarkersWithoutLine: Story = {
+  render: () => (
+    <div className="grid max-w-3xl grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-3">
+      {chartMarkers.map((shape, i) => (
+        <div key={shape} className="flex items-center gap-2">
+          <ChartSwatch shape={shape} color={categorical(i % 12)} line={false} />
+          <span className="text-content-subtle font-mono text-sm">{shape}</span>
+        </div>
+      ))}
+    </div>
+  ),
+}
+
 /** The twelve categorical colors, in the fixed order a chart assigns them. */
 export const CategoricalScale: Story = {
   render: () => (

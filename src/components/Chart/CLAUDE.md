@@ -92,6 +92,16 @@ its own line and has to hide it.
 One function serves both: `markerShape` takes `surface` as a color, so `'none'` yields the ring and
 the real token yields the filled marker. That is why it is a color and not a boolean.
 
+## A marker key can drop its line, and only one chart does
+
+`_Swatch`'s eleven marker styles draw the shape on a rule, and `ChartSwatch` follows: the key for a
+chart whose points sit on a line says both things at once. `Scatter`'s points sit on nothing, so on
+2026-09-18 Figma's `_Swatch` gained a `Line` boolean wired to every marker variant's line layer, and
+the code took the same word — `line` on the swatch, `swatchLine` on `ChartContainer`, carried by
+context so the legend row and the tooltip row agree. Default on; `Scatter` is the caller that turns
+it off. It is a chart-level statement, not a per-series one, because "my marks are points on a line"
+is a fact about the chart.
+
 ## The accessible alternative is a table, and its position is load-bearing
 
 `ChartContainer` renders the plot inside `role="img"` with an `aria-label`, **and** a visually hidden
