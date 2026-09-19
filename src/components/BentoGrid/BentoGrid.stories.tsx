@@ -94,12 +94,12 @@ export const Columns: Story = {
 }
 
 /**
- * The three gutters — `spacing/2`, `spacing/4` and `spacing/6`. One value for
+ * The three gutters — `spacing/2`, `spacing/3` and `spacing/6`. One value for
  * both axes, so a cell spanning two columns is exactly two tiles plus one gap
  * wide and the mosaic stays on its grid.
  *
  * `tight` is the 8px `MetricGrid` calls `tight`, and it is for the same thing:
- * a dense board of small tiles, where 16px between them starts to read as drift
+ * a dense board of small tiles, where 12px between them starts to read as drift
  * rather than separation.
  */
 export const Gap: Story = {
