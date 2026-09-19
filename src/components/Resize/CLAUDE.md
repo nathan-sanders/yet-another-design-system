@@ -80,6 +80,15 @@ property is unset and the fallback centres it, so a keyboard user can see which 
 Reading the pill's computed position mid-slide reads the wrong number: assert the property, then
 `waitFor` the position.
 
+**`sized` says which side of the handle the block is on, and the arrow moves the separator.**
+Added 2026-09-19 for `Panel`, whose handle sits on its *near* edge with the panel on the far
+side: dragging toward the start has to grow it. Rather than a second component or an inverted
+`unit`, one prop — `sized: 'before' | 'after'`, default `before`, so the rail, the dashboard and
+every existing caller are byte-identical. The keyboard rule that fell out of it is worth
+stating: an arrow key moves the **separator** in the arrow's direction, never "the value up",
+so ArrowLeft grows a right-hand panel and shrinks the rail. That is what a separator's arrows
+mean to a screen-reader user, and the `Sized after` story asserts it.
+
 ## Traps
 
 - **A bare `userEvent.pointer` is a fresh instance every call.** A press in one call and a release
@@ -93,7 +102,8 @@ Reading the pill's computed position mid-slide reads the wrong number: assert th
 
 Dashboard handle **16 × row height**, `cursor: col-resize`; row handle **16 tall**, `row-resize`.
 Rail handle **8 wide**, `left` equal to the rail's `right` and `right` equal to the page's `left`
-in a framed shell; centred on the rail's edge docked. `role="separator"` with all three value
+in a framed shell; centred on the rail's edge docked. Panel handle the same 8, mirrored:
+`right` equal to the panel's `left`, and ArrowLeft grows it. `role="separator"` with all three value
 attributes. Pill `4 × 40`, `--pill-offset` set on hover and cleared on leave. `onResizeStart` once
 per press, `onResizeEnd` once per release, neither on a keystroke.
 

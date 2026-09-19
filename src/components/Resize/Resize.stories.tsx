@@ -228,3 +228,56 @@ export const Keyboard: Story = {
     })
   },
 }
+
+/**
+ * `sized="after"`: the block this handle sizes is on the far side of it — a
+ * `Panel` on the right of the page, with its handle on its left edge. Dragging
+ * toward the start grows it, and so does ArrowLeft, because the arrow moves the
+ * *separator* in the arrow's direction and the value follows the block.
+ */
+function After() {
+  const [width, setWidth] = useState(240)
+  return (
+    <div className="flex h-64" style={{ '--panel-width': `${width}px` } as CSSProperties}>
+      <Card className="flex-1">
+        <p className="text-content-emphasized font-semibold">Page</p>
+      </Card>
+      <ResizeHandle
+        label="Resize Details"
+        orientation="vertical"
+        sized="after"
+        value={width}
+        min={MIN_WIDTH}
+        max={MAX_WIDTH}
+        step={8}
+        largeStep={40}
+        valueText={px}
+        onResize={setWidth}
+      />
+      <Card className="w-(--panel-width) shrink-0">
+        <p className="text-content-emphasized font-semibold">Details</p>
+        <p className="text-content-subtle">{width}px wide</p>
+      </Card>
+    </div>
+  )
+}
+
+export const SizedAfter: Story = {
+  name: 'Sized after',
+  render: () => <After />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const handle = canvas.getByRole('separator', { name: 'Resize Details' })
+    const details = () => canvas.getByText('Details').closest('div')!
+    await expect(handle).toHaveAttribute('aria-valuenow', '240')
+    await expect(handle.getBoundingClientRect().right).toBe(details().getBoundingClientRect().left)
+    handle.focus()
+    await userEvent.keyboard('{ArrowLeft}')
+    await expect(handle).toHaveAttribute('aria-valuenow', '248')
+    await expect(details().getBoundingClientRect().width).toBe(248)
+    await userEvent.keyboard('{Shift>}{ArrowRight}{/Shift}')
+    await expect(handle).toHaveAttribute('aria-valuenow', '208')
+    await userEvent.keyboard('{End}')
+    await expect(handle).toHaveAttribute('aria-valuenow', `${MAX_WIDTH}`)
+  },
+}

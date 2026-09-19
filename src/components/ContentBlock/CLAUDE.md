@@ -90,6 +90,18 @@ the token pairs already in code, so nothing moved on this side when it landed.
   control it belongs to, so a Button on the first line of a clipped block loses the top of its ring.
   Verified `overflow: visible`.
 
+## The header is shared, since 2026-09-19
+
+`Panel.Header` and `Drawer.Header` are this header with a × on the end, so the recipes moved
+out to `ContentBlock/styles.ts` (`header`, `title`, and the `HEADING` tag map) and the layout to
+an internal `BlockHeader` in the same folder — `Menu/styles.ts`'s arrangement, for its reason: a
+second component uses them, and a copy would drift. `BlockHeader` takes the heading as an
+**element** rather than text, because the three callers make different ones: this one an
+`<h3>` colored by its emphasis, Panel an `<h2>`, Drawer a Base UI `Title` so the popup's
+`aria-labelledby` reaches it. It has one slot this header does not expose, `end`, which is
+where the × goes — outside the caller's `actions` gap, so a caller never has to know it is
+there. Nothing measured moved: the stories below still read 48 / 8 / 16.
+
 ## Measurements to check if this changes
 
 Header 48px tall, padding 8/8/8/16. Body 0/16/16/16 with a header and 16/16/16/16 without. Radius

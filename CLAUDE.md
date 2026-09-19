@@ -672,6 +672,8 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [ChatComposer](src/components/Chat/CLAUDE.md) | where a message is written and sent | Input's box stacked, with `ring="textarea"` because it holds buttons; Enter sends, Shift+Enter breaks; `streaming` is Figma's Stop; the first field that grows |
 | [DragAndDrop](src/components/DragAndDrop/CLAUDE.md) | the drag foundation: a root, sortable containers and items, a grip | `@dnd-kit`, the first library to clear the motion bar; pointer from anywhere on the item, keyboard from the grip only; the kanban and the dashboard are its stories, not components; drawn into the file the next day as two sets, the third having become `Resize` |
 | [Resize](src/components/Resize/CLAUDE.md) | the strip you drag to change a size | a focusable `separator` that reports the caller's unit; the handle is the gap it sits in, at the gap's size — 16 on the dashboard, 8 beside the rail; left `DragAndDrop` the day it was built because a resize is not a drag, and the rail was its first caller with no drag at all |
+| [Panel](src/components/Panel/CLAUDE.md) | a region beside the page that pushes it over | an in-flow `<aside>` after the Page, 384 wide, resizable from the shell's gap with `sized="after"`; the slide is a width transition on `usePresence`, not a portal, and closed it renders nothing; below 768 it goes under the page and the handle turns horizontal; ContentBlock's surface with its `floating` axis, defaulted from the shell |
+| [Drawer](src/components/Drawer/CLAUDE.md) | a surface that slides over the page | Base UI's Drawer under Dialog's wrapper shape; right, left or bottom, swipe to dismiss with the scrim thinning; every side drawer is a bottom sheet on a phone, read with `usePhone` — the library's one `matchMedia` hook, allowed because a closed drawer paints nothing; no Figma node yet |
 
 ### Data visualization
 
@@ -849,7 +851,7 @@ component usually has fewer decisions in it than it looks.
   `titleSlot` before it could collide with `slot`. The rule that decides it is whether the prop name
   is the one a caller would reach for first. `slot`, `title`, `style`, `color` and `content` are the
   ones to watch.
-- **Each entry records which Base UI component it was.** Twenty so far, Divider first. Worth keeping
+- **Each entry records which Base UI component it was.** Twenty-one so far, Divider first and Drawer the latest; Panel is the case beside it that checked two Base UI candidates and used neither. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **The default size is the first option, everywhere.** Reach for it in application stories — the
   `InContext` family, and anything standing in for a real screen — and in composition generally, so

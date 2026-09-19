@@ -201,6 +201,16 @@ an `h1` on the page and nothing between. Not a shell concern, but the first thin
 **Not a Base UI component.** A layout frame has no headless primitive; three `div`s and a `main`,
 like BentoGrid. The Base UI count stands.
 
+**A `Panel` turns the frame into a column below 768 too.** Added 2026-09-19 with the component:
+the panel carries `data-panel` and the shell reads it — `max-md:has-data-panel:flex-col`,
+beside the `MobileNav` rule and by the same reasoning. A panel cannot sit beside the page on a
+phone, so it goes under it, and because DOM order is layout order a right panel written after
+the Page lands between the page and a bottom bar; a left panel written before the Page lands
+above it, which is the price of DOM order being tab order. The rule hides no nav: a phone shell
+with a rail and no `MobileNav` was already the case not to build. The shell reads nothing else
+from the panel; the panel reads `frame` and `mode` from the shell, for its handle and its
+shadow, the rail's way.
+
 ## Measured
 
 Against the Figma frames, in the story `play` functions (Chromium, `npm test`):
