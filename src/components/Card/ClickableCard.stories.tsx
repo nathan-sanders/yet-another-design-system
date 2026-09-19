@@ -126,7 +126,7 @@ export const Emphasis: Story = {
 export const States: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="bg-surface-background-primary border-surface-border grid max-w-200 gap-4 rounded-lg border p-4 sm:grid-cols-2">
+    <div className="bg-surface-background-primary border-surface-border grid max-w-200 gap-3 rounded-lg border p-4 sm:grid-cols-2">
       {emphases.map((emphasis) => (
         <div key={emphasis} className="flex flex-col gap-2">
           <p className="text-content-subtle text-sm font-semibold">emphasis="{emphasis}"</p>
@@ -161,7 +161,7 @@ export const States: Story = {
 export const ElementTypes: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="grid max-w-200 gap-4 sm:grid-cols-3">
+    <div className="grid max-w-200 gap-3 sm:grid-cols-3">
       <ClickableCard href="#card-as-link">
         <p className="font-semibold">With href</p>
         <p className="text-content-subtle">Renders an &lt;a&gt;.</p>
