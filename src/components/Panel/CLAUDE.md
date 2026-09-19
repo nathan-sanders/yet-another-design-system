@@ -10,24 +10,36 @@ Built on 2026-09-19 with `Drawer`, as a pair: the one that **pushes** and the on
 
 ## Figma
 
-Page **`↪ Panel (In Progress)`** (`40004748:43534`). Two 1440 × 1024 frames, one on the floating
-shell (`40005363:61614`) and one on the contained (`40005363:61794`), each with a `Side
-Navigation` instance, a `Page` holding a `Top Bar` and an empty `Content`, and a `Panel` frame
-(`40005363:61792`, `40005363:61799`) at x=1048, 384 × 1008, holding one centred text that says
-"Panel". No component set, no Docs frame, no variants: the page is a layout study, and it says
-two things clearly and nothing else.
+Page **`↪ Panel`** (`40004748:43534`), which was `(In Progress)` until 2026-09-19. It began as two
+1440 × 1024 layout frames — one on the floating shell (`40005363:61614`), one on the contained
+(`40005363:61794`) — each with a `Side Navigation`, a `Page` and a bare `Panel` frame
+(384 × 1008, one centred text reading "Panel") beside it. That was the whole brief, and it said
+two things clearly: the panel is a **sibling of the Page**, and it is a 384-wide card 8 from it,
+in both modes. The code was built from those two facts, and the page was drawn out from the
+code the same day.
 
-| What the frames say | Became |
-|---|---|
-| The panel is a **sibling of the Page**, not inside it | `<AppShell><SideNav/><AppShell.Page/><Panel/></AppShell>` |
-| 384 wide, 8 from the Page, the Page's full height | `PANEL_WIDTH = 384`; the shell's `gap-2`; `h-full` |
-| A `Surface/Background Primary` card, `rounded-lg`, **in both shell modes** | `panelCard` — always a card, `mode` is not read |
+| Thing | Node | Became |
+|---|---|---|
+| Panel (`Floating` False \| True) | `40005378:45634` | `Panel`, its `floating` prop; `Content` slot = `Panel.Body`'s room |
+| Panel instances in the two layout frames | `40005378:45648` (floating), `40005378:45664` (contained) | the `Floating` and `InContext` stories |
+| Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005378:45680` | this record's Best practices |
+| Components section | `40005378:45840` | — |
 
-**What the frames do not say, and the code decided.** Whether the card has a border and a
-shadow: the frame is a bare `FRAME` with a fill, and the screenshot cannot tell a
-`Surface/Border` stroke from none. It follows the contained Page — `border-surface-border`, no
-shadow — with ContentBlock's `floating` axis on top (below). The file owes a component set and a
-Docs frame; when they land, the border and the shadow are the two classes to check.
+**What the set draws.** Each variant is a 384 × 1008 vertical frame on `Surface/Background
+Primary` inside a 1px `Surface/Border` (`INSIDE`, `border-width/border`) at
+`border-radius/rounded-lg`, `clipsContent` on — the code's `overflow-clip` card. `Floating=True`
+carries the `Elevation/Drop Shadow/Low` effect style. The header is an instance of
+`_Content Block Header` with its top and bottom padding rebound to `spacing/3` and its
+min-height to `height/h-14` — the 56 the code's `height: 'bar'` is — and the Button in its
+Actions slot swapped to the `x` icon and named `Close`. Below it a `Content` frame, `FILL` both
+ways, padded `0 / spacing/4 / spacing/4 / spacing/4`, bound to the set's one `Content` SLOT
+(`stretchChildOnInsert` on). **Every dimension is a variable**, Nathan's rule for the build.
+
+**What it cannot draw.** `side`, `resizable`, the width range and the phone split. A Figma
+property is a variant, a boolean, a text or a swap, and none of those is a number or a
+breakpoint; the layout frames above show the desktop arrangement and the record carries the
+rest. The header's title is the nested instance's own `Header Text` property, because a nested
+instance's property cannot be bound to an outer one.
 
 ## Decisions
 
@@ -173,12 +185,11 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - **Persisting the width.** `onWidthChange` fires every step of a drag; where it goes is the
   application's, SideNav's arrangement.
 - **A collapsed rail-style state.** A panel is open or it is gone.
-- **Figma.** The set and the Docs frame are owed; the border and shadow assumptions above are
-  what to check when they land.
 
 ## Best practices
 
-Written here first; the `↪ Panel` page has no Docs frame yet to mirror.
+Mirrored from the **Best practices** block on `↪ Panel` (`40005378:45680`) in Figma.
+The two are one text in two places — change one and change the other.
 
 **Do**
 

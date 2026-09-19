@@ -10,13 +10,28 @@ Built on 2026-09-19 with `Panel`, as a pair: the one that **overlays** and the o
 
 ## Figma
 
-**No node yet; the code went first.** The `↪ Panel (In Progress)` page draws the in-flow Panel
-and nothing for this. The shape here is what Base UI's primitive and the rest of the library
-already settled — Dialog's parts, ContentBlock's header, MobileNav's sheet — and the file owes a
-page: a `Drawer` set with `Side` right | left | bottom, a Docs frame, and a Best practices block
-to mirror the one below. Three things it may overturn when it lands, each a one-class change:
-the 1px `Surface/Border` on the inner edge, `Elevation/Drop Shadow/High - Left` (and Right, Top)
-toward the page, and the 384 width.
+Page **`↪ Drawer`** (`40004748:43535`), an empty `(In Progress)` page until 2026-09-19, drawn
+from the built component the same day — the ProgressBar route, with nothing to read first.
+
+| Thing | Node | Became |
+|---|---|---|
+| Drawer (`Side` Right \| Left \| Bottom) | `40005378:46033` | `Drawer`, its `side` prop; `Content` slot = `Drawer.Body`'s room |
+| Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005378:45847` | this record's Best practices |
+| Components section | `40005379:46002` | — |
+
+**What the set draws.** `Side=Right` and `Side=Left` are 384 × 1024, `Side=Bottom` 1440 × 480,
+each on `Surface/Background Primary` with a 1px `Surface/Border` on the **inner edge only** —
+the other three stroke weights bound to `border-width/border-0` — and `border-radius/rounded-lg`
+on the two inner corners with `rounded-none` on the two at the viewport edge, the shell's
+docked rule drawn per side. The shadow is the matching effect style: `Elevation/Drop
+Shadow/High - Left` for Right, `High - Right` for Left, `High - Top` for Bottom — the three
+directional variants the elevation family already had. Header and Content are Panel's exactly
+(the variants are clones of Panel's card), the header reading "Drawer title".
+
+**What the preview draws that the set does not.** The scrim — a `Surface/Drop Shadow` rectangle
+over a `Surface/Canvas` stage with the right drawer flush to its edge — sits in the Docs
+preview, not in the component, Dialog's arrangement for Dialog's reason: it is behind the
+drawer, not in it. `modal`, the swipe and the phone rule are behaviour; the record carries them.
 
 ## Decisions
 
@@ -119,7 +134,8 @@ page and the drawer are *usually* used together, it is a `Panel`.
 
 ## Best practices
 
-Written here first; the file has no Docs frame yet to mirror.
+Mirrored from the **Best practices** block on `↪ Drawer` (`40005378:45847`) in Figma.
+The two are one text in two places — change one and change the other.
 
 **Do**
 
@@ -132,5 +148,5 @@ Written here first; the file has no Docs frame yet to mirror.
 **Don't**
 
 - Do not inset it from the edge; a card floating on a scrim is a Dialog.
-- Do not nest a drawer in a drawer without Base UI's `Provider` and the stacking variables.
+- Do not nest a drawer in a drawer without the stacking rules Base UI provides for it (`Provider` and the `--nested-drawers` variables).
 - Do not use `modal={false}` as the usual case; that is a Panel wearing a portal.
