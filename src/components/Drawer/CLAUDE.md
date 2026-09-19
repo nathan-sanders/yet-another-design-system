@@ -16,8 +16,9 @@ from the built component the same day — the ProgressBar route, with nothing to
 | Thing | Node | Became |
 |---|---|---|
 | Drawer (`Side` Right \| Left \| Bottom) | `40005378:46033` | `Drawer`, its `side` prop; `Content` slot = `Drawer.Body`'s room |
-| Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005378:45847` | this record's Best practices |
+| Docs frame (header, Light + Dark preview, 5 Do / 2 Don't) | `40005378:45847` | this record's Best practices |
 | Components section | `40005379:46002` | — |
+| `Drawer Stacking`, three `Side=Right` instances stepped 12 on a scrim | `40005414:45652` | the stack, see **Stacking** |
 
 **What the set draws.** `Side=Right` and `Side=Left` are 384 × 1024, `Side=Bottom` 1440 × 480,
 each on `Surface/Background Primary` with a 1px `Surface/Border` on the **inner edge only** —
@@ -89,6 +90,28 @@ pair.
 **No padding on the popup.** `Drawer.Header` carries `px-4 py-2` and `Drawer.Body` `px-4 pb-4`,
 ContentBlock's numbers; a caller composing raw `Drawer.Title` gets to choose its own.
 
+**A drawer inside a drawer stacks, on Base UI's variables, to Panel's numbers.** Nesting is
+built into the primitive: a `Drawer.Root` inside another one's content gives the parent's
+popup `--nested-drawers` (how many are in front of it), `data-nested-drawer-open`, and —
+while the front one is being swiped — its swipe progress in `--drawer-swipe-progress`; the
+nested popup and viewport get `data-nested`, and a nested `Drawer.Backdrop` renders nothing
+unless `forceRender`. What the recipe adds is `--drawer-stack`:
+`max(0px, (nested − clamp(progress)) × spacing/3)` — 12px per level, Figma's `Panel
+Stacking` rather than Base UI's `scale()`, coming back to zero under the finger as the front
+drawer is swiped away. A right drawer steps left by it (`translate-x`, on the same property
+as the swipe and the entrance) and takes it as `my-*` with `self-stretch`, so it loses 12 at
+each end; a bottom sheet steps up, takes it as `mx-*`, and takes the front sheet's height —
+`data-nested-drawer-open:h-(--drawer-frontmost-height)` — so sheets of different heights
+line up behind one another. Widths never change. `Drawer.Content` fades to 0 behind a front
+drawer and comes back while it is being swiped, Base UI's demo; the levels behind are
+`aria-hidden` by Base UI's own focus management, so only the front is live. On a phone every
+level is a bottom sheet, because every Root runs `usePhone` for itself.
+
+**The viewport is `overflow-clip`, not `hidden`, and stacking is what found it.** `hidden`
+is still a scroll container: a `focus()` into a popup that is still sliding in scrolls the
+viewport sideways to reach it, and every level of the stack then measures 36px off for
+good. `clip` cannot be scrolled by anything and still hides the bleed.
+
 **Non-modal is a prop, not a component.** `modal={false}` drops the Backdrop, lets pointer events
 through the viewport, and leaves the page live; pair it with `disablePointerDismissal` or a click
 on the page closes it. The `Non-modal` story exists to say when to reach for it — and that if the
@@ -110,6 +133,12 @@ page and the drawer are *usually* used together, it is a `Panel`.
   geometry read settled; the picture had not.
 - **Motion cannot be verified headless.** The stories assert the settled numbers and the data
   attributes; the slide and the swipe want a person in a real browser, MobileNav's rule.
+- **A role query skips a covered drawer.** Base UI marks the levels behind the front one
+  `aria-hidden`, so `queryByRole('dialog', { name })` finds only the front; the stacked stories
+  pass `hidden: true`, and assert the hiding separately. `data-nested` is on the nested popup
+  *and* its viewport, so counting `[data-nested]` gives two per level.
+- **Wait for a level to settle before opening the next from it.** Clicking on while the popup
+  is still sliding in is the focus-scroll trap above, in test form.
 
 ## Measurements to check if this changes
 
@@ -120,6 +149,10 @@ page and the drawer are *usually* used together, it is a `Panel`.
 - Phone (393 × 852), `side="right"`: a bottom sheet, 393 wide, `data-swipe-direction="down"`.
 - Header 56 tall, `py-3`; focus inside on open, back on the trigger on close; page `aria-hidden` while
   open (modal), not (non-modal); non-modal portal holds one child, no Backdrop.
+- Stacked, three levels: front `right === innerWidth`, full height; middle 12 in, 12 down, 24
+  shorter; root 24 / 24 / 48; `--nested-drawers` 2 on the root, one scrim, covered content
+  opacity 0, only the front not `aria-hidden`. Phone: every level a sheet, the one behind 12 up
+  and 12 in each side, the front's height.
 
 ## Left out
 
@@ -134,7 +167,8 @@ page and the drawer are *usually* used together, it is a `Panel`.
 
 ## Best practices
 
-Mirrored from the **Best practices** block on `↪ Drawer` (`40005378:45847`) in Figma.
+Mirrored from the **Best practices** block on `↪ Drawer` (`40005378:45847`) in Figma; the
+"do not nest" Don't came off and the fifth Do (`40005414:45708`) went on with stacking, 2026-09-19.
 The two are one text in two places — change one and change the other.
 
 **Do**
@@ -144,9 +178,10 @@ The two are one text in two places — change one and change the other.
 - Give it a `Drawer.Header`; the title is what names it for a screen reader.
 - Put the long part in a `Drawer.Body` so the title and the × stay put while it scrolls.
 - Let it become a bottom sheet on a phone; that is the default, and it is the better gesture.
+- Open a follow-up step as a Drawer written inside the first one; it stacks over its parent, 12px
+  in, and keep a stack to two or three — each level hides the one behind it.
 
 **Don't**
 
 - Do not inset it from the edge; a card floating on a scrim is a Dialog.
-- Do not nest a drawer in a drawer without the stacking rules Base UI provides for it (`Provider` and the `--nested-drawers` variables).
 - Do not use `modal={false}` as the usual case; that is a Panel wearing a portal.
