@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { VerticalBar } from './VerticalBar'
 import { dailyData, monthlyData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const SERIES = [
   { key: 'conversions', label: 'Conversions' },
@@ -30,6 +31,7 @@ const meta = {
     legend: 'horizontal',
     height: 280,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof VerticalBar>
 
 export default meta

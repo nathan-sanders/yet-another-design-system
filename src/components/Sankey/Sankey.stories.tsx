@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Sankey } from './Sankey'
 import { sankeyData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const { nodes, flows } = sankeyData()
 
@@ -19,6 +20,7 @@ const meta = {
     legend: 'horizontal',
     height: 320,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Sankey>
 
 export default meta
@@ -66,13 +68,7 @@ export const NoLegend: Story = {
  */
 export const Narrow: Story = {
   args: { legend: 'vertical' },
-  decorators: [
-    (Story) => (
-      <div className="max-w-96">
-        <Story />
-      </div>
-    ),
-  ],
+  parameters: { surfaceWidth: 'max-w-96' },
 }
 
 /**

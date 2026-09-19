@@ -116,6 +116,19 @@ context so the legend row and the tooltip row agree. Default on; `Scatter` is th
 it off. It is a chart-level statement, not a per-series one, because "my marks are points on a line"
 is a fact about the chart.
 
+## Every chart story sits on the primary surface
+
+A chart is almost never on the canvas: in an application it is inside a `ContentBlock` or a `Card`,
+and its own rules assume that surface — outline plot points, the quadrant plates and the hover halo
+are all filled with `surface-background-primary` to hide what is under them. Shown straight on the
+canvas a chart reads a step lighter than it will in the product and every surface-filled mark is a
+white blob on gray. So `story-surface.tsx`'s `onSurface` decorator (the panel `Metric`'s stories
+already used: `ContentBlock`'s radius and padding, no header) is on every Data Viz meta, and a story
+that wants a narrower block says so with `parameters.surfaceWidth` rather than wrapping itself —
+Storybook nests a story's decorators *inside* the meta's, so a wrapper would leave a full-width panel
+around a narrow chart. Nathan's call, 2026-09-18. `Dashboard` and `Metric` already put their charts
+in blocks and need nothing.
+
 ## The accessible alternative is a table, and its position is load-bearing
 
 `ChartContainer` renders the plot inside `role="img"` with an `aria-label`, **and** a visually hidden

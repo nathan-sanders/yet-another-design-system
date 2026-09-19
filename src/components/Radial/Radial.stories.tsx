@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Radial } from './Radial'
 import { radialData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const DATA = radialData(5)
 
@@ -26,6 +27,7 @@ const meta = {
     interactiveLegend: false,
     height: 280,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Radial>
 
 export default meta

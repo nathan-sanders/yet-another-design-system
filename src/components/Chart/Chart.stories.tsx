@@ -5,6 +5,7 @@ import { ChartLegend } from './ChartLegend'
 import { ChartTooltip } from './ChartTooltip'
 import { categorical, categoricalScale } from './palette'
 import { chartMarkers } from './shapes'
+import { onSurface } from './story-surface'
 
 /**
  * The pieces every chart is made of: the swatch that stands for a series, the
@@ -16,6 +17,7 @@ import { chartMarkers } from './shapes'
  */
 const meta = {
   title: 'Data Viz/Chart',
+  decorators: [onSurface],
 } satisfies Meta
 
 export default meta

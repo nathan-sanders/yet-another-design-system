@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { HeatMap } from './HeatMap'
 import { heatMapData } from '../Chart/sample-data'
+import { onSurface } from '../Chart/story-surface'
 
 const DATA = heatMapData()
 
@@ -21,6 +22,7 @@ const meta = {
     scale: 'a',
     cellHeight: 32,
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof HeatMap>
 
 export default meta

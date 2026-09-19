@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Spark } from './Spark'
 import { dailyData } from '../Chart/sample-data'
 import { categorical, sentiment } from '../Chart'
+import { onSurface } from '../Chart/story-surface'
 
 const meta = {
   title: 'Data Viz/Spark',
@@ -18,6 +19,7 @@ const meta = {
     height: 96,
     label: 'Sessions over 14 days',
   },
+  decorators: [onSurface],
 } satisfies Meta<typeof Spark>
 
 export default meta
@@ -25,11 +27,8 @@ type Story = StoryObj<typeof meta>
 
 /** Figma draws it at 96px tall. */
 export const Playground: Story = {
-  render: (args) => (
-    <div className="w-68">
-      <Spark {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-68' },
+  render: (args) => <Spark {...args} />,
 }
 
 /** The three types. Figma has the first two; `area` is the same line with a wash. */
@@ -88,9 +87,6 @@ export const InAMetric: Story = {
  */
 export const Labeled: Story = {
   args: { label: 'Sessions trend over the last 14 days' },
-  render: (args) => (
-    <div className="w-68">
-      <Spark {...args} />
-    </div>
-  ),
+  parameters: { surfaceWidth: 'w-68' },
+  render: (args) => <Spark {...args} />,
 }
