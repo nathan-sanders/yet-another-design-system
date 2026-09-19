@@ -24,8 +24,10 @@ code the same day.
 | Panel instances in the two layout frames | `40005378:45648` (floating), `40005378:45664` (contained) | the `Floating` and `InContext` stories |
 | Phone layouts, 393 × 852 | `40005382:1401` (floating), `40005382:1519` (contained) | the `Phone` story: Page, then the Panel full-width at 320, then the bar |
 | `Panel` boolean on the App Shell set | `Panel#40005385:0` on `40005265:10346` | a Panel instance in all twelve shell variants, off by default; see the AppShell record |
-| Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005378:45680` | this record's Best practices |
-| Components section | `40005378:45840` | — |
+| Docs frame (header, Light + Dark preview, 5 Do / 3 Don't) | `40005378:45680` | this record's Best practices |
+| Components section (now 2416 tall: the set, then the two stacking frames) | `40005378:45840` | — |
+| `Panel Stacking`, three `Floating=True` instances stepped 12 | `40005373:62883` | the stack: a nested `Panel`'s geometry, see **Stacking** |
+| `Panel Stacking (Phone)`, the same at 377 × 320 with the step upward | `40005414:528` | the `Stacked, phone` story |
 
 **What the set draws.** Each variant is a 384 × 1008 vertical frame on `Surface/Background
 Primary` inside a 1px `Surface/Border` (`INSIDE`, `border-width/border`) at
@@ -81,10 +83,13 @@ change to the resting width is a change the transition can see.
 **Three boxes, and each has one job.** The **aside** is the animated box and the handle's
 positioning parent; it never clips, because the handle is translated *outside* it into the
 shell's gap. The **clip** bounds the card *while the aside animates* — `overflow-clip` only
-under the aside's `data-transitioning`, which `usePresence`'s `entering` and `ending` statuses
-set — so at rest nothing clips and the card's shadow paints. The **card** is held at the
-variable's full size the whole time so its contents never reflow mid-slide, and it carries the
-surface. Do not "simplify" the middle one away: `overflow-clip` on the aside hides the handle.
+while `usePresence`'s status is not `open`, passed to the recipe as `transitioning` rather
+than read off a `group`, because a nested aside is a descendant of the root's and a group
+variant would match the wrong level — so at rest nothing clips and the card's shadow paints.
+The **card** is held at the variable's full size the whole time so its contents never reflow
+mid-slide, and it carries the surface. Do not "simplify" the middle one away: `overflow-clip`
+on the aside hides the handle. (A fourth, the **content** column, arrived with stacking; see
+below.)
 
 **The card is anchored to the near edge, and that is the difference between a slide and a
 reveal.** The first build anchored it to the far edge (`justify-end` for right): the card's left
@@ -155,6 +160,53 @@ order**: a right panel written after the Page lands under it, above a bottom `Mo
 left panel written before the Page lands *above* it on a phone, and that is the price of DOM
 order being tab order, paid on purpose rather than fixed with `order-*`.
 
+**A panel inside a panel stacks — Base UI's nested drawers, for a region.** Nathan drew
+`Panel Stacking` on 2026-09-19 and asked for what Base UI gives `Drawer` for free: write a
+`Panel` inside a `Panel.Body`, opened by a control in the parent, and it slides in over its
+parent. The mock is three 384-wide cards where each level behind the front one sits **12px
+(`spacing/3`) toward the page and 12px in from each end** — the widths never change and
+nothing scales, which is what separates it from Base UI's demo (a `scale()` per level). His
+one addition for phones: the panel is under the page there, so the stack peeks out *above*
+the front card. The vocabulary mirrors Base UI's so the two records read alike:
+`--nested-panels` / `data-nested-panel-open` on a panel with open descendants, `data-nested`
+on a nested one.
+
+*How it is built.* Reading a `PanelStackContext` is the whole detection — every panel
+provides one, only a nested panel finds one. A nested panel **portals into the root's
+aside** (`createPortal`), so the stack is one region and the root's width is what pushes the
+page: the root aside is `w-[calc(var(--panel-width)+var(--panel-stack))]`, where
+`--panel-stack` is `--nested-panels × spacing/3`, and the root's *clip* pads by the same
+number so the in-flow card shrinks at the ends without the card recipe changing. Because the
+aside is wider by `12N` while the card stays `--panel-width` anchored to the near edge, the
+root card lands `12N` from the viewport on its own. A nested aside is `absolute`, positioned
+`--panel-stack` in from the far edge and each end (`panelNested`), sized by the root's
+variables — **inherited**, which is why a nested panel writes no inline `--panel-width`, and
+why `side`, `resizable`, `width` and `height` are ignored on it. Its entrance is the root's
+one level in: the width (the height, on a phone) goes 0 → variable with its own clip anchored
+the same way, so the card travels in from the viewport edge over its parent. The inset eases
+too, so a level stepping back moves on the same clock as the one sliding in over it.
+
+*Counting.* Each level keeps a `Set` of the open panels in front of it and forwards every
+report to the level behind, so the root counts the whole chain and each level counts what is
+in front of it. Reported as `open`, not `mounted`: the parent starts coming forward the
+moment the front panel starts leaving, on the same duration. The root's aside is held in
+**state** through a callback ref, because a `defaultOpen` chain renders the root and its
+nested panel in one commit and a `RefObject` is null until after it; a nested panel's
+presence waits on the container (`usePresence(open && container !== null)`), or it would sit
+in `starting` forever with nothing to mount into.
+
+*The covered parent.* Its surface and shadow stay — that is the 12px that peeks — and its
+content column (`panelContent`, the fourth box, which exists for this) fades to 0 and is
+`inert`, so the × and the fields under the front card are out of the tab order. **`inert` is
+set by the nested panel, imperatively, in a layout effect — not rendered off the parent's
+count**, and the order on close is what forces it: the nested panel's focus-out effect runs
+in the commit its `open` turns false, the parent's re-render (the one that would drop
+`inert`) comes after that commit's effects, and `focus()` on an element inside an inert
+subtree does nothing. `flushSync` in an effect was the first idea and is refused there;
+un-inerting in a layout effect *before* the passive focus-out is deterministic. Escape closes
+only the front panel because the nested handler prevents default on the way and the parent's
+handler already returned on `defaultPrevented` — React bubbles through the portal once.
+
 **`aria-label` is required.** It names the landmark — a page can have several `complementary`
 regions — and it names the handle ("Resize Details"), SideNav's reason.
 
@@ -179,6 +231,11 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - **A story that opens, resizes and closes itself on load reads as an animation bug.** Every
   state-changing test lives in a `…, driven` / `…, keyboard` twin sharing the demo's render
   function, DragAndDrop's arrangement; the demos sit still.
+- **The nested clip must not pad.** The first stacked build padded every level's clip by its
+  stack and the middle card came out 12px in *twice* — once from the aside's inset, once from
+  the clip. Only the root's card is in-flow; only the root's clip carries the inset.
+- **A `defaultOpen` chain reports up after it mounts.** The root aside is 320 tall for a
+  commit and eases to 344; a phone story that reads the height synchronously reads 320.
 
 ## Measurements to check if this changes
 
@@ -192,6 +249,10 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - Header 56 tall — the TopBar's height — `px-4 py-3`, the × a default-size ghost Button.
   (ContentBlock's stays 48 on 8; the shared recipe's `height: 'bar'` is this one.)
 - Closed: nothing in the DOM, `page.right === shell.right - 8`.
+- Stacked, two levels: root aside 384 + 24 wide, `--nested-panels` 2; front card
+  `right === aside.right`, full height; middle card 12 in, 12 down, 24 shorter; root card 24 /
+  24 / 48; page 24 further left; parent content `inert`, opacity 0. Phone: aside 320 + 24 tall,
+  front card at the bottom full width, middle 12 up and 12 in each side, root 24.
 
 ## Left out
 
@@ -204,7 +265,8 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 
 ## Best practices
 
-Mirrored from the **Best practices** block on `↪ Panel` (`40005378:45680`) in Figma.
+Mirrored from the **Best practices** block on `↪ Panel` (`40005378:45680`) in Figma; the
+fifth Do card (`40005414:45702`) was added with stacking on 2026-09-19.
 The two are one text in two places — change one and change the other.
 
 **Do**
@@ -216,6 +278,8 @@ The two are one text in two places — change one and change the other.
 - Give the shell a `MobileNav` when the app has a phone layout; the panel stacks under the page
   and above the bar on its own.
 - Give it an `aria-label` that says what it holds — it names the landmark and the resize handle.
+- Open a follow-up step as a Panel written inside the first one; it stacks over its parent, 12px
+  in, and the page moves over by the same 12.
 
 **Don't**
 
