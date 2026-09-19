@@ -330,10 +330,12 @@ export const InContext: Story = {
               }
             />
             <Menu.Popup align="end">
-              <Menu.Item startIcon={Pencil}>Rename</Menu.Item>
-              <Menu.Item startIcon={Trash} destructive onClick={() => setOpen(true)}>
-                Delete
-              </Menu.Item>
+              <Menu.Group>
+                <Menu.Item startIcon={Pencil}>Rename</Menu.Item>
+                <Menu.Item startIcon={Trash} destructive onClick={() => setOpen(true)}>
+                  Delete
+                </Menu.Item>
+              </Menu.Group>
             </Menu.Popup>
           </Menu>
         </div>

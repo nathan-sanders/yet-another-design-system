@@ -319,9 +319,11 @@ export const InContext: Story = {
               render={<Button appearance="ghost" startIcon={MoreHorizontal} aria-label="More" />}
             />
             <Menu.Popup align="end">
-              <Menu.Item>Rename</Menu.Item>
-              <Menu.Item>Duplicate</Menu.Item>
-              <Menu.Item destructive>Delete</Menu.Item>
+              <Menu.Group>
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.Item>Duplicate</Menu.Item>
+                <Menu.Item destructive>Delete</Menu.Item>
+              </Menu.Group>
             </Menu.Popup>
           </Menu>
         </div>
