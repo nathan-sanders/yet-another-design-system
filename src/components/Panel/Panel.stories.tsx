@@ -499,12 +499,14 @@ function ContainedShell() {
                 }
               />
               <Menu.Popup align="end">
-                <Menu.Item startIcon={Pencil} onClick={() => setOpen(true)}>
-                  Edit details
-                </Menu.Item>
-                <Menu.Item startIcon={Trash} destructive>
-                  Delete
-                </Menu.Item>
+                <Menu.Group>
+                  <Menu.Item startIcon={Pencil} onClick={() => setOpen(true)}>
+                    Edit details
+                  </Menu.Item>
+                  <Menu.Item startIcon={Trash} destructive>
+                    Delete
+                  </Menu.Item>
+                </Menu.Group>
               </Menu.Popup>
             </Menu>
           }

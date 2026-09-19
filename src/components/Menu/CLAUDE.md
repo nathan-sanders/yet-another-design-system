@@ -82,6 +82,15 @@ keyboard shortcut is what it is for.
 A destructive row keeps its Kbd in `Content/Primary` rather than following the red: the key is a key
 on every row, and it is the label that is dangerous.
 
+## Trap: the padding is the Group's
+
+The 8px around the rows is `Menu.Group`'s (`p-2` on its inner list), not the Popup's — Figma
+draws it on `Menu Group`, and it is what lets the separator run edge to edge between two groups.
+So `Menu.Item`s written straight into a `Menu.Popup` render flush against the popup's edge and
+look broken. Four `InContext` stories had it (Popover's, Dialog's, then Panel's and Drawer's
+copied from Dialog's) until Nathan saw it on 2026-09-19. Always one `Menu.Group`, even for a
+two-row menu.
+
 ## Best practices
 
 Mirrored from the **Best practices** block on `↪ Menu` (`40004242:15006`) in Figma.
