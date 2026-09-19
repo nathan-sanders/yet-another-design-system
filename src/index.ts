@@ -414,6 +414,23 @@ export type { TokenProps, TokenSize, TokenRadius } from './components/Token'
 
 export { ResizeHandle } from './components/Resize'
 export type { ResizeHandleProps, ResizeHandleOrientation } from './components/Resize'
+export {
+  Panel,
+  PANEL_WIDTH,
+  PANEL_MIN_WIDTH,
+  PANEL_MAX_WIDTH,
+  PANEL_HEIGHT,
+  PANEL_MIN_HEIGHT,
+  PANEL_MAX_HEIGHT,
+} from './components/Panel'
+export type {
+  PanelProps,
+  PanelHeaderProps,
+  PanelBodyProps,
+  PanelCloseProps,
+  PanelHeadingLevel,
+  PanelSide,
+} from './components/Panel'
 
 export { DragAndDrop, Sortable, DragHandle, useSortableItem } from './components/DragAndDrop'
 export { moveItem, moveBetweenContainers, findContainer, reorder } from './components/DragAndDrop'

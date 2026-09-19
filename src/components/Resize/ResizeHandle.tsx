@@ -131,6 +131,16 @@ export interface ResizeHandleProps {
   onResizeStart?: () => void
   /** The pointer drag has ended. */
   onResizeEnd?: () => void
+  /**
+   * Which side of the handle the thing it sizes is on. `before`, the default,
+   * is the block to the left or above — the rail, a table column, a row:
+   * moving the handle toward the end grows it. `after` is the block to the
+   * right or below — a `Panel` on the far side of the page, whose handle sits
+   * on its *near* edge — where moving toward the start grows it. Either way
+   * an arrow key moves the separator in the arrow's direction, which is what a
+   * separator's arrows are for; the value follows the block.
+   */
+  sized?: 'before' | 'after'
   className?: string
 }
 
@@ -147,10 +157,12 @@ export function ResizeHandle({
   valueText,
   onResizeStart,
   onResizeEnd,
+  sized = 'before',
   className,
 }: ResizeHandleProps) {
   const start = useRef<{ at: number; value: number; unit: number } | null>(null)
   const vertical = orientation === 'vertical'
+  const after = sized === 'after'
 
   function clamp(next: number) {
     return Math.max(min, Math.min(max, Math.round(next)))
@@ -206,7 +218,9 @@ export function ResizeHandle({
     followPointer(event)
     if (!start.current) return
     const travelled = (vertical ? event.clientX : event.clientY) - start.current.at
-    const next = clamp(start.current.value + travelled / start.current.unit)
+    // A block after the handle grows when the handle moves toward the start.
+    const signed = after ? -travelled : travelled
+    const next = clamp(start.current.value + signed / start.current.unit)
     if (next !== value) onResize(next)
   }
 
@@ -227,8 +241,10 @@ export function ResizeHandle({
 
   function handleKeyDown(event: KeyboardEvent<HTMLSpanElement>) {
     const by = event.shiftKey ? largeStep : step
-    const grow = vertical ? 'ArrowRight' : 'ArrowDown'
-    const shrink = vertical ? 'ArrowLeft' : 'ArrowUp'
+    const toEnd = vertical ? 'ArrowRight' : 'ArrowDown'
+    const toStart = vertical ? 'ArrowLeft' : 'ArrowUp'
+    const grow = after ? toStart : toEnd
+    const shrink = after ? toEnd : toStart
     let next: number | null = null
 
     if (event.key === grow) next = value + by

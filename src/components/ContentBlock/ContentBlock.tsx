@@ -4,7 +4,8 @@ import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
-import { Icon } from '../Icon'
+import { BlockHeader } from './BlockHeader'
+import { HEADING, title } from './styles'
 
 /**
  * ContentBlock — a bordered card that owns one titled region of a page.
@@ -132,20 +133,6 @@ export type ContentBlockEmphasis = NonNullable<ContentBlockVariants['emphasis']>
  */
 export type ContentBlockHeadingLevel = 2 | 3 | 4 | 5 | 6
 
-/**
- * An explicit map rather than a computed tag, so TypeScript can see the whole
- * set — `` `h${level}` `` widens to `string`, which is not a JSX tag. Accordion
- * keeps the same map as elements, because Base UI's Header takes a `render`
- * prop; this is a plain `<div>`, so it wants the tag names.
- */
-const HEADING: Record<ContentBlockHeadingLevel, 'h2' | 'h3' | 'h4' | 'h5' | 'h6'> = {
-  2: 'h2',
-  3: 'h3',
-  4: 'h4',
-  5: 'h5',
-  6: 'h6',
-}
-
 export interface ContentBlockProps extends ComponentPropsWithRef<'div'> {
   /** A `ContentBlock.Header` and a `ContentBlock.Content`, or any content. */
   children: ReactNode
@@ -177,43 +164,6 @@ export function ContentBlock({
     </div>
   )
 }
-
-const header = tv({
-  base: [
-    'flex items-center gap-2',
-    // min-h-12 = height/h-12 (48px), px-4 = spacing/4, py-2 = spacing/2.
-    // Symmetric left and right, so the title and the right edge sit the same 16
-    // off the block's border whether or not there are actions. Figma drew 8 on
-    // the right until this landed, betting there is always a button in the
-    // actions slot: a 32px ghost Button carries its own 12px, which lands the
-    // glyph at 16 and the box at 8. The bet fails on a header with no actions,
-    // which is why both sides are 16 now. The cost is an icon-only action
-    // reading optically inset, at 16 + the Button's 12.
-    'min-h-12 px-4 py-2',
-    // A min-height rather than a height: a title that wraps grows the row
-    // instead of spilling out of it. Accordion's trigger makes the same call.
-  ],
-})
-
-const title = tv({
-  base: 'min-w-0 font-semibold [word-break:break-word]',
-  variants: {
-    emphasis: {
-      /** Figma's Content/Emphasized — the title outranks the body text. */
-      default: 'text-content-emphasized',
-      subtle: 'text-content-emphasized',
-      /**
-       * On the anchor cell there is no second color to promote to: the root
-       * already carries Content/Inverse, and Content/Emphasized on that
-       * background is unreadable. Weight does the work instead.
-       */
-      accent: 'text-current',
-    },
-  },
-  defaultVariants: {
-    emphasis: 'default',
-  },
-})
 
 export interface ContentBlockHeaderProps extends ComponentPropsWithRef<'div'> {
   /** The title. Keep it short — "Engagement rate", not a sentence. */
@@ -252,34 +202,25 @@ function ContentBlockHeader({
   icon,
   titleSlot,
   actions,
-  className,
   ...props
 }: ContentBlockHeaderProps) {
   const { headingLevel, emphasis } = useContext(ContentBlockContext)
   const Heading = HEADING[headingLevel]
 
   return (
-    <div className={cn(header(), className)} {...props}>
-      {/*
-        Figma's "Span": the icon, the title and the header slot travel together
-        as one group, so the actions push against the group rather than against
-        the text. min-w-0 lets a long unbroken title wrap instead of shoving the
-        actions off the edge — Banner's fix, in the same place.
-      */}
-      <div className="flex min-w-0 flex-1 items-center gap-2">
-        {icon && <Icon icon={icon} size="base" />}
-        {/*
-          A real `<h2>`–`<h6>` rather than a `role="heading"` / `aria-level`
-          pair: the tag is what a screen reader's outline is built from, and it
-          needs no ARIA to say so. Color comes from the root's emphasis, which
-          the context is carrying.
-        */}
-        <Heading className={title({ emphasis })}>{children}</Heading>
-        {titleSlot}
-      </div>
-
-      {actions && <div className="flex shrink-0 items-center justify-end gap-2">{actions}</div>}
-    </div>
+    <BlockHeader
+      icon={icon}
+      /*
+        A real `<h2>`–`<h6>` rather than a `role="heading"` / `aria-level`
+        pair: the tag is what a screen reader's outline is built from, and it
+        needs no ARIA to say so. Color comes from the root's emphasis, which
+        the context is carrying.
+      */
+      heading={<Heading className={title({ emphasis })}>{children}</Heading>}
+      titleSlot={titleSlot}
+      actions={actions}
+      {...props}
+    />
   )
 }
 
