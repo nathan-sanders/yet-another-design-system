@@ -62,7 +62,9 @@ property (the Nav record found this the hard way), so the swipe offset
 `transition-transform` covers it. While swiping the transition is off so the surface follows
 the finger, and the scrim's opacity is `1 - --drawer-swipe-progress` so it thins with it.
 
-**The header is ContentBlock's, and its title is `Drawer.Title`.** `Drawer.Header` renders the
+**The header is ContentBlock's at the TopBar's height, and its title is `Drawer.Title`.** 56
+on 12 of padding (`height: 'bar'` on the shared recipe) rather than the block's 48 on 8 — a
+drawer's title row lines up with the bar it slid over. `Drawer.Header` renders the
 shared `BlockHeader` with the heading being Base UI's Title, so the popup's `aria-labelledby`
 points at it; that is why `BlockHeader` takes an *element* for the heading rather than text. A ×
 on the end by default, `closeButton={false}` to remove it. Same recipe as `Panel.Header`, so a
@@ -83,7 +85,9 @@ page and the drawer are *usually* used together, it is a `Panel`.
   uses), and without `Drawer.Viewport` it only *warns* and silently loses swipe handling. The
   wrapper always renders both; a raw-parts caller has to remember.
 - **Never `defaultOpen` in a story.** A modal drawer inerts the whole docs page. Every story opens
-  itself in `play`, Dialog's rule.
+  itself in `play`, Dialog's rule — and then *stays* open. The stories that close it again
+  (`Playground, driven`, `InContext, driven`) are twins sharing the demo's render function, so a
+  drawer that opened and shut itself on load does not read as an animation bug.
 - **`defaultOpen` under SSR with `usePhone`** renders a side drawer for the hydration frame and a
   sheet the next. Documented, not worth a second mechanism.
 - **The animation clock in the Browser pane is slow.** A screenshot a few seconds after opening
@@ -99,7 +103,7 @@ page and the drawer are *usually* used together, it is a `Panel`.
 - Left: the mirror, `left === 0`.
 - Bottom: `bottom === innerHeight`, full width, content-height up to `85dvh`, `rounded-t-lg`.
 - Phone (393 × 852), `side="right"`: a bottom sheet, 393 wide, `data-swipe-direction="down"`.
-- Header 48 tall; focus inside on open, back on the trigger on close; page `aria-hidden` while
+- Header 56 tall, `py-3`; focus inside on open, back on the trigger on close; page `aria-hidden` while
   open (modal), not (non-modal); non-modal portal holds one child, no Backdrop.
 
 ## Left out

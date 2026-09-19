@@ -242,9 +242,10 @@ export interface DrawerHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'c
 }
 
 /**
- * The title row: ContentBlock's header, with a × on the end, and the title
- * is a `Drawer.Title` so the popup is named by it. Same recipe as `Panel`'s,
- * so a drawer and a panel holding the same thing look the same.
+ * The title row: ContentBlock's header with a × on the end, at the TopBar's
+ * 56, and the title is a `Drawer.Title` so the popup is named by it. Same
+ * recipe as `Panel`'s, so a drawer and a panel holding the same thing look
+ * the same.
  */
 function DrawerHeader({
   children,
@@ -262,6 +263,7 @@ function DrawerHeader({
       titleSlot={titleSlot}
       actions={actions}
       end={closeButton ? <DrawerClose /> : null}
+      height="bar"
       {...props}
     />
   )

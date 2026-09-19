@@ -59,11 +59,21 @@ change to the resting width is a change the transition can see.
 
 **Three boxes, and each has one job.** The **aside** is the animated box and the handle's
 positioning parent; it never clips, because the handle is translated *outside* it into the
-shell's gap. The **clip** bounds the card while the aside animates, anchored to the entering
-edge (`justify-end` for right), so the visible part grows *from* that edge — that is what turns
-a width transition into a slide rather than a reveal. The **card** is held at the variable's
-full size the whole time so its contents never reflow mid-slide, and it carries the surface.
-Do not "simplify" the middle one away: `overflow-clip` on the aside hides the handle.
+shell's gap. The **clip** bounds the card *while the aside animates* — `overflow-clip` only
+under the aside's `data-transitioning`, which `usePresence`'s `entering` and `ending` statuses
+set — so at rest nothing clips and the card's shadow paints. The **card** is held at the
+variable's full size the whole time so its contents never reflow mid-slide, and it carries the
+surface. Do not "simplify" the middle one away: `overflow-clip` on the aside hides the handle.
+
+**The card is anchored to the near edge, and that is the difference between a slide and a
+reveal.** The first build anchored it to the far edge (`justify-end` for right): the card's left
+edge then sat at its final x from the first frame and the aside's growing edge uncovered it —
+which read, in Nathan's words, as "it is just there and the page content slides over to show
+it". Anchored to the aside's *near* edge (`justify-start`), the card's leading edge is wherever
+the aside's leading edge is, so it travels in from the viewport edge while the rest hangs
+off-screen under the clip: measured at 1016 → 738 → 650 → 632 over the transition, on a 1024
+viewport. Same width transition, opposite anchor, and only one of them is a panel pushing the
+page. On a phone the anchor is the top edge, so it travels up from the bottom.
 
 **The shell's gap eases in with the width.** Inside a framed shell the 8px gap would snap in a
 frame before the width started to move; a `-ml-2` on the starting and ending frames, on the
@@ -133,9 +143,14 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
   `querySelectorAll('[role="separator"]')` if the count is the claim.
 - **A `Panel.Body` that scrolls with nothing focusable in it** trips axe's
   `scrollable-region-focusable`. The stories keep a control inside, as Dialog's `Scrollable` does.
-- **The animation clock in the Browser pane is slow.** A screenshot taken a second after opening
-  caught the card clipped at its left edge — the slide half-way, the clip box doing its job. Read
-  the geometry, or wait it out.
+- **The animation clock in the Browser pane is slow, and stops when the pane is hidden.** A
+  screenshot taken a second after opening caught the card clipped at its edge — the slide
+  half-way, the clip box doing its job. To see the slide as numbers, scrub `getAnimations()`
+  to a `currentTime` and read the card's `left`; `requestAnimationFrame` never fires in a hidden
+  pane, so sample with timers.
+- **A story that opens, resizes and closes itself on load reads as an animation bug.** Every
+  state-changing test lives in a `…, driven` / `…, keyboard` twin sharing the demo's render
+  function, DragAndDrop's arrangement; the demos sit still.
 
 ## Measurements to check if this changes
 
@@ -146,7 +161,8 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - Phone (393 × 852): column; aside `top === page.bottom + 8`, width 377, height 320; bar
   `top === aside.bottom + 8`; horizontal handle 8 tall on the seam; ArrowUp +8; document does
   not scroll.
-- Header 48 tall, `px-4 py-2`, the × a default-size ghost Button.
+- Header 56 tall — the TopBar's height — `px-4 py-3`, the × a default-size ghost Button.
+  (ContentBlock's stays 48 on 8; the shared recipe's `height: 'bar'` is this one.)
 - Closed: nothing in the DOM, `page.right === shell.right - 8`.
 
 ## Left out
