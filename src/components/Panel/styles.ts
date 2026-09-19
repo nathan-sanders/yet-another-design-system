@@ -140,7 +140,8 @@ export const panel = tv({
  */
 export const panelNested = tv({
   base: [
-    'absolute flex outline-none',
+    // Painted at its depth, because DOM order is not a promise (see `Panel`).
+    'absolute z-(--panel-depth) flex outline-none',
     PANEL_STACK,
     // The inset eases too, so a level stepping back moves on the same clock
     // as the one sliding in over it.

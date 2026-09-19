@@ -248,6 +248,15 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
   the clip. Only the root's card is in-flow; only the root's clip carries the inset.
 - **A `defaultOpen` chain reports up after it mounts.** The root aside is 320 tall for a
   commit and eases to 344; a phone story that reads the height synchronously reads 320.
+- **A `defaultOpen` chain commits every level at once, and that broke two things.** React
+  appended the portals deepest-first, so the middle aside sat *after* the front in the root's
+  DOM and painted over it — the phone story showed an empty card on top of the stack (the
+  middle's, content faded) with the front hidden under it. Nested asides now paint at
+  `z-(--panel-depth)`, the root's context counting depth, so DOM order is not a promise the
+  paint relies on. And the child's layout effect that inerts the parent ran before the parent's
+  content ref was attached, so the middle was never inerted; *setting* inert is a passive
+  effect now, *clearing* it stays a layout effect for the focus-return reason above. The phone
+  story hit-tests the front card's centre and reads `inert` on every level.
 
 ## Measurements to check if this changes
 

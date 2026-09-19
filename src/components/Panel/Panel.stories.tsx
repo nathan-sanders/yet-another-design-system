@@ -1024,6 +1024,14 @@ export const StackedPhone: Story = {
     await expect(back.width).toBe(region.width - 48)
     await expect(back.height).toBe(320)
 
+    // The front card is the one on top — a `defaultOpen` chain once painted
+    // the middle over it — and the levels behind are inert.
+    const hit = document.elementFromPoint(top.left + top.width / 2, top.top + top.height / 2)
+    await expect(hit!.closest('aside')).toBe(front.aside)
+    await waitFor(() => expect(middle.content).toHaveProperty('inert', true))
+    await expect(root.content).toHaveProperty('inert', true)
+    await expect(front.content).toHaveProperty('inert', false)
+
     // Still one scroll region, and it is not the document.
     const doc = document.documentElement
     await expect(doc.scrollHeight).toBe(doc.clientHeight)
