@@ -68,7 +68,10 @@ import { panel, panelBody, panelCard, panelClip, type PanelSide } from './styles
  * full width and a height instead, and the resize handle turns horizontal so
  * the user drags the page/panel split. Two handles are rendered and one is
  * `display: none` — the same CSS-only swap `ResponsiveNav` uses, because a
- * panel paints on first load and a `matchMedia` hook would flash.
+ * panel paints on first load and a `matchMedia` hook would flash. A
+ * `navigation="top"` shell is a column at every width, so there the same
+ * arrangement holds on a desktop too — read off the shell's context, not the
+ * breakpoint.
  *
  * **Resizable from the seam, the rail's way.** `resizable` draws a
  * `ResizeHandle` that is exactly the shell's 8px gap, on the panel's *near*
@@ -188,6 +191,8 @@ export function Panel({
   const shell = useContext(AppShellContext)
   const framed = shell?.frame === true
   const docked = shell ? !shell.frame : false
+  // A column shell has no "beside": the panel stacks under the page at every width.
+  const stacked = shell?.navigation === 'top'
   // The nav's rule: the shell states the fact once, an explicit prop wins.
   const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : false)
 
@@ -277,7 +282,7 @@ export function Panel({
   return (
     <aside
       ref={asideRef}
-      className={cn(panel({ side, framed, resizing }), className)}
+      className={cn(panel({ side, framed, resizing, stacked }), className)}
       style={
         {
           '--panel-width': `${width}px`,
@@ -297,8 +302,8 @@ export function Panel({
       onKeyDown={handleKeyDown}
       {...props}
     >
-      <div className={panelClip({ side })}>
-        <div className={panelCard({ floating, docked })}>
+      <div className={panelClip({ side, stacked })}>
+        <div className={panelCard({ floating, docked, stacked })}>
           <PanelContext.Provider value={ctx}>{children}</PanelContext.Provider>
         </div>
       </div>
@@ -325,7 +330,8 @@ export function Panel({
             onResizeStart={() => setResizing(true)}
             onResizeEnd={() => setResizing(false)}
             className={cn(
-              'absolute inset-y-0 z-10 w-2 max-md:hidden',
+              'absolute inset-y-0 z-10 w-2',
+              stacked ? 'hidden' : 'max-md:hidden',
               right
                 ? ['left-0', framed ? '-translate-x-full' : '-translate-x-1/2']
                 : ['right-0', framed ? 'translate-x-full' : 'translate-x-1/2'],
@@ -351,7 +357,8 @@ export function Panel({
             onResizeStart={() => setResizing(true)}
             onResizeEnd={() => setResizing(false)}
             className={cn(
-              'absolute inset-x-0 z-10 hidden h-2 max-md:flex',
+              'absolute inset-x-0 z-10 h-2',
+              stacked ? 'flex' : 'hidden max-md:flex',
               right
                 ? ['top-0', framed ? '-translate-y-full' : '-translate-y-1/2']
                 : ['bottom-0', framed ? 'translate-y-full' : 'translate-y-1/2'],

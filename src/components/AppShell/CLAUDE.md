@@ -21,6 +21,7 @@ BentoGrid still carries is closed here.
 |---|---|---|
 | App Shell (`Mode` × `Navigation` × `Frame`, 12 variants) | `40005265:10346` | `AppShell` — defaults Floating / Side / True, the code's; `Navigation=Mobile` is the shell with a `MobileNav` child, below 768 |
 | `Content` slot | `Content#40005268:9` | `AppShell.Content` |
+| `Panel` boolean (off by default) | `Panel#40005385:0` | a `Panel` child after the Page — 384 beside it in a `Side` shell, full width and 320 tall under it in `Top` and `Mobile`; floating only in a floating framed shell, corners squared when docked. Added 2026-09-19 |
 | Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005266:487` | this record's Best practices |
 
 **The set was drawn *from* the code, the Sankey direction.** Each variant is one of the four frames
@@ -200,6 +201,12 @@ an `h1` on the page and nothing between. Not a shell concern, but the first thin
 
 **Not a Base UI component.** A layout frame has no headless primitive; three `div`s and a `main`,
 like BentoGrid. The Base UI count stands.
+
+**A column shell stacks the panel at every width.** `navigation="top"` is a column, and a column
+has no "beside the page" — so the context now carries `navigation` and the Panel reads it: in a
+top shell it takes the phone's arrangement (under the page, full width, sized by height, the
+horizontal handle) at every width. The Figma set draws the same: each `Navigation=Top` variant's
+Panel is `FILL` across and 320 tall, exactly like the Mobile ones.
 
 **A `Panel` turns the frame into a column below 768 too.** Added 2026-09-19 with the component:
 the panel carries `data-panel` and the shell reads it — `max-md:has-data-panel:flex-col`,

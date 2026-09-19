@@ -102,7 +102,10 @@ export function AppShell({
   className,
   ...props
 }: AppShellProps) {
-  const ctx = useMemo<AppShellContextValue>(() => ({ mode, frame }), [mode, frame])
+  const ctx = useMemo<AppShellContextValue>(
+    () => ({ mode, frame, navigation }),
+    [mode, frame, navigation],
+  )
 
   return (
     <div className={cn(appShell({ mode, navigation, frame }), className)} {...props}>

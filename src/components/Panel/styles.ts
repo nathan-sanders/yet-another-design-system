@@ -55,6 +55,20 @@ export const panel = tv({
       true: 'transition-none',
       false: '',
     },
+    /**
+     * The phone's arrangement at every width: under the page, full width,
+     * sized by height. A `navigation="top"` shell is a column, and a column
+     * has no "beside the page" to be. The `md:` classes above are overridden
+     * at their own prefix so the breakpoint stops mattering.
+     */
+    stacked: {
+      true: [
+        'h-(--panel-height) w-full',
+        'md:data-[starting-style]:w-full md:data-[ending-style]:w-full',
+        'data-[starting-style]:h-0 data-[ending-style]:h-0',
+      ],
+      false: '',
+    },
   },
   compoundVariants: [
     {
@@ -73,11 +87,24 @@ export const panel = tv({
         'max-md:data-[starting-style]:-mb-2 max-md:data-[ending-style]:-mb-2',
       ],
     },
+    {
+      side: 'right',
+      framed: true,
+      stacked: true,
+      class: 'md:data-[starting-style]:ml-0 md:data-[ending-style]:ml-0 data-[starting-style]:-mt-2 data-[ending-style]:-mt-2',
+    },
+    {
+      side: 'left',
+      framed: true,
+      stacked: true,
+      class: 'md:data-[starting-style]:mr-0 md:data-[ending-style]:mr-0 data-[starting-style]:-mb-2 data-[ending-style]:-mb-2',
+    },
   ],
   defaultVariants: {
     side: 'right',
     framed: false,
     resizing: false,
+    stacked: false,
   },
 })
 
@@ -96,9 +123,18 @@ export const panelClip = tv({
       // before the page, so above it — anchored to the bottom, down from the top.
       left: 'md:justify-end max-md:items-end',
     },
+    stacked: {
+      true: '',
+      false: '',
+    },
   },
+  compoundVariants: [
+    { side: 'right', stacked: true, class: 'md:justify-start md:items-start' },
+    { side: 'left', stacked: true, class: 'md:justify-start md:items-end' },
+  ],
   defaultVariants: {
     side: 'right',
+    stacked: false,
   },
 })
 
@@ -132,10 +168,16 @@ export const panelCard = tv({
       true: 'rounded-none',
       false: '',
     },
+    /** The phone's size at every width; see `panel`. */
+    stacked: {
+      true: 'h-(--panel-height) w-full',
+      false: '',
+    },
   },
   defaultVariants: {
     floating: false,
     docked: false,
+    stacked: false,
   },
 })
 

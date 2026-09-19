@@ -24,7 +24,7 @@ import { ContentBlock } from '../ContentBlock'
 import { Field } from '../Field'
 import { Input } from '../Input'
 import { Menu } from '../Menu'
-import { MobileNav, NavItem, SideNav } from '../Nav'
+import { MobileNav, NavItem, SideNav, TopNav } from '../Nav'
 import { Logo } from '../Nav/story-logo'
 import { TextArea } from '../TextArea'
 import { TopBar } from '../TopBar'
@@ -591,6 +591,70 @@ export const Docked: Story = {
     const rect = handle()!.getBoundingClientRect()
     await expect(rect.width).toBe(8)
     await expect(rect.left + 4).toBe(panel.getBoundingClientRect().left)
+  },
+}
+
+/** A column shell: a top bar, the page, and the panel under it. */
+function TopShell() {
+  const [open, setOpen] = useState(true)
+  return (
+    <AppShell id="shell" navigation="top">
+      <TopNav aria-label="Main" logo={<Logo />}>
+        <NavItem href="#home" selected>
+          Home
+        </NavItem>
+        <NavItem href="#products">Products</NavItem>
+        <NavItem href="#about">About</NavItem>
+      </TopNav>
+      <Page open={open} onOpenChange={setOpen} />
+      <Panel aria-label="Details" open={open} onOpenChange={setOpen} resizable>
+        <Details />
+      </Panel>
+    </AppShell>
+  )
+}
+
+/**
+ * **A `navigation="top"` shell is a column, so the panel is under the page at
+ * every width** — full width, sized by height, the handle horizontal — the
+ * phone's arrangement read off the shell's context rather than the
+ * breakpoint. A column has no "beside the page" to be.
+ */
+export const TopNavigation: Story = {
+  name: 'Top navigation',
+  render: () => <TopShell />,
+}
+
+/** The same shell, driven: the column measured and the split dragged by keyboard. */
+export const TopNavigationKeyboard: Story = {
+  name: 'Top navigation, keyboard',
+  render: () => <TopShell />,
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const { shell, page, aside, handle } = measure(canvasElement)
+    const panel = aside()!
+
+    await step('under the page, full width, 320 tall', async () => {
+      await expect(getComputedStyle(shell).flexDirection).toBe('column')
+      const rect = panel.getBoundingClientRect()
+      const frame = shell.getBoundingClientRect()
+      await expect(rect.top).toBe(page.getBoundingClientRect().bottom + 8)
+      await expect(rect.width).toBe(frame.width - 16)
+      await expect(rect.height).toBe(320)
+      await expect(rect.bottom).toBe(frame.bottom - 8)
+    })
+
+    await step('the handle is horizontal at a desktop width', async () => {
+      await expect(canvas.getAllByRole('separator', { name: 'Resize Details' })).toHaveLength(1)
+      const separator = handle()!
+      await expect(separator).toHaveAttribute('aria-orientation', 'horizontal')
+      await expect(separator.getBoundingClientRect().height).toBe(8)
+      await expect(separator.getBoundingClientRect().top).toBe(page.getBoundingClientRect().bottom)
+      separator.focus()
+      await userEvent.keyboard('{ArrowUp}')
+      await expect(separator).toHaveAttribute('aria-valuenow', '328')
+      await waitFor(() => expect(panel.getBoundingClientRect().height).toBe(328))
+    })
   },
 }
 
