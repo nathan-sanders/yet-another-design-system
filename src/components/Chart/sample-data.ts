@@ -197,3 +197,34 @@ export function sankeyData(): {
     ],
   }
 }
+
+export interface ScatterSample {
+  key: string
+  label: string
+  points: { x: number; y: number; label?: string }[]
+}
+
+/**
+ * Three campaigns, each a cloud of points — spend against signups — for the
+ * scatter. The three clouds sit on different slopes so the form has something
+ * to show: one series converts well, one poorly, one in between, and a reader
+ * can see it without a trend line. The third series names its points, for the
+ * story about labeled points and the tooltip's heading.
+ */
+export function scatterData(seed = 19): ScatterSample[] {
+  const random = seeded(seed)
+  const regions = ['North', 'South', 'East', 'West', 'Central', 'Coast', 'Metro', 'Rural']
+
+  const cloud = (count: number, slope: number, spread: number, named = false) =>
+    Array.from({ length: count }, (_, i) => {
+      const x = Math.round(150 + random() * 1700)
+      const y = Math.round(Math.max(20, x * slope + (random() - 0.5) * spread))
+      return named ? { x, y, label: regions[i % regions.length] } : { x, y }
+    })
+
+  return [
+    { key: 'search', label: 'Search', points: cloud(24, 0.42, 320) },
+    { key: 'social', label: 'Social', points: cloud(24, 0.22, 260) },
+    { key: 'email', label: 'Email', points: cloud(8, 0.32, 220, true) },
+  ]
+}

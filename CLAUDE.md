@@ -654,6 +654,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [TreeMap](src/components/TreeMap/CLAUDE.md) | parts of a whole, past a donut's limit | the only chart whose marks carry their own text |
 | [Radial](src/components/Radial/CLAUDE.md) | how much, per category, on a common scale | one Figma drawing hiding two rules; the track is what makes it honest |
 | [Sankey](src/components/Sankey/CLAUDE.md) | where a quantity went, stage to stage | the file draws nothing at all; a ribbon takes the color it left with |
+| [Scatter](src/components/Scatter/CLAUDE.md) | two measures against each other, one mark per observation | the file's plot point with the line taken away; `quadrant` swaps the axes for `_Quadrant Grid`'s crosshair, and the hidden table says which box each point is in |
 | [AspectRatio](src/components/AspectRatio/CLAUDE.md) | a box that keeps its shape | five named ratios plus a number for Figma's `Custom`; the only component that paints nothing, and the first whose Figma set was widened to meet the code |
 | [Calendar](src/components/Calendar/CLAUDE.md) | pick a date, or a range, from a month grid | the first component with no Base UI primitive underneath it; range mode is derived from the value's shape |
 | [DatePicker](src/components/Calendar/CLAUDE.md) | that grid in a panel, with presets and a footer | two of Figma's three variants are `numberOfMonths` and the value's shape; the file's own variant names caught a bug no screenshot would have |
@@ -725,7 +726,11 @@ Three rules worth having in mind before touching a chart:
   component. Nothing in the code changed when they landed. **Sankey is the one case where the
   drawing was *derived* from the code** rather than made independently, because there was nothing to
   derive it from otherwise; its record says so, and says the code is the older authority there.
-  `Scatter` (`40004378:41242`) is still an empty section with nothing built against it.
+  **`Scatter` went the same way on 2026-09-18**, and closed `_Quadrant Grid` with it: the section was
+  empty, the chart was built on the plot point, the grid and the crosshair the file already had, and
+  the drawing was made from the code's numbers. Its record has the two things the build had to
+  change in the file — four hidden SF Mono texts nobody's machine could load, and an x axis with no
+  numeric preset.
 - **Figma measures `arcData` from three o'clock, clockwise**, while every polar chart here starts at
   twelve. A sweep drawn without the quarter-turn offset looks entirely plausible and is wrong.
 - **A hidden browser tab makes every measured chart lie.** `ChartContainer` sizes itself with a
