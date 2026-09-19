@@ -32,11 +32,36 @@ function Phone({ label, children }: { label: string; children: (el: HTMLElement 
           setFrame(node)
         }}
         className="relative h-[680px] w-[360px] transform-gpu overflow-hidden rounded-2xl border border-surface-border bg-surface-canvas"
+        data-phone=""
       >
         {children(frame)}
       </div>
     </div>
   )
+}
+
+/**
+ * The sheet slides in over `duration-medium`, and `findByRole` resolves on the
+ * frame it is inserted — still carrying `data-starting-style`, translated a
+ * screen's height out of view. The numbers are at the end of the slide, and
+ * the settled position is the bottom of whatever it was portalled into: the
+ * phone frame here, `window.innerHeight` where it goes to `<body>`. Drawer's
+ * own stories wait the same way.
+ */
+async function settled(sheet: HTMLElement) {
+  // The sheet is portalled into the frame, so the frame is an ancestor; the
+  // `fixed` viewport resolves against its padding box, inside the 1px border.
+  const frame = sheet.closest<HTMLElement>('[data-phone]')!
+  const inside = () => {
+    const r = frame.getBoundingClientRect()
+    return {
+      left: r.left + frame.clientLeft,
+      width: frame.clientWidth,
+      bottom: r.bottom - (r.height - frame.clientTop - frame.clientHeight),
+    }
+  }
+  await waitFor(() => expect(sheet.getBoundingClientRect().bottom).toBe(inside().bottom))
+  return inside()
 }
 
 const sections = (
@@ -237,7 +262,9 @@ export const LiveSelection: Story = {
     const canvas = within(canvasElement)
     await userEvent.click(await canvas.findByRole('button', { name: /Home/ }))
     const sheet = await within(canvasElement).findByRole('dialog')
-    await waitFor(() => expect(sheet).toBeVisible())
+    // Settle before clicking inside: a click into a still-sliding popup is
+    // Drawer's focus-scroll trap, in test form.
+    await settled(sheet)
 
     // Collapsing a group must fold it, not dismiss the sheet.
     const group = within(sheet).getByRole('button', { name: 'Atlas' })
@@ -279,12 +306,17 @@ export const SheetOpen: Story = {
     // Portalled — into the phone frame here rather than <body>, but either way
     // it is not where the trigger is.
     const sheet = await within(canvasElement).findByRole('dialog')
-    // `waitFor`, because `findByRole` resolves on the frame the popup is
-    // inserted, which is the frame it still carries `data-starting-style` — so
-    // it is translated fully out of view and `toBeVisible` is right to say so.
-    // Dialog's finding, and the reason this component's motion is worth
-    // asserting rather than eyeballing.
-    await waitFor(() => expect(sheet).toBeVisible())
+    const box = await settled(sheet)
+
+    // A Drawer's bottom sheet: flush with the frame's bottom and both sides,
+    // and it swipes down. The same numbers the Drawer's `Phone` story reads.
+    const rect = sheet.getBoundingClientRect()
+    await expect(rect.left).toBe(box.left)
+    await expect(rect.width).toBe(box.width)
+    await expect(sheet).toHaveAttribute('data-swipe-direction', 'down')
+    await expect(getComputedStyle(sheet).borderTopLeftRadius).toBe('12px')
+    // The nav tier, borderless — Figma binds no stroke on the popover.
+    await expect(getComputedStyle(sheet).borderTopWidth).toBe('0px')
 
     // Named by the bar's own aria-label. Figma draws no title in the sheet, so
     // there is no `Dialog.Title` to name it from.
@@ -299,5 +331,10 @@ export const SheetOpen: Story = {
 
     // A modal puts you inside it, unlike a popover.
     await waitFor(() => expect(sheet.contains(document.activeElement)).toBe(true))
+
+    // Escape closes it, and focus goes back to the pill.
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(within(canvasElement).queryByRole('dialog')).toBeNull())
+    await expect(document.activeElement).toBe(canvas.getByRole('button', { name: /Home/ }))
   },
 }

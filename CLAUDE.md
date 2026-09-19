@@ -611,7 +611,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [SideNav](src/components/Nav/CLAUDE.md) | the application rail | 224 expanded, 56 collapsed; collapsed labels become tooltips and headers become a rule; groups are Base UI's `Collapsible` |
 | [TopNav](src/components/Nav/CLAUDE.md) | the horizontal bar | app or site; the page list centres because both ends are `flex-1`; `floating` is only the shadow |
 | [ResponsiveNav](src/components/Nav/CLAUDE.md) | TopNav above 768, MobileNav below | a CSS swap at `md:`, which the component owns rather than the caller |
-| [MobileNav](src/components/Nav/CLAUDE.md) | the phone bar and its bottom sheet | pins itself to an edge; the sheet is Dialog's raw parts, because `Dialog.Popup` cannot be moved |
+| [MobileNav](src/components/Nav/CLAUDE.md) | the phone bar and its bottom sheet | pins itself to an edge; the sheet is Drawer's raw parts on the nav tier, so it slides and swipes like a Drawer |
 | [TopBar](src/components/TopBar/CLAUDE.md) | the page header beside a SideNav | breadcrumbs, search and actions; a `<header>`, so exactly one per page |
 | [ThemeControl](src/components/ThemeControl/CLAUDE.md) | the light/dark switch | reports the intent and never touches the document |
 | [Tabs](src/components/Tabs/CLAUDE.md) | switch between panels | sliding indicator, in pure CSS |

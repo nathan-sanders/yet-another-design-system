@@ -1540,27 +1540,22 @@
 /*     keyframe cannot be written inline: Tailwind can only reference one    */
 /*     that already exists in the stylesheet.                                */
 /*                                                                           */
-/*     A sheet that enters is a NEW element, and a CSS transition on one is  */
-/*     only as reliable as the browser's willingness to paint its starting   */
-/*     style first. An animation states its own `from`, so it does not care. */
-/*     `transform: translateY()`, not the standalone `translate` property —   */
-/*     `transform` is the path every browser composites reliably.            */
+/*     A keyframe is for motion with no state change to transition between  */
+/*     — a phrase that swaps under the same element, a loop. Anything that   */
+/*     opens or closes is a CSS transition on Base UI's starting and ending  */
+/*     styles instead, and lives in its component's recipe.                 */
 /*                                                                           */
-/*     There is no `slide-in-from-bottom` to pair with the slide out, and    */
-/*     that asymmetry is deliberate: an entering sheet fades, a leaving one  */
-/*     slides. See src/components/Nav/CLAUDE.md for why the entrance is not  */
-/*     the exit reversed.                                                    */
+/*     `fade-in` is the first: ThoughtProcess's phrase crossfade, `fast`      */
+/*     and `both`. It was also MobileNav's entrance until 2026-09-19, paired  */
+/*     with a `slide-out-to-bottom` that left with it — the sheet is now a    */
+/*     Drawer, and slides both ways on Drawer's transition. See               */
+/*     src/components/Nav/CLAUDE.md for why it was ever a fade.              */
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-@keyframes slide-out-to-bottom {
-  from { transform: translateY(0); }
-  to   { transform: translateY(100%); }
-}
-
-/*     `progress-indeterminate` is the third, and the first that loops. A     */
+/*     `progress-indeterminate` is the second, and the first that loops. A    */
 /*     40%-wide fill crosses the track from just off one end to just off     */
 /*     the other; Astryx draws the same sweep. It is a keyframe rather      */
 /*     than a transition for the ordinary reason — there is no state        */
@@ -1582,7 +1577,7 @@
   to   { transform: translateX(250%); }
 }
 
-/*     `skeleton-pulse` is the fourth, and the second that loops. A placeholder */
+/*     `skeleton-pulse` is the third, and the second that loops. A placeholder */
 /*     breathes between full and half opacity; shadcn draws the same pulse   */
 /*     over a literal 2s, and this one runs `slow` (975ms) each way with      */
 /*     `alternate`, so a cycle is 1950ms — the same speed, spelled as a token.*/
@@ -1596,7 +1591,7 @@
   to   { opacity: 0.5; }
 }
 
-/*     `text-shimmer` is the fifth, and the third that loops. A band of a     */
+/*     `text-shimmer` is the fourth, and the third that loops. A band of a    */
 /*     second color sweeps once across a run of text, the way an assistant  */
 /*     UI marks a line it is still working on. The element paints a         */
 /*     gradient twice its own width, clipped to its glyphs, and this walks  */
@@ -1614,7 +1609,6 @@
 
 @theme {
   --animate-fade-in: fade-in var(--transition-duration-fast) var(--ease-standard) both;
-  --animate-slide-out-to-bottom: slide-out-to-bottom var(--transition-duration-medium) var(--ease-standard) both;
   --animate-progress-indeterminate: progress-indeterminate var(--transition-duration-slow-max) linear infinite;
   --animate-skeleton-pulse: skeleton-pulse var(--transition-duration-slow) ease-in-out infinite alternate;
   --animate-text-shimmer: text-shimmer var(--transition-duration-slow-max) linear infinite;

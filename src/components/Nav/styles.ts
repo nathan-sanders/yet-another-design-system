@@ -1,6 +1,8 @@
 import { tv, type VariantProps } from 'tailwind-variants'
 
+import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
+import { drawerPopup } from '../Drawer/styles'
 
 /**
  * The recipes the navigation family shares.
@@ -125,28 +127,24 @@ export const navSurface = tv({
  * The bottom sheet `MobileNav` opens, which is Figma's "Mobile Navigation
  * Popover" (`40004531:35587`).
  *
- * It is a Base UI Dialog popup rather than a Popover: modal, focus-trapped, and
- * dismissed by Escape. `Dialog.Popup` could not be reused — it hardcodes
- * centring on a Viewport that takes no `className` — so `MobileNav` composes the
- * raw parts and this recipe dresses the popup.
+ * It is a Base UI Drawer popup: modal, focus-trapped, dismissed by Escape and
+ * by a swipe down. `drawerPopup`'s bottom recipe is taken whole — the slide in
+ * and out on `duration-medium`, the swipe offset with the transition off under
+ * the finger, the 85dvh cap, the top corners, `shadow-high-top`, the bleed past
+ * the bottom edge — and the sheet's own surface goes over it. The same
+ * primitive, so the same recipe, which is the sharing rule ContextMenu and
+ * Autocomplete follow; before 2026-09-19 this was its own recipe on Dialog's
+ * parts, fading in because a slide on a Dialog never read right. See
+ * `CLAUDE.md`.
  */
-export const navSheet = tv({
-  base: [
-    // Figma is 393 wide, which is the whole phone viewport, and HUGs its
-    // content with no cap at all. The cap and the scroll inside are additions:
-    // enough sections would otherwise push the sheet off the top of the screen,
-    // taking the first one with it.
-    'flex w-full max-h-[85dvh] flex-col',
-    // Top corners only — Figma binds `rounded-lg` to the top two and
-    // `rounded-none` to the bottom, because the sheet is flush with the edge.
-    'rounded-t-lg',
-    // padding [12, 12, 32, 12]: spacing/3 around, and spacing/8 at the bottom,
-    // which is the home-indicator safe area rather than a visual decision.
-    'px-3 pt-3 pb-8',
+export const navSheet = () =>
+  cn(
+    drawerPopup({ side: 'bottom' }),
     // The navigation tier, not the semantic one. The rows inside are NavItems
     // drawing with --nav-*; on a semantic surface a `neutral-inverse` label
     // would be near-white text on white. Same call as the collapsed-group
-    // flyout.
+    // flyout. The bleed under the bottom edge is repainted with it, or a pull
+    // past the edge would show a strip of the semantic surface.
     //
     // **This surface has to be opaque, and one mode is only opaque on purpose.**
     // `canvas` matches the page's own background so a bar reads as having no
@@ -154,42 +152,14 @@ export const navSheet = tv({
     // there would show the page straight through these rows. That mode was
     // transparent until 2026-09-02 and was made solid for this component. See
     // `CLAUDE.md`; do not turn it back.
-    'bg-nav-background text-nav-content-primary font-sans',
-    // Figma's `Elevation/Drop Shadow/High - Top` — offset (0, -16), which is
-    // what makes it read as lifting off the bottom edge.
-    'shadow-high-top',
-    // Base UI spreads tabIndex -1 onto the popup and focuses it when nothing
-    // inside is tabbable; the browser would paint its own ring there. Dialog's
-    // finding, in Dialog's spelling.
-    'outline-none',
-    /*
-      **It fades in and slides out, and that asymmetry is the decision.**
-
-      The entrance was a slide from the bottom through several attempts and
-      never read right to Nathan — it kept looking like the sheet appeared
-      mid-screen and then shifted. The exit, animating the same distance with
-      the same curve, was right from the first try. The difference is what the
-      two are animating: the exit moves an element that has been on screen all
-      along, while the entrance moves a brand-new one, and a newly-inserted
-      element is exactly where transform animations are least dependable —
-      whether it is driven by a transition or by keyframes.
-
-      Rather than keep chasing it, the entrance is now a plain fade. It is
-      honest about what it is, it cannot half-render, and it matches the
-      backdrop it arrives with — both on `duration-fast`, so the scrim and the
-      sheet resolve together instead of the sheet outlasting it.
-
-      The exit keeps `duration-medium`: leaving is the one that benefits from
-      being readable, and it demonstrably works.
-
-      Driven off Base UI's `data-open` / `data-closed`. The keyframes are motion
-      primitives in the token layer (`theme.css` section 4b) because Tailwind can
-      only name a keyframe that already exists in the stylesheet.
-    */
-    'data-open:animate-fade-in',
-    'data-closed:animate-slide-out-to-bottom',
-  ],
-})
+    'bg-nav-background text-nav-content-primary after:bg-nav-background',
+    // Figma binds no stroke on the popover; Drawer's bottom sheet has one.
+    'border-t-0',
+    // padding [12, 12, 32, 12]: spacing/3 around, and spacing/8 at the bottom,
+    // which is the home-indicator safe area rather than a visual decision —
+    // Figma's number, over Drawer's `env(safe-area-inset-bottom)`.
+    'px-3 pt-3 pb-8',
+  )
 
 export type NavItemVariants = VariantProps<typeof navItem>
 export type NavItemSize = NonNullable<NavItemVariants['size']>

@@ -443,12 +443,24 @@ opens a dialog, not the entry for the page you are on. Taking the recipe keeps t
 wrong ARIA; Base UI supplies `aria-haspopup="dialog"` and `aria-expanded` instead. Same call the
 `SideNav.Group` flyout trigger makes, from the other direction.
 
-**The sheet composes Dialog's raw parts, because `Dialog.Popup` cannot be a bottom sheet.** That
-wrapper hardcodes centring on a `Viewport` that takes no `className`, so no caller can move it —
-`Dialog.tsx` says the raw parts exist for "the shapes the wrappers above cannot express", and this is
-one. The cost of going raw is that `overlayLayer` has to be re-applied to both fixed siblings by
-hand, exactly as `DialogPopup` does; `backdrop()` and `viewport()` are imported from
-`Dialog/styles.ts`, which exports them at module level even though the barrel does not.
+**The sheet is a `Drawer`, composed from its raw parts** (2026-09-19; Dialog's raw parts before
+that). `Drawer.Popup` paints the semantic surface with a border and its own padding, and this sheet
+is on the navigation tier with Figma's numbers, so `MobileNav` writes `Drawer.Root` /
+`Backdrop` / `Viewport` / `RawPopup` / `Content` itself — `Drawer.tsx` says the raw parts exist for
+"shapes the wrappers cannot express", and this is one. The recipes are Drawer's, not copies:
+`drawerBackdrop()` and `drawerViewport({ side: 'bottom' })` outright, and `navSheet` is
+`drawerPopup({ side: 'bottom' })` with the nav surface, `border-t-0` and Figma's `px-3 pt-3 pb-8`
+merged over it. Same primitive, same recipe — the sharing rule ContextMenu and Autocomplete
+follow. The cost of going raw is that `overlayLayer` has to be re-applied to both fixed siblings by
+hand, exactly as `DrawerPopup` does, and that `Drawer.Content` has to be remembered — Base UI uses
+it to let text be selected with a mouse without starting a swipe.
+
+So it opens and closes exactly as a `Drawer` does on a phone — Nathan's ask, and the migration
+`Drawer`'s record had listed under "Left out". It slides up over `duration-medium`, slides down the
+same way, and swipes down to dismiss with the scrim thinning under the finger; the transition is off
+while the finger is down so the sheet follows it, and the swipe yields to the scrolling sections
+until they are at their top (Base UI's `useSwipeDismiss` reads `scrollTop`). `swipeDirection` is
+always `down` — the sheet comes from the bottom at every width, so there is no `usePhone` here.
 
 **A visible scrim, which Figma does not draw.** The sheet is modal either way — focus trapped,
 Escape closes, the page behind inert — and the dim is the only thing that shows it. Undimmed,
@@ -464,8 +476,9 @@ not a story's phone frame — correct on a phone, generous in Storybook.
 straight onto its first section header. A Title renders a real heading, which `SideNav.Section`
 already declined for group labels.
 
-**Left out deliberately:** a drag handle and drag-to-dismiss. Figma draws no grabber and Base UI's
-Dialog has no drag affordance — it would be an invention, not a port.
+**Left out deliberately:** a drag handle. Figma draws no grabber, and neither does `Drawer`.
+Drag-to-dismiss was on this list while the sheet was a Dialog, which had no gesture; it arrived with
+the Drawer.
 
 ### A disclosure inside an overlay is not a departure
 
@@ -493,26 +506,27 @@ neither, the landmark's own name stands in rather than leaving an unnamed button
 work, and it stops at the first match. Only a **string** child is usable — anything richer is the
 caller's own composition and cannot be flattened honestly.
 
-### It fades in and slides out, and the asymmetry is the decision
+### It slides both ways now, and for a year of its life it did not
 
-The entrance was a slide from the bottom through four attempts and never read right. The exit — same
-distance, same curve, same keyframes — was right the first time and every time after. That difference
-is the whole finding, and it is not arbitrary: **the exit animates an element that has been on screen
-all along, while the entrance animates a brand-new one.** A newly-inserted element is exactly where
-transform animations are least dependable, whether driven by a transition or by keyframes, and Base
-UI's `data-starting-style` exists to paper over that and was not enough here.
+The entrance was a slide from the bottom through four attempts on Dialog's parts and never read
+right; the exit — same distance, same curve, same keyframes — was right the first time. The
+difference was what the two animate: the exit moves an element that has been on screen all along,
+while the entrance moves a brand-new one, and a newly-inserted element is where transform animations
+are least dependable. So at Nathan's call after the fourth attempt the entrance became a plain fade
+on `duration-fast` with a keyframed `slide-out-to-bottom` on `duration-medium` for the exit, and the
+asymmetry was recorded as the decision.
 
-So the entrance is a plain fade, at Nathan's call after the fourth attempt. It is honest about what it
-is, it cannot half-render, and it shares `duration-fast` with the backdrop so the scrim and the sheet
-resolve together instead of one outlasting the other. The exit keeps `duration-medium`: leaving is the
-motion that benefits from being readable, and it demonstrably works.
+What resolved it was not a fifth attempt but a different primitive. Base UI's `Drawer.Popup` is
+built for exactly this element: it measures itself into `--drawer-height`, and its entrance and exit
+are one transition on the standalone `translate` property under `data-starting-style` /
+`data-ending-style` — which `Drawer`'s `Phone` story asserts and Nathan has watched. Moving the sheet
+onto it (2026-09-19) gave it that slide for free, plus the swipe, and the sheet now enters the way
+it leaves. `slide-out-to-bottom` left the token layer with it — it had one consumer, and an unused
+token is worse than an absent one. `fade-in` stays; it is ThoughtProcess's crossfade.
 
-Measured: enter is `fade-in`, 175ms, opacity 0 → 1 over 22 steps with `transform: none` and the
-sheet's top fixed at 359 throughout — no movement at all, which is the point. Exit is
-`slide-out-to-bottom` over 50 distinct transforms.
-
-There is deliberately no `slide-in-from-bottom` left in the token layer. It was written, it went
-unused, and an unused token is worse than an absent one.
+Measured: the sheet settles with its bottom on the frame's inner bottom and its width the frame's,
+`data-swipe-direction="down"`, `border-top-width: 0px`, and `getAnimations()` reports one
+`CSSTransition` on `translate` while it is moving.
 
 ### Motion cannot be verified from here, and it cost four attempts
 
@@ -551,10 +565,12 @@ The chain, measured rather than guessed:
 The tell that settles it: `navTop + scrollTop` was **constant** across every frame. The bar was not
 sliding, it was being scrolled.
 
-The fix is `overflow-hidden` on the Viewport, which stops the off-screen sheet creating any overflow
-to scroll to. It is also just correct — a sheet has no business rendering outside the screen it is
-sliding onto. Verified after: the bar holds one position across every frame of both the open and the
-close, in both placements, while the sheet still runs its 39 interpolated steps in and 38 out.
+The fix was `overflow-hidden` on the Viewport, which stops the off-screen sheet creating any
+overflow to scroll to. It is also just correct — a sheet has no business rendering outside the screen
+it is sliding onto. Verified after: the bar holds one position across every frame of both the open
+and the close, in both placements, while the sheet still runs its 39 interpolated steps in and 38
+out. Drawer's viewport, which the sheet wears now, is `overflow-clip` — the same finding one step
+on, because `hidden` is still a scroll container a `focus()` can scroll and `clip` is not.
 
 **Not a story artefact, though a story is where it showed.** The phone frame's `transform` is what
 made the bar resolve against a scrollable box, so portalling to `<body>` on a real phone would have
