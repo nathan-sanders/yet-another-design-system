@@ -57,7 +57,7 @@ const linkOf = (canvas: ReturnType<typeof within>, name: string) => canvas.getBy
 
 /** The indicator, which is `aria-hidden` and so reached by its class rather than a role. */
 const indicatorOf = (canvasElement: HTMLElement) =>
-  canvasElement.querySelector<HTMLElement>('nav > span > span') as HTMLElement
+  canvasElement.querySelector<HTMLElement>('nav span > span') as HTMLElement
 
 /**
  * Uncontrolled, with controls — use the Theme switch in the toolbar for dark
@@ -125,12 +125,18 @@ export const Sizes: Story = {
     await expect(within(large).getByRole('link', { name: 'Overview' })).toHaveStyle({ height: '32px', fontSize: '14px' })
     await expect(within(small).getByRole('link', { name: 'Overview' })).toHaveStyle({ height: '24px', fontSize: '12px' })
     // The indicator follows the row height.
-    await waitFor(() => expect(getComputedStyle(large.querySelector('nav > span > span')!).height).toBe('32px'))
-    await waitFor(() => expect(getComputedStyle(small.querySelector('nav > span > span')!).height).toBe('24px'))
+    await waitFor(() => expect(getComputedStyle(large.querySelector('nav span > span')!).height).toBe('32px'))
+    await waitFor(() => expect(getComputedStyle(small.querySelector('nav span > span')!).height).toBe('24px'))
     // Tabs' 4px between the mark and what it marks.
-    const track = large.querySelector('nav > span')!.getBoundingClientRect()
+    const track = large.querySelector('nav span')!.getBoundingClientRect()
     const list = large.querySelector('ul')!.getBoundingClientRect()
     await expect(list.left - track.right).toBe(4)
+    // The row stretches the small nav to the tall one's height on purpose: the
+    // line must still end with the last item, not with the nav.
+    const smallTrack = small.querySelector('nav span')!.getBoundingClientRect()
+    const smallList = small.querySelector('ul')!.getBoundingClientRect()
+    await expect(smallTrack.height).toBe(smallList.height)
+    await expect(small.getBoundingClientRect().height).toBe(large.getBoundingClientRect().height)
   },
 }
 
