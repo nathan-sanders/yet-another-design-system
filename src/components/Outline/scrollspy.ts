@@ -44,9 +44,15 @@ export function depthOf(level: OutlineLevel = 2): OutlineDepth {
  * heading settles a fraction of a pixel short of it in every browser measured,
  * and without the slack the previous section would win at the moment the user
  * arrives at the one they clicked.
+ *
+ * `atEnd` is the root scrolled as far as it goes. The last section is usually
+ * shorter than the viewport, so its heading can never reach the line, and
+ * without this rule it could never be marked — clicking it would scroll to the
+ * bottom and mark the section above. At the end, the last heading is active.
  */
-export function pickActive(tops: readonly number[], line: number): number {
+export function pickActive(tops: readonly number[], line: number, atEnd = false): number {
   if (tops.length === 0) return -1
+  if (atEnd) return tops.length - 1
   let active = 0
   for (let index = 0; index < tops.length; index += 1) {
     if (tops[index] <= line + 1) active = index

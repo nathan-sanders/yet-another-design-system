@@ -39,7 +39,14 @@ describe('pickActive', () => {
     expect(pickActive([-500, 1.4, 400], 0)).toBe(0)
   })
 
+  it('marks the last heading at the end of the scroll, reached or not', () => {
+    // Scrolled to the bottom with the last heading still 300px below the line.
+    expect(pickActive([-900, -400, 300], 0, true)).toBe(2)
+    expect(pickActive([-900, -400, 300], 0, false)).toBe(1)
+  })
+
   it('has nothing to mark in an empty list', () => {
+    expect(pickActive([], 0, true)).toBe(-1)
     expect(pickActive([], 0)).toBe(-1)
   })
 })

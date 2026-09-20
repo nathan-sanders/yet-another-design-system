@@ -222,6 +222,24 @@ function rootTop(root: ScrollRoot) {
   return root instanceof Window ? 0 : root.getBoundingClientRect().top
 }
 
+/** The root's bottom edge in viewport pixels. */
+function rootBottom(root: ScrollRoot) {
+  return root instanceof Window ? window.innerHeight : root.getBoundingClientRect().bottom
+}
+
+/**
+ * Whether the root is scrolled as far as it goes. False for a root that does
+ * not scroll at all — "the end" means nothing there, and the last heading
+ * must not win by default.
+ */
+function atScrollEnd(root: ScrollRoot) {
+  const [position, viewport, extent] =
+    root instanceof Window
+      ? [window.scrollY, window.innerHeight, document.documentElement.scrollHeight]
+      : [root.scrollTop, root.clientHeight, root.scrollHeight]
+  return extent > viewport + 1 && position + viewport >= extent - 1
+}
+
 /** A heading's top edge in viewport pixels, less its own `scroll-margin-top`. */
 function headingTop(heading: HTMLElement) {
   return heading.getBoundingClientRect().top - (parseFloat(getComputedStyle(heading).scrollMarginTop) || 0)
@@ -278,15 +296,26 @@ export function Outline({
 
   // True from onNavigateStart to onNavigateEnd. The spy reads it.
   const navigatingRef = useRef(false)
+  // The spy's measure, for a finished navigation to call once.
+  const measureRef = useRef<(prefer?: string) => void>(() => {})
 
   // ---- Scroll-spy ---------------------------------------------------------
   const spy = activeProp === undefined
   useEffect(() => {
-    if (!spy || ids.length === 0) return
+    if (!spy || ids.length === 0) {
+      measureRef.current = () => {}
+      return
+    }
     const root = resolveRoot()
     let frame = 0
 
-    const measure = () => {
+    /**
+     * `prefer` is the heading a navigation just scrolled to. It wins while it
+     * is on screen below the line — the case is a heading near the end of the
+     * content, which the scroll had to clamp short of: the end-of-scroll rule
+     * would mark the last heading, and the reader clicked this one.
+     */
+    const measure = (prefer?: string) => {
       frame = 0
       if (navigatingRef.current) return
       // Headings that are not on the page (yet) are left out rather than given
@@ -297,14 +326,25 @@ export function Outline({
         const heading = document.getElementById(id)
         if (heading) present.push({ id, top: headingTop(heading) })
       }
+      const line = rootTop(root) + offset
+      const preferred = prefer ? present.find((entry) => entry.id === prefer) : undefined
+      if (preferred && preferred.top > line + 1 && preferred.top < rootBottom(root)) {
+        commit(preferred.id)
+        return
+      }
       const index = pickActive(
         present.map((entry) => entry.top),
-        rootTop(root) + offset,
+        line,
+        atScrollEnd(root),
       )
       if (index >= 0) commit(present[index].id)
     }
+    measureRef.current = measure
     const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(measure)
+      // A navigation's own scroll events are not the reader's; the measure at
+      // its end is the one that counts.
+      if (navigatingRef.current) return
+      if (!frame) frame = requestAnimationFrame(() => measure())
     }
 
     measure()
@@ -314,6 +354,7 @@ export function Outline({
       if (frame) cancelAnimationFrame(frame)
       root.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', schedule)
+      measureRef.current = () => {}
     }
   }, [spy, ids, offset, resolveRoot, commit])
 
@@ -332,6 +373,8 @@ export function Outline({
         if (ended) return
         ended = true
         navigatingRef.current = false
+        // Where did the scroll actually stop? Landed, clamped, or interrupted.
+        measureRef.current(id)
         onNavigateEndRef.current?.(id)
       }
 

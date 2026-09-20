@@ -106,8 +106,8 @@ export const Sizes: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex gap-10">
-      <Outline {...args} aria-label="Default size" />
-      <Outline {...args} aria-label="Small size" size="small" />
+      <Outline {...args} className="w-60" aria-label="Default size" />
+      <Outline {...args} className="w-60" aria-label="Small size" size="small" />
     </div>
   ),
   decorators: [
@@ -311,6 +311,11 @@ export const ScrollSpy: Story = {
     container.scrollTop = results.offsetTop - container.offsetTop + 2
     await waitFor(() => expect(linkOf(canvas, 'Results')).toHaveAttribute('aria-current', 'location'))
     await expect(args.onActiveChange).toHaveBeenLastCalledWith('results')
+
+    // At the end of the scroll the last heading is active, whether or not it
+    // has reached the top: the last section is shorter than the box.
+    container.scrollTop = container.scrollHeight
+    await waitFor(() => expect(linkOf(canvas, 'Next steps')).toHaveAttribute('aria-current', 'location'))
 
     // Click a heading: the box scrolls to it, and the navigate callbacks
     // bracket the scroll.
