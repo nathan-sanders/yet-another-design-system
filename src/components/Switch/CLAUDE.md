@@ -11,6 +11,13 @@ written to be read against each other for exactly that reason.
 `aria-labelledby` resolved through the wrapping label, the hidden `<input type="checkbox">`, and
 `data-checked` / `data-unchecked`. **No ARIA to patch** — read out of `node_modules`, not
 assumed: Tooltip needed it, Toast and Menu did not, and neither does this.
+**One piece of ARIA to say out loud, found on 2026-09-20 while building `Form`.** That
+`aria-labelledby` resolved through the wrapping label only *outside* a Field: Base UI takes a
+surrounding `Field.Label`'s id ahead of the wrapping `<label>`, so under `<Field label="Security">`
+the switch was announced as "Security" and its own "Two-factor authentication" was lost. The
+root now passes `aria-labelledby` at its own label span and `aria-describedby` at its sub-label,
+which come first in that precedence; the Field's sub-label and message are still appended. The
+same fix, for the same reason, is on Checkbox and Radio, and the trace is in Form's record.
 **The knob grows as it slides — 14px to 16px.** Figma draws it 14 in Input/Border when off and
 16 in Input/Selected Foreground when on, so the insets are 2px at rest and 1px once flipped.
 That is the file, not a rounding error, and it is built as drawn.

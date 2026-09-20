@@ -48,7 +48,18 @@ Verified: the parent reports `aria-checked="mixed"` and shows the `-`.
 **`selectAll` needs `allValues`** — Base UI compares it against the current value to decide the
 parent's three states, and cannot know the options nobody has ticked without being told.
 **Options are matched by `name`, not `value`**, which is the one thing about this API that reads
-wrong beside `Radio.Group`.
+wrong beside `Radio.Group` — **outside a named Field.** Inside `<Field name="interests">`, which
+is what a `Form` wants, Base UI gives every checkbox the Field's `name` and reads the option from
+`value` (`CheckboxRoot.js`: `name = fieldName ?? nameProp; value = valueProp ?? name`), so there
+the options carry `value` and `name` would collapse them all into one. `Form`'s record has the
+full trace.
+**Each box is named by its own text, said explicitly.** Base UI takes a surrounding Field's label
+id ahead of the wrapping `<label>`, so inside `<Field label="Send me">` both boxes in a group were
+announced as "Send me" — found on 2026-09-20 while building `Form`, when a play could not find a
+checkbox called "SMS". The box now passes `aria-labelledby` pointing at its own label span and
+`aria-describedby` at its sub-label, which comes first in Base UI's precedence; the Field's
+sub-label and message are still appended, because Base UI merges `aria-describedby` rather than
+replacing it. Radio and Switch carry the same fix. The group itself is still named by the Field.
 The **Divider is a real Divider instance**, as Figma draws it, and it is safe here where it was
 not in Tabs: `CheckboxGroup` renders `role="group"`, which has no required-children rule for a
 `role="separator"` to violate — checked with axe rather than assumed.

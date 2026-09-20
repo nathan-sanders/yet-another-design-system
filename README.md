@@ -154,6 +154,7 @@ on every run under "scale-shaped names with no Tailwind counterpart", which is e
 | **Dialog** | A modal surface that blocks the page until you answer it; a title, a body and a row of actions, at 600px or any width you pass. `Dialog.Body` is the part that scrolls, so a long dialog keeps its title and close button in place while the middle moves |
 | **Divider** | Horizontal/vertical × solid/dashed × default/emphasized — 1px in all eight |
 | **Field** | The label, sub-label and validation message around any control — Input, InputGroup, Select, Checkbox, Radio |
+| **Form** | The `<form>` a set of Fields sits in, on Base UI's Form: checks every field on submit, focuses the first invalid one, hands `onFormSubmit` the values by Field `name` and takes server `errors` by the same names. `Form.Row` pairs fields in equal columns; `Form.Actions` is the button row |
 | **Icon** | Any [Lucide](https://lucide.dev) glyph at 4 sizes (12/16/20/24), stroke 1.5 |
 | **Input** | A single line of free text; 3 sizes (24/32/40) × default/hover/focus/invalid/disabled, in a default or ghost appearance |
 | **InputGroup** | The same field with addons attached — an icon, a button, a `https://` prefix — each choosing its own side: beside the text or on a row of its own |
@@ -279,6 +280,23 @@ field in its invalid state — a red message beside a neutral border would be a 
 <Field label="Email" description="We'll only use it to sign you in" error="Email must include an @">
   <Input type="email" placeholder="ada@example.com" />
 </Field>
+```
+
+A `Form` is where those fields decide when they are checked and what happens on submit. Give each
+Field a `name`, make the submit button `type="submit"`, and the form does the rest: nothing is
+sent until every field passes, the first one that fails takes focus, and the message under it is
+the browser's own words, a `validate` rule's, or whatever the server sent back under that name.
+
+```tsx
+<Form onFormSubmit={(values) => save(values)}>
+  <Field name="email" label="Email">
+    <Input type="email" required />
+  </Field>
+  <Form.Actions>
+    <Button appearance="secondary">Cancel</Button>
+    <Button type="submit">Save</Button>
+  </Form.Actions>
+</Form>
 ```
 
 A ghost input has no fill and no stroke until you go near it — a wash on hover, the full chrome on

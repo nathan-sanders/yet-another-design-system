@@ -36,6 +36,11 @@ This is Astryx's `RadioList`, and its guidance holds: two to seven options, and 
 past four because it wraps awkwardly. Everything else Astryx builds into that component — the
 group's label, its description, the required marker, the message — is `Field`'s job here, which
 is what Figma says too by giving Field a `Type=Radio` variant.
+**And each option is named by its own text, said explicitly** since 2026-09-20: Base UI takes a
+surrounding Field's label id ahead of an option's wrapping `<label>`, so under a Field every radio
+was announced by the group's question rather than its own answer. The root now passes
+`aria-labelledby` at its own label span and `aria-describedby` at its sub-label; the group is
+still named by the Field. Found building `Form`; Checkbox and Switch carry the same fix.
 Naming: Figma calls the property `Layout`, and the prop is `orientation`, after Divider's — the
 library already spends `layout` on hug-or-fill in SegmentedControl and Tabs.
 
