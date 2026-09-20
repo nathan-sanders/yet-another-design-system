@@ -1087,7 +1087,9 @@ the library's through `render`. Its record has the two things the build turned o
 `<p>` named to the fieldset because a `<legend>` cannot be a flex item, and the row is Radio's and
 Checkbox's card painted off the `<label>` — **the fourth copy Radio's record said would be the point
 to extract**, now a live question rather than something done quietly. The file drew it first; what it
-does not draw (invalid, the message, Previous/Skip/Submit) is on the record's owed list.
+does not draw (invalid, the message, Previous/Skip/Submit) is on the record's owed list. Its one token
+question — the description shipped on `Content/Primary` because the file bound it there — was
+settled the next day at source: the node moved to `Content/Subtle`, the code followed.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's
