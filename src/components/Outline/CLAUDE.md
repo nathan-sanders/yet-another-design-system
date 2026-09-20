@@ -71,10 +71,17 @@ one element transitions `translate` and `height` at `duration-fast ease-standard
 moves its own indicator at. Tailwind v4 compiles `translate-y-*` to the `translate` property, so
 that is the property named in `transition-[…]` — the same footnote Tabs carries.
 
-Two positioning facts make the measurement cheap. The `<ul>` is `relative`, so a link's `offsetTop`
-is measured against the list. And the track is `self-stretch` in the same flex row, so its top edge
-*is* the list's — the indicator lives inside the track and the number needs no translation. A
+One positioning fact makes the measurement cheap: the track and the list share a `relative`
+block wrapper. A link's `offsetTop` is measured against that wrapper, the track is `inset-y-0`
+of it, and the indicator is `top-0` of the track — so the number needs no translation. A
 `ResizeObserver` on the list re-measures when a label wraps.
+
+**The track hangs off the wrapper, not the nav — found by the Sizes story.** It started as a
+`self-stretch` flex sibling of the list, which is stretched to the *nav's* height, and a nav is
+whatever its parent makes it: in a flex row beside the taller default outline, the small one was
+stretched to match and its line ran on past the last item. A block wrapper is only ever as tall as
+the list inside it, so the line ends where the list does whatever happens to the nav. The Sizes
+story keeps its row stretched on purpose and asserts the small track's height equals its list's.
 
 Nothing active — an `activeId` that matches no item, or headings that are not on the page yet —
 hides the indicator rather than parking it at the top. `hidden` is a variant so the token guard and

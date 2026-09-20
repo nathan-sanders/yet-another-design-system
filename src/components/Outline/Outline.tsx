@@ -30,10 +30,10 @@ import { depthOf, pickActive, type OutlineItem, type OutlineLevel } from './scro
  * turned on its side: a layout effect reads the active link's `offsetTop` and
  * `offsetHeight` and hands them to CSS as `--outline-indicator-top` and
  * `--outline-indicator-height`; one element transitions `translate` and
- * `height`. The list is `relative`, so the link's offsets are measured against
- * it, and the track — which the indicator paints over — starts at the same top
- * edge in the flex row. A `ResizeObserver` on the list re-measures when a label
- * wraps or the outline is resized.
+ * `height`. The wrapper round the track and the list is `relative`, so the
+ * link's offsets are measured against it, and the track — which the indicator
+ * paints over — spans exactly that wrapper. A `ResizeObserver` on the list
+ * re-measures when a label wraps or the outline is resized.
  *
  * **Scroll-spy is a scroll listener, not an `IntersectionObserver`.** `offset`
  * defines an activation *line* — the top of the scroll root plus the height of
@@ -66,25 +66,31 @@ import { depthOf, pickActive, type OutlineItem, type OutlineLevel } from './scro
  * `useOutlineFromDOM` is kept, as a sibling export.
  */
 
-const outline = tv({
-  // gap-1 = 4px between the track and the list — Tabs' distance from a tab to
-  // its rule (Astryx draws 2). With the 1px track that puts the list 5px in.
-  base: 'flex gap-1 font-sans',
-})
+const outline = tv({ base: 'font-sans' })
 
-// w-px: Tabs' 1px rule (`before:h-px before:bg-surface-border`), vertical. The
-// track is what the indicator slides along; `relative` so the indicator is
-// positioned against it.
-const track = 'relative w-px shrink-0 self-stretch rounded-full bg-surface-border'
+// The track and the list, as one block. The track is absolute against this
+// wrapper rather than a flex sibling of the list, because a flex sibling is
+// `self-stretch` to the *nav*, and a nav is whatever its parent makes it — in a
+// flex row beside a taller outline it is stretched, and the line ran on past
+// the last item. A block wrapper is only ever as tall as the list inside it, so
+// the line ends where the list does whatever happens to the nav.
+//
+// pl-1.25 = 5px: Tabs' 1px rule plus its 4px to the tab (Astryx draws 2).
+const body = 'relative pl-1.25'
+
+// w-px: Tabs' 1px rule (`before:h-px before:bg-surface-border`), vertical, the
+// full height of the list. It is what the indicator slides along.
+const track = 'absolute inset-y-0 left-0 w-px rounded-full bg-surface-border'
 
 const indicator = tv({
   base: [
     // w-0.5 = 2px, Tabs' indicator height. It paints over the 1px track and
     // reaches 1px into the gap — the same overlap Tabs' 2px has on its 1px rule.
     'absolute top-0 left-0 w-0.5 rounded-full bg-surface-border-emphasized',
-    // The active link's geometry, measured against the list and handed over as
-    // CSS variables. `top-0` plus a translate rather than `top:` so the move is
-    // a composited transform — Tabs' arrangement, vertical.
+    // The active link's geometry, measured against the wrapper (the list's
+    // top is the wrapper's top) and handed over as CSS variables. `top-0` plus
+    // a translate rather than `top:` so the move is a composited transform —
+    // Tabs' arrangement, vertical.
     'h-(--outline-indicator-height) translate-y-(--outline-indicator-top)',
     // Tailwind v4 compiles translate-y-* to the `translate` property, so that is
     // the property named here. 175ms is what Astryx's own indicator moves at.
@@ -467,25 +473,27 @@ export function Outline({
 
   return (
     <nav aria-label={ariaLabel} className={cn(outline(), className)} style={style} {...props}>
-      <span aria-hidden className={track}>
-        <span className={indicator({ hidden: geometry === null })} style={indicatorStyle} />
-      </span>
-      {/* min-w-0 so a long label truncates the list, not the outline. */}
-      <ul ref={listRef} className="relative flex min-w-0 flex-1 flex-col gap-0.5">
-        {items.map((entry) => (
-          <li key={entry.id}>
-            <OutlineLink
-              id={entry.id}
-              size={size}
-              depth={depthOf(entry.level)}
-              active={entry.id === activeId}
-              onNavigate={navigate}
-            >
-              {entry.label}
-            </OutlineLink>
-          </li>
-        ))}
-      </ul>
+      <div className={body}>
+        <span aria-hidden className={track}>
+          <span className={indicator({ hidden: geometry === null })} style={indicatorStyle} />
+        </span>
+        {/* min-w-0 so a long label truncates the list, not the outline. */}
+        <ul ref={listRef} className="flex min-w-0 flex-col gap-0.5">
+          {items.map((entry) => (
+            <li key={entry.id}>
+              <OutlineLink
+                id={entry.id}
+                size={size}
+                depth={depthOf(entry.level)}
+                active={entry.id === activeId}
+                onNavigate={navigate}
+              >
+                {entry.label}
+              </OutlineLink>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   )
 }
