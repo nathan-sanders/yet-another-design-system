@@ -13,7 +13,9 @@ Disabled) × `Selected`, with `Icon` and `Sub Label` booleans and a `Kbd` at the
 inside each row is an instance of the library's own `Radio` (`40004007:4098`) or `Checkbox`
 (`40004007:3962`), the field an instance of `Input` (`40004157:15970`), the key an instance of
 `Kbd` (`40004073:20923`). **Measured back at 280 × 320, rows 40, field 40, dial 20, key 20**, with
-8px between rows and 16 between the question, its answers and the footer.
+8px between rows and 16 between the question, its answers and the footer. The Docs page is
+`40005494:63838`, and the row sets carry `State=Invalid` and a `Shortcut` boolean since the day
+after the build — see "The file caught up" below.
 
 ## The library's first form primitive that is not Base UI's
 
@@ -196,38 +198,61 @@ Two traps met writing them: every closed question carries the same hidden messag
 so a keypress with focus on `<body>` reaches nothing — put focus inside first, on the fieldset,
 where the primitive itself puts it.
 
-## Owed to Figma
+## The file caught up the same day
 
-Built here first, the ProgressBar and Carousel route; the file should catch up rather than the
-code move:
+Everything the code built ahead of the drawing was drawn on 2026-09-20, the ProgressBar and
+Carousel route, and the code did not move when it landed — the test of a real catch-up:
 
-- an `Invalid` state on both row sets, and the `Error` message under the answers;
-- Previous, Skip and Submit in the footer — the file draws Next alone;
-- a `numbers` key and a row with no key at all;
-- the one-question form with no count;
-- a `↪ Questionnaire` Docs page with a Best practices block mirroring the section below — the
-  section here is written first, ThemeControl and BentoGrid's situation.
+- **`State=Invalid` on both row sets** (`40005525:541` / `:568` on the Radio set, `:579` / `:591`
+  on the Checkbox set), a fifth column on each variant grid. The stroke is `Feedback/Danger/
+  Highlight`; the control inside takes its own `State=Invalid` on the unselected row, and keeps
+  its selected disc on the selected one, because neither Radio nor Checkbox draws an
+  invalid-and-selected control — their records say the CSS covers that gap, and the row's ring
+  carries the state alone, which is exactly what `data-invalid:` on the card does here.
+- **`Shortcut`** boolean on both sets, bound to every variant's Kbd — the row with no key. A
+  number key is the Kbd's own text on the instance, as the last example on the Docs page shows.
+- **`Error` / `Error Text`** on the `Questionnaire` component: Field's validation voice
+  (`text-sm/italic regular`, `Content/Danger`) after Selections, off by default so the component
+  still measures 280 × 320.
+- **`Previous`, `Skip`, `Next`, `Submit`** booleans on the component, one Button each in the footer
+  in that order — Secondary, Ghost, Primary, Primary — with Next the only one on by default.
+- The one-question form with no count was never owed: `Number of Questions` was there from the
+  start.
+- **A `↪ Questionnaire` Docs page** (`40005494:63838`): the header sentence, three examples in
+  Light and Dark — the mock, an invalid multi-select mid-flow, a last question with number keys
+  and Submit — and the Best practices block below, mirrored into it.
+
+Two things the build found, both about the API rather than the component. **A variant's
+`clone()` lands on the page, not in its set**, so `componentPropertyReferences` cannot be set on
+it ("Could not find a component property") until `set.appendChild(clone)` — the clone that
+reads as a sibling in the layers panel is not one yet. And the row sets' property keys
+(`Icon#40004067:398`…) are shared between the Radio and Checkbox sets, because one was cloned
+from the other; a key found by prefix on either set works on both.
 
 ## Best practices
 
-No Figma block to mirror yet; written here first.
+Mirrored from the **Best practices** block on `↪ Questionnaire` (`40005494:63845`) in Figma.
+The two are one text in two places — change one and change the other. Where a rule names a
+thing, the canvas says the design word and this record says the prop beside it.
 
 **Do**
 
 - Ask one thing per question, and keep it to between two and seven answers.
-- Use `multiple` when more than one answer can be true at once. The rows become boxes and the
-  answer becomes a list.
-- Add the free-text field only where "something else" is a real answer, and give it an
-  `aria-label` that says what an answer typed there is.
-- Leave `required` off a question that may honestly go unanswered. That is what gives it a Skip.
-- Put it in the assistant's own turn, in a `fill` message, so the answers read as part of the
-  conversation.
+- Use multi select (`multiple`) when more than one answer can be true at once. The rows become
+  boxes and the answer becomes a list.
+- Add the free-text field only where "something else" is a real answer, and give it a label
+  (`aria-label`) that says what an answer typed there is.
+- Leave a question optional (`required` off) when it may honestly go unanswered. That is what
+  gives it a Skip.
+- Put it in the assistant's own turn, filling the message (`layout="fill"`), so the answers read
+  as part of the conversation.
 
 **Don't**
 
-- Do not use it for one question with no follow-up. That is a `Radio` or a `Checkbox` under a
-  `Field`, and it does not need a footer.
+- Do not use it for one question with no follow-up. That is a Radio or a Checkbox under a Field,
+  and it does not need a footer.
 - Do not turn shortcuts off where a keyboard is expected. They are the fastest way through, and
   they never advance on their own.
-- Do not put a second form inside it, or it inside another form. The root is the `<form>`.
-- Do not read the answers off the DOM. `onAnswers` already has them, arrays and all.
+- Do not put a second form inside it, or it inside another form. The root is the form.
+- Do not read the answers off the rows. The submitted answers (`onAnswers`) already have them,
+  lists and all.
