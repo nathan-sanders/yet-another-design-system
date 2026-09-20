@@ -10,7 +10,7 @@ import { depthOf, pickActive, type OutlineItem, type OutlineLevel } from './scro
  * Outline — the headings on this page, with the one in view marked.
  *
  * A table of contents for documentation, help centers and long settings pages:
- * a `<nav>` of same-page links, indented by heading level, with a 2px track
+ * a `<nav>` of same-page links, indented by heading level, with a 1px track
  * down the left edge and a 2px indicator that slides to the active heading as
  * the page scrolls. Astryx's `Outline`, read at the DOM.
  *
@@ -68,17 +68,19 @@ import { depthOf, pickActive, type OutlineItem, type OutlineLevel } from './scro
 
 const outline = tv({
   // gap-1 = 4px between the track and the list — Tabs' distance from a tab to
-  // its rule (Astryx draws 2). With the 2px track that puts the list 6px in;
-  // the indicator at left-0 of the track sits exactly on it either way.
+  // its rule (Astryx draws 2). With the 1px track that puts the list 5px in.
   base: 'flex gap-1 font-sans',
 })
 
-// w-0.5 = 2px (border-width/border-2). The track is the rule the indicator
-// slides along; `relative` so the indicator is positioned against it.
-const track = 'relative w-0.5 shrink-0 self-stretch rounded-full bg-surface-border'
+// w-px: Tabs' 1px rule (`before:h-px before:bg-surface-border`), vertical. The
+// track is what the indicator slides along; `relative` so the indicator is
+// positioned against it.
+const track = 'relative w-px shrink-0 self-stretch rounded-full bg-surface-border'
 
 const indicator = tv({
   base: [
+    // w-0.5 = 2px, Tabs' indicator height. It paints over the 1px track and
+    // reaches 1px into the gap — the same overlap Tabs' 2px has on its 1px rule.
     'absolute top-0 left-0 w-0.5 rounded-full bg-surface-border-emphasized',
     // The active link's geometry, measured against the list and handed over as
     // CSS variables. `top-0` plus a translate rather than `top:` so the move is
