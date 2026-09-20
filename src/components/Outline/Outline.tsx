@@ -61,16 +61,16 @@ import { depthOf, pickActive, type OutlineItem, type OutlineLevel } from './scro
  * sets.
  *
  * Left out on purpose: Astryx's `density` (this is `size`, the house name, and
- * the two heights are NavItem's 40 and TreeList's 32); its `label` prop (this
+ * the two heights are Tabs' 32 and 24); its `label` prop (this
  * is `aria-label`, like every landmark here); `xstyle`. Its
  * `useOutlineFromDOM` is kept, as a sibling export.
  */
 
 const outline = tv({
-  // gap-0.5 = 2px between the track and the list, as Astryx draws it; with the
-  // 2px track that puts the list 4px in, so the indicator at left-0 of the
-  // track sits exactly on it.
-  base: 'flex gap-0.5 font-sans',
+  // gap-1 = 4px between the track and the list — Tabs' distance from a tab to
+  // its rule (Astryx draws 2). With the 2px track that puts the list 6px in;
+  // the indicator at left-0 of the track sits exactly on it either way.
+  base: 'flex gap-1 font-sans',
 })
 
 // w-0.5 = 2px (border-width/border-2). The track is the rule the indicator
@@ -101,19 +101,19 @@ const item = tv({
     // Content/Subtle at rest, Content/Primary on hover: the Breadcrumbs
     // treatment, because an outline is navigation chrome beside the page, not
     // a link inside body copy — so not the blue Action/Link pair.
-    'font-sans text-base font-normal text-content-subtle',
+    'font-sans font-normal text-content-subtle',
     'transition-colors duration-fast-min ease-standard',
     // The 10% wash TreeList's rows hover with; Figma's Surface/Overlay Subtle.
     'hover:bg-surface-overlay-subtle hover:text-content-primary',
     ...focusRing,
   ],
   variants: {
-    // The rows sit on the 24px text-base line: py-2 makes 40 (NavItem's
-    // height), py-1 makes 32 (TreeList's). Astryx's `density`, on the house
-    // scale.
+    // Tabs' two sizes: py-1 round text-base's 24px line makes 32 (Tabs'
+    // min-h-8), py-0.5 round text-sm's 20px line makes 24 (Tabs' min-h-6, at
+    // Tabs' small type). Astryx's `density`, on the house scale.
     size: {
-      default: 'py-2',
-      small: 'py-1',
+      default: 'py-1 text-base',
+      small: 'py-0.5 text-sm',
     },
     // 12px base (spacing/3) plus 16px (spacing/4) per step. Fixed classes
     // rather than a computed padding so each depth is a variant the token guard
@@ -148,7 +148,7 @@ export type { OutlineItem, OutlineLevel }
 export interface OutlineProps extends Omit<ComponentPropsWithRef<'nav'>, 'onChange'> {
   /** Ordered headings. Each `id` is the `id` of a heading element on the page. */
   items: readonly OutlineItem[]
-  /** Row height: `default` is 40px, `small` 32px. Same 14px type. */
+  /** Row height: `default` is 32px at 14px type, `small` 24px at 12px — Tabs' two sizes. */
   size?: OutlineSize
   /**
    * The active heading's id. Providing it makes the outline controlled and
