@@ -11,5 +11,8 @@ export type {
   QuestionnaireAnswers,
   QuestionnaireItemDefinition,
   QuestionnaireChoiceDefinition,
+  QuestionnaireRecapProps,
+  QuestionnaireRecapItem,
+  QuestionnaireRecapEntry,
 } from './Questionnaire'
-export { readAnswers } from './answers'
+export { readAnswers, recapAnswers } from './answers'

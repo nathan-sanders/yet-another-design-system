@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 /**
  * Every answer a Questionnaire submitted, by item name. A `multiple` item is
  * always an array, even with one box ticked; every other item is the one
@@ -39,4 +41,48 @@ export function readAnswers(
   }
 
   return answers
+}
+
+/** The shape `recapAnswers` reads: a question's name, its prompt and its choices' labels. */
+export interface QuestionnaireRecapItem {
+  name: string
+  prompt: ReactNode
+  disabled?: boolean
+  choices?: readonly { value: string; label: ReactNode }[]
+}
+
+/** One line of a recap: the question, and what was answered — `null` when it was skipped. */
+export interface QuestionnaireRecapEntry {
+  name: string
+  prompt: ReactNode
+  answer: ReactNode[] | null
+}
+
+/**
+ * Turns submitted answers back into words, one entry per question, in the
+ * questions' order.
+ *
+ * A value that matches a choice becomes that choice's label; one that does not
+ * — the free-text field — is printed as typed. A `multiple` question's array
+ * becomes one entry with several labels. A question absent from `answers` was
+ * skipped (or left empty) and comes back with `answer: null`, so a recap can
+ * say so rather than drop the line: a recap that omits a question reads as if
+ * it was never asked. A `disabled` question was not part of the flow and is
+ * left out.
+ */
+export function recapAnswers(
+  items: readonly QuestionnaireRecapItem[],
+  answers: QuestionnaireAnswers,
+): QuestionnaireRecapEntry[] {
+  return items
+    .filter((item) => !item.disabled)
+    .map((item) => {
+      const value = answers[item.name]
+      if (value === undefined) return { name: item.name, prompt: item.prompt, answer: null }
+      const values = Array.isArray(value) ? value : [value]
+      const answer = values.map(
+        (v) => item.choices?.find((choice) => choice.value === v)?.label ?? v,
+      )
+      return { name: item.name, prompt: item.prompt, answer }
+    })
 }

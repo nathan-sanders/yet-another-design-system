@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { readAnswers } from './answers'
+import { readAnswers, recapAnswers } from './answers'
 
 describe('readAnswers', () => {
   it('reads a single-select item as one string', () => {
@@ -72,5 +72,50 @@ describe('readAnswers', () => {
     expect(readAnswers([['upload', file], ['neutral', 'stone']], new Set())).toEqual({
       neutral: 'stone',
     })
+  })
+})
+
+describe('recapAnswers', () => {
+  const items = [
+    {
+      name: 'neutral',
+      prompt: 'Which neutral?',
+      choices: [
+        { value: 'stone', label: 'Stone' },
+        { value: 'slate', label: 'Slate' },
+      ],
+    },
+    {
+      name: 'themes',
+      prompt: 'Which themes?',
+      choices: [
+        { value: 'light', label: 'Light' },
+        { value: 'dark', label: 'Dark' },
+      ],
+    },
+    { name: 'docs', prompt: 'Where documented?', choices: [{ value: 'storybook', label: 'Storybook' }] },
+  ]
+
+  it('maps values back to labels, in the questions\' order', () => {
+    expect(recapAnswers(items, { docs: 'storybook', neutral: 'stone', themes: ['light', 'dark'] })).toEqual([
+      { name: 'neutral', prompt: 'Which neutral?', answer: ['Stone'] },
+      { name: 'themes', prompt: 'Which themes?', answer: ['Light', 'Dark'] },
+      { name: 'docs', prompt: 'Where documented?', answer: ['Storybook'] },
+    ])
+  })
+
+  it('prints free text as typed', () => {
+    expect(recapAnswers(items, { neutral: 'Taupe' })[0].answer).toEqual(['Taupe'])
+  })
+
+  it('keeps a skipped question as a line with no answer', () => {
+    const entries = recapAnswers(items, { neutral: 'stone', docs: 'storybook' })
+    expect(entries.map((e) => e.answer)).toEqual([['Stone'], null, ['Storybook']])
+  })
+
+  it('leaves a disabled question out', () => {
+    expect(recapAnswers([{ ...items[0], disabled: true }, items[2]], { docs: 'storybook' })).toEqual([
+      { name: 'docs', prompt: 'Where documented?', answer: ['Storybook'] },
+    ])
   })
 })

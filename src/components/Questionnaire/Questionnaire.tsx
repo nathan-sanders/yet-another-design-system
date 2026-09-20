@@ -15,11 +15,12 @@ import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
 import { Button, type ButtonProps } from '../Button'
+import { Card, type CardProps } from '../Card'
 import { Form, type FormActionsProps } from '../Form'
 import { Icon } from '../Icon'
 import { box as inputBox, control as inputControl, type InputSize } from '../Input/styles'
 import { Kbd, type KbdProps } from '../Kbd'
-import { readAnswers, type QuestionnaireAnswers } from './answers'
+import { readAnswers, recapAnswers, type QuestionnaireAnswers, type QuestionnaireRecapItem } from './answers'
 import { QuestionnaireContext, QuestionnaireItemContext } from './context'
 import {
   actions,
@@ -38,12 +39,16 @@ import {
   header,
   item,
   progress as progressText,
+  recapAnswer,
+  recapList,
+  recapPair,
+  recapQuestion,
   root,
   title as titleText,
   titleGroup,
 } from './styles'
 
-export type { QuestionnaireAnswers } from './answers'
+export type { QuestionnaireAnswers, QuestionnaireRecapEntry, QuestionnaireRecapItem } from './answers'
 export type { QuestionnaireItemStatus } from '@shadcn/react/questionnaire'
 
 /**
@@ -532,8 +537,70 @@ function QuestionnaireSubmit({
 
 QuestionnaireSubmit.displayName = 'Questionnaire.Submit'
 
+export interface QuestionnaireRecapProps extends Omit<CardProps, 'children'> {
+  /** The questions, as they were mapped into the `Questionnaire.Item`s. */
+  items: readonly QuestionnaireRecapItem[]
+  /** What `onAnswers` handed over. */
+  answers: QuestionnaireAnswers
+  /** What a skipped question says. */
+  skippedLabel?: ReactNode
+}
+
+/**
+ * The questionnaire, answered — what stands in the assistant's turn once the
+ * form has done its job, so the log keeps the answers and not a dead form.
+ *
+ * Mirrors the Figma component "Questionnaire Recap" (node 40005537:65099): a
+ * Card holding one pair per question, the question in Content/Subtle over the
+ * answer in Content/Primary. It is a `<dl>` — a question is a term and its
+ * answer the definition, which is what a screen reader reads it as — and the
+ * words come from `recapAnswers`: a value becomes its choice's label, free
+ * text prints as typed, a `multiple` answer's labels are joined, and a skipped
+ * question is still a line, saying so in italic, because a recap that drops a
+ * question reads as if it was never asked.
+ *
+ * No edit action. Changing an answer is a new turn in the conversation, not a
+ * button on the record of the last one.
+ */
+function QuestionnaireRecap({
+  items,
+  answers,
+  skippedLabel = 'Skipped',
+  className,
+  ...props
+}: QuestionnaireRecapProps) {
+  const entries = recapAnswers(items, answers)
+
+  return (
+    <Card className={className} {...props}>
+      <dl className={recapList()}>
+        {entries.map((entry) => (
+          <div key={entry.name} className={recapPair()}>
+            <dt className={recapQuestion()}>{entry.prompt}</dt>
+            <dd className={recapAnswer({ skipped: entry.answer === null })}>
+              {entry.answer === null
+                ? skippedLabel
+                : entry.answer.map((label, index) => (
+                    // Index is the key: an answer is a fixed list of labels
+                    // that never reorders, and two can legitimately match.
+                    <span key={index}>
+                      {index > 0 && ', '}
+                      {label}
+                    </span>
+                  ))}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </Card>
+  )
+}
+
+QuestionnaireRecap.displayName = 'Questionnaire.Recap'
+
 Questionnaire.Item = QuestionnaireItem
 Questionnaire.Choice = QuestionnaireChoice
+Questionnaire.Recap = QuestionnaireRecap
 Questionnaire.Input = QuestionnaireInput
 Questionnaire.Actions = QuestionnaireActions
 Questionnaire.Previous = QuestionnairePrevious

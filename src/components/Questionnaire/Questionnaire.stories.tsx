@@ -594,27 +594,78 @@ export const FocusRing: Story = {
   },
 }
 
+/**
+ * The questionnaire, answered: Figma's `Questionnaire Recap` (40005537:65099),
+ * a Card of question / answer pairs, the answer the darker line. The
+ * `multiple` question's labels are joined; values come back as their labels.
+ *
+ * Measured: three terms and three definitions in a `<dl>`; the pairs 8px
+ * apart with no gap inside; both lines 12/20; the question on
+ * `content-subtle` and the answer on `content-primary`.
+ */
+export const Recap: Story = {
+  decorators: atCardWidth,
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Questionnaire.Recap
+      items={questions}
+      answers={{ neutral: 'stone', themes: ['light', 'dark'], docs: 'storybook' }}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const terms = canvas.getAllByRole('term')
+    const answers = canvas.getAllByRole('definition')
+    await expect(terms).toHaveLength(3)
+    await expect(answers[1]).toHaveTextContent('Light, Dark')
+
+    await expect(getComputedStyle(terms[0]).color).toBe(tokenColor('content-subtle'))
+    await expect(getComputedStyle(answers[0]).color).toBe(tokenColor('content-primary'))
+    await expect(getComputedStyle(terms[0]).fontSize).toBe('12px')
+    await expect(answers[0].getBoundingClientRect().top - terms[0].getBoundingClientRect().bottom).toBe(0)
+    await expect(terms[1].getBoundingClientRect().top - answers[0].getBoundingClientRect().bottom).toBe(8)
+  },
+}
+
+/**
+ * A skipped question stays on the page, saying so in italic — a recap that
+ * drops a line reads as if the question was never asked — and a typed answer
+ * prints as typed.
+ *
+ * Measured: the skipped definition's text and italic; the free text verbatim.
+ */
+export const RecapSkippedAndFreeText: Story = {
+  decorators: atCardWidth,
+  parameters: { controls: { disable: true } },
+  render: () => <Questionnaire.Recap items={questions} answers={{ neutral: 'Taupe', docs: 'both' }} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const answers = canvas.getAllByRole('definition')
+    await expect(answers[0]).toHaveTextContent('Taupe')
+    await expect(answers[1]).toHaveTextContent('Skipped')
+    await expect(getComputedStyle(answers[1]).fontStyle).toBe('italic')
+    await expect(answers[2]).toHaveTextContent('Both')
+  },
+}
+
 const askedAt = { label: '12:30 PM', dateTime: '2026-09-20T12:30' }
 
 /**
  * Where it lives: an assistant's turn. The person asks for something
  * underspecified, the assistant checks what it has, and instead of guessing
  * it asks — the questionnaire sits in a received, `fill` bubble on the
- * primary surface, and the answers land in the log as the person's next
- * message.
+ * primary surface. Once it is answered, the recap takes its place in the
+ * same bubble: the log keeps the answers, not a dead form, and the person
+ * never had to type them.
  *
  * Measured: the questionnaire fills the bubble's width rather than
- * three-quarters of it; after answering, the log has the new sent message.
+ * three-quarters of it; after Submit the form is gone, the recap is in the
+ * same bubble, and the log still has two turns.
  */
 export const InContext: Story = {
   parameters: { controls: { disable: true }, layout: 'fullscreen' },
   render: function InContextStory() {
     const [answers, setAnswers] = useState<QuestionnaireAnswers | null>(null)
-    const summary =
-      answers &&
-      Object.values(answers)
-        .map((value) => (Array.isArray(value) ? value.join(' and ') : value))
-        .join(', ')
 
     return (
       <div className="flex h-[calc(100dvh-3rem)] gap-2 p-2">
@@ -677,20 +728,21 @@ export const InContext: Story = {
               </ThoughtProcess>
               <ChatMessage sender="Yet" layout="fill">
                 <ChatMessage.Bubble appearance="ghost">
-                  Three things decide the setup. Answer these and I will do the rest.
+                  {answers
+                    ? 'Got it. Setting it up with these:'
+                    : 'Three things decide the setup. Answer these and I will do the rest.'}
                 </ChatMessage.Bubble>
                 <ChatMessage.Bubble appearance="ghost" className="w-full">
-                  <Questionnaire onAnswers={setAnswers}>
-                    <Items items={questions} />
-                    <Questionnaire.Actions />
-                  </Questionnaire>
+                  {answers ? (
+                    <Questionnaire.Recap items={questions} answers={answers} />
+                  ) : (
+                    <Questionnaire onAnswers={setAnswers}>
+                      <Items items={questions} />
+                      <Questionnaire.Actions />
+                    </Questionnaire>
+                  )}
                 </ChatMessage.Bubble>
               </ChatMessage>
-              {summary && (
-                <ChatMessage direction="sent" sender="Nathan">
-                  <ChatMessage.Bubble>{summary}</ChatMessage.Bubble>
-                </ChatMessage>
-              )}
               <div className="p-3 text-content-emphasized">
                 <Mark />
               </div>
@@ -735,7 +787,12 @@ export const InContext: Story = {
     await userEvent.click(log.getByRole('radio', { name: 'Both' }))
     await userEvent.click(log.getByRole('button', { name: 'Submit' }))
 
-    await waitFor(() => expect(log.getAllByRole('article')).toHaveLength(3))
-    await expect(log.getByText('stone, light, both')).toBeInTheDocument()
+    // The recap stands where the form stood, in the same bubble.
+    await waitFor(() => expect(log.queryByRole('radio', { name: 'Stone' })).not.toBeInTheDocument())
+    const recap = log.getAllByRole('term')
+    await expect(recap).toHaveLength(3)
+    await expect(bubble.contains(recap[0])).toBe(true)
+    await expect(log.getAllByRole('definition')[2]).toHaveTextContent('Both')
+    await expect(log.getAllByRole('article')).toHaveLength(2)
   },
 }
