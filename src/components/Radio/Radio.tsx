@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { useId, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Radio as RadioPrimitive } from '@base-ui/react/radio'
 import { RadioGroup } from '@base-ui/react/radio-group'
 import type { RadioGroupProps as BaseRadioGroupProps } from '@base-ui/react/radio-group'
@@ -196,6 +196,10 @@ export function Radio({
   className,
   ...props
 }: RadioProps) {
+  const id = useId()
+  const labelId = `${id}-label`
+  const descriptionId = `${id}-description`
+
   const state: FieldVariants = { inContainer, disabled: Boolean(disabled), invalid }
 
   return (
@@ -208,6 +212,17 @@ export function Radio({
         disabled={disabled}
         aria-invalid={invalid || undefined}
         className={dial({ invalid, inContainer })}
+        // Named by its own text and described by its own sub-label, said out
+        // loud. Base UI takes a surrounding Field's label id ahead of the
+        // wrapping <label>, so inside `<Field label="Send me">` every box in a
+        // group was announced as "Send me" and its own text was lost. An
+        // explicit `aria-labelledby` comes first in that precedence, and the
+        // Field's sub-label and message still reach `aria-describedby`, because
+        // Base UI appends to that one rather than replacing it. Only spread when
+        // there is text to point at — an undefined aria-* prop deletes what
+        // Base UI computed.
+        {...(label != null && { 'aria-labelledby': labelId })}
+        {...(description != null && { 'aria-describedby': descriptionId })}
         {...props}
       >
         {/* r="4" in Figma's exported SVG, so 8px across. */}
@@ -224,9 +239,13 @@ export function Radio({
             inContainer ? 'min-w-px flex-1' : 'shrink-0',
           )}
         >
-          <span className={labelText({ inContainer })}>{label}</span>
+          <span id={labelId} className={labelText({ inContainer })}>
+            {label}
+          </span>
           {description != null && (
-            <span className="text-sm font-normal text-content-subtle">{description}</span>
+            <span id={descriptionId} className="text-sm font-normal text-content-subtle">
+              {description}
+            </span>
           )}
         </span>
       )}
