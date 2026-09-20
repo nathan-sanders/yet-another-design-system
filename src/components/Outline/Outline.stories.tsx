@@ -85,7 +85,9 @@ export const Playground: Story = {
       expect(Math.round(rect.height)).toBe(Math.round(target.height))
       expect(Math.round(rect.top)).toBe(Math.round(target.top))
     })
+    // Tabs' pair: a 1px rule and a 2px indicator painting over it.
     await expect(getComputedStyle(indicator).width).toBe('2px')
+    await expect(getComputedStyle(indicator.parentElement!).width).toBe('1px')
 
     // Click another heading: the mark and the indicator move to it.
     await userEvent.click(linkOf(canvas, 'Accessibility'))

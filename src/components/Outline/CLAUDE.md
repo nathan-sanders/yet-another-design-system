@@ -1,7 +1,7 @@
 # Outline
 
 The headings on this page, with the one in view marked. A `<nav>` of same-page links indented by
-heading level, a 2px track down the left edge, and a 2px indicator that slides to the active link
+heading level, a 1px track down the left edge, and a 2px indicator that slides to the active link
 as the page scrolls. Not a Base UI component: nothing in Base UI is a list of anchors, and nothing
 needed to be.
 
@@ -160,8 +160,8 @@ stories, 240 wide, in both themes:
 | link padding | 8 / 8 / 8 / 12, radius 10 | 8 / 8 / 8 / 12, `rounded-md` | same, radius 8 |
 | indent, level 1 / 2 / 3 / 4 | 12 / 12 / 28 / 44 | 12 / 12 / 28 / 44 (`Outline Indent` ×n) | `pl-3` / `pl-3` / `pl-7` / `pl-11` |
 | list gap | 2 | 2 | `gap-0.5` |
-| track | 2 wide, `rgba(0,0,0,.08)`, pill | 2, `Surface/Border`, `rounded-full` | 2, `bg-surface-border` |
-| indicator | 2 × row, black, `top`/`height` 95ms | 2 × row, `Surface/Border Emphasized` | 2 × row, `translate`/`height` 175ms |
+| track | 2 wide, `rgba(0,0,0,.08)`, pill | 1, `Surface/Border`, `rounded-full` | 1, `bg-surface-border` — Tabs' `h-px` rule |
+| indicator | 2 × row, black, `top`/`height` 95ms | 2 × row, `Surface/Border Emphasized`, x = −5 | 2 × row, `translate`/`height` 175ms — over the track and 1px into the gap, Tabs' overlap |
 | track → list | 2 | 4 (`spacing/1`) | `gap-1` — Tabs' 4px from a tab to its rule |
 | link, rest | `rgb(71,71,71)`, 400 | `Content/Subtle`, `font-weight/normal` | `text-content-subtle font-normal` |
 | link, hover | `--color-overlay-hover`, `--color-text-primary` | `Surface/Overlay Subtle`, `Content/Primary` | `hover:bg-surface-overlay-subtle hover:text-content-primary` |
@@ -170,7 +170,8 @@ stories, 240 wide, in both themes:
 
 The row heights differ from Astryx's on purpose: 32 and 24 are Tabs' `min-h-8` and `min-h-6`, at
 the type each Tabs size uses, and the 4px between the track and the list is the 4px between a tab
-and its rule — so an outline beside a tab strip is on one scale. Astryx's colors are its own neutral; the rendered ones are
+and its rule, and the 1px track under a 2px indicator is the rule under the underline — so an
+outline beside a tab strip is on one scale. Astryx's colors are its own neutral; the rendered ones are
 `oklch(0.444 …)` at rest and `oklch(0.147 …)` active in light, `oklch(0.709 …)` and white in dark —
 the tokens, resolved.
 
@@ -183,8 +184,8 @@ slot, and a spacer component for the one axis Figma cannot hold as a number.
   `width/w-4`) dropped in the item's `Indent` slot, a level-4 heading two — `Tree Rail`'s
   mechanism. A `Level` axis would have taken the set from 8 variants to 40.
 - **The indicator lives in the Active item, not the list.** It is an absolute 2px rectangle at
-  x = −4, `Surface/Border Emphasized`, stretched to the row, so it paints over the list's track
-  (2px `Surface/Border`, then `spacing/1` of gap, then the items) wherever the Active item sits.
+  x = −5, `Surface/Border Emphasized`, stretched to the row, so it paints over the list's track
+  (1px `Surface/Border`, then `spacing/1` of gap, then the items) wherever the Active item sits.
   The list never has to know which row is active.
 - The rows are `spacing/1` / `spacing/0-5` above and below a label cloned from `Tree List Item`'s
   (Small rebinds it to `text/sm`) —
