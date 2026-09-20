@@ -294,6 +294,7 @@ function QuestionnaireChoice({
   label,
   description,
   icon,
+  disabled,
   className,
   ...props
 }: QuestionnaireChoiceProps) {
@@ -303,7 +304,11 @@ function QuestionnaireChoice({
   const descriptionId = `${id}-description`
 
   return (
-    <QuestionnairePrimitive.Choice className={cn(choice(), className)} {...props}>
+    <QuestionnairePrimitive.Choice
+      disabled={disabled}
+      className={cn(choice({ disabled: Boolean(disabled) }), className)}
+      {...props}
+    >
       <QuestionnairePrimitive.ChoiceInput
         className="sr-only"
         // Named by its own text and described by its own sub-label, as Radio
@@ -314,7 +319,7 @@ function QuestionnaireChoice({
         {...(description != null && { 'aria-describedby': descriptionId })}
       />
 
-      <span aria-hidden className={multiple ? box() : dial()}>
+      <span aria-hidden className={multiple ? box : dial}>
         {multiple ? (
           <Icon icon={Check} className={boxGlyph()} />
         ) : (

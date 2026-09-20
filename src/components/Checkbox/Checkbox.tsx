@@ -2,12 +2,20 @@ import { useId, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox'
 import { CheckboxGroup as CheckboxGroupPrimitive } from '@base-ui/react/checkbox-group'
 import { Check, Minus } from 'lucide-react'
-import { tv, type VariantProps } from 'tailwind-variants'
+import { tv } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
-import { focusRing, focusRingWithin } from '../../lib/focus'
 import { Divider } from '../Divider'
 import { Icon } from '../Icon'
+import {
+  checkboxBox,
+  controlDescription,
+  controlLabel,
+  controlLabelColumn,
+  controlRow,
+  controlRowInner,
+  type ControlRowVariants,
+} from './styles'
 
 /**
  * Checkbox — a box you tick to turn one thing on or off.
@@ -50,136 +58,11 @@ import { Icon } from '../Icon'
  */
 
 /**
- * The 20px box. Figma's Checkbox frame, and the only part that is not text.
- *
- * Focus is the shared ring (src/lib/focus.ts), and it matters more here than
- * most: the old inner border painted 2px of white *inside* the box, which on a
- * ticked box left a white gutter between the fill and the tick — focus made the
- * tick look broken rather than making the box look focused.
+ * The box, the row, the card and the label column are the shared control
+ * shapes in `./styles.ts` — drawn here first, and now imported by Radio,
+ * Switch and Questionnaire rather than copied. See that file for the
+ * measurements and the reasons.
  */
-const box = tv({
-  base: [
-    'flex shrink-0 items-center justify-center',
-    // size-5 = width/w-5 (20px), rounded-sm = border-radius/rounded-sm (6px).
-    'size-5 rounded-sm border',
-    'cursor-pointer',
-    // Unticked. The Input ramp, not the Action one: this is a form control.
-    'bg-input-background border-input-border',
-    'hover:border-input-border-hover',
-    // Ticked and indeterminate are the same fill; only the glyph differs.
-    'data-checked:bg-input-selected data-checked:border-input-selected',
-    'data-indeterminate:bg-input-selected data-indeterminate:border-input-selected',
-    // The glyph inherits this as currentColor, the way Icon is built to.
-    'text-input-selected-foreground',
-    'outline-none',
-    // Same crossfade SegmentedControl uses for the same reason: the fill and
-    // border both change on tick, and 130ms is the shortest motion token.
-    'transition-colors duration-fast-min ease-standard',
-    // Inside a Field, validity arrives here as `data-invalid` rather than as the
-    // prop below: Base UI's `fieldValidityMapping` puts it on this element when
-    // the surrounding Field is invalid. The two compose — either lights the
-    // border — so the prop stays as the standalone path Figma draws. The `hover`
-    // copy is spelled out because both selectors otherwise land on equal
-    // specificity, leaving the winner to the order Tailwind happens to emit.
-    'data-invalid:border-feedback-danger-highlight',
-    'data-invalid:hover:border-feedback-danger-highlight',
-  ],
-
-  variants: {
-    /**
-     * Who draws the focus ring. Standalone, it is the box; inside a card it is
-     * the card, because the box is a descendant of it and two concentric rings
-     * on one control read as a mistake rather than as emphasis.
-     */
-    inContainer: {
-      false: focusRing,
-      true: '',
-    },
-
-    /**
-     * Figma's `State=Invalid`, for a checkbox standing on its own. Inside a
-     * `Field`, validity comes from there instead, through the `data-invalid:`
-     * rules in the base list above — and the Field is the only place that can
-     * also carry the message explaining what is wrong, so prefer it.
-     */
-    invalid: {
-      true: 'border-feedback-danger-highlight hover:border-feedback-danger-highlight',
-      false: '',
-    },
-  },
-
-  defaultVariants: { invalid: false, inContainer: false },
-})
-
-/**
- * The row, and — when `inContainer` is set — the card around it.
- *
- * The card's line is an `inset-ring` rather than a `border` because Figma draws
- * the container 40px tall: 24 of line-height plus 8 above and below. A border
- * would add its 2px on top of that and make it 42. `inset-ring` is a shadow, so
- * it costs no layout, which is the same reason Avatar uses one.
- *
- * The card keeps that 1px line unchanged when the control inside it takes
- * focus; the shared ring goes round the outside of the card instead.
- */
-const field = tv({
-  base: 'font-sans',
-
-  variants: {
-    inContainer: {
-      // gap-3 = spacing/3 (12px).
-      false: 'inline-flex items-center gap-3',
-      true: [
-        'flex w-full flex-col justify-center gap-2 px-3 py-2',
-        'rounded-md bg-surface-background-primary inset-ring inset-ring-surface-border',
-        'hover:bg-surface-background-subtle',
-        ...focusRingWithin,
-        // The card is a plain <label>, not a Base UI part, so it reads validity
-        // off the control inside it — the same `has-` idiom as focusRingWithin
-        // just above, and as Input's box.
-        'has-[[data-invalid]]:inset-ring-feedback-danger-highlight',
-        'has-[[data-invalid]]:hover:inset-ring-feedback-danger-highlight',
-        'transition-colors duration-fast-min ease-standard',
-      ],
-    },
-
-    /** Figma fades the whole row, label included, at opacity/opacity-40. */
-    disabled: {
-      true: 'pointer-events-none opacity-40',
-      false: 'cursor-pointer',
-    },
-
-    invalid: { true: '', false: '' },
-  },
-
-  compoundVariants: [
-    {
-      inContainer: true,
-      invalid: true,
-      class: 'inset-ring-feedback-danger-highlight hover:inset-ring-feedback-danger-highlight',
-    },
-  ],
-
-  defaultVariants: { inContainer: false, disabled: false, invalid: false },
-})
-
-/**
- * The label column. Inside a container the label is Content/Emphasized at
- * semibold — the card is a bigger target and Figma gives it more weight to
- * match. Outside one it is ordinary body text.
- */
-const labelText = tv({
-  base: 'text-base',
-  variants: {
-    inContainer: {
-      false: 'font-normal text-content-primary',
-      true: 'font-semibold text-content-emphasized',
-    },
-  },
-  defaultVariants: { inContainer: false },
-})
-
-type FieldVariants = VariantProps<typeof field>
 
 export interface CheckboxProps
   extends Omit<
@@ -221,7 +104,7 @@ export function Checkbox({
         disabled={disabled}
         indeterminate={indeterminate}
         aria-invalid={invalid || undefined}
-        className={box({ invalid, inContainer })}
+        className={checkboxBox({ invalid, inContainer })}
         // Named by its own text and described by its own sub-label, said out
         // loud. Base UI takes a surrounding Field's label id ahead of the
         // wrapping <label>, so inside `<Field label="Send me">` every box in a
@@ -256,20 +139,12 @@ export function Checkbox({
       </CheckboxPrimitive.Root>
 
       {label != null && (
-        <span
-          className={cn(
-            'flex flex-col items-start',
-            // Inside the card the label column takes the leftover width, so a
-            // long description wraps instead of widening the card. Outside it
-            // the row hugs its content, as Figma draws it.
-            inContainer ? 'min-w-px flex-1' : 'shrink-0',
-          )}
-        >
-          <span id={labelId} className={labelText({ inContainer })}>
+        <span className={controlLabelColumn({ fill: inContainer })}>
+          <span id={labelId} className={controlLabel({ emphasized: inContainer })}>
             {label}
           </span>
           {description != null && (
-            <span id={descriptionId} className="text-sm font-normal text-content-subtle">
+            <span id={descriptionId} className={controlDescription}>
               {description}
             </span>
           )}
@@ -278,15 +153,15 @@ export function Checkbox({
     </>
   )
 
-  const state: FieldVariants = { inContainer, disabled: Boolean(disabled), invalid }
+  const state: ControlRowVariants = { inContainer, disabled: Boolean(disabled), invalid }
 
   if (!inContainer) {
-    return <label className={cn(field(state), className)}>{control}</label>
+    return <label className={cn(controlRow(state), className)}>{control}</label>
   }
 
   return (
-    <label className={cn(field(state), className)}>
-      <span className="flex w-full items-center gap-3">{control}</span>
+    <label className={cn(controlRow(state), className)}>
+      <span className={controlRowInner}>{control}</span>
       {children}
     </label>
   )
