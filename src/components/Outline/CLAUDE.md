@@ -5,9 +5,12 @@ heading level, a 2px track down the left edge, and a 2px indicator that slides t
 as the page scrolls. Not a Base UI component: nothing in Base UI is a list of anchors, and nothing
 needed to be.
 
-**Figma:** page `↪ Outline` `40005193:41753`. Node ids are in the *Figma* section below; the page
-was an empty scaffold when the component was built, and the drawing was made from the code — the
-ProgressBar order.
+**Figma:** page `↪ Outline` `40005193:41753`. "Outline" `40005428:432` (`Size` Default/Small, an
+`Items` slot), "Outline Item" `40005428:375` (`State` Default/Hover/Active/Focus × `Size`
+Default/Small, a `Label Text` property and an `Indent` slot), "Outline Indent" `40005426:351`, all
+under the Components section `40005426:350`. Docs frame `40005428:433`. The page was an empty
+scaffold when the component was built, and the drawing was made from the code — the ProgressBar
+order — on the same day.
 
 **Reference:** Astryx `Outline` (astryx.atmeta.com/components/Outline), read at the DOM rather than
 from its docs — WebFetch returns only the site navigation — for the geometry, the markup and the
@@ -168,6 +171,40 @@ The row heights differ from Astryx's on purpose: 40 is NavItem's row and 32 is T
 `oklch(0.444 …)` at rest and `oklch(0.147 …)` active in light, `oklch(0.709 …)` and white in dark —
 the tokens, resolved.
 
+## The Figma drawing
+
+Tree List's shape, because it is the nearest thing in the file: an item set, a list set with a
+slot, and a spacer component for the one axis Figma cannot hold as a number.
+
+- **Indent is a slot of spacers, not a variant.** A level-3 heading is one `Outline Indent` (16px,
+  `width/w-4`) dropped in the item's `Indent` slot, a level-4 heading two — `Tree Rail`'s
+  mechanism. A `Level` axis would have taken the set from 8 variants to 40.
+- **The indicator lives in the Active item, not the list.** It is an absolute 2px rectangle at
+  x = −4, `Surface/Border Emphasized`, stretched to the row, so it paints over the list's track
+  (2px `Surface/Border`, then `spacing/0-5` of gap, then the items) wherever the Active item sits.
+  The list never has to know which row is active.
+- The rows are `spacing/2` / `spacing/1` above and below a label cloned from `Tree List Item`'s —
+  which is how it carries `text/base`, `font/font-sans` and the weight binding without rebinding a
+  font family (see the font-binding trap in memory). Active rebinds the weight to
+  `font-weight/semibold` and the fill to `Content/Emphasized`; Hover and Focus take
+  `Surface/Overlay Subtle` and `Content/Primary`; Focus adds the `Focus Ring` instance.
+
+Three things the build had to learn about the canvas:
+
+- **`resize()` resets a hug.** The item was made `counterAxisSizingMode: 'AUTO'` and then
+  `resize(236, 40)`, which quietly pinned the height, so every Small variant stayed 40 with 4px of
+  padding on it until the hug was set again. The height was read back each step; the number is the
+  only thing that caught it.
+- **A new `SLOT` is 100 × 24 until it is resized**, whatever sizing it reports — `HUG` on a slot
+  that has no children still measures 100 wide, and the label sat at x = 112. `resize(0.001, 24)`
+  and then `HUG` again gives Tree List's 0.001. And a `FILL`-height slot inside a hug-height row is
+  a cycle: the slot fills the stale row, the row hugs the slot. Hug the slot, let the row settle,
+  then give the slot its fill back.
+- **`Focus Ring` needs its own `clipsContent: true`.** The item frames have clipping off so the
+  indicator and the ring's outer stroke can paint outside them; turning it off on the ring
+  instance as well made the ring vanish from every render, though `absoluteRenderBounds` still
+  reported it. Leave the instance as Tree List has it.
+
 ## Traps
 
 - **A hidden tab never finishes a smooth scroll.** `document.hidden` stops the scroll animation
@@ -192,8 +229,8 @@ mark follows, the end-of-scroll rule, a click lands and `onNavigateEnd` fires on
 
 ## Best practices
 
-Mirrored from the **Best practices** block on `↪ Outline` in Figma. The two are one text in two
-places — change one and change the other.
+Mirrored from the **Best practices** block on `↪ Outline` (`40005428:446`) in Figma. The two are
+one text in two places — change one and change the other.
 
 **Do**
 
