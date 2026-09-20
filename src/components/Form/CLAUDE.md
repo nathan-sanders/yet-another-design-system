@@ -14,19 +14,35 @@ nothing, but something has been reinvented in the component's absence — met on
 
 ## Figma
 
-Page **`↪ Form`** — there was no page at all, not even an `(In Progress)` scaffold, so this went
-the ProgressBar route: built from Base UI's `Form` and Astryx's `FormLayout`, then drawn into the
-file from the built component in the same sitting.
+Page **`↪ Form`** (`40005515:725`) — there was no page at all, not even an `(In Progress)`
+scaffold, so this went the ProgressBar route: built from Base UI's `Form` and Astryx's
+`FormLayout`, then drawn into the file from the built component in the same sitting. The Docs
+frame is a clone of Field's, retitled and refilled.
 
 | Thing | Node | Became |
 |---|---|---|
-| Docs frame (header, Light + Dark preview, 5 Do / 4 Don't) | see below | this record's Best practices |
-| `Form` component, `Fields` slot over a `Form Actions` instance | see below | `Form` |
-| `Form Row`, two FILL Fields at `spacing/4` | see below | `Form.Row` |
-| `Form Actions` (`Align` End \| Start \| Stretch) | see below | `Form.Actions`, its `align` prop |
+| Docs frame (header, Light + Dark preview, 5 Do / 4 Don't) | `40005515:726` | this record's Best practices |
+| Preview: a `Form` instance whose slot holds the sign-up's four Fields | `40005516:449` light, `40005516:619` dark | the `Playground` story |
+| Guidance | `40005515:739` | — |
+| Components section | `40005515:970` | — |
+| `Form` — `Fields` slot (`40005516:412`) over a `Form Actions` instance, 400 wide, gap `spacing/4` | `40005516:411` | `Form` |
+| `Form Row` — two FILL `Field` instances, gap `spacing/4` | `40005516:389` | `Form.Row` |
+| `Form Actions` (`Align` End \| Start \| Stretch), gap `spacing/2` | `40005515:1025` | `Form.Actions`, its `align` prop |
 
-_Node ids are filled in by the Figma step of the same PR; if this table still says "see below",
-the page is owed._
+**What the set draws.** `Form` is a `Fields` SLOT — drop Field, Form Row and group instances into
+it — at `spacing/4` over a `Form Actions` instance, 400 wide and hugging. `Form Row` is two Fields
+at FILL in a 400 row. `Form Actions` has the three alignments the code has: End and Start are the
+row with `MAX` / `MIN` alignment, Stretch is a column with both buttons FILL and Submit drawn
+first, which is what `flex-col-reverse` produces. Every gap is a `spacing/N` binding, never a
+number. Field's Docs block also gained a Do that day — "Put name on the Field when it is inside a
+Form" (`40005516:46410`) — so the two records and the two blocks agree.
+
+**Three things the canvas said while being drawn.** `combineAsVariants` wants `COMPONENT` nodes,
+so each variant frame goes through `createComponentFromNode` first. `createSlot()` on a single
+`COMPONENT` makes the SLOT and its property in one call, and a slot in an *instance* accepts
+`appendChild`, which is how the preview holds a different set of Fields from the master. And a
+guidance card's body is `card.children.find(c => c.type === 'TEXT')` — `findOne` reaches the
+Badge's text first, and the rule lands in the pill.
 
 **What Astryx says, measured rather than read.** `FormLayout`'s vertical direction is a flex
 column at **16px**; its horizontal direction is an equal-column grid, also at 16. Its third,
