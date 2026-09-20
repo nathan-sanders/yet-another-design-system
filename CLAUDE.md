@@ -568,11 +568,10 @@ page has a single Docs frame for all fifteen charts, so `Chart`'s record holds t
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
 
-**Three records have no Figma block to mirror, and say so where the source line goes.**
+**Two records have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
-navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all;
-`Questionnaire`'s components are drawn in a section with no Docs page beside them yet.
-All three were written here rather than copied, and all three owe the file a block — the same standing debt
+navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all.
+Both were written here rather than copied, and both owe the file a block — the same standing debt
 `Combobox.Empty` and Select's scroll arrows carry. `AppShell` was a third for a few hours: built
 code-first against a page of frames, and drawn into the file as an eight-variant set with a Docs
 block the same day. **Do not read a missing block as a component
@@ -1087,9 +1086,12 @@ the library's through `render`. Its record has the two things the build turned o
 `<p>` named to the fieldset because a `<legend>` cannot be a flex item, and the row is Radio's and
 Checkbox's card painted off the `<label>` — **the fourth copy Radio's record said would be the point
 to extract**, now a live question rather than something done quietly. The file drew it first; what it
-does not draw (invalid, the message, Previous/Skip/Submit) is on the record's owed list. Its one token
-question — the description shipped on `Content/Primary` because the file bound it there — was
-settled the next day at source: the node moved to `Content/Subtle`, the code followed.
+did not draw (invalid, the message, Previous/Skip/Submit, a Docs page) was drawn the next day, and
+nothing in the code moved when it landed. Its one token question — the description shipped on
+`Content/Primary` because the file bound it there — was settled the same day at source: the node
+moved to `Content/Subtle`, the code followed. Its record has the API finding: **a variant's
+`clone()` lands on the page, not in its set**, and cannot take property references until it is
+appended.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's
