@@ -183,16 +183,42 @@ container-ring problem TreeList solved by not doing it; the newly revealed quest
 and the next Tab lands on the first answer with a ring of its own, which `Keyboard` measures.
 shadcn's styled version makes the same call. Figma does not draw the state either way.
 
+## The recap
+
+`Questionnaire.Recap` is the questionnaire answered — Figma's `Questionnaire Recap`
+(`40005537:65099`), which Nathan drew and proposed the day after the questionnaire shipped: a
+Card at `padding={3}` holding one pair per question, the question `text-sm` on Content/Subtle
+over the answer `text-sm` on Content/Primary, pairs `spacing/2` apart and nothing between the
+two lines. It inverts the questionnaire's weighting because here the answer is the news.
+
+**It replaces the questionnaire in the assistant's bubble** once `onAnswers` fires — Nathan's
+call, over landing in the person's sent turn — so the log keeps the answers and not a dead form,
+and a Card is never asked to sit inside an emphasized bubble. `InContext` does exactly that.
+
+It is a `<dl>`: a question is a `<dt>` and its answer a `<dd>`, which is what a screen reader
+reads them as, and the stories query them by `term` and `definition`. The words come from
+`recapAnswers` in `answers.ts`, pure and node-tested beside `readAnswers`: a value becomes its
+choice's label, free text prints as typed, a `multiple` answer's labels are joined with commas,
+a `disabled` question is left out, and **a skipped question stays as a line** saying "Skipped"
+in italic Subtle (`skippedLabel` to change the word) — a recap that drops a question reads as if
+it was never asked. Not drawn in the file; the code went first there. **No edit action**, on
+purpose: changing an answer is a new turn, not a button on the record of the last one.
+
+The same `items` array feeds both halves, which is the point of the definition type: an agent's
+questions come in once, are mapped into `Item`s, and are mapped again into the recap with the
+answers beside them.
+
 ## Stories
 
-Twelve. `Playground` is the mock at 280 and measures the geometry; `MultiSelect`, `Freeform`,
+Fourteen. `Playground` is the mock at 280 and measures the geometry; `Recap` and
+`RecapSkippedAndFreeText` are the answered form's two shapes; `MultiSelect`, `Freeform`,
 `Skip`, `Shortcuts`, `WithIconsAndDescriptions` and `States` each take one axis; `Keyboard` is the
 contract above step by step; `Submit` is the record `onAnswers` receives; `Controlled` is
 `item`/`onItemChange` with `items`; `FocusRing` is real Tab presses, because a scripted `focus()`
 never matches `:focus-visible`; `InContext` is the assistant's turn — `ThoughtProcess`, then a
 received `ChatMessage layout="fill"` whose ghost bubble is `w-full` and holds the questionnaire,
-then the answers landing in the log as the person's next message, on the primary surface, Chat's
-rule.
+then the recap taking the form's place in the same bubble on Submit, on the primary surface,
+Chat's rule.
 
 Two traps met writing them: every closed question carries the same hidden message, so a page-wide
 `getByText` for it finds three — scope to the open fieldset; and a shortcut is read by the form,
@@ -221,7 +247,8 @@ Carousel route, and the code did not move when it landed — the test of a real 
   start.
 - **A `↪ Questionnaire` Docs page** (`40005494:63838`): the header sentence, three examples in
   Light and Dark — the mock, an invalid multi-select mid-flow, a last question with number keys
-  and Submit — and the Best practices block below, mirrored into it.
+  and Submit — with the answered recap under them, and the Best practices block below, mirrored
+  into it.
 
 Two things the build found, both about the API rather than the component. **A variant's
 `clone()` lands on the page, not in its set**, so `componentPropertyReferences` cannot be set on
@@ -247,6 +274,8 @@ thing, the canvas says the design word and this record says the prop beside it.
   gives it a Skip.
 - Put it in the assistant's own turn, filling the message (`layout="fill"`), so the answers read
   as part of the conversation.
+- Once it is answered, put the recap (`Questionnaire.Recap`) where the form was, in the same
+  turn. The log keeps the answers, not a dead form.
 
 **Don't**
 

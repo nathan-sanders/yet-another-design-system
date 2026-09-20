@@ -128,3 +128,25 @@ export const choiceIcon = tv({ base: 'shrink-0 text-content-primary' })
  * only add what a footer inside a form column needs.
  */
 export const actions = tv({ base: 'w-full items-center' })
+
+/**
+ * The recap — Figma's `Questionnaire Recap` (`40005537:65099`): a Card at
+ * `padding={3}` whose content is a column of question / answer pairs at
+ * `spacing/2`, each pair a column with no gap, both lines `text-sm/normal`.
+ * The question is Content/Subtle and the answer Content/Primary — the recap
+ * inverts the questionnaire's weighting, because here the answer is the news.
+ * A skipped question is the same line in italic Subtle, not drawn in the file.
+ */
+export const recapList = tv({ base: 'flex w-full flex-col gap-2 font-sans' })
+export const recapPair = tv({ base: 'flex flex-col' })
+export const recapQuestion = tv({ base: 'text-sm font-normal text-content-subtle' })
+export const recapAnswer = tv({
+  base: 'text-sm font-normal',
+  variants: {
+    skipped: {
+      false: 'text-content-primary',
+      true: 'italic text-content-subtle',
+    },
+  },
+  defaultVariants: { skipped: false },
+})
