@@ -99,8 +99,8 @@ export const Playground: Story = {
 }
 
 /**
- * The two row heights: `default` is 40px, NavItem's, and `small` is 32px,
- * TreeList's. Same 14px type in both — Astryx's `density`, on the house scale.
+ * The two row heights are Tabs': `default` is 32px at `text-base`, `small` is
+ * 24px at `text-sm`. Astryx's `density`, on the house scale.
  */
 export const Sizes: Story = {
   parameters: { controls: { disable: true } },
@@ -120,11 +120,15 @@ export const Sizes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const [large, small] = canvas.getAllByRole('navigation')
-    await expect(within(large).getByRole('link', { name: 'Overview' })).toHaveStyle({ height: '40px' })
-    await expect(within(small).getByRole('link', { name: 'Overview' })).toHaveStyle({ height: '32px' })
+    await expect(within(large).getByRole('link', { name: 'Overview' })).toHaveStyle({ height: '32px', fontSize: '14px' })
+    await expect(within(small).getByRole('link', { name: 'Overview' })).toHaveStyle({ height: '24px', fontSize: '12px' })
     // The indicator follows the row height.
-    await waitFor(() => expect(getComputedStyle(large.querySelector('nav > span > span')!).height).toBe('40px'))
-    await waitFor(() => expect(getComputedStyle(small.querySelector('nav > span > span')!).height).toBe('32px'))
+    await waitFor(() => expect(getComputedStyle(large.querySelector('nav > span > span')!).height).toBe('32px'))
+    await waitFor(() => expect(getComputedStyle(small.querySelector('nav > span > span')!).height).toBe('24px'))
+    // Tabs' 4px between the mark and what it marks.
+    const track = large.querySelector('nav > span')!.getBoundingClientRect()
+    const list = large.querySelector('ul')!.getBoundingClientRect()
+    await expect(list.left - track.right).toBe(4)
   },
 }
 

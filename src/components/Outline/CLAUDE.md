@@ -29,7 +29,8 @@ props.
 ```
 
 `items` is Astryx's `OutlineItem` — `id`, `label`, `level` — with `level` optional and defaulting to
-2, a page's sections. `size` is `default` (40px rows) or `small` (32). The controlled pair is
+2, a page's sections. `size` is `default` (32px rows at `text-base`) or `small` (24 at `text-sm`),
+Tabs' two sizes. The controlled pair is
 `activeId` / `defaultActiveId` / `onActiveChange`, TreeList's idiom. `scrollContainerRef`, `offset`,
 `scrollOnClick`, `onNavigateStart` and `onNavigateEnd` are Astryx's, renamed where the house says so
 (`hasScrollOnClick` → `scrollOnClick`, `onActiveIdChange` → `onActiveChange`). The landmark's name
@@ -40,7 +41,8 @@ headings inside a container, kept current by a `MutationObserver`. Only headings
 listed, because a heading nothing can link to has no place in an outline.
 
 **What was dropped from Astryx.** `density` — it is `size`, the house name, and the two heights are
-ones the library already has rather than Astryx's 36 and 28. `label` — a landmark is named with
+Tabs' 32 and 24 rather than Astryx's 36 and 28. (Shipped first as NavItem's 40 and TreeList's 32;
+Nathan moved it to Tabs' scale the same day, with Tabs' 4px between the mark and what it marks.) `label` — a landmark is named with
 `aria-label` here, like Breadcrumbs and TreeList. `xstyle`. `useOutlineFromMarkdown`, which is a
 markdown pipeline's job and not a component's.
 
@@ -153,21 +155,22 @@ stories, 240 wide, in both themes:
 
 | | Astryx | Figma | Rendered |
 |---|---|---|---|
-| row height, default | 36 (20px line + 8/8) | 40 | 40 (`py-2` round a 24px line) |
-| row height, small | 28 (`density="compact"`) | 32 | 32 (`py-1`) |
+| row height, default | 36 (20px line + 8/8) | 32 | 32 (`py-1` round `text-base`'s 24px line) |
+| row height, small | 28 (`density="compact"`) | 24 | 24 (`py-0.5` round `text-sm`'s 20px line) |
 | link padding | 8 / 8 / 8 / 12, radius 10 | 8 / 8 / 8 / 12, `rounded-md` | same, radius 8 |
 | indent, level 1 / 2 / 3 / 4 | 12 / 12 / 28 / 44 | 12 / 12 / 28 / 44 (`Outline Indent` ×n) | `pl-3` / `pl-3` / `pl-7` / `pl-11` |
 | list gap | 2 | 2 | `gap-0.5` |
 | track | 2 wide, `rgba(0,0,0,.08)`, pill | 2, `Surface/Border`, `rounded-full` | 2, `bg-surface-border` |
 | indicator | 2 × row, black, `top`/`height` 95ms | 2 × row, `Surface/Border Emphasized` | 2 × row, `translate`/`height` 175ms |
-| track → list | 2 | 2 | `gap-0.5` |
+| track → list | 2 | 4 (`spacing/1`) | `gap-1` — Tabs' 4px from a tab to its rule |
 | link, rest | `rgb(71,71,71)`, 400 | `Content/Subtle`, `font-weight/normal` | `text-content-subtle font-normal` |
 | link, hover | `--color-overlay-hover`, `--color-text-primary` | `Surface/Overlay Subtle`, `Content/Primary` | `hover:bg-surface-overlay-subtle hover:text-content-primary` |
 | link, active | black, 600 | `Content/Emphasized`, `font-weight/semibold` | `text-content-emphasized font-semibold` |
-| type | 14 / 20 | `text/base` 14 / 24 | `text-base` |
+| type | 14 / 20 at both densities | `text/base` 14 / 24, `text/sm` 12 / 20 | `text-base`, `text-sm` |
 
-The row heights differ from Astryx's on purpose: 40 is NavItem's row and 32 is TreeList's, and a
-14/24 line is what `text-base` is here. Astryx's colors are its own neutral; the rendered ones are
+The row heights differ from Astryx's on purpose: 32 and 24 are Tabs' `min-h-8` and `min-h-6`, at
+the type each Tabs size uses, and the 4px between the track and the list is the 4px between a tab
+and its rule — so an outline beside a tab strip is on one scale. Astryx's colors are its own neutral; the rendered ones are
 `oklch(0.444 …)` at rest and `oklch(0.147 …)` active in light, `oklch(0.709 …)` and white in dark —
 the tokens, resolved.
 
@@ -181,9 +184,10 @@ slot, and a spacer component for the one axis Figma cannot hold as a number.
   mechanism. A `Level` axis would have taken the set from 8 variants to 40.
 - **The indicator lives in the Active item, not the list.** It is an absolute 2px rectangle at
   x = −4, `Surface/Border Emphasized`, stretched to the row, so it paints over the list's track
-  (2px `Surface/Border`, then `spacing/0-5` of gap, then the items) wherever the Active item sits.
+  (2px `Surface/Border`, then `spacing/1` of gap, then the items) wherever the Active item sits.
   The list never has to know which row is active.
-- The rows are `spacing/2` / `spacing/1` above and below a label cloned from `Tree List Item`'s —
+- The rows are `spacing/1` / `spacing/0-5` above and below a label cloned from `Tree List Item`'s
+  (Small rebinds it to `text/sm`) —
   which is how it carries `text/base`, `font/font-sans` and the weight binding without rebinding a
   font family (see the font-binding trap in memory). Active rebinds the weight to
   `font-weight/semibold` and the fill to `Content/Emphasized`; Hover and Focus take
@@ -192,7 +196,7 @@ slot, and a spacer component for the one axis Figma cannot hold as a number.
 Three things the build had to learn about the canvas:
 
 - **`resize()` resets a hug.** The item was made `counterAxisSizingMode: 'AUTO'` and then
-  `resize(236, 40)`, which quietly pinned the height, so every Small variant stayed 40 with 4px of
+  `resize(236, 40)`, which quietly pinned the height, so every Small variant stayed 40 with less
   padding on it until the hug was set again. The height was read back each step; the number is the
   only thing that caught it.
 - **A new `SLOT` is 100 × 24 until it is resized**, whatever sizing it reports — `HUG` on a slot
@@ -221,7 +225,8 @@ Three things the build had to learn about the canvas:
 
 ## Stories
 
-`Playground` (the mark, the indicator's geometry, a click), `Sizes` (40 and 32, indicator follows),
+`Playground` (the mark, the indicator's geometry, a click), `Sizes` (32 and 24, indicator follows,
+4px off the track),
 `DeepNesting` (12/12/28/44, indicator on the track not the indent), `Controlled` (spy off, click
 reports once), `Keyboard` (every link a Tab stop, one ring), `ScrollSpy` (a box that scrolls: the
 mark follows, the end-of-scroll rule, a click lands and `onNavigateEnd` fires once), `InContext`
