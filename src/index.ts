@@ -339,6 +339,21 @@ export type {
   ProgressBarMark,
 } from './components/ProgressBar'
 
+export { Questionnaire, readAnswers } from './components/Questionnaire'
+export type {
+  QuestionnaireProps,
+  QuestionnaireItemProps,
+  QuestionnaireChoiceProps,
+  QuestionnaireInputProps,
+  QuestionnaireActionsProps,
+  QuestionnaireNavigationProps,
+  QuestionnaireShortcuts,
+  QuestionnaireItemStatus,
+  QuestionnaireAnswers,
+  QuestionnaireItemDefinition,
+  QuestionnaireChoiceDefinition,
+} from './components/Questionnaire'
+
 export { Radar } from './components/Radar'
 export type { RadarProps } from './components/Radar'
 

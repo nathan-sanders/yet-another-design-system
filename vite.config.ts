@@ -105,7 +105,14 @@ export default defineConfig({
           // under the test.
           '@dnd-kit/core',
           '@dnd-kit/sortable',
-          '@dnd-kit/utilities'
+          '@dnd-kit/utilities',
+          // Questionnaire's step machine, and the library's first non-Base-UI
+          // form primitive. Named for Toast's reason — only Questionnaire's
+          // stories import it — and for one more: it reads
+          // `process.env.NODE_ENV` at runtime, which only exists in the browser
+          // because pre-bundling defines it. Left out, the first Root to mount
+          // throws "process is not defined".
+          '@shadcn/react/questionnaire'
         ]
       },
       test: {
