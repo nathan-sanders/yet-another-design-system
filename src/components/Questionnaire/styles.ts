@@ -41,13 +41,12 @@ export const titleGroup = tv({ base: 'flex flex-col' })
 export const title = tv({ base: 'm-0 text-base font-semibold text-content-emphasized' })
 
 /**
- * The line under the question — `text-sm/normal` on **Content/Primary**. That
- * is what the file binds, and it is one step darker than every other
- * sub-label in the library (Field's description, a Radio's, a Choice's below
- * are all Content/Subtle). Kept as drawn; the record flags it as a question
- * for Nathan rather than quietly "fixing" it either way.
+ * The line under the question — `text-sm/normal` on Content/Subtle, the same
+ * step as every other sub-label in the library (Field's description, a
+ * Radio's, a Choice's below). The file first bound it to Content/Primary, one
+ * step darker; Nathan moved it to Subtle on 2026-09-20 and the code followed.
  */
-export const description = tv({ base: 'm-0 text-sm font-normal text-content-primary' })
+export const description = tv({ base: 'm-0 text-sm font-normal text-content-subtle' })
 
 /** Figma's "Selections": the rows and the free-text field, `spacing/2` apart. */
 export const choices = tv({ base: 'flex flex-col gap-2' })

@@ -146,13 +146,15 @@ and it puts `data-invalid` on the input, so the box lights up on a failed Next t
 placeholder is not one. There is no default placeholder; "Describe another option..." is the mock's
 copy and the caller says it.
 
-## The description is Content/Primary
+## The description is Content/Subtle — since the day after it shipped
 
-Figma binds the question's description to `Content/Primary`, one step darker than every other
-sub-label in the library — Field's description, a Radio's, a Choice's here are all
-`Content/Subtle`. It is kept as drawn. **Flagged for Nathan** rather than "fixed" either way: it
-may be a decision (the question's own text should read as body copy, not as a hint) or a slip, and
-the file is where that gets settled.
+The file first bound the question's description to `Content/Primary`, one step darker than every
+other sub-label in the library (Field's description, a Radio's, a Choice's here are all
+`Content/Subtle`), and the code shipped with the file's value and the record flagging it. Nathan
+settled it on 2026-09-20 by moving the Figma node (`40005494:64172`) to `Content/Subtle`, and the
+code followed the same day: `text-content-subtle`, measured back as the same computed color as the
+"Question 1 of 3" line above it. **Both sides agree**, and the general shape is the Pink precedent —
+a token question settled at source, then mirrored, rather than a code override.
 
 ## Answers
 
@@ -204,8 +206,7 @@ code move:
 - a `numbers` key and a row with no key at all;
 - the one-question form with no count;
 - a `↪ Questionnaire` Docs page with a Best practices block mirroring the section below — the
-  section here is written first, ThemeControl and BentoGrid's situation;
-- the description's token, above.
+  section here is written first, ThemeControl and BentoGrid's situation.
 
 ## Best practices
 
