@@ -221,32 +221,65 @@ export const Controlled: Story = {
 }
 
 /**
- * A `<nav>` of anchors: every heading is its own Tab stop, and the ring sits
- * on the focused link alone. No arrow keys — Tab already walks a list of
- * links, and that is the rule that keeps Breadcrumbs and SideNav plain.
+ * Tabs' keyboard pattern: one Tab stop, on the active heading, and the arrow
+ * keys move between the others with wrap. Home and End jump to the ends;
+ * Enter or Space follows the link. Arrows only move focus — activating scrolls
+ * the page, and that should be a decision, not a side effect of looking. The
+ * tab stop roves: leave and come back, and you are where you were.
  */
 export const Keyboard: Story = {
   decorators: frame,
   parameters: { controls: { disable: true } },
-  play: async ({ canvasElement }) => {
+  args: { onActiveChange: fn() },
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
     const links = canvas.getAllByRole('link')
-    // None of them opts out of the tab order.
-    for (const link of links) await expect(link).not.toHaveAttribute('tabindex')
+    const focused = (name: string) => waitFor(() => expect(linkOf(canvas, name)).toHaveFocus())
 
+    // Exactly one tab stop, and it is the active heading.
+    await expect(links.filter((link) => link.getAttribute('tabindex') === '0')).toHaveLength(1)
+    await expect(linkOf(canvas, 'Theming')).toHaveAttribute('tabindex', '0')
     await userEvent.tab()
-    await waitFor(() => expect(links[0]).toHaveFocus())
-    // A real key press, not a scripted focus, is what makes :focus-visible match.
-    await waitFor(() => expect(getComputedStyle(links[0]).boxShadow).not.toBe('none'))
-    await expect(getComputedStyle(links[1]).boxShadow).toBe('none')
+    await focused('Theming')
+    // A real key press, not a scripted focus, is what makes :focus-visible match;
+    // the ring is on the focused link alone.
+    await waitFor(() => expect(getComputedStyle(linkOf(canvas, 'Theming')).boxShadow).not.toBe('none'))
+    await expect(getComputedStyle(linkOf(canvas, 'Tokens')).boxShadow).toBe('none')
 
+    // Down and Up walk the list; the ring follows; nothing activates.
+    await userEvent.keyboard('{ArrowDown}')
+    await focused('Tokens')
+    await waitFor(() => expect(getComputedStyle(linkOf(canvas, 'Tokens')).boxShadow).not.toBe('none'))
+    await expect(getComputedStyle(linkOf(canvas, 'Theming')).boxShadow).toBe('none')
+    await expect(linkOf(canvas, 'Theming')).toHaveAttribute('aria-current', 'location')
+    await expect(args.onActiveChange).not.toHaveBeenCalled()
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}')
+    await focused('Installation')
+    // End, Home, and the wrap past both ends.
+    await userEvent.keyboard('{End}')
+    await focused('Accessibility')
+    await userEvent.keyboard('{ArrowDown}')
+    await focused('Overview')
+    await userEvent.keyboard('{ArrowUp}')
+    await focused('Accessibility')
+    await userEvent.keyboard('{Home}')
+    await focused('Overview')
+
+    // The tab stop roved with focus: Shift+Tab out, Tab back, and it is Overview.
+    await userEvent.tab({ shift: true })
+    await expect(linkOf(canvas, 'Overview')).not.toHaveFocus()
+    await expect(linkOf(canvas, 'Overview')).toHaveAttribute('tabindex', '0')
     await userEvent.tab()
-    await waitFor(() => expect(links[1]).toHaveFocus())
-    await expect(getComputedStyle(links[0]).boxShadow).toBe('none')
+    await focused('Overview')
 
-    // Enter follows the link: it becomes the active heading.
-    await userEvent.keyboard('{Enter}')
-    await waitFor(() => expect(links[1]).toHaveAttribute('aria-current', 'location'))
+    // Space follows the link, as Enter does: it becomes the active heading.
+    await userEvent.keyboard('{ArrowDown}')
+    await focused('Installation')
+    await userEvent.keyboard(' ')
+    await waitFor(() => expect(linkOf(canvas, 'Installation')).toHaveAttribute('aria-current', 'location'))
+    await expect(args.onActiveChange).toHaveBeenCalledWith('installation')
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    await waitFor(() => expect(linkOf(canvas, 'Theming')).toHaveAttribute('aria-current', 'location'))
   },
 }
 

@@ -46,22 +46,41 @@ Nathan moved it to Tabs' scale the same day, with Tabs' 4px between the mark and
 `aria-label` here, like Breadcrumbs and TreeList. `xstyle`. `useOutlineFromMarkdown`, which is a
 markdown pipeline's job and not a component's.
 
-## A `<nav>` of anchors, not a widget
+## One Tab stop, arrows between the headings
 
-Astryx makes its outline a **single Tab stop**: `tabindex="0"` on the active link, `-1` on every
-other, arrow keys to move, Home/End, Enter/Space to activate. Nathan chose the house rule instead,
-and it is the Nav record's: **a set of links is a `<nav>` of anchors — every link its own Tab stop,
-`aria-current` not `aria-selected`, no roving focus.** Breadcrumbs and SideNav are the same shape.
-There is no key handling in the component at all; Tab walks the list because that is what Tab does
-to a list of links, and Enter follows a link because it is one.
+Tabs' keyboard pattern, which is also Astryx's: `tabindex="0"` on one link and `-1` on every
+other, ↓/↑ to move focus with wrap, Home/End to the ends, Enter or Space to follow the link. The
+tab stop roves — Shift+Tab out and Tab back returns to the link you left — and resets to the
+active heading whenever the spy moves it, so Tab lands on "where you are" (the first heading when
+nothing is active yet).
 
-`aria-current="location"`, not `"page"`: the link points *within* the page. Astryx uses the same
-value. The track and the indicator are `aria-hidden` spans — not `Divider`, for Tabs' reason: a
-`role="separator"` inside the nav is a child the list did not ask for.
+**This is the second decision on the question, and it reversed the first.** The component
+shipped in #201 on the Nav record's rule — a set of links is a `<nav>` of anchors, every link its
+own Tab stop, no roving — with Breadcrumbs and SideNav as the precedent. Nathan asked for Tabs'
+pattern the same day: an outline sits beside a tab strip on the same scale and should walk the
+same way, and a long table of contents is a lot of Tab presses to get past. The Nav rule stands
+for Breadcrumbs and SideNav; this record is the exception to it, and says so.
+
+**Arrows move focus and do not activate.** Tabs activates on arrow because switching a panel is
+cheap and reversible in one keypress. Here activation scrolls the page, pushes the hash and fires
+`onNavigateStart`, so activating on every arrow press would drag the reader through the document
+while they were only looking at the list. Astryx draws the same line ("arrow keys move between
+headings … Enter/Space activate"), and the Keyboard story asserts `onActiveChange` is silent
+through a walk of the list.
+
+The roving is on `tabindex` alone — no `role="tablist"`, no `aria-selected`. It is still a
+navigation landmark of anchors with `aria-current="location"` on the active one, which is what a
+screen reader should hear; a roving tabindex is a focus-management pattern, not a role. Space is
+handled by hand because an anchor does not follow itself on Space (Enter it does natively, and
+that goes through the click handler like a pointer click). The key handler is one `onKeyDown` on
+the `<ul>` reading `document.activeElement`, rather than a handler per link — the list knows the
+order, the link does not.
 
 The link is a plain `<a>` rather than `useRender`: a same-page hash never goes through a router, so
 there is no element to swap it for. A modified click (⌘, Ctrl, Shift, Alt, or a non-primary button)
-is left to the browser — the reader asked for a new tab, and gets one.
+is left to the browser — the reader asked for a new tab, and gets one. The track and the indicator
+are `aria-hidden` spans — not `Divider`, for Tabs' reason: a `role="separator"` inside the nav is a
+child the list did not ask for.
 
 ## The indicator slides, and it costs no JavaScript animation
 
@@ -236,7 +255,8 @@ Three things the build had to learn about the canvas:
 `Playground` (the mark, the indicator's geometry, a click), `Sizes` (32 and 24, indicator follows,
 4px off the track),
 `DeepNesting` (12/12/28/44, indicator on the track not the indent), `Controlled` (spy off, click
-reports once), `Keyboard` (every link a Tab stop, one ring), `ScrollSpy` (a box that scrolls: the
+reports once), `Keyboard` (one Tab stop on the active heading, arrows with wrap, Home/End, the stop
+roves, Space and Enter activate and arrows do not), `ScrollSpy` (a box that scrolls: the
 mark follows, the end-of-scroll rule, a click lands and `onNavigateEnd` fires once), `InContext`
 (an article with `useOutlineFromDOM` and a sticky outline on the window).
 

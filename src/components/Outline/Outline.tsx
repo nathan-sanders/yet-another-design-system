@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties, ComponentPropsWithRef, MouseEvent, RefObject } from 'react'
+import type { CSSProperties, ComponentPropsWithRef, KeyboardEvent, MouseEvent, RefObject } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
@@ -19,12 +19,15 @@ import { depthOf, pickActive, type OutlineItem, type OutlineLevel } from './scro
  *
  *     <Outline items={[{ id: 'install', label: 'Installation' }, …]} />
  *
- * **It is a `<nav>` of anchors, not a widget.** Astryx makes its outline a
- * single Tab stop and moves between headings with the arrow keys. This one
- * follows the Nav record instead: every link is its own Tab stop, the active one
- * carries `aria-current="location"`, and there is no key handling to maintain.
- * The same rule that keeps Breadcrumbs and SideNav plain — a set of links is a
- * landmark, and Tab already walks it.
+ * **One Tab stop, arrows between the headings — Tabs' pattern, and Astryx's.**
+ * Tab lands on the active link (the first, when nothing is active), ↓/↑ move
+ * focus with wrap, Home/End jump to the ends, and Enter or Space follows the
+ * link. Arrows only move focus: on a tab strip activating on arrow is cheap,
+ * but here activation scrolls the page, and scrolling on every arrow press
+ * would fight the reader. The tab stop roves — Shift+Tab out and Tab back
+ * returns to the link you left — and follows the active heading when the spy
+ * moves it. Still a `<nav>` of anchors with `aria-current="location"`: the
+ * roving is on `tabindex` alone, and no ARIA role changes.
  *
  * **The indicator slides, and it costs no JavaScript animation.** Tabs' idiom
  * turned on its side: a layout effect reads the active link's `offsetTop` and
@@ -302,6 +305,18 @@ export function Outline({
     return scrollParentOf(first) ?? window
   }, [ids, scrollContainerRef])
 
+  // ---- Roving tabindex ----------------------------------------------------
+  // The link Tab lands on: the last one focused, else the active one, else the
+  // first. `focusedId` resets whenever the active heading changes, so the tab
+  // stop follows the spy until the keyboard says otherwise.
+  const [focusedId, setFocusedId] = useState<string | null>(null)
+  useEffect(() => setFocusedId(null), [activeId])
+  const tabStopId =
+    (focusedId && ids.includes(focusedId) ? focusedId : null) ??
+    (activeId && ids.includes(activeId) ? activeId : null) ??
+    ids[0] ??
+    null
+
   // True from onNavigateStart to onNavigateEnd. The spy reads it.
   const navigatingRef = useRef(false)
   // The spy's measure, for a finished navigation to call once.
@@ -464,6 +479,44 @@ export function Outline({
     return () => observer.disconnect()
   }, [activeId, idsKey, size])
 
+  // ---- Keys ---------------------------------------------------------------
+  // On the list, so one handler serves every link. Arrows and Home/End move
+  // focus and wrap, Tabs' way; Space follows the link, which an anchor does
+  // not do on its own (Enter already does). Everything else is the browser's.
+  const onKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLUListElement>) => {
+      const list = listRef.current
+      if (!list) return
+      const links = Array.from(list.querySelectorAll<HTMLAnchorElement>('a[href]'))
+      const index = links.indexOf(document.activeElement as HTMLAnchorElement)
+      if (index < 0) return
+      let next: number
+      switch (event.key) {
+        case 'ArrowDown':
+          next = (index + 1) % links.length
+          break
+        case 'ArrowUp':
+          next = (index - 1 + links.length) % links.length
+          break
+        case 'Home':
+          next = 0
+          break
+        case 'End':
+          next = links.length - 1
+          break
+        case ' ':
+          event.preventDefault()
+          navigate(ids[index])
+          return
+        default:
+          return
+      }
+      event.preventDefault()
+      links[next].focus()
+    },
+    [ids, navigate],
+  )
+
   const indicatorStyle = geometry
     ? ({
         '--outline-indicator-top': `${geometry.top}px`,
@@ -478,7 +531,7 @@ export function Outline({
           <span className={indicator({ hidden: geometry === null })} style={indicatorStyle} />
         </span>
         {/* min-w-0 so a long label truncates the list, not the outline. */}
-        <ul ref={listRef} className="flex min-w-0 flex-col gap-0.5">
+        <ul ref={listRef} className="flex min-w-0 flex-col gap-0.5" onKeyDown={onKeyDown}>
           {items.map((entry) => (
             <li key={entry.id}>
               <OutlineLink
@@ -486,6 +539,8 @@ export function Outline({
                 size={size}
                 depth={depthOf(entry.level)}
                 active={entry.id === activeId}
+                tabStop={entry.id === tabStopId}
+                onFocus={setFocusedId}
                 onNavigate={navigate}
               >
                 {entry.label}
@@ -503,6 +558,9 @@ interface OutlineLinkProps {
   size: OutlineSize
   depth: ReturnType<typeof depthOf>
   active: boolean
+  /** Whether this is the one link in the tab order. */
+  tabStop: boolean
+  onFocus: (id: string) => void
   onNavigate: (id: string) => void
   children: OutlineItem['label']
 }
@@ -512,7 +570,7 @@ interface OutlineLinkProps {
  * same-page hash never goes through a router, so there is nothing to swap the
  * element for — and a bare anchor is what "a `<nav>` of anchors" means.
  */
-function OutlineLink({ id, size, depth, active, onNavigate, children }: OutlineLinkProps) {
+function OutlineLink({ id, size, depth, active, tabStop, onFocus, onNavigate, children }: OutlineLinkProps) {
   const onClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
       // A modified click is the user asking for a new tab; let the browser have it.
@@ -533,6 +591,8 @@ function OutlineLink({ id, size, depth, active, onNavigate, children }: OutlineL
       // some prop mergers, and this way the DOM is exactly what it says.
       {...(active ? { 'aria-current': 'location' as const } : {})}
       className={item({ size, depth, active })}
+      tabIndex={tabStop ? 0 : -1}
+      onFocus={() => onFocus(id)}
       onClick={onClick}
     >
       {children}
