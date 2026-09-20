@@ -32,10 +32,13 @@ import { cn } from '../../lib/cn'
  * folded into its `aria-describedby`. There is no `useId` here, unlike Tooltip,
  * which had to patch its own ARIA by hand.
  *
- * Base UI's `validate` / `validationMode` / `validationDebounceTime` are
- * deliberately not surfaced. This is presentational; deciding *when* a value is
- * wrong belongs to a Form component that does not exist yet, and `invalid` and
- * `error` are the external-control path Base UI documents for exactly that.
+ * **Deciding *when* a value is wrong is `Form`'s job, and this is where the
+ * answer lands.** Base UI's `validate` / `validationMode` /
+ * `validationDebounceTime` pass straight through to `Field.Root`, so one field
+ * can check on every keystroke while the form around it waits for submit. The
+ * message then comes from the browser (`required`, `type="email"`), from
+ * `validate`, or from the Form's `errors` entry for this field's `name` —
+ * `error` is the override for a message decided somewhere else entirely.
  *
  * **It labels a group as readily as a control.** Figma's `Type=Checkbox` and
  * `Type=Radio` put this label *above* a control that already has its own — the
@@ -79,7 +82,7 @@ const errorText = tv({
 export interface FieldProps
   extends Omit<
     ComponentPropsWithRef<typeof FieldPrimitive.Root>,
-    'className' | 'render' | 'children' | 'validate' | 'validationMode' | 'validationDebounceTime'
+    'className' | 'render' | 'children'
   > {
   /**
    * The control this labels — an `Input`, an `InputGroup`, or a group of
@@ -94,7 +97,8 @@ export interface FieldProps
    * Figma's `Validation Message`. Providing one puts the field in the invalid
    * state on its own — a danger-red message beside a neutral border would read
    * as a bug — so `invalid` is only needed to color the control without saying
-   * anything.
+   * anything. Without it, the message is whatever the browser, `validate` or
+   * the surrounding `Form` reports once one of them decides the value is wrong.
    */
   error?: ReactNode
   /** Maps to the control's `State=Invalid`. Also sets `aria-invalid` on it. */
@@ -176,14 +180,20 @@ export function Field({
 
       {children}
 
-      {error != null && (
-        // `match` (i.e. always) rather than a ValidityState key: the message
-        // shows because the caller said so, not because the browser found a
-        // native constraint violation.
-        <FieldPrimitive.Error match className={errorText()}>
-          {error}
-        </FieldPrimitive.Error>
-      )}
+      {/*
+        Always rendered; Base UI returns null until there is something to say.
+        With a string `error` it is `match` (i.e. always shown) and the message
+        is ours. Without one there is no `match` and — this is load-bearing —
+        no `children` key at all: Base UI's mergeProps assigns every own key of
+        the props it is handed, so an explicit `children: undefined` would erase
+        the message it computed from the native `validationMessage`, a
+        `validate` result, or the Form's `errors`. The conditional spread is
+        what keeps the key out.
+      */}
+      <FieldPrimitive.Error
+        className={errorText()}
+        {...(error != null && { match: true, children: error })}
+      />
     </FieldPrimitive.Root>
   )
 }

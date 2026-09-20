@@ -92,6 +92,7 @@ export default defineConfig({
           '@base-ui/react/use-render',
           '@base-ui/react/input',
           '@base-ui/react/field',
+          '@base-ui/react/form',
           '@base-ui/react/checkbox-group',
           '@base-ui/react/popover',
           '@base-ui/react/select',
