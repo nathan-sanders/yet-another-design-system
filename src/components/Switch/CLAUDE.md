@@ -42,10 +42,12 @@ Switch among the controls it wraps, so that pairing is one the code allows rathe
 file asks for. Two ways in which this control's invalid state runs ahead of the drawing.
 **`overflow-clip` not ported, for the fifth time** — the knob reaches nothing, and the shared
 ring paints outside the track.
-The row, card and label column are **a third copy** of Checkbox's recipes. Radio's note said a
-third control was the point to extract them; that was reconsidered, because Figma keeps the
-three as separate sets that can drift and a module spanning three folders would pin them
-together in code while the file lets them move. **A fourth control is the point to extract it.**
+The row, card and label column were **a third copy** of Checkbox's recipes, and since 2026-09-20
+they are imported from `Checkbox/styles.ts`. Radio's note said a third control was the point to
+extract them; this record reconsidered, because Figma keeps the sets separate and a module
+spanning three folders pins them together in code while the file lets them move, and said a
+fourth would be the point. Questionnaire's answer row was the fourth. Only the track and the
+knob are Switch's own.
 **32×20 track, 14/16 knob, 40px card are the numbers to check.**
 Left out: `readOnly`, which Base UI has and Figma draws no state for — it passes through the
 spread unstyled rather than being a documented prop.

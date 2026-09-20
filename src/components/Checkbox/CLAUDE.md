@@ -26,6 +26,16 @@ A ring is a shadow, so it costs no layout. That is Avatar's trick, and the card 
 line unchanged on focus: the shared ring goes round the outside of it, and the box inside draws
 **no** ring of its own, because two concentric rings on one control read as a mistake.
 **40 is the number to check**, and 20 for the box.
+**The box, the row, the card and the label column live in `Checkbox/styles.ts`** since
+2026-09-20, imported by Radio, Switch and Questionnaire the way `Input/styles.ts` is imported by
+TextArea and NumberInput. They were drawn here first and copied three times — each copy's record
+said the next control would be the point to extract — and Questionnaire's answer row was the
+fourth. The three real differences between the four are variants there: `layout` (a card that
+stacks a row over a slot, or is only the row), `fill` (Questionnaire's row draws no
+Surface/Background Primary), and `stateFrom` on the box and dial (`self` for a Base UI root that
+carries `data-checked`, `row` for Questionnaire's indicator reading the `<label>` through
+`group/row` — the same rules in two spellings, side by side, because Tailwind cannot compose a
+variant at runtime).
 `invalid` is a prop rather than a CSS state, and the one member of Figma's `State` axis that
 stays one. **Migrated onto Field:** the box now also carries `data-invalid:` rules, so a
 Field can drive it — Base UI's `fieldValidityMapping` turns the Field's `valid: false` into

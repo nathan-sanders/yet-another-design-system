@@ -2,10 +2,17 @@ import { useId, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Radio as RadioPrimitive } from '@base-ui/react/radio'
 import { RadioGroup } from '@base-ui/react/radio-group'
 import type { RadioGroupProps as BaseRadioGroupProps } from '@base-ui/react/radio-group'
-import { tv, type VariantProps } from 'tailwind-variants'
+import { tv } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
-import { focusRing, focusRingWithin } from '../../lib/focus'
+import {
+  controlDescription,
+  controlLabel,
+  controlLabelColumn,
+  controlRow,
+  radioDial,
+  type ControlRowVariants,
+} from '../Checkbox/styles'
 
 /**
  * Radio — pick exactly one option from a list you can see all of.
@@ -40,135 +47,16 @@ import { focusRing, focusRingWithin } from '../../lib/focus'
  * a 20px circle filled with Input/Selected, and a `r="4"` — so 8px across —
  * glyph in Input/Selected Foreground. That is Base UI's `Radio.Indicator`.
  *
- * The row, the card and the label column are deliberately the same shapes
- * Checkbox draws, and the recipes below are deliberately a copy rather than a
- * shared module: Figma keeps the two as separate component sets that can drift,
- * and this library's precedent for sharing styles (Avatar/AvatarGroup) is a
- * `styles.ts` inside one folder, not a module spanning two. If a third control
- * needs this row, that is the point to extract it.
- *
- * Switch is that third control, and it copied them again rather than extracting:
- * a module spanning three folders would pin the three together in code while
- * Figma's three separate sets are free to drift. **A fourth is the point.**
+ * The dial, the row, the card and the label column are the shared control
+ * shapes in `Checkbox/styles.ts`. They were a deliberate copy of Checkbox's
+ * for a long time — Figma keeps the sets separate, and a shared module pins
+ * them together — and this file said a third control would be the point to
+ * extract, then Switch said a fourth. Questionnaire's answer row was the
+ * fourth, and the four were extracted on 2026-09-20; the one thing Radio's
+ * card does differently, laying the row out flat with no slot under it, is
+ * the `layout: 'row'` variant there.
  */
 
-/**
- * The 20px dial. Focus is the shared ring (src/lib/focus.ts), drawn outside the
- * dial: the selected state is already a disc inside a ring, so anything painted
- * *inside* the circle competes with the indicator instead of framing it.
- */
-const dial = tv({
-  base: [
-    'flex shrink-0 items-center justify-center',
-    // size-5 = width/w-5 (20px), rounded-full = border-radius/rounded-full.
-    'size-5 rounded-full border',
-    'cursor-pointer',
-    // Unselected. The Input ramp, not the Action one: this is a form control.
-    'bg-input-background border-input-border',
-    'hover:border-input-border-hover',
-    // Selected is a solid disc — Figma fills background and stroke with the
-    // same token, which is what the exported SVG shows.
-    'data-checked:bg-input-selected data-checked:border-input-selected',
-    'outline-none',
-    'transition-colors duration-fast-min ease-standard',
-    // Inside a Field, validity arrives here as `data-invalid` rather than as the
-    // prop below: Base UI's `fieldValidityMapping` puts it on this element when
-    // the surrounding Field is invalid. The two compose — either lights the
-    // border — so the prop stays as the standalone path Figma draws. The `hover`
-    // copy is spelled out because both selectors otherwise land on equal
-    // specificity, leaving the winner to the order Tailwind happens to emit.
-    'data-invalid:border-feedback-danger-highlight',
-    'data-invalid:hover:border-feedback-danger-highlight',
-  ],
-
-  variants: {
-    /**
-     * Who draws the focus ring, as in Checkbox: standalone it is the dial,
-     * inside a card it is the card. Two concentric rings on one control read as
-     * a mistake rather than as emphasis.
-     */
-    inContainer: {
-      false: focusRing,
-      true: '',
-    },
-
-    /**
-     * Figma's `State=Invalid`, for a radio standing on its own. Inside a
-     * `Field`, validity comes from there instead, through the `data-invalid:`
-     * rules in the base list above — and on a group you almost always want it
-     * there, since one invalid option in a set of three is rarely the thing you
-     * mean.
-     */
-    invalid: {
-      true: 'border-feedback-danger-highlight hover:border-feedback-danger-highlight',
-      false: '',
-    },
-  },
-
-  defaultVariants: { invalid: false, inContainer: false },
-})
-
-/**
- * The row, and — when `inContainer` is set — the card around it. The card's line
- * is an `inset-ring` rather than a `border` for the reason Checkbox's is: Figma
- * draws the container 40px tall, and a border would add its 2px on top of that.
- */
-const field = tv({
-  base: 'font-sans',
-
-  variants: {
-    inContainer: {
-      false: 'inline-flex items-center gap-3',
-      true: [
-        'flex w-full items-center gap-3 px-3 py-2',
-        'rounded-md bg-surface-background-primary inset-ring inset-ring-surface-border',
-        'hover:bg-surface-background-subtle',
-        ...focusRingWithin,
-        // The card is a plain <label>, not a Base UI part, so it reads validity
-        // off the control inside it — the same `has-` idiom as focusRingWithin
-        // just above, and as Input's box.
-        'has-[[data-invalid]]:inset-ring-feedback-danger-highlight',
-        'has-[[data-invalid]]:hover:inset-ring-feedback-danger-highlight',
-        'transition-colors duration-fast-min ease-standard',
-      ],
-    },
-
-    /** Figma fades the whole row, label included, at opacity/opacity-40. */
-    disabled: {
-      true: 'pointer-events-none opacity-40',
-      false: 'cursor-pointer',
-    },
-
-    invalid: { true: '', false: '' },
-  },
-
-  compoundVariants: [
-    {
-      inContainer: true,
-      invalid: true,
-      class: 'inset-ring-feedback-danger-highlight hover:inset-ring-feedback-danger-highlight',
-    },
-  ],
-
-  defaultVariants: { inContainer: false, disabled: false, invalid: false },
-})
-
-/**
- * Inside a container the label is Content/Emphasized at semibold — the card is a
- * bigger target and Figma gives it more weight to match.
- */
-const labelText = tv({
-  base: 'text-base',
-  variants: {
-    inContainer: {
-      false: 'font-normal text-content-primary',
-      true: 'font-semibold text-content-emphasized',
-    },
-  },
-  defaultVariants: { inContainer: false },
-})
-
-type FieldVariants = VariantProps<typeof field>
 
 export interface RadioProps
   extends Omit<
@@ -200,18 +88,18 @@ export function Radio({
   const labelId = `${id}-label`
   const descriptionId = `${id}-description`
 
-  const state: FieldVariants = { inContainer, disabled: Boolean(disabled), invalid }
+  const state: ControlRowVariants = { inContainer, layout: 'row', disabled: Boolean(disabled), invalid }
 
   return (
     // A real <label> round the row, so clicking the text selects the option.
     // Base UI reaches for the wrapping label through the hidden input when
     // `nativeButton` is false, which is the default and what is used here —
     // the same call Checkbox makes, and the opposite of SegmentedControl's.
-    <label className={cn(field(state), className)}>
+    <label className={cn(controlRow(state), className)}>
       <RadioPrimitive.Root
         disabled={disabled}
         aria-invalid={invalid || undefined}
-        className={dial({ invalid, inContainer })}
+        className={radioDial({ invalid, inContainer })}
         // Named by its own text and described by its own sub-label, said out
         // loud. Base UI takes a surrounding Field's label id ahead of the
         // wrapping <label>, so inside `<Field label="Send me">` every box in a
@@ -230,20 +118,12 @@ export function Radio({
       </RadioPrimitive.Root>
 
       {label != null && (
-        <span
-          className={cn(
-            'flex flex-col items-start',
-            // Inside the card the label column takes the leftover width so a
-            // long description wraps rather than widening the card. Outside it
-            // the row hugs its content, as Figma draws it.
-            inContainer ? 'min-w-px flex-1' : 'shrink-0',
-          )}
-        >
-          <span id={labelId} className={labelText({ inContainer })}>
+        <span className={controlLabelColumn({ fill: inContainer })}>
+          <span id={labelId} className={controlLabel({ emphasized: inContainer })}>
             {label}
           </span>
           {description != null && (
-            <span id={descriptionId} className="text-sm font-normal text-content-subtle">
+            <span id={descriptionId} className={controlDescription}>
               {description}
             </span>
           )}

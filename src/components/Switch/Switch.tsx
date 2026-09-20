@@ -1,9 +1,17 @@
 import { useId, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Switch as SwitchPrimitive } from '@base-ui/react/switch'
-import { tv, type VariantProps } from 'tailwind-variants'
+import { tv } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
-import { focusRing, focusRingWithin } from '../../lib/focus'
+import { focusRing } from '../../lib/focus'
+import {
+  controlDescription,
+  controlLabel,
+  controlLabelColumn,
+  controlRow,
+  controlRowInner,
+  type ControlRowVariants,
+} from '../Checkbox/styles'
 
 /**
  * Switch — flip a setting on or off, and it takes effect straight away.
@@ -144,74 +152,10 @@ const thumb = tv({
 })
 
 /**
- * The row, and — when `inContainer` is set — the card around it.
- *
- * The card's line is an `inset-ring` rather than a `border` because Figma draws
- * the container 40px tall: 24 of line-height plus 8 above and below. A border
- * would add its 2px on top of that and make it 42. `inset-ring` is a shadow, so
- * it costs no layout, which is the same reason Avatar uses one.
- *
- * The card keeps that 1px line unchanged when the control inside it takes focus;
- * the shared ring goes round the outside of the card instead.
+ * The row, the card and the label column are the shared control shapes in
+ * `Checkbox/styles.ts`, extracted on 2026-09-20 once Questionnaire made a
+ * fourth copy. Only the track and the knob are Switch's own.
  */
-const field = tv({
-  base: 'font-sans',
-
-  variants: {
-    inContainer: {
-      // gap-3 = spacing/3 (12px).
-      false: 'inline-flex items-center gap-3',
-      true: [
-        'flex w-full flex-col justify-center gap-2 px-3 py-2',
-        'rounded-md bg-surface-background-primary inset-ring inset-ring-surface-border',
-        'hover:bg-surface-background-subtle',
-        ...focusRingWithin,
-        // The card is a plain <label>, not a Base UI part, so it reads validity
-        // off the control inside it — the same `has-` idiom as focusRingWithin
-        // just above, and as Input's box.
-        'has-[[data-invalid]]:inset-ring-feedback-danger-highlight',
-        'has-[[data-invalid]]:hover:inset-ring-feedback-danger-highlight',
-        'transition-colors duration-fast-min ease-standard',
-      ],
-    },
-
-    /** Figma fades the whole row, label included, at opacity/opacity-40. */
-    disabled: {
-      true: 'pointer-events-none opacity-40',
-      false: 'cursor-pointer',
-    },
-
-    invalid: { true: '', false: '' },
-  },
-
-  compoundVariants: [
-    {
-      inContainer: true,
-      invalid: true,
-      class: 'inset-ring-feedback-danger-highlight hover:inset-ring-feedback-danger-highlight',
-    },
-  ],
-
-  defaultVariants: { inContainer: false, disabled: false, invalid: false },
-})
-
-/**
- * The label column. Inside a container the label is Content/Emphasized at
- * semibold — the card is a bigger target and Figma gives it more weight to
- * match. Outside one it is ordinary body text.
- */
-const labelText = tv({
-  base: 'text-base',
-  variants: {
-    inContainer: {
-      false: 'font-normal text-content-primary',
-      true: 'font-semibold text-content-emphasized',
-    },
-  },
-  defaultVariants: { inContainer: false },
-})
-
-type FieldVariants = VariantProps<typeof field>
 
 export interface SwitchProps
   extends Omit<
@@ -269,20 +213,12 @@ export function Switch({
       </SwitchPrimitive.Root>
 
       {label != null && (
-        <span
-          className={cn(
-            'flex flex-col items-start',
-            // Inside the card the label column takes the leftover width, so a
-            // long description wraps instead of widening the card. Outside it
-            // the row hugs its content, as Figma draws it.
-            inContainer ? 'min-w-px flex-1' : 'shrink-0',
-          )}
-        >
-          <span id={labelId} className={labelText({ inContainer })}>
+        <span className={controlLabelColumn({ fill: inContainer })}>
+          <span id={labelId} className={controlLabel({ emphasized: inContainer })}>
             {label}
           </span>
           {description != null && (
-            <span id={descriptionId} className="text-sm font-normal text-content-subtle">
+            <span id={descriptionId} className={controlDescription}>
               {description}
             </span>
           )}
@@ -291,15 +227,15 @@ export function Switch({
     </>
   )
 
-  const state: FieldVariants = { inContainer, disabled: Boolean(disabled), invalid }
+  const state: ControlRowVariants = { inContainer, disabled: Boolean(disabled), invalid }
 
   if (!inContainer) {
-    return <label className={cn(field(state), className)}>{control}</label>
+    return <label className={cn(controlRow(state), className)}>{control}</label>
   }
 
   return (
-    <label className={cn(field(state), className)}>
-      <span className="flex w-full items-center gap-3">{control}</span>
+    <label className={cn(controlRow(state), className)}>
+      <span className={controlRowInner}>{control}</span>
       {children}
     </label>
   )

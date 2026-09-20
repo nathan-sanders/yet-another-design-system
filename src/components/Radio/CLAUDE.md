@@ -16,11 +16,14 @@ read off the exported SVG rather than guessed: a 20px circle filled with Input/S
 Migrated onto Field alongside Checkbox, and by the same two mechanisms — `data-invalid:` on
 the dial, `has-[[data-invalid]]:` on the card — so a Field can mark a whole group invalid and
 carry the message, which is what you almost always mean rather than one option being wrong.
-The row, card and label column are the same shapes Checkbox draws, and the recipes are a
-**deliberate copy rather than a shared module**: Figma keeps the two as separate component sets
-that can drift, and this library's precedent for sharing styles (Avatar/AvatarGroup) is a
-`styles.ts` inside one folder, not a module spanning two. If a third control needs this row,
-that is the point to extract it. Card is 40px, dial 20px — **the numbers to check.**
+The dial, row, card and label column are the same shapes Checkbox draws, and since 2026-09-20
+they are **imported from `Checkbox/styles.ts`** rather than copied. They were a deliberate copy
+first — Figma keeps the sets separate and a shared module pins them together — and this record
+said a third control would be the point to extract, then Switch said a fourth. Questionnaire's
+answer row was the fourth, and Nathan called it. The one thing Radio's card does differently is
+a variant there: `layout: 'row'`, the row laid flat with no slot under it (Figma's Radio *has* a
+Slot; the code still leaves it out). Card is 40px, dial 20px — **the numbers to check**, and the
+`InContainer` stories still measure them.
 **`Radio.Group`** is now Figma's "Radio Group" set (node `40004010:5003`), whose only property
 is `Layout` Vertical | Horizontal. It owns the value, the roving tabindex and the arrow keys, so
 a `Radio` outside one does nothing. The stack is `gap-2`, which is a correction: it was `gap-3`

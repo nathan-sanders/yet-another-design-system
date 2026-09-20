@@ -1,6 +1,6 @@
 import { tv } from 'tailwind-variants'
 
-import { focusRingWithin } from '../../lib/focus'
+import { checkboxBox, controlRow, radioDial } from '../Checkbox/styles'
 
 /**
  * The form. Figma's `Questionnaire` frame: a column at `spacing/4` (16px)
@@ -57,94 +57,53 @@ export const error = tv({ base: 'm-0 text-sm font-normal italic text-content-dan
 /**
  * One answer — the `<label>` card round a hidden native radio or checkbox.
  *
- * Figma's `Questionnaire Item Radio` / `Questionnaire Item Checkbox`: a row
- * at `px-3 py-2`, `gap-3`, `rounded-md`, with a 1px **inside** stroke on
- * Surface/Border and no fill at rest. The stroke is an `inset-ring`, not a
- * border, for Radio and Checkbox `inContainer`'s reason — the file draws the
- * row 40px tall (24 of line-height plus 8 above and below), and a border would
- * make it 42.
+ * It is the shared control card (`Checkbox/styles.ts`), laid out flat like
+ * Radio's and with no fill: Figma's `Questionnaire Item Radio` / `Checkbox`
+ * draw the same `px-3 py-2 gap-3 rounded-md` row with the same 1px inside
+ * stroke on Surface/Border, and the answers stack inside a bubble that is
+ * already the primary surface. `disabled` and `invalid` come from the shared
+ * card too — the primitive puts `data-invalid` on the input, which the card's
+ * `has-` rule reads, and `disabled` is passed as a prop.
  *
- * The states are the primitive's data attributes on this element, so nothing
- * inside has to be told: `data-checked` swaps the stroke to Surface/Border
- * Emphasized, `data-invalid` to Feedback/Danger/Highlight, `data-disabled`
- * fades the whole row at opacity-40. Hover and focus are the same wash of
- * Surface/Background Subtle — Figma draws both — and the focus ring goes round
- * this card (`focusRingWithin`), never round the `sr-only` input inside it:
- * one ring, on the thing you can see.
- *
- * `group/choice` is what the indicator and its glyph read their state off.
+ * Three things are this row's alone, added on top. It is `group/row`, which is
+ * where the indicator inside reads its state (the primitive sets
+ * `data-checked` on this label, not on a control). Selected swaps the ring to
+ * Surface/Border Emphasized — the file draws it, and Radio's card does not.
+ * And focus paints the same wash hover does; the file draws both.
  */
 export const choice = tv({
   base: [
-    'group/choice flex w-full items-center gap-3 px-3 py-2',
-    'rounded-md inset-ring inset-ring-surface-border',
-    'cursor-pointer',
-    'hover:bg-surface-background-subtle',
+    controlRow({ inContainer: true, layout: 'row', fill: false }),
+    'group/row',
     'has-focus-visible:bg-surface-background-subtle',
-    ...focusRingWithin,
     'data-checked:inset-ring-surface-border-emphasized',
-    'data-invalid:inset-ring-feedback-danger-highlight',
-    'data-invalid:hover:inset-ring-feedback-danger-highlight',
-    'data-disabled:pointer-events-none data-disabled:opacity-40',
-    'transition-colors duration-fast-min ease-standard',
   ],
+  variants: {
+    disabled: {
+      true: controlRow({ inContainer: true, layout: 'row', fill: false, disabled: true }),
+      false: '',
+    },
+  },
+  defaultVariants: { disabled: false },
 })
 
 /**
- * The 20px dial — Radio's `dial`, with every `data-checked:` turned into
- * `group-data-checked/choice:` and no focus variant of its own.
- *
- * A deliberate copy rather than an import, and the fourth one: Checkbox,
- * Radio and Switch each carry these shapes because Figma keeps them as
- * separate sets that can drift, and Radio's record says a fourth copy is the
- * point to extract. This is that fourth — and it cannot import as things
- * stand anyway, because here the state lives on the `<label>` (the primitive
- * sets it there) rather than on a Base UI root, so every selector has to look
- * up at the group instead of at itself. Whether to extract is now a live
- * question; the record says so.
+ * The 20px dial and box are Radio's and Checkbox's, reading their state off
+ * the row: `stateFrom: 'row'` in the shared module is the `group-data-*`
+ * spelling of the same rules. No focus variant of their own — the card
+ * draws the ring.
  */
-export const dial = tv({
-  base: [
-    'flex shrink-0 items-center justify-center',
-    // size-5 = width/w-5 (20px), rounded-full = border-radius/rounded-full.
-    'size-5 rounded-full border',
-    // Unselected. The Input ramp, not the Action one: this is a form control.
-    'bg-input-background border-input-border',
-    'group-hover/choice:border-input-border-hover',
-    // Selected is a solid disc — Figma fills background and stroke with the
-    // same token.
-    'group-data-checked/choice:bg-input-selected group-data-checked/choice:border-input-selected',
-    'group-data-invalid/choice:border-feedback-danger-highlight',
-    'transition-colors duration-fast-min ease-standard',
-  ],
-})
+export const dial = radioDial({ stateFrom: 'row', inContainer: true })
+export const box = checkboxBox({ stateFrom: 'row', inContainer: true })
 
 /** r="4" in Figma's exported SVG, so 8px across. Shown only when selected. */
 export const dialDot = tv({
-  base: 'hidden size-2 rounded-full bg-input-selected-foreground group-data-checked/choice:block',
-})
-
-/**
- * The 20px box — Checkbox's `box`, with the same substitution as `dial` above
- * and for the same reason. `rounded-sm` is border-radius/rounded-sm (6px).
- */
-export const box = tv({
-  base: [
-    'flex shrink-0 items-center justify-center',
-    'size-5 rounded-sm border',
-    'bg-input-background border-input-border',
-    'group-hover/choice:border-input-border-hover',
-    'group-data-checked/choice:bg-input-selected group-data-checked/choice:border-input-selected',
-    // The glyph inherits this as currentColor, the way Icon is built to.
-    'text-input-selected-foreground',
-    'group-data-invalid/choice:border-feedback-danger-highlight',
-    'transition-colors duration-fast-min ease-standard',
-  ],
+  base: 'hidden size-2 rounded-full bg-input-selected-foreground group-data-checked/row:block',
 })
 
 /** Checkbox's 14px `Check`. Shown only when ticked. */
 export const boxGlyph = tv({
-  base: 'hidden size-3.5 group-data-checked/choice:block',
+  base: 'hidden size-3.5 group-data-checked/row:block',
 })
 
 /** The label column takes the leftover width so a long description wraps. */

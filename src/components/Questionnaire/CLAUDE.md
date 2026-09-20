@@ -101,19 +101,20 @@ name the input with everything in the row run together, sub-label included; the 
 Checkbox and Switch took on 2026-09-20. Only spread when there is text to point at — an undefined
 `aria-*` prop deletes what the primitive computed.
 
-**The dial and the box are Radio's and Checkbox's recipes, copied, with every `data-checked:`
-turned into `group-data-checked/choice:`.** Radio's record says the row shapes are a deliberate
-copy in Checkbox, Radio and Switch because Figma keeps them as separate sets that can drift, and
-that a fourth copy is the point to extract. **This is the fourth.** It also cannot import as things
-stand: here the state lives on the `<label>`, where the primitive puts it, rather than on a Base UI
-root, so every selector has to look up at the group rather than at the element itself. Whether to
-extract — and across what, given four Figma sets — is now a live question for Nathan rather than
-something done quietly here.
+**The row, the dial and the box are the shared control shapes in `Checkbox/styles.ts`.** They
+were copied here first — Radio's record said the row shapes were a deliberate copy in Checkbox,
+Radio and Switch because Figma keeps them as separate sets that can drift, and that a fourth copy
+was the point to extract. This was the fourth, Nathan called it, and the extraction landed the
+same day. The card is `controlRow({ inContainer: true, layout: 'row', fill: false })`: Radio's
+flat row, with no fill because the answers stack inside a bubble that is already the primary
+surface. Its own additions are `group/row`, the selected ring on Surface/Border Emphasized, and
+the focus wash. The dial and box are `radioDial` / `checkboxBox` with `stateFrom: 'row'` — the
+state lives on the `<label>` here, where the primitive puts it, rather than on a Base UI root, so
+the indicator looks up at the group; the shared module carries both spellings side by side.
 
 Radio-or-checkbox is read from the item's `multiple` through context, not from the row's
 `data-type`. The glyph inside the indicator is a different element either way (a dot span, a
-Lucide `Check`), so the branch is JavaScript regardless; two verbatim copies of the recipes keep
-the diff against Radio and Checkbox reviewable.
+Lucide `Check`), so the branch is JavaScript regardless.
 
 ## The shortcut is a `Kbd`
 

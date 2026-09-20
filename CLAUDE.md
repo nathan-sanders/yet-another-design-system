@@ -792,6 +792,13 @@ component usually has fewer decisions in it than it looks.
   `Combobox/styles.ts` and the field recipes stayed put — and the field itself is `Input`'s `box`
   imported outright, which is the same rule pointing at a third component. **Ask the question per
   part, not per component.**
+- **A copy earns a shared module when the fourth one appears, and not before.** Checkbox drew the
+  labeled-control row, card, label column and box; Radio copied them and said a third would be the
+  point to extract; Switch copied them again and said a fourth would; Questionnaire's answer row was
+  the fourth, and `Checkbox/styles.ts` now holds all of it, with the three differences that had
+  accumulated as variants (`layout`, `fill`, `stateFrom`). The reason to wait was real — Figma keeps
+  the sets separate, and a shared module bets they drift together — and the reason to stop waiting
+  was that three copies had already drifted *nowhere*, which is the evidence the bet wanted.
 - **When a second control writes a primitive's state, the component has to hold that state — and
   build Base UI's event object to report it.** Slider's number fields are the first case: two
   controls write one value, so `Slider.Root` is given a controlled `value` and the uncontrolled case
@@ -1085,7 +1092,9 @@ Base UI has the radio and the checkbox but not the step machine round them, and 
 the library's through `render`. Its record has the two things the build turned on: the title is a
 `<p>` named to the fieldset because a `<legend>` cannot be a flex item, and the row is Radio's and
 Checkbox's card painted off the `<label>` — **the fourth copy Radio's record said would be the point
-to extract**, now a live question rather than something done quietly. The file drew it first; what it
+to extract, and it was**: Nathan called it, and the row, card, label column, box and dial now live
+in `Checkbox/styles.ts`, imported by Radio, Switch and Questionnaire, with the three real
+differences as variants and the two selector spellings side by side. The file drew it first; what it
 did not draw (invalid, the message, Previous/Skip/Submit, a Docs page) was drawn the next day, and
 nothing in the code moved when it landed. Its one token question — the description shipped on
 `Content/Primary` because the file bound it there — was settled the same day at source: the node
