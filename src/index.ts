@@ -260,6 +260,8 @@ export type { NumberInputProps } from './components/NumberInput'
 
 export { OTPInput } from './components/OTPInput'
 export type { OTPInputProps } from './components/OTPInput'
+export { Outline, useOutlineFromDOM } from './components/Outline'
+export type { OutlineProps, OutlineItem, OutlineLevel, OutlineSize, UseOutlineFromDOMOptions } from './components/Outline'
 
 export { TextArea } from './components/TextArea'
 export type { TextAreaProps, TextAreaResize } from './components/TextArea'
