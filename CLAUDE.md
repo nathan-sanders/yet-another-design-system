@@ -563,7 +563,7 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Forty-one records carry it.** The data-viz family shares one: the `↪ Data Viz`
+drift nothing in CI can catch. **Forty-two records carry it.** The data-viz family shares one: the `↪ Data Viz`
 page has a single Docs frame for all fifteen charts, so `Chart`'s record holds the family's rules —
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
@@ -664,6 +664,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Pagination](src/components/Pagination/CLAUDE.md) | move through a data set a page at a time | counts, not rows, so it is not a table component; the arithmetic is a pure module because every way it can be wrong renders perfectly |
 | [ProgressBar](src/components/ProgressBar/CLAUDE.md) | how far along a task is | the first component with no Figma variants to read, so the file was drawn from it; `indeterminate` is `value={null}`, and two of Astryx's rules are dropped because the token layer cannot hold them in both themes |
 | [TreeList](src/components/TreeList/CLAUDE.md) | a hierarchy you can fold and walk | Astryx's data API on an APG tree; the second roving tabindex after Calendar, and the first ring painted off a parent's focus rather than the focused element's |
+| [Outline](src/components/Outline/CLAUDE.md) | the headings on this page, with the one in view marked | a `<nav>` of anchors where Astryx has a roving tabindex; Tabs' sliding indicator turned vertical; a scroll listener, not an observer, because `offset` is a line; the last heading wins at the end of the scroll, and the clicked one wins while it is on screen |
 | [Skeleton](src/components/Skeleton/CLAUDE.md) | the shape of content still loading | shadcn's pulse at `duration-slow` each way, so the 2s is a token; `Skeleton.Text` is a bar the font-size tall in a box the line-height tall |
 | [ChatMessage](src/components/Chat/CLAUDE.md) | one turn of a conversation | `direction` set once and read by context; the tail is one corner; the log is the caller's `role="log"`, and the default bubble only reads on `surface-background-primary` |
 | [ThoughtProcess](src/components/Chat/CLAUDE.md) | what an assistant did before it answered, folded away | a single disclosure on `Collapsible`, not an Accordion; Figma's Thinking row is `thinking` plus an `icon` slot the application fills, and while it thinks the label rotates through the system's own lines under a shimmer, the fifth keyframe |
