@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { AtSign, Search } from 'lucide-react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Checkbox } from '../Checkbox'
 import { Input, InputGroup } from '../Input'
@@ -84,6 +85,46 @@ export const WithError: Story = {
       <Field {...args} label="Border only" description="`invalid` with no message" invalid />
     </div>
   ),
+}
+
+/**
+ * **No `error` prop, and still a message.** The Field always renders Base UI's
+ * `Field.Error`, which stays empty until something reports a fault — here the
+ * browser's own `required` check, asked for on blur with `validationMode`. The
+ * words are Chromium's; the italic danger recipe is ours. Inside a `Form` this
+ * is what submitting does to every required field at once.
+ *
+ * Base UI holds a pristine field's "value missing" back until it has been
+ * typed in, so the play types one character and deletes it before tabbing
+ * away — a person who never touched the field is not told off for it.
+ */
+export const NativeMessage: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="w-80">
+      <Field label="Display name" validationMode="onBlur">
+        <Input required placeholder="Ada Lovelace" />
+      </Field>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole('textbox', { name: 'Display name' })
+    await expect(input).not.toHaveAttribute('aria-invalid')
+
+    await userEvent.click(input)
+    await userEvent.keyboard('a{Backspace}')
+    await userEvent.tab()
+
+    await waitFor(() => expect(input).toHaveAttribute('aria-invalid', 'true'))
+    await expect(input).toHaveAccessibleDescription(/fill out this field/i)
+    const message = canvas.getByText(/fill out this field/i)
+    await expect(getComputedStyle(message).fontStyle).toBe('italic')
+
+    await userEvent.type(input, 'Ada')
+    await userEvent.tab()
+    await waitFor(() => expect(input).not.toHaveAttribute('aria-invalid'))
+  },
 }
 
 /**

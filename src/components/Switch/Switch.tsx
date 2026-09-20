@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { useId, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Switch as SwitchPrimitive } from '@base-ui/react/switch'
 import { tv, type VariantProps } from 'tailwind-variants'
 
@@ -242,12 +242,27 @@ export function Switch({
   className,
   ...props
 }: SwitchProps) {
+  const id = useId()
+  const labelId = `${id}-label`
+  const descriptionId = `${id}-description`
+
   const control = (
     <>
       <SwitchPrimitive.Root
         disabled={disabled}
         aria-invalid={invalid || undefined}
         className={track({ invalid, inContainer })}
+        // Named by its own text and described by its own sub-label, said out
+        // loud. Base UI takes a surrounding Field's label id ahead of the
+        // wrapping <label>, so inside `<Field label="Send me">` every box in a
+        // group was announced as "Send me" and its own text was lost. An
+        // explicit `aria-labelledby` comes first in that precedence, and the
+        // Field's sub-label and message still reach `aria-describedby`, because
+        // Base UI appends to that one rather than replacing it. Only spread when
+        // there is text to point at — an undefined aria-* prop deletes what
+        // Base UI computed.
+        {...(label != null && { 'aria-labelledby': labelId })}
+        {...(description != null && { 'aria-describedby': descriptionId })}
         {...props}
       >
         <SwitchPrimitive.Thumb className={thumb()} />
@@ -263,9 +278,13 @@ export function Switch({
             inContainer ? 'min-w-px flex-1' : 'shrink-0',
           )}
         >
-          <span className={labelText({ inContainer })}>{label}</span>
+          <span id={labelId} className={labelText({ inContainer })}>
+            {label}
+          </span>
           {description != null && (
-            <span className="text-sm font-normal text-content-subtle">{description}</span>
+            <span id={descriptionId} className="text-sm font-normal text-content-subtle">
+              {description}
+            </span>
           )}
         </span>
       )}

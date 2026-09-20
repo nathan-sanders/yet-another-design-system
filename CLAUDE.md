@@ -630,6 +630,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Input](src/components/Input/CLAUDE.md) | a line of free text | plus `InputGroup` for attachments |
 | [TextArea](src/components/TextArea/CLAUDE.md) | more than one line of free text | Input's box made multi-line on Base UI's `Input` with `render={<textarea />}`; height is `rows`, the counter reports and never truncates |
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
+| [Form](src/components/Form/CLAUDE.md) | the form those fields sit in, and when they are checked | Base UI's Form: `noValidate`, checked on submit, first invalid focused, server errors by name; `Row` is Astryx's equal columns at 16, `Actions` is the button row twelve stories had hand-rolled; `name` goes on the Field, and it found the Field's label swallowing every control's own |
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
 | [NumberInput](src/components/NumberInput/CLAUDE.md) | an exact number, nudged by one | Input's box borrowed; the ring is scoped to the caret because the steppers are inside it |
 | [OTPInput](src/components/OTPInput/CLAUDE.md) | a code somebody was just sent | square slots at the field's own height; Base UI throws away `aria-label` on the first one |
@@ -852,7 +853,7 @@ component usually has fewer decisions in it than it looks.
   `titleSlot` before it could collide with `slot`. The rule that decides it is whether the prop name
   is the one a caller would reach for first. `slot`, `title`, `style`, `color` and `content` are the
   ones to watch.
-- **Each entry records which Base UI component it was.** Twenty-one so far, Divider first and Drawer the latest; Panel is the case beside it that checked two Base UI candidates and used neither. Worth keeping
+- **Each entry records which Base UI component it was.** Twenty-two so far, Divider first and Form the latest; Panel is the case beside it that checked two Base UI candidates and used neither. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **The default size is the first option, everywhere.** Reach for it in application stories — the
   `InContext` family, and anything standing in for a real screen — and in composition generally, so
@@ -1060,6 +1061,16 @@ component objects*, so those recipes moved to `Combobox/styles.ts` rather than b
 Its field is `Input`'s box for the same reason from the other direction — the file draws an Input
 Group, and `focusRingWithin` is correct there because `Autocomplete.InputGroup` has exactly one
 focusable descendant. Nothing in the form family is left unbuilt against the file.
+
+**`Form` closed the one thing the family had no counterpart for at all.** Field's own JSDoc had
+said "a Form component that does not exist yet" since the day it shipped, and `Field.Error` had
+only ever been rendered for a string `error` — both the same debt. Base UI's `Form` is the
+`<form>`: `noValidate`, every Field checked on submit, the first invalid control focused, server
+errors by Field `name`. Two rules came out of its source and are in its record: **`name` goes on
+the Field**, because a Checkbox Group is only reachable that way, and inside a named Field a
+grouped Checkbox carries `value`. It also found that a control inside a Field was being *named*
+by the Field — both boxes in a group announced by the Field's label — which Checkbox, Radio and
+Switch now say explicitly is not so.
 
 **`TextArea` is the ProgressBar case again** — an `(In Progress)` scaffold with nothing to read, so props were settled from Base UI's `Input` (which is `Field.Control`, and expects a `<textarea>` through `render`) and Astryx's `TextArea`, and the file was drawn from the built component in the same sitting: the Input set cloned and reshaped, `Type=Text Area` added to the Field set. Its record has the one trap that came out of it — cloning a Field variant drops every property reference and looks finished.
 

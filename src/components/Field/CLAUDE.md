@@ -25,9 +25,16 @@ as the description. No `useId` anywhere, unlike Tooltip.
 component, and it is what puts `aria-invalid` on the control and `data-invalid` on every part —
 which is what Input's border color hangs off. `Field.Error` takes `match` so the message shows
 because the caller said so rather than because the browser found a native constraint violation.
-`validate` / `validationMode` / `validationDebounceTime` are deliberately **not** surfaced: this
-is presentational, and deciding *when* a value is wrong belongs to a Form component that does not
-exist yet.
+`validate` / `validationMode` / `validationDebounceTime` pass straight through to `Field.Root`
+since `Form` landed on 2026-09-20 — before that they were held back with a note that deciding
+*when* a value is wrong belonged to a Form component that did not exist yet. **`Field.Error` is
+now always rendered**: with `error` it is `match` and shows that string; without one Base UI
+supplies the browser's `validationMessage`, the `validate` result, or the Form's entry for this
+Field's `name`, and returns `null` until there is one. Passing no `children` key at all in that
+case is load-bearing — Base UI's `mergeProps` lets an explicit `undefined` erase the message it
+computed — so the two props are a conditional spread, not `{error}` in JSX. A `string[]` from the
+server renders as a `<ul>`; Preflight strips the bullets. See `Form`'s record for where the
+message comes from in each mode.
 **`error` implies `invalid`.** A danger-red message beside a neutral border would read as a bug.
 **The validity reaches the control, which is the point of the whole component.** `Field.Root`'s
 `invalid` becomes `data-invalid` on whatever is inside — Base UI's `fieldValidityMapping` turns
@@ -66,6 +73,7 @@ The two are one text in two places — change one and change the other.
 - Wrap every form control in a Field, so the label, the sub-label and the message are wired to it without anybody writing an id.
 - Let the Field carry validity. Marking it invalid reaches the control inside and colors its own border.
 - Use the sub-label for what somebody needs before they answer, not for what they get told afterwards.
+- Put `name` on the Field when it is inside a Form. Every control reads it from there, and a Checkbox Group is only reachable that way.
 
 **Don't**
 

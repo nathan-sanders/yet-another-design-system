@@ -228,6 +228,19 @@ export type { DividerProps } from './components/Divider'
 export { Field } from './components/Field'
 export type { FieldProps } from './components/Field'
 
+export { Form } from './components/Form'
+export type {
+  FormProps,
+  FormRowProps,
+  FormActionsProps,
+  FormActionsAlign,
+  FormValues,
+  FormErrors,
+  FormValidationMode,
+  FormSubmitEventDetails,
+  FormHandle,
+} from './components/Form'
+
 export { Gauge } from './components/Gauge'
 export type { GaugeProps } from './components/Gauge'
 
