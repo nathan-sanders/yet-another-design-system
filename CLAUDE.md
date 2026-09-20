@@ -568,10 +568,11 @@ page has a single Docs frame for all fifteen charts, so `Chart`'s record holds t
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
 
-**Two records have no Figma block to mirror, and say so where the source line goes.**
+**Three records have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
-navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all.
-Both were written here rather than copied, and both owe the file a block — the same standing debt
+navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all;
+`Questionnaire`'s components are drawn in a section with no Docs page beside them yet.
+All three were written here rather than copied, and all three owe the file a block — the same standing debt
 `Combobox.Empty` and Select's scroll arrows carry. `AppShell` was a third for a few hours: built
 code-first against a page of frames, and drawn into the file as an eight-variant set with a Docs
 block the same day. **Do not read a missing block as a component
@@ -676,6 +677,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Resize](src/components/Resize/CLAUDE.md) | the strip you drag to change a size | a focusable `separator` that reports the caller's unit; the handle is the gap it sits in, at the gap's size — 16 on the dashboard, 8 beside the rail; left `DragAndDrop` the day it was built because a resize is not a drag, and the rail was its first caller with no drag at all |
 | [Panel](src/components/Panel/CLAUDE.md) | a region beside the page that pushes it over | an in-flow `<aside>` after the Page, 384 wide, resizable from the shell's gap with `sized="after"`; the slide is a width transition on `usePresence`, not a portal, and closed it renders nothing; below 768 it goes under the page and the handle turns horizontal; ContentBlock's surface with its `floating` axis, defaulted from the shell; a Panel written inside a Panel stacks over it, 12px in per level, portalled into the root's aside |
 | [Drawer](src/components/Drawer/CLAUDE.md) | a surface that slides over the page | Base UI's Drawer under Dialog's wrapper shape; right, left or bottom, swipe to dismiss with the scrim thinning; every side drawer is a bottom sheet on a phone, read with `usePhone` — the library's one `matchMedia` hook, allowed because a closed drawer paints nothing; drawn into the file the same day as a three-side set; a Drawer inside a Drawer stacks on Base UI's `--nested-drawers`, to Panel's 12px |
+| [Questionnaire](src/components/Questionnaire/CLAUDE.md) | an assistant asking before it acts, one question at a time | the first form primitive that is not Base UI's — `@shadcn/react/questionnaire` is the step machine, every pixel is ours; the title is a `<p>` because a legend cannot be a flex item; the row is Radio's and Checkbox's card painted off the `<label>`, the fourth copy; the key is a `Kbd`; answers come out of `FormData`, arrays for `multiple` |
 
 ### Data visualization
 
@@ -853,7 +855,7 @@ component usually has fewer decisions in it than it looks.
   `titleSlot` before it could collide with `slot`. The rule that decides it is whether the prop name
   is the one a caller would reach for first. `slot`, `title`, `style`, `color` and `content` are the
   ones to watch.
-- **Each entry records which Base UI component it was.** Twenty-two so far, Divider first and Form the latest; Panel is the case beside it that checked two Base UI candidates and used neither. Worth keeping
+- **Each entry records which Base UI component it was.** Twenty-two so far, Divider first and Form the latest; Panel is the case beside it that checked two Base UI candidates and used neither, and Questionnaire the first form component whose primitive is another library's — `@shadcn/react` — because Base UI had the controls and not the step machine. Worth keeping
   up, because it is how the library tracks how much of Base UI it has actually exercised.
 - **The default size is the first option, everywhere.** Reach for it in application stories — the
   `InContext` family, and anything standing in for a real screen — and in composition generally, so
@@ -1075,6 +1077,17 @@ Switch now say explicitly is not so.
 **`TextArea` is the ProgressBar case again** — an `(In Progress)` scaffold with nothing to read, so props were settled from Base UI's `Input` (which is `Field.Control`, and expects a `<textarea>` through `render`) and Astryx's `TextArea`, and the file was drawn from the built component in the same sitting: the Input set cloned and reshaped, `Type=Text Area` added to the Field set. Its record has the one trap that came out of it — cloning a Field variant drops every property reference and looks finished.
 
 **`NumberInput` and `OTPInput` have since been added, and both went code-first.** Neither was on the roadmap and neither had a Figma node — `Input`'s record had parked `type="number"` spinners as "`NumberField` is its own component" — so they are the Calendar case again: asked for directly, built, and drawn into the file in the same sitting. Two pages that had been sitting as `(In Progress)` stubs are now filled and renamed. `NumberInput` is also the first thing to touch `Input/styles.ts`'s shared `box` since Autocomplete, adding a `ring` variant because `focusRingWithin` cannot say *which* descendant should fire the ring and this box has three.
+
+**`Questionnaire` is the first form component whose primitive is not Base UI's.** Asked for with the
+Figma section in hand and shadcn's questionnaire as the reference, and shadcn's own headless
+`@shadcn/react/questionnaire` (MIT, React its only peer, no runtime dependencies) is the engine:
+Base UI has the radio and the checkbox but not the step machine round them, and the `@dnd-kit` bar
+— check what the primitive already does before writing it — was met the same way. Every pixel is
+the library's through `render`. Its record has the two things the build turned on: the title is a
+`<p>` named to the fieldset because a `<legend>` cannot be a flex item, and the row is Radio's and
+Checkbox's card painted off the `<label>` — **the fourth copy Radio's record said would be the point
+to extract**, now a live question rather than something done quietly. The file drew it first; what it
+does not draw (invalid, the message, Previous/Skip/Submit) is on the record's owed list.
 
 For each: read its Figma variants → model them as typed props → implement with `tailwind-variants` →
 cover all states → write a story showing every variant in light and dark. Then write the component's
