@@ -401,7 +401,16 @@ Inter 400 reads heavier in the app than on the canvas. It lives in the styleshee
 body class would only fix the playground. Windows and Linux ignore both properties and need no
 match; they never applied the extra pass.
 
-### Focus
+### Color scheme
+
+Section 7 of `theme.css` sets `color-scheme: light` on `:root` and `dark` on `.dark`. That is how
+the browser learns the page's theme, so the things it draws itself follow the tokens: scrollbars
+first, plus native pickers and autofill. Before it, a dark page got light-mode scrollbars. On the
+Combobox panel that was a dark-gray overlay thumb you could barely see, and on a system that
+always shows scrollbars it was a light track. It is `.dark` rather than `html.dark` to match the
+semantic block, and like section 6 it lives in the generated stylesheet so that every consumer
+gets it.
+
 
 Every focusable thing in the library uses one ring, exported from `src/lib/focus.ts` as `focusRing`
 (on the element itself) and `focusRingWithin` (on a card that should light up when a control inside
