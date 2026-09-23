@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Globe, Lock, Users } from 'lucide-react'
 
 import { Combobox } from './Combobox'
+import { countries } from './countries'
 import { Field } from '../Field'
 
 const sizes = ['small', 'default', 'large'] as const
@@ -16,20 +17,8 @@ const states = [
   { name: 'Disabled', props: { disabled: true } },
 ] as const
 
-const countries = [
-  { value: 'ar', label: 'Argentina' },
-  { value: 'au', label: 'Australia' },
-  { value: 'br', label: 'Brazil' },
-  { value: 'ca', label: 'Canada' },
-  { value: 'de', label: 'Germany' },
-  { value: 'jp', label: 'Japan' },
-  { value: 'ke', label: 'Kenya' },
-  { value: 'mx', label: 'Mexico' },
-  { value: 'nz', label: 'New Zealand' },
-  { value: 'pt', label: 'Portugal' },
-  { value: 'se', label: 'Sweden' },
-  { value: 'za', label: 'South Africa' },
-]
+/** The default value in `Open`. It has to be the object in `items` itself: Base UI compares a selection by reference. */
+const japan = countries.find((c) => c.value === 'jp')!
 
 const people = [
   { value: 'ada', label: 'Ada Lovelace' },
@@ -180,7 +169,7 @@ export const Open: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <Field label="Country" nativeLabel={false} className="w-80">
-      <Combobox open items={countries} defaultValue={countries[5]} placeholder="Select country" />
+      <Combobox open items={countries} defaultValue={japan} placeholder="Select country" />
     </Field>
   ),
 }
@@ -192,6 +181,9 @@ export const Open: Story = {
  * The filter is Base UI's, and it reads each item's `label`. It only ever sees
  * what was passed as `items`: rows written as JSX children are invisible to it,
  * which is why this component takes an array where `Select` takes children.
+ *
+ * Against the full country list "an" still leaves about eighty rows, so the
+ * narrowed list scrolls too.
  */
 export const Filtering: Story = {
   parameters: { controls: { disable: true } },
