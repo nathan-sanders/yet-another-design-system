@@ -407,6 +407,45 @@ function isGrouped(
 }
 
 /**
+ * Center the chosen row in the list, once, as the list opens.
+ *
+ * **Base UI already scrolls to it, and this corrects where.** Its list
+ * navigation calls `scrollIntoView({ block: 'nearest' })`, which parks the row
+ * on the *bottom* edge: Japan, a hundred-odd countries in, opened 376px down a
+ * 408px list, with twelve rows of context above it and none below. Centering
+ * shows the neighbors on both sides, the way a native picker does. Base UI's own
+ * call runs a frame after this one and finds the row already in view, so it does
+ * nothing.
+ *
+ * It also covers the case Base UI misses: a combobox that is **open from its
+ * first render** never runs the open transition that computes the selected
+ * index, so it stayed at the top.
+ *
+ * It's a ref callback on `List` because the popup unmounts when it closes, so
+ * the ref fires on every open and needs no open-state tracking. It waits a frame
+ * for the Positioner to publish `--available-height`, which the list's height
+ * depends on. It uses offsets rather than rects because the popup is still at
+ * `scale-95` mid-transition, and a rect would be 5% short. That's why the list is
+ * `relative`: it becomes the rows' offset parent. The first selected row wins,
+ * so it is the first token in the multi-select shape.
+ */
+function centerSelected(list: HTMLDivElement | null) {
+  if (list == null) {
+    return
+  }
+
+  const frame = requestAnimationFrame(() => {
+    const row = list.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
+
+    if (row != null) {
+      list.scrollTop = row.offsetTop - (list.clientHeight - row.offsetHeight) / 2
+    }
+  })
+
+  return () => cancelAnimationFrame(frame)
+}
+
+/**
  * The text to show for a chosen value.
  *
  * `{ value, label }` is the shape Base UI resolves labels from without being
@@ -778,7 +817,9 @@ export function Combobox({
                 <div className={empty()}>{emptyMessage}</div>
               </ComboboxPrimitive.Empty>
 
-              <ComboboxPrimitive.List className={list()}>
+              {/* `relative` makes the list the rows' offset parent, which is
+                  what `centerSelected` measures against. */}
+              <ComboboxPrimitive.List ref={centerSelected} className={cn(list(), 'relative')}>
                 {custom ? (
                   children
                 ) : grouped ? (

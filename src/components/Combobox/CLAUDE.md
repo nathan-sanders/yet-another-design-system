@@ -109,6 +109,16 @@ spacing scale, not a named token. The default five rows never reach it, so to se
 slot. A scratch instance with 20 rows measured `Content` at 408 and the menu at 456, with the
 thirteenth row cut in half. The code panel is 459 because it adds the 1px rule and the 2px of
 border that Figma draws inside.
+**The list opens with the chosen row centered.** Base UI already scrolls to it, with
+`scrollIntoView({ block: 'nearest' })`, which parks the row on the list's bottom edge (Japan at 376
+of 408) and does nothing at all for a combobox open from its first render. `centerSelected`, a ref
+callback on `List`, centers it a frame after the list mounts. The popup unmounts on close, so the
+ref fires on every open. It measures offsets, not rects, because the popup is still at `scale-95`,
+and the list is `relative` so it is the rows' offset parent. Measured in real Chromium: 188px
+above and 188px below, whether the list opens at mount, by click or by arrow key. Typing still
+resets the list to the top, which is Base UI's and right. **The hidden Browser pane never runs
+`requestAnimationFrame`**, so it reports the list at the top. Check it in Playwright; the `Open`
+story's play test does, and it fails with the ref removed.
 **`Combobox.Empty` has no Figma counterpart and is not optional** — a filter that empties the list
 without saying so looks broken. Built from the same tokens as the rows, announced through Base UI's
 polite live region, and recorded as a gap in the file like Select's scroll arrows and Divider's
