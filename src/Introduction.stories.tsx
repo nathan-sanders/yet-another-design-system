@@ -36,6 +36,7 @@ type Story = StoryObj<typeof meta>
 const componentCount = Object.keys(import.meta.glob('./components/*/index.ts')).length
 
 const FIGMA = 'https://www.figma.com/community/file/1677462869180640981/yet-another-design-system'
+const FIGMA_WORKING = 'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System'
 const GITHUB = 'https://github.com/nathan-sanders/yet-another-design-system'
 const STORYBOOK = 'https://nathan-sanders.github.io/yet-another-design-system/'
 
@@ -384,8 +385,12 @@ import { Plus } from 'lucide-react'
               The Figma file
             </Link>
             <span className="text-base text-content-subtle">
-              The source of truth. Variables here become <Mono>tokens/*.json</Mono>, and every
-              component page names the node it was built from.
+              Published regularly from the{' '}
+              <Link href={FIGMA_WORKING} external>
+                working file
+              </Link>
+              , which is the source of truth. Variables there become <Mono>tokens/*.json</Mono>, and
+              every component page names the node it was built from.
             </span>
           </div>
           <div className="flex flex-col gap-1">
