@@ -11,7 +11,7 @@ Built with React 19, TypeScript, Vite, Tailwind CSS v4, and [Base UI](https://ba
 [Recharts](https://recharts.org) behind the charts. Previewed in Storybook.
 
 **[Browse the components →](https://nathan-sanders.github.io/yet-another-design-system/)** ·
-**[Open the Figma file →](https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System)**
+**[Open the Figma file →](https://www.figma.com/community/file/1677462869180640981/yet-another-design-system)**
 
 ## Quick start
 
@@ -38,7 +38,7 @@ publishes Storybook to GitHub Pages — see
 ## How it works
 
 Three layers, each generated from the one above it, starting from the
-[Figma file](https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System) — which
+[Figma file](https://www.figma.com/community/file/1677462869180640981/yet-another-design-system) — which
 is the source of truth for everything below it.
 
 ```
