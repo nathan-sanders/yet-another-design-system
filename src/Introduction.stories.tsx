@@ -35,7 +35,7 @@ type Story = StoryObj<typeof meta>
 /** Every folder under `src/components` — a live count rather than a written-down one. */
 const componentCount = Object.keys(import.meta.glob('./components/*/index.ts')).length
 
-const FIGMA = 'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System'
+const FIGMA = 'https://www.figma.com/community/file/1677462869180640981/yet-another-design-system'
 const GITHUB = 'https://github.com/nathan-sanders/yet-another-design-system'
 const STORYBOOK = 'https://nathan-sanders.github.io/yet-another-design-system/'
 
