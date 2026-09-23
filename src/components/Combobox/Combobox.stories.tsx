@@ -157,10 +157,12 @@ export const AllVariants: Story = {
 /**
  * Held open, with a value already chosen.
  *
- * **This story exists for the accessibility suite.** A closed combobox keeps its
- * popup in the DOM but inside a `hidden` subtree, and axe walks straight past
- * anything hidden — so a run against the default state passes by checking
- * nothing inside it. Select's trap, and Toast's before it.
+ * **This story exists for the accessibility suite.** A closed combobox renders
+ * no popup at all — measured before the first open and again after closing, no
+ * `dialog`, no `listbox`, no rows — so a run against the default state passes
+ * by having nothing to check. It is the same trap as Select's by a different
+ * route: Select keeps its popup after the first open, inside a `hidden`
+ * subtree axe walks straight past, while this one unmounts it.
  *
  * It is also the only place the search field is visible: Figma draws it as the
  * Combobox Menu's 48px header, an Input Group with a magnifier in its start slot
