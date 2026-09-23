@@ -38,8 +38,10 @@ publishes Storybook to GitHub Pages — see
 ## How it works
 
 Three layers, each generated from the one above it, starting from the
-[Figma file](https://www.figma.com/community/file/1677462869180640981/yet-another-design-system) — which
-is the source of truth for everything below it.
+[working Figma file](https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System) — which
+is the source of truth for everything below it. The
+[Community file](https://www.figma.com/community/file/1677462869180640981/yet-another-design-system) is
+published from it regularly, so it stays close behind.
 
 ```
 Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css  →  components
