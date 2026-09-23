@@ -64,9 +64,17 @@ export const popup = tv({
 /**
  * The scrolling list. The panel caps its own height at `--available-height`, so
  * this is what actually scrolls inside it.
+ *
+ * **And it caps itself at twelve and a half rows**: `max-h-102` is 408px, which
+ * is the 8px wrapper inset plus 12.5 × 32. Without a cap a long list ran the
+ * panel to the bottom of the viewport, 639px tall against an 800px window with
+ * the full country list. The half row is deliberate: a list that stops exactly
+ * on a row boundary looks complete, so the cut row is what says there is more.
+ * It counts in default rows; rows with a description (52px) show fewer.
+ * `--available-height` on the panel still wins on a short screen.
  */
 export const list = tv({
-  base: 'flex min-h-0 flex-1 flex-col overflow-y-auto',
+  base: 'flex min-h-0 max-h-102 flex-1 flex-col overflow-y-auto',
 })
 
 /**
