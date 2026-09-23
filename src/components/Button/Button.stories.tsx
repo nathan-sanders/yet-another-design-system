@@ -162,18 +162,3 @@ export const IconOnly: Story = {
   ),
 }
 
-/**
- * Overlay is designed to sit on top of imagery or a dark scrim, so it is shown
- * here against a filled surface rather than the page background.
- */
-export const OverlayOnScrim: Story = {
-  parameters: { controls: { disable: true } },
-  render: (args) => (
-    <div className="flex items-center gap-4 rounded-lg bg-content-emphasized p-8">
-      {sizes.map((size) => (
-        <Button key={size} {...args} appearance="overlay" size={size} />
-      ))}
-    </div>
-  ),
-}
-
