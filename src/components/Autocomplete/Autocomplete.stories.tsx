@@ -202,10 +202,12 @@ export const OffList: Story = {
 /**
  * Held open, so the menu can be seen.
  *
- * **This story exists for the accessibility suite.** A closed autocomplete keeps
- * its popup in the DOM but inside a `hidden` subtree, and axe walks straight
- * past anything hidden — so a run against the default state passes by checking
- * nothing inside it. Combobox's trap, and Select's before it.
+ * **This story exists for the accessibility suite.** A closed autocomplete
+ * renders no popup at all — measured before the first open and again after
+ * closing, no `listbox` and no rows — so a run against the default state passes
+ * by having nothing to check. Combobox's trap exactly, and Select's by a
+ * different route: Select keeps its popup after the first open, inside a
+ * `hidden` subtree axe walks straight past, while this one unmounts it.
  *
  * The panel has **no search header**, unlike the Combobox Menu: the field itself
  * is the input, so there is nothing to put in one.
