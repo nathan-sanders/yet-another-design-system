@@ -102,6 +102,13 @@ asked for 12 to 16 rows; the low end keeps the panel on more screens, and the ha
 you the list goes on — one that ends on a row boundary reads as complete. The cap is on the list,
 not the panel, so the 48px search header is extra. It is shared, so `Autocomplete` stops at the
 same height. The scrollbar itself is still the browser's own, unstyled.
+**Figma has the same cap.** The `Content` slot of both `Combobox Menu` (`40004113:14203`) and
+`Autocomplete Menu` (`40004147:7220`) has `maxHeight` 408, clips, and scrolls vertically in
+prototypes. It is a raw 408, not a variable, because the code's `max-h-102` is a step on the
+spacing scale, not a named token. The default five rows never reach it, so to see it, fill the
+slot. A scratch instance with 20 rows measured `Content` at 408 and the menu at 456, with the
+thirteenth row cut in half. The code panel is 459 because it adds the 1px rule and the 2px of
+border that Figma draws inside.
 **`Combobox.Empty` has no Figma counterpart and is not optional** — a filter that empties the list
 without saying so looks broken. Built from the same tokens as the rows, announced through Base UI's
 polite live region, and recorded as a gap in the file like Select's scroll arrows and Divider's
