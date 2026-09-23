@@ -4,8 +4,8 @@
  *
  * Story data, not part of the library. It is the full list rather than a sample
  * because a combobox is the control for a list too long to scroll, and a
- * twelve-row sample never scrolls: the popup's scrollbar, and the panel running
- * to the edge of the viewport, only show up at a realistic length. Base UI's
+ * twelve-row sample never scrolls: the popup's scrollbar and its height cap
+ * only show up at a realistic length. Base UI's
  * own input-inside-popup demo uses a list this size for the same reason.
  *
  * `value` is the lowercase alpha-2 code, `label` the English short name.

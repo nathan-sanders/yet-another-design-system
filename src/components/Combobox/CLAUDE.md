@@ -96,6 +96,12 @@ is `relative z-10` and has to be. Fixed for all four portalled components at onc
 **No scroll arrows, unlike Select.** They were the cost of overlapping the trigger; this hangs 4px
 below its anchor, so the list simply scrolls inside the panel. Base UI ships none for Combobox
 either.
+**The list stops at twelve and a half rows** — `max-h-102`, 408px, the 8px inset plus 12.5 × 32.
+Uncapped, the full country list ran the panel 639px tall to within 5px of an 800px viewport. Nathan
+asked for 12 to 16 rows; the low end keeps the panel on more screens, and the half row is what tells
+you the list goes on — one that ends on a row boundary reads as complete. The cap is on the list,
+not the panel, so the 48px search header is extra. It is shared, so `Autocomplete` stops at the
+same height. The scrollbar itself is still the browser's own, unstyled.
 **`Combobox.Empty` has no Figma counterpart and is not optional** — a filter that empties the list
 without saying so looks broken. Built from the same tokens as the rows, announced through Base UI's
 polite live region, and recorded as a gap in the file like Select's scroll arrows and Divider's
