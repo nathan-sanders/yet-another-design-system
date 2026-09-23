@@ -1641,3 +1641,17 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ---- 7. Color scheme. Tells the browser which theme the page is in, so   */
+/*    what it draws itself follows the tokens: scrollbars first of all,     */
+/*    and native pieces like date pickers and autofill. Without it, a       */
+/*    dark page got light-mode scrollbars — a dark-gray overlay thumb on   */
+/*    the dark Combobox panel, and a light track wherever scrollbars are   */
+/*    always shown. `.dark` rather than `html.dark` so it matches the      */
+/*    semantic block in section 2, the same class the theme toggle sets.   */
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}

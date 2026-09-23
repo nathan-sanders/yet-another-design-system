@@ -101,7 +101,7 @@ Uncapped, the full country list ran the panel 639px tall to within 5px of an 800
 asked for 12 to 16 rows; the low end keeps the panel on more screens, and the half row is what tells
 you the list goes on — one that ends on a row boundary reads as complete. The cap is on the list,
 not the panel, so the 48px search header is extra. It is shared, so `Autocomplete` stops at the
-same height. The scrollbar itself is still the browser's own, unstyled.
+same height. The scrollbar is still the browser's own. It is readable in dark mode because `theme.css` sets `color-scheme`.
 **Figma has the same cap.** The `Content` slot of both `Combobox Menu` (`40004113:14203`) and
 `Autocomplete Menu` (`40004147:7220`) has `maxHeight` 408, clips, and scrolls vertically in
 prototypes. It is a raw 408, not a variable, because the code's `max-h-102` is a step on the
