@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Globe, Lock, Users } from 'lucide-react'
+import { expect, waitFor } from 'storybook/test'
 
 import { Combobox } from './Combobox'
 import { countries } from './countries'
@@ -164,6 +165,9 @@ export const AllVariants: Story = {
  * It is also the only place the search field is visible: Figma draws it as the
  * Combobox Menu's 48px header, an Input Group with a magnifier in its start slot
  * and **no box of its own** — the header's variables bind no border and no fill.
+ *
+ * The list is every country in ISO 3166-1, so this is also where the scrollbar
+ * shows, and where the list opens scrolled to the chosen row, centered.
  */
 export const Open: Story = {
   parameters: { controls: { disable: true } },
@@ -171,7 +175,20 @@ export const Open: Story = {
     <Field label="Country" nativeLabel={false} className="w-80">
       <Combobox open items={countries} defaultValue={japan} placeholder="Select country" />
     </Field>
-  ),
+  ),  // Japan is about 110 rows down, so the list has to open scrolled to it, with
+  // the row centered. Base UI alone left it at the top, because a combobox open
+  // from its first render never runs the open transition. The popup is
+  // portalled, so query the document, not the canvas.
+  play: async () => {
+    await waitFor(() => {
+      const list = document.querySelector<HTMLElement>('[role="listbox"]')!
+      const row = list.querySelector<HTMLElement>('[aria-selected="true"]')!
+      const above = row.offsetTop - list.scrollTop
+      const below = list.clientHeight - above - row.offsetHeight
+      expect(row).toHaveTextContent('Japan')
+      expect(Math.abs(above - below)).toBeLessThanOrEqual(1)
+    })
+  },
 }
 
 /**
