@@ -705,12 +705,12 @@ export const InContext: Story = {
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary">
           <TopBar
-            breadcrumbs={
+            start={
               <Breadcrumbs>
                 <Breadcrumbs.Item>Neutral for the new app</Breadcrumbs.Item>
               </Breadcrumbs>
             }
-            actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
+            end={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
           />
           <div role="log" aria-label="Conversation" className="min-h-0 flex-1 overflow-y-auto p-4">
             <div className="mx-auto flex w-full max-w-175 flex-col gap-2">

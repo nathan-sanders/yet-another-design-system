@@ -63,24 +63,27 @@ const meta = {
   title: 'Components/TopBar',
   component: TopBar,
   args: {
-    search,
-    actions,
+    middle: search,
+    end: actions,
   },
 } satisfies Meta<typeof TopBar>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Figma's `Type=Default`: no trail, so the search sits at the left edge. */
+/**
+ * Start slot off: no trail, so the middle sits at the left edge. The field goes
+ * in bare — without a centre to sit in, a wash would just be a box around it.
+ */
 export const Playground: Story = {}
 
 /**
- * Figma's `Type=Breadcrumbs`. There is no `type` prop — passing `breadcrumbs`
- * is what selects this arrangement, and it is also what centres the search,
- * because the trail and the actions are equal `flex-1` ends.
+ * All three slots, as the Figma component draws them. Passing `start` is what
+ * centres the middle, because the start and the end are equal `flex-1` ends;
+ * the search wears `TopBar.Search`, the file's `Search` frame, to show it.
  */
 export const WithBreadcrumbs: Story = {
-  args: { breadcrumbs: trail },
+  args: { start: trail, middle: <TopBar.Search>{search}</TopBar.Search> },
 }
 
 /**
@@ -100,13 +103,13 @@ export const Slots: Story = {
   parameters: { controls: { disable: true } },
   render: () => {
     const examples = [
-      { label: 'search + actions', node: <TopBar search={search} actions={actions} /> },
+      { label: 'middle + end', node: <TopBar middle={search} end={actions} /> },
       {
-        label: 'breadcrumbs + actions',
-        node: <TopBar breadcrumbs={trailNamed('Projects trail')} actions={actions} />,
+        label: 'start + end',
+        node: <TopBar start={trailNamed('Projects trail')} end={actions} />,
       },
-      { label: 'breadcrumbs only', node: <TopBar breadcrumbs={trailNamed('Archive trail')} /> },
-      { label: 'actions only', node: <TopBar actions={actions} /> },
+      { label: 'start only', node: <TopBar start={trailNamed('Archive trail')} /> },
+      { label: 'end only', node: <TopBar end={actions} /> },
     ]
     return (
       <div className="flex flex-col gap-6">
@@ -162,9 +165,9 @@ export const WithSideNav: Story = {
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary">
           <TopBar
-            breadcrumbs={trail}
-            search={search}
-            actions={
+            start={trail}
+            middle={<TopBar.Search>{search}</TopBar.Search>}
+            end={
               <>
                 <Button appearance="ghost" startIcon={Share} aria-label="Share" />
                 <ThemeControl

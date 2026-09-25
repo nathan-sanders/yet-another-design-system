@@ -23,7 +23,7 @@ import {
  *     <AppShell mode="contained">
  *       <SideNav aria-label="Main">…</SideNav>
  *       <AppShell.Page>
- *         <TopBar search={…} actions={…} />
+ *         <TopBar middle={…} end={…} />
  *         <AppShell.Content>…</AppShell.Content>
  *       </AppShell.Page>
  *     </AppShell>

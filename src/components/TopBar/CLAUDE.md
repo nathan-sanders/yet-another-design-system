@@ -6,7 +6,8 @@ The page header that sits above the content, beside a `SideNav`.
 
 | Thing | Node |
 |---|---|
-| Top Bar (`Type` = Default \| Breadcrumbs) | `40004511:34845` |
+| Top Bar (Start / Middle / End slots, each with a `Show …` boolean) | `40005672:9442` |
+| ↪ Top Bar page | `40004591:41531` |
 
 ## Decisions
 
@@ -23,14 +24,23 @@ part of the page rather than part of the navigation surface, so it follows the t
 else and the Storybook **Nav** toolbar does nothing to it. The `WithSideNav` story exists mostly to
 show those two tiers side by side and independent.
 
-**`Type` is not a prop, because `breadcrumbs` already says it.** Figma models the two arrangements
-as a variant *and* carries a redundant `Breadcrumbs` boolean beside it. Here the presence of the slot
-is the switch — the library's rule about deriving a variant from a value that already says it — and
-it collapses two Figma properties into one.
+**Three slots named for where they sit, since 2026-09-25.** Nathan replaced the `Type` =
+Default | Breadcrumbs set (`40004511:34845`, now deleted) with one component whose slots are
+`Start Slot`, `Middle Slot` and `End Slot`, each paired with a `Show …` boolean. The props followed:
+`breadcrumbs` / `search` / `actions` became `start` / `middle` / `end`. A slot is shown when you
+pass it — the booleans are Figma's way of saying what an absent prop already says. Every Figma
+instance (25 direct, 4 nested in the App Shell previews) was swapped with its slot contents cloned
+across unchanged; the old `Type=Default` bars became `Show Start Slot` off.
 
-**The right-hand actions container renders even when empty.** It is one of the two `flex-1` ends
-whose equality centres the search when breadcrumbs are present, which is Figma's FILL / FIXED / FILL.
-Dropping it when there are no actions would quietly slide the search left and change the layout.
+**The wash belongs to the search, not to the bar.** In the new component the
+`Surface/Overlay Subtle` fill and radius 8 sit on the `Search` frame *inside* the Middle slot, so
+they are content now: `TopBar.Search`. The bar stays generic — it does not know a trail from a
+title — and the file's no-trail bars carry an unwashed `Search` frame, so those callers pass the
+field bare.
+
+**The end container renders even when empty.** It is one of the two `flex-1` ends
+whose equality centres the middle when `start` is present, which is Figma's FILL / FIXED / FILL.
+Dropping it when there is no `end` would quietly slide the middle left and change the layout.
 Same arrangement `TopNav` uses.
 
 **The bottom rule is `border-b`, not a `Divider`.** Figma draws it as a Divider instance spanning
@@ -56,12 +66,10 @@ both the fix for the story and the escape hatch for a page that genuinely needs 
 same story also had to give its two trails distinct names: two `<nav>`s both called "Breadcrumb" are
 one landmark twice over as far as `landmark-unique` is concerned.
 
-**The search fills the centre and stops at 600px, and only wears a fill when there is a centre to
-be in.** A ghost field on a bare bar has no edges, so "centred" is something you take on trust; the
-`surface-overlay-subtle` wash — 10% of the neutral, the same token the ghost hover uses — gives it a
-boundary you can actually see sitting between the trail and the actions. Without breadcrumbs there is
-nothing to be centred between, and the fill would be a box around a search field for its own sake, so
-it is left off.
+**The middle fills the centre and stops at 600px.** The cap is on the slot (`max-w-150`), its
+child is stretched into it with `*:flex-1`, and `TopBar.Search` adds only the wash and the radius.
+Figma puts the same 600 max on the `Search` frame inside the slot; putting it on the slot means a
+field passed bare gets it too.
 
 `max-w-150`, not `max-w-[600px]`: Tailwind v4 reads a bare number as that many `--spacing` steps, so
 150 × 0.25rem is exactly 600px, and it matches the `max-w-100` and `max-w-200` already in the
@@ -90,26 +98,24 @@ hand-sizing rather than a decision, so it went to the token.
 
 ## Measured
 
-At the default theme, against the Figma frames:
+At the default theme, against the Figma frames (re-measured 2026-09-25 after the slot change):
 
 | | Figma | Measured |
 |---|---|---|
 | Height / padding / gap | 56 / 12 / 8 | 56 min (57 with the rule) / 12 / 8 |
 | Bottom rule | 1px `Surface/Border` | 1px solid, `Surface/Border` |
 | Background | none | transparent |
-| Search cap | 600px | `max-w-150` → `600px` |
-| Search width, 1552px bar | fills its third | 504, and 270 on an 852px bar |
-| Search fill, with / without a trail | wash / none | `surface-overlay-subtle` at 10% / transparent |
+| Middle cap | 600px | `max-w-150` → 600 on a 2352px bar, 876 either side |
+| Middle width, 1504px bar | fills its third | 488, 508 either side |
+| Search fill, `TopBar.Search` / bare | wash / none | `surface-overlay-subtle` at 10% / transparent |
 | Search radius | 8 (`rounded-md`) | 8 |
-| `Type=Default` search position | left edge | 12px from the left, i.e. the padding |
-| `Type=Breadcrumbs` search | centred | equal either side at both widths |
+| Start off: middle position | left edge | 12px from the left, i.e. the padding |
+| Start on: middle | centred | equal either side at both widths |
 
 ## Figma defects
 
-**Fixed at source on 2026-09-01:** the redundant `Breadcrumbs` BOOLEAN is gone — the properties are
-now just `Action Items` and `Type` — and the old `Breadcumbs` spelling went with it. Deriving the
-arrangement from the `breadcrumbs` slot rather than from a prop was right before that and is simply
-uncontested now.
+**Superseded on 2026-09-25:** the `Type` set these notes were written against is gone (see the
+slots decision above). The two below are kept because the traps outlive the set.
 
 **Fixed on 2026-09-01, from this side:** the root of both variants bound `strokeBottomWeight` to
 `border-width/border` while its `strokes` array was empty. It painted nothing — the visible rule is

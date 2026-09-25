@@ -348,12 +348,12 @@ export const InContext: Story = {
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary">
         <TopBar
-          breadcrumbs={
+          start={
             <Breadcrumbs>
               <Breadcrumbs.Item>New chat</Breadcrumbs.Item>
             </Breadcrumbs>
           }
-          actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
+          end={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
         />
         <main className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
           <h1 className="m-0 flex items-center gap-2 text-2xl font-bold text-content-emphasized">
