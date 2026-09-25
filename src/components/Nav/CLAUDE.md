@@ -22,7 +22,7 @@ a `Focus` state and split its start slot into separate `Icon` and `Avatar` boole
 Header` and `Top Navigation` became component sets; both bars gained `Floating`. What follows records
 the second reading, not the first.
 
-Left for a later branch: **Top Bar** (`40004485:27759`) and **Theme Control** (`40004486:27878`).
+Left for a later branch: **Top Bar** (now `40005672:9442`) and **Theme Control** (`40004486:27878`).
 Both draw from the *semantic* theme rather than the navigation one, and Top Bar is a page-header row
 — breadcrumbs, a search field, action buttons — that happens to be drawn on the navigation page.
 

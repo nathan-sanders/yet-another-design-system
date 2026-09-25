@@ -396,12 +396,12 @@ export const InContext: Story = {
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-surface-border bg-surface-background-primary">
         <TopBar
-          breadcrumbs={
+          start={
             <Breadcrumbs>
               <Breadcrumbs.Item>{conversation.title}</Breadcrumbs.Item>
             </Breadcrumbs>
           }
-          actions={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
+          end={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
         />
         {/* The log scrolls at full width; the thread inside it, like the
             composer under it, is capped at Figma's 700 and centred. */}

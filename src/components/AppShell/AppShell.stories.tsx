@@ -138,8 +138,8 @@ function Bar() {
   const [theme, setTheme] = useState<Theme>('light')
   return (
     <TopBar
-      search={<Autocomplete items={recent} placeholder="Search…" appearance="ghost" />}
-      actions={
+      middle={<Autocomplete items={recent} placeholder="Search…" appearance="ghost" />}
+      end={
         <>
           <Button appearance="ghost" startIcon={Share} aria-label="Share" />
           <ThemeControl

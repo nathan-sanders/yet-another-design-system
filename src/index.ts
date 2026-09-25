@@ -405,7 +405,7 @@ export { ThemeControl } from './components/ThemeControl'
 export type { ThemeControlProps, Theme } from './components/ThemeControl'
 
 export { TopBar } from './components/TopBar'
-export type { TopBarProps } from './components/TopBar'
+export type { TopBarProps, TopBarSearchProps } from './components/TopBar'
 
 export { Tabs } from './components/Tabs'
 export type {

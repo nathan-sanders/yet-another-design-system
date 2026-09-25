@@ -124,7 +124,7 @@ function Page({ open, onOpenChange }: { open: boolean; onOpenChange: (open: bool
   return (
     <AppShell.Page>
       <TopBar
-        actions={
+        end={
           <Button
             appearance="ghost"
             startIcon={PanelRight}
@@ -491,7 +491,7 @@ function ContainedShell() {
       <Rail />
       <AppShell.Page>
         <TopBar
-          actions={
+          end={
             <Menu>
               <Menu.Trigger
                 render={
