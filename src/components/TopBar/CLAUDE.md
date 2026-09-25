@@ -66,26 +66,26 @@ both the fix for the story and the escape hatch for a page that genuinely needs 
 same story also had to give its two trails distinct names: two `<nav>`s both called "Breadcrumb" are
 one landmark twice over as far as `landmark-unique` is concerned.
 
-**The middle fills the centre and stops at 600px.** The cap is on the slot (`max-w-150`), its
-child is stretched into it with `*:flex-1`, and `TopBar.Search` adds only the wash and the radius.
-Figma puts the same 600 max on the `Search` frame inside the slot; putting it on the slot means a
-field passed bare gets it too.
+**Every slot fills its equal share; the 600px cap is on the content (2026-09-25).** Figma's three
+slots are all FILL, the Middle slot is CENTER-aligned, and the 600 max lives on the `Search` frame
+inside it. So each slot is `flex-1`, and the middle stretches its child with `*:flex-1` and caps it
+with `*:max-w-150` — on the child, so a field passed bare gets the cap too, and `TopBar.Search` adds
+only the wash and the radius. An earlier version capped the *slot*, which let the two ends grow past
+it on a wide bar; Nathan asked for all three to fill.
 
 `max-w-150`, not `max-w-[600px]`: Tailwind v4 reads a bare number as that many `--spacing` steps, so
 150 × 0.25rem is exactly 600px, and it matches the `max-w-100` and `max-w-200` already in the
 library. It also scales with the root font size, which an arbitrary pixel value would not.
 
-**The cap rarely bites, and that is the point.** All three children are `flex-1`, so the two ends stay
-equal and the search is centred by symmetry rather than by a rule; it takes its third of whatever is
-left. On a 1552px bar that is 504px, and the 600 only applies past roughly 1840. Sizing the ends to
-content instead would let the search grow further but would stop it being centred, because the trail
-and the actions are not the same width.
+**The cap rarely bites with a trail.** Three equal thirds of a 1504px bar are 488 each, so the
+search fills its slot; the 600 only applies past roughly 1850, and then the search sits centred in
+the middle third while all three slots keep filling.
 
-**This changed the no-breadcrumbs arrangement too, which Figma does not — and that is deliberate.**
-One sizing rule is easier to hold than two, so the search grows there as well: up to 600px at the
-left edge, where Figma draws a fixed 259. It was raised as a deviation and **Nathan confirmed the
-single rule on 2026-09-01**, so this is a decision rather than drift. Do not "restore" the fixed width
-to match the file without asking; the file is the side that is behind.
+**Without a trail the middle is half the bar, so the cap bites sooner — and the search centres in
+that half.** At 1504 the half is 736 and the 600px search sits 80px in from the padding. That is
+what Figma's CENTER-aligned Middle slot does too; on the file's 1000px frames the half is under 600,
+so the search fills it and reads as left-aligned. This replaces the 2026-09-01 rule (grow to 600 at
+the left edge), which assumed a capped slot rather than a filling one.
 
 **The search is `appearance="ghost"`, in the stories at least.** Figma instantiates
 `Input Group / Appearance=Ghost`, which draws no border until focus — the bar reads as a magnifier
@@ -105,11 +105,12 @@ At the default theme, against the Figma frames (re-measured 2026-09-25 after the
 | Height / padding / gap | 56 / 12 / 8 | 56 min (57 with the rule) / 12 / 8 |
 | Bottom rule | 1px `Surface/Border` | 1px solid, `Surface/Border` |
 | Background | none | transparent |
-| Middle cap | 600px | `max-w-150` → 600 on a 2352px bar, 876 either side |
-| Middle width, 1504px bar | fills its third | 488, 508 either side |
+| Slots, 1504 / 2352px bar | equal FILL | 488 ×3 / 771 ×3 |
+| Search cap | 600px (on `Search`) | `*:max-w-150` → 600 on a 2352px bar, 876 either side |
+| Search width, 1504px bar | fills its third | 488, 508 either side |
 | Search fill, `TopBar.Search` / bare | wash / none | `surface-overlay-subtle` at 10% / transparent |
 | Search radius | 8 (`rounded-md`) | 8 |
-| Start off: middle position | left edge | 12px from the left, i.e. the padding |
+| Start off, 1504px bar | two halves, search centred | 736 ×2, 600 search 80px in from the padding |
 | Start on: middle | centred | equal either side at both widths |
 
 ## Figma defects

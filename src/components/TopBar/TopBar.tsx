@@ -59,10 +59,11 @@ export interface TopBarProps
    * The centred content, usually a search in a `TopBar.Search`. Figma's Middle
    * Slot.
    *
-   * The slot fills the space it is given up to **600px** (`max-w-150` — 150
-   * spacing steps, the same idiom as the `max-w-100` and `max-w-200` elsewhere
-   * in the library). With `start` present the two ends are equal `flex-1`s, so
-   * the middle is centred by symmetry rather than by a rule.
+   * Like the other two, the slot fills its equal share of the bar — Figma's
+   * three slots are all FILL. What goes in it stretches to the slot's width up
+   * to **600px** (`max-w-150` — 150 spacing steps, the same idiom as the
+   * `max-w-100` and `max-w-200` elsewhere in the library) and is centred in it,
+   * which is the `Search` frame's max width inside a CENTER-aligned slot.
    */
   middle?: ReactNode
   /** The trailing controls — a `Button`, a `ThemeControl`. Figma's End Slot. */
@@ -87,20 +88,18 @@ export function TopBar({ start, middle, end, className, ...props }: TopBarProps)
       {start ? <div className="flex min-w-0 flex-1 items-center gap-2">{start}</div> : null}
 
       {middle ? (
-        // Grows into whatever the two ends leave, capped at 600px. Three
-        // `flex-1` children make the ends equal, so the cap keeps it centred
-        // rather than letting it swallow the bar on a wide screen.
-        <div className="flex min-w-0 max-w-150 flex-1 items-center gap-2 *:min-w-0 *:flex-1">
+        // An equal third like the other two slots. The cap is on the content,
+        // not the slot, so the slot always fills and a wide bar centres a
+        // 600px search inside it.
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-2 *:min-w-0 *:max-w-150 *:flex-1">
           {middle}
         </div>
       ) : null}
 
       {/*
-        Always rendered, even with nothing in it. It is the right-hand half of
-        the pair of `flex-1` ends that centres the middle when `start` is
-        present — Figma's End Slot, which is the one FILL child. Dropping it
-        when `end` is empty would slide the middle back to the left and quietly
-        change the layout.
+        Always rendered, even with nothing in it. All three slots are equal
+        `flex-1` shares — Figma's three FILL slots — so dropping this one when
+        `end` is empty would widen the others and slide the middle off centre.
       */}
       <div className="flex min-w-0 flex-1 items-center justify-end gap-2">{end}</div>
     </header>
