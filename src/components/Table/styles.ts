@@ -157,13 +157,13 @@ export const cell = tv({
     line: 'flex min-w-0 items-center',
     text: 'min-w-0',
     /**
-     * Figma's `Sort By Spacer` — 30 × 24, reserved at the end of a
+     * Figma's `Sort By Spacer` — 32 × 24, reserved at the end of a
      * right-aligned cell so the value lines up under its column's *label*
-     * rather than under the sort button beside it. 30px is exactly the sort
-     * button's box (`h-6 px-2` + a 1px border around a 12px icon), and
-     * `w-7.5` is 30px because `--spacing` is 4px.
+     * rather than under the sort button beside it. 32px is exactly the sort
+     * button's box (`h-6 px-2` + a 1px border around a 14px icon), and
+     * `w-8` is 32px because `--spacing` is 4px.
      */
-    spacer: 'h-6 w-7.5 shrink-0',
+    spacer: 'h-6 w-8 shrink-0',
   },
 
   variants: {
@@ -196,8 +196,8 @@ export const cell = tv({
      *
      * The gaps differ on purpose. Left is `gap-2` (8px) between the controls
      * and the value; right is `gap-0.5` (2px) between the value and the
-     * spacer, which puts a right-aligned value exactly 32px from the padding
-     * edge — 2 + the spacer's 30 — which is where the header's label sits.
+     * spacer, which puts a right-aligned value exactly 34px from the padding
+     * edge — 2 + the spacer's 32 — which is where the header's label sits.
      * That equality is the spacer's entire job, and `Alignment` measures it.
      */
     align: {

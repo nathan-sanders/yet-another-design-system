@@ -10,7 +10,7 @@ import { Badge } from '../Badge'
  * `Badge` instance, and every token already lines up —
  * `Decorative/Green|Neutral|Red/Background` are exactly what `Badge`'s
  * `color="green" | "neutral" | "red"` emit, its `min-h-5` is Figma's 20px, and
- * its `startIcon` renders at 12px, Figma's size.
+ * its `startIcon` renders at 14px, Figma's size.
  *
  * So this component contributes one thing: the mapping from a number to a
  * direction. That is the whole of it, and it should stay that way — a

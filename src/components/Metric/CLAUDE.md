@@ -11,7 +11,7 @@ up. Reading that off the file is what made this the smallest batch of the four:
 
 | Figma contains | We reuse | The match |
 |---|---|---|
-| a `Badge` instance | `Badge` | `color="green" \| "neutral" \| "red"` already emit `bg-decorative-{hue}-background text-decorative-{hue}-foreground`, exactly what Figma binds. `min-h-5` is its 20px; `startIcon` renders at 12px, its size. |
+| a `Badge` instance | `Badge` | `color="green" \| "neutral" \| "red"` already emit `bg-decorative-{hue}-background text-decorative-{hue}-foreground`, exactly what Figma binds. `min-h-5` is its 20px; `startIcon` renders at 14px, its size. |
 | a `Card` instance | `Card` | `emphasis="subtle"` is already `bg-surface-background-subtle border-surface-background-subtle` — Figma fills *and* strokes with that token. `padding={3}` is its 12px; `rounded-md` is its radius 8. |
 
 So `TrendBadge` contributes one thing — a number mapped to a direction — and `MetricCard` contributes

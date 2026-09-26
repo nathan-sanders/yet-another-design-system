@@ -90,10 +90,10 @@ type ButtonSize = NonNullable<ButtonVariants['size']>
 /**
  * Which Icon size each Button size reaches for. Kept as an explicit map rather
  * than derived, because the two scales are independent: Button is 24/32/40 tall
- * while Icon is 12/16/20/24.
+ * while Icon is 14/16/20/24.
  */
 const ICON_SIZE: Record<ButtonSize, IconProps['size']> = {
-  small: 'small', // 12px
+  small: 'small', // 14px
   default: 'base', // 16px
   large: 'base', // 16px
 }

@@ -28,7 +28,7 @@ A 22px small token would fill a small field edge to edge, which is what the `lea
 `min-h-*`, so the wrap case needs nothing from it.
 **The end slot is the one thing that can break that**, because it is caller content. A small
 token has 18px of content box and a Badge is 20px tall by its own spec, so a Badge in a small
-token makes it 22. Figma agrees — the small variant's End Slot Items holds a 12px icon, not a
+token makes it 22. Figma agrees — the small variant's End Slot Items holds a 14px icon, not a
 Badge. Recorded in the `Slots` story rather than enforced: capping it would break Badge's own
 contract.
 **Figma's `Usage` axis is not a prop.** A token is interactive because it has `onRemove`,

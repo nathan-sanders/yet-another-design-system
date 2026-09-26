@@ -106,7 +106,7 @@ export const AllVariants: Story = {
 /**
  * The leading and trailing slots, at both sizes.
  *
- * `startIcon` is Figma's Icon slot, 12px at both sizes. `avatar` is its Avatar
+ * `startIcon` is Figma's Icon slot, 14px at both sizes. `avatar` is its Avatar
  * slot — put a `Token.Avatar` in it and the size comes from the token, 16px here
  * and 12px at small. `endSlot` is Figma's "End Slot Items", which is where
  * Astryx's trailing count Badge goes.
@@ -120,7 +120,7 @@ export const AllVariants: Story = {
  * Badge is 20px tall by its own Figma spec — so a Badge in a small token makes it
  * 22, not 20. That is why the Badge row below is at the default size only, and
  * why the small token gets an icon instead. It is also what Figma draws: the
- * small variant's "End Slot Items" slot holds a 12px icon.
+ * small variant's "End Slot Items" slot holds a 14px icon.
  */
 export const Slots: Story = {
   parameters: { controls: { disable: true } },

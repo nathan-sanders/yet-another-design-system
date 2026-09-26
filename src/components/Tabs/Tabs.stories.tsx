@@ -137,7 +137,7 @@ export const States: Story = {
 
 /**
  * The Figma "Start Icon" slot. Pass a Lucide icon component — the tab renders it
- * through <Icon>, so the glyph size (12px at small, 16px otherwise) and stroke
+ * through <Icon>, so the glyph size (14px at small, 16px otherwise) and stroke
  * weight come from the design system rather than the call site.
  */
 export const WithIcons: Story = {

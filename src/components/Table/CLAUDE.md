@@ -160,7 +160,7 @@ state, and a toggle-button state would double-announce it.
 in the sort control, which makes the header's name *"Revenue, button"* and puts a role announcement
 inside every cell's column context; it also cannot let a sortable and a non-sortable column share
 typography — a distinction the file kept, and the reason its head has never had a "sortable" variant.
-At 30 × 24 the separate
+At 32 × 24 the separate
 button clears WCAG 2.2 SC 2.5.8's 24 × 24 minimum exactly. **Do not "compromise" by also putting an
 `onClick` on the `<th>`** — that is a click target with no keyboard equivalent.
 
@@ -307,7 +307,7 @@ The same text as the Best practices block on the Figma Docs page
   control in the row — add only the ones the table is actually for.
 - Don't let the stripe carry meaning. It is a scanning aid, and it is deliberately quieter than hover
   and selection so those two still read on every other row.
-- Don't reserve the sort spacer in a column that has no sort control. It holds the button's 30px open
+- Don't reserve the sort spacer in a column that has no sort control. It holds the button's 32px open
   so a right-aligned value stays under its label; with no button above it the value just sits short
   of the edge.
 

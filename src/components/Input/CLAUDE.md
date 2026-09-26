@@ -52,7 +52,7 @@ invisible in a screenshot and only shows up in the variable defs. Italic is this
 for text the person did not enter — the validation message is italic for the same reason.
 `InputGroup.Addon` takes `icon` as well as children, which is Button's `startIcon` idiom rather
 than shadcn's: an addon holding arbitrary children cannot size an `<Icon>` for you, and Figma
-wants 12px at small and 16px above it. Pass `icon={Search}` for the common case and children for
+wants 14px at small and 16px above it. Pass `icon={Search}` for the common case and children for
 a Button or a chip. **No `InputGroup.Button`**, which shadcn has — it only presets two props, and
 `<Button appearance="ghost" size="small">` already is the right thing. Switch's rule: a later
 case is the point to extract it. **A Button in an addon is not disabled by a disabled Field** —

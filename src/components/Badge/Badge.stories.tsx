@@ -84,7 +84,7 @@ export const AllColors: Story = {
 
 /**
  * The Start Icon / End Icon slots from the Figma component. Pass a Lucide icon
- * component — Badge renders it through <Icon> at 12px, so glyph size and stroke
+ * component — Badge renders it through <Icon> at 14px, so glyph size and stroke
  * weight come from the design system rather than the call site.
  */
 export const WithIcons: Story = {

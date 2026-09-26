@@ -120,9 +120,8 @@ export function Checkbox({
       >
         <CheckboxPrimitive.Indicator className="group flex">
           {/*
-            Figma binds the glyph frame to width/w-3,5 (14px). Icon's own scale
-            is 12/16/20/24, so there is no size for it — the className overrides
-            the size utility, which is what `cn`'s tailwind-merge is for.
+            Figma binds the glyph frame to width/w-3,5 (14px), which is Icon's
+            `small`.
 
             **Both glyphs are rendered and one is hidden, rather than picking
             with `indeterminate ? Minus : Check`.** A `parent` checkbox inside a
@@ -133,8 +132,8 @@ export function Checkbox({
             off `data-indeterminate` covers both the explicit and the computed
             case with one rule.
           */}
-          <Icon icon={Check} className="size-3.5 group-data-indeterminate:hidden" />
-          <Icon icon={Minus} className="hidden size-3.5 group-data-indeterminate:block" />
+          <Icon icon={Check} size="small" className="group-data-indeterminate:hidden" />
+          <Icon icon={Minus} size="small" className="hidden group-data-indeterminate:block" />
         </CheckboxPrimitive.Indicator>
       </CheckboxPrimitive.Root>
 

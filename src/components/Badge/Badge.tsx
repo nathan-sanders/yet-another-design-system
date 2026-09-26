@@ -29,7 +29,7 @@ const badge = tv({
     'rounded-full font-sans text-sm font-normal whitespace-nowrap',
     // Height is 20px in Figma, which is exactly the text-sm line-height, so the
     // pill gets there on its own. min-h-5 holds that height for an icon-only
-    // badge, where the 12px glyph would otherwise shrink it.
+    // badge, where the 14px glyph would otherwise shrink it.
     'min-h-5',
     'overflow-hidden',
   ],
@@ -82,7 +82,7 @@ export interface BadgeProps extends Omit<ComponentPropsWithRef<'span'>, 'color'>
   /**
    * Lucide icon rendered before the label (the Figma "Start Icon" slot).
    * Pass the component itself: `startIcon={Check}`, not `<Check />`. Badge
-   * renders it through <Icon> at 12px, the size Figma uses.
+   * renders it through <Icon> at 14px, the size Figma uses.
    */
   startIcon?: LucideIcon
   /** Lucide icon rendered after the label (the Figma "End Icon" slot). */

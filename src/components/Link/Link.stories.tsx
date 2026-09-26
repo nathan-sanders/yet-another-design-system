@@ -153,7 +153,7 @@ export const States: Story = {
  * any `rel` you pass, and hidden text so a screen reader announces the new tab
  * before following the link. Override that text with `newTabLabel` to localize.
  *
- * The arrow is 12px against `text-base`, as Figma draws it, and steps up with
+ * The arrow is 14px against `text-base`, as Figma draws it, and steps up with
  * the type scale — the last row is `size="2xl"` with a 20px arrow.
  */
 export const ExternalLink: Story = {

@@ -47,7 +47,7 @@ export const Playground: Story = {
  * Addons on the same line as the text, which is Figma's `Display=Inline`.
  *
  * Pass a single glyph as `icon` rather than as children: the addon renders it
- * through `<Icon>` at the group's own size, so it lands at Figma's 12px in a
+ * through `<Icon>` at the group's own size, so it lands at Figma's 14px in a
  * small field and 16px above it without the call site having to know that.
  * Anything that is not one icon — a Button, a chip, a Select — goes in as
  * children instead.

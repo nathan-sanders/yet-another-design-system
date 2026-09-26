@@ -326,7 +326,7 @@ function QuestionnaireChoice({
 
       <span aria-hidden className={multiple ? box : dial}>
         {multiple ? (
-          <Icon icon={Check} className={boxGlyph()} />
+          <Icon icon={Check} size="small" className={boxGlyph()} />
         ) : (
           <span className={dialDot()} />
         )}

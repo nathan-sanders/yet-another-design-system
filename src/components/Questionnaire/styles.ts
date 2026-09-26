@@ -103,7 +103,7 @@ export const dialDot = tv({
 
 /** Checkbox's 14px `Check`. Shown only when ticked. */
 export const boxGlyph = tv({
-  base: 'hidden size-3.5 group-data-checked/row:block',
+  base: 'hidden group-data-checked/row:block',
 })
 
 /** The label column takes the leftover width so a long description wraps. */
