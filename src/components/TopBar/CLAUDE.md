@@ -81,11 +81,12 @@ library. It also scales with the root font size, which an arbitrary pixel value 
 search fills its slot; the 600 only applies past roughly 1850, and then the search sits centred in
 the middle third while all three slots keep filling.
 
-**Without a trail the middle is half the bar, so the cap bites sooner — and the search centres in
-that half.** At 1504 the half is 736 and the 600px search sits 80px in from the padding. That is
-what Figma's CENTER-aligned Middle slot does too; on the file's 1000px frames the half is under 600,
-so the search fills it and reads as left-aligned. This replaces the 2026-09-01 rule (grow to 600 at
-the left edge), which assumed a capped slot rather than a filling one.
+**Without a trail the search takes the start slot (2026-09-25).** Nathan's call, and every
+no-breadcrumb bar in the file now has the search in `Start Slot` with `Show Middle Slot` off. A
+middle with nothing either side of it has nothing to be centred between; in the start it sits at
+the left edge and fills its half of the bar up to 600. The start slot stretches and caps its content
+with the same `*:flex-1 *:max-w-150` rule as the middle, so a trail there is simply laid out wider
+than it draws — the breadcrumb items still sit where they did.
 
 **The search is `appearance="ghost"`, in the stories at least.** Figma instantiates
 `Input Group / Appearance=Ghost`, which draws no border until focus — the bar reads as a magnifier
@@ -110,7 +111,7 @@ At the default theme, against the Figma frames (re-measured 2026-09-25 after the
 | Search width, 1504px bar | fills its third | 488, 508 either side |
 | Search fill, `TopBar.Search` / bare | wash / none | `surface-overlay-subtle` at 10% / transparent |
 | Search radius | 8 (`rounded-md`) | 8 |
-| Start off, 1504px bar | two halves, search centred | 736 ×2, 600 search 80px in from the padding |
+| No trail (search in start), 1504 / 2352px bar | two halves, search left, max 600 | 736 ×2 / 1160 ×2; search 600 at 12px, the padding |
 | Start on: middle | centred | equal either side at both widths |
 
 ## Figma defects

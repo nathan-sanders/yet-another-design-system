@@ -63,7 +63,7 @@ const meta = {
   title: 'Components/TopBar',
   component: TopBar,
   args: {
-    middle: search,
+    start: search,
     end: actions,
   },
 } satisfies Meta<typeof TopBar>
@@ -72,8 +72,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Start slot off: no trail, so the middle sits at the left edge. The field goes
- * in bare — without a centre to sit in, a wash would just be a box around it.
+ * No trail, so the search takes the start slot and there is no middle — what
+ * the file draws on every bar without breadcrumbs. The field goes in bare:
+ * without a centre to sit in, a wash would just be a box around it.
  */
 export const Playground: Story = {}
 
@@ -103,12 +104,12 @@ export const Slots: Story = {
   parameters: { controls: { disable: true } },
   render: () => {
     const examples = [
-      { label: 'middle + end', node: <TopBar middle={search} end={actions} /> },
+      { label: 'start (search) + end', node: <TopBar start={search} end={actions} /> },
       {
-        label: 'start + end',
+        label: 'start (trail) + end',
         node: <TopBar start={trailNamed('Projects trail')} end={actions} />,
       },
-      { label: 'start only', node: <TopBar start={trailNamed('Archive trail')} /> },
+      { label: 'start (trail) only', node: <TopBar start={trailNamed('Archive trail')} /> },
       { label: 'end only', node: <TopBar end={actions} /> },
     ]
     return (
