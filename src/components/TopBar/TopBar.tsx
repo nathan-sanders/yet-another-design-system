@@ -15,6 +15,10 @@ import { cn } from '../../lib/cn'
  *       end={<><Button …/><ThemeControl … /></>}
  *     />
  *
+ * With no trail, the search moves to the start and there is no middle:
+ *
+ *     <TopBar start={<Autocomplete … />} end={…} />
+ *
  * **It belongs with `SideNav`, not with `TopNav`.** Nathan's rule, and the
  * layout agrees: this bar and `TopNav` are both full-width strips at the top of
  * the page, and stacking two of them buys a second row of chrome and no
@@ -51,8 +55,14 @@ import { cn } from '../../lib/cn'
 export interface TopBarProps
   extends Omit<ComponentPropsWithRef<'header'>, 'children' | 'className'> {
   /**
-   * The leading content, usually a `Breadcrumbs`. Figma's Start Slot; leaving
-   * it out is `Show Start Slot` off, and the middle moves to the left edge.
+   * The leading content: a `Breadcrumbs` when the page has a trail, and the
+   * search when it does not. Figma's Start Slot. With no trail the file moves
+   * the search here and turns the Middle slot off, rather than leaving a
+   * middle with nothing to be centred between.
+   *
+   * Content stretches to the slot's width up to **600px**, the same rule as
+   * `middle`, so a search here fills its half of the bar and stops at 600 on
+   * a wide one — the `Search` frame's FILL and max width in Figma.
    */
   start?: ReactNode
   /**
@@ -85,7 +95,11 @@ export function TopBar({ start, middle, end, className, ...props }: TopBarProps)
       )}
       {...props}
     >
-      {start ? <div className="flex min-w-0 flex-1 items-center gap-2">{start}</div> : null}
+      {start ? (
+        <div className="flex min-w-0 flex-1 items-center gap-2 *:min-w-0 *:max-w-150 *:flex-1">
+          {start}
+        </div>
+      ) : null}
 
       {middle ? (
         // An equal third like the other two slots. The cap is on the content,
