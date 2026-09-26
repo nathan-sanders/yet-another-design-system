@@ -535,7 +535,7 @@ export function Table<T>({
                               appearance="ghost"
                               size="small"
                               startIcon={ChevronRight}
-                              /* Button `small` draws a 12px icon; the file wants
+                              /* Button `small` draws a 14px icon; the file wants
                                  16. The className overrides the size utility,
                                  which is what `cn`'s tailwind-merge is for. */
                               className={cn('[&_svg]:size-4', isExpanded && 'rotate-90')}
@@ -691,7 +691,7 @@ export interface TableHeadProps extends Omit<ComponentPropsWithRef<'th'>, 'align
 /**
  * Figma's `_Table Column Sort` (`40005047:38802`), which is underscored because
  * it is a drawing, not an API: a small ghost `Button` carrying one of three
- * arrows. Its box is 30 x 24 — `h-6 px-2` and a 1px border around a 12px icon —
+ * arrows. Its box is 32 x 24 — `h-6 px-2` and a 1px border around a 14px icon —
  * which is exactly the space a right-aligned cell reserves beside its value.
  */
 const SORT_ICON = {
@@ -753,7 +753,7 @@ function TableHead({
               stops a sortable and a non-sortable column looking alike, which is
               why `Table Head`'s `Type` axis has only the one value.
 
-              At 30 x 24 it clears WCAG 2.2's 24 x 24 target minimum exactly.
+              At 32 x 24 it clears WCAG 2.2's 24 x 24 target minimum exactly.
               Do not "compromise" by putting an onClick on the <th> as well:
               that is a click target with no keyboard equivalent.
             */
@@ -788,7 +788,7 @@ export interface TableCellProps
   /** Figma's `gridDivider`. Defaults from the table. */
   columnDivider?: boolean
   /**
-   * Figma's `rightAlignSortSpacer` — reserve the sort button's 30px at the end
+   * Figma's `rightAlignSortSpacer` — reserve the sort button's 32px at the end
    * of a right-aligned cell.
    *
    * Off by default, and **only correct when this column's header actually
@@ -838,7 +838,7 @@ function TableCell({
         {expandControl}
         <span className={styles.text()}>{children}</span>
         {/*
-          Figma's `Sort By Spacer` — the sort button's own 30 x 24 box, held
+          Figma's `Sort By Spacer` — the sort button's own 32 x 24 box, held
           empty so a right-aligned value lands under its column's *label*
           instead of under the button beside it.
         */}

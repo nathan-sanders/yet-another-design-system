@@ -508,7 +508,7 @@ function ComboboxItem({
           <ComboboxPrimitive.ItemIndicator className="flex">
             {multiple ? (
               // 14px, as in Checkbox: Figma binds the glyph to width/w-3,5.
-              <Icon icon={Check} className="size-3.5" />
+              <Icon icon={Check} size="small" />
             ) : (
               // 8px, as in Radio.
               <span className="size-2 rounded-full bg-input-selected-foreground" />

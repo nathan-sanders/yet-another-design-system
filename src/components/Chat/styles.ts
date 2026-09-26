@@ -175,7 +175,7 @@ export const metadata = tv({
 /** Whether a sent message arrived. Figma `_Message Status` (`40004252:16507`). */
 export type ChatDeliveryStatus = 'delivered' | 'read' | 'failed'
 
-/** The status chip: a 12px glyph and a word. Failed is the one that changes color. */
+/** The status chip: a 14px glyph and a word. Failed is the one that changes color. */
 export const status = tv({
   base: 'inline-flex items-center gap-1',
   variants: {

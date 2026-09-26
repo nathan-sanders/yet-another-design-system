@@ -8,7 +8,7 @@ import { cn } from '../../lib/cn'
  * Icon — renders a Lucide glyph at a design-system size.
  *
  * Mirrors the Figma component set "Icon" (node 40002005:12711), which has a
- * single `Size` property: Small 12, Base 16, Large 20, X-Large 24. Every size
+ * single `Size` property: Small 14, Base 16, Large 20, X-Large 24. Every size
  * uses stroke weight 1.5 (`--icon-stroke-weight`).
  *
  * Color is `currentColor` by design, not a hardcoded token. Figma binds the
@@ -28,8 +28,8 @@ const icon = tv({
   //
   // 2. `vector-effect: non-scaling-stroke` keeps the stroke out of the viewBox
   //    scale. Lucide draws on a 24x24 viewBox, so rendering at 16px scales
-  //    everything by 16/24 — a stroke of 1.5 would paint at 1px, and at 0.75px
-  //    for the 12px size. Figma specifies a literal 1.5px stroke at every icon
+  //    everything by 16/24 — a stroke of 1.5 would paint at 1px, and at 0.875px
+  //    for the 14px size. Figma specifies a literal 1.5px stroke at every icon
   //    size, and this is what reproduces that. It is not inherited, so it has to
   //    be pushed onto the descendant shapes rather than set on the <svg>.
   base: [
@@ -39,7 +39,7 @@ const icon = tv({
   ],
   variants: {
     size: {
-      small: 'size-3', // 12px
+      small: 'size-3.5', // 14px
       base: 'size-4', // 16px
       large: 'size-5', // 20px
       'x-large': 'size-6', // 24px

@@ -12,8 +12,8 @@ with a form, and `data-checked` / `data-unchecked` / `data-indeterminate`.
 `input.indeterminate` has always been separate. The glyph is chosen from the prop rather than
 from Base UI's state, because a box can be indeterminate whether or not it is also checked.
 Ticked and indeterminate share one fill (`input-selected` for background *and* border) and
-differ only in the glyph: `Check` or `Minus`, at 14px because Figma binds `width/w-3,5` and
-Icon's own scale is 12/16/20/24 — the one place a `className` overrides an Icon size.
+differ only in the glyph: `Check` or `Minus`, at 14px because Figma binds `width/w-3,5` — Icon's
+`small`.
 **The row is a real `<label>`**, which is what makes clicking the text toggle the box, and is
 the path Base UI supports for naming a root that is not a native button. **This is the opposite
 call from SegmentedControl**, which pairs `nativeButton` with `render={<button>}`: a segment

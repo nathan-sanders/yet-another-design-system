@@ -105,7 +105,7 @@ export const Density: Story = {
  * Figma's `Align` axis — two values, because that is what the file draws.
  *
  * A right-aligned value lines up with its column's label. Where the column
- * sorts, the cell reserves the sort button's own 30 × 24 box so the value keeps
+ * sorts, the cell reserves the sort button's own 32 × 24 box so the value keeps
  * lining up with the *label* rather than sliding under the button — see
  * `Sorting`, which measures that case. Here there is no button and so no
  * spacer, and the play function asserts the two right edges agree.

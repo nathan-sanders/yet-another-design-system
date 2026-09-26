@@ -21,7 +21,7 @@ between, so there is no shape axis.
 **The field is `Input`'s box, imported not copied.** `box`, `addon`, `control` and `ICON_SIZE` from
 `Input/styles.ts`, at the same 24 / 32 / 40 — and the geometry lands on Figma without adjustment:
 `addon`'s `inline-start` `pl-3` puts the glyph 12px from the border, `control`'s `px-3` puts the
-text 12px after it, which is Figma's `px-3` plus `gap-3`. Measured: 24 / 32 / 40 tall, icon 12px at
+text 12px after it, which is Figma's `px-3` plus `gap-3`. Measured: 24 / 32 / 40 tall, icon 14px at
 small and 16px above, glyph 12px in, text 41px from the border box at the default size.
 **And `focusRingWithin` is right here where it was wrong for Combobox's tokenizer.** The rule is
 one ring at a time, always on the thing that has focus — a container ring says nothing when the

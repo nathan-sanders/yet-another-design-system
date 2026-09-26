@@ -143,7 +143,7 @@ export type LinkSize = NonNullable<LinkVariants['size']>
 /**
  * Which Icon size the external-link arrow uses at each type step. An explicit
  * map, as Button's `ICON_SIZE` is, because the two scales are independent: Icon
- * is 12/16/20/24 and the type scale has thirteen steps. Figma draws a 12px arrow
+ * is 14/16/20/24 and the type scale has thirteen steps. Figma draws a 14px arrow
  * against `text-base`, which is where the first row comes from.
  *
  * It stops growing at `x-large`. A link at `text-9xl` with a 24px arrow is a
@@ -152,7 +152,7 @@ export type LinkSize = NonNullable<LinkVariants['size']>
  * `tracking-[-0.02em]` as its only one.
  */
 const ARROW_SIZE: Record<LinkSize, IconProps['size']> = {
-  xs: 'small', // 12px
+  xs: 'small', // 14px
   sm: 'small',
   base: 'small',
   lg: 'base', // 16px
@@ -167,7 +167,7 @@ const ARROW_SIZE: Record<LinkSize, IconProps['size']> = {
   '9xl': 'x-large',
 }
 
-/** What an inherited-size link gets: Figma's 12px, its size against `text-base`. */
+/** What an inherited-size link gets: Figma's 14px, its size against `text-base`. */
 const DEFAULT_ARROW_SIZE: IconProps['size'] = 'small'
 
 /** `rel` tokens that must be present on anything opening in a new tab. */

@@ -373,7 +373,7 @@ function MenuCheckboxItem({ children, description, className, ...props }: MenuCh
       <span className={indicatorBox({ shape: 'box' })}>
         <MenuPrimitive.CheckboxItemIndicator className="flex">
           {/* 14px, as in Checkbox: Figma binds the glyph to width/w-3,5. */}
-          <Icon icon={Check} className="size-3.5" />
+          <Icon icon={Check} size="small" />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       <ItemLabel description={description}>{children}</ItemLabel>

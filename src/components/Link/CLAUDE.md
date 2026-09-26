@@ -45,13 +45,13 @@ otherwise. **`@base-ui/react/use-render` is named in `vite.config.ts`** per the 
 `external` is one prop doing four things — the arrow, `target="_blank"`, `noopener noreferrer`
 merged (not replaced) into any `rel` passed, and `sr-only` text announcing the new tab, which
 `newTabLabel` localizes. The arrow follows an explicit type-step → Icon-size map the way
-Button's `ICON_SIZE` does, 12/16/20/24, and **stops growing at `x-large`**: an off-scale icon
+Button's `ICON_SIZE` does, 14/16/20/24, and **stops growing at `x-large`**: an off-scale icon
 size would be a second untokenized value in a library trying to keep Avatar's
 `tracking-[-0.02em]` as its only one.
 **The arrow is `align-middle`, 1.18px below where Figma puts it**, and that is deliberate.
 Auto-layout centers it on the line box, which agrees with the text only while the line-height
 does; centring on the x-height keeps it glued to the words at every step and under any leading.
-**12px arrow, 2px gap, 24px line box at `base`, and 1.18px are the numbers to check.**
+**14px arrow, 2px gap, 24px line box at `base`, and 1.18px are the numbers to check.**
 Focus is the shared ring, measured pixel-identical box before and after focus with the table
 around it unmoved — but on **`rounded-[0.4em]`, the one place this component leaves the radius
 scale**, and the library's second untokenized value after Avatar's `tracking-[-0.02em]`.

@@ -31,7 +31,7 @@ interface TokenBaseProps
   radius?: TokenRadius
   /**
    * Lucide icon before the label — Figma's Icon slot. Pass the component itself:
-   * `startIcon={Tag}`, not `<Tag />`. Rendered at 12px at both sizes, as Figma
+   * `startIcon={Tag}`, not `<Tag />`. Rendered at 14px at both sizes, as Figma
    * has it.
    */
   startIcon?: LucideIcon

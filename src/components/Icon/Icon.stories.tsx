@@ -6,7 +6,7 @@ import { Icon } from './Icon'
 const sizes = ['small', 'base', 'large', 'x-large'] as const
 
 const sizeLabels: Record<(typeof sizes)[number], string> = {
-  small: 'Small · 12px',
+  small: 'Small · 14px',
   base: 'Base · 16px',
   large: 'Large · 20px',
   'x-large': 'X-Large · 24px',
