@@ -542,7 +542,8 @@ Each component gets its own folder with the component, its story, and a barrel `
 The deciding question is **whether the value has to come from a known set**, not how it looks.
 
 - **No** — free text, nothing to pick from: **Input**. A name, an email, a URL. More than one
-  line of it — a description, a comment, a message: **TextArea**.
+  line of it — a description, a comment, a message: **TextArea**. A file from the person's device:
+  **FileInput**.
 - **No, but suggestions help** — still free text, and a value that is not on the list is still
   allowed: **Autocomplete**. A search box that remembers recent searches.
 - **Yes** — then it is only a question of how many, and whether you need to type to find one:
@@ -572,7 +573,7 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Forty-two records carry it.** The data-viz family shares one: the `↪ Data Viz`
+drift nothing in CI can catch. **Forty-three records carry it.** The data-viz family shares one: the `↪ Data Viz`
 page has a single Docs frame for all fifteen charts, so `Chart`'s record holds the family's rules —
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
@@ -639,6 +640,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Input](src/components/Input/CLAUDE.md) | a line of free text | plus `InputGroup` for attachments |
 | [TextArea](src/components/TextArea/CLAUDE.md) | more than one line of free text | Input's box made multi-line on Base UI's `Input` with `render={<textarea />}`; height is `rows`, the counter reports and never truncates |
 | [Field](src/components/Field/CLAUDE.md) | label, sub-label, validation | wraps a control; owns the label |
+| [FileInput](src/components/FileInput/CLAUDE.md) | choose a file, by browsing or dropping | a real `<input type="file">` under Base UI's `Input`, kept in the accessibility tree where Astryx hides it; `input` is Input's box, `dropzone` the same box dashed; rejections come back through `onFileReject` and the message goes in the Field |
 | [Form](src/components/Form/CLAUDE.md) | the form those fields sit in, and when they are checked | Base UI's Form: `noValidate`, checked on submit, first invalid focused, server errors by name; `Row` is Astryx's equal columns at 16, `Actions` is the button row twelve stories had hand-rolled; `name` goes on the Field, and it found the Field's label swallowing every control's own |
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
 | [NumberInput](src/components/NumberInput/CLAUDE.md) | an exact number, nudged by one | Input's box borrowed; the ring is scoped to the caret because the steppers are inside it |
