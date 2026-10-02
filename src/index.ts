@@ -228,6 +228,9 @@ export type { DividerProps } from './components/Divider'
 export { Field } from './components/Field'
 export type { FieldProps } from './components/Field'
 
+export { FileInput, formatFileSize } from './components/FileInput'
+export type { FileInputProps, FileInputMode, FileRejection } from './components/FileInput'
+
 export { Form } from './components/Form'
 export type {
   FormProps,
