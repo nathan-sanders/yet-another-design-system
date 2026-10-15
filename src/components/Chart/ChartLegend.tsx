@@ -5,6 +5,7 @@ import { focusRing } from '../../lib/focus'
 import { monoScales, placeholder, type ChartMonoScale } from './palette'
 import { resolveSeries, useChart, type ChartSeries } from './context'
 import { ChartSwatch, type ChartSwatchShape } from './Swatch'
+import { Text } from '../Text'
 
 /**
  * ChartLegend — the dependable identity channel.
@@ -161,7 +162,7 @@ export function ChartLegend({
 
     return (
       <div className={cn('flex items-center justify-center gap-2', className)}>
-        {startLabel ? <span className="text-content-subtle text-base">{startLabel}</span> : null}
+        {startLabel ? <Text render={<span />} color="subtle">{startLabel}</Text> : null}
 
         {type === 'stepped' ? (
           // Ten blocks, flush. The scale is discrete, so the key is discrete —
@@ -183,7 +184,7 @@ export function ChartLegend({
           />
         )}
 
-        {endLabel ? <span className="text-content-subtle text-base">{endLabel}</span> : null}
+        {endLabel ? <Text render={<span />} color="subtle">{endLabel}</Text> : null}
       </div>
     )
   }

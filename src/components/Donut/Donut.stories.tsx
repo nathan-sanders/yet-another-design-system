@@ -4,6 +4,7 @@ import { Donut } from './Donut'
 import { sliceData } from '../Chart/sample-data'
 import { formatFullNumber } from '../Chart'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 const DATA = sliceData(6)
 const TOTAL = DATA.reduce((sum, row) => sum + (row.sessions as number), 0)
@@ -54,8 +55,8 @@ export const WithTotal: Story = {
   args: {
     center: (
       <>
-        <span className="text-content-subtle text-sm">Total sessions</span>
-        <span className="text-content-emphasized text-3xl font-semibold">{formatFullNumber(TOTAL)}</span>
+        <Text render={<span />} size="sm" color="subtle">Total sessions</Text>
+        <Text render={<span />} size="3xl" weight="semibold" color="emphasized">{formatFullNumber(TOTAL)}</Text>
       </>
     ),
   },

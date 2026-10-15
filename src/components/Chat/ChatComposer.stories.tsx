@@ -14,6 +14,7 @@ import { TopBar } from '../TopBar'
 import { ChatComposer } from './ChatComposer'
 import { chats } from './story-data'
 import { Mark } from './story-mark'
+import { Heading } from '../Text'
 
 const sizes = ['default', 'small'] as const
 
@@ -356,10 +357,10 @@ export const InContext: Story = {
           end={<Button appearance="ghost" startIcon={Ellipsis} aria-label="More" />}
         />
         <main className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
-          <h1 className="m-0 flex items-center gap-2 text-2xl font-bold text-content-emphasized">
+          <Heading level={1} weight="bold" className="m-0 flex items-center gap-2">
             <Mark />
             Welcome back, Nathan!
-          </h1>
+          </Heading>
           <ChatComposer
             aria-label="Message"
             placeholder="How can I help today?"

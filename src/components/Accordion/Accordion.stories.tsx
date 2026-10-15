@@ -4,6 +4,7 @@ import { CreditCard, RotateCcw, Truck } from 'lucide-react'
 import { Accordion } from './Accordion'
 import { Badge } from '../Badge'
 import { Link } from '../Link'
+import { Heading, Text } from '../Text'
 
 const meta = {
   title: 'Components/Accordion',
@@ -90,11 +91,11 @@ export const Container: Story = {
   render: (args) => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">container (default)</span>
+        <Text render={<span />} size="sm" color="subtle">container (default)</Text>
         <Accordion {...args} />
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">container={'{false}'}</span>
+        <Text render={<span />} size="sm" color="subtle">container={'{false}'}</Text>
         <Accordion {...args} container={false} />
       </div>
     </div>
@@ -115,7 +116,7 @@ export const States: Story = {
   render: ({ children: _children, ...args }) => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">One item disabled</span>
+        <Text render={<span />} size="sm" color="subtle">One item disabled</Text>
         <Accordion {...args}>
           <Accordion.Item value="shipping">
             <Accordion.Trigger>When will my order arrive?</Accordion.Trigger>
@@ -132,7 +133,7 @@ export const States: Story = {
         </Accordion>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">The whole accordion disabled</span>
+        <Text render={<span />} size="sm" color="subtle">The whole accordion disabled</Text>
         <Accordion {...args} disabled>
           <Accordion.Item value="shipping">
             <Accordion.Trigger>When will my order arrive?</Accordion.Trigger>
@@ -258,9 +259,9 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: ({ children: _children, ...args }) => (
     <div className="flex flex-col gap-4">
-      <h2 className="font-sans text-lg font-semibold text-content-emphasized">
+      <Heading level={2} size="lg">
         Frequently asked
-      </h2>
+      </Heading>
       <Accordion {...args} defaultValue={['shipping']}>
         <Accordion.Item value="shipping">
           <Accordion.Trigger startIcon={Truck}>

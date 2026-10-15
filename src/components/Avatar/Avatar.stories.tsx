@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Avatar } from './Avatar'
 import samplePhoto from './sample-photo.png'
+import { Text } from '../Text'
 
 const sizes = ['x-small', 'small', 'base', 'large', 'x-large'] as const
 const statuses = ['online', 'offline', 'unavailable'] as const
@@ -169,7 +170,7 @@ export const Fallbacks: Story = {
       ].map(({ label, props }) => (
         <div key={label} className="flex flex-col items-center gap-3">
           <Avatar size="large" {...props} />
-          <span className="text-sm text-content-subtle">{label}</span>
+          <Text render={<span />} size="sm" color="subtle">{label}</Text>
         </div>
       ))}
     </div>
@@ -195,7 +196,7 @@ export const Interactive: Story = {
     <div className="flex flex-wrap items-center gap-8">
       <div className="flex flex-col items-center gap-3">
         <Avatar size="large" src={samplePhoto} name="Nathan Sanders" href="#profile" />
-        <span className="text-sm text-content-subtle">Link (href)</span>
+        <Text render={<span />} size="sm" color="subtle">Link (href)</Text>
       </div>
       <div className="flex flex-col items-center gap-3">
         <Avatar
@@ -204,11 +205,11 @@ export const Interactive: Story = {
           status="online"
           onClick={() => alert('Opened Ada’s profile')}
         />
-        <span className="text-sm text-content-subtle">Button (onClick)</span>
+        <Text render={<span />} size="sm" color="subtle">Button (onClick)</Text>
       </div>
       <div className="flex flex-col items-center gap-3">
         <Avatar size="large" src={samplePhoto} name="Nathan Sanders" />
-        <span className="text-sm text-content-subtle">Static (neither)</span>
+        <Text render={<span />} size="sm" color="subtle">Static (neither)</Text>
       </div>
     </div>
   ),
@@ -231,8 +232,8 @@ export const InContext: Story = {
         <div key={name} className="flex items-center gap-3">
           <Avatar src={src} name={name} status={status as (typeof statuses)[number]} />
           <div className="flex flex-col">
-            <span className="text-base text-content-primary">{name}</span>
-            <span className="text-sm text-content-subtle">{role}</span>
+            <Text render={<span />}>{name}</Text>
+            <Text render={<span />} size="sm" color="subtle">{role}</Text>
           </div>
         </div>
       ))}

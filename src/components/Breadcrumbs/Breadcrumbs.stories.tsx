@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Folder, House, Settings, User } from 'lucide-react'
 
 import { Breadcrumbs } from './Breadcrumbs'
+import { Heading, Text } from '../Text'
 
 const separators = ['slash', 'chevron', 'arrow', 'dot'] as const
 
@@ -206,11 +207,11 @@ export const InContext: Story = {
         <Breadcrumbs.Item href="/projects">Projects</Breadcrumbs.Item>
         <Breadcrumbs.Item>Quarterly report</Breadcrumbs.Item>
       </Breadcrumbs>
-      <h1 className="text-2xl font-semibold text-content-primary">Quarterly report</h1>
-      <p className="text-base text-content-primary">
+      <Heading level={1} color="primary">Quarterly report</Heading>
+      <Text >
         The trail sits directly above the heading it describes. Its links stay neutral rather than
         blue, so they read as chrome and never compete with the page content.
-      </p>
+      </Text>
     </div>
   ),
 }

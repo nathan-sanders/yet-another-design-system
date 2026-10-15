@@ -5,6 +5,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 import { Outline } from './Outline'
 import type { OutlineItem } from './Outline'
 import { useOutlineFromDOM } from './useOutlineFromDOM'
+import { Heading, Text } from '../Text'
 
 /**
  * Astryx's own example, and the fixture most stories start from: five
@@ -201,9 +202,9 @@ export const Controlled: Story = {
             args.onActiveChange?.(id)
           }}
         />
-        <p className="text-sm text-content-subtle">
-          Active section: <span className="text-content-primary">{active}</span>
-        </p>
+        <Text size="sm" color="subtle">
+          Active section: <Text render={<span />} size="sm">{active}</Text>
+        </Text>
       </div>
     )
   },
@@ -292,11 +293,11 @@ const sections = [
 
 function Filler({ paragraphs = 3 }: { paragraphs?: number }) {
   return Array.from({ length: paragraphs }, (_, index) => (
-    <p key={index} className="text-base text-content-primary">
+    <Text key={index} >
       The outline reads the heading positions off the page as it scrolls, and marks the last one
       whose top edge has reached the activation line. Clicking a heading scrolls the container to
       it, and the mark waits for the scroll to settle before it follows the page again.
-    </p>
+    </Text>
   ))
 }
 
@@ -326,9 +327,9 @@ export const ScrollSpy: Story = {
           <div className="flex flex-col gap-3">
             {sections.map((section) => (
               <section key={section.id} className="flex flex-col gap-3">
-                <h2 id={section.id} className="text-lg font-semibold text-content-emphasized">
+                <Heading id={section.id} level={2} size="lg">
                   {section.label}
-                </h2>
+                </Heading>
                 <Filler />
               </section>
             ))}
@@ -390,34 +391,34 @@ export const InContext: Story = {
     return (
       <div className="flex max-w-4xl items-start gap-12">
         <article ref={article} className="flex min-w-0 flex-1 flex-col gap-4">
-          <h1 className="text-2xl font-semibold text-content-emphasized">Getting started</h1>
-          <p className="text-base text-content-primary">
+          <Heading level={1}>Getting started</Heading>
+          <Text >
             The outline beside this article was not written by hand: its items are the article's
             own headings, read off the DOM, so the two cannot disagree.
-          </p>
-          <h2 id="install" className="mt-4 text-xl font-semibold text-content-emphasized">
+          </Text>
+          <Heading id="install" level={2} className="mt-4">
             Installation
-          </h2>
+          </Heading>
           <Filler paragraphs={2} />
-          <h3 id="requirements" className="text-lg font-semibold text-content-emphasized">
+          <Heading id="requirements" level={3}>
             Requirements
-          </h3>
+          </Heading>
           <Filler paragraphs={2} />
-          <h2 id="configure" className="mt-4 text-xl font-semibold text-content-emphasized">
+          <Heading id="configure" level={2} className="mt-4">
             Configuration
-          </h2>
+          </Heading>
           <Filler paragraphs={3} />
-          <h3 id="theme" className="text-lg font-semibold text-content-emphasized">
+          <Heading id="theme" level={3}>
             Choosing a theme
-          </h3>
+          </Heading>
           <Filler paragraphs={2} />
-          <h3 id="neutral" className="text-lg font-semibold text-content-emphasized">
+          <Heading id="neutral" level={3}>
             Choosing a neutral
-          </h3>
+          </Heading>
           <Filler paragraphs={2} />
-          <h2 id="usage" className="mt-4 text-xl font-semibold text-content-emphasized">
+          <Heading id="usage" level={2} className="mt-4">
             Usage
-          </h2>
+          </Heading>
           <Filler paragraphs={4} />
         </article>
         <Outline items={items} className="sticky top-4 w-60 shrink-0" aria-label="On this page" />

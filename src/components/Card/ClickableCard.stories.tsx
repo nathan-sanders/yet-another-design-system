@@ -37,6 +37,7 @@ import { Icon } from '../Icon'
 import { InputGroup } from '../Input'
 import { SegmentedControl } from '../SegmentedControl'
 import { Token } from '../Token'
+import { Heading, Text } from '../Text'
 
 const emphases = ['default', 'ghost'] as const
 const paddings = [0, 2, 3, 4] as const
@@ -78,10 +79,10 @@ export const Playground: Story = {
   render: (args) => (
     <div className="max-w-80">
       <ClickableCard {...args}>
-        <p className="font-semibold">Card Title</p>
-        <p className="text-content-subtle">
+        <Text weight="semibold" color="inherit">Card Title</Text>
+        <Text color="subtle">
           Card content goes here. This is a flexible container for organizing related information.
-        </p>
+        </Text>
       </ClickableCard>
     </div>
   ),
@@ -103,10 +104,10 @@ export const Emphasis: Story = {
     <div className="bg-surface-background-primary border-surface-border flex max-w-100 flex-col gap-2 rounded-lg border p-4">
       {emphases.map((emphasis) => (
         <ClickableCard key={emphasis} emphasis={emphasis}>
-          <p className="font-semibold">emphasis="{emphasis}"</p>
-          <p className="text-content-subtle">
+          <Text weight="semibold" color="inherit">emphasis="{emphasis}"</Text>
+          <Text color="subtle">
             {emphasis === 'ghost' ? 'No edge — a list row.' : 'A card that happens to be clickable.'}
-          </p>
+          </Text>
         </ClickableCard>
       ))}
     </div>
@@ -129,18 +130,18 @@ export const States: Story = {
     <div className="bg-surface-background-primary border-surface-border grid max-w-200 gap-3 rounded-lg border p-4 sm:grid-cols-2">
       {emphases.map((emphasis) => (
         <div key={emphasis} className="flex flex-col gap-2">
-          <p className="text-content-subtle text-sm font-semibold">emphasis="{emphasis}"</p>
+          <Text size="sm" weight="semibold" color="subtle">emphasis="{emphasis}"</Text>
           <ClickableCard emphasis={emphasis}>
-            <p className="font-semibold">Default</p>
-            <p className="text-content-subtle">Hover me, then tab to me.</p>
+            <Text weight="semibold" color="inherit">Default</Text>
+            <Text color="subtle">Hover me, then tab to me.</Text>
           </ClickableCard>
           <ClickableCard emphasis={emphasis} selected>
-            <p className="font-semibold">Selected</p>
-            <p className="text-content-subtle">aria-current, not aria-pressed.</p>
+            <Text weight="semibold" color="inherit">Selected</Text>
+            <Text color="subtle">aria-current, not aria-pressed.</Text>
           </ClickableCard>
           <ClickableCard emphasis={emphasis} disabled>
-            <p className="font-semibold">Disabled</p>
-            <p className="text-content-subtle">Out of the tab order.</p>
+            <Text weight="semibold" color="inherit">Disabled</Text>
+            <Text color="subtle">Out of the tab order.</Text>
           </ClickableCard>
         </div>
       ))}
@@ -163,16 +164,16 @@ export const ElementTypes: Story = {
   render: () => (
     <div className="grid max-w-200 gap-3 sm:grid-cols-3">
       <ClickableCard href="#card-as-link">
-        <p className="font-semibold">With href</p>
-        <p className="text-content-subtle">Renders an &lt;a&gt;.</p>
+        <Text weight="semibold" color="inherit">With href</Text>
+        <Text color="subtle">Renders an &lt;a&gt;.</Text>
       </ClickableCard>
       <ClickableCard onClick={() => {}}>
-        <p className="font-semibold">With onClick</p>
-        <p className="text-content-subtle">Renders a &lt;button type="button"&gt;.</p>
+        <Text weight="semibold" color="inherit">With onClick</Text>
+        <Text color="subtle">Renders a &lt;button type="button"&gt;.</Text>
       </ClickableCard>
       <ClickableCard href="#card-as-link" disabled>
-        <p className="font-semibold">Disabled link</p>
-        <p className="text-content-subtle">Renders a &lt;span&gt;.</p>
+        <Text weight="semibold" color="inherit">Disabled link</Text>
+        <Text color="subtle">Renders a &lt;span&gt;.</Text>
       </ClickableCard>
     </div>
   ),
@@ -192,10 +193,10 @@ export const NestedInteractive: Story = {
   render: () => (
     <div className="max-w-80">
       <ClickableCard href="#headphones">
-        <p className="font-semibold">Wireless Headphones</p>
-        <p className="text-content-subtle">Noise-canceling, 30-hour battery.</p>
+        <Text weight="semibold" color="inherit">Wireless Headphones</Text>
+        <Text color="subtle">Noise-canceling, 30-hour battery.</Text>
         <div className="flex items-center justify-between gap-2 pt-1">
-          <p className="font-mono font-semibold">$79.99</p>
+          <Text weight="semibold" color="inherit" mono>$79.99</Text>
           <Button
             appearance="secondary"
             onClick={(event) => {
@@ -260,8 +261,8 @@ export const Kanban: Story = {
               {Array.from({ length: column.count }, (_, index) => (
                 <ClickableCard key={index} href={`#${column.name}-${index}`}>
                   <div className="flex flex-col">
-                    <span className="text-content-subtle font-mono text-sm">ABC-12{index}</span>
-                    <span className="font-semibold">Task title</span>
+                    <Text render={<span />} size="sm" color="subtle" mono>ABC-12{index}</Text>
+                    <Text render={<span />} weight="semibold" color="inherit">Task title</Text>
                   </div>
                   <Divider />
                   <div className="flex items-center justify-between gap-2">
@@ -433,16 +434,16 @@ export const EmailList: Story = {
                           aria-label="Flagged"
                         />
                       )}
-                      <span className="shrink-0 text-content-subtle">{message.time}</span>
+                      <Text render={<span />} size="sm" color="subtle" className="shrink-0">{message.time}</Text>
                     </div>
 
                     {/* gap-0 between subject and preview: Figma sets the two as
                         one block of 14/24 with no space between the lines. */}
                     <div className="flex flex-col gap-0">
-                      <span className="truncate font-semibold text-content-emphasized">
+                      <Text render={<span />} weight="semibold" color="emphasized" truncate>
                         {message.subject}
-                      </span>
-                      <span className="truncate text-content-subtle">{message.preview}</span>
+                      </Text>
+                      <Text render={<span />} color="subtle" truncate>{message.preview}</Text>
                     </div>
                   </ClickableCard>
                 </Fragment>
@@ -484,11 +485,11 @@ export const EmailList: Story = {
                   surface="card-primary"
                 />
                 <div className="flex min-w-0 flex-1 flex-col text-sm">
-                  <span className="truncate font-semibold">{open.from}</span>
-                  <span className="truncate text-content-subtle">{open.address}</span>
+                  <Text render={<span />} size="sm" weight="semibold" color="inherit" truncate>{open.from}</Text>
+                  <Text render={<span />} size="sm" color="subtle" truncate>{open.address}</Text>
                 </div>
               </div>
-              <span className="shrink-0 text-sm text-content-subtle">{open.time}</span>
+              <Text render={<span />} size="sm" color="subtle" className="shrink-0">{open.time}</Text>
               <Button appearance="ghost" size="small">
                 Unsubscribe
               </Button>
@@ -498,11 +499,11 @@ export const EmailList: Story = {
 
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <span className="text-content-subtle">To</span>
+                <Text render={<span />} size="sm" color="subtle">To</Text>
                 <Token avatar={<Token.Avatar name="Nathan Sanders" />}>Nathan Sanders</Token>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-content-subtle">Cc</span>
+                <Text render={<span />} size="sm" color="subtle">Cc</Text>
                 <div className="flex flex-wrap items-center gap-1">
                   <Token avatar={<Token.Avatar name="Grace Hopper" />}>Grace Hopper</Token>
                   <Token avatar={<Token.Avatar name="Alan Turing" />}>Alan Turing</Token>
@@ -512,7 +513,7 @@ export const EmailList: Story = {
 
             <Divider />
 
-            <h4 className="text-lg font-semibold text-content-emphasized">{open.subject}</h4>
+            <Heading level={4} size="lg">{open.subject}</Heading>
 
             <div className="flex flex-col gap-4 text-sm">
               <p>{open.preview}</p>

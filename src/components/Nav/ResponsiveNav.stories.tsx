@@ -9,6 +9,7 @@ import { NavItem } from './NavItem'
 import { ResponsiveNav } from './ResponsiveNav'
 import { SideNav } from './SideNav'
 import { Logo } from './story-logo'
+import { Heading, Text } from '../Text'
 
 const utilities = (
   <>
@@ -115,11 +116,11 @@ export const Playground: Story = {
           }
         />
         <main className="p-6 pt-20">
-          <h1 className="text-lg font-semibold text-content-emphasized">{current}</h1>
-          <p className="mt-2 text-base text-content-subtle">
+          <Heading level={1} size="lg">{current}</Heading>
+          <Text color="subtle" className="mt-2">
             Narrow the canvas past 768px and the bar swaps. Both render; the one that does not
             apply is <code>display: none</code>, so only one is ever in the accessibility tree.
-          </p>
+          </Text>
         </main>
       </div>
     )

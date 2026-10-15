@@ -9,6 +9,7 @@ import { Field } from '../Field'
 import { Input } from '../Input'
 import { Menu } from '../Menu'
 import { Drawer } from './Drawer'
+import { Text } from '../Text'
 
 /**
  * A surface that slides in from an edge of the screen, **over** the page —
@@ -261,7 +262,7 @@ function InContextScreen() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-col">
           <span className="font-semibold">Q3 engagement report</span>
-          <span className="text-sm text-content-subtle">Edited 2 hours ago</span>
+          <Text render={<span />} size="sm" color="subtle">Edited 2 hours ago</Text>
         </div>
 
         <Menu>

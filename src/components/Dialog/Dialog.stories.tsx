@@ -9,6 +9,7 @@ import { Field } from '../Field'
 import { Input } from '../Input'
 import { Menu } from '../Menu'
 import { Dialog } from './Dialog'
+import { Text } from '../Text'
 
 const meta = {
   title: 'Components/Dialog',
@@ -166,7 +167,7 @@ export const Scrollable: Story = {
             'Breaking these terms can end your account immediately, without notice and without a refund.',
           ].map((clause, i) => (
             <p key={clause}>
-              <span className="font-semibold">{i + 1}.</span> {clause}
+              <Text render={<span />} weight="semibold" color="inherit">{i + 1}.</Text> {clause}
             </p>
           ))}
         </Dialog.Body>
@@ -320,7 +321,7 @@ export const InContext: Story = {
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 flex-col">
             <span className="font-semibold">Q3 engagement report</span>
-            <span className="text-sm text-content-subtle">Edited 2 hours ago</span>
+            <Text render={<span />} size="sm" color="subtle">Edited 2 hours ago</Text>
           </div>
 
           <Menu>

@@ -7,6 +7,7 @@ import type { CalendarValue } from './Calendar'
 import { formatDateInput } from './month'
 import type { DateRange } from './month'
 import { DATE_RANGE_PRESETS } from './presets'
+import { Text } from '../Text'
 
 /**
  * Fixed months again, so the grid matches the Figma frame and does not change
@@ -182,9 +183,9 @@ export const TypedDates: Story = {
     return (
       <div className="flex flex-col gap-4">
         <DatePicker {...args} value={value} onValueChange={setValue} />
-        <p className="font-mono text-sm text-content-subtle" data-testid="value">
+        <Text size="sm" color="subtle" mono data-testid="value">
           {(value as DateRange).map((d) => (d ? formatDateInput(d, 'en-US') : '—')).join('  →  ')}
-        </p>
+        </Text>
       </div>
     )
   },

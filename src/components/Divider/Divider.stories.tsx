@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Divider } from './Divider'
+import { Text } from '../Text'
 
 const orientations = ['horizontal', 'vertical'] as const
 const lineStyles = ['solid', 'dashed'] as const
@@ -103,7 +104,7 @@ export const Emphasis: Story = {
     <div className="flex max-w-md flex-col gap-8">
       {emphases.map((emphasis) => (
         <div key={emphasis} className="flex flex-col gap-3">
-          <span className="text-sm text-content-subtle capitalize">{emphasis}</span>
+          <Text render={<span />} size="sm" color="subtle" className="capitalize">{emphasis}</Text>
           {lineStyles.map((lineStyle) => (
             <Divider key={lineStyle} lineStyle={lineStyle} emphasis={emphasis} />
           ))}
@@ -128,8 +129,8 @@ export const InContext: Story = {
     <div className="flex max-w-md flex-col gap-8">
       <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
         <div className="flex items-baseline justify-between">
-          <span className="text-base font-semibold text-content-primary">Order summary</span>
-          <span className="text-sm text-content-subtle">3 items</span>
+          <Text render={<span />} weight="semibold">Order summary</Text>
+          <Text render={<span />} size="sm" color="subtle">3 items</Text>
         </div>
 
         <Divider />
@@ -159,22 +160,22 @@ export const InContext: Story = {
 
       <div className="flex items-center gap-6 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
         <div className="flex flex-col gap-1">
-          <span className="text-sm text-content-subtle">Revenue</span>
-          <span className="text-xl font-semibold text-content-primary">$24,500</span>
+          <Text render={<span />} size="sm" color="subtle">Revenue</Text>
+          <Text render={<span />} size="xl" weight="semibold">$24,500</Text>
         </div>
 
         <Divider orientation="vertical" />
 
         <div className="flex flex-col gap-1">
-          <span className="text-sm text-content-subtle">Users</span>
-          <span className="text-xl font-semibold text-content-primary">1,240</span>
+          <Text render={<span />} size="sm" color="subtle">Users</Text>
+          <Text render={<span />} size="xl" weight="semibold">1,240</Text>
         </div>
 
         <Divider orientation="vertical" />
 
         <div className="flex flex-col gap-1">
-          <span className="text-sm text-content-subtle">Conversion</span>
-          <span className="text-xl font-semibold text-content-primary">3.2%</span>
+          <Text render={<span />} size="sm" color="subtle">Conversion</Text>
+          <Text render={<span />} size="xl" weight="semibold">3.2%</Text>
         </div>
       </div>
     </div>

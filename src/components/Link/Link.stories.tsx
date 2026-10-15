@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Link } from './Link'
 import { Tooltip } from '../Tooltip'
+import { Heading, Text } from '../Text'
 
 const sizes = [
   'xs',
@@ -231,23 +232,23 @@ export const InlineLink: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex max-w-xl flex-col gap-6 text-content-primary">
-      <p className="text-sm">
+      <Text size="sm" color="inherit">
         Read the <Link href="#">documentation</Link> for more information about Yet Another Design
         System components.
-      </p>
-      <p className="text-base">
+      </Text>
+      <Text color="inherit">
         Read the <Link href="#">documentation</Link> for more information about Yet Another Design
         System components.
-      </p>
-      <p className="text-lg">
+      </Text>
+      <Text size="lg" color="inherit">
         Read the <Link href="#">documentation</Link> for more information about Yet Another Design
         System components.
-      </p>
-      <p className="max-w-[16rem] text-base">
+      </Text>
+      <Text color="inherit" className="max-w-[16rem]">
         A link long enough to need two lines wraps like{' '}
         <Link href="#">any other run of text in the paragraph</Link>, and the underline follows it
         around the break.
-      </p>
+      </Text>
     </div>
   ),
 }
@@ -292,19 +293,19 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex max-w-md flex-col gap-4">
-      <h1 className="text-2xl font-semibold text-content-primary">Getting started</h1>
-      <p className="text-base text-content-primary">
+      <Heading level={1} color="primary">Getting started</Heading>
+      <Text >
         Install the package and import the components you need. Every value comes from a design
         token, so read the <Link href="#">theming guide</Link> before overriding anything, and check
         the <Link href="#">component reference</Link> for the props each one takes.
-      </p>
-      <p className="text-base text-content-primary">
+      </Text>
+      <Text >
         The source, including the token pipeline, lives in the{' '}
         <Link href="https://github.com" external>
           Github repo
         </Link>
         .
-      </p>
+      </Text>
       <hr className="border-surface-border" />
       <nav aria-label="Footer" className="flex items-center gap-6">
         <Link href="#" size="sm">

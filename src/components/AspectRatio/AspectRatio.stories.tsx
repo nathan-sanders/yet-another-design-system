@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { AspectRatio } from './AspectRatio'
 import sampleImage from './sample-image.svg'
+import { Text } from '../Text'
 
 const ratios = ['1/1', '5/4', '4/5', '16/9', '9/16'] as const
 const fits = ['cover', 'contain', 'center'] as const
@@ -68,14 +69,14 @@ export const Ratios: Story = {
     <div className="flex flex-wrap items-start gap-6">
       {ratios.map((ratio) => (
         <div key={ratio} className="flex w-50 flex-col gap-2">
-          <span className="text-sm text-content-subtle">ratio={ratio}</span>
+          <Text render={<span />} size="sm" color="subtle">ratio={ratio}</Text>
           <AspectRatio ratio={ratio} fit="cover">
             <Sample />
           </AspectRatio>
         </div>
       ))}
       <div className="flex w-50 flex-col gap-2">
-        <span className="text-sm text-content-subtle">ratio={'{2.35}'}</span>
+        <Text render={<span />} size="sm" color="subtle">ratio={'{2.35}'}</Text>
         <AspectRatio ratio={2.35} fit="cover">
           <Sample />
         </AspectRatio>
@@ -102,14 +103,14 @@ export const Fit: Story = {
     <div className="flex flex-wrap items-start gap-6">
       {fits.map((fit) => (
         <div key={fit} className="flex w-80 flex-col gap-2">
-          <span className="text-sm text-content-subtle">fit={fit}</span>
+          <Text render={<span />} size="sm" color="subtle">fit={fit}</Text>
           <AspectRatio ratio="1/1" fit={fit} className="bg-surface-background-primary">
             <Sample />
           </AspectRatio>
         </div>
       ))}
       <div className="flex w-80 flex-col gap-2">
-        <span className="text-sm text-content-subtle">fit unset</span>
+        <Text render={<span />} size="sm" color="subtle">fit unset</Text>
         <AspectRatio ratio="1/1" className="bg-surface-background-primary">
           <Sample />
         </AspectRatio>
@@ -135,9 +136,9 @@ export const Shape: Story = {
       {shapes.map((shape) =>
         (['1/1', '16/9'] as const).map((ratio) => (
           <div key={`${shape}-${ratio}`} className="flex w-50 flex-col gap-2">
-            <span className="text-sm text-content-subtle">
+            <Text render={<span />} size="sm" color="subtle">
               shape={shape} ratio={ratio}
-            </span>
+            </Text>
             <AspectRatio ratio={ratio} shape={shape} fit="cover">
               <Sample />
             </AspectRatio>
@@ -174,7 +175,7 @@ export const InContext: Story = {
         <AspectRatio ratio="5/4" fit="cover" className="rounded-md">
           <div className="bg-surface-background-primary" />
         </AspectRatio>
-        <span className="text-sm text-content-subtle">Loading</span>
+        <Text render={<span />} size="sm" color="subtle">Loading</Text>
       </div>
     </div>
   ),

@@ -12,6 +12,7 @@ import { Icon } from '../Icon'
 import { Token } from '../Token'
 import { ComboboxContext, useCombobox } from './context'
 import { empty, groupLabel, item, itemLabel, list, popup, separator } from './styles'
+import { Text } from '../Text'
 
 /**
  * Combobox — pick from a list too long to scroll, by typing to filter it.
@@ -518,8 +519,8 @@ function ComboboxItem({
       )}
       {startIcon && <Icon icon={startIcon} />}
       <span className={itemLabel()}>
-        <span className="text-base">{children}</span>
-        {description != null && <span className="text-sm text-content-subtle">{description}</span>}
+        <Text render={<span />} color="inherit">{children}</Text>
+        {description != null && <Text render={<span />} size="sm" color="subtle">{description}</Text>}
       </span>
       {!leading && (
         <ComboboxPrimitive.ItemIndicator className="flex shrink-0">

@@ -13,6 +13,7 @@ import { addon, box, control, ICON_SIZE } from '../Input/styles'
 import type { InputAppearance, InputSize } from '../Input/styles'
 import { empty, groupLabel, item, itemLabel, list, popup, separator } from '../Combobox/styles'
 import { AutocompleteContext, useAutocomplete } from './context'
+import { Text } from '../Text'
 
 /**
  * Autocomplete — free text, with suggestions that do not constrain it.
@@ -184,8 +185,8 @@ function AutocompleteItem({
       {avatar != null && <Avatar size={AVATAR_SIZE} className="shrink-0" {...avatar} />}
       {startIcon && <Icon icon={startIcon} size={ICON_SIZE[size]} />}
       <span className={itemLabel()}>
-        <span className="text-base">{children}</span>
-        {description != null && <span className="text-sm text-content-subtle">{description}</span>}
+        <Text render={<span />} color="inherit">{children}</Text>
+        {description != null && <Text render={<span />} size="sm" color="subtle">{description}</Text>}
       </span>
     </AutocompletePrimitive.Item>
   )

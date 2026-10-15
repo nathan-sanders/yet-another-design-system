@@ -6,6 +6,7 @@ import { Badge } from '../Badge'
 import { Logo } from './story-logo'
 import { NavItem } from './NavItem'
 import { TopNav } from './TopNav'
+import { Heading, Text } from '../Text'
 
 /**
  * The horizontal navigation bar — of an application, or of a marketing or
@@ -139,11 +140,11 @@ export const InContext: Story = {
     <div className="flex flex-col gap-6">
       <TopNav {...args} />
       <main className="rounded-lg border border-surface-border bg-surface-background-primary p-6">
-        <h1 className="text-lg font-semibold text-content-emphasized">Home</h1>
-        <p className="mt-2 text-base text-content-subtle">
+        <Heading level={1} size="lg">Home</Heading>
+        <Text color="subtle" className="mt-2">
           The page keeps its own semantic tokens. Only the bar is drawn from the navigation
           theme.
-        </p>
+        </Text>
       </main>
     </div>
   ),

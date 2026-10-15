@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Field } from '../Field'
 import { FileInput, type FileInputProps } from './FileInput'
+import { Text } from '../Text'
 
 /** A file of a given size, without reading anything from disk. */
 function makeFile(name: string, bytes: number, type: string) {
@@ -100,14 +101,14 @@ export const AllVariants: Story = {
     <div className="grid w-fit grid-cols-[auto_repeat(4,18rem)] items-start gap-x-6 gap-y-6">
       <span aria-hidden />
       {states.map((state) => (
-        <span key={state.name} className="text-sm text-content-subtle">
+        <Text key={state.name} render={<span />} size="sm" color="subtle">
           {state.name}
-        </span>
+        </Text>
       ))}
 
       {modes.map((mode) => (
         <div key={mode} className="contents">
-          <span className="pt-8 text-sm text-content-subtle capitalize">{mode}</span>
+          <Text render={<span />} size="sm" color="subtle" className="pt-8 capitalize">{mode}</Text>
           {states.map((state) => (
             <Field
               key={state.name}

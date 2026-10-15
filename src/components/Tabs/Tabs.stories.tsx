@@ -5,6 +5,7 @@ import { Activity, Inbox, LayoutGrid, Send, Settings } from 'lucide-react'
 import { Tabs, type TabsSize } from './Tabs'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
+import { Text } from '../Text'
 
 const sizes = ['small', 'default', 'large'] as const
 
@@ -68,7 +69,7 @@ export const AllVariants: Story = {
     <div className="flex flex-col gap-8">
       {sizes.map((size) => (
         <div key={size} className="flex flex-col gap-2">
-          <span className="text-sm text-content-subtle capitalize">{size}</span>
+          <Text render={<span />} size="sm" color="subtle" className="capitalize">{size}</Text>
           <Tabs {...args} size={size}>
             <Tabs.List aria-label={`Project sections, ${size}`}>
               <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -98,7 +99,7 @@ export const States: Story = {
   render: ({ children: _children, ...args }) => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">Default</span>
+        <Text render={<span />} size="sm" color="subtle">Default</Text>
         <Tabs {...args}>
           <Tabs.List aria-label="Project sections, default">
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -108,7 +109,7 @@ export const States: Story = {
         </Tabs>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">One tab disabled</span>
+        <Text render={<span />} size="sm" color="subtle">One tab disabled</Text>
         <Tabs {...args}>
           <Tabs.List aria-label="Project sections, one disabled">
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -120,7 +121,7 @@ export const States: Story = {
         </Tabs>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">Disabled tab selected</span>
+        <Text render={<span />} size="sm" color="subtle">Disabled tab selected</Text>
         <Tabs {...args} defaultValue="activity">
           <Tabs.List aria-label="Project sections, disabled selected">
             <Tabs.Tab value="overview">Overview</Tabs.Tab>

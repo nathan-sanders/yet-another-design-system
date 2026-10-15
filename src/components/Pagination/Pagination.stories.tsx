@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 
 import { Pagination } from './Pagination'
 import { Table } from '../Table'
+import { Text } from '../Text'
 
 /**
  * Pagination — Figma node `40004379:65925`.
@@ -77,7 +78,7 @@ export const AllVariants: Story = {
         { name: 'No navigation', props: { hasNavigation: false } },
       ].map(({ name, props }) => (
         <div key={name} className="flex flex-col gap-2">
-          <span className="text-sm text-content-subtle">{name}</span>
+          <Text render={<span />} size="sm" color="subtle">{name}</Text>
           <Pagination {...args} {...props} aria-label={name} />
         </div>
       ))}

@@ -8,6 +8,7 @@ import { Divider } from '../Divider'
 import { Link } from '../Link'
 import { Menu } from '../Menu'
 import { Popover } from './Popover'
+import { Text } from '../Text'
 
 const meta = {
   title: 'Components/Popover',
@@ -287,7 +288,7 @@ export const InContext: Story = {
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-col">
           <span className="font-semibold">Q3 engagement report</span>
-          <span className="text-sm text-content-subtle">Edited 2 hours ago</span>
+          <Text render={<span />} size="sm" color="subtle">Edited 2 hours ago</Text>
         </div>
 
         <div className="flex items-center gap-2">

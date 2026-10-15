@@ -5,6 +5,7 @@ import { Toast } from './Toast'
 import type { ToastPosition, ToastType } from './styles'
 import { Button } from '../Button'
 import { SegmentedControl } from '../SegmentedControl'
+import { Text } from '../Text'
 
 const types = ['default', 'success', 'danger'] as const
 const positions = [
@@ -62,12 +63,12 @@ export const AllTypes: Story = {
     // table cell collapses to the width of its longest word.
     <div className="grid w-fit grid-cols-[max-content_repeat(3,20rem)] items-center gap-x-6 gap-y-3">
       <span />
-      <span className="text-sm text-content-subtle">Title only</span>
-      <span className="text-sm text-content-subtle">With description</span>
-      <span className="text-sm text-content-subtle">Action + dismiss</span>
+      <Text render={<span />} size="sm" color="subtle">Title only</Text>
+      <Text render={<span />} size="sm" color="subtle">With description</Text>
+      <Text render={<span />} size="sm" color="subtle">Action + dismiss</Text>
       {types.map((type) => (
         <Fragment key={type}>
-          <span className="text-sm text-content-subtle capitalize">{type}</span>
+          <Text render={<span />} size="sm" color="subtle" className="capitalize">{type}</Text>
           <Toast type={type} title="Toast title" />
           <Toast {...args} type={type} />
           <Toast
@@ -127,11 +128,11 @@ function StackingDemo({ position = 'bottom-right' }: { position?: ToastPosition 
           Clear all
         </Button>
       </div>
-      <p className="max-w-2xl text-base text-content-subtle">
+      <Text color="subtle" className="max-w-2xl">
         Hover the stack to expand it. Drag a toast down or to the right to throw it away. Press F6
         to move the keyboard into the notification region — Base UI pauses every dismiss timer
         while the stack is hovered or focused, so nothing disappears while you are reading it.
-      </p>
+      </Text>
       <Toast.Viewport position={position} />
     </div>
   )
@@ -384,13 +385,13 @@ function GuidanceDemo() {
   return (
     <div className="flex max-w-2xl flex-col gap-4">
       <div className="flex flex-col gap-2 rounded-lg border border-surface-border bg-surface-background-primary p-4">
-        <p className="text-base font-semibold text-content-emphasized">Documents</p>
+        <Text weight="semibold" color="emphasized">Documents</Text>
         {items.length === 0 && (
-          <p className="text-base text-content-subtle">Everything here has been deleted.</p>
+          <Text color="subtle">Everything here has been deleted.</Text>
         )}
         {items.map((item) => (
           <div key={item} className="flex items-center justify-between gap-4">
-            <span className="text-base text-content-primary">{item}</span>
+            <Text render={<span />}>{item}</Text>
             <Button appearance="secondary" size="small" onClick={() => remove(item)}>
               Delete
             </Button>

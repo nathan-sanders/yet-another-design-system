@@ -6,6 +6,7 @@ import { Badge } from '../Badge'
 import { Button } from '../Button'
 import { SegmentedControl } from '../SegmentedControl'
 import { Tooltip } from './Tooltip'
+import { Text } from '../Text'
 
 const sides = ['top', 'right', 'bottom', 'left'] as const
 const alignments = ['start', 'center', 'end'] as const
@@ -187,9 +188,9 @@ export const Triggers: Story = {
       </Tooltip>
 
       <Tooltip label="Mouse-only, because a span cannot take focus">
-        <span className="text-base text-content-subtle underline decoration-dotted">
+        <Text render={<span />} color="subtle" className="underline decoration-dotted">
           plain text
-        </span>
+        </Text>
       </Tooltip>
     </div>
   ),
@@ -246,15 +247,15 @@ export const InContext: Story = {
     <Tooltip.Provider>
       <div className="flex w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
         <div className="flex items-center justify-between">
-          <span className="text-base font-semibold text-content-primary">Pricing page</span>
+          <Text render={<span />} weight="semibold">Pricing page</Text>
           <Tooltip label="Deployed 4 minutes ago">
             <Badge color="green">Live</Badge>
           </Tooltip>
         </div>
 
-        <p className="text-sm text-content-subtle">
+        <Text size="sm" color="subtle">
           Last edited by Ada Lovelace on 12 August.
-        </p>
+        </Text>
 
         <div className="flex items-center gap-2">
           <Tooltip label="Ada Lovelace — Engineering">

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Field } from '../Field'
 import { Input } from './Input'
+import { Text } from '../Text'
 
 const sizes = ['small', 'default', 'large'] as const
 
@@ -63,16 +64,16 @@ export const AllVariants: Story = {
     <div className="grid w-fit grid-cols-[auto_repeat(3,16rem)] items-start gap-x-6 gap-y-4">
       <span aria-hidden />
       {states.map((state) => (
-        <span key={state.name} className="text-sm text-content-subtle">
+        <Text key={state.name} render={<span />} size="sm" color="subtle">
           {state.name}
-        </span>
+        </Text>
       ))}
 
       {sizes.map((size) => (
         <div key={size} className="contents">
           {/* 44px label block + the 8px below it, so the row label lines up with
               the field rather than with the label above it. */}
-          <span className="pt-13 text-sm text-content-subtle capitalize">{size}</span>
+          <Text render={<span />} size="sm" color="subtle" className="pt-13 capitalize">{size}</Text>
           {states.map((state) => (
             <Field key={state.name} label="Label" description="Sub label">
               <Input {...args} size={size} {...state.props} />

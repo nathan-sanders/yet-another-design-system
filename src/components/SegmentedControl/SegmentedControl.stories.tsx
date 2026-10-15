@@ -4,6 +4,7 @@ import { LayoutGrid, List, Table } from 'lucide-react'
 
 import { SegmentedControl, type SegmentedControlAppearance } from './SegmentedControl'
 import { Button } from '../Button'
+import { Text } from '../Text'
 
 const appearances = ['secondary', 'ghost'] as const
 const sizes = ['small', 'default', 'large'] as const
@@ -247,9 +248,9 @@ function ToolbarRows({ appearance }: { appearance: SegmentedControlAppearance })
           <Button appearance="ghost" size={size}>
             Sort
           </Button>
-          <span className="text-sm text-content-subtle">
+          <Text render={<span />} size="sm" color="subtle">
             {size} — showing {view}
-          </span>
+          </Text>
         </div>
       ))}
     </div>

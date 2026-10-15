@@ -5,6 +5,7 @@ import { Gauge } from './Gauge'
 import { gaugeData } from '../Chart/sample-data'
 import { Badge } from '../Badge'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 const meta = {
   title: 'Data Viz/Gauge',
@@ -57,9 +58,9 @@ export const WithMetric: Story = {
       {...args}
       center={
         <>
-          <span className="text-content-subtle text-sm">Quarterly target</span>
+          <Text render={<span />} size="sm" color="subtle">Quarterly target</Text>
           <span className="flex items-center gap-2">
-            <span className="text-content-emphasized font-mono text-2xl font-bold tabular-nums">1,234</span>
+            <Text render={<span />} size="2xl" weight="bold" color="emphasized" mono className="tabular-nums">1,234</Text>
             <Badge color="green" startIcon={TrendingUp}>
               8%
             </Badge>

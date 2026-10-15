@@ -7,6 +7,7 @@ import { Input, InputGroup } from '../Input'
 import { Radio } from '../Radio'
 import { Switch } from '../Switch'
 import { Field } from './Field'
+import { Heading, Text } from '../Text'
 
 const meta = {
   title: 'Components/Field',
@@ -243,8 +244,8 @@ export const InContext: Story = {
       onSubmit={(event) => event.preventDefault()}
     >
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-content-emphasized">Create your account</h2>
-        <p className="text-sm text-content-subtle">Free for 14 days. No card needed.</p>
+        <Heading level={2} size="lg">Create your account</Heading>
+        <Text size="sm" color="subtle">Free for 14 days. No card needed.</Text>
       </div>
 
       <Field label="Full name">

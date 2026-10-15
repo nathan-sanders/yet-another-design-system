@@ -4,6 +4,7 @@ import { Spark } from './Spark'
 import { dailyData } from '../Chart/sample-data'
 import { categorical, sentiment } from '../Chart'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 const meta = {
   title: 'Data Viz/Spark',
@@ -67,9 +68,9 @@ export const InAMetric: Story = {
           key={metric.label}
           className="border-surface-border flex w-60 flex-col gap-1 rounded-lg border p-4"
         >
-          <p className="text-content-subtle text-sm">{metric.label}</p>
-          <p className="text-content-emphasized text-2xl font-semibold">{metric.value}</p>
-          <p className="text-content-subtle font-mono text-sm">{metric.delta} vs last month</p>
+          <Text size="sm" color="subtle">{metric.label}</Text>
+          <Text size="2xl" weight="semibold" color="emphasized">{metric.value}</Text>
+          <Text size="sm" color="subtle" mono>{metric.delta} vs last month</Text>
           <Spark data={dailyData(14)} dataKey={metric.key} type="area" color={metric.color} height={40} decorative />
         </div>
       ))}

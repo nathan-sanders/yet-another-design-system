@@ -9,6 +9,7 @@ import { CircleCheckBig, FileUp } from 'lucide-react'
 import { Card } from '../Card'
 import { Button } from '../Button'
 import { Icon } from '../Icon'
+import { Text } from '../Text'
 
 const types: { type: ProgressBarType; label: string; value: number }[] = [
   { type: 'default', label: 'Default', value: 60 },
@@ -335,10 +336,10 @@ export const InContext: Story = {
         <div className="flex items-center gap-3">
           <Icon icon={done ? CircleCheckBig : FileUp} size="large" />
           <div className="flex flex-col">
-            <span className="text-base font-semibold text-content-primary">
+            <Text render={<span />} weight="semibold">
               quarterly-report.pdf
-            </span>
-            <span className="text-sm text-content-subtle">4.2 MB</span>
+            </Text>
+            <Text render={<span />} size="sm" color="subtle">4.2 MB</Text>
           </div>
           <Button appearance="ghost" className="ml-auto">
             {done ? 'View' : 'Cancel'}

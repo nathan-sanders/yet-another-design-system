@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { AlertTriangle, ArrowRight, Bell, Check, Heart, Plus, Search, Settings, Star, Trash2 } from 'lucide-react'
 
 import { Icon } from './Icon'
+import { Text } from '../Text'
 
 const sizes = ['small', 'base', 'large', 'x-large'] as const
 
@@ -39,7 +40,7 @@ export const Sizes: Story = {
       {sizes.map((size) => (
         <div key={size} className="flex flex-col items-center gap-2">
           <Icon {...args} size={size} />
-          <span className="text-sm text-content-subtle">{sizeLabels[size]}</span>
+          <Text render={<span />} size="sm" color="subtle">{sizeLabels[size]}</Text>
         </div>
       ))}
     </div>

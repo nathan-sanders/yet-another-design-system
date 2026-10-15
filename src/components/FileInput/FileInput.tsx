@@ -15,6 +15,7 @@ import { Icon } from '../Icon'
 import { box } from '../Input/styles'
 import { formatFileSize, sameFiles, screen, type FileRejection } from './files'
 import { dropzone, fileList, fileName, fileRow, fileSize, value as valueText } from './styles'
+import { Text } from '../Text'
 
 /**
  * FileInput — choose a file, by browsing or by dropping it.
@@ -316,7 +317,7 @@ export function FileInput({
       >
         {control}
         <Icon icon={Upload} size="large" className="text-content-subtle" />
-        <span className="text-base text-content-primary">{prompt}</span>
+        <Text render={<span />}>{prompt}</Text>
       </div>
       {files.length > 0 && (
         <ul className={fileList()} aria-label={multiple ? 'Chosen files' : 'Chosen file'}>

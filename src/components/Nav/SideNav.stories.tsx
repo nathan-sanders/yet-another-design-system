@@ -17,6 +17,7 @@ import { Badge } from '../Badge'
 import { Logo } from './story-logo'
 import { NavItem } from './NavItem'
 import { SideNav } from './SideNav'
+import { Heading, Text } from '../Text'
 
 /**
  * The vertical navigation rail of an application.
@@ -186,10 +187,10 @@ export const Controlled: Story = {
     return (
       <div className="flex h-full gap-2 p-2">
         <SideNav {...args} collapsed={collapsed} onCollapsedChange={setCollapsed} />
-        <p className="self-start text-base text-content-subtle">
+        <Text color="subtle" className="self-start">
           The rail is {collapsed ? 'collapsed' : 'expanded'}. Watch the logo while it moves — it
           stays where it is, and only the rail around it changes width.
-        </p>
+        </Text>
       </div>
     )
   },
@@ -208,11 +209,11 @@ export const InContext: Story = {
     <div className="flex h-full gap-2 p-2">
       <SideNav {...args} />
       <main className="flex-1 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-        <h1 className="text-lg font-semibold text-content-emphasized">Home</h1>
-        <p className="mt-2 text-base text-content-subtle">
+        <Heading level={1} size="lg">Home</Heading>
+        <Text color="subtle" className="mt-2">
           The page keeps its own semantic tokens. Only the rail is drawn from the navigation
           theme.
-        </p>
+        </Text>
       </main>
     </div>
   ),
@@ -231,7 +232,7 @@ export const Docked: Story = {
     <div className="flex h-full gap-2 rounded-lg border border-surface-border p-2">
       <SideNav {...args} />
       <main className="flex-1 p-6">
-        <h1 className="text-lg font-semibold text-content-emphasized">Home</h1>
+        <Heading level={1} size="lg">Home</Heading>
       </main>
     </div>
   ),

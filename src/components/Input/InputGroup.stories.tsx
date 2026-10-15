@@ -4,6 +4,7 @@ import { AtSign, Bold, Copy, Italic, Link as LinkIcon, Paperclip, Search } from 
 import { Button } from '../Button'
 import { Field } from '../Field'
 import { InputGroup } from './InputGroup'
+import { Heading, Text } from '../Text'
 
 const sizes = ['small', 'default', 'large'] as const
 
@@ -239,9 +240,9 @@ export const GhostSearch: Story = {
         <Button appearance="secondary">New</Button>
       </div>
 
-      <p className="text-sm text-content-subtle">
+      <Text size="sm" color="subtle">
         Hover the field for the wash, then click into it for the full chrome.
-      </p>
+      </Text>
     </div>
   ),
 }
@@ -257,12 +258,12 @@ export const GhostVsDefault: Story = {
   render: () => (
     <div className="grid w-fit grid-cols-[auto_18rem_18rem] items-center gap-x-6 gap-y-4 rounded-lg bg-surface-background-primary p-6 inset-ring inset-ring-surface-border">
       <span aria-hidden />
-      <span className="text-sm text-content-subtle">Default</span>
-      <span className="text-sm text-content-subtle">Ghost</span>
+      <Text render={<span />} size="sm" color="subtle">Default</Text>
+      <Text render={<span />} size="sm" color="subtle">Ghost</Text>
 
       {sizes.map((size) => (
         <div key={size} className="contents">
-          <span className="text-sm text-content-subtle capitalize">{size}</span>
+          <Text render={<span />} size="sm" color="subtle" className="capitalize">{size}</Text>
           {(['default', 'ghost'] as const).map((appearance) => (
             <InputGroup key={appearance} appearance={appearance} size={size}>
               <InputGroup.Addon align="inline-start" icon={Search} />
@@ -272,7 +273,7 @@ export const GhostVsDefault: Story = {
         </div>
       ))}
 
-      <span className="text-sm text-content-subtle">Invalid</span>
+      <Text render={<span />} size="sm" color="subtle">Invalid</Text>
       {(['default', 'ghost'] as const).map((appearance) => (
         <InputGroup key={appearance} appearance={appearance} invalid>
           <InputGroup.Addon align="inline-start" icon={Search} />
@@ -292,7 +293,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex w-[28rem] flex-col gap-5 rounded-lg bg-surface-background-primary p-6 inset-ring inset-ring-surface-border">
-      <h2 className="text-lg font-semibold text-content-emphasized">Share this file</h2>
+      <Heading level={2} size="lg">Share this file</Heading>
 
       <Field label="Invite by email" description="They'll get a link straight away">
         <InputGroup>

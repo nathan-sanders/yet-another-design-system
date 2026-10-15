@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Field } from '../Field'
 import { Checkbox } from './Checkbox'
+import { Heading, Text } from '../Text'
 
 /**
  * Figma's `Selected State` axis. Indeterminate is not a third value of
@@ -153,9 +154,9 @@ export const ContainerSlot: Story = {
           onCheckedChange={setChecked}
         >
           {checked && (
-            <span className="text-sm text-content-subtle">
+            <Text render={<span />} size="sm" color="subtle">
               Next charge on 1 September. Cancel any time from Settings.
-            </span>
+            </Text>
           )}
         </Checkbox>
       </div>
@@ -260,7 +261,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex max-w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <h2 className="text-lg font-semibold text-content-emphasized">Notifications</h2>
+      <Heading level={2} size="lg">Notifications</Heading>
       <Checkbox
         {...args}
         label="Mentions"
