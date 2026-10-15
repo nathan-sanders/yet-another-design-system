@@ -573,15 +573,15 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Forty-three records carry it.** The data-viz family shares one: the `↪ Data Viz`
+drift nothing in CI can catch. **Fifty-eight records carry it.** The data-viz family shares one: the `↪ Data Viz`
 page has a single Docs frame for all fifteen charts, so `Chart`'s record holds the family's rules —
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
 
-**Two records have no Figma block to mirror, and say so where the source line goes.**
+**Three records have no Figma block to mirror, and say so where the source line goes.**
 `ThemeControl`'s set is drawn on the `↪ Navigation` page, which has a single block covering the
 navigation family, so it has nowhere of its own on the canvas; `BentoGrid` still has no node at all.
-Both were written here rather than copied, and both owe the file a block — the same standing debt
+`Text` (with `Heading`) has no page because its Figma side is the text styles rather than a component. All three were written here rather than copied, and all three owe the file a block — the same standing debt
 `Combobox.Empty` and Select's scroll arrows carry. `AppShell` was a third for a few hours: built
 code-first against a page of frames, and drawn into the file as an eight-variant set with a Docs
 block the same day. **Do not read a missing block as a component
@@ -610,6 +610,8 @@ wrong instruction sitting on the canvas where the next person reads it.
 |---|---|---|
 | [Accordion](src/components/Accordion/CLAUDE.md) | a stack of sections, one open at a time | height animated off a measurement Base UI publishes |
 | [Button](src/components/Button/CLAUDE.md) | the action control | five appearances, three sizes, icon-only derived from the absence of a label |
+| [Text](src/components/Text/CLAUDE.md) | body copy on a Figma text style | `size` and `weight` are the two halves of the style's name; only the three real weights; `render` for the element; no Figma component owed, because the text styles are the file's side |
+| [Heading](src/components/Text/CLAUDE.md) | `<h1>`–`<h6>` on a Figma text style | `level` is the outline and is required, `size` is the look and defaults per level for a 14px body |
 | [Icon](src/components/Icon/CLAUDE.md) | any Lucide glyph | four sizes, color inherited via `currentColor` |
 | [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size; `neutral` follows the swappable ramp |
 | [Breadcrumbs](src/components/Breadcrumbs/CLAUDE.md) | a trail to the current page | four separators, last child is current automatically |
