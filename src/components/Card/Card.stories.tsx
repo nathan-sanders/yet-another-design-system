@@ -6,6 +6,7 @@ import type { CardEmphasis } from './styles'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
 import { ContentBlock } from '../ContentBlock'
+import { Text } from '../Text'
 
 const emphases = ['default', 'subtle', 'accent'] as const
 const paddings = [0, 2, 3, 4] as const
@@ -43,7 +44,7 @@ export const Playground: Story = {
   render: (args) => (
     <div className="max-w-80">
       <Card {...args}>
-        <p className="font-semibold">Card Title</p>
+        <Text weight="semibold" color="inherit">Card Title</Text>
         <p className={args.emphasis === 'accent' ? 'opacity-80' : 'text-content-subtle'}>
           Card content goes here. This is a flexible container for organizing related information.
         </p>
@@ -67,7 +68,7 @@ export const Emphasis: Story = {
     <div className="grid max-w-200 gap-3 sm:grid-cols-3">
       {emphases.map((emphasis) => (
         <Card key={emphasis} emphasis={emphasis}>
-          <p className="font-semibold">Card Title</p>
+          <Text weight="semibold" color="inherit">Card Title</Text>
           <p className={emphasis === 'accent' ? 'opacity-80' : 'text-content-subtle'}>
             Card content goes here. This is a flexible container for organizing related
             information.
@@ -89,10 +90,10 @@ export const Floating: Story = {
     <div className="grid max-w-140 gap-3 sm:grid-cols-2">
       {[false, true].map((floating) => (
         <Card key={String(floating)} floating={floating}>
-          <p className="font-semibold">{floating ? 'floating' : 'flat'}</p>
-          <p className="text-content-subtle">
+          <Text weight="semibold" color="inherit">{floating ? 'floating' : 'flat'}</Text>
+          <Text color="subtle">
             {floating ? 'Lifted off the surface below it.' : 'Sits on the surface below it.'}
-          </p>
+          </Text>
         </Card>
       ))}
     </div>
@@ -114,12 +115,12 @@ export const Padding: Story = {
     <div className="grid max-w-200 gap-3 sm:grid-cols-2">
       {paddings.map((padding) => (
         <Card key={padding} padding={padding}>
-          <p className="font-semibold">padding={`{${padding}}`}</p>
-          <p className="text-content-subtle">
+          <Text weight="semibold" color="inherit">padding={`{${padding}}`}</Text>
+          <Text color="subtle">
             {padding === 0
               ? 'spacing/0 — content reaches the border. See FullBleed below.'
               : `spacing/${padding} — ${padding * 4}px on every side.`}
-          </p>
+          </Text>
         </Card>
       ))}
     </div>
@@ -145,8 +146,8 @@ export const FullBleed: Story = {
           Media
         </div>
         <div className="flex flex-col gap-1 p-3">
-          <p className="font-semibold">Full-bleed header</p>
-          <p className="text-content-subtle">The padding comes back on the part that needs it.</p>
+          <Text weight="semibold" color="inherit">Full-bleed header</Text>
+          <Text color="subtle">The padding comes back on the part that needs it.</Text>
         </div>
       </Card>
     </div>
@@ -188,11 +189,11 @@ export const KpiRow: Story = {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {metrics.map((metric) => (
                 <Card key={metric.label} emphasis="subtle">
-                  <p className="font-semibold">{metric.label}</p>
+                  <Text weight="semibold" color="inherit">{metric.label}</Text>
                   <div className="flex items-end justify-between gap-2">
                     <div className="flex flex-col">
-                      <p className="font-mono text-2xl font-semibold">{metric.value}</p>
-                      <p className="text-content-subtle text-sm">vs {metric.prev} last period</p>
+                      <Text size="2xl" weight="semibold" color="inherit" mono>{metric.value}</Text>
+                      <Text size="sm" color="subtle">vs {metric.prev} last period</Text>
                     </div>
                     <Badge
                       color={metric.up ? 'green' : 'neutral'}
@@ -230,8 +231,8 @@ export const InsideContentBlock: Story = {
         <ContentBlock.Content>
           {(['default', 'subtle'] as CardEmphasis[]).map((emphasis) => (
             <Card key={emphasis} emphasis={emphasis}>
-              <p className="font-semibold">Card, 8px corners</p>
-              <p className="text-content-subtle">emphasis="{emphasis}"</p>
+              <Text weight="semibold" color="inherit">Card, 8px corners</Text>
+              <Text color="subtle">emphasis="{emphasis}"</Text>
             </Card>
           ))}
         </ContentBlock.Content>

@@ -4,6 +4,7 @@ import { Rocket } from 'lucide-react'
 
 import { Banner } from './Banner'
 import { Button } from '../Button'
+import { Text } from '../Text'
 
 const types = ['info', 'success', 'warning', 'danger'] as const
 
@@ -56,12 +57,12 @@ export const AllTypes: Story = {
           position-absolute, so it would drop out of grid flow and shift every
           row one column left. A grid has no header semantics to preserve. */}
       <span />
-      <span className="text-sm text-content-subtle">Title only</span>
-      <span className="text-sm text-content-subtle">With description</span>
-      <span className="text-sm text-content-subtle">Action + dismiss</span>
+      <Text render={<span />} size="sm" color="subtle">Title only</Text>
+      <Text render={<span />} size="sm" color="subtle">With description</Text>
+      <Text render={<span />} size="sm" color="subtle">Action + dismiss</Text>
       {types.map((type) => (
         <Fragment key={type}>
-          <span className="text-sm text-content-subtle capitalize">{type}</span>
+          <Text render={<span />} size="sm" color="subtle" className="capitalize">{type}</Text>
           <Banner type={type} title="Banner title" />
           <Banner {...args} type={type} />
           <Banner
@@ -200,13 +201,13 @@ export const InContext: Story = {
         All services will be unavailable on Sunday from 2:00–4:00 AM.
       </Banner>
       <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-background-primary p-4">
-        <p className="text-base font-semibold text-content-emphasized">Billing</p>
+        <Text weight="semibold" color="emphasized">Billing</Text>
         <Banner type="danger" title="Card declined">
           Update your billing information to continue.
         </Banner>
-        <p className="text-base text-content-subtle">
+        <Text color="subtle">
           Your next invoice is scheduled for 1 September.
-        </p>
+        </Text>
       </div>
     </div>
   ),

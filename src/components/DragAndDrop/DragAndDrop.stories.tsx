@@ -38,6 +38,7 @@ import { ContentBlock } from '../ContentBlock'
 import { Divider } from '../Divider'
 import { Token } from '../Token'
 import { cn } from '../../lib/cn'
+import { Text } from '../Text'
 
 /**
  * The drag foundation: a root, sortable containers and items, the grip you
@@ -274,8 +275,8 @@ function TaskCard({ id, onOpen }: { id: string; onOpen: (id: string) => void }) 
     <Sortable.Item id={id} label={task.title} role="listitem">
       <ClickableCard onClick={() => onOpen(id)} className="pr-12">
         <div className="flex flex-col">
-          <span className="text-content-subtle font-mono text-sm">{task.key}</span>
-          <span className="font-semibold">{task.title}</span>
+          <Text render={<span />} size="sm" color="subtle" mono>{task.key}</Text>
+          <Text render={<span />} weight="semibold" color="inherit">{task.title}</Text>
         </div>
         <Divider />
         <div className="flex items-center justify-between gap-2">
@@ -327,9 +328,9 @@ const renderKanban: Story['render'] = function KanbanStory() {
           </ContentBlock>
         ))}
       </div>
-      <p className="text-content-subtle mt-4 text-sm" data-testid="opened">
+      <Text size="sm" color="subtle" className="mt-4" data-testid="opened">
         {opened ? `Opened ${TASKS[opened].key}` : 'Click a card to open it.'}
-      </p>
+      </Text>
     </DragAndDrop>
   )
 }

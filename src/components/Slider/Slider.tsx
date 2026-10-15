@@ -11,6 +11,7 @@ import { cn } from '../../lib/cn'
 import { focusRingWithin } from '../../lib/focus'
 import { NumberInput } from '../NumberInput'
 import { Tooltip } from '../Tooltip'
+import { Text } from '../Text'
 
 /**
  * Slider — drag a handle along a track to pick a number, or a pair of them to
@@ -690,11 +691,11 @@ export function Slider({
             does not become part of the field's name too; the *thumbs* take the
             whole block, which is the existing decision and is unaffected.
           */}
-          <span id={nameId} className="text-base font-semibold text-content-primary">
+          <Text id={nameId} render={<span />} weight="semibold">
             {label}
-          </span>
+          </Text>
           {description != null && (
-            <span className="text-sm font-normal text-content-subtle">{description}</span>
+            <Text render={<span />} size="sm" color="subtle">{description}</Text>
           )}
         </SliderPrimitive.Label>
       )}

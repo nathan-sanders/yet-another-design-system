@@ -11,6 +11,7 @@ import { NavItem, SideNav } from '../Nav'
 import { Logo } from '../Nav/story-logo'
 import { ThemeControl, type Theme } from '../ThemeControl'
 import { TopBar } from './TopBar'
+import { Heading, Text } from '../Text'
 
 const recent = [
   { value: 'annual report', label: 'annual report' },
@@ -182,11 +183,11 @@ export const WithSideNav: Story = {
             }
           />
           <main className="flex-1 p-6">
-            <h1 className="text-lg font-semibold text-content-emphasized">Atlas</h1>
-            <p className="mt-2 text-base text-content-subtle">
+            <Heading level={1} size="lg">Atlas</Heading>
+            <Text color="subtle" className="mt-2">
               The rail keeps its navigation theme through the switch. The bar and this page follow
               it.
-            </p>
+            </Text>
           </main>
         </div>
       </div>

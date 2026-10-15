@@ -22,6 +22,7 @@ import {
   type QuestionnaireItemStatus,
 } from './Questionnaire'
 import { describedChoices, questions } from './story-data'
+import { Text } from '../Text'
 
 const shortcuts = ['letters', 'numbers', 'none'] as const
 
@@ -276,9 +277,9 @@ export const Skip: Story = {
           <Items items={[questions[2]]} />
           <Questionnaire.Actions />
         </Questionnaire>
-        <p className="m-0 text-sm text-content-subtle">
+        <Text size="sm" color="subtle" className="m-0">
           First question: <output>{status}</output>
-        </p>
+        </Text>
       </div>
     )
   },

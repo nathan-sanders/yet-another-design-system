@@ -2,6 +2,7 @@ import type { ComponentPropsWithRef, ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 import { TrendBadge, type TrendGoodDirection } from './TrendBadge'
+import { Text } from '../Text'
 
 /**
  * Metric — a labeled number, and what it did.
@@ -77,9 +78,9 @@ export function Metric({
   return (
     <div className={cn('flex min-w-0 items-end gap-6', className)} {...props}>
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-content-subtle truncate text-base">{label}</span>
+        <Text render={<span />} color="subtle" truncate>{label}</Text>
         <span className="flex items-center gap-2">
-          <span className="text-content-emphasized font-mono text-xl font-bold tabular-nums">{value}</span>
+          <Text render={<span />} size="xl" weight="bold" color="emphasized" mono className="tabular-nums">{value}</Text>
           {trend === undefined ? null : (
             <TrendBadge trend={trend} goodDirection={goodDirection} format={formatTrend} />
           )}
@@ -110,9 +111,9 @@ export function Metric({
             The obvious alternative, a hardcoded `mb-2.5`, is the same 10px today
             and silently wrong the day `--text-xl` moves.
           */}
-          <span aria-hidden="true" className="w-0 overflow-hidden font-mono text-xl font-bold">
+          <Text aria-hidden="true" render={<span />} size="xl" weight="bold" color="inherit" mono className="w-0 overflow-hidden">
             &#8203;
-          </span>
+          </Text>
         </span>
       ) : null}
     </div>

@@ -10,6 +10,7 @@ import { focusRing } from '../../lib/focus'
 import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 import { SelectContext, useSelect } from './context'
+import { Text } from '../Text'
 
 /**
  * Select — pick one value from a list that is too long to show all at once.
@@ -280,7 +281,7 @@ function ItemLabel({ children, description }: { children: ReactNode; description
       <SelectPrimitive.ItemText render={<span />} className="text-base">
         {children}
       </SelectPrimitive.ItemText>
-      {description != null && <span className="text-sm text-content-subtle">{description}</span>}
+      {description != null && <Text render={<span />} size="sm" color="subtle">{description}</Text>}
     </span>
   )
 }

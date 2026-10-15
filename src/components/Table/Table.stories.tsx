@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 import { Badge } from '../Badge'
 import { Table } from './Table'
 import { MIN_COLUMN_WIDTH, pixel, proportional } from './widths'
+import { Text } from '../Text'
 
 interface Row extends Record<string, unknown> {
   id: string
@@ -419,9 +420,9 @@ export const ExpandableRows: Story = {
     rowLabel: (item) => item.name,
     renderExpanded: (item) =>
       item.name === 'Charlie Brown' ? null : (
-        <span className="text-content-subtle">
+        <Text render={<span />} color="subtle">
           {item.name} works in {item.region}.
-        </span>
+        </Text>
       ),
   },
   play: async ({ canvasElement, step }) => {

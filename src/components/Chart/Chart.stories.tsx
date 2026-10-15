@@ -6,6 +6,7 @@ import { ChartTooltip } from './ChartTooltip'
 import { categorical, categoricalScale } from './palette'
 import { chartMarkers } from './shapes'
 import { onSurface } from './story-surface'
+import { Text } from '../Text'
 
 /**
  * The pieces every chart is made of: the swatch that stands for a series, the
@@ -44,7 +45,7 @@ export const Swatches: Story = {
       {SHAPES.map((shape, i) => (
         <div key={shape} className="flex items-center gap-2">
           <ChartSwatch shape={shape} color={categorical(i % 12)} />
-          <span className="text-content-subtle font-mono text-sm">{shape}</span>
+          <Text render={<span />} size="sm" color="subtle" mono>{shape}</Text>
         </div>
       ))}
     </div>
@@ -65,7 +66,7 @@ export const MarkersWithoutLine: Story = {
       {chartMarkers.map((shape, i) => (
         <div key={shape} className="flex items-center gap-2">
           <ChartSwatch shape={shape} color={categorical(i % 12)} line={false} />
-          <span className="text-content-subtle font-mono text-sm">{shape}</span>
+          <Text render={<span />} size="sm" color="subtle" mono>{shape}</Text>
         </div>
       ))}
     </div>
@@ -79,9 +80,9 @@ export const CategoricalScale: Story = {
       {categoricalScale.map((color, i) => (
         <div key={color} className="flex items-center gap-2">
           <ChartSwatch shape="colorSwatch" color={color} />
-          <span className="text-content-subtle font-mono text-sm tabular-nums">
+          <Text render={<span />} size="sm" color="subtle" mono className="tabular-nums">
             {String(i + 1).padStart(2, '0')}
-          </span>
+          </Text>
         </div>
       ))}
     </div>

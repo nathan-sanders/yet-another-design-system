@@ -5,6 +5,7 @@ import { expect, waitFor } from 'storybook/test'
 import { Combobox } from './Combobox'
 import { countries } from './countries'
 import { Field } from '../Field'
+import { Text } from '../Text'
 
 const sizes = ['small', 'default', 'large'] as const
 
@@ -116,14 +117,14 @@ export const AllVariants: Story = {
     <div className="grid w-fit grid-cols-[auto_repeat(3,16rem)] items-start gap-x-6 gap-y-4">
       <span aria-hidden />
       {states.map((state) => (
-        <span key={state.name} className="text-sm text-content-subtle">
+        <Text key={state.name} render={<span />} size="sm" color="subtle">
           {state.name}
-        </span>
+        </Text>
       ))}
 
       {sizes.map((size) => (
         <div key={`single-${size}`} className="contents">
-          <span className="pt-9 text-sm text-content-subtle capitalize">{size}</span>
+          <Text render={<span />} size="sm" color="subtle" className="pt-9 capitalize">{size}</Text>
           {states.map((state) => (
             <Field key={state.name} label="Single select" nativeLabel={false}>
               <Combobox {...args} size={size} {...state.props} />
@@ -134,7 +135,7 @@ export const AllVariants: Story = {
 
       {sizes.map((size) => (
         <div key={`multi-${size}`} className="contents">
-          <span className="pt-9 text-sm text-content-subtle capitalize">{size}</span>
+          <Text render={<span />} size="sm" color="subtle" className="pt-9 capitalize">{size}</Text>
           {states.map((state) => (
             <Field key={state.name} label="Multi select">
               <Combobox

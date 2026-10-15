@@ -29,6 +29,7 @@ import { Logo } from '../Nav/story-logo'
 import { TextArea } from '../TextArea'
 import { TopBar } from '../TopBar'
 import { Panel } from './Panel'
+import { Text } from '../Text'
 
 // ---------------------------------------------------------------------------
 // Fixtures: the rail, the phone bar, a page of blocks, and what the panel
@@ -138,20 +139,20 @@ function Page({ open, onOpenChange }: { open: boolean; onOpenChange: (open: bool
         <BentoGrid columns={2}>
           <BentoGrid.Cell colSpan={2}>
             <Block title="Overview">
-              <p className="text-content-subtle">
+              <Text color="subtle">
                 Open the details panel from the bar. It pushes this page over rather than covering
                 it, and you can work in either.
-              </p>
+              </Text>
             </Block>
           </BentoGrid.Cell>
           <BentoGrid.Cell>
             <Block title="Activity">
-              <p className="text-content-subtle">Nothing yet.</p>
+              <Text color="subtle">Nothing yet.</Text>
             </Block>
           </BentoGrid.Cell>
           <BentoGrid.Cell>
             <Block title="Notes">
-              <p className="text-content-subtle">Nothing yet.</p>
+              <Text color="subtle">Nothing yet.</Text>
             </Block>
           </BentoGrid.Cell>
         </BentoGrid>
@@ -515,7 +516,7 @@ function ContainedShell() {
           <BentoGrid columns={2}>
             <BentoGrid.Cell colSpan={2}>
               <Block title="Overview">
-                <p className="text-content-subtle">Open the details from the More menu.</p>
+                <Text color="subtle">Open the details from the More menu.</Text>
               </Block>
             </BentoGrid.Cell>
           </BentoGrid>
@@ -797,10 +798,10 @@ function Stack({
               <Panel aria-label="Confirm change" open={confirming} onOpenChange={setConfirming}>
                 <Panel.Header>Confirm change</Panel.Header>
                 <Panel.Body className="flex flex-col gap-4">
-                  <p className="text-content-subtle">
+                  <Text color="subtle">
                     Reassign this report to Priya? They will be notified, and you will lose the
                     ability to edit it.
-                  </p>
+                  </Text>
                   <div className="flex justify-end gap-2">
                     <Button appearance="secondary" onClick={() => setConfirming(false)}>
                       Back

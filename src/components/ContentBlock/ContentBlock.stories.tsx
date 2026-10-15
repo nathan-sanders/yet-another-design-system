@@ -5,6 +5,7 @@ import { Activity, ArrowUpRight, Ellipsis, Eye, Info, TrendingUp, Users } from '
 import { ContentBlock, type ContentBlockEmphasis } from './ContentBlock'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
+import { Heading, Text } from '../Text'
 
 const emphases = ['default', 'subtle', 'accent'] as const
 
@@ -54,8 +55,8 @@ export const Playground: Story = {
           Total followers
         </ContentBlock.Header>
         <ContentBlock.Content>
-          <p className="text-4xl font-semibold">3.5k</p>
-          <p className="text-sm opacity-70">In the last 30 days</p>
+          <Text size="4xl" weight="semibold" color="inherit">3.5k</Text>
+          <Text size="sm" color="inherit" className="opacity-70">In the last 30 days</Text>
         </ContentBlock.Content>
       </ContentBlock>
     </div>
@@ -79,17 +80,17 @@ export const Emphasis: Story = {
     // trap Banner's story documents.
     <div className="grid w-fit grid-cols-[max-content_repeat(2,18rem)] items-start gap-x-6 gap-y-3">
       <span />
-      <span className="text-sm text-content-subtle">Floating off</span>
-      <span className="text-sm text-content-subtle">Floating on</span>
+      <Text render={<span />} size="sm" color="subtle">Floating off</Text>
+      <Text render={<span />} size="sm" color="subtle">Floating on</Text>
 
       {emphases.map((emphasis) => (
         <Fragment key={emphasis}>
-          <span className="text-sm text-content-subtle">{emphasis}</span>
+          <Text render={<span />} size="sm" color="subtle">{emphasis}</Text>
           {[false, true].map((floating) => (
             <ContentBlock key={String(floating)} emphasis={emphasis} floating={floating}>
               <ContentBlock.Header>Block header</ContentBlock.Header>
               <ContentBlock.Content>
-                <p className="text-2xl font-semibold">3.5k</p>
+                <Text size="2xl" weight="semibold" color="inherit">3.5k</Text>
               </ContentBlock.Content>
             </ContentBlock>
           ))}
@@ -112,23 +113,23 @@ export const HeaderAnatomy: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="grid w-fit grid-cols-[max-content_18rem] items-center gap-x-6 gap-y-3">
-      <span className="text-sm text-content-subtle">Title only</span>
+      <Text render={<span />} size="sm" color="subtle">Title only</Text>
       <ContentBlock>
         <ContentBlock.Header>Engagement rate</ContentBlock.Header>
         <ContentBlock.Content>
-          <p className="text-2xl font-semibold">3.9%</p>
+          <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
         </ContentBlock.Content>
       </ContentBlock>
 
-      <span className="text-sm text-content-subtle">With icon</span>
+      <Text render={<span />} size="sm" color="subtle">With icon</Text>
       <ContentBlock>
         <ContentBlock.Header icon={Info}>Engagement rate</ContentBlock.Header>
         <ContentBlock.Content>
-          <p className="text-2xl font-semibold">3.9%</p>
+          <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
         </ContentBlock.Content>
       </ContentBlock>
 
-      <span className="text-sm text-content-subtle">With title slot</span>
+      <Text render={<span />} size="sm" color="subtle">With title slot</Text>
       <ContentBlock>
         <ContentBlock.Header
           titleSlot={<Badge color="green" startIcon={TrendingUp}>0.6%</Badge>}
@@ -136,11 +137,11 @@ export const HeaderAnatomy: Story = {
           Engagement rate
         </ContentBlock.Header>
         <ContentBlock.Content>
-          <p className="text-2xl font-semibold">3.9%</p>
+          <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
         </ContentBlock.Content>
       </ContentBlock>
 
-      <span className="text-sm text-content-subtle">With actions</span>
+      <Text render={<span />} size="sm" color="subtle">With actions</Text>
       <ContentBlock>
         <ContentBlock.Header
           actions={
@@ -154,11 +155,11 @@ export const HeaderAnatomy: Story = {
           Engagement rate
         </ContentBlock.Header>
         <ContentBlock.Content>
-          <p className="text-2xl font-semibold">3.9%</p>
+          <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
         </ContentBlock.Content>
       </ContentBlock>
 
-      <span className="text-sm text-content-subtle">Everything</span>
+      <Text render={<span />} size="sm" color="subtle">Everything</Text>
       <ContentBlock>
         <ContentBlock.Header
           icon={Info}
@@ -174,15 +175,15 @@ export const HeaderAnatomy: Story = {
           Engagement rate
         </ContentBlock.Header>
         <ContentBlock.Content>
-          <p className="text-2xl font-semibold">3.9%</p>
+          <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
         </ContentBlock.Content>
       </ContentBlock>
 
-      <span className="text-sm text-content-subtle">No header</span>
+      <Text render={<span />} size="sm" color="subtle">No header</Text>
       <ContentBlock>
         <ContentBlock.Content>
-          <p className="text-2xl font-semibold">3.9%</p>
-          <p className="text-sm text-content-subtle">Engagement rate, last 30 days</p>
+          <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
+          <Text size="sm" color="subtle">Engagement rate, last 30 days</Text>
         </ContentBlock.Content>
       </ContentBlock>
     </div>
@@ -214,7 +215,7 @@ export const LongTitle: Story = {
               {heading}
             </ContentBlock.Header>
             <ContentBlock.Content>
-              <p className="text-2xl font-semibold">3.9%</p>
+              <Text size="2xl" weight="semibold" color="inherit">3.9%</Text>
             </ContentBlock.Content>
           </ContentBlock>
         </div>
@@ -236,7 +237,7 @@ export const HeadingLevels: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex max-w-100 flex-col gap-3">
-      <h2 className="text-lg font-semibold text-content-emphasized">Performance</h2>
+      <Heading level={2} size="lg">Performance</Heading>
       {[
         { level: 3, title: 'Total followers', body: '3.5k' },
         { level: 4, title: 'Reach', body: '2.1k', icon: Eye },
@@ -245,7 +246,7 @@ export const HeadingLevels: Story = {
         <ContentBlock key={title} headingLevel={level as 3 | 4}>
           <ContentBlock.Header icon={icon}>{title}</ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-2xl font-semibold">{body}</p>
+            <Text size="2xl" weight="semibold" color="inherit">{body}</Text>
           </ContentBlock.Content>
         </ContentBlock>
       ))}
@@ -295,7 +296,7 @@ export const ActionsOnAccent: Story = {
     <div className="grid w-fit grid-cols-[max-content_18rem] items-center gap-x-6 gap-y-3">
       {(['ghost', 'overlay'] as const).map((appearance) => (
         <Fragment key={appearance}>
-          <span className="text-sm text-content-subtle">{appearance}</span>
+          <Text render={<span />} size="sm" color="subtle">{appearance}</Text>
           <ContentBlock emphasis="accent">
             <ContentBlock.Header
               actions={
@@ -309,7 +310,7 @@ export const ActionsOnAccent: Story = {
               Total sales
             </ContentBlock.Header>
             <ContentBlock.Content>
-              <p className="text-2xl font-semibold">12,847</p>
+              <Text size="2xl" weight="semibold" color="inherit">12,847</Text>
             </ContentBlock.Content>
           </ContentBlock>
         </Fragment>
@@ -340,8 +341,8 @@ export const EmphasisInContext: Story = {
         <ContentBlock key={title} emphasis={emphasis as ContentBlockEmphasis}>
           <ContentBlock.Header>{title}</ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-2xl font-semibold">{value}</p>
-            <p className="text-sm opacity-70">vs. last week</p>
+            <Text size="2xl" weight="semibold" color="inherit">{value}</Text>
+            <Text size="sm" color="inherit" className="opacity-70">vs. last week</Text>
           </ContentBlock.Content>
         </ContentBlock>
       ))}

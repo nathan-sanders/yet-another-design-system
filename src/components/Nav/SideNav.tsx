@@ -13,6 +13,7 @@ import { Tooltip } from '../Tooltip'
 import { NavContext, type NavContextValue } from './context'
 import { NavItem } from './NavItem'
 import { navSurface } from './styles'
+import { Text } from '../Text'
 
 /**
  * SideNav — the vertical navigation rail of an application.
@@ -400,7 +401,7 @@ function SideNavSection({ children, header, className, ...props }: SideNavSectio
           // these are group labels inside a landmark, and putting four of them
           // in the page outline is noise rather than structure. Tabs reached
           // the same conclusion about its strip.
-          <span className="px-3 py-1 text-sm text-nav-content-subtle">{header}</span>
+          <Text render={<span />} size="sm" color="inherit" className="px-3 py-1 text-nav-content-subtle">{header}</Text>
         )
       ) : null}
       {/*
@@ -525,7 +526,7 @@ function SideNavGroup({
             same label by another route. The name still reaches assistive tech,
             through the popup's `label`.
           */}
-          <span className="px-3 py-1 text-sm text-nav-content-subtle">{label}</span>
+          <Text render={<span />} size="sm" color="inherit" className="px-3 py-1 text-nav-content-subtle">{label}</Text>
           <NavContext.Provider value={flyoutCtx}>
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             <div

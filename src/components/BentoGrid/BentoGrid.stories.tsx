@@ -6,6 +6,7 @@ import { BentoGrid } from './BentoGrid'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
 import { ContentBlock } from '../ContentBlock'
+import { Heading, Text } from '../Text'
 
 const columns = [2, 3, 4] as const
 
@@ -32,8 +33,8 @@ function Tile({ title, value, span }: { title: string; value: string; span?: str
     <ContentBlock>
       <ContentBlock.Header>{title}</ContentBlock.Header>
       <ContentBlock.Content>
-        <p className="text-2xl font-semibold text-content-emphasized">{value}</p>
-        {span && <p className="text-sm text-content-subtle">{span}</p>}
+        <Text size="2xl" weight="semibold" color="emphasized">{value}</Text>
+        {span && <Text size="sm" color="subtle">{span}</Text>}
       </ContentBlock.Content>
     </ContentBlock>
   )
@@ -53,8 +54,8 @@ export const Playground: Story = {
         <ContentBlock emphasis="accent">
           <ContentBlock.Header>Total sales</ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-4xl font-semibold">12,847</p>
-            <p className="text-sm opacity-70">+8.2% vs. last week</p>
+            <Text size="4xl" weight="semibold" color="inherit">12,847</Text>
+            <Text size="sm" color="inherit" className="opacity-70">+8.2% vs. last week</Text>
           </ContentBlock.Content>
         </ContentBlock>
       </BentoGrid.Cell>
@@ -78,7 +79,7 @@ export const Columns: Story = {
     <div className="flex flex-col gap-8">
       {columns.map((count) => (
         <div key={count} className="flex flex-col gap-2">
-          <span className="text-sm text-content-subtle">columns={count}</span>
+          <Text render={<span />} size="sm" color="subtle">columns={count}</Text>
           <BentoGrid columns={count}>
             <BentoGrid.Cell colSpan={2}>
               <Tile title="Anchor" value="12,847" />
@@ -108,7 +109,7 @@ export const Gap: Story = {
     <div className="flex flex-col gap-8">
       {(['tight', 'default', 'loose'] as const).map((gap) => (
         <div key={gap} className="flex flex-col gap-2">
-          <span className="text-sm text-content-subtle">gap={gap}</span>
+          <Text render={<span />} size="sm" color="subtle">gap={gap}</Text>
           <BentoGrid columns={3} gap={gap}>
             <Tile title="Followers" value="3.5k" />
             <Tile title="Engagement" value="3.9%" />
@@ -134,7 +135,7 @@ export const Spans: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">colSpan</span>
+        <Text render={<span />} size="sm" color="subtle">colSpan</Text>
         <BentoGrid>
           {([1, 2, 3, 4] as const).map((colSpan) => (
             <Fragment key={colSpan}>
@@ -151,7 +152,7 @@ export const Spans: Story = {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-content-subtle">rowSpan</span>
+        <Text render={<span />} size="sm" color="subtle">rowSpan</Text>
         <BentoGrid columns={3}>
           <BentoGrid.Cell rowSpan={2}>
             <Tile title="rowSpan=2" value="—" />
@@ -188,7 +189,7 @@ export const Dashboard: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-content-emphasized">Overview</h2>
+      <Heading level={2} size="lg">Overview</Heading>
 
       <BentoGrid columns={4}>
         <BentoGrid.Cell colSpan={2} rowSpan={2}>
@@ -206,16 +207,16 @@ export const Dashboard: Story = {
               Total sales
             </ContentBlock.Header>
             <ContentBlock.Content>
-              <p className="text-5xl font-semibold">12,847</p>
-              <p className="text-sm opacity-70">+8.2% vs. last week</p>
+              <Text size="5xl" weight="semibold" color="inherit">12,847</Text>
+              <Text size="sm" color="inherit" className="opacity-70">+8.2% vs. last week</Text>
               <div className="mt-4 flex gap-6 border-t border-current/20 pt-4">
                 <div>
-                  <p className="text-xl font-semibold">308</p>
-                  <p className="text-sm opacity-70">Shopify</p>
+                  <Text size="xl" weight="semibold" color="inherit">308</Text>
+                  <Text size="sm" color="inherit" className="opacity-70">Shopify</Text>
                 </div>
                 <div>
-                  <p className="text-xl font-semibold">274</p>
-                  <p className="text-sm opacity-70">Amazon</p>
+                  <Text size="xl" weight="semibold" color="inherit">274</Text>
+                  <Text size="sm" color="inherit" className="opacity-70">Amazon</Text>
                 </div>
               </div>
             </ContentBlock.Content>
@@ -234,8 +235,8 @@ export const Dashboard: Story = {
             Customers
           </ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-2xl font-semibold text-content-emphasized">5,689</p>
-            <p className="text-sm text-content-subtle">Active this month</p>
+            <Text size="2xl" weight="semibold" color="emphasized">5,689</Text>
+            <Text size="sm" color="subtle">Active this month</Text>
           </ContentBlock.Content>
         </ContentBlock>
 
@@ -251,24 +252,24 @@ export const Dashboard: Story = {
             Revenue
           </ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-2xl font-semibold text-content-emphasized">$87,632</p>
-            <p className="text-sm text-content-subtle">Net of refunds</p>
+            <Text size="2xl" weight="semibold" color="emphasized">$87,632</Text>
+            <Text size="sm" color="subtle">Net of refunds</Text>
           </ContentBlock.Content>
         </ContentBlock>
 
         <ContentBlock emphasis="subtle">
           <ContentBlock.Header icon={Eye}>Sessions</ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-2xl font-semibold text-content-emphasized">42.1k</p>
-            <p className="text-sm text-content-subtle">Last 30 days</p>
+            <Text size="2xl" weight="semibold" color="emphasized">42.1k</Text>
+            <Text size="sm" color="subtle">Last 30 days</Text>
           </ContentBlock.Content>
         </ContentBlock>
 
         <ContentBlock emphasis="subtle">
           <ContentBlock.Header>Refunds</ContentBlock.Header>
           <ContentBlock.Content>
-            <p className="text-2xl font-semibold text-content-emphasized">274</p>
-            <p className="text-sm text-content-subtle">1.0% of orders</p>
+            <Text size="2xl" weight="semibold" color="emphasized">274</Text>
+            <Text size="sm" color="subtle">1.0% of orders</Text>
           </ContentBlock.Content>
         </ContentBlock>
 
@@ -308,8 +309,8 @@ export const Dashboard: Story = {
               ['Watch', '$299'],
             ].map(([name, price]) => (
               <div key={name} className="flex items-center justify-between">
-                <span className="text-content-primary">{name}</span>
-                <span className="font-semibold text-content-emphasized">{price}</span>
+                <Text render={<span />}>{name}</Text>
+                <Text render={<span />} weight="semibold" color="emphasized">{price}</Text>
               </div>
             ))}
           </ContentBlock.Content>

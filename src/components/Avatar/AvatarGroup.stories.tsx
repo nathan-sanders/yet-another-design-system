@@ -4,6 +4,7 @@ import { cn } from '../../lib/cn'
 import { Avatar } from './Avatar'
 import { AvatarGroup } from './AvatarGroup'
 import samplePhoto from './sample-photo.png'
+import { Text } from '../Text'
 
 const sizes = ['x-small', 'small', 'base', 'large', 'x-large'] as const
 const surfaces = ['canvas', 'card-primary', 'card-subtle', 'card-emphasized', 'nav'] as const
@@ -103,7 +104,7 @@ export const Sizes: Story = {
     <div className="flex flex-col gap-8">
       {sizes.map((size) => (
         <div key={size} className="flex flex-col gap-3">
-          <span className="text-sm text-content-subtle">{size}</span>
+          <Text render={<span />} size="sm" color="subtle">{size}</Text>
           <AvatarGroup size={size}>
             {team.slice(0, 4).map((person) => (
               <Avatar key={person.id} src={person.src} name={person.name} />
@@ -131,7 +132,7 @@ export const Overflow: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
-        <span className="text-sm text-content-subtle">No overflow — everyone fits</span>
+        <Text render={<span />} size="sm" color="subtle">No overflow — everyone fits</Text>
         <AvatarGroup>
           {team.map((person) => (
             <Avatar key={person.id} src={person.src} name={person.name} />
@@ -140,7 +141,7 @@ export const Overflow: Story = {
       </div>
 
       <div className="flex flex-col gap-3">
-        <span className="text-sm text-content-subtle">Two shown, three hidden</span>
+        <Text render={<span />} size="sm" color="subtle">Two shown, three hidden</Text>
         <AvatarGroup>
           {team.slice(0, 2).map((person) => (
             <Avatar key={person.id} src={person.src} name={person.name} />
@@ -150,7 +151,7 @@ export const Overflow: Story = {
       </div>
 
       <div className="flex flex-col gap-3">
-        <span className="text-sm text-content-subtle">Capped count</span>
+        <Text render={<span />} size="sm" color="subtle">Capped count</Text>
         <AvatarGroup>
           {team.slice(0, 3).map((person) => (
             <Avatar key={person.id} src={person.src} name={person.name} />
@@ -162,7 +163,7 @@ export const Overflow: Story = {
       </div>
 
       <div className="flex flex-col gap-3">
-        <span className="text-sm text-content-subtle">Clickable overflow — tab to it</span>
+        <Text render={<span />} size="sm" color="subtle">Clickable overflow — tab to it</Text>
         <AvatarGroup>
           {team.slice(0, 4).map((person) => (
             <Avatar key={person.id} src={person.src} name={person.name} />
@@ -192,8 +193,8 @@ export const InContext: Story = {
   render: () => (
     <div className="flex max-w-md flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-4 shadow-low">
       <div className="flex items-baseline justify-between">
-        <span className="text-base font-semibold text-content-primary">Design systems</span>
-        <span className="text-sm text-content-subtle">{team.length} people</span>
+        <Text render={<span />} weight="semibold">Design systems</Text>
+        <Text render={<span />} size="sm" color="subtle">{team.length} people</Text>
       </div>
 
       <AvatarGroup surface="card-primary">
@@ -246,9 +247,9 @@ export const Surfaces: Story = {
       ))}
 
       <div className="flex items-center justify-between gap-4 rounded-lg border border-feedback-danger-highlight bg-surface-background-primary p-4">
-        <span className="font-mono text-sm text-content-subtle">
+        <Text render={<span />} size="sm" color="subtle" mono>
           the default, on a card — wrong
-        </span>
+        </Text>
         <AvatarGroup>
           {team.slice(0, 4).map((person) => (
             <Avatar key={person.id} src={person.src} name={person.name} />

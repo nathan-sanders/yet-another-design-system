@@ -6,6 +6,7 @@ import { Calendar } from './Calendar'
 import type { CalendarValue } from './Calendar'
 import { formatDateInput } from './month'
 import type { DateRange } from './month'
+import { Text } from '../Text'
 
 /**
  * Every story pins a fixed month rather than opening on today, so the grid a
@@ -132,9 +133,9 @@ export const RangeSelection: Story = {
     return (
       <div className="flex flex-col gap-4">
         <Calendar {...args} value={value} onValueChange={setValue} />
-        <p className="font-mono text-sm text-content-subtle">
+        <Text size="sm" color="subtle" mono>
           {(value as DateRange).map((d) => (d ? formatDateInput(d, 'en-US') : '—')).join('  →  ')}
-        </p>
+        </Text>
       </div>
     )
   },

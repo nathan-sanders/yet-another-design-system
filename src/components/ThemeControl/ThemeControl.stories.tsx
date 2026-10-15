@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { ThemeControl, type Theme } from './ThemeControl'
+import { Text } from '../Text'
 
 /**
  * The button that switches between the light and dark themes.
@@ -74,9 +75,9 @@ export const Wired: Story = {
             document.documentElement.classList.toggle('dark', next === 'dark')
           }}
         />
-        <p className="text-base text-content-subtle">
+        <Text color="subtle">
           The page is {theme}. Press it and the canvas behind this story changes with it.
-        </p>
+        </Text>
       </div>
     )
   },

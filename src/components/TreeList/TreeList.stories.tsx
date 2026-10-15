@@ -8,6 +8,7 @@ import type { TreeListItem } from './TreeList'
 import { Badge } from '../Badge'
 import { Card } from '../Card'
 import { Icon } from '../Icon'
+import { Text } from '../Text'
 
 /**
  * Astryx's own example, and the fixture every story here starts from: three
@@ -474,9 +475,9 @@ export const Controlled: Story = {
             args.onSelectedChange?.(id)
           }}
         />
-        <p className="text-sm text-content-subtle">
+        <Text size="sm" color="subtle">
           Open: {expanded.join(', ') || 'none'} · Selected: {selected ?? 'none'}
-        </p>
+        </Text>
       </div>
     )
   },
@@ -560,9 +561,9 @@ export const InContext: Story = {
           />
         </Card>
         <Card className="min-w-0 flex-1">
-          <span className="text-base font-semibold text-content-primary">
+          <Text render={<span />} weight="semibold">
             {selected ? names[selected] : 'No file open'}
-          </span>
+          </Text>
           <pre className="text-sm text-content-subtle">
             {selected ? `// ${names[selected]}\nexport default function () {}` : ''}
           </pre>

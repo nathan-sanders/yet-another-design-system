@@ -4,6 +4,7 @@ import { Circle, Tag, User } from 'lucide-react'
 import { Badge } from '../Badge'
 import { Icon } from '../Icon'
 import { Token } from './Token'
+import { Text } from '../Text'
 
 const sizes = ['default', 'small'] as const
 const radii = ['md', 'sm'] as const
@@ -128,7 +129,7 @@ export const Slots: Story = {
     <div className="flex flex-col gap-6">
       {sizes.map((size) => (
         <div key={size} className="flex flex-col gap-3">
-          <p className="text-sm text-content-subtle capitalize">{size}</p>
+          <Text size="sm" color="subtle" className="capitalize">{size}</Text>
           <div className="flex flex-wrap items-center gap-3">
             <Token {...args} size={size} startIcon={Tag}>
               Design
@@ -239,7 +240,7 @@ export const Radius: Story = {
         ] as const
       ).map(({ radius, label }) => (
         <div key={radius} className="flex flex-col gap-2">
-          <span className="text-sm text-content-subtle">{label}</span>
+          <Text render={<span />} size="sm" color="subtle">{label}</Text>
           <div className="flex w-80 flex-wrap items-center gap-1 rounded-md border border-input-border bg-input-background p-[3px]">
             <Token {...args} radius={radius} onRemove={() => {}}>
               Ada Lovelace
@@ -267,7 +268,7 @@ export const InContext: Story = {
   render: () => (
     <div className="flex max-w-96 flex-col gap-8">
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-content-subtle">Active filters</p>
+        <Text size="sm" color="subtle">Active filters</Text>
         <div className="flex flex-wrap gap-2">
           <Token onRemove={() => {}}>Status: Open</Token>
           <Token onRemove={() => {}}>Priority: High</Token>
@@ -277,7 +278,7 @@ export const InContext: Story = {
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-content-subtle">Selected recipients</p>
+        <Text size="sm" color="subtle">Selected recipients</Text>
         <div className="flex flex-wrap gap-2">
           <Token avatar={<Token.Avatar name="Sarah Chen" />} onRemove={() => {}}>
             Sarah Chen

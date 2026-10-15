@@ -6,6 +6,7 @@ import { Carousel, type CarouselHandle } from './Carousel'
 import { AspectRatio } from '../AspectRatio'
 import { Button } from '../Button'
 import { Card } from '../Card'
+import { Text } from '../Text'
 
 const gaps = [0, 1, 2, 3, 4] as const
 
@@ -27,7 +28,7 @@ function Slide({ n }: { n: number }) {
       fit="center"
       className="rounded-lg border border-surface-border bg-surface-background-primary"
     >
-      <span className="text-xl font-semibold text-content-subtle">{n}</span>
+      <Text render={<span />} size="xl" weight="semibold" color="subtle">{n}</Text>
     </AspectRatio>
   )
 }
@@ -96,13 +97,13 @@ export const AllVariants: Story = {
   render: ({ children: _children, ...args }) => (
     <div className="flex flex-wrap gap-10">
       <div className="flex w-80 flex-col gap-2">
-        <span className="text-sm text-content-subtle">hasPagination (default)</span>
+        <Text render={<span />} size="sm" color="subtle">hasPagination (default)</Text>
         <Carousel {...args} aria-label="With pagination">
           {slides}
         </Carousel>
       </div>
       <div className="flex w-80 flex-col gap-2">
-        <span className="text-sm text-content-subtle">hasPagination={'{false}'}</span>
+        <Text render={<span />} size="sm" color="subtle">hasPagination={'{false}'}</Text>
         <Carousel {...args} aria-label="Without pagination" hasPagination={false}>
           {slides}
         </Carousel>
@@ -130,13 +131,13 @@ export const States: Story = {
   render: ({ children: _children, ...args }) => (
     <div className="flex flex-wrap gap-10">
       <div className="flex w-80 flex-col gap-2">
-        <span className="text-sm text-content-subtle">First slide — previous disabled</span>
+        <Text render={<span />} size="sm" color="subtle">First slide — previous disabled</Text>
         <Carousel {...args} aria-label="At the start">
           {slides}
         </Carousel>
       </div>
       <div className="flex w-80 flex-col gap-2">
-        <span className="text-sm text-content-subtle">Single slide — both disabled</span>
+        <Text render={<span />} size="sm" color="subtle">Single slide — both disabled</Text>
         <Carousel {...args} aria-label="One slide only">
           <Slide n={1} />
         </Carousel>
@@ -207,7 +208,7 @@ export const MultipleVisible: Story = {
         {['Design system', 'Documentation', 'Sandbox', 'Library', 'Contributing'].map(
           (title) => (
             <Card key={title} className="w-50">
-              <span className="text-base font-semibold text-content-emphasized">{title}</span>
+              <Text render={<span />} weight="semibold" color="emphasized">{title}</Text>
             </Card>
           ),
         )}

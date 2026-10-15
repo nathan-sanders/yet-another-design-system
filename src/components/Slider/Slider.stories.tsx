@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Slider } from './Slider'
+import { Heading, Text } from '../Text'
 
 const meta = {
   title: 'Components/Slider',
@@ -381,7 +382,7 @@ export const Controlled: Story = {
           value={value}
           onValueChange={(next) => setValue(next as number)}
         />
-        <p className="font-mono text-sm text-content-subtle">value: {value}</p>
+        <Text size="sm" color="subtle" mono>value: {value}</Text>
       </div>
     )
   },
@@ -399,7 +400,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-6 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <h2 className="text-lg font-semibold text-content-emphasized">Output</h2>
+      <Heading level={2} size="lg">Output</Heading>
       <Slider
         {...args}
         label="Master volume"

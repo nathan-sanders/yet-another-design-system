@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Field } from '../Field'
 import { Radio } from './Radio'
+import { Heading } from '../Text'
 
 const meta = {
   title: 'Components/Radio',
@@ -266,7 +267,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <h2 className="text-lg font-semibold text-content-emphasized">Who can comment</h2>
+      <Heading level={2} size="lg">Who can comment</Heading>
       <Radio.Group aria-label="Who can comment" defaultValue="editors">
         <Radio {...args} value="anyone" label="Anyone with the link" />
         <Radio {...args} value="editors" label="Editors only" />

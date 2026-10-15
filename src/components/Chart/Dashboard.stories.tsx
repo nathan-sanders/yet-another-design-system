@@ -47,6 +47,7 @@ import {
   sliceData,
   treeMapData,
 } from './sample-data'
+import { Text } from '../Text'
 
 /**
  * The whole point of the exercise.
@@ -137,10 +138,10 @@ export const Reference: Story = {
             interactiveLegend
             center={
               <>
-                <span className="text-content-subtle text-sm">Total</span>
-                <span className="text-content-emphasized text-2xl font-semibold">
+                <Text render={<span />} size="sm" color="subtle">Total</Text>
+                <Text render={<span />} size="2xl" weight="semibold" color="emphasized">
                   {formatFullNumber(TOTAL)}
-                </span>
+                </Text>
               </>
             }
           />

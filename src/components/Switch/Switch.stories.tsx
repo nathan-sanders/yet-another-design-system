@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Switch } from './Switch'
+import { Heading, Text } from '../Text'
 
 /**
  * Figma's `Selected State` axis. Named for what a switch actually is rather than
@@ -166,9 +167,9 @@ export const ContainerSlot: Story = {
         onCheckedChange={setChecked}
       >
         {checked && (
-          <span className="text-sm text-content-subtle">
+          <Text render={<span />} size="sm" color="subtle">
             Replying since 09:00. Turn this off to stop.
-          </span>
+          </Text>
         )}
       </Switch>
     )
@@ -186,7 +187,7 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <h2 className="text-lg font-semibold text-content-emphasized">Privacy</h2>
+      <Heading level={2} size="lg">Privacy</Heading>
       <Switch
         {...args}
         label="Public profile"

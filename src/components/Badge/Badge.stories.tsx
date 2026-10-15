@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Check, Circle, X } from 'lucide-react'
 
 import { Badge } from './Badge'
+import { Text } from '../Text'
 
 const colors = [
   'neutral',
@@ -113,19 +114,19 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex max-w-md flex-col gap-4">
-      <p className="text-base text-content-primary">
+      <Text >
         A badge sits inline with body copy <Badge color="green">Live</Badge> without disturbing the
         line height, because its height is exactly the small line-height.
-      </p>
+      </Text>
       <div className="flex flex-col gap-3 rounded-lg border border-surface-border bg-surface-background-primary p-4">
         <div className="flex items-center gap-2">
-          <span className="text-base text-content-primary">Deploy pipeline</span>
+          <Text render={<span />}>Deploy pipeline</Text>
           <Badge color="green" startIcon={Check}>
             Passing
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-base text-content-primary">Nightly build</span>
+          <Text render={<span />}>Nightly build</Text>
           <Badge color="red" startIcon={X}>
             Failing
           </Badge>

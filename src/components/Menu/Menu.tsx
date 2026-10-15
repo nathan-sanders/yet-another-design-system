@@ -9,6 +9,7 @@ import { focusRingUnhovered } from '../../lib/focus'
 import { overlayLayer } from '../../lib/layers'
 import { Icon } from '../Icon'
 import { popup } from './styles'
+import { Text } from '../Text'
 
 /**
  * Menu — a list of actions in a popup, opened by a button.
@@ -164,8 +165,8 @@ type ItemVariants = VariantProps<typeof item>
 function ItemLabel({ children, description }: { children: ReactNode; description?: ReactNode }) {
   return (
     <span className="flex min-w-px flex-1 flex-col items-start">
-      <span className="text-base">{children}</span>
-      {description != null && <span className="text-sm text-content-subtle">{description}</span>}
+      <Text render={<span />} color="inherit">{children}</Text>
+      {description != null && <Text render={<span />} size="sm" color="subtle">{description}</Text>}
     </span>
   )
 }

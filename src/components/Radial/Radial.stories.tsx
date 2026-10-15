@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Radial } from './Radial'
 import { radialData } from '../Chart/sample-data'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 const DATA = radialData(5)
 
@@ -73,8 +74,8 @@ export const WithCenter: Story = {
   args: {
     center: (
       <>
-        <span className="text-content-subtle text-sm">Average</span>
-        <span className="text-content-emphasized text-3xl font-semibold">64%</span>
+        <Text render={<span />} size="sm" color="subtle">Average</Text>
+        <Text render={<span />} size="3xl" weight="semibold" color="emphasized">64%</Text>
       </>
     ),
   },

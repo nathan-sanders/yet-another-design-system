@@ -19,6 +19,7 @@ import { ContextMenu } from './ContextMenu'
 import { cn } from '../../lib/cn'
 import { Button } from '../Button'
 import { Menu } from '../Menu'
+import { Text } from '../Text'
 
 /**
  * The dashed area every story right-clicks on.
@@ -311,8 +312,8 @@ export const InContext: Story = {
           render={
             <div className="flex w-96 items-center justify-between rounded-lg border border-surface-border bg-surface-background-primary p-4">
               <div className="flex flex-col">
-                <span className="text-base font-semibold text-content-emphasized">Q3 roadmap</span>
-                <span className="text-sm text-content-subtle">Edited 2 days ago</span>
+                <Text render={<span />} weight="semibold" color="emphasized">Q3 roadmap</Text>
+                <Text render={<span />} size="sm" color="subtle">Edited 2 days ago</Text>
               </div>
               <Menu>
                 <Menu.Trigger

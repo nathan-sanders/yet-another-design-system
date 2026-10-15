@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Card } from '../Card'
 import { ResizeHandle } from './ResizeHandle'
+import { Text } from '../Text'
 
 // ---------------------------------------------------------------------------
 // Fixture: two panels beside each other with the handle *as* the 12px gap, and
@@ -39,8 +40,8 @@ function Panels({ show }: { show: 'vertical' | 'horizontal' | 'both' }) {
             override, and there is one variable to change rather than a style.
           */}
           <Card className="w-(--panel-width) shrink-0">
-            <p className="text-content-emphasized font-semibold">Sidebar</p>
-            <p className="text-content-subtle">{width}px wide</p>
+            <Text weight="semibold" color="emphasized">Sidebar</Text>
+            <Text color="subtle">{width}px wide</Text>
           </Card>
           <ResizeHandle
             label="Resize Sidebar"
@@ -59,16 +60,16 @@ function Panels({ show }: { show: 'vertical' | 'horizontal' | 'both' }) {
             onResizeEnd={() => setResizing(false)}
           />
           <Card className="min-w-0 flex-1">
-            <p className="text-content-emphasized font-semibold">Content</p>
-            <p className="text-content-subtle">Takes what the sidebar leaves.</p>
+            <Text weight="semibold" color="emphasized">Content</Text>
+            <Text color="subtle">Takes what the sidebar leaves.</Text>
           </Card>
         </div>
       ) : null}
       {show !== 'vertical' ? (
         <div className="flex flex-col">
           <Card className="h-(--panel-height)">
-            <p className="text-content-emphasized font-semibold">Preview</p>
-            <p className="text-content-subtle">{height}px tall</p>
+            <Text weight="semibold" color="emphasized">Preview</Text>
+            <Text color="subtle">{height}px tall</Text>
           </Card>
           <ResizeHandle
             label="Resize Preview height"
@@ -82,8 +83,8 @@ function Panels({ show }: { show: 'vertical' | 'horizontal' | 'both' }) {
             onResize={setHeight}
           />
           <Card>
-            <p className="text-content-emphasized font-semibold">Details</p>
-            <p className="text-content-subtle">Moves down as the preview grows.</p>
+            <Text weight="semibold" color="emphasized">Details</Text>
+            <Text color="subtle">Moves down as the preview grows.</Text>
           </Card>
         </div>
       ) : null}
@@ -240,7 +241,7 @@ function After() {
   return (
     <div className="flex h-64" style={{ '--panel-width': `${width}px` } as CSSProperties}>
       <Card className="flex-1">
-        <p className="text-content-emphasized font-semibold">Page</p>
+        <Text weight="semibold" color="emphasized">Page</Text>
       </Card>
       <ResizeHandle
         label="Resize Details"
@@ -255,8 +256,8 @@ function After() {
         onResize={setWidth}
       />
       <Card className="w-(--panel-width) shrink-0">
-        <p className="text-content-emphasized font-semibold">Details</p>
-        <p className="text-content-subtle">{width}px wide</p>
+        <Text weight="semibold" color="emphasized">Details</Text>
+        <Text color="subtle">{width}px wide</Text>
       </Card>
     </div>
   )

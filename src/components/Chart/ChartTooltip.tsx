@@ -5,6 +5,7 @@ import { formatFullNumber } from './axes'
 import { resolveSeries, seriesByKey, useChart, type ChartSeries } from './context'
 import type { ChartSwatchShape } from './Swatch'
 import { ChartSwatch } from './Swatch'
+import { Text } from '../Text'
 
 /**
  * ChartTooltip — the exact numbers, on hover.
@@ -225,7 +226,7 @@ export function ChartTooltip({
         className,
       )}
     >
-      {hasHeading ? <p className="text-content-emphasized text-base font-semibold">{heading}</p> : null}
+      {hasHeading ? <Text weight="semibold" color="emphasized">{heading}</Text> : null}
 
       <ul className="flex list-none flex-col">
         {items.map((item) => (
@@ -233,9 +234,9 @@ export function ChartTooltip({
             {item.swatch ? (
               <ChartSwatch shape={item.swatch.shape} color={item.swatch.color} line={chart?.swatchLine ?? true} />
             ) : null}
-            <span className="text-content-subtle min-w-0 flex-1 truncate text-base">{item.label}</span>
+            <Text render={<span />} color="subtle" truncate className="min-w-0 flex-1">{item.label}</Text>
             {item.value === undefined ? null : (
-              <span className="text-content-primary font-mono text-base tabular-nums">{formatValue(item.value)}</span>
+              <Text render={<span />} mono className="tabular-nums">{formatValue(item.value)}</Text>
             )}
           </li>
         ))}
@@ -243,10 +244,10 @@ export function ChartTooltip({
 
       {showTotal ? (
         <div className="border-surface-border flex items-center gap-1 border-t pt-1">
-          <span className="text-content-emphasized flex-1 text-base font-semibold">Total</span>
-          <span className="text-content-emphasized font-mono text-base font-bold tabular-nums">
+          <Text render={<span />} weight="semibold" color="emphasized" className="flex-1">Total</Text>
+          <Text render={<span />} weight="bold" color="emphasized" mono className="tabular-nums">
             {formatValue(total)}
-          </span>
+          </Text>
         </div>
       ) : null}
     </div>

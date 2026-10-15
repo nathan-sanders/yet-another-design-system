@@ -7,6 +7,7 @@ import { parseKeys } from './keys'
 import { Button } from '../Button'
 import { Menu } from '../Menu'
 import { Tooltip } from '../Tooltip'
+import { Text } from '../Text'
 
 /**
  * A card, for the stories that want to show a Kbd sitting on one. The fill is
@@ -133,11 +134,11 @@ export const InContext: Story = {
   render: () => (
     <div className="flex max-w-md flex-col gap-6">
       <Card>
-        <p className="text-base text-content-primary">
+        <Text >
           Press <Kbd keys="mod+k" /> to open the command palette, or <Kbd keys="escape" /> to close
           it. Navigate with <Kbd keys="up" /> and <Kbd keys="down" />, then press{' '}
           <Kbd keys="enter" /> to select.
-        </p>
+        </Text>
       </Card>
 
       <Card>

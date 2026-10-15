@@ -34,6 +34,7 @@ import { ThemeControl, type Theme } from '../ThemeControl'
 import { TopBar } from '../TopBar'
 import { AppShell } from './AppShell'
 import { AppShellContext } from './context'
+import { Heading, Text } from '../Text'
 
 // ---------------------------------------------------------------------------
 // Fixtures: the rail, the bar and the page from Figma's Example 1
@@ -173,8 +174,8 @@ function PageTitle() {
       }
     >
       <div className="flex flex-col">
-        <h1 className="text-xl font-bold text-content-emphasized">Dashboard</h1>
-        <p className="text-base text-content-subtle">Subtitle goes here</p>
+        <Heading level={1} size="xl" weight="bold">Dashboard</Heading>
+        <Text color="subtle">Subtitle goes here</Text>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button appearance="secondary" startIcon={Calendar}>
@@ -248,10 +249,10 @@ function Dashboard() {
             interactiveLegend
             center={
               <>
-                <span className="text-sm text-content-subtle">Total</span>
-                <span className="text-2xl font-semibold text-content-emphasized">
+                <Text render={<span />} size="sm" color="subtle">Total</Text>
+                <Text render={<span />} size="2xl" weight="semibold" color="emphasized">
                   {formatFullNumber(TOTAL)}
-                </span>
+                </Text>
               </>
             }
           />

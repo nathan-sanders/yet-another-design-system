@@ -4,6 +4,7 @@ import { Bell, CircleHelp, House, Inbox, Settings } from 'lucide-react'
 import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
 import { NavItem } from './NavItem'
+import { Text } from '../Text'
 
 const sizes = ['default', 'small'] as const
 
@@ -68,9 +69,9 @@ export const AllVariants: Story = {
     <div className="flex flex-col gap-4">
       {sizes.map((size) => (
         <div key={size} className="flex flex-col">
-          <span className="px-3 py-1 text-sm text-nav-content-subtle">
+          <Text render={<span />} size="sm" color="inherit" className="px-3 py-1 text-nav-content-subtle">
             {size === 'default' ? 'Default — Figma Primary' : 'Small — Figma Secondary'}
-          </span>
+          </Text>
           <NavItem size={size} startIcon={House}>
             Default
           </NavItem>

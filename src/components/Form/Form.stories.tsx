@@ -16,6 +16,7 @@ import { Select } from '../Select'
 import { Switch } from '../Switch'
 import { TextArea } from '../TextArea'
 import { Form, type FormErrors, type FormProps } from './Form'
+import { Heading, Text } from '../Text'
 
 const roles = [
   { value: 'designer', label: 'Designer' },
@@ -594,10 +595,10 @@ export const InContext: Story = {
   render: (args) => (
     <Card padding={4} className="w-[40rem]">
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-content-emphasized">Workspace settings</h2>
-        <p className="text-sm text-content-subtle">
+        <Heading level={2} size="lg">Workspace settings</Heading>
+        <Text size="sm" color="subtle">
           Changes apply to everyone in the workspace once saved.
-        </p>
+        </Text>
       </div>
       <Form {...args} aria-label="Workspace settings">
         <Field name="workspace" label="Workspace name">
