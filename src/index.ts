@@ -420,6 +420,9 @@ export type {
   TabsLayout,
 } from './components/Tabs'
 
+export { Text, Heading } from './components/Text'
+export type { TextProps, HeadingProps, HeadingLevel, HeadingSize } from './components/Text'
+
 export { TreeList } from './components/TreeList'
 export type { TreeListProps, TreeListItem } from './components/TreeList'
 
