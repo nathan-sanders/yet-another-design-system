@@ -837,7 +837,7 @@ function level(canvasElement: HTMLElement, name: string) {
 /**
  * **A panel inside a panel stacks.** Write a `Panel` inside a `Panel.Body`
  * and it slides in over its parent; each level behind the front one steps
- * 12px toward the page and loses 12px at each end — Figma's `Panel Stacking`
+ * 12px toward the page and loses 12px at each end — Figma's `Panel Stack`
  * — and the page moves over by the same 12. The parent's content fades and
  * goes inert while it is covered; Escape and the × close only the front one.
  * Nested panels take the root's side and width, so only the root has a

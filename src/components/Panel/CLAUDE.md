@@ -25,9 +25,21 @@ code the same day.
 | Phone layouts, 393 × 852 | `40005382:1401` (floating), `40005382:1519` (contained) | the `Phone` story: Page, then the Panel full-width at 320, then the bar |
 | `Panel` boolean on the App Shell set | `Panel#40005385:0` on `40005265:10346` | a Panel instance in all twelve shell variants, off by default; see the AppShell record |
 | Docs frame (header, Light + Dark preview, 5 Do / 3 Don't) | `40005378:45680` | this record's Best practices |
-| Components section (now 2416 tall: the set, then the two stacking frames) | `40005378:45840` | — |
-| `Panel Stacking`, three `Floating=True` instances stepped 12 | `40005373:62883` | the stack: a nested `Panel`'s geometry, see **Stacking** |
-| `Panel Stacking (Phone)`, the same at 377 × 320 with the step upward | `40005414:528` | the `Stacked, phone` story |
+| Components section (2144 × 2952: `Panel`, then `Panel Stack` below it) | `40005378:45840` | — |
+| `Panel Stack` (`Layout` Desktop \| Phone × `Levels` 2 \| 3 × `Floating`) | `40005841:926` | a `Panel` inside `Panel.Body` — no component of its own; the `Stacked` stories |
+| `Panel Stack` instance in each Docs preview half (Desktop, 2, floating) | `40005841:950`, `40005841:985` | — |
+
+**The `Panel Stack` set replaced Nathan's two loose mocks** (`Panel Stacking` and `Panel Stacking
+(Phone)`, removed 2026-10-15 once the set measured identical to them). It is a drawing of
+composition: code has no `PanelStack`, so the set's three properties are not props. Each level
+is a transparent auto-layout wrapper stretched over the variant, padded by the levels in front
+of it × 12 (`spacing/3`, `spacing/6`), with one exposed `Panel` instance inside it. Desktop pads
+the right and both ends, keeps the card at `width/w-96` and anchors it to the far edge.
+Phone pads both sides and the bottom, keeps the card at `height/h-80` and anchors it to the
+bottom, so the stack peeks out above it. A covered level's Header and Content are at opacity 0:
+that is the code's faded content column, with only the surface and shadow peeking out. The
+Content slot is reached through the exposed instances, because a nested instance's slot cannot
+be bound to an outer property.
 
 **What the set draws.** Each variant is a 384 × 1008 vertical frame on `Surface/Background
 Primary` inside a 1px `Surface/Border` (`INSIDE`, `border-width/border`) at
