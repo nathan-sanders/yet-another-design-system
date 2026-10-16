@@ -25,7 +25,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
  * **A stack adds a fourth, and moves the numbers.** A panel written inside a
  * panel portals into the root's aside and sits on top of it; each level
  * behind the front one steps 12px (`spacing/3`) toward the page and loses
- * 12px at each end — Figma's `Panel Stacking`, where the widths never change
+ * 12px at each end — Figma's `Panel Stack`, where the widths never change
  * and nothing scales. `--nested-panels` on each aside is how many are in
  * front of it, `--panel-stack` is that in pixels, and the geometry follows:
  * the root aside grows by the stack so the page moves over, the root's clip

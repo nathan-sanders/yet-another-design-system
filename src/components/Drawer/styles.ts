@@ -79,7 +79,7 @@ export const drawerViewport = tv({
  * front of it), `data-nested-drawer-open`, and — while the front one is
  * being swiped — its swipe progress in `--drawer-swipe-progress`. From
  * those, `--drawer-stack` is the distance a level sits behind the front:
- * 12px (`spacing/3`) per level, Panel's `Panel Stacking` numbers, coming
+ * 12px (`spacing/3`) per level, Panel's `Panel Stack` numbers, coming
  * back to zero under the finger as the front one is swiped away. A right
  * drawer steps left by it and loses it at each end; a bottom sheet steps up
  * and loses it at each side, and takes the front sheet's height

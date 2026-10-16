@@ -112,7 +112,7 @@ import {
  * Write a `Panel` inside a `Panel.Body`, opened by a control in the parent,
  * and it portals into the root panel's aside and slides in over its parent;
  * each level behind the front one steps 12px toward the page and loses 12px
- * at each end, the way Figma's `Panel Stacking` draws it, and the root aside
+ * at each end, the way Figma's `Panel Stack` draws it, and the root aside
  * grows by the same 12 so the page moves over once more. A nested panel takes
  * the root's side and width — the stack is one region — so `side`,
  * `resizable`, `width` and `height` are ignored on it; `aria-label`,
