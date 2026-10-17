@@ -37,6 +37,7 @@ import {
 import {
   panel,
   panelBody,
+  panelFooter,
   panelCard,
   panelClip,
   panelContent,
@@ -58,6 +59,7 @@ import {
  *       <Panel aria-label="Details" open={open} onOpenChange={setOpen} resizable>
  *         <Panel.Header>Details</Panel.Header>
  *         <Panel.Body>…</Panel.Body>
+ *         <Panel.Footer>…</Panel.Footer>   // optional, pinned under the Body
  *       </Panel>
  *     </AppShell>
  *
@@ -623,6 +625,22 @@ function PanelBody({ className, ...props }: PanelBodyProps) {
 
 PanelBody.displayName = 'Panel.Body'
 
+export interface PanelFooterProps extends ComponentPropsWithRef<'div'> {
+  /** Extra classes — `flex flex-col gap-2` for a context chip over a composer, say. */
+  className?: string
+}
+
+/**
+ * Pinned under the Body: the composer in a chat panel, the actions under a
+ * form. The Body scrolls and this stays where it is. Write it after
+ * `Panel.Body`.
+ */
+function PanelFooter({ className, ...props }: PanelFooterProps) {
+  return <div className={cn(panelFooter(), className)} {...props} />
+}
+
+PanelFooter.displayName = 'Panel.Footer'
+
 export interface PanelCloseProps {
   /** Accessible name for the default icon button. Ignored when `render` is given. */
   label?: string
@@ -650,4 +668,5 @@ PanelClose.displayName = 'Panel.Close'
 
 Panel.Header = PanelHeader
 Panel.Body = PanelBody
+Panel.Footer = PanelFooter
 Panel.Close = PanelClose

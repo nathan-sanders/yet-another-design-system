@@ -231,6 +231,16 @@ the keyboard path — and focus lands on the clicked level's landmark on its own
 mousedown on a non-focusable element focuses the closest focusable ancestor and the aside is
 `tabIndex={-1}`.
 
+**`Panel.Footer` is what stays put under the Body.** Added 2026-10-17 from Yet Social
+(`apps/social/FINDINGS.md`, entry 3): Yak and the post detail both pin a composer under a
+scrolling body, and with no part for it the app wrote a padded `div` after `Panel.Body`, which
+worked only because the Body is the `flex-1` scroll region. Two of two panels was the bar. It is
+that `div` given a name: `shrink-0 px-4 pb-4`, the Body's `pb-4` as the 16 above it, `first:pt-4`
+for a footer with nothing above it, and no divider, because neither Figma panel draws one.
+Layout inside it is the caller's (`flex flex-col gap-2` for Yak's context chip over its
+composer). The `With footer` story measures it 16 in from the card and still after the Body
+scrolls.
+
 **`aria-label` is required.** It names the landmark — a page can have several `complementary`
 regions — and it names the handle ("Resize Details"), SideNav's reason.
 
@@ -245,6 +255,17 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - **The role query already hides the hidden handle.** Testing Library's `getAllByRole` skips
   `display: none`, so on a phone it finds one separator, not two; count the DOM with
   `querySelectorAll('[role="separator"]')` if the count is the claim.
+- **`Panel.Body` is `relative`, and a phone is where that showed.** `sr-only` is
+  `position: absolute`, so without a positioned scroll region its containing block was the
+  aside: a hidden span at the foot of a long body (`ChatMessage`'s sender, in Yet Social's post
+  detail) hung below the fold and the phone's *document* scrolled 341px past the shell.
+  `AppShell.Content` had the same bug and the same one-word fix. The `Phone, screen-reader text`
+  story asserts it — and the span has to sit inside a block to reproduce it: an absolute child
+  of the flex Body itself takes the Body's top as its static position and never escapes.
+- **Settle the stack before measuring it.** The root aside reaching its size is not the stack
+  settling; the nested insets and the clip's padding ease on the same clock and can land a
+  frame later, so a card read `768.03125` or `1192.015625` one run in a few. The stacked stories
+  wait for `document.getAnimations()` to be empty (`settled()`) before reading geometry.
 - **A `Panel.Body` that scrolls with nothing focusable in it** trips axe's
   `scrollable-region-focusable`. The stories keep a control inside, as Dialog's `Scrollable` does.
 - **The animation clock in the Browser pane is slow, and stops when the pane is hidden.** A
@@ -278,7 +299,9 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - Keyboard: ArrowLeft +8, Shift+ArrowLeft +40, End 640, Home 320.
 - Phone (393 × 852): column; aside `top === page.bottom + 8`, width 377, height 320; bar
   `top === aside.bottom + 8`; horizontal handle 8 tall on the seam; ArrowUp +8; document does
-  not scroll.
+  not scroll, with an `sr-only` span at the foot of a scrolling body as well.
+- Footer: composer 16 from the card's inner edge on the sides and the bottom, footer top on the
+  Body's bottom, unmoved when the Body scrolls.
 - Header 56 tall — the TopBar's height — `px-4 py-3`, the × a default-size ghost Button.
   (ContentBlock's stays 48 on 8; the shared recipe's `height: 'bar'` is this one.)
 - Closed: nothing in the DOM, `page.right === shell.right - 8`.
