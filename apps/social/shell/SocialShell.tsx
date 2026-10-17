@@ -62,21 +62,6 @@ export function SocialShell() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [toggleYak, notBuilt])
 
-  // Controlled, because the group you navigate into should open — a
-  // `defaultOpen` that changes after mount is ignored, and Base UI says so.
-  const groupFor = (pathname: string) =>
-    groups.find((g) => g.routes.some((r) => pathname.startsWith(r.path)))?.label
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
-    const initial = groupFor(location.pathname)
-    return new Set(initial ? [initial] : [])
-  })
-  const [seenPath, setSeenPath] = useState(location.pathname)
-  if (seenPath !== location.pathname) {
-    setSeenPath(location.pathname)
-    const entered = groupFor(location.pathname)
-    if (entered && !openGroups.has(entered)) setOpenGroups(new Set([...openGroups, entered]))
-  }
-
   const shell = useMemo<ShellState>(() => ({ panel, setPanel, notBuilt }), [panel, notBuilt])
   const yakOpen = panel?.type === 'yak'
 
@@ -95,15 +80,6 @@ export function SocialShell() {
           key={group.label}
           label={group.label}
           startIcon={group.icon}
-          open={openGroups.has(group.label)}
-          onOpenChange={(open) =>
-            setOpenGroups((current) => {
-              const next = new Set(current)
-              if (open) next.add(group.label)
-              else next.delete(group.label)
-              return next
-            })
-          }
         >
           {group.routes.map((route) => (
             <NavItem

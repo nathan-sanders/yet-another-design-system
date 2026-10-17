@@ -72,7 +72,7 @@ export function PostDetailPanel({
       <Panel.Header icon={FileText} closeButton>
         Post detail
       </Panel.Header>
-      <Panel.Body className="relative flex flex-col gap-4">
+      <Panel.Body className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <NetworkIcon network={profile.network} />
@@ -135,10 +135,15 @@ export function PostDetailPanel({
                   key={comment.id}
                   layout="fill"
                   avatar={<Avatar name={author.name} src={author.avatar} size="small" />}
-                  sender={`${author.name}, internal note`}
+                  header={
+                    <ChatMessage.Header
+                      name={author.name}
+                      badge={<Badge>Internal</Badge>}
+                      timestamp={comment.ago}
+                    />
+                  }
                   metadata={
                     <ChatMessage.Metadata
-                      timestamp={comment.ago}
                       actions={
                         <>
                           <Button
@@ -162,17 +167,6 @@ export function PostDetailPanel({
                     />
                   }
                 >
-                  {/* ChatMessage's `sender` is screen-reader text only; the file
-                      draws the name and an Internal badge over a team note, so
-                      the visible row is drawn here and hidden from the
-                      accessibility tree to avoid reading the name twice.
-                      See FINDINGS.md. */}
-                  <span aria-hidden className="flex items-center gap-2">
-                    <Text render={<span />} size="sm" weight="semibold" color="emphasized">
-                      {author.name}
-                    </Text>
-                    <Badge>Internal</Badge>
-                  </span>
                   <ChatMessage.Bubble>{comment.body}</ChatMessage.Bubble>
                 </ChatMessage>
               )
@@ -185,9 +179,7 @@ export function PostDetailPanel({
           ) : null}
         </section>
       </Panel.Body>
-      {/* Panel has no footer part; this sits under the scrolling body so the
-          composer stays put while the thread scrolls. See FINDINGS.md. */}
-      <div className="px-4 pb-4">
+      <Panel.Footer>
         <ChatComposer
           aria-label="Leave a note for your team"
           placeholder="Leave a note for your team. @mention to notify"
@@ -224,7 +216,7 @@ export function PostDetailPanel({
             }))
           }
         />
-      </div>
+      </Panel.Footer>
     </Panel>
   )
 }

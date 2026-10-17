@@ -95,7 +95,7 @@ export function YakPanel({
       >
         Yak
       </Panel.Header>
-      <Panel.Body className="relative flex flex-col gap-6">
+      <Panel.Body className="flex flex-col gap-6">
         {turns.length === 0 ? <StartScreen onAsk={ask} /> : <Conversation turns={turns} />}
 
         <YakHistory
@@ -112,7 +112,7 @@ export function YakPanel({
           }}
         />
       </Panel.Body>
-      <div className="flex flex-col items-start gap-2 px-4 pb-4">
+      <Panel.Footer className="flex flex-col items-start gap-2">
         <Token startIcon={CalendarDays} size="small">
           {context}
         </Token>
@@ -149,7 +149,7 @@ export function YakPanel({
             </>
           }
         />
-      </div>
+      </Panel.Footer>
     </Panel>
   )
 }
@@ -320,7 +320,7 @@ function YakHistory({
       >
         History
       </Panel.Header>
-      <Panel.Body className="relative flex flex-col gap-4">
+      <Panel.Body className="flex flex-col gap-4">
         <InputGroup>
           <InputGroup.Addon>
             <Icon icon={Search} />
