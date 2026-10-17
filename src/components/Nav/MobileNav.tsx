@@ -1,10 +1,11 @@
-import { Children, isValidElement, useCallback, useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { ChevronsUpDown } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
 import { dismissesOverlay } from './dismiss'
+import { findSelected } from './selected'
 import { navLayer, overlayLayer } from '../../lib/layers'
 import { AppShellContext } from '../AppShell/context'
 import { Drawer } from '../Drawer'
@@ -65,44 +66,6 @@ import { navItem, navSheet, navSurface } from './styles'
  * appears — after the page for `bottom`, before it for `top` — so the DOM
  * order is the focus order. Outside a shell nothing here has changed.
  */
-
-/**
- * The row the user is currently on, found in the tree the sheet was given.
- *
- * The trigger names where you are, and the sheet already knows: exactly one
- * `NavItem` in it carries `selected`. Reading it from there rather than making
- * the caller pass the same fact twice is what keeps the pill from disagreeing
- * with the list — a nav that says "Home" while Inbox is highlighted is a bug
- * nobody would write on purpose, and a duplicated prop is how it happens.
- *
- * Walks `SideNav.Section`, `SideNav.Group` and fragments alike by recursing
- * through `children`, and stops at the first match.
- */
-function findSelected(node: ReactNode): { label?: string; icon?: LucideIcon } | null {
-  let found: { label?: string; icon?: LucideIcon } | null = null
-  Children.forEach(node, (child) => {
-    if (found || !isValidElement(child)) return
-    const props = child.props as {
-      selected?: boolean
-      children?: ReactNode
-      startIcon?: LucideIcon
-    }
-    if (props.selected === true) {
-      found = {
-        // Only a string is usable as a trigger label; anything richer is the
-        // caller's own composition and cannot be flattened honestly.
-        label: typeof props.children === 'string' ? props.children : undefined,
-        icon: props.startIcon,
-      }
-      return
-    }
-    if (props.children != null) {
-      const deeper = findSelected(props.children)
-      if (deeper) found = deeper
-    }
-  })
-  return found
-}
 
 const bar = {
   // min-h-14 = height/h-14 (56px). gap-4 = spacing/4 (16), px-3 = spacing/3,

@@ -502,9 +502,24 @@ highlighted — a bug nobody writes on purpose and that a duplicated prop invite
 overrides for a label that differs from the row's own text, or a tree with no selected row; with
 neither, the landmark's own name stands in rather than leaving an unnamed button.
 
-`findSelected` recurses through `children`, so `SideNav.Section`, `SideNav.Group` and fragments all
+`findSelected` (in `selected.ts`) recurses through `children`, so `SideNav.Section`, `SideNav.Group` and fragments all
 work, and it stops at the first match. Only a **string** child is usable — anything richer is the
 caller's own composition and cannot be flattened honestly.
+
+### A group holding the selected row opens itself
+
+The same rule from the other side, found by Yet Social (`apps/social/FINDINGS.md`, entry 4):
+navigating into a page inside a closed `SideNav.Group` left the page you were on folded away, and
+the only fix available to the app was holding every group's `open` itself — a `defaultOpen` that
+changes after mount is ignored, and Base UI warns about it in the console.
+
+So the group reads `findSelected` (now `selected.ts`, shared with `MobileNav`) over its own
+children. `defaultOpen` defaults to whether it holds the selected row, and when a row inside it
+*becomes* selected it opens. That second half is a state adjustment during render on the change,
+not `open` computed from the children: the state stays the group's, so the user can still fold
+away the group they are in, and leaving a group does not close it for them. An explicit
+`defaultOpen` or a controlled `open` still wins. The `Group follows selection` story drives all
+three.
 
 ### It slides both ways now, and for a year of its life it did not
 
