@@ -19,6 +19,15 @@
       ],
       "port": 6006,
       "autoPort": true
+    },
+    {
+      "name": "yads-apps",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "apps:dev"
+      ],
+      "port": 5174
     }
   ]
 }

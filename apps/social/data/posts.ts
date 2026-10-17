@@ -1,0 +1,332 @@
+import cafeInterior from '../assets/photos/cafe-interior.jpg'
+import celerySalad from '../assets/photos/celery-salad.jpg'
+import chardLeaves from '../assets/photos/chard-leaves.jpg'
+import chefChopping from '../assets/photos/chef-chopping.jpg'
+import freshVegetables from '../assets/photos/fresh-vegetables.jpg'
+import grainBowl from '../assets/photos/grain-bowl.jpg'
+import greenSmoothies from '../assets/photos/green-smoothies.jpg'
+import harvestBowl from '../assets/photos/harvest-bowl.jpg'
+import mangoShavedIce from '../assets/photos/mango-shaved-ice.jpg'
+import pineappleSmoothies from '../assets/photos/pineapple-smoothies.jpg'
+import saladBowl from '../assets/photos/salad-bowl.jpg'
+import saladBowls from '../assets/photos/salad-bowls.jpg'
+import streetCorn from '../assets/photos/street-corn.jpg'
+import takeoutBox from '../assets/photos/takeout-box.jpg'
+import wraps from '../assets/photos/wraps.jpg'
+import type { Post, Profile } from './types'
+
+/**
+ * Veggie Vault's connected accounts, plus Feel Good, the sister brand the
+ * Figma week shows posting alongside it.
+ */
+export const profiles: Profile[] = [
+  { id: 'vv-instagram', network: 'instagram', name: 'veggie_vault' },
+  { id: 'vv-threads', network: 'threads', name: 'veggie_vault' },
+  { id: 'vv-facebook', network: 'facebook', name: 'Veggie Vault' },
+  { id: 'vv-x', network: 'x', name: 'veggievault' },
+  { id: 'fg-instagram', network: 'instagram', name: 'feelgood_eats' },
+  { id: 'fg-threads', network: 'threads', name: 'feelgood_eats' },
+]
+
+export function profileFor(post: Post): Profile {
+  return profiles.find((p) => p.id === post.profileId)!
+}
+
+/**
+ * The posts, written as the Figma week draws them (`40005911:33082`), post for
+ * post: by week and weekday around a Monday that is "today". `postDate` in
+ * `screens/calendar/model.ts` slides them so that Monday is the real today.
+ */
+export const posts: Post[] = [
+  // Last week
+  {
+    id: 'p-01',
+    profileId: 'vv-threads',
+    week: -1,
+    day: 1,
+    time: '09:00',
+    body: 'Monday reset: the Garden Bowl is back on the menu.',
+    photo: saladBowls,
+    photoAlt: 'A spread of salad bowls',
+  },
+  {
+    id: 'p-02',
+    profileId: 'vv-threads',
+    week: -1,
+    day: 2,
+    time: '10:00',
+    body: 'Which dressing are you team? Wrong answers only.',
+  },
+  {
+    id: 'p-03',
+    profileId: 'vv-instagram',
+    week: -1,
+    day: 2,
+    time: '12:00',
+    body: 'Lunch rush, but make it green.',
+    photo: celerySalad,
+    photoAlt: 'Celery salad in a bowl',
+  },
+  {
+    id: 'p-04',
+    profileId: 'vv-facebook',
+    week: -1,
+    day: 4,
+    time: '11:00',
+    body: 'We are hiring line cooks at both locations.',
+  },
+  {
+    id: 'p-05',
+    profileId: 'vv-threads',
+    week: -1,
+    day: 5,
+    time: '09:00',
+    body: 'Friday feeling: half-price smoothies after 3.',
+    photo: greenSmoothies,
+    photoAlt: 'Two green smoothies',
+  },
+  {
+    id: 'p-06',
+    profileId: 'vv-instagram',
+    week: -1,
+    day: 5,
+    time: '15:00',
+    body: 'Swipe for the new patio.',
+    photo: cafeInterior,
+    photoAlt: 'The restaurant interior',
+  },
+
+  // This week — the Figma week
+  {
+    id: 'p-10',
+    profileId: 'vv-facebook',
+    week: 0,
+    day: 0,
+    time: '12:00',
+    body: 'New friends 🤝 new food. Come say hi this weekend at our newest location.',
+    photo: cafeInterior,
+    photoAlt: 'The restaurant interior with wooden tables',
+    comments: 32,
+  },
+  {
+    id: 'p-11',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 0,
+    time: '13:00',
+    body: 'Our Green Vitality Smoothie is the reset button your Sunday needs.',
+    photo: greenSmoothies,
+    photoAlt: 'Two green smoothies with mango',
+    comments: 12,
+  },
+  {
+    id: 'p-12',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 1,
+    time: '09:00',
+    body: 'Introducing Protein Plates — our new trio of craveable, chef-crafted entrées with bold new flavors and unmatched heartiness. 🥗',
+    photo: saladBowl,
+    photoAlt: 'A colorful salad bowl with radish, carrot and avocado',
+    tags: 2,
+    thread: [
+      {
+        id: 'c-1',
+        authorId: 'nathan',
+        body: 'Can we swap the hero for the overhead shot? It reads better at thumbnail size.',
+        ago: '16d',
+      },
+      {
+        id: 'c-2',
+        authorId: 'katie',
+        body: 'Swapped. I also moved it to 9 am so it lands before the lunch rush.',
+        ago: '16d',
+      },
+    ],
+  },
+  {
+    id: 'p-13',
+    profileId: 'vv-instagram',
+    week: 0,
+    day: 1,
+    time: '10:00',
+    body: 'Ice, Ice Baby 🥭🧊',
+    photo: mangoShavedIce,
+    photoAlt: 'Mango shaved ice',
+  },
+  {
+    id: 'p-14',
+    profileId: 'vv-facebook',
+    week: 0,
+    day: 1,
+    time: '10:00',
+    body: 'Discover the vibrant flavors of health at Veggie Vault, where every dish is made to order.',
+    photo: takeoutBox,
+    photoAlt: 'A takeout box of loaded tacos',
+  },
+  {
+    id: 'p-15',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 1,
+    time: '13:00',
+    body: 'Our limited-time Harvest Bowl is here until the leaves turn.',
+    photo: harvestBowl,
+    photoAlt: 'A grain bowl on a wooden table',
+  },
+  {
+    id: 'p-16',
+    profileId: 'vv-facebook',
+    week: 0,
+    day: 2,
+    time: '09:00',
+    body: 'Back in stalk, our cult fave is here for summer: chili-lime street corn.',
+    photo: streetCorn,
+    photoAlt: 'Grilled street corn with lime',
+  },
+  {
+    id: 'p-17',
+    profileId: 'fg-instagram',
+    week: 0,
+    day: 2,
+    time: '10:00',
+    body: 'Looking for something a little lighter this week? Our bowls start at 400 calories.',
+    photo: saladBowls,
+    photoAlt: 'A spread of salad bowls',
+    tags: 2,
+  },
+  {
+    id: 'p-18',
+    profileId: 'fg-threads',
+    week: 0,
+    day: 2,
+    time: '10:00',
+    body: 'Looking for something a little lighter this week? Our bowls start at 400 calories.',
+    photo: saladBowls,
+    photoAlt: 'A spread of salad bowls',
+    tags: 2,
+  },
+  {
+    id: 'p-19',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 2,
+    time: '12:00',
+    body: 'What do you mean you found a lentil in your smoothie? (It was on purpose.)',
+  },
+  {
+    id: 'p-20',
+    profileId: 'vv-instagram',
+    week: 0,
+    day: 2,
+    time: '15:00',
+    body: 'Patio season is officially open. Bring the dog.',
+  },
+  {
+    id: 'p-21',
+    profileId: 'vv-instagram',
+    week: 0,
+    day: 3,
+    time: '12:00',
+    body: 'Recharge with our Tropical Pineapple Shake, blended to order.',
+    photo: pineappleSmoothies,
+    photoAlt: 'Two pineapple smoothies',
+  },
+  {
+    id: 'p-22',
+    profileId: 'vv-x',
+    week: 0,
+    day: 4,
+    time: '10:00',
+    body: "We're incredibly honored to have been named Best Plant-Based Kitchen for the third year running.",
+    photo: chefChopping,
+    photoAlt: 'A chef chopping herbs',
+  },
+  {
+    id: 'p-23',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 4,
+    time: '13:00',
+    body: 'Dive into the deliciousness of our crunchy celery and herb salad.',
+    photo: celerySalad,
+    photoAlt: 'Celery salad in a bowl',
+  },
+  {
+    id: 'p-24',
+    profileId: 'vv-instagram',
+    week: 0,
+    day: 4,
+    time: '14:00',
+    body: "We're incredibly honored to have been named Best Plant-Based Kitchen for the third year running.",
+    photo: chefChopping,
+    photoAlt: 'A chef chopping herbs',
+  },
+  {
+    id: 'p-25',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 5,
+    time: '10:00',
+    body: "If you can't love me at my worst, you don't deserve me at my rainbow chard.",
+    photo: chardLeaves,
+    photoAlt: 'Rainbow chard leaves',
+  },
+  {
+    id: 'p-26',
+    profileId: 'vv-instagram',
+    week: 0,
+    day: 5,
+    time: '10:00',
+    body: 'Only the freshest ingredients make the cut. Meet this morning’s delivery.',
+    photo: freshVegetables,
+    photoAlt: 'A pile of fresh vegetables',
+  },
+  {
+    id: 'p-27',
+    profileId: 'vv-facebook',
+    week: 0,
+    day: 5,
+    time: '12:00',
+    body: 'Our Green Glow Salad is the lunch your afternoon will thank you for.',
+    photo: grainBowl,
+    photoAlt: 'A grain bowl with beans and greens',
+  },
+  {
+    id: 'p-28',
+    profileId: 'vv-threads',
+    week: 0,
+    day: 5,
+    time: '13:00',
+    body: 'At Veggie Vault, every wrap is rolled to order.',
+    photo: wraps,
+    photoAlt: 'Two wraps on a plate',
+  },
+
+  // Next weeks
+  {
+    id: 'p-40',
+    profileId: 'vv-instagram',
+    week: 1,
+    day: 0,
+    time: '10:00',
+    body: 'Weekend brunch drop',
+  },
+  {
+    id: 'p-41',
+    profileId: 'vv-threads',
+    week: 1,
+    day: 2,
+    time: '12:00',
+    body: 'Midweek menu poll',
+  },
+  {
+    id: 'p-42',
+    profileId: 'vv-threads',
+    week: 1,
+    day: 5,
+    time: '09:00',
+    body: 'Behind the counter',
+  },
+  { id: 'p-43', profileId: 'vv-facebook', week: 1, day: 5, time: '12:00', body: 'Summer hours' },
+]

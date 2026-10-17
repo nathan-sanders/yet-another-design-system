@@ -6,12 +6,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run apps:build",
     "lint": "oxlint",
     "test": "vitest --run",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "apps:dev": "vite --config apps/vite.config.ts",
+    "apps:build": "vite build --config apps/vite.config.ts",
+    "apps:preview": "vite preview --config apps/vite.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -26,6 +29,7 @@
     "lucide-react": "^1.40.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-router": "^7.18.4",
     "recharts": "^3.10.1",
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.3.1",
