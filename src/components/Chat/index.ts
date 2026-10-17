@@ -2,6 +2,7 @@ export { ChatMessage } from './ChatMessage'
 export type {
   ChatMessageProps,
   ChatMessageBubbleProps,
+  ChatMessageHeaderProps,
   ChatMessageMetadataProps,
   ChatMessageStatusProps,
   ChatMessageReactionsProps,
