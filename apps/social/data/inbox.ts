@@ -171,7 +171,6 @@ export const tickets: Ticket[] = [
     priority: 'low',
     sentiment: 'positive',
     assigneeId: 'nathan',
-    viewers: ['nathan'],
     postId: 'protein-plates',
     replies: 2,
     note: `Assigned to Nathan Sanders from Customer Support inbox at 9:16 am on ${numericDate.format(today)}`,
@@ -203,6 +202,7 @@ export const tickets: Ticket[] = [
     status: 'new',
     priority: 'medium',
     sentiment: 'neutral',
+    viewers: ['katie'],
     drafts: [
       "Hi Maria, happy to check! Could you send us your order number in a DM? We'll look it up right away.",
     ],
@@ -285,6 +285,7 @@ export const tickets: Ticket[] = [
     status: 'in-progress',
     priority: 'critical',
     sentiment: 'negative',
+    viewers: ['dana'],
     drafts: [
       "That's on us, Lindsey, and we're sorry. DM us your receipt and we'll refund it and send a credit for your next bowl.",
     ],

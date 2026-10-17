@@ -1,3 +1,4 @@
+import { me } from '../../data/people'
 import type { Ticket, TicketPriority } from '../../data/types'
 
 export type InboxFilter = 'all' | 'unassigned'
@@ -35,4 +36,15 @@ export function visibleTickets(
     )
     .map((r) => r.ticket)
   return descending ? ranked : ranked.reverse()
+}
+
+/**
+ * Who has a ticket open right now: the teammates the fixtures say, plus you on
+ * the one you are viewing. Your face moves with you; theirs stay put, so a
+ * teammate on another message shows on that message's card.
+ */
+export function withViewer(ticket: Ticket, openNumber: string | undefined): Ticket {
+  const others = (ticket.viewers ?? []).filter((id) => id !== me.id)
+  const viewers = ticket.number === openNumber ? [me.id, ...others] : others
+  return { ...ticket, viewers }
 }

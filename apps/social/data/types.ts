@@ -108,7 +108,11 @@ export interface Ticket {
   sentiment: TicketSentiment
   /** A person id. Unassigned when missing. */
   assigneeId?: string
-  /** Teammates who have the conversation open right now. */
+  /**
+   * Teammates who have this conversation open right now, not counting you:
+   * your own face follows whichever message you open (`withViewer` in
+   * `screens/inbox/model.ts`).
+   */
   viewers?: string[]
   photo?: string
   photoAlt?: string

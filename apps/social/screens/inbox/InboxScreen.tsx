@@ -14,7 +14,7 @@ import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { Conversation } from './Conversation'
 import { MessageList } from './MessageList'
-import { visibleTickets, type InboxFilter, type SentItem, type SortKey } from './model'
+import { visibleTickets, withViewer, type InboxFilter, type SentItem, type SortKey } from './model'
 import { PublicThread } from './PublicThread'
 
 /**
@@ -45,7 +45,10 @@ export function InboxScreen() {
   const list = visibleTickets(allTickets, filter, sort, descending)
 
   const chosen = allTickets.find((t) => t.number === params.get('message'))
-  const open = chosen ?? list[0]
+  const opened = chosen ?? list[0]
+  // Your face sits on the message you have open, in the list and the header.
+  const open = opened && withViewer(opened, opened.number)
+  const listed = list.map((t) => withViewer(t, opened?.number))
   const view = params.get('view') === 'thread' && open?.postId ? 'thread' : 'conversation'
 
   const update = (changes: Record<string, string | null>) => {
@@ -135,7 +138,7 @@ export function InboxScreen() {
           shell's content padding is for blocks, and these have their own rules. */}
       <AppShell.Content className="flex-row gap-0 overflow-hidden p-0">
         <MessageList
-          tickets={list}
+          tickets={listed}
           openNumber={open?.number}
           collapsed={compact}
           sort={sort}

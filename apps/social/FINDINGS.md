@@ -200,3 +200,10 @@ list's card and the Unassigned filter.
     (`Assign to`, first of Assign, Tag, Complete, More) opens the same menu the assignee token
     does, and so does the thread's Assign. Unassigning from the token removes it, and focus moves
     to the next token rather than being lost.
+30. **"Currently viewing" follows you.** Your face sits on whichever message you have open, in
+    its list card and in the conversation header. Teammates' faces stay on the message they have
+    open: Katie on #1285 and Dana on #1291 in the fixtures (`withViewer` in
+    `screens/inbox/model.ts`). The file drew it on #1283 because that was the open one. In the
+    header it sits in Figma's `Currently Viewing` frame (`40005911:33672`), 32 tall with 12px
+    either side, the footprint of an icon-only Button. Before this it was a bare inline span, and
+    it sat off the button's line.

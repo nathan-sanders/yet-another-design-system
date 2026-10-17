@@ -62,7 +62,9 @@ export function ConversationHeader({
         {customer.handle} · {ticket.subject}
       </Heading>
       {ticket.viewers?.length ? (
-        <span className="px-3 max-md:hidden">
+        // Figma's `Currently Viewing` (`40005911:33672`): the footprint of an
+        // icon-only Button, 32 tall with 12 either side, the faces centered.
+        <span className="flex h-8 shrink-0 items-center px-3 max-md:hidden">
           <AvatarGroup
             size="x-small"
             aria-label={`Viewing now: ${ticket.viewers.map((id) => personFor(id).name).join(', ')}`}
