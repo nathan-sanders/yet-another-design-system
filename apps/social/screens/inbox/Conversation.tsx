@@ -24,7 +24,7 @@ import { TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor, customerFor } from '../../data/inbox'
 import { personFor } from '../../data/people'
 import { profiles } from '../../data/posts'
-import type { Ticket } from '../../data/types'
+import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import type { SentItem } from './model'
 
@@ -147,12 +147,15 @@ function ActionRow({ children }: { children: ReactNode }) {
  */
 export function Conversation({
   ticket,
+  onTicketChange,
   sent,
   onSend,
   onOpenThread,
   onBack,
 }: {
   ticket: Ticket
+  /** A change from one of the ticket meta menus. */
+  onTicketChange: (edit: TicketEdit) => void
   sent: SentItem[]
   onSend: (body: string, mode: ReplyMode) => void
   onOpenThread: () => void
@@ -172,7 +175,7 @@ export function Conversation({
     >
       <ConversationHeader ticket={ticket} onBack={onBack} />
       <div className="flex shrink-0 items-center gap-2 py-2 pr-3 pl-4 max-md:flex-wrap">
-        <TicketMeta ticket={ticket} className="min-w-0 flex-1 max-md:basis-full" />
+        <TicketMeta ticket={ticket} onChange={onTicketChange} className="min-w-0 flex-1 max-md:basis-full" />
         <Button
           appearance="ghost"
           startIcon={UserPlus}

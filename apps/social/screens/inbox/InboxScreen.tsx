@@ -8,9 +8,9 @@ import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import type { ReplyMode } from '../../components/ReplyBox'
-import { replyAccountFor, ticketFor } from '../../data/inbox'
+import { replyAccountFor, tickets } from '../../data/inbox'
 import { me } from '../../data/people'
-import type { Ticket } from '../../data/types'
+import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { Conversation } from './Conversation'
 import { MessageList } from './MessageList'
@@ -31,13 +31,20 @@ export function InboxScreen() {
   const shell = useShell()
   // Replies and notes sent here, per ticket, for the session.
   const [sent, setSent] = useState<Record<string, SentItem[]>>({})
+  // Status, assignee, priority and sentiment changed from the detail view's
+  // menus, per ticket, for the session. Applied before filtering, so a ticket
+  // you unassign joins Unassigned and the list's card shows the new values.
+  const [edits, setEdits] = useState<Record<string, TicketEdit>>({})
+  const allTickets = tickets.map((t) => (edits[t.number] ? { ...t, ...edits[t.number] } : t))
+  const editTicket = (number: string, edit: TicketEdit) =>
+    setEdits((all) => ({ ...all, [number]: { ...all[number], ...edit } }))
 
   const filter: InboxFilter = params.get('filter') === 'unassigned' ? 'unassigned' : 'all'
   const sort: SortKey = params.get('sort') === 'priority' ? 'priority' : 'received'
   const descending = params.get('dir') !== 'asc'
-  const list = visibleTickets(filter, sort, descending)
+  const list = visibleTickets(allTickets, filter, sort, descending)
 
-  const chosen = ticketFor(params.get('message'))
+  const chosen = allTickets.find((t) => t.number === params.get('message'))
   const open = chosen ?? list[0]
   const view = params.get('view') === 'thread' && open?.postId ? 'thread' : 'conversation'
 
@@ -143,6 +150,7 @@ export function InboxScreen() {
             {view === 'thread' ? (
               <PublicThread
                 ticket={open}
+                onTicketChange={(edit) => editTicket(open.number, edit)}
                 sent={sent[open.number] ?? []}
                 onSend={send}
                 onBackToConversation={() => update({ view: null })}
@@ -151,6 +159,7 @@ export function InboxScreen() {
             ) : (
               <Conversation
                 ticket={open}
+                onTicketChange={(edit) => editTicket(open.number, edit)}
                 sent={sent[open.number] ?? []}
                 onSend={send}
                 onOpenThread={() => update({ message: open.number, view: 'thread' })}

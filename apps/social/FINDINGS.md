@@ -151,3 +151,43 @@ The conversation (`40005911:33580`), the public thread (`33732`) and the contact
 - Phone (375 × 812): one column either way, document not scrolling, the header sticky.
 - axe on the live app: no violations on the list, the conversation, the thread and the contact
   panel, light and dark, desktop and phone.
+
+## Slice 3 — ticket meta menus (2026-10-17)
+
+In the open conversation and the thread's marked comment, status, assignee, priority and sentiment
+each open a menu of their values. The ticket number does not, and neither does anything in the
+message list, where the whole card is the hit target. Changes live for the session and reach the
+list's card and the Unassigned filter.
+
+### Open: library changes worth making
+
+24. **A `Token` cannot be a menu trigger.** Rendering `Menu.Trigger` onto a Token
+    (`render={<Token />}`, `nativeButton={false}`) half works. Token takes `onClick` for an
+    invisible `<button>` of its own, so Base UI's handler lands there. A click opens the menu,
+    Enter on the focused token does nothing, the token has two tab stops, and no ring shows. The
+    app wraps a view-only Token in the trigger's own `<button>` (`MenuToken` in
+    `components/TicketMeta.tsx`). That is correct, but every caller has to know to do it. Either
+    Token forwards a trigger's props to its overlay, or its record says "wrap it", the way
+    Combobox's chips are documented.
+
+### Kept in the app, worth knowing
+
+25. **A menu radio pick keeps the menu open.** That is Base UI's default for `Menu.RadioItem`,
+    right for a view-settings menu and wrong for a picker of one value. Each choice here sets
+    `closeOnClick`. If a second picker menu appears, the Menu record could say so.
+26. **An open menu trips axe's `region` rule.** The popup is portalled to `<body>`, outside every
+    landmark, so axe reports it as content outside a region. `region` is a best-practice rule, not
+    a WCAG one. It applies to every portalled Menu in the library, so it is recorded here rather
+    than worked around in the app. With the menus closed, both views are clean in light and dark.
+
+### Figma owes
+
+27. **The values and the menus.** The file draws New, Low/Medium/High and
+    Positive/Neutral/Negative as static tokens. These were decided here:
+    - **Statuses:** New, In progress, On hold and Complete. Complete replaced the drawn "Closed"
+      on past conversations.
+    - **Values the file lacks:** Critical, and an Undefined sentiment.
+    - **Icons:** `CircleDot`, `CirclePause`, `Signal` and `CircleHelp`.
+    - **Unassigned:** an "Unassigned" token in the detail view, so an unassigned ticket has
+      something to click.
+    - **Menu layout:** the menus themselves, with a radio row and the option's icon or face.

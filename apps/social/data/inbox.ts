@@ -240,7 +240,7 @@ export const tickets: Ticket[] = [
     subject: 'Asks which bowl has the most protein',
     body: 'Which one has the most protein?',
     ago: '12m',
-    status: 'open',
+    status: 'in-progress',
     priority: 'low',
     sentiment: 'neutral',
     postId: 'smoothie-week',
@@ -282,8 +282,8 @@ export const tickets: Ticket[] = [
     subject: 'Reports a wrong order',
     body: 'Got someone else’s order today, no dressing and no fork. Not great.',
     ago: '48m',
-    status: 'open',
-    priority: 'high',
+    status: 'in-progress',
+    priority: 'critical',
     sentiment: 'negative',
     drafts: [
       "That's on us, Lindsey, and we're sorry. DM us your receipt and we'll refund it and send a credit for your next bowl.",
@@ -298,15 +298,11 @@ export const tickets: Ticket[] = [
     ago: '1h',
     status: 'new',
     priority: 'low',
-    sentiment: 'positive',
+    sentiment: 'undefined',
     postId: 'smoothie-week',
     drafts: ['A person of taste. 🥭'],
   },
 ]
-
-export function ticketFor(number: string | null | undefined): Ticket | undefined {
-  return tickets.find((t) => t.number === number)
-}
 
 /** Closed tickets, shown under a customer's past conversations. */
 export const pastTickets: Ticket[] = [
@@ -317,7 +313,7 @@ export const pastTickets: Ticket[] = [
     subject: 'Asks about gluten-free bowls',
     body: 'Do you have a gluten-free option for the bowls?',
     ago: '3w',
-    status: 'closed',
+    status: 'complete',
     priority: 'low',
     sentiment: 'positive',
   },
@@ -328,7 +324,7 @@ export const pastTickets: Ticket[] = [
     subject: 'Wants the smoothie to stay',
     body: 'Loved the new smoothie, any chance it sticks around?',
     ago: '3w',
-    status: 'closed',
+    status: 'complete',
     priority: 'low',
     sentiment: 'positive',
   },
@@ -339,7 +335,7 @@ export const pastTickets: Ticket[] = [
     subject: 'Asks about opening hours',
     body: 'Are you open on the 4th?',
     ago: '2mo',
-    status: 'closed',
+    status: 'complete',
     priority: 'low',
     sentiment: 'neutral',
   },

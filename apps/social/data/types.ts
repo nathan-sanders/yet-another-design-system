@@ -59,9 +59,13 @@ export interface Customer {
   tags?: string[]
 }
 
-export type TicketStatus = 'new' | 'open' | 'closed'
-export type TicketPriority = 'low' | 'medium' | 'high'
-export type TicketSentiment = 'positive' | 'neutral' | 'negative'
+export type TicketStatus = 'new' | 'in-progress' | 'on-hold' | 'complete'
+export type TicketPriority = 'low' | 'medium' | 'high' | 'critical'
+/** `undefined` is a value here — Yak could not tell — not a missing field. */
+export type TicketSentiment = 'positive' | 'neutral' | 'negative' | 'undefined'
+
+/** What the detail view's menus can change on a ticket. */
+export type TicketEdit = Partial<Pick<Ticket, 'status' | 'assigneeId' | 'priority' | 'sentiment'>>
 
 /** A comment on a brand post, or the brand's reply under one. */
 export interface ThreadComment {
