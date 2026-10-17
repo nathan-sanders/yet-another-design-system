@@ -11,6 +11,7 @@ export type {
   PanelProps,
   PanelHeaderProps,
   PanelBodyProps,
+  PanelFooterProps,
   PanelCloseProps,
   PanelHeadingLevel,
 } from './Panel'

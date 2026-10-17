@@ -350,5 +350,16 @@ export const panelBody = tv({
   base: 'relative min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4',
 })
 
+/**
+ * What stays put under the scrolling Body: a composer, a row of actions.
+ * `shrink-0` beside the Body's `flex-1`, so the Body gives up the room and
+ * scrolls while this does not move. The Body's `pb-4` is the 16 above it;
+ * `first:pt-4` puts it back for a footer with nothing above it, the Body's
+ * own rule. No divider — Figma's Yak and post detail panels draw none.
+ */
+export const panelFooter = tv({
+  base: 'shrink-0 px-4 pb-4 first:pt-4',
+})
+
 type PanelVariants = VariantProps<typeof panel>
 export type PanelSide = NonNullable<PanelVariants['side']>

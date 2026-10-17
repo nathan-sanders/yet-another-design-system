@@ -231,6 +231,16 @@ the keyboard path — and focus lands on the clicked level's landmark on its own
 mousedown on a non-focusable element focuses the closest focusable ancestor and the aside is
 `tabIndex={-1}`.
 
+**`Panel.Footer` is what stays put under the Body.** Added 2026-10-17 from Yet Social
+(`apps/social/FINDINGS.md`, entry 3): Yak and the post detail both pin a composer under a
+scrolling body, and with no part for it the app wrote a padded `div` after `Panel.Body`, which
+worked only because the Body is the `flex-1` scroll region. Two of two panels was the bar. It is
+that `div` given a name: `shrink-0 px-4 pb-4`, the Body's `pb-4` as the 16 above it, `first:pt-4`
+for a footer with nothing above it, and no divider, because neither Figma panel draws one.
+Layout inside it is the caller's (`flex flex-col gap-2` for Yak's context chip over its
+composer). The `With footer` story measures it 16 in from the card and still after the Body
+scrolls.
+
 **`aria-label` is required.** It names the landmark — a page can have several `complementary`
 regions — and it names the handle ("Resize Details"), SideNav's reason.
 
@@ -290,6 +300,8 @@ regions — and it names the handle ("Resize Details"), SideNav's reason.
 - Phone (393 × 852): column; aside `top === page.bottom + 8`, width 377, height 320; bar
   `top === aside.bottom + 8`; horizontal handle 8 tall on the seam; ArrowUp +8; document does
   not scroll, with an `sr-only` span at the foot of a scrolling body as well.
+- Footer: composer 16 from the card's inner edge on the sides and the bottom, footer top on the
+  Body's bottom, unmoved when the Body scrolls.
 - Header 56 tall — the TopBar's height — `px-4 py-3`, the × a default-size ghost Button.
   (ContentBlock's stays 48 on 8; the shared recipe's `height: 'bar'` is this one.)
 - Closed: nothing in the DOM, `page.right === shell.right - 8`.

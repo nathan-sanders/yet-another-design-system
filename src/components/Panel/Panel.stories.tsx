@@ -20,6 +20,7 @@ import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
 import { BentoGrid } from '../BentoGrid'
 import { Button } from '../Button'
+import { ChatComposer } from '../Chat'
 import { ContentBlock } from '../ContentBlock'
 import { Field } from '../Field'
 import { Input } from '../Input'
@@ -793,6 +794,54 @@ export const PhoneScreenReaderText: Story = {
     await expect(doc.scrollHeight).toBe(doc.clientHeight)
     // Because the body is the span's containing block.
     await expect(span.offsetParent).toBe(body)
+  },
+}
+
+/**
+ * **`Panel.Footer` stays put while the Body scrolls.** A chat panel's
+ * composer, a form's actions: written after `Panel.Body`, it takes its own
+ * height and the Body gives up the rest. Yak and the post detail in Yet
+ * Social both pin a composer this way.
+ */
+export const WithFooter: Story = {
+  name: 'With footer',
+  render: () => (
+    <AppShell id="shell">
+      <Rail />
+      <Page open onOpenChange={() => {}} />
+      <Panel aria-label="Details" defaultOpen>
+        <Panel.Header icon={Info}>Notes</Panel.Header>
+        <Panel.Body className="flex flex-col gap-4">
+          {Array.from({ length: 24 }, (_, index) => (
+            <Text key={index} color="subtle">
+              Note {index + 1}: a line in a thread long enough to scroll.
+            </Text>
+          ))}
+          <Button appearance="ghost">Load earlier notes</Button>
+        </Panel.Body>
+        <Panel.Footer>
+          <ChatComposer aria-label="Leave a note" placeholder="Leave a note for your team" />
+        </Panel.Footer>
+      </Panel>
+    </AppShell>
+  ),
+  play: async ({ canvasElement }) => {
+    const { card } = measure(canvasElement)
+    const composer = within(canvasElement).getByRole('textbox', { name: 'Leave a note' })
+    const footer = composer.closest('form')!.parentElement!
+    const body = footer.previousElementSibling as HTMLElement
+    const rect = (element: Element) => element.getBoundingClientRect()
+
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    const before = rect(footer)
+    // 16 in from the card's padding box on three sides; the Body ends on its top.
+    await expect(before.bottom).toBe(rect(card()!).bottom - 1)
+    await expect(before.top).toBe(rect(body).bottom)
+    await expect(rect(composer.closest('form')!).left).toBe(rect(card()!).left + 1 + 16)
+    await expect(rect(composer.closest('form')!).bottom).toBe(before.bottom - 16)
+    // Scrolling the Body moves the notes and not the footer.
+    body.scrollTop = body.scrollHeight
+    await expect(rect(footer).top).toBe(before.top)
   },
 }
 
