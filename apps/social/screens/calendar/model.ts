@@ -1,37 +1,34 @@
-import { addDays, sameDay, startOfDay, startOfWeek, weeksBetween } from '../../data/dates'
+import { addDays, sameDay, startOfDay, startOfWeek } from '../../data/dates'
 import { posts } from '../../data/posts'
 import type { Post } from '../../data/types'
 
 export type CalendarView = 'day' | 'week' | 'month'
 
+/** Today — the real date, read once per load. */
+export const today = startOfDay(new Date())
+
 /**
- * The mock's today: **the Monday of the real current week**, read once per load.
- *
- * Figma draws the calendar from a Monday — Sunday hatched as past, the rest of
- * the week ahead, Saturday empty — and the posts and Yak's insights are written
- * around that. Using the real date would make the same data read differently
- * every day: opened on a Saturday, six of seven days are history and "Saturday
- * is empty" is about today. So the weekday is pinned and the dates are real
- * (the month and year are always the current ones), and the now line still
- * follows the real clock.
+ * Where a post lands: **the whole schedule slides so that Figma's today lands
+ * on the real today.** The data is written as Figma draws it — weeks and
+ * weekdays around a Monday that is "today" (`40005911:33082`) — so a post's
+ * date is its offset from that Monday, counted from the real date. Whatever
+ * day the mock is opened, today has posts, the days after it are scheduled
+ * (spilling into next week as the week runs out), and the days before it hold
+ * what was published.
  */
-export const today = addDays(startOfWeek(startOfDay(new Date())), 1)
+export function postDate(post: Post): Date {
+  return addDays(today, post.week * 7 + post.day - 1)
+}
 
 /** The posts on one calendar day, earliest first. */
 export function postsOn(date: Date): Post[] {
-  const week = weeksBetween(today, date)
   return posts
-    .filter((post) => post.week === week && post.day === date.getDay())
+    .filter((post) => sameDay(postDate(post), date))
     .sort((a, b) => a.time.localeCompare(b.time))
 }
 
 export function postHour(post: Post): number {
   return Number(post.time.slice(0, 2))
-}
-
-/** The date a post sits on, for the detail panel's header. */
-export function postDate(post: Post): Date {
-  return addDays(startOfWeek(today), post.week * 7 + post.day)
 }
 
 export function isPast(date: Date): boolean {

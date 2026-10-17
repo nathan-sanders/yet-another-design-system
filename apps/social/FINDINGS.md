@@ -65,16 +65,23 @@ Library fixes land as their own small PRs to `src/`, never mixed into an app PR.
 12. **No day view and no phone calendar.** The day view is the week grid with one column and
     the `_Calendar Agenda Content` card the file already has. On a phone the week keeps 112px
     columns and scrolls sideways. Both were decided here, not designed.
-13. **"Today" is pinned to Monday.** The posts and Yak's insights are written for Figma's
-    Monday. The app keeps the real dates and treats the Monday of the current week as today
-    (`screens/calendar/model.ts`). That is a mock-data decision, recorded here so it does not
-    read as a bug.
+13. **The schedule slides to today.** The posts and Yak's insights are written around Figma's
+    Monday "today". The app uses the real date and shifts the whole schedule so that Monday
+    lands on it (`postDate` in `screens/calendar/model.ts`). Whatever day the mock opens on,
+    today has posts, the next days are scheduled into next week, and the days behind hold
+    what was published. That is a mock-data decision, recorded here so it does not read as a
+    bug.
 
 ### Measured, and fine
 
 - Week card against `_Calendar Post Content`: 12px padding, `rounded-md` 8, 1px border, 48×48
   thumbnail at `rounded-md`, copy clamped at two lines of 12/20.
 - Now line: 7.3px into a 56px row at 4:08, which is 8/60 of the row.
+- Today's highlight: 2px in Surface/Border Emphasized, square ends, the full column width
+  including its left border (Figma `40005911:32818`, updated 2026-10-17).
+- Hour labels stick 8px under the day header while a tall row scrolls past (a 293px 10 am row
+  measured), and are pushed out by the row's own bottom.
+- Day view cards: 736px at most, centered in the column.
 - Panel 384 wide; History stacks over Yak at 384 with Yak's root 396 (the 12px peek).
 - Phone (375 × 812): rail hidden, `MobileNav` shown, panel under the page at 320 tall, document
   not scrolling, grid scrolling sideways inside `<main>`.

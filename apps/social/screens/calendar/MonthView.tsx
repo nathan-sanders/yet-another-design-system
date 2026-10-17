@@ -65,7 +65,7 @@ export function MonthView({ anchor, selectedPostId, onOpenPost }: MonthViewProps
             {isToday ? (
               <span
                 aria-hidden
-                className="absolute inset-x-2 top-0 h-0.5 rounded-full bg-surface-border-emphasized"
+                className="absolute top-0 right-0 -left-px h-0.5 bg-surface-border-emphasized"
               />
             ) : null}
             <Text

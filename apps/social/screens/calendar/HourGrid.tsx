@@ -53,10 +53,11 @@ export function HourGrid({ days, renderPost, onAddPost, dayLabel = weekLabel }: 
               )}
             >
               {isToday ? (
-                // Figma's `Highlight`: a 2px rule across the top of today.
+                // Figma's `Highlight` (`40005911:32818`): a 2px rule in Surface/Border
+                // Emphasized across the full top edge of today's column, square ends.
                 <span
                   aria-hidden
-                  className="absolute inset-x-2 top-0 h-0.5 rounded-full bg-surface-border-emphasized"
+                  className="absolute top-0 right-0 -left-px h-0.5 bg-surface-border-emphasized"
                 />
               ) : null}
               <Text
@@ -117,8 +118,17 @@ function Row({
 }) {
   return (
     <div className="relative flex min-h-14 border-b border-dashed border-surface-border last:border-b-0">
-      <div className={cn(GUTTER, 'flex justify-end pt-2 pr-2')}>
-        <Text render={<span />} size="sm" color="subtle" className="whitespace-nowrap">
+      {/* The label sticks under the 40px day header while its row scrolls by,
+          and the row's own bottom pushes it out — the row is its containing
+          block. `items-start` keeps the span its own height; stretched, it
+          would have nowhere to stick. */}
+      <div className={cn(GUTTER, 'flex items-start justify-end pr-2')}>
+        <Text
+          render={<span />}
+          size="sm"
+          color="subtle"
+          className="sticky top-12 mt-2 whitespace-nowrap"
+        >
           {label}
         </Text>
       </div>

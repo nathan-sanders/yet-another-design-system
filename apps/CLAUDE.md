@@ -38,8 +38,9 @@ Deployed with Storybook: the Pages workflow builds the apps with
   every state worth showing should have a link — put view state in the URL.
 - **Every nav item goes somewhere.** A screen drawn in Figma and not built says so and links the
   frame; an area with no design says that instead (`screens/NotBuilt.tsx`).
-- **Mock data is typed, and relative to today.** Yet Social pins "today" to the Monday of the real
-  week because its data and Figma are written from a Monday — see `screens/calendar/model.ts`.
+- **Mock data is typed, and relative to today.** Yet Social's data is written around Figma's
+  Monday "today", and `postDate` slides the whole schedule so that Monday lands on the real
+  date, so there is always something scheduled ahead (`screens/calendar/model.ts`).
 - The library's rules hold here too: semantic tokens only, `focusRing` for focus, default sizes
   first, runtime values in custom properties read by utilities.
 

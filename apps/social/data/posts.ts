@@ -33,9 +33,9 @@ export function profileFor(post: Post): Profile {
 }
 
 /**
- * The posts. Placed by week and weekday rather than by date, so the calendar is
- * always populated around today: week 0 is whatever week it is when the page
- * loads. Week 0 is the Figma week (`40005911:33082`) post for post.
+ * The posts, written as the Figma week draws them (`40005911:33082`), post for
+ * post: by week and weekday around a Monday that is "today". `postDate` in
+ * `screens/calendar/model.ts` slides them so that Monday is the real today.
  */
 export const posts: Post[] = [
   // Last week

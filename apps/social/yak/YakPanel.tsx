@@ -15,7 +15,7 @@ import { Token } from '../../../src/components/Token'
 import { me } from '../data/people'
 import { history, startActions } from '../data/yak'
 import { useShell } from '../shell/ShellContext'
-import { weekInsights, weekRange } from './insights'
+import { weekInsights, weekRange, weekStartLabel } from './insights'
 
 interface Turn {
   id: number
@@ -60,7 +60,7 @@ export function YakPanel({
 
   const thinking = turns.some((t) => t.state === 'thinking')
   const context = location.pathname.startsWith('/plan/calendar')
-    ? `Calendar · Week of ${weekRange().split(' –')[0]}`
+    ? `Calendar · Week of ${weekStartLabel()}`
     : 'This page'
 
   return (
@@ -178,7 +178,7 @@ function StartScreen({ onAsk }: { onAsk: (prompt: string) => void }) {
             Yak insight
           </Text>
           <Heading level={3} size="base" weight="semibold">
-            This week · {weekRange()}
+            Next 7 days · {weekRange()}
           </Heading>
         </div>
         <ul className="flex flex-col gap-2">

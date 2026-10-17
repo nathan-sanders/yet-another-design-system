@@ -25,9 +25,9 @@ export interface PostComment {
 export interface Post {
   id: string
   profileId: string
-  /** Weeks from the current one: 0 is this week, -1 last week. */
+  /** Weeks from the Figma week: 0 is that week, -1 the one before. */
   week: number
-  /** 0 is Sunday — the calendar's weeks start on Sunday, as Figma draws them. */
+  /** 0 is Sunday and 1 is Monday, Figma's "today" — see `postDate`. */
   day: number
   /** 24-hour `HH:MM`. */
   time: string

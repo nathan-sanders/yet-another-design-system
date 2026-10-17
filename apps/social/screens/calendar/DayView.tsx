@@ -13,7 +13,7 @@ interface DayViewProps {
 /**
  * One day. Figma has the agenda card for it (`_Calendar Agenda Content`,
  * "a post in the Post Calendar day agenda") but no day screen, so this is the
- * week's grid with one column and the wider card, capped at a readable width.
+ * week's grid with one column and the wider card, centered in the column at 736px at most.
  */
 export function DayView({ anchor, selectedPostId, onOpenPost, onAddPost }: DayViewProps) {
   return (
@@ -22,7 +22,7 @@ export function DayView({ anchor, selectedPostId, onOpenPost, onAddPost }: DayVi
       dayLabel={(date) => fullDate.format(date)}
       onAddPost={onAddPost}
       renderPost={(post) => (
-        <div key={post.id} className="w-full max-w-xl">
+        <div key={post.id} className="mx-auto w-full max-w-184">
           <CalendarAgendaCard
             post={post}
             selected={post.id === selectedPostId}
