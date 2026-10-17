@@ -125,10 +125,7 @@ export function SocialShell() {
           aria-label="Main"
           logo={<Logo />}
           top={
-            // One column, as Figma's `Top Slot Content` is (gap 0). Passed as
-            // a fragment, each row became its own child of the rail and took
-            // the rail's 12px gap. See FINDINGS.md.
-            <div className="flex flex-col">
+            <>
               <NavItem
                 startIcon={Search}
                 end={<Kbd keys="mod+k" />}
@@ -144,7 +141,7 @@ export function SocialShell() {
               >
                 Yak
               </NavItem>
-            </div>
+            </>
           }
           utilities={
             <>
