@@ -13,6 +13,7 @@ import {
   control,
   type InputAppearance,
   type InputGroupAddonAlign,
+  type InputRing,
   type InputSize,
 } from './styles'
 
@@ -69,6 +70,19 @@ export interface InputGroupProps {
    * `Field`, set it there instead.
    */
   invalid?: boolean
+  /**
+   * What fires the box's focus ring. `within`, the default, rings the box for
+   * focus anywhere inside it, which is right while the `<input>` is the only
+   * thing in it that takes focus — an icon, a unit, `https://`.
+   *
+   * **Pass `"input"` as soon as an addon holds something focusable** — a
+   * Button, a Select, a row of actions. Each of those draws its own ring, and
+   * `within` would ring the box as well, so tabbing to a button shows two.
+   * `"input"` scopes the box's ring to the caret: one ring at a time, always on
+   * the thing that has focus. NumberInput's and ChatComposer's answer, and the
+   * shape a composer built from a group wants.
+   */
+  ring?: InputRing
   /** Extra classes for the outermost element — the bordered box. */
   className?: string
 }
@@ -91,6 +105,9 @@ export interface InputGroupInputProps
  * box fades and stops taking pointers for itself. A Button sitting in an addon
  * is **not** disabled by either — nothing reaches into arbitrary children — so
  * disable it too, or it stays clickable inside a field that looks inert.
+ *
+ * The other way round is safe: the fade keys off this `<input>`, so a Button
+ * disabled on its own — a Send that waits for text — leaves the box as it is.
  */
 function InputGroupInput({ className, ...props }: InputGroupInputProps) {
   const { size } = useInputGroup()
@@ -168,10 +185,11 @@ export function InputGroup({
   size = 'default',
   appearance = 'default',
   invalid = false,
+  ring = 'within',
   className,
 }: InputGroupProps) {
   return (
-    <div className={cn(box({ size, appearance, invalid }), className)}>
+    <div className={cn(box({ size, appearance, invalid, ring }), className)}>
       <InputGroupContext.Provider value={{ size }}>{children}</InputGroupContext.Provider>
     </div>
   )

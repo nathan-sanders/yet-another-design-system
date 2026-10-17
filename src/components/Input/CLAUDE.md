@@ -39,9 +39,20 @@ Focus is `focusRingWithin`, the Slider situation again — it lands on a descend
 the ring goes on the box and the input draws none of its own. Validity is
 `has-[[data-invalid]]:`, because inside a Field that state arrives on the control rather than
 here (the `invalid` prop is the standalone path, and the two compose). Disabled is
-`has-[:disabled]:`, and **keeping the fade on the box rather than on `Field.Root` is what stops
-the two compounding to 16%** when a disabled Field wraps a disabled control — measured at a clean
-0.4, not 0.16.
+`has-[input:disabled]:` and `has-[textarea:disabled]:`, and **keeping the fade on the box rather
+than on `Field.Root` is what stops the two compounding to 16%** when a disabled Field wraps a
+disabled control — measured at a clean 0.4, not 0.16. Field.Root disables the control it wraps,
+so that path still matches; `States` measures it.
+**The fade keys off the field's own control, not any descendant.** It was `has-[:disabled]`, and
+Yet Social's reply box found the cost (FINDINGS slice 2, 14): a Reply button disabled while the
+field is empty, as Figma draws it, faded and froze the whole box — the field you would type into to
+enable it included. ChatComposer had already dodged the same thing with an `aria-disabled` Send.
+`DisabledButtonInAddon` measures the box at 1 with its button disabled. **Two things moved with
+it:** Slider cancels this fade inside a disabled Slider by repeating the *exact* prefix
+(`has-[input:disabled]:opacity-100`), because tailwind-merge only collapses same-prefix utilities —
+a stale prefix leaves both live and the box's wins on specificity, so Slider's `States` now measures
+its fields. And the residue: a disabled Select or Checkbox in an addon renders a disabled hidden
+`<input>`, so it would still fade the box. Nothing has wanted one; tighten the selector if it does.
 Focus is `ring-offset-2` + `ring-2` — a gap and a stroke, both painted outside the box —
 rather than a real border change; the box measures pixel-identical focused and unfocused. And
 unlike a `<button>`, an `<input>` matches `:focus-visible` on a **mouse click** too — verified
@@ -105,6 +116,16 @@ Only replacing works, which is why it is a variant. **`textarea` is the third va
 `ChatComposer`: the same scoping at `has-[textarea:focus-visible]`, for a box whose caret is a
 `<textarea>` and which also holds buttons. One selector per control rather than
 `:is(input,textarea)`, so each stays readable.
+**`InputGroup` takes `ring` as a prop** (FINDINGS slice 2, 15). It had the variant underneath and
+no way to choose it, so a reply box holding a Select and seven buttons drew two rings on every one
+of them, and the app overrode the classes. **The default stays `within`**: most groups are an icon,
+a unit or `https://` beside the text, where the `<input>` is the one focusable thing and `within`
+is exactly right — changing it would silently re-scope every existing group. **Pass `ring="input"`
+the moment an addon holds something focusable.** The library's own stories with buttons in them
+(`InlineAddons`' copy button, `MixedAlignment`, `States`, `InContext`) were all drawing two rings
+and now pass it; `OneRing` measures it with real Tab presses. It is a prop rather than a derived
+value for the reason Carousel's `layout` is: a parent cannot see whether its children are
+focusable.
 
 **Story trap, Banner's:** the variant matrix is a grid, not a `<table>` — both of these are
 `w-full` and would collapse to their longest word in an auto-layout cell.

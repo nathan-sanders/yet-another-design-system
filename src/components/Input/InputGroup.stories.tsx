@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, within } from 'storybook/test'
 import { AtSign, Bold, Copy, Italic, Link as LinkIcon, Paperclip, Search } from 'lucide-react'
 
 import { Button } from '../Button'
@@ -14,11 +16,13 @@ const meta = {
   argTypes: {
     size: { control: 'select', options: sizes },
     invalid: { control: 'boolean' },
+    ring: { control: 'select', options: ['within', 'input'] },
     children: { control: false },
   },
   args: {
     size: 'default',
     invalid: false,
+    ring: 'within',
     children: (
       <>
         <InputGroup.Addon align="inline-start" icon={Search} />
@@ -68,7 +72,7 @@ export const InlineAddons: Story = {
       ))}
 
       <Field label="With a button" description="Ghost, so it sits inside the border">
-        <InputGroup {...args}>
+        <InputGroup {...args} ring="input">
           <InputGroup.Addon align="inline-start" icon={LinkIcon} />
           <InputGroup.Input defaultValue="https://yads.example.com/invite/8bRBn0" readOnly />
           <InputGroup.Addon align="inline-end">
@@ -119,7 +123,7 @@ export const MixedAlignment: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <Field label="Add a comment" description="Markdown is supported" className="w-96">
-      <InputGroup {...args}>
+      <InputGroup {...args} ring="input">
         <InputGroup.Addon align="inline-start" icon={AtSign} />
         <InputGroup.Input placeholder="Write something..." />
         <InputGroup.Addon align="block-end">
@@ -201,7 +205,7 @@ export const States: Story = {
       </Field>
 
       <Field label="Disabled" description="Sub label" disabled>
-        <InputGroup {...args}>
+        <InputGroup {...args} ring="input">
           <InputGroup.Addon align="inline-start" icon={Search} />
           <InputGroup.Input placeholder="Placeholder..." />
           <InputGroup.Addon align="inline-end">
@@ -211,6 +215,105 @@ export const States: Story = {
       </Field>
     </div>
   ),
+  // The Field.Root path: Base UI disables the <input> it wraps, so the box's
+  // `has-[input:disabled]` still matches and the fade is a clean 0.4.
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = canvas.getByRole('textbox', { name: 'Disabled' })
+    await expect(field).toBeDisabled()
+    const groupBox = field.parentElement!
+    await expect(getComputedStyle(groupBox).opacity).toBe('0.4')
+    await expect(getComputedStyle(groupBox).pointerEvents).toBe('none')
+  },
+}
+
+/**
+ * **A disabled button in an addon leaves the box alone.** A reply box's Send
+ * waits for text, as Figma draws it, so it is disabled while the field is
+ * empty — and the field around it has to stay live, or nobody could type the
+ * text that enables it. The fade keys off the group's own `<input>`, never off
+ * any `:disabled` descendant.
+ */
+export const DisabledButtonInAddon: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [text, setText] = useState('')
+    return (
+      <Field label="Reply" className="w-96">
+        <InputGroup {...args} ring="input">
+          <InputGroup.Input
+            placeholder="Write a reply..."
+            value={text}
+            onChange={(event) => setText(event.currentTarget.value)}
+          />
+          <InputGroup.Addon align="inline-end">
+            <Button appearance="primary" size="small" disabled={!text.trim()}>
+              Send
+            </Button>
+          </InputGroup.Addon>
+        </InputGroup>
+      </Field>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = canvas.getByRole('textbox', { name: 'Reply' })
+    const send = canvas.getByRole('button', { name: 'Send' })
+    const groupBox = field.parentElement!
+
+    await expect(send).toBeDisabled()
+    await expect(getComputedStyle(groupBox).opacity).toBe('1')
+    await expect(getComputedStyle(groupBox).pointerEvents).toBe('auto')
+
+    await userEvent.type(field, 'Thanks!')
+    await expect(send).toBeEnabled()
+  },
+}
+
+/**
+ * **A group full of buttons draws one ring.** `ring="input"` scopes the box's
+ * ring to the caret, so tabbing on to a button moves the ring with focus rather
+ * than lighting the box and the button together. The default, `within`, is
+ * right only while the `<input>` is the one thing inside that takes focus.
+ *
+ * Real keyboard input, because `element.focus()` never matches
+ * `:focus-visible` and would report the ring missing when it is fine.
+ */
+export const OneRing: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <Field label="Comment" className="w-96">
+      <InputGroup {...args} ring="input">
+        <InputGroup.Input placeholder="Write something..." />
+        <InputGroup.Addon align="block-end">
+          <Button appearance="ghost" size="small" startIcon={Bold} aria-label="Bold" />
+          <Button appearance="ghost" size="small" startIcon={Italic} aria-label="Italic" />
+          <Button appearance="ghost" size="small" startIcon={Paperclip} aria-label="Attach a file" />
+        </InputGroup.Addon>
+      </InputGroup>
+    </Field>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = canvas.getByRole('textbox', { name: 'Comment' })
+    const bold = canvas.getByRole('button', { name: 'Bold' })
+    const groupBox = field.parentElement!
+
+    // The ring is two box-shadows, the outer one spread to 4px (2 of gap, 2 of
+    // stroke) — ChatComposer's assertion.
+    const ring = '0px 0px 0px 4px'
+    await expect(getComputedStyle(groupBox).boxShadow).not.toContain(ring)
+
+    await userEvent.tab()
+    await expect(field).toHaveFocus()
+    await expect(getComputedStyle(groupBox).boxShadow).toContain(ring)
+
+    await userEvent.tab()
+    await expect(bold).toHaveFocus()
+    await expect(getComputedStyle(groupBox).boxShadow).not.toContain(ring)
+    await expect(getComputedStyle(bold).boxShadow).toContain(ring)
+  },
 }
 
 /**
@@ -296,7 +399,7 @@ export const InContext: Story = {
       <Heading level={2} size="lg">Share this file</Heading>
 
       <Field label="Invite by email" description="They'll get a link straight away">
-        <InputGroup>
+        <InputGroup ring="input">
           <InputGroup.Addon align="inline-start" icon={AtSign} />
           <InputGroup.Input type="email" placeholder="ada@example.com" />
           <InputGroup.Addon align="inline-end">
