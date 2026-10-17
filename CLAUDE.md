@@ -31,6 +31,7 @@ Figma, so the code matches Figma and both stay in sync.
 ```bash
 npm run dev          # token playground (localhost:5173)
 npm run storybook    # component library (localhost:6006)
+npm run apps:dev     # mock apps built on the library (localhost:5174)
 npm run build        # tsc -b && vite build
 npm run lint         # oxlint
 npm test             # every story, in real Chromium, with axe
@@ -43,6 +44,14 @@ it is the only step that type-checks: Vite strips types without looking at them,
 so Storybook and the story suite both pass happily on code `tsc` rejects. That is
 exactly how a type error reached `main` once — every story green, `npm run build`
 red — and it is the reason the check exists.
+
+## Mock apps
+
+`apps/` holds real, routed products built only from the library — Yet Social first — to show
+its range and to stress-test it. They import from `src/` directly, deploy beside Storybook at
+`/apps/`, and log what they find about the library in each app's `FINDINGS.md`. **Read
+`apps/CLAUDE.md` before working there**; the short version is that library fixes go in their own
+PR, never inside an app PR.
 
 ## Design tokens
 

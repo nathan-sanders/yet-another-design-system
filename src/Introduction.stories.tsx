@@ -39,6 +39,7 @@ const FIGMA = 'https://www.figma.com/community/file/1677462869180640981/yet-anot
 const FIGMA_WORKING = 'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System'
 const GITHUB = 'https://github.com/nathan-sanders/yet-another-design-system'
 const STORYBOOK = 'https://nathan-sanders.github.io/yet-another-design-system/'
+const APPS = 'https://nathan-sanders.github.io/yet-another-design-system/apps/'
 
 /**
  * A code sample.
@@ -407,6 +408,15 @@ import { Plus } from 'lucide-react'
             </Link>
             <span className="text-base text-content-subtle">
               Deployed to GitHub Pages on every push to <Mono>main</Mono>.
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <Link href={APPS} size="base" external>
+              Apps built on it
+            </Link>
+            <span className="text-base text-content-subtle">
+              Mock products composed only from these components, deployed beside this Storybook.
+              They show what the system can do and are where it gets stress-tested.
             </span>
           </div>
         </Panel>

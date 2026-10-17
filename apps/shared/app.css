@@ -1,0 +1,12 @@
+/*
+ * The apps' one stylesheet: the generated token layer (which imports Tailwind),
+ * plus the one thing an app outside `src/` needs on top of it.
+ *
+ * Tailwind finds class names by scanning from Vite's `root`. The apps' config
+ * sets that to `apps/`, so on its own it saw only the apps' classes and none of
+ * the library's — every component rendered unstyled (no frame, no button fills)
+ * with no error anywhere. `@source` adds the library back to the scan.
+ */
+@import '../../src/styles/theme.css';
+
+@source '../../src';

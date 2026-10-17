@@ -49,6 +49,17 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
 
+      # The mock apps ride along in the same Pages site, under /apps/. Unlike
+      # Storybook, a Vite app references its assets from an absolute base, so
+      # the base is the real path the site is served from.
+      - name: Build the apps
+        run: npm run apps:build
+        env:
+          APPS_BASE: /yet-another-design-system/apps/
+
+      - name: Put the apps beside Storybook
+        run: cp -R dist-apps storybook-static/apps
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v4
