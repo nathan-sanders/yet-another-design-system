@@ -97,19 +97,20 @@ None right now.
 
 The conversation (`40005911:33580`), the public thread (`33732`) and the contact panel (`33894`).
 
+### Fixed in the library (2026-10-17)
+
+14. **Fixed (#239): a disabled button no longer fades `InputGroup`.** The box carried
+    `has-[:disabled]:opacity-40 pointer-events-none`, which faded and froze the whole reply box,
+    the account picker and Yak's draft with it, the moment Reply was disabled for an empty field.
+    It keys off the field's own control now (`has-[input:disabled]`, `has-[textarea:disabled]`),
+    so Reply is disabled while the field is blank, as the file draws it, and the box stays live.
+15. **Fixed (#239): `InputGroup` takes `ring`.** Its box rang for focus anywhere inside it, so a
+    reply box holding a Select and seven buttons drew two rings on every one of them. The reply
+    box passes `ring="input"` now, ChatComposer's and NumberInput's answer, and the app's
+    `RING_ON_INPUT_ONLY` override is gone.
+
 ### Open: library changes worth making
 
-14. **`InputGroup` goes dim and inert when anything inside it is disabled.** The box carries
-    `has-[:disabled]:opacity-40 pointer-events-none`, which is right for a disabled field and wrong
-    for a composer: a Reply button disabled while the field is empty, as the file draws it, faded
-    the whole reply box, the account picker and Yak's draft with it. The app keeps Reply enabled
-    and ignores a blank send (`components/ReplyBox.tsx`). The fade wants to key off the field's
-    own control (`has-[input:disabled]`, `has-[textarea:disabled]`), not any descendant.
-15. **`InputGroup` has no `ring`.** Its box always rings for focus anywhere inside it
-    (`focusRingWithin`), so a reply box holding a Select and seven buttons drew two rings on every
-    one of them. `ChatComposer` (`ring="textarea"`) and `NumberInput` (`ring="input"`) already
-    scope theirs; InputGroup's box has the variant and does not let a caller choose it. The app
-    overrides the classes (`RING_ON_INPUT_ONLY` in `ReplyBox.tsx`).
 16. **`ChatComposer` has no top slot.** Figma's `Reply Box` puts the sending account, "Public reply
     to @…" and Yak's drafted reply above the field. ChatComposer could not hold them, so the box is
     an `InputGroup` with stacked addons, which is also how the file builds it. If a second composer

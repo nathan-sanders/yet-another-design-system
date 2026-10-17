@@ -6,26 +6,12 @@ import { Icon } from '../../../src/components/Icon'
 import { InputGroup } from '../../../src/components/Input'
 import { Select } from '../../../src/components/Select'
 import { Text } from '../../../src/components/Text'
-import { cn } from '../../../src/lib/cn'
 import { customerFor } from '../data/inbox'
 import { profiles } from '../data/posts'
 import type { Ticket } from '../data/types'
 import { NetworkIcon } from './NetworkIcon'
 
 export type ReplyMode = 'reply' | 'note'
-
-/**
- * InputGroup's box rings for focus anywhere inside it (`focusRingWithin`), and
- * this one holds a Select and seven buttons, each with a ring of its own — so
- * tabbing to Send reply would draw two. Scope the box's ring to the `<input>`,
- * which is ChatComposer's `ring="textarea"` and NumberInput's `ring="input"`,
- * neither of which InputGroup lets a caller choose. FINDINGS, slice 2, open.
- */
-const RING_ON_INPUT_ONLY = [
-  'has-focus-visible:ring-0 has-focus-visible:ring-offset-0',
-  'has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus-focus-outer-border',
-  'has-[input:focus-visible]:ring-offset-2 has-[input:focus-visible]:ring-offset-focus-focus-inner-border',
-]
 
 /**
  * The reply composer — Figma's `Reply Box` (`40005911:33731`), an Input Group
@@ -81,7 +67,9 @@ export function ReplyBox({
       aria-label={note ? 'Internal note' : `Reply to @${customer.handle}`}
       className={className}
     >
-      <InputGroup size="large" className={cn('flex-col items-stretch', RING_ON_INPUT_ONLY)}>
+      {/* `ring="input"`: the box holds a Select and seven buttons, each with a
+          ring of its own, so the box's ring is scoped to the caret. */}
+      <InputGroup size="large" ring="input" className="flex-col items-stretch">
         {note ? null : (
           <InputGroup.Addon align="block-start" className="flex-col items-stretch gap-3 py-3">
             <div className="flex min-w-0 items-center gap-2">
@@ -181,11 +169,8 @@ export function ReplyBox({
               onClick={() => onNotBuilt('More reply options')}
             />
           </div>
-          {/* Not `disabled` while the field is empty, as the file draws it: the
-              box fades and goes inert when *any* descendant is `:disabled`, so
-              a disabled Reply would grey out the whole composer. A blank
-              submit is ignored instead. FINDINGS, slice 2, open. */}
-          <Button type="submit" appearance="primary">
+          {/* Disabled while the field is blank, as the file draws it. */}
+          <Button type="submit" appearance="primary" disabled={!text.trim()}>
             {note ? 'Add note' : 'Reply'}
           </Button>
         </InputGroup.Addon>
