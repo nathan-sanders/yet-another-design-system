@@ -8,29 +8,27 @@ Library fixes land as their own small PRs to `src/`, never mixed into an app PR.
 
 ## Slice 1 — shell and calendar (2026-10-17)
 
-### Open: library changes worth making
+### Fixed in the library (2026-10-17)
 
-1. **`Panel.Body` is not `relative`, so screen-reader text inside it escapes the panel.** An
-   `sr-only` span (`ChatMessage`'s `sender`) in a scrolled post detail panel belonged to the
-   *document*, which then scrolled 341px on a phone (`scrollHeight` 1153 in 812). It is the bug
-   `AppShell.Content` already fixed for itself ("`Content` is `relative`, and a phone is where that
-   showed"), one region over. The app passes `className="relative"` on every `Panel.Body`; the
-   fix is the same one word in `panelBody`'s base.
-2. **`ChatMessage` has no visible sender.** `sender` is screen-reader text only, which suits a
-   one-to-one chat. Figma's post detail (`40005911:33082`) is a *team* thread: each note shows the
-   author's name and an `Internal` badge above the bubble, and without them you cannot tell who
-   said what. The app draws that row itself and hides it from the accessibility tree so the name
-   is not read twice. A visible-sender option, or a `ChatMessage.Header`, would make it a library
-   shape.
-3. **`Panel` has no footer.** Both Yak and post detail pin a composer under a scrolling body.
-   There is no part for it, so the app puts a padded `div` after `Panel.Body`, which works
-   because the body is the flex-1 scroll region. Two of two panels in this slice wanted it, which
-   is the bar for a `Panel.Footer`.
-4. **A `SideNav.Group` holding the selected item does not open by itself.** Opening the group
-   you navigate into needed the groups to be fully controlled, because a `defaultOpen` that
-   changes after mount is ignored (Base UI warns in the console). The group could derive it — a
-   group containing a `selected` `NavItem` starts open — which is the library's own "derive, do
-   not declare" rule.
+1. **Fixed (#231): `Panel.Body` is `relative`.** An `sr-only` span (`ChatMessage`'s `sender`) in
+   a scrolled post detail panel belonged to the *document*, which then scrolled 341px on a phone
+   (`scrollHeight` 1153 in 812) — the bug `AppShell.Content` had already fixed for itself, one
+   region over. The body is the containing block now, the `Phone, screen-reader text` story
+   guards it, and the app's `className="relative"` on every `Panel.Body` is gone.
+2. **Fixed (#233): `ChatMessage` has a visible sender.** Figma's post detail (`40005911:33082`)
+   is a *team* thread: each note shows the author's name, an `Internal` badge and the time above
+   the bubble. The app drew that row itself, `aria-hidden` so the name was not read twice; it is
+   `header={<ChatMessage.Header name badge timestamp />}` now, which moves the avatar up beside
+   the name and reads the name as the sender. The time moved from the metadata row to the
+   header, where the file draws it.
+3. **Fixed (#234): `Panel.Footer`.** Both Yak and post detail pin a composer under a scrolling
+   body, and the app wrote a padded `div` after `Panel.Body` for it. Both use `Panel.Footer` now.
+4. **Fixed (#232): a `SideNav.Group` holding the selected item opens by itself.** The shell held
+   every group's `open` so the group you navigate into would open, because a `defaultOpen` that
+   changes after mount is ignored. The group derives it now — it starts open when it holds the
+   `selected` row and opens when one becomes selected — and the shell's group state is gone.
+
+### Open: library changes worth making
 
 4a. **`SideNav`'s `top` slot is not a column.** It is placed straight into the rail, whose
     children are 12px apart, so Search and Yak passed as a fragment came out 12px apart.
