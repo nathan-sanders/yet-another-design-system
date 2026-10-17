@@ -32,6 +32,12 @@ Library fixes land as their own small PRs to `src/`, never mixed into an app PR.
    group containing a `selected` `NavItem` starts open — which is the library's own "derive, do
    not declare" rule.
 
+4a. **`SideNav`'s `top` slot is not a column.** It is placed straight into the rail, whose
+    children are 12px apart, so Search and Yak passed as a fragment came out 12px apart.
+    Figma's `Top Slot Content` is one column with a gap of 0. The app wraps the two rows in a
+    `div`; the rail could wrap `top` itself, the way it wraps `children` in the sections
+    column.
+
 ### Kept in the app, worth knowing
 
 5. **An app outside `src/` must add the library to Tailwind's scan.** Tailwind scans from Vite's
