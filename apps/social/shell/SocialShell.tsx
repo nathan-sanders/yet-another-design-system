@@ -11,6 +11,7 @@ import { Toast } from '../../../src/components/Toast'
 import { useDocumentTheme } from '../../shared/theme'
 import { me } from '../data/people'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
+import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { YakPanel } from '../yak/YakPanel'
 import { Logo } from './Logo'
 import { groups, home } from './routes'
@@ -31,6 +32,18 @@ export function SocialShell() {
   // The post panel keeps showing the last post while it slides closed.
   const [lastPostId, setLastPostId] = useState<string>()
   if (panel?.type === 'post' && panel.postId !== lastPostId) setLastPostId(panel.postId)
+  const [lastCustomerId, setLastCustomerId] = useState<string>()
+  if (panel?.type === 'contact' && panel.customerId !== lastCustomerId) {
+    setLastCustomerId(panel.customerId)
+  }
+
+  // A post or contact panel belongs to the screen that opened it: leave the
+  // screen and it closes. Yak follows you everywhere, so it stays.
+  const [lastPath, setLastPath] = useState(location.pathname)
+  if (location.pathname !== lastPath) {
+    setLastPath(location.pathname)
+    if (panel && panel.type !== 'yak') setPanel(null)
+  }
   const [theme, setTheme] = useDocumentTheme()
   const toast = Toast.useToast()
 
@@ -171,6 +184,11 @@ export function SocialShell() {
         <PostDetailPanel
           open={panel?.type === 'post'}
           postId={lastPostId}
+          onClose={() => setPanel(null)}
+        />
+        <ContactDetailPanel
+          open={panel?.type === 'contact'}
+          customerId={lastCustomerId}
           onClose={() => setPanel(null)}
         />
 

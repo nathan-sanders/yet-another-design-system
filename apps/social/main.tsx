@@ -5,6 +5,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
+import { InboxScreen } from './screens/inbox/InboxScreen'
 import { NotBuilt } from './screens/NotBuilt'
 import { SocialShell } from './shell/SocialShell'
 
@@ -16,6 +17,7 @@ const router = createHashRouter([
     children: [
       { index: true, element: <Navigate to="/plan/calendar" replace /> },
       { path: 'plan/calendar', element: <CalendarScreen /> },
+      { path: 'engage/all', element: <InboxScreen /> },
       { path: '*', element: <NotBuilt /> },
     ],
   },

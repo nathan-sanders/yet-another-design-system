@@ -1,0 +1,114 @@
+import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
+
+import { Button } from '../../../../src/components/Button'
+import { Divider } from '../../../../src/components/Divider'
+import { Select } from '../../../../src/components/Select'
+import { cn } from '../../../../src/lib/cn'
+import { InboxMessageAvatar, InboxMessageCard } from '../../components/InboxMessageCard'
+import type { Ticket } from '../../data/types'
+import { useShell } from '../../shell/ShellContext'
+import type { SortKey } from './model'
+
+/**
+ * The list column (`Message List`, `40005911:33632`): a toolbar — sort, sort
+ * direction, Bulk edit — over the messages, each a card with a `Divider` under
+ * it. 380 wide; folded to a 72px rail of faces when a panel takes the room
+ * (`Message List (Collapsed)`, `40005911:33946`).
+ */
+export function MessageList({
+  tickets,
+  openNumber,
+  collapsed,
+  sort,
+  descending,
+  onSortChange,
+  onDirectionChange,
+  onOpen,
+  className,
+}: {
+  tickets: Ticket[]
+  openNumber?: string
+  collapsed: boolean
+  sort: SortKey
+  descending: boolean
+  onSortChange: (sort: SortKey) => void
+  onDirectionChange: (descending: boolean) => void
+  onOpen: (ticket: Ticket) => void
+  className?: string
+}) {
+  const shell = useShell()
+
+  if (collapsed) {
+    return (
+      <nav
+        aria-label="Messages"
+        className={cn(
+          'flex w-18 shrink-0 flex-col overflow-y-auto border-r border-surface-border',
+          className,
+        )}
+      >
+        <ul className="flex flex-col gap-1 p-1">
+          {tickets.map((ticket) => (
+            <li key={ticket.number}>
+              <InboxMessageAvatar
+                ticket={ticket}
+                selected={ticket.number === openNumber}
+                onOpen={onOpen}
+              />
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )
+  }
+
+  return (
+    <nav
+      aria-label="Messages"
+      className={cn(
+        'flex w-95 shrink-0 flex-col border-r border-surface-border max-md:w-full max-md:border-r-0',
+        className,
+      )}
+    >
+      <div className="flex h-14 shrink-0 items-center gap-2 px-3 py-2">
+        <Select
+          size="small"
+          hug
+          aria-label="Sort messages"
+          value={sort}
+          onValueChange={(value) => onSortChange(value as SortKey)}
+          items={[
+            { value: 'received', label: 'Last received' },
+            { value: 'priority', label: 'Priority' },
+          ]}
+        >
+          <Select.Item value="received">Last received</Select.Item>
+          <Select.Item value="priority">Priority</Select.Item>
+        </Select>
+        <Button
+          appearance="ghost"
+          startIcon={descending ? ArrowDownWideNarrow : ArrowUpNarrowWide}
+          aria-label="Reverse the order"
+          aria-pressed={!descending}
+          onClick={() => onDirectionChange(!descending)}
+        />
+        <div className="flex-1" />
+        <Button appearance="ghost" size="small" onClick={() => shell.notBuilt('Bulk edit')}>
+          Bulk edit
+        </Button>
+      </div>
+      <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2 pb-2">
+        {tickets.map((ticket, index) => (
+          <li key={ticket.number} className="flex flex-col gap-1">
+            <InboxMessageCard
+              ticket={ticket}
+              selected={ticket.number === openNumber}
+              onOpen={onOpen}
+            />
+            {index < tickets.length - 1 ? <Divider /> : null}
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
