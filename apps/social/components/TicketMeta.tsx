@@ -104,9 +104,13 @@ function MenuToken({
         </Token>
       </Menu.Trigger>
       <Menu.Popup aria-label={label}>
-        <Menu.RadioGroup value={value} onValueChange={(next) => onValueChange(next as string)}>
-          {children}
-        </Menu.RadioGroup>
+        {/* Menu.Group carries Figma's 8px around the rows; the popup has none
+            of its own. The library's radio story nests it the same way. */}
+        <Menu.Group>
+          <Menu.RadioGroup value={value} onValueChange={(next) => onValueChange(next as string)}>
+            {children}
+          </Menu.RadioGroup>
+        </Menu.Group>
       </Menu.Popup>
     </Menu>
   )
