@@ -116,9 +116,13 @@ export interface SideNavProps
   defaultCollapsed?: boolean
   /** Called with the next state when the collapse toggle is pressed. */
   onCollapsedChange?: (collapsed: boolean) => void
-  /** Extra content directly under the header. Figma's Top Slot. */
+  /**
+   * Extra content directly under the header — Figma's Top Slot. Several rows
+   * stack with no gap between them, as the file's `Top Slot Content` does; the
+   * rail's 12px comes before and after the slot, not inside it.
+   */
   top?: ReactNode
-  /** Extra content directly above the utilities. Figma's Bottom Slot. */
+  /** Extra content directly above the utilities — Figma's Bottom Slot. Stacked like `top`. */
   bottom?: ReactNode
   /**
    * Whether the rail is lifted off the page. Figma's `Floating` axis, and it is
@@ -277,7 +281,15 @@ export function SideNav({
           </Tooltip>
         </div>
 
-        {top}
+        {/*
+          Figma's Top Slot holds a `Top Slot Content` frame: one column, gap 0.
+          The slot's rows go inside it rather than straight into the rail,
+          whose children are 12px apart — two rows passed as a fragment came
+          out 12px apart (Yet Social's Search and Yak). `shrink-0` so the
+          sections, not this, give up height when the rail runs short.
+          Bottom is the same slot mirrored, so it gets the same column.
+        */}
+        {top ? <div className="flex shrink-0 flex-col">{top}</div> : null}
 
         {/*
           The one scrolling region. `min-h-0` because a flex child will not
@@ -297,7 +309,7 @@ export function SideNav({
           {children}
         </div>
 
-        {bottom}
+        {bottom ? <div className="flex shrink-0 flex-col">{bottom}</div> : null}
 
         {utilities ? (
           <NavContext.Provider value={utilityCtx}>

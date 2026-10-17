@@ -3,18 +3,22 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 import {
   Bell,
+  Bot,
   ChartNoAxesColumn,
   CircleHelp,
   Folder,
   House,
   Inbox,
+  Search,
   Settings,
+  Sparkles,
   Users,
 } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
 import { Button } from '../Button'
+import { Kbd } from '../Kbd'
 import { Logo } from './story-logo'
 import { NavItem } from './NavItem'
 import { SideNav } from './SideNav'
@@ -125,6 +129,56 @@ export const Playground: Story = {}
  */
 export const Collapsed: Story = {
   args: { defaultCollapsed: true },
+}
+
+/**
+ * Figma's Top Slot, filled the way Yet Social fills it: a search row and an
+ * assistant row, each with its shortcut. The slot is one column with no gap —
+ * the file's `Top Slot Content` — so the two rows sit flush, and the rail's
+ * 12px is the space above and below the slot rather than between its rows.
+ * `bottom` is the same slot over the utilities.
+ */
+export const TopSlot: Story = {
+  args: {
+    top: (
+      <>
+        <NavItem startIcon={Search} end={<Kbd keys="mod+k" />}>
+          Search
+        </NavItem>
+        <NavItem startIcon={Bot} end={<Kbd keys="/" />}>
+          Assistant
+        </NavItem>
+      </>
+    ),
+    bottom: (
+      <>
+        <NavItem href="#settings" startIcon={Settings}>
+          Settings
+        </NavItem>
+        <NavItem href="#whats-new" startIcon={Sparkles}>
+          What’s new
+        </NavItem>
+      </>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const rail = within(canvasElement)
+    const rect = (el: HTMLElement) => el.getBoundingClientRect()
+    const search = rail.getByRole('button', { name: /Search/ })
+    const assistant = rail.getByRole('button', { name: /Assistant/ })
+    const settings = rail.getByRole('link', { name: 'Settings' })
+    const whatsNew = rail.getByRole('link', { name: 'What’s new' })
+
+    // Inside each slot the rows are flush.
+    await expect(rect(assistant).top - rect(search).bottom).toBe(0)
+    await expect(rect(whatsNew).top - rect(settings).bottom).toBe(0)
+
+    // The slot is one child of the rail, so the rail's 12px falls around it:
+    // the gap from the header above to the slot's first row.
+    const slot = search.parentElement!
+    const header = slot.previousElementSibling as HTMLElement
+    await expect(Math.round(rect(search).top - rect(header).bottom)).toBe(12)
+  },
 }
 
 /**

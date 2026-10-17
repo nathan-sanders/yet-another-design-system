@@ -656,6 +656,14 @@ near-white on the light ones.
   Trigger. Both put it in the same place at runtime, but only one is visible to the checker looking
   at `<NavItem />`.
 
+**`top` and `bottom` are columns, gap 0.** Added 2026-10-17, when Yet Social (`apps/social`)
+put two rows — Search and its assistant — in the Top Slot as a fragment and they came out 12px
+apart: the slot was rendered straight into the rail, whose children are `gap-3`, so each row
+became a child of the rail. Figma's Top Slot holds a `Top Slot Content` frame, one vertical
+column with no gap, so the rail now wraps each slot in `flex shrink-0 flex-col`. The rail's 12px
+falls before and after a slot, never inside it. The `TopSlot` story measures both slots flush
+and the header-to-slot gap at 12.
+
 ## Figma defects, found reading and not fixed
 
 Worth a pass of their own; none of them changes the code:
