@@ -1,4 +1,3 @@
-import { tickets } from '../../data/inbox'
 import type { Ticket, TicketPriority } from '../../data/types'
 
 export type InboxFilter = 'all' | 'unassigned'
@@ -13,14 +12,19 @@ export interface SentItem {
   body: string
 }
 
-const PRIORITY_RANK: Record<TicketPriority, number> = { high: 3, medium: 2, low: 1 }
+const PRIORITY_RANK: Record<TicketPriority, number> = { critical: 4, high: 3, medium: 2, low: 1 }
 
 /**
  * The list as the toolbar asks for it. Fixture order is newest first, so
  * "Last received" descending is the order as written; priority breaks ties by
  * that same order.
  */
-export function visibleTickets(filter: InboxFilter, sort: SortKey, descending: boolean): Ticket[] {
+export function visibleTickets(
+  tickets: Ticket[],
+  filter: InboxFilter,
+  sort: SortKey,
+  descending: boolean,
+): Ticket[] {
   const filtered = filter === 'unassigned' ? tickets.filter((t) => !t.assigneeId) : tickets
   const ranked = filtered
     .map((ticket, index) => ({ ticket, index }))

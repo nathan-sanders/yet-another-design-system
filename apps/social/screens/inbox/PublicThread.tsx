@@ -23,7 +23,7 @@ import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
 import { TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor } from '../../data/inbox'
 import { profiles } from '../../data/posts'
-import type { Ticket } from '../../data/types'
+import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { ConversationHeader, SentItems } from './Conversation'
 import type { SentItem } from './model'
@@ -37,12 +37,15 @@ import type { SentItem } from './model'
  */
 export function PublicThread({
   ticket,
+  onTicketChange,
   sent,
   onSend,
   onBackToConversation,
   onBack,
 }: {
   ticket: Ticket
+  /** A change from one of the ticket meta menus. */
+  onTicketChange: (edit: TicketEdit) => void
   sent: SentItem[]
   onSend: (body: string, mode: ReplyMode) => void
   onBackToConversation: () => void
@@ -106,7 +109,7 @@ export function PublicThread({
                 <InboxComment authorId={comment.authorId} ago={comment.ago} onMore={more}>
                   {comment.body}
                 </InboxComment>
-                <TicketMeta ticket={ticket} className="pl-8" />
+                <TicketMeta ticket={ticket} onChange={onTicketChange} className="pl-8" />
                 <div className="flex flex-wrap items-center gap-1 pl-6">
                   <Button appearance="ghost" startIcon={Reply} onClick={() => shell.notBuilt('Collapsing replies')}>
                     {comment.replies?.length ? `${comment.replies.length} Replies` : 'Reply'}
