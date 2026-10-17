@@ -8,6 +8,7 @@ import { cn } from '../../lib/cn'
 import { AppShellContext } from '../AppShell/context'
 import { ResizeHandle } from '../Resize'
 import { dismissesOverlay } from './dismiss'
+import { findSelected } from './selected'
 import { Popover } from '../Popover'
 import { Tooltip } from '../Tooltip'
 import { NavContext, type NavContextValue } from './context'
@@ -434,6 +435,10 @@ export interface SideNavGroupProps {
    * Open on first render, without controlling it. Applies to the expanded
    * disclosure only — the collapsed rail's flyout owns its own state, because
    * it is a hover-and-click popup rather than a section of the rail.
+   *
+   * Defaults to whether the group holds the `selected` row, and a group
+   * opens on its own when one of its rows becomes selected — the page you are
+   * on is never folded away. Pass `false` to start closed regardless.
    */
   defaultOpen?: boolean
   /** Open state of the expanded disclosure, controlled. */
@@ -454,6 +459,32 @@ function SideNavGroup({
 }: SideNavGroupProps) {
   const parent = useContext(NavContext)
   const [flyoutOpen, setFlyoutOpen] = useState(false)
+
+  /*
+    Derived, not declared: a group holding the selected row starts open, and
+    opens when navigation moves a row inside it to selected. MobileNav's
+    trigger reads the same fact from the same tree. The state stays the
+    group's own — the user can still fold away the group they are in — so
+    this is an adjustment during render on the *change*, React's pattern for
+    state that follows a prop, rather than `open` computed from the children
+    (which would make the group impossible to close). A `defaultOpen` that
+    changes after mount is ignored by Base UI, which is why this cannot be
+    left to the caller without making the group fully controlled.
+  */
+  const holdsSelected = useMemo(() => findSelected(children) !== null, [children])
+  const [innerOpen, setInnerOpen] = useState(defaultOpen ?? holdsSelected)
+  const [heldSelected, setHeldSelected] = useState(holdsSelected)
+  if (holdsSelected !== heldSelected) {
+    setHeldSelected(holdsSelected)
+    if (holdsSelected) setInnerOpen(true)
+  }
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      setInnerOpen(next)
+      onOpenChange?.(next)
+    },
+    [onOpenChange],
+  )
   const childCtx = useMemo<NavContextValue>(
     () => ({ ...parent, indent: true }),
     [parent],
@@ -545,9 +576,8 @@ function SideNavGroup({
 
   return (
     <CollapsiblePrimitive.Root
-      defaultOpen={defaultOpen}
-      open={open}
-      onOpenChange={onOpenChange}
+      open={open ?? innerOpen}
+      onOpenChange={handleOpenChange}
       className={cn('flex flex-col', className)}
     >
       {/*

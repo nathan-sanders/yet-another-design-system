@@ -14,6 +14,7 @@ import {
 
 import { Avatar } from '../Avatar'
 import { Badge } from '../Badge'
+import { Button } from '../Button'
 import { Logo } from './story-logo'
 import { NavItem } from './NavItem'
 import { SideNav } from './SideNav'
@@ -193,6 +194,80 @@ export const Controlled: Story = {
         </Text>
       </div>
     )
+  },
+}
+
+/**
+ * **A group holding the selected row opens by itself.** No `defaultOpen` and
+ * no controlled state here: Atlas starts open because Tasks is selected, and
+ * when something else on the page navigates into Beacon, Beacon opens. The
+ * user can still fold away the group they are in. Derived from the rows, the
+ * way `MobileNav`'s trigger reads its label from them.
+ */
+export const GroupFollowsSelection: Story = {
+  name: 'Group follows selection',
+  parameters: { controls: { disable: true } },
+  render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [page, setPage] = useState('atlas-tasks')
+    const row = (href: string, label: string) => (
+      <NavItem
+        href={`#${href}`}
+        selected={page === href}
+        onClick={(event) => {
+          event.preventDefault()
+          setPage(href)
+        }}
+      >
+        {label}
+      </NavItem>
+    )
+    return (
+      <div className="flex h-full gap-2 p-2">
+        <SideNav {...args}>
+          <SideNav.Section header="Projects">
+            <SideNav.Group label="Atlas" startIcon={Folder}>
+              {row('atlas-overview', 'Overview')}
+              {row('atlas-tasks', 'Tasks')}
+            </SideNav.Group>
+            <SideNav.Group label="Beacon" startIcon={Folder}>
+              {row('beacon-overview', 'Overview')}
+            </SideNav.Group>
+          </SideNav.Section>
+        </SideNav>
+        <div className="flex flex-col items-start gap-2">
+          <Text color="subtle">A link elsewhere on the page, into a closed group:</Text>
+          <Button appearance="secondary" onClick={() => setPage('beacon-overview')}>
+            Open Beacon overview
+          </Button>
+        </div>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const trigger = (name: string) => canvas.getByRole('button', { name })
+
+    await step('the group holding the selected row starts open', async () => {
+      await expect(trigger('Atlas')).toHaveAttribute('aria-expanded', 'true')
+      await expect(trigger('Beacon')).toHaveAttribute('aria-expanded', 'false')
+      await expect(canvas.getByRole('link', { name: 'Tasks' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
+    })
+
+    await step('navigating into a closed group opens it', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Open Beacon overview' }))
+      await expect(trigger('Beacon')).toHaveAttribute('aria-expanded', 'true')
+      // The group you left is not folded away for you.
+      await expect(trigger('Atlas')).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    await step('the user can still close the group they are in', async () => {
+      await userEvent.click(trigger('Beacon'))
+      await expect(trigger('Beacon')).toHaveAttribute('aria-expanded', 'false')
+    })
   },
 }
 
