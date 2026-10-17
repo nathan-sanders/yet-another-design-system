@@ -48,7 +48,7 @@ export const groups: RouteGroup[] = [
     icon: MessageCircle,
     routes: [
       { path: '/engage/my-inbox', label: 'My inbox', badge: 3 },
-      { path: '/engage/all', label: 'All messages', badge: 503, figma: '40005911-33580' },
+      { path: '/engage/all', label: 'All messages', badge: 503, built: true, figma: '40005911-33580' },
       { path: '/engage/assignments', label: 'All assignments', badge: 20 },
       { path: '/engage/comments', label: 'Comments by post' },
       { path: '/engage/approvals', label: 'Reply approvals' },

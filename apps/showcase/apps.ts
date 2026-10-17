@@ -24,7 +24,12 @@ export const apps: ShowcaseApp[] = [
     name: 'Yet Social',
     pitch:
       'A social media management tool: schedule posts, run campaigns, answer customers and report on all of it, with Yak, an assistant, beside every screen.',
-    built: ['Calendar: week, day and month', 'Post detail', 'Yak assistant and history'],
+    built: [
+      'Calendar: week, day and month',
+      'Post detail',
+      'Inbox: all messages, public thread and contact detail',
+      'Yak assistant and history',
+    ],
     components: [
       'AppShell',
       'SideNav',
@@ -32,6 +37,7 @@ export const apps: ShowcaseApp[] = [
       'TopBar',
       'Panel',
       'ChatComposer',
+      'InputGroup',
       'ClickableCard',
       'SegmentedControl',
       'Token',

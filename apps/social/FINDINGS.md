@@ -92,3 +92,61 @@ None right now.
   not scrolling, grid scrolling sideways inside `<main>`.
 - axe (the version the stories use, run on the live app): no violations across week, month, day,
   Yak, History, post detail, the placeholder pages, light and dark.
+
+## Slice 2 — Engage › All messages (2026-10-17)
+
+The conversation (`40005911:33580`), the public thread (`33732`) and the contact panel (`33894`).
+
+### Open: library changes worth making
+
+14. **`InputGroup` goes dim and inert when anything inside it is disabled.** The box carries
+    `has-[:disabled]:opacity-40 pointer-events-none`, which is right for a disabled field and wrong
+    for a composer: a Reply button disabled while the field is empty, as the file draws it, faded
+    the whole reply box, the account picker and Yak's draft with it. The app keeps Reply enabled
+    and ignores a blank send (`components/ReplyBox.tsx`). The fade wants to key off the field's
+    own control (`has-[input:disabled]`, `has-[textarea:disabled]`), not any descendant.
+15. **`InputGroup` has no `ring`.** Its box always rings for focus anywhere inside it
+    (`focusRingWithin`), so a reply box holding a Select and seven buttons drew two rings on every
+    one of them. `ChatComposer` (`ring="textarea"`) and `NumberInput` (`ring="input"`) already
+    scope theirs; InputGroup's box has the variant and does not let a caller choose it. The app
+    overrides the classes (`RING_ON_INPUT_ONLY` in `ReplyBox.tsx`).
+16. **`ChatComposer` has no top slot.** Figma's `Reply Box` puts the sending account, "Public reply
+    to @…" and Yak's drafted reply above the field. ChatComposer could not hold them, so the box is
+    an `InputGroup` with stacked addons, which is also how the file builds it. If a second composer
+    wants a header, that is the slot to add.
+
+### Kept in the app, worth knowing
+
+17. **`_Inbox Comment` is not a `ChatMessage`.** It is a customer's words on a public post, with
+    no bubble, a `⋯` in the header row and the face beside the name. ChatMessage's header has no
+    actions slot and its body is a bubble. `components/InboxComment.tsx` is a local row.
+18. **The collapsed list row is not a `ClickableCard`**, for finding 8's reason: the rail draws
+    63 × 78 with 8px of padding, and the card brings 12. A button wearing the ghost card's tokens,
+    with `aria-current` for the open message as the card has. Two compact clickable rows now: the
+    variant finding 8 asked about has its second caller.
+19. **Ticket meta reads as sentences.** Each pill has a word only a screen reader hears ("Priority:
+    Low", "Assigned to Nathan Sanders"), so the row is not five bare words.
+
+### Figma owes
+
+20. **No phone inbox.** Decided here: the list and the conversation are two screens, `message` in
+    the URL picks which, and the whole conversation scrolls as one with the header pinned, so a
+    drafted reply cannot push the message off the screen. Above 768 the first message opens by
+    itself, as drawn.
+21. **Contact tags are removable here.** The file draws view-only tokens beside an "Add tags…"
+    field; a field that adds with no way to take one back was a dead end in a clickable mock.
+22. **Talan's sentiment is Positive in two frames and Neutral in the third** (the thread's
+    selected comment). The app uses Positive everywhere.
+23. **Five of the twelve rail faces have no ticket in the file.** Cooper, Kaylynn, Nolan, Lindsey
+    and Mango got tickets written for them (`data/inbox.ts`). Portraits are the file's own.
+
+### Measured, and fine
+
+- List 380, toolbar 56, cards 363 × 142 / 158 / 170 at 12px padding and `rounded-md`, as drawn.
+- Conversation header 56, ticket toolbar 48, comment 60, system note 486 × 28, Reply / Internal
+  note 178 × 32, the reply box's top slot 156 and foot 56. The box is 252 against Figma's 254: the
+  drafted reply is 96 against 98.
+- With a panel open: the list folds to 72, its rows 63 × 78, the panel 384, Filter icon-only.
+- Phone (375 × 812): one column either way, document not scrolling, the header sticky.
+- axe on the live app: no violations on the list, the conversation, the thread and the contact
+  panel, light and dark, desktop and phone.
