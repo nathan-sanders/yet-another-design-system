@@ -28,13 +28,14 @@ Library fixes land as their own small PRs to `src/`, never mixed into an app PR.
    changes after mount is ignored. The group derives it now — it starts open when it holds the
    `selected` row and opens when one becomes selected — and the shell's group state is gone.
 
+5. **Fixed (#236): `SideNav`'s `top` and `bottom` slots are columns.** Search and Yak passed
+   as a fragment came out 12px apart, because each row became a child of the rail, whose
+   children are `gap-3`. Figma's `Top Slot Content` is one column with no gap. The rail wraps
+   both slots in one now, and the app's wrapper `div` is gone.
+
 ### Open: library changes worth making
 
-4a. **`SideNav`'s `top` slot is not a column.** It is placed straight into the rail, whose
-    children are 12px apart, so Search and Yak passed as a fragment came out 12px apart.
-    Figma's `Top Slot Content` is one column with a gap of 0. The app wraps the two rows in a
-    `div`; the rail could wrap `top` itself, the way it wraps `children` in the sections
-    column.
+None right now.
 
 ### Kept in the app, worth knowing
 
