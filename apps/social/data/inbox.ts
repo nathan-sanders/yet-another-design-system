@@ -297,7 +297,7 @@ export const tickets: Ticket[] = [
     body: 'Mango one or nothing 🥭',
     ago: '1h',
     status: 'new',
-    priority: 'low',
+    priority: 'none',
     sentiment: 'undefined',
     postId: 'smoothie-week',
     drafts: ['A person of taste. 🥭'],

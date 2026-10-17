@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import {
   CircleCheck,
   CircleDashed,
@@ -7,10 +7,6 @@ import {
   CirclePause,
   Frown,
   Meh,
-  Signal,
-  SignalHigh,
-  SignalLow,
-  SignalMedium,
   Smile,
   Ticket as TicketIcon,
   UserRound,
@@ -45,13 +41,6 @@ const STATUS: Option<TicketStatus>[] = [
   { value: 'complete', label: 'Complete', icon: CircleCheck },
 ]
 
-const PRIORITY: Option<TicketPriority>[] = [
-  { value: 'low', label: 'Low', icon: SignalLow },
-  { value: 'medium', label: 'Medium', icon: SignalMedium },
-  { value: 'high', label: 'High', icon: SignalHigh },
-  { value: 'critical', label: 'Critical', icon: Signal },
-]
-
 const SENTIMENT: Option<TicketSentiment>[] = [
   { value: 'positive', label: 'Positive', icon: Smile },
   { value: 'neutral', label: 'Neutral', icon: Meh },
@@ -59,10 +48,76 @@ const SENTIMENT: Option<TicketSentiment>[] = [
   { value: 'undefined', label: 'Undefined', icon: CircleHelp },
 ]
 
+interface PriorityOption {
+  value: TicketPriority
+  label: string
+  level: number
+  tone: string
+}
+
+/**
+ * The priority scale, 0 to 4. Each level is a number in a tinted box rather
+ * than a glyph — after the `Token - Priority` set Nathan dropped on the page
+ * (`40005917:33421`…`33425`), which draws a 16 × 14 box at a 4px radius on a
+ * Decorative hue. The classes are written out whole so Tailwind can see them.
+ */
+const PRIORITY: PriorityOption[] = [
+  {
+    value: 'none',
+    label: 'No priority',
+    level: 0,
+    tone: 'bg-decorative-neutral-background text-decorative-neutral-foreground',
+  },
+  {
+    value: 'low',
+    label: 'Low',
+    level: 1,
+    tone: 'bg-decorative-green-background text-decorative-green-foreground',
+  },
+  {
+    value: 'medium',
+    label: 'Medium',
+    level: 2,
+    tone: 'bg-decorative-yellow-background text-decorative-yellow-foreground',
+  },
+  {
+    value: 'high',
+    label: 'High',
+    level: 3,
+    tone: 'bg-decorative-orange-background text-decorative-orange-foreground',
+  },
+  {
+    value: 'critical',
+    label: 'Critical',
+    level: 4,
+    tone: 'bg-decorative-red-background text-decorative-red-foreground',
+  },
+]
+
 const UNASSIGNED = 'unassigned'
 
-function find<T extends string>(options: Option<T>[], value: T): Option<T> {
+function find<T extends { value: string }>(options: T[], value: string): T {
   return options.find((o) => o.value === value)!
+}
+
+/**
+ * The priority's number in its tinted box. Decoration: the label beside it
+ * already says the priority, so it is hidden from assistive tech.
+ */
+function PriorityMark({ priority }: { priority: TicketPriority }) {
+  const option = find(PRIORITY, priority)
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'inline-flex h-3.5 w-4 shrink-0 items-center justify-center rounded-xs',
+        'text-sm leading-none font-semibold tabular-nums',
+        option.tone,
+      )}
+    >
+      {option.level}
+    </span>
+  )
 }
 
 /** A word only a screen reader hears, so "Low" is read as "Priority: Low". */
@@ -71,38 +126,28 @@ function Spoken({ children }: { children: string }) {
 }
 
 /**
- * One meta token that opens a menu of the values it can take.
- *
- * The trigger is a real `<button>` wearing a view-only Token, not the Token
- * itself. Rendering the trigger *onto* a Token does not work: Token takes
- * `onClick` for an invisible `<button>` of its own, so Base UI's handler lands
- * on that inner button — a click opens the menu, Enter does nothing, and the
- * token gets two tab stops and no ring. FINDINGS, slice 3.
+ * A menu of the values one ticket field can take, opened by whatever
+ * `trigger` is — a meta token, or the toolbar's Assign button.
  */
-function MenuToken({
+function PickerMenu({
   label,
   value,
   onValueChange,
-  token,
+  trigger,
   children,
 }: {
   /** What the menu sets — "Status" — for the popup's name. */
   label: string
   value: string
   onValueChange: (value: string) => void
-  /** The Token's own props: what it shows at rest. */
-  token: { startIcon?: LucideIcon; avatar?: ReactNode; children: ReactNode }
-  /** The `Menu.RadioItem`s. */
+  /** The element that opens it. Base UI merges the trigger's props onto it. */
+  trigger: ReactElement
+  /** The `Choice`s. */
   children: ReactNode
 }) {
   return (
     <Menu>
-      <Menu.Trigger className={cn('flex cursor-pointer rounded-md', focusRing)}>
-        {/* `interactive` for Token's hover shadow; the button does the rest. */}
-        <Token interactive startIcon={token.startIcon} avatar={token.avatar}>
-          {token.children}
-        </Token>
-      </Menu.Trigger>
+      <Menu.Trigger render={trigger} />
       <Menu.Popup aria-label={label}>
         {/* Menu.Group carries Figma's 8px around the rows; the popup has none
             of its own. The library's radio story nests it the same way. */}
@@ -117,9 +162,40 @@ function MenuToken({
 }
 
 /**
- * A radio row with the option's icon or face beside its label. `closeOnClick`,
- * because Base UI keeps a menu open after a radio pick by default — right for
- * a view-settings menu toggled several times, wrong for a picker of one value.
+ * A meta token as a menu trigger: a real `<button>` wearing a view-only Token.
+ * Rendering the trigger *onto* a Token does not work — Token takes `onClick`
+ * for an invisible `<button>` of its own, so Enter did nothing and the token
+ * had two tab stops. FINDINGS 24.
+ */
+function TokenTrigger({
+  startIcon,
+  avatar,
+  children,
+  ...props
+}: {
+  startIcon?: LucideIcon
+  avatar?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      className={cn('flex cursor-pointer rounded-md', focusRing)}
+      // Base UI's trigger props (handlers, ARIA, ref) arrive here via `render`.
+      {...props}
+    >
+      {/* `interactive` for Token's hover shadow; the button does the rest. */}
+      <Token interactive startIcon={startIcon} avatar={avatar}>
+        {children}
+      </Token>
+    </button>
+  )
+}
+
+/**
+ * A radio row with the option's icon, face or mark beside its label.
+ * `closeOnClick`, because Base UI keeps a menu open after a radio pick by
+ * default — right for a view-settings menu, wrong for a picker of one value.
  */
 function Choice({ value, start, children }: { value: string; start: ReactNode; children: string }) {
   return (
@@ -132,31 +208,60 @@ function Choice({ value, start, children }: { value: string; start: ReactNode; c
   )
 }
 
-function OptionIcon({ icon }: { icon: LucideIcon }) {
-  return <Icon icon={icon} size="base" />
+/**
+ * Who a ticket is assigned to, as a menu: Unassigned, then the teammates. The
+ * toolbar's Assign button opens it, and so does the assignee token once there
+ * is one.
+ */
+export function AssigneeMenu({
+  ticket,
+  onChange,
+  trigger,
+}: {
+  ticket: Ticket
+  onChange: (edit: TicketEdit) => void
+  trigger: ReactElement
+}) {
+  return (
+    <PickerMenu
+      label="Assign to"
+      value={ticket.assigneeId ?? UNASSIGNED}
+      onValueChange={(value) => onChange({ assigneeId: value === UNASSIGNED ? undefined : value })}
+      trigger={trigger}
+    >
+      <Choice value={UNASSIGNED} start={<Icon icon={UserRound} size="base" />}>
+        Unassigned
+      </Choice>
+      {people.map((person) => (
+        <Choice
+          key={person.id}
+          value={person.id}
+          start={<Avatar name={person.name} src={person.avatar} alt="" size="x-small" />}
+        >
+          {person.name}
+        </Choice>
+      ))}
+    </PickerMenu>
+  )
 }
 
 /**
  * `_Ticket Meta` (`40005827:15465`): ticket number, status, assignee, priority
- * and sentiment as a row of `Token`s, 4px apart.
+ * and sentiment as a row of `Token`s, 4px apart. The assignee shows only when
+ * there is one — an unassigned ticket is assigned from the toolbar's Assign
+ * button, not from a token reading "Unassigned".
  *
  * View-only by default — in the message list the whole card is the hit
  * target, and a token inside it would be a click target inside a click target.
  * Pass `onChange` and every token but the ticket number opens a menu of its
  * values: that is the conversation's toolbar and the thread's marked comment.
- *
- * The file's `Show Assignee` is `showAssignee`. The list hides the assignee on
- * an unassigned ticket; an editable row always shows it, as "Unassigned", so
- * there is something to click to assign one.
  */
 export function TicketMeta({
   ticket,
-  showAssignee = true,
   onChange,
   className,
 }: {
   ticket: Ticket
-  showAssignee?: boolean
   onChange?: (edit: TicketEdit) => void
   className?: string
 }) {
@@ -164,6 +269,35 @@ export function TicketMeta({
   const priority = find(PRIORITY, ticket.priority)
   const sentiment = find(SENTIMENT, ticket.sentiment)
   const assignee = ticket.assigneeId ? personFor(ticket.assigneeId) : undefined
+
+  const statusLabel = (
+    <>
+      <Spoken>Status:</Spoken>
+      {status.label}
+    </>
+  )
+  const assigneeAvatar = assignee ? (
+    <Token.Avatar name={assignee.name} src={assignee.avatar} alt="" />
+  ) : null
+  const assigneeLabel = assignee ? (
+    <>
+      <Spoken>Assigned to</Spoken>
+      {assignee.name}
+    </>
+  ) : null
+  const priorityMark = <PriorityMark priority={priority.value} />
+  const priorityLabel = (
+    <>
+      <Spoken>Priority:</Spoken>
+      {priority.label}
+    </>
+  )
+  const sentimentLabel = (
+    <>
+      <Spoken>Sentiment:</Spoken>
+      {sentiment.label}
+    </>
+  )
 
   const number = (
     <Token startIcon={TicketIcon}>
@@ -175,24 +309,10 @@ export function TicketMeta({
     return (
       <div className={cn('flex flex-wrap gap-1', className)}>
         {number}
-        <Token startIcon={status.icon}>
-          <Spoken>Status:</Spoken>
-          {status.label}
-        </Token>
-        {showAssignee && assignee ? (
-          <Token avatar={<Token.Avatar name={assignee.name} src={assignee.avatar} alt="" />}>
-            <Spoken>Assigned to</Spoken>
-            {assignee.name}
-          </Token>
-        ) : null}
-        <Token startIcon={priority.icon}>
-          <Spoken>Priority:</Spoken>
-          {priority.label}
-        </Token>
-        <Token startIcon={sentiment.icon}>
-          <Spoken>Sentiment:</Spoken>
-          {sentiment.label}
-        </Token>
+        <Token startIcon={status.icon}>{statusLabel}</Token>
+        {assignee ? <Token avatar={assigneeAvatar}>{assigneeLabel}</Token> : null}
+        <Token avatar={priorityMark}>{priorityLabel}</Token>
+        <Token startIcon={sentiment.icon}>{sentimentLabel}</Token>
       </div>
     )
   }
@@ -200,107 +320,49 @@ export function TicketMeta({
   return (
     <div className={cn('flex flex-wrap gap-1', className)}>
       {number}
-      <MenuToken
+      <PickerMenu
         label="Status"
         value={status.value}
         onValueChange={(value) => onChange({ status: value as TicketStatus })}
-        token={{
-          startIcon: status.icon,
-          children: (
-            <>
-              <Spoken>Status:</Spoken>
-              {status.label}
-            </>
-          ),
-        }}
+        trigger={<TokenTrigger startIcon={status.icon}>{statusLabel}</TokenTrigger>}
       >
         {STATUS.map((o) => (
-          <Choice key={o.value} value={o.value} start={<OptionIcon icon={o.icon} />}>
+          <Choice key={o.value} value={o.value} start={<Icon icon={o.icon} size="base" />}>
             {o.label}
           </Choice>
         ))}
-      </MenuToken>
-      <MenuToken
-        label="Assignee"
-        value={assignee?.id ?? UNASSIGNED}
-        onValueChange={(value) =>
-          onChange({ assigneeId: value === UNASSIGNED ? undefined : value })
-        }
-        token={
-          assignee
-            ? {
-                avatar: <Token.Avatar name={assignee.name} src={assignee.avatar} alt="" />,
-                children: (
-                  <>
-                    <Spoken>Assigned to</Spoken>
-                    {assignee.name}
-                  </>
-                ),
-              }
-            : {
-                startIcon: UserRound,
-                children: (
-                  <>
-                    <Spoken>Assignee:</Spoken>
-                    Unassigned
-                  </>
-                ),
-              }
-        }
-      >
-        <Choice value={UNASSIGNED} start={<OptionIcon icon={UserRound} />}>
-          Unassigned
-        </Choice>
-        {people.map((person) => (
-          <Choice
-            key={person.id}
-            value={person.id}
-            start={<Avatar name={person.name} src={person.avatar} alt="" size="x-small" />}
-          >
-            {person.name}
-          </Choice>
-        ))}
-      </MenuToken>
-      <MenuToken
+      </PickerMenu>
+      {assignee ? (
+        <AssigneeMenu
+          ticket={ticket}
+          onChange={onChange}
+          trigger={<TokenTrigger avatar={assigneeAvatar}>{assigneeLabel}</TokenTrigger>}
+        />
+      ) : null}
+      <PickerMenu
         label="Priority"
         value={priority.value}
         onValueChange={(value) => onChange({ priority: value as TicketPriority })}
-        token={{
-          startIcon: priority.icon,
-          children: (
-            <>
-              <Spoken>Priority:</Spoken>
-              {priority.label}
-            </>
-          ),
-        }}
+        trigger={<TokenTrigger avatar={priorityMark}>{priorityLabel}</TokenTrigger>}
       >
         {PRIORITY.map((o) => (
-          <Choice key={o.value} value={o.value} start={<OptionIcon icon={o.icon} />}>
+          <Choice key={o.value} value={o.value} start={<PriorityMark priority={o.value} />}>
             {o.label}
           </Choice>
         ))}
-      </MenuToken>
-      <MenuToken
+      </PickerMenu>
+      <PickerMenu
         label="Sentiment"
         value={sentiment.value}
         onValueChange={(value) => onChange({ sentiment: value as TicketSentiment })}
-        token={{
-          startIcon: sentiment.icon,
-          children: (
-            <>
-              <Spoken>Sentiment:</Spoken>
-              {sentiment.label}
-            </>
-          ),
-        }}
+        trigger={<TokenTrigger startIcon={sentiment.icon}>{sentimentLabel}</TokenTrigger>}
       >
         {SENTIMENT.map((o) => (
-          <Choice key={o.value} value={o.value} start={<OptionIcon icon={o.icon} />}>
+          <Choice key={o.value} value={o.value} start={<Icon icon={o.icon} size="base" />}>
             {o.label}
           </Choice>
         ))}
-      </MenuToken>
+      </PickerMenu>
     </div>
   )
 }

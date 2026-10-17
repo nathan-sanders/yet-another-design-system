@@ -12,7 +12,7 @@ export interface SentItem {
   body: string
 }
 
-const PRIORITY_RANK: Record<TicketPriority, number> = { critical: 4, high: 3, medium: 2, low: 1 }
+const PRIORITY_RANK: Record<TicketPriority, number> = { critical: 4, high: 3, medium: 2, low: 1, none: 0 }
 
 /**
  * The list as the toolbar asks for it. Fixture order is newest first, so

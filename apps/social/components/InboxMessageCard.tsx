@@ -87,7 +87,7 @@ export function InboxMessageCard({ ticket, selected, onOpen, emphasis = 'ghost' 
             />
           ) : null}
         </div>
-        <TicketMeta ticket={ticket} showAssignee={Boolean(ticket.assigneeId)} />
+        <TicketMeta ticket={ticket} />
       </div>
     </ClickableCard>
   )
