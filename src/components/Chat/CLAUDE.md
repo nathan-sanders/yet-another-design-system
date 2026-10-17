@@ -68,6 +68,18 @@ announces each message once. Not a `<ul>`: an orphan `<li>` fails axe. **`sender
 text, not `aria-label`**, for two reasons — axe's `aria-prohibited-attr` rejects a label on a
 bare element, and a live region reads *inserted text*, so a label on the article would be
 silent when it mattered.
+**`header` is the visible sender, for a thread with more than two people in it.** Added
+2026-10-17 from Yet Social (`apps/social/FINDINGS.md`, entry 2): in a one-to-one chat the side a
+message sits on says who wrote it, so `sender` is hidden text; in a team's notes it says nothing,
+and Figma's post detail (`40005911:33082`) draws each note with the author's name, an `Internal`
+badge and the time above the bubble. `ChatMessage.Header` is that row — `name`, `badge`,
+`timestamp`/`dateTime` — 20 tall, the name in 12/20 semibold on `content-emphasized`, the badge 8
+after it, the time pushed to the far end on `content-subtle`, no padding so the name lines up with
+the bubble's edge. With a header the avatar moves up beside it (`items-start`, Figma's avatar at
+the row's top) and the metadata offset is dropped. The header's name is plain text in the
+reading order, so the log announces it; the hidden `sender` text steps aside when `header` is
+given rather than reading the name twice. The `Team thread` story measures it. **Figma owes** a
+`Header` part in the Chat Message section; the post detail's team thread is the only drawing.
 **`Metadata` shows `status` or `actions`, never both.** Figma's two directions each draw one,
 and a message with both is not a shape the file has. The status word is the signal; the
 glyph is `aria-hidden` and Failed's danger color is a second signal, not the only one.

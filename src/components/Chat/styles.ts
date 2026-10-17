@@ -68,8 +68,38 @@ export const message = tv({
       true: { avatar: 'pb-7' },
       false: {},
     },
+    /**
+     * A visible sender row heads the column, and the avatar moves up beside
+     * it — Figma's team note in Yet Social's post detail
+     * (`40005911:33082`): a 24px avatar on the 20px name row, not on the last
+     * bubble. The metadata offset no longer applies; `ChatMessage` drops it.
+     */
+    hasHeader: {
+      true: { root: 'items-start', avatar: 'self-start' },
+      false: {},
+    },
   },
-  defaultVariants: { direction: 'received', layout: 'hug', hasMetadata: false },
+  defaultVariants: { direction: 'received', layout: 'hug', hasMetadata: false, hasHeader: false },
+})
+
+/**
+ * The visible sender row. Figma's `Header` frame on a team note: the name in
+ * 12/20 semibold, an optional badge 8 after it, and the time pushed to the
+ * far end. 20 tall, the badge's height; no padding, so the name lines up with
+ * the bubble's edge rather than its text.
+ */
+export const header = tv({
+  slots: {
+    root: 'flex min-h-5 w-full items-center gap-2 font-sans text-sm',
+    time: 'shrink-0 text-content-subtle',
+  },
+  variants: {
+    direction: {
+      sent: { root: 'flex-row-reverse', time: 'mr-auto' },
+      received: { time: 'ml-auto' },
+    },
+  },
+  defaultVariants: { direction: 'received' },
 })
 
 type MessageVariants = VariantProps<typeof message>

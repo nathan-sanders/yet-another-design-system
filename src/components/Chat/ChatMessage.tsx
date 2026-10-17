@@ -2,12 +2,14 @@ import { useContext, type ComponentPropsWithRef, type ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 import { Icon } from '../Icon'
+import { Text } from '../Text'
 import { Tooltip } from '../Tooltip'
 import { ChatMessageContext } from './context'
 import {
   bubble,
   DELIVERY_ICON,
   DELIVERY_LABEL,
+  header as headerStyle,
   message,
   metadata as metadataStyle,
   reactionPill,
@@ -76,8 +78,19 @@ export interface ChatMessageProps
   direction?: ChatDirection
   /** The bubbles. `ChatMessage.Bubble`, one per paragraph of the turn. */
   children: ReactNode
-  /** Who sent it, for a screen reader. Read out before the text; not drawn. */
+  /**
+   * Who sent it, for a screen reader. Read out before the text; not drawn —
+   * a one-to-one chat shows who is who by side alone. Ignored when `header`
+   * is given, because the header's visible name is read out instead.
+   */
   sender?: ReactNode
+  /**
+   * A visible sender row above the bubbles: a `ChatMessage.Header`. For a
+   * thread with more than two people in it — a team's notes — where the side
+   * a message sits on no longer says who wrote it. The avatar moves up
+   * beside it.
+   */
+  header?: ReactNode
   /** The picture beside the bubbles — an `Avatar size="small"`, or a mark. */
   avatar?: ReactNode
   /** The row under the bubbles: a `ChatMessage.Metadata`. */
@@ -96,19 +109,28 @@ export function ChatMessage({
   direction = 'received',
   children,
   sender,
+  header,
   avatar,
   metadata,
   layout = 'hug',
   className,
   ...props
 }: ChatMessageProps) {
-  const styles = message({ direction, layout, hasMetadata: Boolean(metadata) })
+  const hasHeader = Boolean(header)
+  const styles = message({
+    direction,
+    layout,
+    hasHeader,
+    // The offset lines the avatar up with the last bubble; with a header the
+    // avatar sits on the name row instead, so there is nothing to offset.
+    hasMetadata: Boolean(metadata) && !hasHeader,
+  })
   return (
     <ChatMessageContext.Provider value={direction}>
       <article className={cn(styles.root(), className)} {...props}>
         {avatar && <div className={styles.avatar()}>{avatar}</div>}
         <div className={styles.column()}>
-          {sender && <span className="sr-only">{sender}: </span>}
+          {header ?? (sender && <span className="sr-only">{sender}: </span>)}
           {children}
           {metadata}
         </div>
@@ -289,7 +311,60 @@ function ChatMessageMetadata({
 
 ChatMessageMetadata.displayName = 'ChatMessage.Metadata'
 
+export interface ChatMessageHeaderProps
+  extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'className'> {
+  /** Who wrote it, as it should read. This is the sender a screen reader hears. */
+  name: ReactNode
+  /** A `Badge` after the name — a role, or Figma's `Internal`. */
+  badge?: ReactNode
+  /** The time, as it should read: "16d", "12:30 PM". Pushed to the far end. */
+  timestamp?: ReactNode
+  /** The same time by the clock, for `<time dateTime>` — an ISO string. */
+  dateTime?: string
+  /** Overrides the direction inherited from the message. */
+  direction?: ChatDirection
+  className?: string
+}
+
+/**
+ * The visible sender row: name, optional badge, optional time. Plain text in
+ * the reading order, so the `role="log"` round the messages announces "Katie
+ * Powell, Internal, 16d" ahead of the bubble — which is why `sender`'s hidden
+ * text steps aside when this is given, rather than reading the name twice.
+ */
+function ChatMessageHeader({
+  name,
+  badge,
+  timestamp,
+  dateTime,
+  direction: directionProp,
+  className,
+  ...props
+}: ChatMessageHeaderProps) {
+  const inherited = useContext(ChatMessageContext)
+  const styles = headerStyle({ direction: directionProp ?? inherited })
+  return (
+    <div className={cn(styles.root(), className)} {...props}>
+      <Text render={<span />} size="sm" weight="semibold" color="emphasized" truncate className="min-w-0">
+        {name}
+      </Text>
+      {badge}
+      {timestamp !== undefined &&
+        (dateTime ? (
+          <time dateTime={dateTime} className={styles.time()}>
+            {timestamp}
+          </time>
+        ) : (
+          <span className={styles.time()}>{timestamp}</span>
+        ))}
+    </div>
+  )
+}
+
+ChatMessageHeader.displayName = 'ChatMessage.Header'
+
 ChatMessage.Bubble = ChatMessageBubble
+ChatMessage.Header = ChatMessageHeader
 ChatMessage.Reactions = ChatMessageReactions
 ChatMessage.Status = ChatMessageStatus
 ChatMessage.Metadata = ChatMessageMetadata

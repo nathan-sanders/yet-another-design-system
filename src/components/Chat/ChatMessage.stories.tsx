@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
+import { Badge } from '../Badge'
 import samplePhoto from '../Avatar/sample-photo.png'
 import { Breadcrumbs } from '../Breadcrumbs'
 import { Button } from '../Button'
@@ -315,6 +316,81 @@ export const Metadata: Story = {
     const buttons = within(canvas.getByTestId('row-actions')).getAllByRole('button')
     await expect(buttons).toHaveLength(4)
     await expect(buttons[0]!.getBoundingClientRect().height).toBe(24)
+  },
+}
+
+/**
+ * **A visible sender, for a thread with more than two people in it.** The
+ * side a message sits on says who wrote it only in a one-to-one chat; a
+ * team's notes need the name. `header` takes a `ChatMessage.Header` — the
+ * name, an optional badge, the time pushed to the far end — and the avatar
+ * moves up beside it. Figma's team thread in Yet Social's post detail
+ * (`40005911:33082`). The header's name is what a reader hears, so the hidden
+ * `sender` text steps aside rather than reading the name twice.
+ *
+ * Measured: header 20 tall; the bubble 4 under it; avatar top on the header's
+ * top, 8 from the column; time at the column's far edge.
+ */
+export const TeamThread: Story = {
+  name: 'Team thread',
+  decorators: onPrimarySurface,
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div role="log" aria-label="Team notes" className="flex w-88 flex-col gap-4">
+      <ChatMessage
+        layout="fill"
+        sender="Nathan Sanders, internal note"
+        avatar={<Avatar name="Nathan Sanders" src={samplePhoto} size="small" />}
+        header={
+          <ChatMessage.Header
+            name="Nathan Sanders"
+            badge={<Badge>Internal</Badge>}
+            timestamp="16d"
+            data-testid="header"
+          />
+        }
+        metadata={<ChatMessage.Metadata actions={<Actions />} />}
+      >
+        <ChatMessage.Bubble>
+          Can we swap the hero for the overhead shot? It reads better at thumbnail size.
+        </ChatMessage.Bubble>
+      </ChatMessage>
+      <ChatMessage
+        layout="fill"
+        avatar={<Avatar name="Katie Powell" size="small" />}
+        header={
+          <ChatMessage.Header
+            name="Katie Powell"
+            badge={<Badge>Internal</Badge>}
+            timestamp="16d"
+            dateTime="2026-10-01T09:00"
+          />
+        }
+      >
+        <ChatMessage.Bubble>Swapped. I also moved it to 9 am so it lands before the lunch rush.</ChatMessage.Bubble>
+      </ChatMessage>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const header = canvas.getByTestId('header')
+    const article = header.closest('article')!
+    const column = header.parentElement!
+    const avatar = article.firstElementChild!
+    const bubble = within(article).getByText(/Can we swap/)
+    const rect = (element: Element) => element.getBoundingClientRect()
+
+    await expect(rect(header).height).toBe(20)
+    await expect(rect(bubble).top).toBe(rect(header).bottom + 4)
+    await expect(rect(avatar).top).toBe(rect(header).top)
+    await expect(rect(column).left).toBe(rect(avatar).right + 8)
+    await expect(rect(within(header).getByText('16d')).right).toBe(rect(column).right)
+    // The name is visible and is the sender; nothing hidden repeats it.
+    await expect(within(header).getByText('Nathan Sanders')).toBeVisible()
+    await expect(article.querySelector('.sr-only')).toBeNull()
+    await expect(within(article).getAllByText(/Nathan Sanders/)).toHaveLength(1)
+    // With the ISO time, the time is a <time>.
+    await expect(canvas.getAllByText('16d')[1]!.tagName).toBe('TIME')
   },
 }
 
