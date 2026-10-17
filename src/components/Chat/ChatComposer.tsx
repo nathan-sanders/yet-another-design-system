@@ -49,11 +49,10 @@ import { composerActions, composerTextarea, type ChatComposerSize } from './styl
  * stop button while a reply is arriving — the one moment sending is not the
  * thing to do — and holds Enter back at the same time.
  *
- * **The send button is `aria-disabled`, never `disabled`.** `box` fades and
- * freezes on any `:disabled` descendant, so a natively disabled send button
- * would grey the whole composer every time the field was empty. Aria keeps
- * it in the tab order, which is also the shape WAI-ARIA prefers for "not
- * yet". The same rule reaches anything a caller puts in `actions`.
+ * **The send button is `aria-disabled`, never `disabled`.** Aria keeps it in
+ * the tab order, which is the shape WAI-ARIA prefers for "not yet". (It once
+ * had a second reason: `box` used to fade on any `:disabled` descendant. It
+ * keys off the `<textarea>` now, so a disabled Button in `actions` is safe.)
  *
  * **It grows.** `field-sizing: content` takes the field from one line to
  * eight and then scrolls — TextArea parked this as "one utility class the

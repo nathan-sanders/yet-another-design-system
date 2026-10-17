@@ -173,7 +173,7 @@ hover lifts the text to `content-primary` instead.
 ## ChatComposer
 
 **Input's box, stacked.** `box({ size, ring: 'textarea' })` from `Input/styles.ts` is the
-outer `<form>` — border, hover, `rounded-md`, the `has-[:disabled]` fade — turned from a
+outer `<form>` — border, hover, `rounded-md`, the `has-[textarea:disabled]` fade — turned from a
 wrapping row into `flex-col items-stretch` and given Figma's `shadow-medium`
 (`elevation/drop-shadow/medium`). The field is Base UI's `Input` with a `<textarea>` through
 `render`, TextArea's arrangement and its reasons: attributes on the render element where
@@ -192,11 +192,12 @@ a commit on an `<input>` tag, so nothing fights this.
 anything to send, so the uncontrolled value is mirrored in state (TextArea's counter
 arrangement) — and unlike TextArea the primitive is handed `currentValue` rather than
 `defaultValue`, so that sending can clear it. A controlled caller clears its own.
-**The send button is `aria-disabled`, never `disabled`.** `box` fades and freezes on *any*
-`:disabled` descendant, so a natively disabled send button greyed the whole composer every
-time the field was empty. `aria-disabled` plus `pointer-events-none` keeps it in the tab order,
-which is also the shape WAI-ARIA prefers for "not yet". The same rule reaches anything a
-caller puts in `actions`: a disabled Button there disables the composer.
+**The send button is `aria-disabled`, never `disabled`.** It was forced at first: `box` faded
+and froze on *any* `:disabled` descendant, so a natively disabled send button greyed the whole
+composer every time the field was empty. The box now keys the fade off its own `<input>` or
+`<textarea>`, so that reason is gone — a disabled Button in `actions` no longer fades the
+composer — and the choice stands on the other one: `aria-disabled` plus `pointer-events-none`
+keeps it in the tab order, which is the shape WAI-ARIA prefers for "not yet".
 **Figma's `Type` is derived from `streaming`.** While a reply arrives the primary send button
 becomes a secondary `Square` stop button wired to `onStop`, and Enter is held back.
 **The arithmetic.** Figma draws 96 / 72 with the stroke inside the frame, so the content is

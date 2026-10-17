@@ -17,7 +17,7 @@ line of JSX — and `Field.Control`'s keydown handler checks `event.currentTarge
 exists for. Read in `node_modules`, not assumed. So a surrounding Field's label, description, error
 and `data-invalid` all arrive for free, exactly as they do on Input.
 **Input's box, borrowed.** `box` from `Input/styles.ts` is the outer element — NumberInput's and
-Autocomplete's arrangement — so hover, the invalid border, the `has-[:disabled]` fade and
+Autocomplete's arrangement — so hover, the invalid border, the `has-[textarea:disabled]` fade and
 `focusRingWithin` are the same code as every other text field. `focusRingWithin` is right here for
 the reason it is right on Input: exactly one focusable descendant. What is **not** borrowed is
 Input's `control`: its `min-h-*` and the box's `items-center` are single-line assumptions. The

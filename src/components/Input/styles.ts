@@ -70,9 +70,18 @@ export const box = tv({
     'has-[[data-invalid]]:hover:border-feedback-danger-highlight',
     // Disabled is the one state the box can always see for itself, standalone or
     // in a Field: Base UI's Field.Root disables the control it wraps, so either
-    // way there is a `:disabled` descendant. Keeping the fade here rather than on
-    // Field.Root is what stops the two compounding to 16% when both apply.
-    'has-[:disabled]:pointer-events-none has-[:disabled]:opacity-40',
+    // way the field's own <input> or <textarea> is `:disabled`. Keeping the fade
+    // here rather than on Field.Root is what stops the two compounding to 16%
+    // when both apply.
+    //
+    // **Keyed off the control, not any descendant.** A bare `has-[:disabled]`
+    // also matches a disabled Button in an addon — a composer's Send while the
+    // field is empty — and greys out the whole box around a field that still
+    // takes typing. One selector per tag, the `ring` variant's spelling. A
+    // disabled Select or Checkbox in an addon still renders a disabled hidden
+    // <input>, so it would fade the box too; nothing has wanted one yet.
+    'has-[input:disabled]:pointer-events-none has-[input:disabled]:opacity-40',
+    'has-[textarea:disabled]:pointer-events-none has-[textarea:disabled]:opacity-40',
   ],
 
   variants: {
@@ -261,6 +270,9 @@ export const addonText = tv({
 })
 
 type BoxVariants = VariantProps<typeof box>
+
+/** What fires the box's focus ring — see the `ring` variant on `box`. */
+export type InputRing = NonNullable<BoxVariants['ring']>
 type AddonVariants = VariantProps<typeof addon>
 
 /** Maps to the Figma `Size` property: Small 24 · Default 32 · Large 40. */

@@ -162,8 +162,10 @@ already names the same value; otherwise the slider's own name, qualified on a ra
 string to append to. Verified in the browser: "Disabled range minimum", "Disabled range maximum".
 **The disabled fade is cancelled, not applied.** `Input`'s box fades itself when it contains a
 disabled control, which is right standalone and wrong inside a disabled Slider — the root is already
-`opacity-40` and the two compound to 16%. `has-[:disabled]:opacity-100` cancels it, which works
-because the variant prefix is tailwind-merge's key: same prefix, same utility, later one wins. Figma
+`opacity-40` and the two compound to 16%. `has-[input:disabled]:opacity-100` cancels it, which works
+because the variant prefix is tailwind-merge's key: same prefix, same utility, later one wins. It
+was `has-[:disabled]` until the box's fade was narrowed to its own control, and moved with it — a
+stale prefix leaves both live, and the `States` story's play now measures the fields at 1. Figma
 says the same thing by leaving both `State=Disabled` variants' Input instances at `State=Default`
 and fading the whole component once. The fields are still really `disabled`.
 Worth knowing if that changes: Base UI would already do the labeling half of it —

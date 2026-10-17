@@ -77,9 +77,12 @@ it as `NumberInput` with **`steppers={false}`** — which is Input's box, left-a
 precisely the `Input` instance the file draws. Nothing was added here for it.
 Worth knowing which way the borrowing runs: Slider imports the *component*, not the recipes. It sets
 its own width through `className` (which lands on the Group, so it replaces the base `w-full`) and
-cancels this box's `has-[:disabled]:opacity-40`, because a disabled Slider already fades the whole
+cancels this box's `has-[input:disabled]:opacity-40`, because a disabled Slider already fades the whole
 row and the two would compound to 16%. **If that base fade ever moves, Slider's cancellation is the
 thing that breaks**, and it will break silently — a field 40% fainter than the row around it.
+It moved once, from `has-[:disabled]` to `has-[input:disabled]`, and Slider moved with it. The
+narrowing also means a stepper Base UI disables at `min` or `max` no longer has a selector that
+could fade the box, which the old any-descendant rule did.
 
 ## Best practices
 

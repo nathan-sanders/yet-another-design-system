@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect } from 'storybook/test'
 
 import { Slider } from './Slider'
 import { Heading, Text } from '../Text'
@@ -331,6 +332,14 @@ export const States: Story = {
       <Slider {...args} label="Disabled range" defaultValue={[20, 80]} disabled />
     </div>
   ),
+  // The root fades once; the number fields' own box fade must stay cancelled,
+  // or they sit at 16%. Silent if `box`'s disabled selector moves without
+  // `numberField` following it, so it is measured.
+  play: async ({ canvasElement }) => {
+    const fields = canvasElement.querySelectorAll('[class*="has-[input:disabled]:opacity-100"]')
+    await expect(fields.length).toBe(3)
+    for (const field of fields) await expect(getComputedStyle(field).opacity).toBe('1')
+  },
 }
 
 /**

@@ -323,21 +323,24 @@ const markTick = tv({
  * and the whole thing has to *replace* the box's base `w-full` rather than add to
  * it, which is what tailwind-merge does with two `w-` utilities.
  *
- * **`has-[:disabled]:opacity-100` is a cancellation, not a style.** `Input`'s box
- * fades itself when it contains a disabled control, which is right for a field
+ * **`has-[input:disabled]:opacity-100` is a cancellation, not a style.** `Input`'s
+ * box fades itself when its `<input>` is disabled, which is right for a field
  * standing on its own and wrong inside a disabled Slider: the root is already at
  * `opacity-40` and the two would compound to 16%. Figma says the same thing by
  * leaving both `State=Disabled` variants' Input instances at `State=Default` and
  * fading the whole component once. It cancels rather than adds because the
  * variant prefix is tailwind-merge's key — same prefix, same `opacity` utility,
- * so the later one wins. A narrower selector would have left both live.
+ * so the later one wins. A narrower selector would have left both live — and so
+ * would a stale one: the box's rule moved from `has-[:disabled]` to
+ * `has-[input:disabled]`, and this has to move with it, or both stay live and the
+ * box's, more specific by its type selector, wins.
  */
 const numberField = tv({
   base: 'w-[max(3.5rem,calc(var(--slider-field-chars)*0.625rem+1.625rem))] shrink-0',
 
   variants: {
     disabled: {
-      true: 'has-[:disabled]:opacity-100',
+      true: 'has-[input:disabled]:opacity-100',
       false: '',
     },
   },
