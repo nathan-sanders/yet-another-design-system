@@ -60,7 +60,7 @@ export interface Customer {
 }
 
 export type TicketStatus = 'new' | 'in-progress' | 'on-hold' | 'complete'
-export type TicketPriority = 'low' | 'medium' | 'high' | 'critical'
+export type TicketPriority = 'none' | 'low' | 'medium' | 'high' | 'critical'
 /** `undefined` is a value here — Yak could not tell — not a missing field. */
 export type TicketSentiment = 'positive' | 'neutral' | 'negative' | 'undefined'
 

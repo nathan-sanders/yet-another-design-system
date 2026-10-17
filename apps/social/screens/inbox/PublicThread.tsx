@@ -20,7 +20,7 @@ import veggieVault from '../../assets/veggie-vault.png'
 import { InboxComment } from '../../components/InboxComment'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
-import { TicketMeta } from '../../components/TicketMeta'
+import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor } from '../../data/inbox'
 import { profiles } from '../../data/posts'
 import type { Ticket, TicketEdit } from '../../data/types'
@@ -118,9 +118,15 @@ export function PublicThread({
                     Like
                   </Button>
                   <div className="flex-1" />
-                  <Button appearance="ghost" startIcon={UserPlus} onClick={() => shell.notBuilt('Assigning')}>
-                    Assign
-                  </Button>
+                  <AssigneeMenu
+                    ticket={ticket}
+                    onChange={onTicketChange}
+                    trigger={
+                      <Button appearance="ghost" startIcon={UserPlus}>
+                        Assign
+                      </Button>
+                    }
+                  />
                   <Button appearance="ghost" startIcon={Tag} onClick={() => shell.notBuilt('Tagging')}>
                     Tag
                   </Button>

@@ -20,7 +20,7 @@ import veggieVault from '../../assets/veggie-vault.png'
 import { InboxComment } from '../../components/InboxComment'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
-import { TicketMeta } from '../../components/TicketMeta'
+import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor, customerFor } from '../../data/inbox'
 import { personFor } from '../../data/people'
 import { profiles } from '../../data/posts'
@@ -176,11 +176,10 @@ export function Conversation({
       <ConversationHeader ticket={ticket} onBack={onBack} />
       <div className="flex shrink-0 items-center gap-2 py-2 pr-3 pl-4 max-md:flex-wrap">
         <TicketMeta ticket={ticket} onChange={onTicketChange} className="min-w-0 flex-1 max-md:basis-full" />
-        <Button
-          appearance="ghost"
-          startIcon={UserPlus}
-          aria-label="Assign"
-          onClick={() => shell.notBuilt('Assigning')}
+        <AssigneeMenu
+          ticket={ticket}
+          onChange={onTicketChange}
+          trigger={<Button appearance="ghost" startIcon={UserPlus} aria-label="Assign to" />}
         />
         <Button appearance="ghost" startIcon={Tag} aria-label="Tag" onClick={() => shell.notBuilt('Tagging')} />
         <Button

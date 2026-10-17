@@ -186,8 +186,17 @@ list's card and the Unassigned filter.
     Positive/Neutral/Negative as static tokens. These were decided here:
     - **Statuses:** New, In progress, On hold and Complete. Complete replaced the drawn "Closed"
       on past conversations.
-    - **Values the file lacks:** Critical, and an Undefined sentiment.
-    - **Icons:** `CircleDot`, `CirclePause`, `Signal` and `CircleHelp`.
-    - **Unassigned:** an "Unassigned" token in the detail view, so an unassigned ticket has
-      something to click.
-    - **Menu layout:** the menus themselves, with a radio row and the option's icon or face.
+    - **Sentiment:** an Undefined value, with the `CircleHelp` icon.
+    - **Status icons:** `CircleDot` and `CirclePause` for the new statuses.
+    - **Menu layout:** the menus themselves, with a radio row and the option's icon, face or mark.
+28. **Priority is a number, 0 to 4.** No priority, Low, Medium, High and Critical, each a digit in
+    a 16 × 14 box at a 4px radius (`rounded-xs`). The model is Nathan's `Token - Priority` set on
+    the page (`40005917:33421`…`33425`), whose instances come from the Sprout UI Theme library.
+    The colors are YADS's own Decorative Neutral, Green, Yellow, Orange and Red, Badge's pair. They
+    are stronger tints than Sprout's, and they follow the theme. The mark is `aria-hidden`
+    because the label beside it already says the priority. The `_Ticket Meta` symbol still draws
+    the signal glyph.
+29. **There is no assignee token on an unassigned ticket.** The toolbar's Assign button
+    (`Assign to`, first of Assign, Tag, Complete, More) opens the same menu the assignee token
+    does, and so does the thread's Assign. Unassigning from the token removes it, and focus moves
+    to the next token rather than being lost.
