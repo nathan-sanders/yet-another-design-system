@@ -342,7 +342,12 @@ export const panelContent = tv({
 export const panelBody = tv({
   // Dialog's Body, with ContentBlock's Content padding. `first:pt-4` puts the
   // 16 back for a panel with no Header — derived from position, not a prop.
-  base: 'min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4',
+  // `relative` is AppShell.Content's fix, one region over: it makes the scroll
+  // region the containing block for every `sr-only` inside it (that utility
+  // is `position: absolute`). Without it a hidden span at the foot of a long
+  // body belonged to the aside, hung below the fold, and a phone's document
+  // scrolled 341px past the shell — `ChatMessage`'s sender, in Yet Social.
+  base: 'relative min-h-0 flex-1 overflow-y-auto px-4 pt-0 pb-4 first:pt-4',
 })
 
 type PanelVariants = VariantProps<typeof panel>
