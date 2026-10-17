@@ -162,7 +162,7 @@ function Page({ open, onOpenChange }: { open: boolean; onOpenChange: (open: bool
 }
 
 /** What the panel holds: a title row, and a form that scrolls under it. */
-function Details() {
+function Details({ children }: { children?: React.ReactNode }) {
   return (
     <>
       <Panel.Header
@@ -185,6 +185,7 @@ function Details() {
           <Button appearance="secondary">Discard</Button>
           <Button>Save</Button>
         </div>
+        {children}
       </Panel.Body>
     </>
   )
@@ -244,6 +245,7 @@ function Shell({
   frame,
   floating,
   phone = false,
+  body,
 }: {
   defaultOpen?: boolean
   resizable?: boolean
@@ -252,6 +254,8 @@ function Shell({
   frame?: boolean
   floating?: boolean
   phone?: boolean
+  /** Appended to the Details body, under the form. */
+  body?: React.ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const panel = (
@@ -263,7 +267,7 @@ function Shell({
       resizable={resizable}
       floating={floating}
     >
-      <Details />
+      <Details>{body}</Details>
     </Panel>
   )
   return (
@@ -744,8 +748,65 @@ export const PhoneKeyboard: Story = {
   },
 }
 
+/**
+ * **Screen-reader text in a scrolled body stays in the body.** `sr-only` is
+ * `position: absolute`, so its containing block is the nearest positioned
+ * ancestor. The Body is `relative` for exactly this: without it a hidden span
+ * at the foot of a long body belonged to the *document*, and a phone scrolled
+ * 341px past the shell — Yet Social's post detail, where `ChatMessage`'s
+ * sender is that span. `AppShell.Content` had the same bug and the same fix.
+ */
+export const PhoneScreenReaderText: Story = {
+  name: 'Phone, screen-reader text',
+  parameters: phone,
+  globals: { viewport: { value: 'phone' } },
+  render: () => (
+    <Shell
+      defaultOpen
+      phone
+      body={
+        // Inside a block, the way `ChatMessage` holds its sender: an absolute
+        // child of the flex Body itself would sit at the Body's top.
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Text key={index} color="subtle">
+              A note further down the thread, long enough that the body has to scroll to show it.
+            </Text>
+          ))}
+          <div>
+            <span className="sr-only">Sent by Nathan Sanders</span>
+          </div>
+        </div>
+      }
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const span = within(canvasElement).getByText('Sent by Nathan Sanders')
+    const body = span.closest('aside')!.querySelector<HTMLElement>('.overflow-y-auto')!
+    // The body really scrolls, so the span's place in it is below the fold.
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    // One scroll region per region, and none of them is the document — at
+    // the top of the body, where the span is furthest out, and at its foot.
+    const doc = document.documentElement
+    await expect(doc.scrollHeight).toBe(doc.clientHeight)
+    body.scrollTop = body.scrollHeight
+    await expect(doc.scrollHeight).toBe(doc.clientHeight)
+    // Because the body is the span's containing block.
+    await expect(span.offsetParent).toBe(body)
+  },
+}
+
 // ---------------------------------------------------------------------------
 // Stacking: a panel written inside a panel.
+
+/**
+ * Waits until no transition is running. The root aside reaching its size is
+ * not the stack settling: each nested aside's inset and the root clip's
+ * padding ease on the same clock and can land a frame later, which read as a
+ * card 0.03px off (`768.03125`, `1192.015625`) one run in a few. Measure the
+ * stack's geometry only once nothing is moving.
+ */
+const settled = () => waitFor(() => expect(document.getAnimations()).toHaveLength(0))
 
 /**
  * A three-level stack: Details, an Edit owner panel opened from its body, and
@@ -875,6 +936,7 @@ export const StackedDriven: Story = {
       await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
       await canvas.findByRole('complementary', { name: 'Confirm change' })
       await waitFor(() => expect(rect(root().aside).width).toBe(384 + 24))
+      await settled()
     })
 
     await step(
@@ -1002,6 +1064,7 @@ export const StackedPhone: Story = {
     await expect(getComputedStyle(shell).flexDirection).toBe('column')
     // The chain reports up after it mounts, and the height eases to the count.
     await waitFor(() => expect(rect(root.aside).height).toBe(320 + 24))
+    await settled()
     const region = rect(root.aside)
     await expect(region.width).toBe(393 - 16)
     await expect(region.top).toBe(rect(page).bottom + 8)
