@@ -135,12 +135,14 @@ export const posts: Post[] = [
         authorId: 'nathan',
         body: 'Can we swap the hero for the overhead shot? It reads better at thumbnail size.',
         ago: '16d',
-      },
-      {
-        id: 'c-2',
-        authorId: 'katie',
-        body: 'Swapped. I also moved it to 9 am so it lands before the lunch rush.',
-        ago: '16d',
+        replies: [
+          {
+            id: 'c-2',
+            authorId: 'katie',
+            body: 'Swapped. I also moved it to 9 am so it lands before the lunch rush.',
+            ago: '16d',
+          },
+        ],
       },
     ],
   },

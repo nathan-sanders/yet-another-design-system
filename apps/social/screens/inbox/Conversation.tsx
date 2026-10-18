@@ -18,6 +18,7 @@ import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading, Text } from '../../../../src/components/Text'
 import veggieVault from '../../assets/veggie-vault.png'
 import { InboxComment } from '../../components/InboxComment'
+import { InternalNote } from '../../components/InternalNote'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
 import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
@@ -89,19 +90,26 @@ export function ConversationHeader({
   )
 }
 
-/** What was sent from here this session, under the message it answers. */
+/**
+ * What was sent from here this session, under the message it answers: a reply
+ * as the customer will see it, a note as the team's sticky note.
+ */
 export function SentItems({ items, onMore }: { items: SentItem[]; onMore: () => void }) {
-  return items.map((item) => (
-    <InboxComment
-      key={item.id}
-      authorId={item.authorId}
-      ago="now"
-      badge={<Badge color={item.kind === 'note' ? 'yellow' : 'green'}>{item.kind === 'note' ? 'Internal' : 'Sent'}</Badge>}
-      onMore={onMore}
-    >
-      {item.body}
-    </InboxComment>
-  ))
+  return items.map((item) =>
+    item.kind === 'note' ? (
+      <InternalNote key={item.id} note={{ ...item, ago: 'now' }} />
+    ) : (
+      <InboxComment
+        key={item.id}
+        authorId={item.authorId}
+        ago="now"
+        badge={<Badge color="green">Sent</Badge>}
+        onMore={onMore}
+      >
+        {item.body}
+      </InboxComment>
+    ),
+  )
 }
 
 /** The Composer block: Reply / Internal note over the reply box. */
@@ -177,13 +185,22 @@ export function Conversation({
     >
       <ConversationHeader ticket={ticket} onBack={onBack} />
       <div className="flex shrink-0 items-center gap-2 py-2 pr-3 pl-4 max-md:flex-wrap">
-        <TicketMeta ticket={ticket} onChange={onTicketChange} className="min-w-0 flex-1 max-md:basis-full" />
+        <TicketMeta
+          ticket={ticket}
+          onChange={onTicketChange}
+          className="min-w-0 flex-1 max-md:basis-full"
+        />
         <AssigneeMenu
           ticket={ticket}
           onChange={onTicketChange}
           trigger={<Button appearance="ghost" startIcon={UserPlus} aria-label="Assign to" />}
         />
-        <Button appearance="ghost" startIcon={Tag} aria-label="Tag" onClick={() => shell.notBuilt('Tagging')} />
+        <Button
+          appearance="ghost"
+          startIcon={Tag}
+          aria-label="Tag"
+          onClick={() => shell.notBuilt('Tagging')}
+        />
         <Button
           appearance="ghost"
           startIcon={CircleCheck}
@@ -213,7 +230,13 @@ export function Conversation({
             {post.photo ? (
               <img src={post.photo} alt="" className="size-6 shrink-0 rounded-sm object-cover" />
             ) : null}
-            <Text render={<span />} size="sm" color="subtle" truncate className="min-w-0 flex-1 italic">
+            <Text
+              render={<span />}
+              size="sm"
+              color="subtle"
+              truncate
+              className="min-w-0 flex-1 italic"
+            >
               {post.body}
             </Text>
           </div>
@@ -235,7 +258,12 @@ export function Conversation({
             Like
           </Button>
           {post ? (
-            <Button appearance="ghost" startIcon={ListTree} className="ml-auto" onClick={onOpenThread}>
+            <Button
+              appearance="ghost"
+              startIcon={ListTree}
+              className="ml-auto"
+              onClick={onOpenThread}
+            >
               Full public thread
             </Button>
           ) : null}
@@ -243,7 +271,11 @@ export function Conversation({
 
         {ticket.note ? (
           <div className="flex justify-center">
-            <Text size="sm" color="subtle" className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic">
+            <Text
+              size="sm"
+              color="subtle"
+              className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic"
+            >
               {ticket.note}
             </Text>
           </div>

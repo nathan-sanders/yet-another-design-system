@@ -4,25 +4,22 @@ import {
   Ellipsis,
   Eye,
   FileText,
-  Heart,
   Paperclip,
   Pencil,
-  Reply,
   Smile,
   Tag,
 } from 'lucide-react'
 
-import { Avatar } from '../../../../src/components/Avatar'
-import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
-import { ChatComposer, ChatMessage } from '../../../../src/components/Chat'
+import { ChatComposer } from '../../../../src/components/Chat'
 import { Panel } from '../../../../src/components/Panel'
 import { Text } from '../../../../src/components/Text'
 import { Tabs } from '../../../../src/components/Tabs'
 import { Token } from '../../../../src/components/Token'
+import { NoteThread } from '../../components/InternalNote'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { formatTime } from '../../data/dates'
-import { me, personFor } from '../../data/people'
+import { me } from '../../data/people'
 import { commentsFor, eventsFor, statsFor } from '../../data/performance'
 import { posts, profileFor } from '../../data/posts'
 import type { Post, PostComment, PostEvent } from '../../data/types'
@@ -78,51 +75,7 @@ export function PostDetailPanel({
 
   const notes = (
     <section aria-label="Notes" className="flex flex-col gap-4">
-      <div role="log" aria-label="Team notes" className="flex flex-col gap-4">
-        {thread.map((comment) => {
-          const author = personFor(comment.authorId)
-          return (
-            <ChatMessage
-              key={comment.id}
-              layout="fill"
-              avatar={<Avatar name={author.name} src={author.avatar} size="small" />}
-              header={
-                <ChatMessage.Header
-                  name={author.name}
-                  badge={<Badge>Internal</Badge>}
-                  timestamp={comment.ago}
-                />
-              }
-              metadata={
-                <ChatMessage.Metadata
-                  actions={
-                    <>
-                      <Button
-                        appearance="ghost"
-                        size="small"
-                        startIcon={Reply}
-                        onClick={() => shell.notBuilt('Replies')}
-                      >
-                        Reply
-                      </Button>
-                      <Button
-                        appearance="ghost"
-                        size="small"
-                        startIcon={Heart}
-                        onClick={() => shell.notBuilt('Likes')}
-                      >
-                        Like
-                      </Button>
-                    </>
-                  }
-                />
-              }
-            >
-              <ChatMessage.Bubble>{comment.body}</ChatMessage.Bubble>
-            </ChatMessage>
-          )
-        })}
-      </div>
+      <NoteThread notes={thread} />
       {thread.length === 0 ? (
         <Text size="sm" color="subtle" className="text-center">
           No notes yet. Leave one for the team below.
@@ -281,7 +234,8 @@ export function PostDetailPanel({
  */
 function withNotes(post: Post, events: PostEvent[], notes: PostComment[]): PostEvent[] {
   const created = events.find((e) => e.kind === 'created')?.at ?? postMoment(post)
-  const noteEvents = notes.map((note, i): PostEvent => ({
+  const flat = notes.flatMap((note) => [note, ...(note.replies ?? [])])
+  const noteEvents = flat.map((note, i): PostEvent => ({
     id: `note-${note.id}`,
     kind: 'note',
     actorId: note.authorId,

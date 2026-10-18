@@ -12,6 +12,8 @@ export interface Person {
   id: string
   name: string
   avatar?: string
+  /** Presence, the dot on their face in a note. */
+  status?: 'online' | 'offline'
 }
 
 export interface PostComment {
@@ -20,6 +22,8 @@ export interface PostComment {
   body: string
   /** How long ago, as the activity feed prints it. */
   ago: string
+  /** Notes answering this one, drawn one step in under it. */
+  replies?: PostComment[]
 }
 
 export interface Post {
@@ -169,7 +173,15 @@ export interface PostStats {
 /** One line in a post's activity log. */
 export interface PostEvent {
   id: string
-  kind: 'created' | 'note' | 'approved' | 'scheduled' | 'published' | 'comment' | 'milestone' | 'assigned'
+  kind:
+    | 'created'
+    | 'note'
+    | 'approved'
+    | 'scheduled'
+    | 'published'
+    | 'comment'
+    | 'milestone'
+    | 'assigned'
   /** A person id, when someone did it. The system did it otherwise. */
   actorId?: string
   /** What happened, after the actor's name. */
