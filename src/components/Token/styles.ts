@@ -114,32 +114,9 @@ export const token = tv({
       false: '',
     },
 
-    /**
-     * Only the leading icon or avatar shows; the label is still there, `sr-only`.
-     * The pill goes **square** — 24×24, 20×20 at small — with the glyph centered,
-     * rather than keeping its 8px of padding either side of a 16px avatar and
-     * reading as a stubby 34px lozenge. Width is the compound below, keyed on
-     * size, so the height arithmetic above is untouched: the label leaves the
-     * flow (sr-only is absolute), and the row is just the glyph.
-     */
-    labelHidden: {
-      true: 'justify-center px-0',
-      false: '',
-    },
   },
 
-  compoundVariants: [
-    { labelHidden: true, size: 'default', class: 'w-6' },
-    { labelHidden: true, size: 'small', class: 'w-5' },
-  ],
-
-  defaultVariants: {
-    size: 'default',
-    radius: 'md',
-    interactive: false,
-    disabled: false,
-    labelHidden: false,
-  },
+  defaultVariants: { size: 'default', radius: 'md', interactive: false, disabled: false },
 })
 
 /**
@@ -152,7 +129,11 @@ export const tokenLabel = tv({
   base: 'min-w-0 truncate',
 
   variants: {
-    /** Read, not seen — see `labelHidden` on `token`. */
+    /**
+     * `labelHidden`: read, not seen. `sr-only` is absolute, so the label leaves
+     * the flow and the flex gap with it — the pill is its usual 8px either side
+     * of the glyph, and nothing on the root has to change.
+     */
     hidden: {
       true: 'sr-only',
       false: '',

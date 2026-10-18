@@ -67,11 +67,10 @@ interface TokenBaseProps
   /** Figma's `State=Disabled`. Fades the token and stops both inner buttons. */
   disabled?: boolean
   /**
-   * Show only the leading `startIcon` or `avatar`, in a square pill; the label
-   * is still read out, `sr-only`. For a dense row where the glyph already
-   * carries the value — a ticket's status, priority and sentiment in a message
-   * list. Needs a glyph to show, and is for view-only or clickable tokens: a
-   * remove `x` or an end slot has no room in the square.
+   * Show only the leading `startIcon` or `avatar`, with the token's usual 8px
+   * either side; the label is still read out, `sr-only`. For a dense row where
+   * the glyph already carries the value — a ticket's status, priority and
+   * sentiment in a message list. Needs a glyph to show.
    */
   labelHidden?: boolean
   /** Extra classes for the outermost element — the pill. */
@@ -210,7 +209,7 @@ export function Token({
 
   return (
     <TokenContext.Provider value={{ size, radius }}>
-      <span className={cn(token({ size, radius, interactive, disabled, labelHidden }), className)} {...props}>
+      <span className={cn(token({ size, radius, interactive, disabled }), className)} {...props}>
         {clickable &&
           (href ? (
             <a
