@@ -9,6 +9,7 @@ import { useYakChat } from '../yak/chat'
 import type { FloatingYakConfig } from '../yak/floating'
 import { yakPath } from '../yak/paths'
 import { useYakSearch } from '../yak/useYakSearch'
+import { useMarkActive } from '../yak/useMarkActive'
 import { YakMark } from '../yak/YakMark'
 
 /**
@@ -45,6 +46,7 @@ export function FloatingYak({
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [text, setText] = useState('')
+  const mark = useMarkActive()
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -70,12 +72,16 @@ export function FloatingYak({
       role={mode === 'search' ? 'search' : undefined}
       aria-label="Ask Yak"
       onSubmit={submit}
+      {...mark.handlers}
       // Figma's 700, centered, and 16 off each side once the column is narrower.
       className="absolute inset-x-4 bottom-4 z-20 mx-auto max-w-175 max-md:hidden"
     >
       <InputGroup size="large" ring="input" className="min-h-14.5 rounded-full p-2 shadow-medium">
         <InputGroup.Addon align="inline-start">
-          <YakMark className="size-6 text-content-emphasized" />
+          <YakMark
+            className="size-6 text-content-emphasized"
+            animate={mark.active || chat.thinking}
+          />
         </InputGroup.Addon>
         <InputGroup.Input
           ref={inputRef}

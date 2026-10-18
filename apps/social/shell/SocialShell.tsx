@@ -17,6 +17,7 @@ import { useInbox } from '../screens/inbox/inboxState'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { YakChatContext, useYakChatState } from '../yak/chat'
 import { floatingYakFor } from '../yak/floating'
+import { useMarkActive } from '../yak/useMarkActive'
 import { YakMark } from '../yak/YakMark'
 import { YakHistory, YakPanel } from '../yak/YakPanel'
 import { yakFrom, yakPath } from '../yak/paths'
@@ -115,6 +116,9 @@ export function SocialShell() {
     return count ? <Badge>{count}</Badge> : undefined
   }
   const yakOpen = panel?.type === 'yak' && !onYakPage
+  // The nav marks scribble while pointed at or focused, and while Yak answers.
+  const railYak = useMarkActive()
+  const mobileYak = useMarkActive()
 
   /** The navigation, written once for the rail and the phone sheet. */
   const sections = (
@@ -175,7 +179,10 @@ export function SocialShell() {
             top={
               <>
                 <NavItem
-                  start={<YakMark className="size-4" />}
+                  {...railYak.handlers}
+                  start={
+                    <YakMark className="size-4" animate={railYak.active || yakChat.thinking} />
+                  }
                   end={<Kbd keys="/" />}
                   aria-pressed={yakOpen || onYakPage}
                   onClick={toggleYak}
@@ -259,7 +266,10 @@ export function SocialShell() {
             utilities={
               <>
                 <NavItem
-                  start={<YakMark className="size-4" />}
+                  {...mobileYak.handlers}
+                  start={
+                    <YakMark className="size-4" animate={mobileYak.active || yakChat.thinking} />
+                  }
                   aria-label="Yak"
                   aria-pressed={yakOpen || onYakPage}
                   onClick={toggleYak}
