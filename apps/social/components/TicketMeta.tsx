@@ -32,21 +32,47 @@ interface Option<T extends string> {
   value: T
   label: string
   icon: LucideIcon
+  /** The glyph's color — a text utility on a theme-aware token. */
+  tone: string
 }
 
+// Colors after Nathan's status and sentiment filter menus: pink open, green in
+// progress, yellow on hold, gray complete; blue positive, gray neutral, red
+// negative, and unclassified in the text color. Each is a Decorative
+// `highlight`, the mid-tone of its hue, which has its own dark value; the
+// grays are `content-subtle`. Written out whole so Tailwind can see them.
 const STATUS: Option<TicketStatus>[] = [
-  { value: 'new', label: 'New', icon: CircleDashed },
-  { value: 'in-progress', label: 'In progress', icon: CircleDot },
-  { value: 'on-hold', label: 'On hold', icon: CirclePause },
-  { value: 'complete', label: 'Complete', icon: CircleCheck },
+  { value: 'new', label: 'New', icon: CircleDashed, tone: 'text-decorative-pink-highlight' },
+  {
+    value: 'in-progress',
+    label: 'In progress',
+    icon: CircleDot,
+    tone: 'text-decorative-green-highlight',
+  },
+  {
+    value: 'on-hold',
+    label: 'On hold',
+    icon: CirclePause,
+    tone: 'text-decorative-yellow-highlight',
+  },
+  { value: 'complete', label: 'Complete', icon: CircleCheck, tone: 'text-content-subtle' },
 ]
 
 const SENTIMENT: Option<TicketSentiment>[] = [
-  { value: 'positive', label: 'Positive', icon: Smile },
-  { value: 'neutral', label: 'Neutral', icon: Meh },
-  { value: 'negative', label: 'Negative', icon: Frown },
-  { value: 'undefined', label: 'Undefined', icon: CircleHelp },
+  { value: 'positive', label: 'Positive', icon: Smile, tone: 'text-decorative-blue-highlight' },
+  { value: 'neutral', label: 'Neutral', icon: Meh, tone: 'text-content-subtle' },
+  { value: 'negative', label: 'Negative', icon: Frown, tone: 'text-decorative-red-highlight' },
+  { value: 'undefined', label: 'Undefined', icon: CircleHelp, tone: 'text-content-primary' },
 ]
+
+/**
+ * A status or sentiment glyph in its color. In a Token it goes in the leading
+ * `avatar` slot rather than `startIcon`, which draws in the label's color and
+ * takes no class. FINDINGS 32.
+ */
+function Glyph({ option, size }: { option: Option<string>; size: 'small' | 'base' }) {
+  return <Icon icon={option.icon} size={size} className={option.tone} />
+}
 
 interface PriorityOption {
   value: TicketPriority
@@ -309,10 +335,10 @@ export function TicketMeta({
     return (
       <div className={cn('flex flex-wrap gap-1', className)}>
         {number}
-        <Token startIcon={status.icon}>{statusLabel}</Token>
+        <Token avatar={<Glyph option={status} size="small" />}>{statusLabel}</Token>
         {assignee ? <Token avatar={assigneeAvatar}>{assigneeLabel}</Token> : null}
         <Token avatar={priorityMark}>{priorityLabel}</Token>
-        <Token startIcon={sentiment.icon}>{sentimentLabel}</Token>
+        <Token avatar={<Glyph option={sentiment} size="small" />}>{sentimentLabel}</Token>
       </div>
     )
   }
@@ -324,10 +350,12 @@ export function TicketMeta({
         label="Status"
         value={status.value}
         onValueChange={(value) => onChange({ status: value as TicketStatus })}
-        trigger={<TokenTrigger startIcon={status.icon}>{statusLabel}</TokenTrigger>}
+        trigger={
+          <TokenTrigger avatar={<Glyph option={status} size="small" />}>{statusLabel}</TokenTrigger>
+        }
       >
         {STATUS.map((o) => (
-          <Choice key={o.value} value={o.value} start={<Icon icon={o.icon} size="base" />}>
+          <Choice key={o.value} value={o.value} start={<Glyph option={o} size="base" />}>
             {o.label}
           </Choice>
         ))}
@@ -355,10 +383,14 @@ export function TicketMeta({
         label="Sentiment"
         value={sentiment.value}
         onValueChange={(value) => onChange({ sentiment: value as TicketSentiment })}
-        trigger={<TokenTrigger startIcon={sentiment.icon}>{sentimentLabel}</TokenTrigger>}
+        trigger={
+          <TokenTrigger avatar={<Glyph option={sentiment} size="small" />}>
+            {sentimentLabel}
+          </TokenTrigger>
+        }
       >
         {SENTIMENT.map((o) => (
-          <Choice key={o.value} value={o.value} start={<Icon icon={o.icon} size="base" />}>
+          <Choice key={o.value} value={o.value} start={<Glyph option={o} size="base" />}>
             {o.label}
           </Choice>
         ))}

@@ -251,3 +251,13 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     It is the first container query in the repo. Worth a library question: whether
     `AppShell.Page` should be a container by default, since "how much room does the page
     have" is exactly what a panel changes.
+32. **Status and sentiment glyphs are colored**, after Nathan's filter menus. New is pink, In
+    progress green, On hold yellow and Complete gray. Positive is blue, Neutral gray, Negative red,
+    and Undefined takes the text color. Each hue is a Decorative `highlight` and the grays are
+    `content-subtle`. Against the card the lowest is 3.76:1 (blue, light) and 3.85:1 (pink, dark),
+    so every glyph clears 3:1 in both themes. **`Token`'s `startIcon` takes no color.** It draws
+    in the label's color, so a tinted glyph goes in the leading `avatar` slot as an `Icon` with a
+    text class. Measured, it lands exactly where `startIcon` does: 14px, 9 in and 5 down. A
+    `startIconClassName`, or an `icon` slot that takes a node, would say what this is. The
+    shapes are unchanged. The menus Nathan shared draw a half-filled circle for In progress and
+    solid faces for sentiment. Lucide's line glyphs have neither, and Nathan asked for color.
