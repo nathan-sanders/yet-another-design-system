@@ -78,9 +78,6 @@ export function PostDetailPanel({
 
   const notes = (
     <section aria-label="Notes" className="flex flex-col gap-4">
-      <Text size="sm" color="subtle" className="text-center">
-        Post created by {me.name}
-      </Text>
       <div role="log" aria-label="Team notes" className="flex flex-col gap-4">
         {thread.map((comment) => {
           const author = personFor(comment.authorId)
@@ -203,8 +200,10 @@ export function PostDetailPanel({
           )}
         </div>
 
-        <Tabs value={current} onValueChange={(value) => setTab(value as DetailTab)} layout="fill">
-          <Tabs.List aria-label="Post detail sections">
+        <Tabs value={current} onValueChange={(value) => setTab(value as DetailTab)}>
+          {/* Hugged tabs on a full-width rule; `hug` makes the whole strip
+              inline, rule included — see FINDINGS 34. */}
+          <Tabs.List aria-label="Post detail sections" className="flex">
             {published ? <Tabs.Tab value="comments">Comments</Tabs.Tab> : null}
             <Tabs.Tab value="notes">Notes</Tabs.Tab>
             <Tabs.Tab value="activity">Activity</Tabs.Tab>
