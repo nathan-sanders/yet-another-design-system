@@ -203,6 +203,7 @@ export const tickets: Ticket[] = [
     priority: 'medium',
     sentiment: 'neutral',
     viewers: ['katie'],
+    assigneeId: 'nathan',
     drafts: [
       "Hi Maria, happy to check! Could you send us your order number in a DM? We'll look it up right away.",
     ],
@@ -258,6 +259,7 @@ export const tickets: Ticket[] = [
     status: 'new',
     priority: 'medium',
     sentiment: 'positive',
+    assigneeId: 'nathan',
     drafts: [
       'We do! Send us a DM with the date and address and our catering team will put together a menu.',
     ],

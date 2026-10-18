@@ -12,9 +12,10 @@ import { useDocumentTheme } from '../../shared/theme'
 import { me } from '../data/people'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
+import { useInbox } from '../screens/inbox/inboxState'
 import { YakPanel } from '../yak/YakPanel'
 import { Logo } from './Logo'
-import { groups, home } from './routes'
+import { groups, home, type AppRoute } from './routes'
 import { ShellContext, type ShellPanel, type ShellState } from './ShellContext'
 
 /**
@@ -76,6 +77,12 @@ export function SocialShell() {
   }, [toggleYak, notBuilt])
 
   const shell = useMemo<ShellState>(() => ({ panel, setPanel, notBuilt }), [panel, notBuilt])
+  // My inbox's count is live: assign a ticket to yourself anywhere and it goes up.
+  const myInboxCount = useInbox().tickets.filter((t) => t.assigneeId === me.id).length
+  const badgeFor = (route: AppRoute) => {
+    const count = route.path === '/engage/my-inbox' ? myInboxCount : route.badge
+    return count ? <Badge>{count}</Badge> : undefined
+  }
   const yakOpen = panel?.type === 'yak'
 
   /** The navigation, written once for the rail and the phone sheet. */
@@ -99,7 +106,7 @@ export function SocialShell() {
               key={route.path}
               href={`#${route.path}`}
               selected={location.pathname.startsWith(route.path)}
-              end={route.badge ? <Badge>{route.badge}</Badge> : undefined}
+              end={badgeFor(route)}
             >
               {route.label}
             </NavItem>

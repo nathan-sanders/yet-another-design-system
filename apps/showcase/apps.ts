@@ -27,7 +27,7 @@ export const apps: ShowcaseApp[] = [
     built: [
       'Calendar: week, day and month',
       'Post detail',
-      'Inbox: all messages, public thread and contact detail',
+      'Inbox: all messages, my inbox, public thread and contact detail',
       'Yak assistant and history',
     ],
     components: [

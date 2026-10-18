@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Ellipsis, ListFilter } from 'lucide-react'
 
@@ -8,38 +7,37 @@ import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import type { ReplyMode } from '../../components/ReplyBox'
-import { replyAccountFor, tickets } from '../../data/inbox'
+import { replyAccountFor } from '../../data/inbox'
 import { me } from '../../data/people'
-import type { Ticket, TicketEdit } from '../../data/types'
+import type { Ticket } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { Conversation } from './Conversation'
+import { useInbox } from './inboxState'
 import { MessageList } from './MessageList'
-import { visibleTickets, withViewer, type InboxFilter, type SentItem, type SortKey } from './model'
+import { visibleTickets, withViewer, type InboxFilter, type SortKey } from './model'
 import { PublicThread } from './PublicThread'
 
 /**
- * Engage › All messages: the conversation (`40005911:33580`), the public
- * thread (`33732`) and the contact panel (`33894`). Everything worth linking
- * to is in the URL — `?message=1283&view=thread&filter=unassigned&sort=priority`.
+ * Engage › All messages and Engage › My inbox — one screen, two scopes. All
+ * messages is the conversation (`40005911:33580`), the public thread (`33732`)
+ * and the contact panel (`33894`), with All / Unassigned in the top bar. My
+ * inbox is the same screen showing only what is assigned to you; it has no
+ * Figma frame of its own, and drops All / Unassigned, which would mean nothing
+ * there. Everything worth linking to is in the URL —
+ * `?message=1283&view=thread&filter=unassigned&sort=priority`.
  *
  * On a phone the list and the conversation are two screens: with no `message`
  * the list shows, with one the conversation does. On a desktop the first
  * message opens by itself, as the file draws it.
  */
-export function InboxScreen() {
+export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
-  // Replies and notes sent here, per ticket, for the session.
-  const [sent, setSent] = useState<Record<string, SentItem[]>>({})
-  // Status, assignee, priority and sentiment changed from the detail view's
-  // menus, per ticket, for the session. Applied before filtering, so a ticket
-  // you unassign joins Unassigned and the list's card shows the new values.
-  const [edits, setEdits] = useState<Record<string, TicketEdit>>({})
-  const allTickets = tickets.map((t) => (edits[t.number] ? { ...t, ...edits[t.number] } : t))
-  const editTicket = (number: string, edit: TicketEdit) =>
-    setEdits((all) => ({ ...all, [number]: { ...all[number], ...edit } }))
+  // Edits and sent replies live above the routes, shared with the other scope.
+  const { tickets: allTickets, editTicket, sent, addSent } = useInbox()
 
-  const filter: InboxFilter = params.get('filter') === 'unassigned' ? 'unassigned' : 'all'
+  const filter: InboxFilter =
+    scope === 'mine' ? 'mine' : params.get('filter') === 'unassigned' ? 'unassigned' : 'all'
   const sort: SortKey = params.get('sort') === 'priority' ? 'priority' : 'received'
   const descending = params.get('dir') !== 'asc'
   const list = visibleTickets(allTickets, filter, sort, descending)
@@ -71,13 +69,7 @@ export function InboxScreen() {
   const send = (body: string, mode: ReplyMode) => {
     if (!open) return
     const authorId = mode === 'note' ? me.id : (replyAccountFor(open)?.id ?? me.id)
-    setSent((all) => ({
-      ...all,
-      [open.number]: [
-        ...(all[open.number] ?? []),
-        { id: `sent-${Date.now()}`, kind: mode, authorId, body },
-      ],
-    }))
+    addSent(open.number, { id: `sent-${Date.now()}`, kind: mode, authorId, body })
   }
 
   const backToList = () => update({ message: null, view: null })
@@ -88,17 +80,28 @@ export function InboxScreen() {
         start={
           // One child: TopBar's start slot stretches each child (FINDINGS 6).
           <div className="flex items-center gap-2">
-            <Heading level={1} size="base" weight="semibold" className="shrink-0 max-md:sr-only">
-              All messages
-            </Heading>
-            <SegmentedControl
-              aria-label="Show"
-              value={filter}
-              onValueChange={(value) => update({ filter: value === 'all' ? null : String(value) })}
+            <Heading
+              level={1}
+              size="base"
+              weight="semibold"
+              // Hidden on a phone beside the segmented control; My inbox has
+              // none, so its title stays.
+              className={scope === 'all' ? 'shrink-0 max-md:sr-only' : 'shrink-0'}
             >
-              <SegmentedControl.Item value="all">All</SegmentedControl.Item>
-              <SegmentedControl.Item value="unassigned">Unassigned</SegmentedControl.Item>
-            </SegmentedControl>
+              {scope === 'mine' ? 'My inbox' : 'All messages'}
+            </Heading>
+            {scope === 'all' ? (
+              <SegmentedControl
+                aria-label="Show"
+                value={filter}
+                onValueChange={(value) =>
+                  update({ filter: value === 'all' ? null : String(value) })
+                }
+              >
+                <SegmentedControl.Item value="all">All</SegmentedControl.Item>
+                <SegmentedControl.Item value="unassigned">Unassigned</SegmentedControl.Item>
+              </SegmentedControl>
+            ) : null}
           </div>
         }
         end={
@@ -167,7 +170,11 @@ export function InboxScreen() {
           </div>
         ) : (
           <div className="flex flex-1 items-center justify-center p-4 max-md:hidden">
-            <Text color="subtle">No messages here. Everything is assigned.</Text>
+            <Text color="subtle">
+              {scope === 'mine'
+                ? 'Nothing is assigned to you right now.'
+                : 'No messages here. Everything is assigned.'}
+            </Text>
           </div>
         )}
       </AppShell.Content>

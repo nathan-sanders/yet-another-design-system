@@ -1,7 +1,8 @@
 import { me } from '../../data/people'
 import type { Ticket, TicketPriority } from '../../data/types'
 
-export type InboxFilter = 'all' | 'unassigned'
+/** `mine` is My inbox: tickets assigned to you. */
+export type InboxFilter = 'all' | 'unassigned' | 'mine'
 export type SortKey = 'received' | 'priority'
 export type InboxView = 'conversation' | 'thread'
 
@@ -26,7 +27,12 @@ export function visibleTickets(
   sort: SortKey,
   descending: boolean,
 ): Ticket[] {
-  const filtered = filter === 'unassigned' ? tickets.filter((t) => !t.assigneeId) : tickets
+  const filtered =
+    filter === 'unassigned'
+      ? tickets.filter((t) => !t.assigneeId)
+      : filter === 'mine'
+        ? tickets.filter((t) => t.assigneeId === me.id)
+        : tickets
   const ranked = filtered
     .map((ticket, index) => ({ ticket, index }))
     .sort((a, b) =>
