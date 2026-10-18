@@ -1,6 +1,6 @@
 import { CircleAlert, Lightbulb, CalendarX, type LucideIcon } from 'lucide-react'
 
-import { addDays, formatTime, sameDay, startOfWeek } from '../data/dates'
+import { addDays, formatTime, sameDay } from '../data/dates'
 import { posts } from '../data/posts'
 import { postDate, postsOn, today } from '../screens/calendar/model'
 
@@ -80,10 +80,4 @@ export function weekRange(): string {
   const last = days[6]!
   const sameMonth = first.getMonth() === last.getMonth()
   return `${monthShort.format(first)} ${first.getDate()} – ${sameMonth ? '' : `${monthShort.format(last)} `}${last.getDate()}`
-}
-
-/** `Oct 11`, the Sunday the calendar's current week starts on. */
-export function weekStartLabel(): string {
-  const start = startOfWeek(today)
-  return `${monthShort.format(start)} ${start.getDate()}`
 }
