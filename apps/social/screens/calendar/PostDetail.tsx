@@ -16,7 +16,6 @@ import { Avatar } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { ChatComposer, ChatMessage } from '../../../../src/components/Chat'
-import { Divider } from '../../../../src/components/Divider'
 import { Panel } from '../../../../src/components/Panel'
 import { Text } from '../../../../src/components/Text'
 import { Tabs } from '../../../../src/components/Tabs'
@@ -37,7 +36,7 @@ const headerDate = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
 })
 
-type PublishedTab = 'comments' | 'notes' | 'activity' | 'measure'
+type DetailTab = 'comments' | 'notes' | 'activity' | 'measure'
 
 /**
  * The post detail panel (`40005911:33082`): the post as it will go out, then
@@ -45,11 +44,12 @@ type PublishedTab = 'comments' | 'notes' | 'activity' | 'measure'
  * because the calendar stays live beside it — click another post and the panel
  * follows.
  *
- * **A published post gets tabs.** Once it has gone out there is more to it
- * than the team's notes: its numbers under the copy, then Comments (the public
- * thread, each comment a ticket as in the inbox), Notes (the same internal
- * thread and composer), Activity (everything that happened to it) and
- * Measure (what it earned). The composer shows only on Notes.
+ * **The thread and the log are tabs.** A scheduled post has two: Notes (the
+ * internal thread and composer) and Activity (who made, approved and
+ * scheduled it). Once it has gone out there is more to it: its numbers under
+ * the copy, Comments first (the public thread, each comment a ticket as in the
+ * inbox), Activity carrying on past publishing, and Measure (what it earned).
+ * The composer shows only on Notes.
  */
 export function PostDetailPanel({
   postId,
@@ -66,13 +66,15 @@ export function PostDetailPanel({
   // Notes added here live for the session, per post — enough to show the
   // composer working without a backend.
   const [added, setAdded] = useState<Record<string, PostComment[]>>({})
-  const [tab, setTab] = useState<PublishedTab>('comments')
+  const [tab, setTab] = useState<DetailTab>('comments')
 
   if (!post) return null
   const profile = profileFor(post)
   const thread = [...(post.thread ?? []), ...(added[post.id] ?? [])]
   const published = isPublished(post)
-  const showComposer = !published || tab === 'notes'
+  // The tab picked on a published post may not exist on a scheduled one.
+  const current: DetailTab = published || tab === 'activity' ? tab : 'notes'
+  const showComposer = current === 'notes'
 
   const notes = (
     <section aria-label="Notes" className="flex flex-col gap-4">
@@ -201,33 +203,30 @@ export function PostDetailPanel({
           )}
         </div>
 
-        {published ? (
-          <Tabs value={tab} onValueChange={(value) => setTab(value as PublishedTab)} layout="fill">
-            <Tabs.List aria-label="Post detail sections">
-              <Tabs.Tab value="comments">Comments</Tabs.Tab>
-              <Tabs.Tab value="notes">Notes</Tabs.Tab>
-              <Tabs.Tab value="activity">Activity</Tabs.Tab>
-              <Tabs.Tab value="measure">Measure</Tabs.Tab>
-            </Tabs.List>
+        <Tabs value={current} onValueChange={(value) => setTab(value as DetailTab)} layout="fill">
+          <Tabs.List aria-label="Post detail sections">
+            {published ? <Tabs.Tab value="comments">Comments</Tabs.Tab> : null}
+            <Tabs.Tab value="notes">Notes</Tabs.Tab>
+            <Tabs.Tab value="activity">Activity</Tabs.Tab>
+            {published ? <Tabs.Tab value="measure">Measure</Tabs.Tab> : null}
+          </Tabs.List>
+          {published ? (
             <Tabs.Panel value="comments" className="pt-4">
               <CommentsTab key={post.id} post={post} thread={commentsFor(post)} />
             </Tabs.Panel>
-            <Tabs.Panel value="notes" className="pt-4">
-              {notes}
-            </Tabs.Panel>
-            <Tabs.Panel value="activity" className="pt-4">
-              <ActivityTab events={withNotes(post, eventsFor(post), thread)} />
-            </Tabs.Panel>
+          ) : null}
+          <Tabs.Panel value="notes" className="pt-4">
+            {notes}
+          </Tabs.Panel>
+          <Tabs.Panel value="activity" className="pt-4">
+            <ActivityTab events={withNotes(post, eventsFor(post), thread)} />
+          </Tabs.Panel>
+          {published ? (
             <Tabs.Panel value="measure" className="pt-4">
               <MeasureTab post={post} />
             </Tabs.Panel>
-          </Tabs>
-        ) : (
-          <>
-            <Divider />
-            {notes}
-          </>
-        )}
+          ) : null}
+        </Tabs>
       </Panel.Body>
       {showComposer ? (
         <Panel.Footer>

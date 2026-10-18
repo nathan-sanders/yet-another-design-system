@@ -1,4 +1,4 @@
-import { postMoment } from '../screens/calendar/model'
+import { isPublished, postMoment } from '../screens/calendar/model'
 import { authorOf } from './inbox'
 import { personFor } from './people'
 import { profileFor } from './posts'
@@ -255,9 +255,18 @@ export function flatten(thread: PostReply[]): PostReply[] {
 
 /**
  * The post's log, oldest first: who made it and approved it, when it was
- * scheduled and went out, then what the audience and the team did after.
+ * scheduled and went out, then what the audience and the team did after. A
+ * post still scheduled stops at the scheduling — nothing else has happened.
  * Team notes are folded in by the panel, which owns the notes added live.
  */
+const scheduledFor = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+})
+
 export function eventsFor(post: Post): PostEvent[] {
   const random = seeded(`${post.id}-events`)
   const out = postMoment(post)
@@ -275,14 +284,18 @@ export function eventsFor(post: Post): PostEvent[] {
   }[network]
   const approver = personFor('katie')
   const thread = flatten(commentsFor(post))
-  // The team's steps land on working hours, days before the post went out.
+  // The team's steps land on working hours, days before the post went out —
+  // or, for one still scheduled, days before today, since they have happened
+  // and its going out has not.
+  const published = isPublished(post)
+  const anchor = published ? out : new Date()
   const daysBefore = (days: number) => {
-    const day = new Date(out.getTime() - days * 24 * HOUR)
+    const day = new Date(anchor.getTime() - days * 24 * HOUR)
     day.setHours(9 + Math.floor(random() * 8), Math.floor(random() * 60))
     return day
   }
-  const created = daysBefore(4 + Math.floor(random() * 3))
-  const approved = daysBefore(2)
+  const created = daysBefore(published ? 4 + Math.floor(random() * 3) : 3)
+  const approved = daysBefore(published ? 2 : 1)
   const events: PostEvent[] = [
     {
       id: 'created',
@@ -302,16 +315,12 @@ export function eventsFor(post: Post): PostEvent[] {
       id: 'scheduled',
       kind: 'scheduled',
       actorId: 'nathan',
-      text: 'scheduled it',
+      text: `scheduled it for ${scheduledFor.format(out)}`,
       at: new Date(approved.getTime() + (0.3 + random()) * HOUR),
     },
-    {
-      id: 'published',
-      kind: 'published',
-      text: `Published to ${networkName}`,
-      at: out,
-    },
   ]
+  if (!published) return events
+  events.push({ id: 'published', kind: 'published', text: `Published to ${networkName}`, at: out })
   if (thread[0]) {
     events.push({
       id: 'first-comment',
