@@ -214,7 +214,7 @@ A past post on Plan › Calendar now shows what it earned. Week and day cards ca
 likes and comments as `Token`s, and the post detail panel grows tabs: **Comments** (the public
 thread, each comment a ticket with the inbox's `TicketMeta` and toolbar), **Notes** (the team's
 thread and composer, as before), **Activity** (created, approved, scheduled, published, first
-comment, milestones, notes) and **Performance** (`MetricGrid` of `MetricCard`s, an `AreaSeries`
+comment, milestones, notes) and **Measure** (`MetricGrid` of `MetricCard`s, an `AreaSeries`
 of the first 24 hours, a `HorizontalBar` breakdown). No Figma frame yet; the comments tab follows
 Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
 (`data/performance.ts`); `p-10`'s thread is written out.
@@ -225,7 +225,7 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     drew a noon post's first hour as 5 PM. That is the documented default, `timeZone` is a prop,
     and the app passes the browser's zone. Any chart of local events will need the same line.
 32. **The composer belongs to one tab.** `Panel.Footer` pins the notes composer under the body;
-    on Comments, Activity and Performance it would be writing to a thread you can't see, so the
+    on Comments, Activity and Measure it would be writing to a thread you can't see, so the
     footer only renders on Notes.
 
 ### Figma owes
