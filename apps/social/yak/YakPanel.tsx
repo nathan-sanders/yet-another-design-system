@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import {
   Bot,
@@ -55,9 +55,12 @@ export function YakPanel({
   history: historyOpen,
   onHistoryChange,
   onClose,
+  pendingAsk,
 }: {
   open: boolean
   history: boolean
+  /** A question another screen asked Yak to answer as it opens; asked once per `id`, in a new chat. */
+  pendingAsk?: { id: number; text: string }
   onHistoryChange: (open: boolean) => void
   onClose: () => void
 }) {
@@ -66,20 +69,33 @@ export function YakPanel({
   const shell = useShell()
   const { pathname } = useLocation()
 
-  const ask = (prompt: string) => {
-    const id = nextId.current++
-    setTurns((current) => [
-      ...current,
-      { id, prompt, state: 'thinking', work: pageWork(pathname), sentAt: new Date() },
-    ])
-    window.setTimeout(() => {
-      setTurns((current) =>
-        current.map((t) => (t.id === id ? { ...t, state: 'done', repliedAt: new Date() } : t)),
-      )
-    }, 1800)
-  }
+  const ask = useCallback(
+    (prompt: string) => {
+      const id = nextId.current++
+      setTurns((current) => [
+        ...current,
+        { id, prompt, state: 'thinking', work: pageWork(pathname), sentAt: new Date() },
+      ])
+      window.setTimeout(() => {
+        setTurns((current) =>
+          current.map((t) => (t.id === id ? { ...t, state: 'done', repliedAt: new Date() } : t)),
+        )
+      }, 1800)
+    },
+    [pathname],
+  )
 
   const thinking = turns.some((t) => t.state === 'thinking')
+
+  // A question handed over by another screen starts a new chat with it, once.
+  // The id, not the words, says whether it is new — StrictMode runs this twice.
+  const asked = useRef<number | null>(null)
+  useEffect(() => {
+    if (!open || !pendingAsk || asked.current === pendingAsk.id) return
+    asked.current = pendingAsk.id
+    setTurns([])
+    ask(pendingAsk.text)
+  }, [open, pendingAsk, ask])
 
   return (
     <Panel

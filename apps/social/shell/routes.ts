@@ -48,7 +48,13 @@ export const groups: RouteGroup[] = [
     icon: MessageCircle,
     routes: [
       { path: '/engage/my-inbox', label: 'My inbox', built: true },
-      { path: '/engage/all', label: 'All messages', badge: 503, built: true, figma: '40005911-33580' },
+      {
+        path: '/engage/all',
+        label: 'All messages',
+        badge: 503,
+        built: true,
+        figma: '40005911-33580',
+      },
       { path: '/engage/assignments', label: 'All assignments', badge: 20 },
       { path: '/engage/comments', label: 'Comments by post' },
       { path: '/engage/approvals', label: 'Reply approvals' },
@@ -61,7 +67,7 @@ export const groups: RouteGroup[] = [
     label: 'Measure',
     icon: ChartNoAxesColumnIncreasing,
     routes: [
-      { path: '/measure/discover', label: 'Discover', figma: '40005911-35187' },
+      { path: '/measure/discover', label: 'Discover', built: true, figma: '40005911-35187' },
       { path: '/measure/reports', label: 'Reports', built: true, figma: '40005911-34877' },
       { path: '/measure/alerts', label: 'Alerts' },
     ],

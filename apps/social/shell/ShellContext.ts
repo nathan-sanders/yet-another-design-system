@@ -6,7 +6,12 @@ import { createContext, useContext } from 'react'
  * the first (Yak's history is), not beside it.
  */
 export type ShellPanel =
-  | { type: 'yak'; history?: boolean }
+  | {
+      type: 'yak'
+      history?: boolean
+      /** A question to ask as Yak opens — Discover's Ask bar. `id` makes asking the same words twice ask twice. */
+      ask?: { id: number; text: string }
+    }
   | { type: 'post'; postId: string }
   | { type: 'contact'; customerId: string }
   | { type: 'widget'; reportId: string; widgetId: string }

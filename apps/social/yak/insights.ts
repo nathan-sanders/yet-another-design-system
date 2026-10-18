@@ -193,6 +193,16 @@ export function pageWork(pathname: string): PageWork {
       summary: 'Checked the inbox for what needs you',
     }
   }
+  if (pathname.startsWith('/measure/')) {
+    return {
+      phrases: ['Reading what people are posting', 'Checking your audience', 'Drafting'],
+      steps: [
+        'Read trends near your brand · last 7 days',
+        'Checked the creators your audience follows',
+      ],
+      summary: 'Looked at what your audience is talking about',
+    }
+  }
   return {
     phrases: ['Looking across the workspace', 'Checking the calendar and inbox', 'Drafting'],
     steps: [`Read the calendar · ${weekRange()}`, 'Read the open messages'],
