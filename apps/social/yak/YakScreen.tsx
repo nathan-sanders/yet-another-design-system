@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router'
-import { ArrowLeft, History, Minimize2, SquarePen, X } from 'lucide-react'
+import { ArrowLeft, History, PanelRight, SquarePen, X } from 'lucide-react'
 
 import { AppShell } from '../../../src/components/AppShell'
 import { Button } from '../../../src/components/Button'
@@ -73,7 +73,7 @@ export function YakScreen() {
             />
             <Button
               appearance="ghost"
-              startIcon={Minimize2}
+              startIcon={PanelRight}
               aria-label="Collapse to panel"
               onClick={() => leave(true)}
             />
