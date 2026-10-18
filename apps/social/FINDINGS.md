@@ -264,12 +264,12 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
 
 ## Post detail tabs (2026-10-17)
 
-### Open: library changes worth making
+### Fixed in the library (2026-10-17)
 
-34. **`Tabs` cannot hug its tabs on a full-width rule.** Nathan wants the Creator details shape:
-    tabs sized to their labels, the 1px rule running the full width under them. `layout="hug"`
-    makes the whole `Tabs.List` `inline-flex`, so the rule (its `::before`) shrinks with the tabs.
-    It measured 140px under Notes and Activity in a 350px panel body. `fill` gets the rule right
-    and stretches the tabs. The post detail passes `className="flex"` to `Tabs.List`, which
-    keeps the tabs hugging and stretches the strip. In the library this probably wants the strip
-    full width under `hug` too, or a separate prop for it.
+34. **Fixed (#251): `Tabs` hugs its tabs on a full-width rule.** Nathan wanted the Creator
+    details shape: tabs sized to their labels, the 1px rule running the full width under them.
+    `layout="hug"` made the whole `Tabs.List` `inline-flex`, so the rule (its `::before`) shrank
+    with the tabs — 140px under Notes and Activity in a 350px panel body. `layout` now sizes the
+    tabs only; the strip is full width at both layouts, the `Hug on full width rule` story
+    asserts it, and the post detail's `className="flex"` on `Tabs.List` is gone. Figma's Tabs
+    already behaved this way (its Separator stretches), so nothing was owed there.

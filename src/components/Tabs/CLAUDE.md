@@ -5,7 +5,12 @@ Switch between panels of related content. Mirrors Figma nodes `40002087:6609`
 rule). Composed API: `<Tabs>` + `<Tabs.List>` + `<Tabs.Tab>` + `<Tabs.Panel>`.
 `size`: small | default | large — Button's 24 / 32 / 40 again, `px-3` at every size as in
 SegmentedControl. `layout`: hug | fill (Astryx's, not in Figma — the same gap-in-the-file call
-as SegmentedControl's). `startIcon` takes a `LucideIcon`; `endSlot` takes any node, because
+as SegmentedControl's). **`layout` sizes the tabs, never the strip:** `Tabs.List` is `flex w-full`
+at both, so under `hug` the tabs keep their label widths and the rule still runs the full width of
+the container. It used to be `inline-flex` under `hug`, and the rule stopped at the last tab (140px
+of a 350px panel — Yet Social FINDINGS 34, fixed in this change); a strip that genuinely has to
+shrink-wrap takes `className="inline-flex w-auto"`. The `Hug on full width rule` story asserts the
+rule's width against its column and each tab's against its label. `startIcon` takes a `LucideIcon`; `endSlot` takes any node, because
 Figma's "End Slot Items" frame usually holds a count Badge rather than an icon.
 **Fifth Base UI component, and the first that is really navigation:** `role="tablist"` →
 `role="tab"` → `role="tabpanel"`, `aria-selected`, the tab↔panel id wiring, roving tabindex and
