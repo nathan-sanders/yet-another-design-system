@@ -273,3 +273,12 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     tabs only; the strip is full width at both layouts, the `Hug on full width rule` story
     asserts it, and the post detail's `className="flex"` on `Tabs.List` is gone. Figma's Tabs
     already behaved this way (its Separator stretches), so nothing was owed there.
+33. **My inbox is All messages, scoped to you.** It is the same `InboxScreen` with
+    `scope="mine"`: only tickets assigned to you, titled My inbox, and no All / Unassigned
+    control. The file has no frame for it. The session's edits and sent replies moved above the
+    routes (`InboxProvider` in `main.tsx`, `useInbox`), so the two screens are views of one set
+    of tickets. Assign a message to yourself in All messages and it is in My inbox, and the
+    nav's My inbox count goes up with it (live, from 3). Unassign one while it is open in My
+    inbox and it leaves the list but stays open, so the reply you were writing is not lost.
+    #1285 and #1289 are now assigned to Nathan too, so the count starts at the 3 the nav
+    already showed.
