@@ -156,7 +156,7 @@ export function CommentsTab({ post, thread }: { post: Post; thread: PostReply[] 
         <Text size="sm" color="subtle">
           Showing {shown} of {stats.comments} comments
         </Text>
-        <Button appearance="ghost" onClick={() => shell.notBuilt('Bulk edit')}>
+        <Button appearance="ghost" size="small" onClick={() => shell.notBuilt('Bulk edit')}>
           Bulk edit
         </Button>
       </div>
