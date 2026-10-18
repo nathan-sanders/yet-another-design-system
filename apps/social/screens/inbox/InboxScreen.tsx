@@ -6,6 +6,7 @@ import { Button } from '../../../../src/components/Button'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
+import { usePhone } from '../../../../src/lib/viewport'
 import type { ReplyMode } from '../../components/ReplyBox'
 import { replyAccountFor } from '../../data/inbox'
 import { me } from '../../data/people'
@@ -35,6 +36,7 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
   const shell = useShell()
   // Edits and sent replies live above the routes, shared with the other scope.
   const { tickets: allTickets, editTicket, sent, addSent } = useInbox()
+  const phone = usePhone()
 
   const filter: InboxFilter =
     scope === 'mine' ? 'mine' : params.get('filter') === 'unassigned' ? 'unassigned' : 'all'
@@ -43,7 +45,12 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
   const list = visibleTickets(allTickets, filter, sort, descending)
 
   const chosen = allTickets.find((t) => t.number === params.get('message'))
-  const opened = chosen ?? list[0]
+  // On a desktop the first message opens by itself, as the file draws it. A
+  // phone shows the list alone until you pick one, so nothing there is open,
+  // selected or carrying your face yet. `usePhone` is the library's popup-only
+  // hook (`src/lib/viewport.ts`), and its reason does not reach here: this app
+  // renders in the browser only, so the first render already has the answer.
+  const opened = chosen ?? (phone ? undefined : list[0])
   // Your face sits on the message you have open, in the list and the header.
   const open = opened && withViewer(opened, opened.number)
   const listed = list.map((t) => withViewer(t, opened?.number))
