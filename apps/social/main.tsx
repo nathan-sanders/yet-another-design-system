@@ -5,6 +5,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
+import { DiscoverScreen } from './screens/discover/DiscoverScreen'
 import { InboxProvider } from './screens/inbox/InboxProvider'
 import { InboxScreen } from './screens/inbox/InboxScreen'
 import { NotBuilt } from './screens/NotBuilt'
@@ -24,6 +25,7 @@ const router = createHashRouter([
       { path: 'plan/calendar', element: <CalendarScreen /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
+      { path: 'measure/discover', element: <DiscoverScreen /> },
       { path: 'measure/reports', element: <ReportsScreen /> },
       { path: 'measure/reports/:reportId', element: <ReportScreen /> },
       { path: 'measure/reports/:reportId/widgets/:widgetId', element: <WidgetDetailScreen /> },

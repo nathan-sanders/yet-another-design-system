@@ -20,14 +20,14 @@ import type { Network, Spike, Story, Voice } from '../../../data/types'
 import { agoLabel, formatCount, formatVelocity } from '../model'
 
 /** A network's mark, or a glyph for an outlet that has none. */
-function SourceMark({ source }: { source: Network | 'news' | 'web' }) {
+export function SourceMark({ source }: { source: Network | 'news' | 'web' }) {
   if (source === 'news') return <Icon icon={Newspaper} size="small" aria-hidden />
   if (source === 'web') return <Icon icon={Globe} size="small" aria-hidden />
   return <NetworkIcon network={source} size="small" />
 }
 
 /** A title over the line saying where it came from — `_Pulse Story Cell` (`40005869:21505`). */
-function TwoLineCell({
+export function TwoLineCell({
   title,
   source,
   meta,

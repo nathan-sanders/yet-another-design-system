@@ -417,3 +417,69 @@ and Remove live for the session (`ReportsProvider`, the inbox's pattern from fin
 - Phone (375 × 812): one column, widgets 325 wide, document not scrolling on all three screens.
 - axe on the live app, in real Chromium: no violations on the list, board, detail and panel in light,
   or on the list, a generated board and the panel in dark.
+
+## Slice 5 — Measure › Discover (2026-10-18)
+
+`Measure - Discover` (`40005911:35187`) contains:
+- the Ask bar, which hands its question to Yak
+- Trending near your brand
+- Creators your audience follows
+- Visual trends in your space
+- Opportunities to engage
+- Brand sentiment
+- Your top posts
+
+The date range is in the URL (`?range=30d`).
+
+### Open: library changes worth making
+
+51. **`Gauge` and `Donut` take no per-slice color.** Every slice takes the categorical scale by
+    position, so Brand sentiment's Positive came out purple. The sentiment tokens exist
+    (`Data Viz/Sentiment/*`, and `sentiment` in `palette.ts`), but no chart prop can reach them. The
+    widget wraps the gauge in a scope that points `--data-viz-categorical-01…03` at the sentiment
+    tokens, which turns the arc and its legend swatches green, gray and red together. Measured: the
+    three slice fills equal the three sentiment tokens. A `color` on a row (or a `colors` map) is the
+    library fix, and Donut wants the same.
+
+### Kept in the app, worth knowing
+
+52. **The Ask bar is a way into Yak, not a second assistant.** A search or a starter opens Yak with the
+    question and asks it in a new chat. The Yak shell panel can now carry
+    `ask: { id, text }`, and Yak asks once per `id`. Yak also has a Measure line for what it is
+    reading ("Reading what people are posting").
+53. **Your top posts are the calendar's posts.** They are the brand's published posts in the range,
+    ranked by impressions (`statsFor`), so a card opens the same post detail as Plan › Calendar, and
+    the range changes which posts make the four. The file's four (the Silver Lake café opening and the
+    rest) are not in the calendar's fixtures. Matching the rest of the app won over matching the
+    drawing, as in finding 45.
+54. **A clickable card holds spans, not a `<dl>`.** `ClickableCard` is a `<button>`, which may hold
+    only phrasing content, so its stat rows render as spans. Visual trends' cards are plain `Card`s
+    and keep the `<dl>`.
+55. **A widget standing alone in the page column needs `h-auto shrink-0`.** `ContentBlock` is
+    `h-full` (finding 43), and `AppShell.Content` is a flex column that shrinks its children. With
+    the post panel open, Visual trends and Your top posts were squashed to fit the window, and their
+    cards spilled over the next widget. Nothing showed at the frame's full height. A check that
+    compares each block's `scrollHeight` with its `clientHeight` fails without the fix and passes
+    with it.
+
+### Figma owes
+
+56. **Decided here:**
+    - The range menu: Last 24 hours, 7 days or 30 days. Counts scale, and shares hold.
+    - A bar under every theme row: the file draws none under the last row of each column.
+    - Trends and creators are static rows: nothing in the file says what clicking one does.
+    - The suggestion chips are `Token`s, which are outlined. The file fills them gray, and Token has
+      no filled interactive look.
+    - `Widget / Brand this week` (`40005911:35252`) is hidden in the frame and not built.
+57. **Carter is on Threads in Creators and on Reddit in Opportunities**, as drawn.
+
+### Measured, and fine
+
+- 12px between widget rows, at 1088 and at 1180 × 700.
+- The gauge's slice fills equal the sentiment tokens.
+- The four top-post photos sit on one line, because the copy is always two lines tall.
+- The range scales "18.2K posts" to "78K posts" at 30 days.
+- Search and the starters land in Yak.
+- A post card opens post detail.
+- axe on the live app, in real Chromium: no violations in light, dark, or with Yak open.
+- Phone: no document scroll, and nothing wider than the page.

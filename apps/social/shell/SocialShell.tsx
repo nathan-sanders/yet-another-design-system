@@ -104,11 +104,7 @@ export function SocialShell() {
         {home.label}
       </NavItem>
       {groups.map((group) => (
-        <SideNav.Group
-          key={group.label}
-          label={group.label}
-          startIcon={group.icon}
-        >
+        <SideNav.Group key={group.label} label={group.label} startIcon={group.icon}>
           {group.routes.map((route) => (
             <NavItem
               key={route.path}
@@ -196,6 +192,7 @@ export function SocialShell() {
         <YakPanel
           open={yakOpen}
           history={panel?.type === 'yak' && (panel.history ?? false)}
+          pendingAsk={panel?.type === 'yak' ? panel.ask : undefined}
           onHistoryChange={(history) => setPanel({ type: 'yak', history })}
           onClose={() => setPanel(null)}
         />
