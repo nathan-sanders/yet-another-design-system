@@ -1,11 +1,10 @@
-import { useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { type CSSProperties, type ReactNode } from 'react'
 import {
   Ellipsis,
   Flame,
   Hash,
   Radar,
   Reply,
-  Search,
   Share,
   TrendingUp,
   Zap,
@@ -19,11 +18,9 @@ import { Card, ClickableCard } from '../../../../src/components/Card'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
 import { Gauge } from '../../../../src/components/Gauge'
 import { Icon } from '../../../../src/components/Icon'
-import { InputGroup } from '../../../../src/components/Input'
 import { TrendBadge } from '../../../../src/components/Metric'
 import { Table, pixel, type TableColumn } from '../../../../src/components/Table'
 import { Heading, Text } from '../../../../src/components/Text'
-import { Token } from '../../../../src/components/Token'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import {
   creators,
@@ -45,6 +42,7 @@ import { useShell } from '../../shell/ShellContext'
 import { formatCount, peakDay } from '../reports/model'
 import { TwoLineCell } from '../reports/widgets/ListWidgets'
 import { postDate } from '../calendar/model'
+import { YakSearchBar } from '../../components/YakSearchBar'
 
 /** Every widget's header `⋯`, which the mock does not fill. */
 function WidgetActions({ title }: { title: string }) {
@@ -119,56 +117,17 @@ function Stats({
 
 /**
  * The Ask bar (`Discovery Search`, `40005911:35236`): a question or a search,
- * and four starters. Whatever is asked goes to Yak, which opens beside the page
- * and answers it there — the assistant already lives in the panel, so the bar
- * is a way into it rather than a second one.
+ * and four starters, handed to Yak's full view (`YakSearchBar`).
  */
 export function AskBar() {
-  const shell = useShell()
-  const [text, setText] = useState('')
-  const ask = (question: string) =>
-    shell.setPanel({ type: 'yak', ask: { id: Date.now(), text: question } })
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault()
-    const question = text.trim()
-    if (!question) return
-    ask(question)
-    setText('')
-  }
-
   return (
-    <ContentBlock emphasis="subtle" className="h-auto shrink-0">
-      <ContentBlock.Content className="items-center py-6">
-        <div className="flex w-full max-w-240 flex-col gap-2">
-          <form role="search" aria-label="Ask or search" onSubmit={submit}>
-            <InputGroup size="large" ring="input">
-              <InputGroup.Addon align="inline-start">
-                <Icon icon={Search} aria-hidden />
-              </InputGroup.Addon>
-              <InputGroup.Input
-                aria-label="Ask a question, or search topics, brands and creators"
-                placeholder="Ask a question, or search topics, brands and creators…"
-                value={text}
-                onValueChange={setText}
-              />
-              <InputGroup.Addon align="inline-end">
-                <Button type="submit" appearance="primary" size="small">
-                  Search
-                </Button>
-              </InputGroup.Addon>
-            </InputGroup>
-          </form>
-          <ul aria-label="Suggested questions" className="flex flex-wrap gap-2">
-            {suggestions.map((question) => (
-              <li key={question}>
-                <Token onClick={() => ask(question)}>{question}</Token>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </ContentBlock.Content>
-    </ContentBlock>
+    <YakSearchBar
+      size="large"
+      label="Ask a question, or search topics, brands and creators"
+      placeholder="Ask a question, or search topics, brands and creators…"
+      suggestions={suggestions}
+      suggestionsLabel="Suggested questions"
+    />
   )
 }
 

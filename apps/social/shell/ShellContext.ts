@@ -9,9 +9,9 @@ export type ShellPanel =
   | {
       type: 'yak'
       history?: boolean
-      /** A question to ask as Yak opens — Discover's Ask bar. `id` makes asking the same words twice ask twice. */
-      ask?: { id: number; text: string }
     }
+  /** Yak's history beside the full view, which has no panel to stack it on. */
+  | { type: 'yak-history' }
   | { type: 'post'; postId: string }
   | { type: 'contact'; customerId: string }
   | { type: 'widget'; reportId: string; widgetId: string }
