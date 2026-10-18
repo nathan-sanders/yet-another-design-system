@@ -9,6 +9,7 @@ export type ShellPanel =
   | { type: 'yak'; history?: boolean }
   | { type: 'post'; postId: string }
   | { type: 'contact'; customerId: string }
+  | { type: 'widget'; reportId: string; widgetId: string }
   | null
 
 export interface ShellState {

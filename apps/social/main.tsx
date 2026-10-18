@@ -8,6 +8,10 @@ import { CalendarScreen } from './screens/calendar/CalendarScreen'
 import { InboxProvider } from './screens/inbox/InboxProvider'
 import { InboxScreen } from './screens/inbox/InboxScreen'
 import { NotBuilt } from './screens/NotBuilt'
+import { ReportsProvider } from './screens/reports/ReportsProvider'
+import { ReportScreen } from './screens/reports/ReportScreen'
+import { ReportsScreen } from './screens/reports/ReportsScreen'
+import { WidgetDetailScreen } from './screens/reports/WidgetDetailScreen'
 import { SocialShell } from './shell/SocialShell'
 
 // Hash routes (`#/plan/calendar`) so every screen has a link that works on
@@ -20,6 +24,9 @@ const router = createHashRouter([
       { path: 'plan/calendar', element: <CalendarScreen /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
+      { path: 'measure/reports', element: <ReportsScreen /> },
+      { path: 'measure/reports/:reportId', element: <ReportScreen /> },
+      { path: 'measure/reports/:reportId/widgets/:widgetId', element: <WidgetDetailScreen /> },
       { path: '*', element: <NotBuilt /> },
     ],
   },
@@ -29,7 +36,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Toast.Provider>
       <InboxProvider>
-        <RouterProvider router={router} />
+        <ReportsProvider>
+          <RouterProvider router={router} />
+        </ReportsProvider>
       </InboxProvider>
     </Toast.Provider>
   </StrictMode>,

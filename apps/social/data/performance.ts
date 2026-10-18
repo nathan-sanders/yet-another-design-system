@@ -13,7 +13,7 @@ import type { Network, Post, PostEvent, PostReply, PostStats, TicketSentiment } 
 const HOUR = 60 * 60 * 1000
 
 /** mulberry32, seeded from the post id: the same post always gets the same numbers. */
-function seeded(id: string) {
+export function seeded(id: string) {
   let seed = [...id].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 2654435761), 0x9e3779b9)
   return () => {
     seed = (seed + 0x6d2b79f5) | 0

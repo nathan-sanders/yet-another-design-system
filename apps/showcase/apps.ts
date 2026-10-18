@@ -28,6 +28,7 @@ export const apps: ShowcaseApp[] = [
       'Calendar: week, day and month',
       'Post detail',
       'Inbox: all messages, my inbox, public thread and contact detail',
+      'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
       'Yak assistant and history',
     ],
     components: [
@@ -42,6 +43,9 @@ export const apps: ShowcaseApp[] = [
       'SegmentedControl',
       'Token',
       'Avatar',
+      'DragAndDrop',
+      'LineSeries',
+      'Table',
     ],
     figma:
       'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System?node-id=40005911-31806',

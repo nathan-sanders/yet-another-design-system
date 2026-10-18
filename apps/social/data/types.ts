@@ -188,3 +188,92 @@ export interface PostEvent {
   text: string
   at: Date
 }
+
+// Measure › Reports
+
+/**
+ * The three kinds of report on Measure › Reports (`40005911:34877`), each with
+ * its badge color: a topic monitor (pink), a custom report (blue) and one of
+ * Yet's own built-in reports (green).
+ */
+export type ReportKind = 'topic' | 'custom' | 'builtin'
+
+export interface Report {
+  id: string
+  name: string
+  kind: ReportKind
+  /** Minutes since the last edit; absent on built-in reports nobody has edited. */
+  editedMinutes?: number
+  /** The badge that stands in for the edit time on a built-in report. */
+  status?: 'new' | 'updated'
+  /** A person's id, or `'yet'` for a built-in report. */
+  createdBy: string
+  /** `'all'`, or the first faces shown and how many more there are. */
+  sharedWith: 'all' | { people: string[]; more: number }
+  delivery?: 'Daily' | 'Weekly' | 'Monthly'
+  /** What the report tracks, first the one it is about. Its trend lines. */
+  topics: string[]
+}
+
+/** The panel's Visualization options (`_Pulse Viz Option`, `40005872:24935`). */
+export type WidgetViz = 'line' | 'area' | 'bar' | 'donut' | 'metric' | 'table'
+
+/**
+ * What a widget is. `chart` widgets are a measure across a set of series, and
+ * can be drawn as any `WidgetViz`; the other four have a shape of their own.
+ */
+export type WidgetKind = 'chart' | 'overview' | 'stories' | 'voices' | 'spikes'
+
+export type WidgetMeasure = 'mentions' | 'engagements' | 'reach'
+
+export type WidgetSources = 'all' | 'social' | 'news'
+
+export type GroupBy = 'hour' | 'day' | 'week'
+
+export interface Widget {
+  id: string
+  kind: WidgetKind
+  title: string
+  viz: WidgetViz
+  measure: WidgetMeasure
+  /** The series a chart draws, in order — color and marker come from position. */
+  series: string[]
+  sources: WidgetSources
+  groupBy: GroupBy
+  /** The Edit panel's three switches. */
+  compare: boolean
+  spikes: boolean
+  legend: boolean
+}
+
+export interface Story {
+  id: string
+  title: string
+  outlet: string
+  /** A social network, or `news` / `web` for an outlet with no network mark. */
+  source: Network | 'news' | 'web'
+  sourceLabel: string
+  hoursAgo: number
+  engagements: number
+  /** Engagements per hour, right now. */
+  velocity: number
+  sentiment: 'Positive' | 'Neutral' | 'Negative'
+}
+
+export interface Voice {
+  id: string
+  name: string
+  handle: string
+  source: Network | 'web'
+  mentions: number
+  reach: number
+}
+
+export interface Spike {
+  id: string
+  title: string
+  detail: string
+  icon: 'zap' | 'up' | 'flame' | 'megaphone' | 'down'
+  change: string
+  tone: 'red' | 'green' | 'yellow' | 'neutral'
+}

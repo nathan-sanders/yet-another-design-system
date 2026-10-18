@@ -303,3 +303,82 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     to a post or a conversation, not a turn in a chat. The dark pill is a neutral Badge with
     `bg-surface-background-emphasized text-content-inverse` laid over it, because none of the 18
     hues is the inverse pair. If a second place wants it, it is an `inverse` color in `src/`.
+
+## Slice 4 — Measure › Reports (2026-10-18)
+
+The reports list (`40005911:34877`), the report board (`34608`, and its two-up layout `40005912:29853`),
+the widget detail (`40005911:35384`) and its Edit panel (`35514`). Veggie Vault Brand Pulse is written
+out from the file; every other topic monitor and custom report opens a board of the same widgets on
+its own topics; Yet's built-in reports open a "not designed yet" page. Rearranging, resizing, Apply
+and Remove live for the session (`ReportsProvider`, the inbox's pattern from finding 33).
+
+### Open: library changes worth making
+
+37. **`ContentBlock.Header` has no start slot for a control.** The file puts the grip *before* the
+    title, in the header's icon slot, and `icon` takes a glyph, not a `DragHandle`. The board lays the
+    handle over the header's start (`absolute left-2 top-3`, `size="small"`) and pads the header to
+    `pl-10`, which puts the glyph at 16–32px and the title at 40, the file's numbers. The library's
+    own dashboards put the grip in `actions` instead. If the file's spelling is the house one, the
+    header wants a `start` node slot.
+39. **`LineSeries` has no annotation layer.** The Edit panel's "Mark spikes on the chart" has
+    nothing to draw with, so it is shown disabled with "Not built yet" rather than as a switch that
+    does nothing (finding 21's reasoning).
+41. **`board.ts` has no way to start a row.** A block only moves into a row that exists, so once two
+    widgets share a row they could never be taken apart. The app keeps one empty row at the foot
+    (`withSpareRow`), drawn as the file's dashed Add widget zone. **It must take a widget on release,
+    not while carried.** Joining it mid-drag reflows the board under the pointer: the row the widget
+    left shrinks, the spare grows, and `closestCorners` then flips between the spare and the row above
+    on every frame. Each flip remounts the chart, and React stopped it with "Maximum update depth
+    exceeded" inside Recharts. Playwright measured 33 `onDragOver`s in one drag. Between existing rows
+    there were 6, and that path is fine. The spare row is skipped in `onDragOver` and settled in
+    `onDragEnd`. A spare row, and that rule, belong in `board.ts` if a second board wants them.
+
+### Kept in the app, worth knowing
+
+38. **A name that opens something, in a table cell, has no library look.** `Link` is the blue,
+    underlined link for prose; the file draws the report's name as plain cell text. `ReportCell` is
+    a plain anchor in the cell's color with `focusRing` and a hover underline. The widget titles on the
+    board are the same.
+40. **The Visualization tiles are `Radio` cards.** `_Pulse Viz Option` is a tile with the glyph over
+    the word and no dial. The library has no tile radio, so each option is `Radio inContainer`
+    with the glyph stacked over the label, three to a row, and the dial beside them.
+42. **Back is a `Button` that navigates** (finding 7 again). The file draws an icon-only button and
+    a `Link` cannot be one. It goes to the list or the board, not back in history, so a link opened
+    cold still has somewhere to go. The detail page's `h1` is `sr-only` beside the breadcrumbs,
+    because a heading cannot sit in a trail item's `<span>`.
+43. **`ContentBlock` is `h-full`.** That is right in a grid cell and wrong stacked in
+    `AppShell.Content`: the detail page's chart and Breakdown each stretched to 981px of a 1088
+    window. They pass `h-auto`; on the board the stretch is what lines a pair's bottoms up.
+44. **A widget on the board opens on a plain click.** The drag foundation swallows the click after a
+    pointer drag, and that stops a handler but not an anchor's navigation. The title is a link
+    (`draggable={false}`), so a one-shot capture listener on `window` cancels the click after a drag
+    (`swallowNextClick`). That is the DragAndDrop record's "link cards" trap, met head on.
+
+### Figma owes
+
+45. **The numbers are generated, and they agree with each other.** The file draws each widget
+    separately. Its donut gives Veggie Vault half the share of voice, while its own breakdown has the
+    three brands at 1.4K, 1.2K and 962 a day. The app derives every widget from one series per topic,
+    seeded on the topic and the date (`data/reports.ts`), using the breakdown's daily rates. So the
+    donut is about a third each, and the Overview, trend, share and breakdown agree at every range.
+    Top topics is engagements over the range, so its axis reads 600k where the file has 6k.
+46. **The range ends today.** The file's "Jan 1 … 31" is the last 30 days here, as the calendar slides
+    to today (finding 13). Hour is disabled past 7 days, Week inside four weeks, and a URL asking for one
+    falls back to days. Custom says it is not built.
+47. **States the file does not draw**: the spare row as a drop zone; generated boards; the built-in
+    reports' page; a widget detail for every widget, not just the trend; the phone board, which is one
+    column with no resize handles; and the Edit panel for a widget that is not a chart. For those, the
+    other visualizations are disabled and Measure, Topics, Sources and Group by are left out. The
+    Measure and Sources values were decided here, and the last topic cannot be removed.
+
+### Measured, and fine
+
+- List: 56px rows, cells at 14px, 14 reports; the sort is in the URL.
+- Board: 12px gutter, and a 12px resize handle in it; the grip glyph at 16–32 and the title at 40;
+  starts as 34608, and one keyboard drag of Overview into the trend's row gives 29853 (6 / 6).
+  Keyboard resize 6 → 7 reads "7 of 12 columns".
+- Panel 384; the toolbar's Hour / Day / Week leaves while it is open; Cancel, close and Yak drop
+  `edit=1`, and a reload with it reopens the panel.
+- Phone (375 × 812): one column, widgets 325 wide, document not scrolling on all three screens.
+- axe on the live app, in real Chromium: no violations on the list, board, detail and panel in light,
+  or on the list, a generated board and the panel in dark.
