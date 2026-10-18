@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
+import { ClickableCard } from '../../../../src/components/Card'
 import { Field } from '../../../../src/components/Field'
 import { Icon } from '../../../../src/components/Icon'
 import { Input } from '../../../../src/components/Input'
@@ -24,12 +25,7 @@ import { Select } from '../../../../src/components/Select'
 import { Switch } from '../../../../src/components/Switch'
 import { Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
-import {
-  MEASURE_LABEL,
-  SOURCES_LABEL,
-  groupByAllowed,
-  rangeFor,
-} from '../../data/reports'
+import { MEASURE_LABEL, SOURCES_LABEL, groupByAllowed, rangeFor } from '../../data/reports'
 import type { GroupBy, Widget, WidgetMeasure, WidgetSources, WidgetViz } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { GROUP_BY_LABEL, boardPath, isTimeViz } from './model'
@@ -137,22 +133,34 @@ export function WidgetEditPanel({
             onValueChange={(viz) => change({ viz: viz as WidgetViz })}
             className="grid grid-cols-3 gap-2"
           >
-            {VIZ.map((option) => (
-              <Radio
-                key={option.value}
-                value={option.value}
-                inContainer
-                disabled={!chart && option.value !== widget.viz}
-                // The file's tile stacks the glyph over the word (`_Pulse Viz
-                // Option`); Radio's card adds the dial beside them (FINDINGS 40).
-                label={
-                  <span className="flex flex-col items-start gap-1">
-                    <Icon icon={option.icon} size="small" />
-                    {option.label}
-                  </span>
-                }
-              />
-            ))}
+            {VIZ.map((option) => {
+              const unavailable = !chart && option.value !== widget.viz
+              return (
+                // The file's `_Pulse Viz Option`: a tile, the glyph over the
+                // word, selected on the Clickable Card's selected surface. The
+                // radio primitive goes on the card, so the six are one radio
+                // group — one tab stop, arrows move — rather than six buttons.
+                // The library has no selectable card yet (FINDINGS 40).
+                <Radio.Root
+                  key={option.value}
+                  value={option.value}
+                  disabled={unavailable}
+                  nativeButton
+                  render={
+                    <ClickableCard
+                      selected={widget.viz === option.value}
+                      disabled={unavailable}
+                      className="flex flex-col items-center gap-1 text-center"
+                    >
+                      <Icon icon={option.icon} />
+                      <Text render={<span />} size="sm">
+                        {option.label}
+                      </Text>
+                    </ClickableCard>
+                  }
+                />
+              )
+            })}
           </Radio.Group>
         </div>
 

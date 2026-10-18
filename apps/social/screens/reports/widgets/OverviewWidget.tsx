@@ -23,13 +23,21 @@ export function OverviewWidget({
   const trend = (value: number) => (widget.compare ? value : undefined)
   return (
     <MetricGrid columns={columns}>
-      <MetricCard label="Mentions" value={formatCount(n.mentions)} trend={trend(n.mentionsChange)} />
+      <MetricCard
+        label="Mentions"
+        value={formatCount(n.mentions)}
+        trend={trend(n.mentionsChange)}
+      />
       <MetricCard
         label="Engagements"
         value={formatCount(n.engagements)}
         trend={trend(n.engagementsChange)}
       />
-      <MetricCard label="Potential reach" value={formatCount(n.reach)} trend={trend(n.reachChange)} />
+      <MetricCard
+        label="Potential reach"
+        value={formatCount(n.reach)}
+        trend={trend(n.reachChange)}
+      />
       <MetricCard
         label="Net sentiment"
         value={formatChange(n.sentiment, '')}

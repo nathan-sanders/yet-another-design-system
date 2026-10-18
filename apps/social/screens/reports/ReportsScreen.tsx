@@ -1,11 +1,18 @@
-import { useSearchParams } from 'react-router'
+import type { MouseEvent } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { Ellipsis, Plus } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Avatar, AvatarGroup } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
-import { Table, pixel, proportional, type TableColumn, type TableSort } from '../../../../src/components/Table'
+import {
+  Table,
+  pixel,
+  proportional,
+  type TableColumn,
+  type TableSort,
+} from '../../../../src/components/Table'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { ReportCell } from '../../components/ReportCell'
@@ -100,6 +107,18 @@ const columns: TableColumn<Report>[] = [
 export function ReportsScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
+  const navigate = useNavigate()
+
+  // The whole row opens the report, for a pointer. Table has no `onRowClick`
+  // on purpose — a click on a <tr> has no keyboard equivalent — so the row
+  // forwards to its own name link, which stays the keyboard and screen-reader
+  // path (FINDINGS 48).
+  const openRow = (event: MouseEvent) => {
+    const target = event.target as HTMLElement
+    if (target.closest('a, button')) return
+    const link = target.closest('tbody tr')?.querySelector<HTMLAnchorElement>('a[href^="#"]')
+    if (link) navigate(link.getAttribute('href')!.slice(1))
+  }
 
   const sort: TableSort | null =
     params.get('sort') === 'edited'
@@ -153,17 +172,21 @@ export function ReportsScreen() {
         }
       />
       <AppShell.Content>
-        <Table
-          label="Reports"
-          columns={columns}
-          data={reports}
-          idKey="id"
-          density="spacious"
-          sortable
-          sort={sort}
-          onSortChange={onSortChange}
-          textOverflow="truncate"
-        />
+        {/* A pointer convenience over the rows' own links; see `openRow`. */}
+        <div onClick={openRow} className="[&_tbody_tr]:cursor-pointer">
+          <Table
+            label="Reports"
+            columns={columns}
+            data={reports}
+            idKey="id"
+            density="spacious"
+            sortable
+            sort={sort}
+            onSortChange={onSortChange}
+            textOverflow="truncate"
+            hasHover
+          />
+        </div>
       </AppShell.Content>
     </>
   )

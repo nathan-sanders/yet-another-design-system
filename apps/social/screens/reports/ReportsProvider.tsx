@@ -60,7 +60,10 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
 
   const removeWidget = useCallback(
     (reportId: string, widgetId: string) =>
-      change(reportId, (current) => ({ ...current, board: withSpareRow(removeBlock(current.board, widgetId)) })),
+      change(reportId, (current) => ({
+        ...current,
+        board: withSpareRow(removeBlock(current.board, widgetId)),
+      })),
     [change],
   )
 
@@ -69,7 +72,8 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       if (draft?.reportId === reportId && draft.widget.id === widgetId) return draft.widget
       const current = boardFor(reportId)
       // A removed widget is gone from the layout; its settings are kept but unreachable.
-      const placed = current && Object.values(current.board.containers).some((row) => row.includes(widgetId))
+      const placed =
+        current && Object.values(current.board.containers).some((row) => row.includes(widgetId))
       return placed ? current.widgets[widgetId] : undefined
     },
     [boardFor, draft],

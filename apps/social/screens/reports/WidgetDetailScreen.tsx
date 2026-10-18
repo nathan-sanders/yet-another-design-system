@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router'
-import { Ellipsis, GitCompareArrows, Share, SlidersHorizontal } from 'lucide-react'
+import { Ellipsis, Calendars, Share, SlidersHorizontal } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Breadcrumbs } from '../../../../src/components/Breadcrumbs'
@@ -8,12 +8,7 @@ import { Button } from '../../../../src/components/Button'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading } from '../../../../src/components/Text'
-import {
-  groupByAllowed,
-  rangeFor,
-  reportFor,
-  type ReportRange,
-} from '../../data/reports'
+import { groupByAllowed, rangeFor, reportFor, type ReportRange } from '../../data/reports'
 import type { GroupBy } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { GROUP_BY_LABEL, boardPath, isTimeViz, peakDay, peakHour } from './model'
@@ -48,7 +43,11 @@ export function WidgetDetailScreen() {
   const urlBy = params.get('by') as GroupBy | null
   // While editing, the draft's grouping is the one on screen; otherwise the URL's, then the widget's own.
   const by: GroupBy =
-    editing && widget ? widget.groupBy : urlBy && GROUPS.includes(urlBy) ? urlBy : (widget?.groupBy ?? 'day')
+    editing && widget
+      ? widget.groupBy
+      : urlBy && GROUPS.includes(urlBy)
+        ? urlBy
+        : (widget?.groupBy ?? 'day')
 
   const update = useCallback(
     (changes: Record<string, string | null>) =>
@@ -165,9 +164,10 @@ export function WidgetDetailScreen() {
             />
             <Button
               appearance="secondary"
-              startIcon={GitCompareArrows}
+              startIcon={Calendars}
               className="shrink-0"
-              onClick={() => shell.notBuilt('Comparing two ranges')}
+              // Adds a second date range to compare against.
+              onClick={() => shell.notBuilt('Adding a comparison date range')}
             >
               Compare
             </Button>

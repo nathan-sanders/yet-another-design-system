@@ -1,7 +1,7 @@
-import { useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable'
-import { ArrowLeft, Construction, Ellipsis, GitCompareArrows, ListFilter, Plus, Share } from 'lucide-react'
+import { ArrowLeft, Construction, Ellipsis, Calendars, ListFilter, Plus, Share } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Avatar } from '../../../../src/components/Avatar'
@@ -14,11 +14,14 @@ import {
   dragOver,
   maxSpan,
   resizeBlock,
+  resizeRow,
   rowSpans,
   type ColumnSpan,
 } from '../../../../src/components/DragAndDrop'
 import { Icon } from '../../../../src/components/Icon'
 import { Link } from '../../../../src/components/Link'
+import { cn } from '../../../../src/lib/cn'
+import { ResizeHandle } from '../../../../src/components/Resize'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { me } from '../../data/people'
@@ -56,7 +59,14 @@ function Board({ report }: { report: Report }) {
   const board = current.board
   const snapshot = useRef(board)
   const lastRow = board.order[board.order.length - 1]
-  const spareRow = lastRow !== undefined && board.containers[lastRow]!.length === 0 ? lastRow : undefined
+  const spareRow =
+    lastRow !== undefined && board.containers[lastRow]!.length === 0 ? lastRow : undefined
+
+  const rowHeights = useRowHeights(board.order)
+  // While a widget is carried the spare row opens into a real drop area: a
+  // 400px trend aimed at a 64px strip lands in the row above it instead, because
+  // collisions are read off the carried block's corners, not the pointer.
+  const [carrying, setCarrying] = useState(false)
 
   const setRange = (next: ReportRange) => {
     const nextParams = new URLSearchParams(params)
@@ -120,9 +130,10 @@ function Board({ report }: { report: Report }) {
           <RangeControl value={range} onChange={setRange} />
           <Button
             appearance="secondary"
-            startIcon={GitCompareArrows}
+            startIcon={Calendars}
             className="shrink-0"
-            onClick={() => shell.notBuilt('Comparing two ranges')}
+            // Adds a second date range to compare against.
+            onClick={() => shell.notBuilt('Adding a comparison date range')}
           >
             Compare
           </Button>
@@ -131,6 +142,7 @@ function Board({ report }: { report: Report }) {
         <DragAndDrop
           onDragStart={() => {
             snapshot.current = board
+            setCarrying(true)
           }}
           onDragOver={({ active, over }) => {
             // The spare row takes a widget on release, not while it is carried.
@@ -145,62 +157,96 @@ function Board({ report }: { report: Report }) {
           }}
           onDragEnd={({ active, over }) => {
             setBoard(report.id, (b) => withSpareRow(dragEnd(b, active.id, over ? over.id : null)))
+            setCarrying(false)
             swallowNextClick()
           }}
-          onDragCancel={() => setBoard(report.id, () => snapshot.current)}
+          onDragCancel={() => {
+            setBoard(report.id, () => snapshot.current)
+            setCarrying(false)
+          }}
         >
-          <div className="flex flex-col gap-3">
+          {/* On a desktop the strip under each row is the gap between rows. */}
+          <div ref={rowHeights.container} className="flex flex-col max-md:gap-3">
             {board.order.map((row, index) => {
               const items = board.containers[row]!
               const spans = rowSpans(board, row) as ColumnSpan[]
               const spare = index === board.order.length - 1 && items.length === 0
               const name = spare ? 'New row' : `Row ${index + 1}`
+              // A row is as tall as its widgets until somebody sizes it; then
+              // it holds that height and the charts in it follow.
+              const fixed = board.heights[row]
               return (
-                <Sortable
+                <div
                   key={row}
-                  id={row}
-                  label={name}
-                  items={items}
-                  capacity={MAX_BLOCKS_PER_ROW}
-                  strategy={horizontalListSortingStrategy}
-                  // The spare row holds a button, not widgets, so it is a group
-                  // until something is carried into it (axe: a list owns items).
-                  role={spare ? 'group' : 'list'}
-                  aria-label={name}
-                  // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
-                  className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1"
+                  className="flex flex-col"
+                  style={fixed ? ({ '--row-height': `${fixed}px` } as CSSProperties) : undefined}
                 >
-                  {spare ? (
-                    // The file's dashed Add widget zone, and the drop target
-                    // that gives a carried widget a row of its own.
-                    <div className="col-span-full flex min-h-12 items-center justify-center rounded-lg border border-dashed border-surface-border-emphasized">
+                  <Sortable
+                    data-row={row}
+                    id={row}
+                    label={name}
+                    items={items}
+                    capacity={MAX_BLOCKS_PER_ROW}
+                    strategy={horizontalListSortingStrategy}
+                    // The spare row holds a button, not widgets, so it is a group
+                    // until something is carried into it (axe: a list owns items).
+                    role={spare ? 'group' : 'list'}
+                    aria-label={name}
+                    // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
+                    className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1"
+                  >
+                    {spare ? (
+                      // The file's dashed Add widget zone, and the drop target
+                      // that gives a carried widget a row of its own. The whole
+                      // zone is the button.
                       <Button
                         appearance="ghost"
                         startIcon={Plus}
                         onClick={() => shell.notBuilt('Adding a widget')}
+                        className={cn(
+                          'col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized',
+                          carrying && 'h-60',
+                        )}
                       >
                         Add widget
                       </Button>
-                    </div>
-                  ) : (
-                    items.map((id, position) => {
-                      const widget = widgetFor(report.id, id) ?? current.widgets[id]!
-                      return (
-                        <WidgetBlock
-                          key={id}
-                          report={report}
-                          widget={widget}
-                          span={spans[position]!}
-                          max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
-                          range={range}
-                          onResize={(block, span) =>
-                            setBoard(report.id, (b) => resizeBlock(b, block, span))
-                          }
-                        />
-                      )
-                    })
+                    ) : (
+                      items.map((id, position) => {
+                        const widget = widgetFor(report.id, id) ?? current.widgets[id]!
+                        return (
+                          <WidgetBlock
+                            key={id}
+                            report={report}
+                            widget={widget}
+                            span={spans[position]!}
+                            max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
+                            range={range}
+                            rowHeight={fixed}
+                            onResize={(block, span) =>
+                              setBoard(report.id, (b) => resizeBlock(b, block, span))
+                            }
+                          />
+                        )
+                      })
+                    )}
+                  </Sortable>
+                  {spare ? null : (
+                    // The strip under a row sets its height, from the height it
+                    // has now — measured, until it has been sized by hand.
+                    <ResizeHandle
+                      label={`Resize ${name} height`}
+                      orientation="horizontal"
+                      value={fixed ?? rowHeights.measured[row] ?? DEFAULT_ROW_HEIGHT}
+                      min={MIN_ROW_HEIGHT}
+                      max={MAX_ROW_HEIGHT}
+                      step={8}
+                      largeStep={40}
+                      valueText={(value) => `${value} pixels`}
+                      onResize={(value) => setBoard(report.id, (b) => resizeRow(b, row, value))}
+                      className="max-md:hidden"
+                    />
                   )}
-                </Sortable>
+                </div>
               )
             })}
           </div>
@@ -208,6 +254,40 @@ function Board({ report }: { report: Report }) {
       </AppShell.Content>
     </>
   )
+}
+
+/** How short and tall a hand can make a row; the default is only for a row not measured yet. */
+const MIN_ROW_HEIGHT = 160
+const MAX_ROW_HEIGHT = 900
+const DEFAULT_ROW_HEIGHT = 320
+
+/**
+ * Every row's rendered height, kept current. The row-height handle starts a
+ * drag from its `value`, so a row still sized by its content has to report
+ * the height it really has, or the first drag would jump.
+ */
+function useRowHeights(order: string[]) {
+  const container = useRef<HTMLDivElement>(null)
+  const [measured, setMeasured] = useState<Record<string, number>>({})
+  const key = order.join('|')
+  useEffect(() => {
+    const root = container.current
+    if (!root) return
+    const observer = new ResizeObserver((entries) => {
+      setMeasured((current) => {
+        let next = current
+        for (const entry of entries) {
+          const row = (entry.target as HTMLElement).dataset.row!
+          const height = Math.round(entry.borderBoxSize[0]!.blockSize)
+          if (current[row] !== height) next = { ...next, [row]: height }
+        }
+        return next
+      })
+    })
+    root.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => observer.observe(row))
+    return () => observer.disconnect()
+  }, [key])
+  return { container, measured }
 }
 
 /**
