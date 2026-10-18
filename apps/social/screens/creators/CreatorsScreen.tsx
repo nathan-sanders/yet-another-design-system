@@ -12,16 +12,11 @@ import { Heading, Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
 import { TopBar } from '../../../../src/components/TopBar'
 import { CreatorCard } from '../../components/CreatorCard'
-import { YakSearchBar } from '../../components/YakSearchBar'
-import {
-  brandCreators,
-  CATEGORY_ICON,
-  creatorSuggestions,
-  fitColor,
-  type BrandCreator,
-} from '../../data/creators'
+import { floatingYakClearance } from '../../components/FloatingYak'
+import { brandCreators, CATEGORY_ICON, fitColor, type BrandCreator } from '../../data/creators'
 import { useShell } from '../../shell/ShellContext'
 import { formatCount } from '../reports/model'
+import { cn } from '../../../../src/lib/cn'
 
 type CreatorsView = 'grid' | 'list'
 type CreatorSort = 'audience' | 'fit' | 'name'
@@ -142,13 +137,7 @@ export function CreatorsScreen() {
           </div>
         }
       />
-      <AppShell.Content className="gap-3">
-        <YakSearchBar
-          label="Find the best creators for your brand"
-          placeholder="Find the best creators for your brand"
-          suggestions={creatorSuggestions}
-          suggestionsLabel="Suggested searches"
-        />
+      <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
         <div className="flex shrink-0 items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Text render={<span />} size="sm" color="subtle">

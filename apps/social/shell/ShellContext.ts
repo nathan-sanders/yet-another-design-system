@@ -20,7 +20,7 @@ export type ShellPanel =
 export interface ShellState {
   panel: ShellPanel
   setPanel: (panel: ShellPanel) => void
-  /** Toast for things the mock does not do yet — search, the composer. */
+  /** Toast for things the mock does not do yet — dictation, attachments. */
   notBuilt: (what: string) => void
 }
 

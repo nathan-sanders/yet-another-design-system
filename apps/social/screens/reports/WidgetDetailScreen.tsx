@@ -17,6 +17,8 @@ import { Placeholder, ReportTopBar, Viewing } from './ReportScreen'
 import { useReports } from './reportsState'
 import { BreakdownTable } from './widgets/ChartWidget'
 import { WidgetBody } from './widgets/WidgetBody'
+import { cn } from '../../../../src/lib/cn'
+import { floatingYakClearance } from '../../components/FloatingYak'
 
 const GROUPS: GroupBy[] = ['hour', 'day', 'week']
 
@@ -153,7 +155,7 @@ export function WidgetDetailScreen() {
           </div>
         }
       />
-      <AppShell.Content className="gap-3">
+      <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
             <RangeControl

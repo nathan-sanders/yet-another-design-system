@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { Bell, Bot, Moon, Search, Sun } from 'lucide-react'
+import { Bell, Moon, Sun } from 'lucide-react'
 
 import { AppShell } from '../../../src/components/AppShell'
 import { Avatar } from '../../../src/components/Avatar'
@@ -9,12 +9,15 @@ import { Kbd } from '../../../src/components/Kbd'
 import { MobileNav, NavItem, SideNav } from '../../../src/components/Nav'
 import { Toast } from '../../../src/components/Toast'
 import { useDocumentTheme } from '../../shared/theme'
+import { FloatingYak } from '../components/FloatingYak'
 import { me } from '../data/people'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { useInbox } from '../screens/inbox/inboxState'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { YakChatContext, useYakChatState } from '../yak/chat'
+import { floatingYakFor } from '../yak/floating'
+import { YakMark } from '../yak/YakMark'
 import { YakHistory, YakPanel } from '../yak/YakPanel'
 import { yakFrom, yakPath } from '../yak/paths'
 import { Logo } from './Logo'
@@ -79,23 +82,30 @@ export function SocialShell() {
     setPanel((current) => (current?.type === 'yak' ? null : { type: 'yak' }))
   }, [onYakPage, navigate, yakFromPage])
 
-  // `/` opens Yak and ⌘K opens search, as the rail's keys say. Never while the
-  // person is typing — a slash in the composer is a slash.
+  // The floating bar: on every page but Engage's (they pin a reply box to the
+  // bottom) and the full view, and gone while Yak is open in its panel.
+  const floatingYak = floatingYakFor(location.pathname)
+  const yakInPanel = panel?.type === 'yak' || panel?.type === 'yak-history'
+  const floatingYakInput = useRef<HTMLInputElement>(null)
+
+  // `/` is Yak, as the rail's key says: the floating bar when there is one on
+  // screen, the panel when there is not. Never while the person is typing — a
+  // slash in the composer is a slash.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, [contenteditable="true"]')) return
       if (event.key === '/' && !event.metaKey && !event.ctrlKey) {
         event.preventDefault()
-        toggleYak()
-      } else if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault()
-        notBuilt('Search')
+        // `offsetParent` is null while the bar is `display: none` — on a phone.
+        const input = floatingYakInput.current
+        if (input?.offsetParent) input.focus()
+        else toggleYak()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [toggleYak, notBuilt])
+  }, [toggleYak])
 
   const shell = useMemo<ShellState>(() => ({ panel, setPanel, notBuilt }), [panel, notBuilt])
   // My inbox's count is live: assign a ticket to yourself anywhere and it goes up.
@@ -165,14 +175,7 @@ export function SocialShell() {
             top={
               <>
                 <NavItem
-                  startIcon={Search}
-                  end={<Kbd keys="mod+k" />}
-                  onClick={() => notBuilt('Search')}
-                >
-                  Search
-                </NavItem>
-                <NavItem
-                  startIcon={Bot}
+                  start={<YakMark className="size-4" />}
                   end={<Kbd keys="/" />}
                   aria-pressed={yakOpen || onYakPage}
                   onClick={toggleYak}
@@ -197,8 +200,16 @@ export function SocialShell() {
           {/* A size container, so a screen can lay out by the room the page
             really has: the window minus the rail and whatever panel is open
             at whatever width it was dragged to. `@max-[…]/page:` reads it. */}
-          <AppShell.Page className="@container/page">
+          <AppShell.Page className="relative @container/page">
             <Outlet />
+            {floatingYak && !yakInPanel && (
+              <FloatingYak
+                key={location.pathname}
+                inputRef={floatingYakInput}
+                placeholder={floatingYak.placeholder}
+                mode={floatingYak.mode}
+              />
+            )}
           </AppShell.Page>
 
           {/* Both always rendered and driven by `open`, so each slides out with
@@ -248,7 +259,7 @@ export function SocialShell() {
             utilities={
               <>
                 <NavItem
-                  startIcon={Bot}
+                  start={<YakMark className="size-4" />}
                   aria-label="Yak"
                   aria-pressed={yakOpen || onYakPage}
                   onClick={toggleYak}

@@ -7,6 +7,7 @@ import { TopBar } from '../../../src/components/TopBar'
 import { AppShell } from '../../../src/components/AppShell'
 import { Heading, Text } from '../../../src/components/Text'
 import { allRoutes, FIGMA_FILE } from '../shell/routes'
+import { floatingYakClearance } from '../components/FloatingYak'
 
 /**
  * Where every nav item the mock does not cover yet lands. Two messages, because
@@ -27,7 +28,7 @@ export function NotBuilt() {
           </Heading>
         }
       />
-      <AppShell.Content>
+      <AppShell.Content className={floatingYakClearance}>
         <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
           <span className="flex size-12 items-center justify-center rounded-lg bg-surface-background-subtle text-content-subtle">
             <Icon icon={route?.figma ? PencilRuler : Construction} size="x-large" />

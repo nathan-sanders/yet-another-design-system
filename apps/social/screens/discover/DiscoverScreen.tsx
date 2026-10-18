@@ -18,7 +18,6 @@ import { posts } from '../../data/posts'
 import { useShell } from '../../shell/ShellContext'
 import { isPublished, postDate } from '../calendar/model'
 import {
-  AskBar,
   CreatorsWidget,
   OpportunitiesWidget,
   SentimentWidget,
@@ -26,6 +25,8 @@ import {
   TrendingWidget,
   VisualTrendsWidget,
 } from './widgets'
+import { cn } from '../../../../src/lib/cn'
+import { floatingYakClearance } from '../../components/FloatingYak'
 
 const DAYS: Record<DiscoverRange, number> = { '24h': 1, '7d': 7, '30d': 30 }
 
@@ -107,8 +108,7 @@ export function DiscoverScreen() {
           </div>
         }
       />
-      <AppShell.Content className="gap-3">
-        <AskBar />
+      <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
         <div className="grid shrink-0 grid-cols-1 gap-3 @min-[900px]/page:grid-cols-2">
           <TrendingWidget scale={scale} />
           <CreatorsWidget />

@@ -142,14 +142,6 @@ export const brandCreators: BrandCreator[] = drawn.map((c) => ({
   avatar: c.avatar ?? customerFor(c.id).avatar,
 }))
 
-/** The search block's starters, which hand their words to Yak. */
-export const creatorSuggestions = [
-  'Health and wellness',
-  'Trending on social',
-  'Podcasts',
-  'Restaurant reviews',
-]
-
 export function fitColor(fit: number): 'green' | 'orange' | 'red' {
   return fit >= 80 ? 'green' : fit >= 40 ? 'orange' : 'red'
 }

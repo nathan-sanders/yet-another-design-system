@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import {
-  Bot,
   ChevronDown,
   Copy,
   History,
@@ -71,7 +70,6 @@ export function YakPanel({
       resizable
     >
       <Panel.Header
-        icon={Bot}
         closeButton
         actions={
           <>
