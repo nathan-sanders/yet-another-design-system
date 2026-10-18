@@ -279,6 +279,9 @@ export function AssigneeMenu({
  *
  * View-only by default — in the message list the whole card is the hit
  * target, and a token inside it would be a click target inside a click target.
+ * There every token but the ticket number shows only its glyph (`labelHidden`,
+ * a square pill), with the label still read out — the number has no glyph that
+ * could stand in for it.
  * Pass `onChange` and every token but the ticket number opens a menu of its
  * values: that is the conversation's toolbar and the thread's marked comment.
  */
@@ -335,10 +338,20 @@ export function TicketMeta({
     return (
       <div className={cn('flex flex-wrap gap-1', className)}>
         {number}
-        <Token avatar={<Glyph option={status} size="small" />}>{statusLabel}</Token>
-        {assignee ? <Token avatar={assigneeAvatar}>{assigneeLabel}</Token> : null}
-        <Token avatar={priorityMark}>{priorityLabel}</Token>
-        <Token avatar={<Glyph option={sentiment} size="small" />}>{sentimentLabel}</Token>
+        <Token labelHidden avatar={<Glyph option={status} size="small" />}>
+          {statusLabel}
+        </Token>
+        {assignee ? (
+          <Token labelHidden avatar={assigneeAvatar}>
+            {assigneeLabel}
+          </Token>
+        ) : null}
+        <Token labelHidden avatar={priorityMark}>
+          {priorityLabel}
+        </Token>
+        <Token labelHidden avatar={<Glyph option={sentiment} size="small" />}>
+          {sentimentLabel}
+        </Token>
       </div>
     )
   }
