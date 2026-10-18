@@ -89,8 +89,15 @@ and applies 16 or 12, so a call site never writes the number. See Avatar's own `
 why the derived scales snap to the nearest named step.
 **No new tokens and no `generate.py` run** — `surface-background-primary`, `surface-border`,
 `content-primary`, `shadow-low` and the motion pair already existed. Every Figma value maps.
-Left out: Astryx's `color` (Badge's job), `isLabelHidden` (Astryx argues against it in the same
-breath), and `description` / `aria-description` (no Figma counterpart, thin support).
+Left out: Astryx's `color` (Badge's job) and `description` / `aria-description` (no Figma
+counterpart, thin support).
+**`labelHidden` came in later, after first being left out** (Astryx's `isLabelHidden`, which it
+argues against in the same breath). Yet Social's message list needed it: a card carries a ticket's
+status, assignee, priority and sentiment, and four labelled tokens wrapped to two lines where four
+glyphs fit on one. The label stays as the name, `sr-only`, and the pill goes square — `w-6` / `w-5`
+as compounds on size, `px-0`, glyph centered — so 20 and 24 still hold. Named after ProgressBar's
+`labelHidden`. No room for a remove `x` or an end slot in the square: documented, not typed. Code
+first; Figma's Token set has no icon-only variant yet.
 **Naming:** `src/components/Token/` is this component; `tokens/` at the repo root is the design
 token export from Figma. Unrelated, and the collision is worth a second's care when reading a path.
 

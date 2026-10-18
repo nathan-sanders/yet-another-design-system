@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Circle, Tag, User } from 'lucide-react'
+import { Circle, CircleDot, Smile, Tag, User } from 'lucide-react'
+import { expect, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
 import { Icon } from '../Icon'
@@ -253,6 +254,58 @@ export const Radius: Story = {
       ))}
     </div>
   ),
+}
+
+/**
+ * `labelHidden`: only the icon or avatar shows, in a square pill — 24×24, 20×20
+ * at small — and the label is still the token's name, `sr-only`. For a dense row
+ * where the glyph already says the value, like the status, assignee and
+ * sentiment on a message-list card. The plain token beside them is the one whose
+ * value has no glyph to stand in for it.
+ *
+ * Square means no room for a remove `x` or an end slot; it is for view-only and
+ * clickable tokens.
+ */
+export const LabelHidden: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {sizes.map((size) => (
+        <div key={size} data-size={size} className="flex flex-wrap items-center gap-1">
+          <Token size={size} startIcon={Tag}>
+            #4821
+          </Token>
+          <Token size={size} labelHidden startIcon={CircleDot}>
+            Status: In progress
+          </Token>
+          <Token size={size} labelHidden avatar={<Token.Avatar name="Sarah Chen" />}>
+            Assigned to Sarah Chen
+          </Token>
+          <Token size={size} labelHidden startIcon={Smile} onClick={() => {}}>
+            Sentiment: Positive
+          </Token>
+        </div>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    for (const [size, px] of [
+      ['default', 24],
+      ['small', 20],
+    ] as const) {
+      const row = canvasElement.querySelector<HTMLElement>(`[data-size="${size}"]`)!
+      const [, ...hidden] = Array.from(row.children) as HTMLElement[]
+      for (const pill of hidden) {
+        const box = pill.getBoundingClientRect()
+        await expect([box.width, box.height]).toEqual([px, px])
+      }
+      // The label is gone from sight, not from the name.
+      await expect(within(row).getByText('Status: In progress')).toHaveClass('sr-only')
+      await expect(
+        within(row).getByRole('button', { name: 'Sentiment: Positive' }),
+      ).toBeInTheDocument()
+    }
+  },
 }
 
 /**
