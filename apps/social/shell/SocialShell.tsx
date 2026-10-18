@@ -169,7 +169,10 @@ export function SocialShell() {
           {sections}
         </SideNav>
 
-        <AppShell.Page>
+        {/* A size container, so a screen can lay out by the room the page
+            really has: the window minus the rail and whatever panel is open
+            at whatever width it was dragged to. `@max-[…]/page:` reads it. */}
+        <AppShell.Page className="@container/page">
           <Outlet />
         </AppShell.Page>
 
