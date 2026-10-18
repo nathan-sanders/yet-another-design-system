@@ -26,6 +26,9 @@ import {
   resizeBlock,
   resizeRow,
   rowSpans,
+  spareRow,
+  spareRowCollision,
+  withSpareRow,
   type ColumnSpan,
 } from '../DragAndDrop'
 import { ResizeHandle } from '../Resize'
@@ -482,11 +485,13 @@ function ChartBlock({
 }
 
 const renderComposable: Story['render'] = function ComposableStory() {
-  const [board, setBoard] = useState(() => createBoard(LAYOUT))
+  const [board, setBoard] = useState(() => withSpareRow(createBoard(LAYOUT)))
   const snapshot = useRef(board)
+  const spare = spareRow(board)
 
   return (
     <DragAndDrop
+      collisionDetection={spareRowCollision(spare)}
       onDragStart={() => {
         snapshot.current = board
       }}
@@ -500,6 +505,23 @@ const renderComposable: Story['render'] = function ComposableStory() {
     >
       <div className="flex flex-col">
         {board.order.map((row, index) => {
+          if (row === spare) {
+            return (
+              // The spare row: carry a chart here and, on the drop, it has a
+              // row of its own. A group, not a list, while it holds no charts.
+              <Sortable
+                key={row}
+                id={row}
+                label="New row"
+                items={[]}
+                role="group"
+                aria-label="New row"
+                className="text-content-subtle flex min-h-16 items-center justify-center rounded-lg border border-dashed border-surface-border-emphasized text-sm"
+              >
+                Drop a chart here to give it a row of its own
+              </Sortable>
+            )
+          }
           const items = board.containers[row]
           const spans = rowSpans(board, row) as ColumnSpan[]
           const height = board.heights[row] ?? ROW_HEIGHT
@@ -571,6 +593,12 @@ const renderComposable: Story['render'] = function ComposableStory() {
  * under it, come from `DragAndDrop`'s `board.ts`, so nothing here is a second
  * copy of that logic.
  *
+ * The dashed row at the foot is the board's spare row (`withSpareRow`): a
+ * chart dropped there gets a row of its own, and a new spare appears under
+ * it. It takes the chart on release, never while carried — the rows reflowing
+ * under a carried chart is what crashed Yet Social's board, and a chart is
+ * exactly what remounts on every flip.
+ *
  * Nothing moves on load: `ComposableKeyboard` renders the identical tree and
  * drives it.
  */
@@ -578,8 +606,9 @@ export const Composable: Story = { render: renderComposable }
 
 /**
  * The same dashboard, driven: the spans the grid rendered, a block resized by
- * the column, a row resized by height with the chart's plot following, and a
- * block carried up into the row above — all by keyboard.
+ * the column, a row resized by height with the chart's plot following, a
+ * block carried up into the row above, and one carried out of a shared row
+ * into the spare row — all by keyboard.
  */
 export const ComposableKeyboard: Story = {
   render: renderComposable,
@@ -636,9 +665,37 @@ export const ComposableKeyboard: Story = {
       await expect(spans(2)).toEqual(['span 6', 'span 6'])
     })
 
-    await step('removing a chart re-shares its row', async () => {
-      await userEvent.click(canvas.getByRole('button', { name: 'Remove Models' }))
+    await step('a chart carried out of a shared row into the spare gets its own row', async () => {
+      const spare = canvas.getByRole('group', { name: 'New row' })
+      const handle = canvas.getByRole('button', { name: 'Move Models' })
+      handle.focus()
+      await userEvent.keyboard(' ')
+      await waitFor(() => expect(handle).toHaveAttribute('aria-pressed', 'true'))
+      await userEvent.keyboard('{ArrowDown}')
+      await waitFor(() =>
+        expect(canvas.getByRole('status')).toHaveTextContent(/Models is over New row/),
+      )
+      // Only carried there: the spare takes it on the drop, so nothing reflows mid-drag.
+      await expect(within(spare).queryByRole('button', { name: 'Move Models' })).toBeNull()
+      await expect(spans(3)).toEqual(['span 6', 'span 6'])
+      await userEvent.keyboard(' ')
+      await waitFor(() =>
+        expect(canvas.getByRole('status')).toHaveTextContent(/Models dropped in New row/),
+      )
+      await waitFor(() =>
+        expect(within(row(4)).getByRole('button', { name: 'Move Models' })).toBeInTheDocument(),
+      )
       await expect(spans(3)).toEqual(['span 12'])
+      await expect(spans(4)).toEqual(['span 12'])
+      await expect(canvas.getByRole('group', { name: 'New row' })).toBeInTheDocument()
+    })
+
+    await step('removing a chart re-shares its row, and a row emptied by it goes', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Remove This year' }))
+      await expect(spans(2)).toEqual(['span 12'])
+      await userEvent.click(canvas.getByRole('button', { name: 'Remove Models' }))
+      await expect(canvas.queryByRole('list', { name: 'Row 4' })).toBeNull()
+      await expect(canvas.getByRole('group', { name: 'New row' })).toBeInTheDocument()
     })
   },
 }

@@ -31,5 +31,8 @@ export {
   resizeRow,
   rowSpans,
   settle,
+  spareRow,
+  withSpareRow,
 } from './board'
 export type { Board } from './board'
+export { spareRowCollision } from './collision'

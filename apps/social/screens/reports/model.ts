@@ -1,33 +1,7 @@
-import type { Board } from '../../../../src/components/DragAndDrop'
 import type { GroupBy, WidgetViz } from '../../data/types'
 
 /** The charts default to UTC; a report's days and hours are the reader's (FINDINGS 31). */
 export const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-// ---------------------------------------------------------------------------
-// The board's spare row
-// ---------------------------------------------------------------------------
-
-let spareCount = 0
-
-/**
- * Keeps one empty row at the foot of a board. It is the file's dashed "Add
- * widget" zone, and a drop target too: `DragAndDrop`'s board only moves a
- * block into a row that exists, so without it two widgets sharing a row could
- * never be taken apart again. Carry one into the spare row and it has a row of
- * its own; a new spare appears under it.
- */
-export function withSpareRow(board: Board): Board {
-  const last = board.order[board.order.length - 1]
-  if (last !== undefined && board.containers[last]?.length === 0) return board
-  spareCount += 1
-  const id = `spare-${spareCount}`
-  return {
-    ...board,
-    containers: { ...board.containers, [id]: [] },
-    order: [...board.order, id],
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Words and numbers

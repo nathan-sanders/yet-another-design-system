@@ -27,7 +27,10 @@ import {
   removeBlock,
   resizeBlock,
   resizeRow,
+  spareRow,
+  withSpareRow,
 } from './board'
+import { spareRowCollision } from './collision'
 import { findContainer, moveItem, reorder, type Containers } from './move'
 import { COL_SPAN, GRID_COLUMNS, MAX_BLOCKS_PER_ROW, MIN_SPAN, canAddBlock, maxSpan, type ColumnSpan } from './spans'
 import { Avatar, AvatarGroup } from '../Avatar'
@@ -515,8 +518,9 @@ function ReportBlock({
 }
 
 const renderDashboard: Story['render'] = function DashboardStory() {
-  const [board, setBoard] = useState(() => createBoard(ROWS))
+  const [board, setBoard] = useState(() => withSpareRow(createBoard(ROWS)))
   const [labels, setLabels] = useState(BLOCKS)
+  const spare = spareRow(board)
   const snapshot = useRef(board)
   const next = useRef(1)
 
@@ -530,6 +534,7 @@ const renderDashboard: Story['render'] = function DashboardStory() {
 
   return (
     <DragAndDrop
+      collisionDetection={spareRowCollision(spare)}
       onDragStart={() => {
         snapshot.current = board
       }}
@@ -543,6 +548,30 @@ const renderDashboard: Story['render'] = function DashboardStory() {
     >
       <div className="flex max-w-320 flex-col">
         {board.order.map((row, index) => {
+          if (row === spare) {
+            return (
+              /*
+                The spare row (`withSpareRow`): the empty row at the foot,
+                and the drop target that gives a block a row of its own. It
+                holds a button, not blocks, so it is a group until something
+                is dropped in it (axe: a list owns list items). `mr-8` stops
+                it short of the rail the rows above keep: 24px and a gap-2.
+              */
+              <Sortable
+                key={row}
+                id={row}
+                label="New row"
+                items={[]}
+                role="group"
+                aria-label="New row"
+                className="mr-8 flex min-h-16 items-center justify-center rounded-lg border border-dashed border-surface-border-emphasized"
+              >
+                <Button appearance="ghost" startIcon={Plus} onClick={() => add(row)}>
+                  Add report block
+                </Button>
+              </Sortable>
+            )
+          }
           const items = board.containers[row]
           const spans = items.map((id) => board.spans[id] as ColumnSpan)
           const height = board.heights[row] ?? ROW_HEIGHT
@@ -613,14 +642,6 @@ const renderDashboard: Story['render'] = function DashboardStory() {
             </div>
           )
         })}
-        <Button
-          appearance="secondary"
-          startIcon={Plus}
-          onClick={() => add(`row-new-${next.current}`)}
-          className="self-start"
-        >
-          Add report block
-        </Button>
       </div>
     </DragAndDrop>
   )
@@ -638,8 +659,15 @@ const renderDashboard: Story['render'] = function DashboardStory() {
  * while it is still being carried. **A row at `capacity` refuses a fifth**:
  * it and its blocks stop being drop targets for anything from another row,
  * so a carried block skips past it and the arrow keys do too. A row's "add"
- * rail appears on hover and on focus, and closes at four; the button under
- * the grid appends a row; a row whose last block is removed disappears.
+ * rail appears on hover and on focus, and closes at four; a row whose last
+ * block is removed disappears.
+ *
+ * **The dashed row at the foot is the spare row** (`withSpareRow`). Carry a
+ * block into it and, on the drop, it has a row of its own — the only way two
+ * blocks that share a row can be taken apart — and a new spare appears under
+ * it. Its button appends a row the same way. Unlike every other row it does
+ * not take a block while it is carried, only on release: `dragOver` refuses
+ * it, and `DragAndDrop/CLAUDE.md` says why.
  *
  * **Resizing is the prototype's other half.** The strip between two blocks
  * is a `ResizeHandle` that snaps the left block to a column and shares the
@@ -654,8 +682,9 @@ export const Dashboard: Story = { render: renderDashboard }
 /**
  * The same dashboard, driven: the spans the grid rendered, a block resized
  * by column and a row by height, a block carried from the first row into the
- * second, a full row refusing a fifth, the add rail, the remove button and the
- * add-row button — all by keyboard.
+ * second, a full row refusing a fifth, the add rail, the remove button, the
+ * add-row button, and a block carried out of a shared row into the spare
+ * row — all by keyboard.
  */
 export const DashboardKeyboard: Story = {
   render: renderDashboard,
@@ -786,9 +815,47 @@ export const DashboardKeyboard: Story = {
       await expect(canvas.queryByRole('list', { name: 'Row 3' })).toBeNull()
     })
 
-    await step('the button under the grid appends a row with one block', async () => {
+    await step("the spare row's button appends a row with one block", async () => {
       await userEvent.click(canvas.getByRole('button', { name: 'Add report block' }))
       await expect(spans(3)).toEqual(['span 12'])
+      // And a new spare under it.
+      await expect(canvas.getByRole('group', { name: 'New row' })).toBeInTheDocument()
+    })
+
+    await step('a block carried out of a shared row into the spare gets its own row', async () => {
+      await expect(spans(1)).toEqual(['span 4', 'span 4', 'span 4'])
+      const spare = canvas.getByRole('group', { name: 'New row' })
+      await lift(canvas.getByRole('button', { name: 'Move Block 3' }))
+      // Row 2 is full, so the first step lands in row 3; the second is over the spare.
+      await userEvent.keyboard('{ArrowDown}')
+      await waitFor(() =>
+        expect(within(row(3)).getByRole('button', { name: 'Move Block 3' })).toBeInTheDocument(),
+      )
+      await userEvent.keyboard('{ArrowDown}')
+      await waitFor(() =>
+        expect(status(canvasElement)).toHaveTextContent(/Block 3 is over New row/),
+      )
+      // Over the spare it is only carried: the spare has not taken it, so the
+      // board has not reflowed under it (FINDINGS 41's crash).
+      await expect(within(spare).queryByRole('button', { name: 'Move Block 3' })).toBeNull()
+      await expect(spans(3)).toEqual(['span 6', 'span 6'])
+      await userEvent.keyboard(' ')
+      await waitFor(() =>
+        expect(status(canvasElement)).toHaveTextContent(/Block 3 dropped in New row/),
+      )
+      await waitFor(() =>
+        expect(within(row(4)).getByRole('button', { name: 'Move Block 3' })).toBeInTheDocument(),
+      )
+      await expect(spans(1)).toEqual(['span 6', 'span 6'])
+      await expect(spans(3)).toEqual(['span 12'])
+      await expect(spans(4)).toEqual(['span 12'])
+      // A new spare under the new row, and focus back on the grip that moved.
+      await expect(canvas.getByRole('group', { name: 'New row' })).toBeInTheDocument()
+      await waitFor(() =>
+        expect(document.activeElement).toBe(
+          within(row(4)).getByRole('button', { name: 'Move Block 3' }),
+        ),
+      )
     })
   },
 }
