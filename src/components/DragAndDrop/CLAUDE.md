@@ -265,7 +265,7 @@ carefully:
 **The dashboard is one `Board` value, and it lives in `board.ts`, not in the story.** Containers,
 order, spans, the hand-sized set and row heights, with every change a pure function — `createBoard`,
 `addBlock`, `removeBlock`, `resizeBlock`, `resizeRow`, `dragOver`, `dragEnd`, `settle`,
-`dropEmptyRows`, `rowSpans` — and thirteen node tests pinning how `move.ts` and `spans.ts` compose
+`dropEmptyRows`, `rowSpans`, and the spare row's `withSpareRow` and `spareRow` (below) — and node tests pinning how `move.ts` and `spans.ts` compose
 across a whole board. It moved out of the story on 2026-09-18, the day `Data Viz/Dashboard` grew a
 `Composable` story of real charts on the same rows: two stories with the same 150 lines of state
 would have drifted, and the arithmetic was already the kind of thing this folder tests in node. A
@@ -274,6 +274,46 @@ the board never sees React. A drag's snapshot is one assignment and Escape resto
 is a CSS variable on the row (`--row-height`) that the blocks and the add rail read back with
 `h-(--row-height)`, not an inline `height` on each block: a runtime value inline would defeat any
 responsive override, and there is one variable to change rather than four.
+
+## A row of its own: the spare row
+
+`board.ts` moves a block into a row that *exists*, so on a board with only that, two blocks that
+share a row can never be taken apart again. **`withSpareRow(board)`** keeps one empty row at the
+foot — `board.spare`, ids `spare-1`, `spare-2`… (the first one `order` does not use, so a test can
+name it) — and carrying a block into it gives the block a row of its own. Call it once when the
+board is made; from then on `addBlock`, `removeBlock` and `dragEnd` keep it: a drop into the spare
+makes it a row and puts a new spare under it, `dropEmptyRows` leaves the spare alone, a new row
+from `addBlock` goes *above* it, and adding to the spare itself is how its "add" button appends a
+row. `spareRow(board)` is its id while it is empty, for the caller to draw it differently. It came
+from Yet Social's report board (`apps/social/FINDINGS.md` 41, 2026-10-18), and the `Dashboard`
+and `Data Viz/Dashboard` `Composable` stories draw it as a dashed strip. While empty it holds no
+items, so it is `role="group"`, not `list` — axe's required-children rule.
+
+**The rule: the spare row joins on drop, never in `onDragOver`.** `dragOver` returns the board
+unchanged when the target is the spare; `dragEnd` moves the block in. Every other row still joins
+while the block is carried. The reason is the crash that found it: joining the spare mid-drag
+reflows the whole board under the pointer — the row the block left shrinks or empties, the spare
+grows to take it — and `closestCorners` then finds the row above nearer, `onDragOver` moves the
+block back, the board reflows the other way, and the collision flips between the two on every
+frame. Real-Chromium Playwright counted 33 `onDragOver`s in one drag (6 between existing rows,
+which is fine). Each flip remounts the block, and with a Recharts chart in it React stopped with
+"Maximum update depth exceeded". **A caller must not work around this** by calling `moveItem` or
+`settle` into the spare from its own `onDragOver`: the refusal is the fix.
+
+**And the spare wants its own collision detection, `spareRowCollision(spareRow(board))`**, passed
+as the root's `collisionDetection`. `closestCorners` alone never picks the spare from the
+keyboard: the arrow key moves a carried block to the spare's top-left corner, and there a block
+a row tall still has its corners nearer the block above it than the strip it is on, so it is
+announced over the row above and a second arrow has nowhere lower to go. `spareRowCollision`
+makes the spare the target once the carried block's top edge reaches the spare's top, and leaves
+everything above that to `closestCorners`. Node-tested in `collision.test.ts` with the geometry
+that fails without it; the two `…Keyboard` stories carry a block out of a shared row, assert it
+is *not* in the spare while carried and the rows have not reflowed, and that it has a row of its
+own after Space.
+
+**A pointer drag into the spare can only be tested in real Chromium through Playwright.** A
+hidden Browser pane runs no animation frames, so dnd-kit's pointer drags stall there, and the
+stories drive the keyboard only — the ruling above.
 
 **The pill follows the pointer, as the prototype's does — and slides.** The mechanism is the
 handle's and is recorded in `Resize/CLAUDE.md`; what is the prototype's is the idea, and the one

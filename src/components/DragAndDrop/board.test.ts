@@ -9,6 +9,8 @@ import {
   resizeBlock,
   resizeRow,
   rowSpans,
+  spareRow,
+  withSpareRow,
 } from './board'
 
 /**
@@ -113,5 +115,62 @@ describe('addBlock / removeBlock / resizeRow', () => {
     const next = resizeRow(board, 'row-1', 300)
     expect(next.heights['row-1']).toBe(300)
     expect(resizeRow(next, 'row-1', 300)).toBe(next)
+  })
+})
+
+describe('withSpareRow', () => {
+  const spared = withSpareRow(board)
+
+  it('keeps one empty row at the foot, named the same way every time', () => {
+    expect(spared.order).toEqual(['row-1', 'row-2', 'row-3', 'spare-1'])
+    expect(spared.containers['spare-1']).toEqual([])
+    expect(spareRow(spared)).toBe('spare-1')
+    expect(withSpareRow(spared)).toBe(spared)
+    expect(spareRow(board)).toBeUndefined()
+  })
+
+  it('takes a block out of a shared row and gives it a row of its own, on the drop', () => {
+    const next = dragEnd(spared, 'b', 'spare-1')
+    expect(next.containers['row-1']).toEqual(['a'])
+    expect(next.containers['spare-1']).toEqual(['b'])
+    expect(rowSpans(next, 'row-1')).toEqual([12])
+    expect(rowSpans(next, 'spare-1')).toEqual([12])
+    // And a new spare under it.
+    expect(next.order).toEqual(['row-1', 'row-2', 'row-3', 'spare-1', 'spare-2'])
+    expect(spareRow(next)).toBe('spare-2')
+  })
+
+  it('is never joined while carried: dragOver leaves the board alone', () => {
+    expect(dragOver(spared, 'b', 'spare-1')).toBe(spared)
+    // Every other row still joins live.
+    expect(dragOver(spared, 'b', 'c').containers['row-2']).toEqual(['b', 'c', 'd', 'e'])
+  })
+
+  it('survives a drop that empties a row, and a drop that goes nowhere', () => {
+    const next = dragEnd(dragOver(spared, 'f', 'a'), 'f', 'a')
+    expect(next.order).toEqual(['row-1', 'row-2', 'spare-1'])
+    expect(dragEnd(spared, 'a', null)).toBe(spared)
+  })
+
+  it('a lone block carried into the spare moves to the foot, and its old row goes', () => {
+    const next = dragEnd(spared, 'f', 'spare-1')
+    expect(next.order).toEqual(['row-1', 'row-2', 'spare-1', 'spare-2'])
+    expect(next.containers['spare-1']).toEqual(['f'])
+  })
+
+  it('a new row goes above the spare; a block added to the spare makes it a row', () => {
+    const added = addBlock(spared, 'row-4', 'g')
+    expect(added.order).toEqual(['row-1', 'row-2', 'row-3', 'row-4', 'spare-1'])
+    const filled = addBlock(spared, 'spare-1', 'g')
+    expect(filled.order).toEqual(['row-1', 'row-2', 'row-3', 'spare-1', 'spare-2'])
+    expect(rowSpans(filled, 'spare-1')).toEqual([12])
+  })
+
+  it('removing a row keeps the spare, and a spare id freed by a removal is used again', () => {
+    const own = dragEnd(spared, 'b', 'spare-1')
+    const removed = removeBlock(own, 'b')
+    expect(removed.order).toEqual(['row-1', 'row-2', 'row-3', 'spare-2'])
+    expect(removeBlock(spared, 'f').order).toEqual(['row-1', 'row-2', 'spare-1'])
+    expect(dragEnd(removed, 'a', 'spare-2').order).toEqual(['row-2', 'row-3', 'spare-2', 'spare-1'])
   })
 })

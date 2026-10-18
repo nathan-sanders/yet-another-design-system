@@ -15,6 +15,8 @@ import {
   maxSpan,
   resizeBlock,
   rowSpans,
+  spareRow,
+  spareRowCollision,
   type ColumnSpan,
 } from '../../../../src/components/DragAndDrop'
 import { Icon } from '../../../../src/components/Icon'
@@ -25,7 +27,7 @@ import { me } from '../../data/people'
 import { rangeFor, reportFor, type ReportRange } from '../../data/reports'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import { reportsPath, withSpareRow } from './model'
+import { reportsPath } from './model'
 import { RangeControl } from './RangeControl'
 import { useReports } from './reportsState'
 import { WidgetBlock } from './WidgetBlock'
@@ -55,8 +57,8 @@ function Board({ report }: { report: Report }) {
   const current = boardFor(report.id)!
   const board = current.board
   const snapshot = useRef(board)
-  const lastRow = board.order[board.order.length - 1]
-  const spareRow = lastRow !== undefined && board.containers[lastRow]!.length === 0 ? lastRow : undefined
+  // The file's dashed Add widget zone is the board's spare row (`withSpareRow`, FINDINGS 41).
+  const spare = spareRow(board)
 
   const setRange = (next: ReportRange) => {
     const nextParams = new URLSearchParams(params)
@@ -129,22 +131,17 @@ function Board({ report }: { report: Report }) {
         </div>
 
         <DragAndDrop
+          collisionDetection={spareRowCollision(spare)}
           onDragStart={() => {
             snapshot.current = board
           }}
           onDragOver={({ active, over }) => {
-            // The spare row takes a widget on release, not while it is carried.
-            // Joining it mid-drag reflows the whole board under the pointer —
-            // the row above shrinks as the widget leaves it, the spare grows as
-            // it arrives — and the collision then flips between the spare and
-            // the row above on every frame, remounting the chart each time
-            // until React gives up (FINDINGS 41). Every other row joins live.
-            if (over && over.id !== spareRow) {
-              setBoard(report.id, (b) => dragOver(b, active.id, over.id))
-            }
+            // `dragOver` refuses the spare row, which takes a widget only on
+            // release; `DragAndDrop/CLAUDE.md` says why (FINDINGS 41).
+            if (over) setBoard(report.id, (b) => dragOver(b, active.id, over.id))
           }}
           onDragEnd={({ active, over }) => {
-            setBoard(report.id, (b) => withSpareRow(dragEnd(b, active.id, over ? over.id : null)))
+            setBoard(report.id, (b) => dragEnd(b, active.id, over ? over.id : null))
             swallowNextClick()
           }}
           onDragCancel={() => setBoard(report.id, () => snapshot.current)}
@@ -153,8 +150,8 @@ function Board({ report }: { report: Report }) {
             {board.order.map((row, index) => {
               const items = board.containers[row]!
               const spans = rowSpans(board, row) as ColumnSpan[]
-              const spare = index === board.order.length - 1 && items.length === 0
-              const name = spare ? 'New row' : `Row ${index + 1}`
+              const isSpare = row === spare
+              const name = isSpare ? 'New row' : `Row ${index + 1}`
               return (
                 <Sortable
                   key={row}
@@ -165,12 +162,12 @@ function Board({ report }: { report: Report }) {
                   strategy={horizontalListSortingStrategy}
                   // The spare row holds a button, not widgets, so it is a group
                   // until something is carried into it (axe: a list owns items).
-                  role={spare ? 'group' : 'list'}
+                  role={isSpare ? 'group' : 'list'}
                   aria-label={name}
                   // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
                   className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1"
                 >
-                  {spare ? (
+                  {isSpare ? (
                     // The file's dashed Add widget zone, and the drop target
                     // that gives a carried widget a row of its own.
                     <div className="col-span-full flex min-h-12 items-center justify-center rounded-lg border border-dashed border-surface-border-emphasized">

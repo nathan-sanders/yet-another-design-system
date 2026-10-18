@@ -312,6 +312,21 @@ out from the file; every other topic monitor and custom report opens a board of 
 its own topics; Yet's built-in reports open a "not designed yet" page. Rearranging, resizing, Apply
 and Remove live for the session (`ReportsProvider`, the inbox's pattern from finding 33).
 
+### Fixed in the library (2026-10-18)
+
+41. **Fixed (#262): `board.ts` can start a row.** A block only moved into a row that existed, so
+    once two widgets shared a row they could never be taken apart. The app kept one empty row at
+    the foot (`withSpareRow`), drawn as the file's dashed Add widget zone, and it had to take a
+    widget on release, not while carried. Joining it mid-drag reflowed the board under the
+    pointer: the row the widget left shrank, the spare grew, and `closestCorners` flipped between
+    the spare and the row above on every frame. Playwright measured 33 `onDragOver`s in one drag
+    (6 between existing rows, which is fine). Each flip remounted the chart, and React stopped it
+    with "Maximum update depth exceeded" inside Recharts. The spare row is now the library's:
+    `withSpareRow` and `spareRow` in `board.ts`. `dragOver` refuses the spare, so it joins on
+    drop only, and `addBlock`, `removeBlock` and `dragEnd` keep it at the foot.
+    `spareRowCollision` lets the keyboard reach it too, which `closestCorners` alone never did.
+    The rule is in `DragAndDrop/CLAUDE.md`. The app's copy and its `onDragOver` skip are gone.
+
 ### Open: library changes worth making
 
 37. **`ContentBlock.Header` has no start slot for a control.** The file puts the grip *before* the
@@ -323,15 +338,6 @@ and Remove live for the session (`ReportsProvider`, the inbox's pattern from fin
 39. **`LineSeries` has no annotation layer.** The Edit panel's "Mark spikes on the chart" has
     nothing to draw with, so it is shown disabled with "Not built yet" rather than as a switch that
     does nothing (finding 21's reasoning).
-41. **`board.ts` has no way to start a row.** A block only moves into a row that exists, so once two
-    widgets share a row they could never be taken apart. The app keeps one empty row at the foot
-    (`withSpareRow`), drawn as the file's dashed Add widget zone. **It must take a widget on release,
-    not while carried.** Joining it mid-drag reflows the board under the pointer: the row the widget
-    left shrinks, the spare grows, and `closestCorners` then flips between the spare and the row above
-    on every frame. Each flip remounts the chart, and React stopped it with "Maximum update depth
-    exceeded" inside Recharts. Playwright measured 33 `onDragOver`s in one drag. Between existing rows
-    there were 6, and that path is fine. The spare row is skipped in `onDragOver` and settled in
-    `onDragEnd`. A spare row, and that rule, belong in `board.ts` if a second board wants them.
 
 ### Kept in the app, worth knowing
 
