@@ -290,3 +290,9 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     wrong layout first. Yet Social renders only in the browser, so the first render already has
     the real answer, and CSS alone could not have taken `aria-current` off the card. If the
     library ever wants a rule here, it is "popup-only *unless the consumer never server-renders*".
+35. **Fixed (#255, #257): the message list's meta tokens show only their glyph.** Nathan wanted
+    the card's status, assignee, priority and sentiment as icons, with only the ticket number
+    labelled. Token had no way to hide its label, so it gained `labelHidden`: the glyph with the
+    usual 8px either side, and the label kept as the name, `sr-only`. It shipped square first;
+    the 8px came back in #257. Only the view-only `TicketMeta` uses it,
+    which is the card; the conversation toolbar and thread comments keep their labelled menus.
