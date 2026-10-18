@@ -80,9 +80,6 @@ export function InboxScreen() {
     }))
   }
 
-  // With a panel open the page is 800 wide: the list folds to faces and Filter
-  // to an icon (`40005911:33894`).
-  const compact = shell.panel !== null
   const backToList = () => update({ message: null, view: null })
 
   return (
@@ -106,25 +103,24 @@ export function InboxScreen() {
         }
         end={
           <div className="flex items-center gap-2">
-            {/* Icon-only beside a panel, as drawn, and on a phone, where the
-                segmented control needs the room. */}
+            {/* Icon-only when the page is narrow, as the file draws it beside a
+                panel (`40005911:33894`), and on a phone. The same width the
+                list folds at. */}
             <Button
               appearance="ghost"
               startIcon={ListFilter}
               aria-label="Filter"
-              className={compact ? undefined : 'md:hidden'}
+              className="@min-[860px]/page:hidden"
               onClick={() => shell.notBuilt('Filtering')}
             />
-            {compact ? null : (
-              <Button
-                appearance="ghost"
-                startIcon={ListFilter}
-                className="max-md:hidden"
-                onClick={() => shell.notBuilt('Filtering')}
-              >
-                Filter
-              </Button>
-            )}
+            <Button
+              appearance="ghost"
+              startIcon={ListFilter}
+              className="hidden @min-[860px]/page:inline-flex"
+              onClick={() => shell.notBuilt('Filtering')}
+            >
+              Filter
+            </Button>
             <Button
               appearance="ghost"
               startIcon={Ellipsis}
@@ -140,7 +136,6 @@ export function InboxScreen() {
         <MessageList
           tickets={listed}
           openNumber={open?.number}
-          collapsed={compact}
           sort={sort}
           descending={descending}
           onSortChange={(next) => update({ sort: next === 'received' ? null : next })}

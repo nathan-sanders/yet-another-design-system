@@ -233,3 +233,21 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
 33. **The published post detail.** Tabs, the stats row and the three new tabs are code-first.
     The week and agenda card components (`_Calendar Post Content`, `_Calendar Agenda Content`)
     also want a published state with the three stat tokens.
+31. **The list folds by width, not by the panel.** The rail of faces shows when the page is
+    narrower than 860px, which is a 380 list beside a conversation of at least 480. The
+    `Filter` label drops to an icon at the same point. `AppShell.Page` is a size container
+    (`@container/page` in `SocialShell`), and both list forms are rendered with
+    `md:@max-[860px]/page:` choosing one. That way the switch follows a panel drag live and
+    nothing measures in script. Measured:
+
+    | Layout | Page | List |
+    |---|---|---|
+    | 1440, no panel | 1192 | full |
+    | 1440, 384 panel | 800 | folded (the file's frame) |
+    | 1440, panel dragged to its 320 minimum | 864 | full again |
+    | 1920, panel open | 1280 | full |
+    | Phone | n/a | never folds; the list is a screen of its own |
+
+    It is the first container query in the repo. Worth a library question: whether
+    `AppShell.Page` should be a container by default, since "how much room does the page
+    have" is exactly what a panel changes.
