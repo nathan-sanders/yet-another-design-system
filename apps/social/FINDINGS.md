@@ -345,9 +345,14 @@ and Remove live for the session (`ReportsProvider`, the inbox's pattern from fin
     underlined link for prose; the file draws the report's name as plain cell text. `ReportCell` is
     a plain anchor in the cell's color with `focusRing` and a hover underline. The widget titles on the
     board are the same.
-40. **The Visualization tiles are `Radio` cards.** `_Pulse Viz Option` is a tile with the glyph over
-    the word and no dial. The library has no tile radio, so each option is `Radio inContainer`
-    with the glyph stacked over the label, three to a row, and the dial beside them.
+40. **Open: there is no selectable card.** `_Pulse Viz Option` is a Clickable Card tile, glyph over
+    word, wearing `State=Selected` when chosen. It first shipped as `Radio inContainer`, with a dial
+    the file doesn't draw, and Nathan asked for the card. Each tile is now the library's `Radio.Root`
+    rendered onto a `ClickableCard` (`nativeButton`), so the six are one radio group with one tab
+    stop and arrow keys. The card's `selected` look comes with its `aria-current`, which is
+    harmless on a radio but says "current" as well as "checked". The Card record says a card you
+    switch on and off is a different component (Astryx's `SelectableCard`) "and nothing in the file
+    asks for one yet". This is the file asking.
 42. **Back is a `Button` that navigates** (finding 7 again). The file draws an icon-only button and
     a `Link` cannot be one. It goes to the list or the board, not back in history, so a link opened
     cold still has somewhere to go. The detail page's `h1` is `sr-only` beside the breadcrumbs,
@@ -359,6 +364,23 @@ and Remove live for the session (`ReportsProvider`, the inbox's pattern from fin
     pointer drag, and that stops a handler but not an anchor's navigation. The title is a link
     (`draggable={false}`), so a one-shot capture listener on `window` cancels the click after a drag
     (`swallowNextClick`). That is the DragAndDrop record's "link cards" trap, met head on.
+
+48. **The whole report row opens the report.** Table has no `onRowClick` on purpose, because a click on
+    a `<tr>` has no keyboard equivalent. The list wraps the table in a click handler that follows the
+    row's own name link, so the link stays the keyboard and screen-reader path. `hasHover` and a
+    pointer cursor say the row is a target. The dashed Add widget zone is likewise one full-width
+    ghost `Button` now, not a button inside a box.
+49. **Rows resize by height too** (the Composable story's row strip). The 12px strip under each row is
+    both its height handle and the gap between rows, as in the library's dashboard.
+    - **Content-sized until resized.** A row is as tall as its widgets until somebody drags its strip.
+      From then on it holds that height, the charts take what's left after the block's chrome, and a
+      table or list scrolls inside its block. Shrunk to 160px, Top stories' table scrolls its own
+      404px.
+    - **The handle has to start from the real height.** It starts a drag from its `value`, so a
+      ResizeObserver keeps every row's measured height. Without it the first drag would jump to a
+      guessed default.
+    - A tall widget carried down still lands in the spare row: the library's `spareRowCollision`
+      (#262) hands it the spare once its top passes the row's top, whatever the rows above did.
 
 ### Figma owes
 
@@ -377,12 +399,19 @@ and Remove live for the session (`ReportsProvider`, the inbox's pattern from fin
     other visualizations are disabled and Measure, Topics, Sources and Group by are left out. The
     Measure and Sources values were decided here, and the last topic cannot be removed.
 
+50. **The row-height strip** and the whole-row click on the
+    reports list are decided here; the file draws none of them. The Compare button uses the
+    `calendars` glyph, because it adds a second date range to compare against.
+
 ### Measured, and fine
 
 - List: 56px rows, cells at 14px, 14 reports; the sort is in the URL.
-- Board: 12px gutter, and a 12px resize handle in it; the grip glyph at 16–32 and the title at 40;
+- Board: 12px gutter, and a 12px resize handle in it; the row strip starts at the measured height,
+  two Shift+↓ make the row 80px taller and the plot follows, a pointer drag of 60px moves it 60; the grip glyph at 16–32 and the title at 40;
   starts as 34608, and one keyboard drag of Overview into the trend's row gives 29853 (6 / 6).
   Keyboard resize 6 → 7 reads "7 of 12 columns".
+- Visualization: six card radios, one tab stop, no dial, the selected one on the subtle fill; → moves
+  Line to Area and the page previews it. Story, voice and spike titles at 14px.
 - Panel 384; the toolbar's Hour / Day / Week leaves while it is open; Cancel, close and Yak drop
   `edit=1`, and a reload with it reopens the panel.
 - Phone (375 × 812): one column, widgets 325 wide, document not scrolling on all three screens.

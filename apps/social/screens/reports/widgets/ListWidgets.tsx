@@ -38,7 +38,7 @@ function TwoLineCell({
 }) {
   return (
     <span className="flex min-w-0 flex-col gap-0.5">
-      <Text render={<span />} size="sm" weight="semibold" truncate>
+      <Text render={<span />} weight="semibold" truncate>
         {title}
       </Text>
       <span className="flex items-center gap-1 text-content-subtle">
@@ -173,7 +173,7 @@ export function SpikesWidget() {
         <li key={spike.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
           <Icon icon={SPIKE_ICON[spike.icon]} className="shrink-0" aria-hidden />
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <Text render={<span />} size="sm" weight="semibold" truncate>
+            <Text render={<span />} weight="semibold" truncate>
               {spike.title}
             </Text>
             <Text render={<span />} size="sm" color="subtle" truncate>
