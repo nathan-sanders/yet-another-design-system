@@ -296,3 +296,10 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     usual 8px either side, and the label kept as the name, `sr-only`. It shipped square first;
     the 8px came back in #257. Only the view-only `TicketMeta` uses it,
     which is the card; the conversation toolbar and thread comments keep their labelled menus.
+36. **Open: `Badge` has no inverse color.** Internal notes in Plan and Engage now share one
+    component, `components/InternalNote.tsx`: a sticky-note slip (the decorative yellow at 30%,
+    its corner folded), a dark `Internal` pill, and replies threaded one step in. Nathan wanted
+    both sections to match his Sprout reference, and not to use `ChatMessage` — a note is pinned
+    to a post or a conversation, not a turn in a chat. The dark pill is a neutral Badge with
+    `bg-surface-background-emphasized text-content-inverse` laid over it, because none of the 18
+    hues is the inverse pair. If a second place wants it, it is an `inverse` color in `src/`.
