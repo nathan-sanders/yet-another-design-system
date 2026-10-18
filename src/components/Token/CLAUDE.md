@@ -94,10 +94,11 @@ counterpart, thin support).
 **`labelHidden` came in later, after first being left out** (Astryx's `isLabelHidden`, which it
 argues against in the same breath). Yet Social's message list needed it: a card carries a ticket's
 status, assignee, priority and sentiment, and four labelled tokens wrapped to two lines where four
-glyphs fit on one. The label stays as the name, `sr-only`, and the pill goes square — `w-6` / `w-5`
-as compounds on size, `px-0`, glyph centered — so 20 and 24 still hold. Named after ProgressBar's
-`labelHidden`. No room for a remove `x` or an end slot in the square: documented, not typed. Code
-first; Figma's Token set has no icon-only variant yet.
+glyphs fit on one. The label stays as the name, `sr-only`, and that is the whole change: sr-only is
+absolute, so the label leaves the flow and the gap with it, and the pill keeps its 8px either side
+of the glyph (34 wide round a 16px avatar). It first shipped square (24×24, `px-0`); Nathan wanted
+the 8px kept. Named after ProgressBar's `labelHidden`. Code first; Figma's Token set has no
+icon-only variant yet.
 **Naming:** `src/components/Token/` is this component; `tokens/` at the repo root is the design
 token export from Figma. Unrelated, and the collision is worth a second's care when reading a path.
 

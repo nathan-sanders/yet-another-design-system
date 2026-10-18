@@ -257,14 +257,12 @@ export const Radius: Story = {
 }
 
 /**
- * `labelHidden`: only the icon or avatar shows, in a square pill — 24×24, 20×20
- * at small — and the label is still the token's name, `sr-only`. For a dense row
+ * `labelHidden`: only the icon or avatar shows, with the token's usual 8px
+ * either side, and the label is still the token's name, `sr-only`. For a dense row
  * where the glyph already says the value, like the status, assignee and
  * sentiment on a message-list card. The plain token beside them is the one whose
  * value has no glyph to stand in for it.
- *
- * Square means no room for a remove `x` or an end slot; it is for view-only and
- * clickable tokens.
+
  */
 export const LabelHidden: Story = {
   parameters: { controls: { disable: true } },
@@ -296,8 +294,14 @@ export const LabelHidden: Story = {
       const row = canvasElement.querySelector<HTMLElement>(`[data-size="${size}"]`)!
       const [, ...hidden] = Array.from(row.children) as HTMLElement[]
       for (const pill of hidden) {
+        // 8px from the border to the glyph on both sides, at the usual height.
         const box = pill.getBoundingClientRect()
-        await expect([box.width, box.height]).toEqual([px, px])
+        // The first child in the flow: a clickable token leads with its overlay.
+        const glyph = (Array.from(pill.children) as HTMLElement[])
+          .find((c) => getComputedStyle(c).position !== 'absolute')!
+          .getBoundingClientRect()
+        await expect([glyph.left - box.left - 1, box.right - glyph.right - 1]).toEqual([8, 8])
+        await expect(box.height).toBe(px)
       }
       // The label is gone from sight, not from the name.
       await expect(within(row).getByText('Status: In progress')).toHaveClass('sr-only')
