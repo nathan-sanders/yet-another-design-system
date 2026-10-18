@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { Bell, Bot, Moon, Search, Sun } from 'lucide-react'
 
 import { AppShell } from '../../../src/components/AppShell'
@@ -14,7 +14,9 @@ import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { useInbox } from '../screens/inbox/inboxState'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
-import { YakPanel } from '../yak/YakPanel'
+import { YakChatContext, useYakChatState } from '../yak/chat'
+import { YakHistory, YakPanel } from '../yak/YakPanel'
+import { yakFrom, yakPath } from '../yak/paths'
 import { Logo } from './Logo'
 import { groups, home, type AppRoute } from './routes'
 import { ShellContext, type ShellPanel, type ShellState } from './ShellContext'
@@ -30,7 +32,14 @@ import { ShellContext, type ShellPanel, type ShellState } from './ShellContext'
  */
 export function SocialShell() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [params] = useSearchParams()
   const [panel, setPanel] = useState<ShellPanel>(null)
+  const yakChat = useYakChatState()
+  // On the full view, Yak *is* the page: the rail's button closes it, and the
+  // panel stays shut however the shell's state says it was left.
+  const onYakPage = location.pathname === '/yak'
+  const yakFromPage = yakFrom(params)
   // The post panel keeps showing the last post while it slides closed.
   const [lastPostId, setLastPostId] = useState<string>()
   if (panel?.type === 'post' && panel.postId !== lastPostId) setLastPostId(panel.postId)
@@ -63,8 +72,12 @@ export function SocialShell() {
   )
 
   const toggleYak = useCallback(() => {
+    if (onYakPage) {
+      navigate(yakFromPage)
+      return
+    }
     setPanel((current) => (current?.type === 'yak' ? null : { type: 'yak' }))
-  }, [])
+  }, [onYakPage, navigate, yakFromPage])
 
   // `/` opens Yak and ⌘K opens search, as the rail's keys say. Never while the
   // person is typing — a slash in the composer is a slash.
@@ -91,7 +104,7 @@ export function SocialShell() {
     const count = route.path === '/engage/my-inbox' ? myInboxCount : route.badge
     return count ? <Badge>{count}</Badge> : undefined
   }
-  const yakOpen = panel?.type === 'yak'
+  const yakOpen = panel?.type === 'yak' && !onYakPage
 
   /** The navigation, written once for the rail and the phone sheet. */
   const sections = (
@@ -144,99 +157,117 @@ export function SocialShell() {
 
   return (
     <ShellContext.Provider value={shell}>
-      <AppShell mode="contained">
-        <SideNav
-          aria-label="Main"
-          logo={<Logo />}
-          top={
-            <>
-              <NavItem
-                startIcon={Search}
-                end={<Kbd keys="mod+k" />}
-                onClick={() => notBuilt('Search')}
-              >
-                Search
-              </NavItem>
-              <NavItem
-                startIcon={Bot}
-                end={<Kbd keys="/" />}
-                aria-pressed={yakOpen}
-                onClick={toggleYak}
-              >
-                Yak
-              </NavItem>
-            </>
-          }
-          utilities={
-            <>
-              {themeItem(false)}
+      <YakChatContext.Provider value={yakChat}>
+        <AppShell mode="contained">
+          <SideNav
+            aria-label="Main"
+            logo={<Logo />}
+            top={
+              <>
+                <NavItem
+                  startIcon={Search}
+                  end={<Kbd keys="mod+k" />}
+                  onClick={() => notBuilt('Search')}
+                >
+                  Search
+                </NavItem>
+                <NavItem
+                  startIcon={Bot}
+                  end={<Kbd keys="/" />}
+                  aria-pressed={yakOpen || onYakPage}
+                  onClick={toggleYak}
+                >
+                  Yak
+                </NavItem>
+              </>
+            }
+            utilities={
+              <>
+                {themeItem(false)}
+                <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
+                  Notifications
+                </NavItem>
+                {account}
+              </>
+            }
+          >
+            {sections}
+          </SideNav>
+
+          {/* A size container, so a screen can lay out by the room the page
+            really has: the window minus the rail and whatever panel is open
+            at whatever width it was dragged to. `@max-[…]/page:` reads it. */}
+          <AppShell.Page className="@container/page">
+            <Outlet />
+          </AppShell.Page>
+
+          {/* Both always rendered and driven by `open`, so each slides out with
+            its content instead of vanishing — a closed Panel renders nothing. */}
+          <YakPanel
+            open={yakOpen}
+            history={panel?.type === 'yak' && (panel.history ?? false)}
+            onHistoryChange={(history) => setPanel({ type: 'yak', history })}
+            onClose={() => setPanel(null)}
+            onExpand={() => {
+              setPanel(null)
+              navigate(yakPath(location.pathname))
+            }}
+          />
+          <YakHistory
+            open={panel?.type === 'yak-history'}
+            onOpenChange={(open) => setPanel(open ? { type: 'yak-history' } : null)}
+            onNewChat={() => {
+              yakChat.clear()
+              setPanel(null)
+            }}
+            onPick={(title) => {
+              yakChat.clear()
+              yakChat.ask(title, yakFromPage)
+              setPanel(null)
+            }}
+          />
+          <PostDetailPanel
+            open={panel?.type === 'post'}
+            postId={lastPostId}
+            onClose={() => setPanel(null)}
+          />
+          <ContactDetailPanel
+            open={panel?.type === 'contact'}
+            customerId={lastCustomerId}
+            onClose={() => setPanel(null)}
+          />
+          <WidgetEditPanel
+            open={panel?.type === 'widget'}
+            target={lastWidget}
+            onClose={() => setPanel(null)}
+          />
+
+          <MobileNav
+            aria-label="Main"
+            logo={<Logo />}
+            utilities={
+              <>
+                <NavItem
+                  startIcon={Bot}
+                  aria-label="Yak"
+                  aria-pressed={yakOpen || onYakPage}
+                  onClick={toggleYak}
+                />
+                {themeItem(true)}
+              </>
+            }
+          >
+            {sections}
+            <SideNav.Section header="Account">
               <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
                 Notifications
               </NavItem>
               {account}
-            </>
-          }
-        >
-          {sections}
-        </SideNav>
-
-        {/* A size container, so a screen can lay out by the room the page
-            really has: the window minus the rail and whatever panel is open
-            at whatever width it was dragged to. `@max-[…]/page:` reads it. */}
-        <AppShell.Page className="@container/page">
-          <Outlet />
-        </AppShell.Page>
-
-        {/* Both always rendered and driven by `open`, so each slides out with
-            its content instead of vanishing — a closed Panel renders nothing. */}
-        <YakPanel
-          open={yakOpen}
-          history={panel?.type === 'yak' && (panel.history ?? false)}
-          pendingAsk={panel?.type === 'yak' ? panel.ask : undefined}
-          onHistoryChange={(history) => setPanel({ type: 'yak', history })}
-          onClose={() => setPanel(null)}
-        />
-        <PostDetailPanel
-          open={panel?.type === 'post'}
-          postId={lastPostId}
-          onClose={() => setPanel(null)}
-        />
-        <ContactDetailPanel
-          open={panel?.type === 'contact'}
-          customerId={lastCustomerId}
-          onClose={() => setPanel(null)}
-        />
-        <WidgetEditPanel
-          open={panel?.type === 'widget'}
-          target={lastWidget}
-          onClose={() => setPanel(null)}
-        />
-
-        <MobileNav
-          aria-label="Main"
-          logo={<Logo />}
-          utilities={
-            <>
-              <NavItem
-                startIcon={Bot}
-                aria-label="Yak"
-                aria-pressed={yakOpen}
-                onClick={toggleYak}
-              />
-              {themeItem(true)}
-            </>
-          }
-        >
-          {sections}
-          <SideNav.Section header="Account">
-            <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
-              Notifications
-            </NavItem>
-            {account}
-          </SideNav.Section>
-        </MobileNav>
-      </AppShell>
-      <Toast.Viewport />
+            </SideNav.Section>
+          </MobileNav>
+        </AppShell>
+        <Toast.Viewport />
+      </YakChatContext.Provider>
     </ShellContext.Provider>
   )
 }

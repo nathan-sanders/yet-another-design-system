@@ -1,10 +1,11 @@
-import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import {
   Bot,
   ChevronDown,
   Copy,
   History,
+  Maximize2,
   Mic,
   Plus,
   RefreshCw,
@@ -24,28 +25,21 @@ import { InputGroup } from '../../../src/components/Input'
 import { Panel } from '../../../src/components/Panel'
 import { Heading, Text } from '../../../src/components/Text'
 import { Tooltip } from '../../../src/components/Tooltip'
+import { CreatorCard } from '../components/CreatorCard'
 import { me } from '../data/people'
 import { history, startActions } from '../data/yak'
 import { useShell } from '../shell/ShellContext'
-import { allInsights, pageBrief, pageWork, type PageWork } from './insights'
-
-interface Turn {
-  id: number
-  prompt: string
-  /** `thinking` until the canned reply lands. */
-  state: 'thinking' | 'done'
-  /** The page it was asked beside, which decides what Yak reads to answer. */
-  work: PageWork
-  sentAt: Date
-  repliedAt?: Date
-}
+import { useYakChat, type Turn } from './chat'
+import { allInsights, pageBrief } from './insights'
+import type { SearchResults } from './search'
 
 /**
  * Yak, the assistant (`40005911:34193`): a `Panel` beside whatever page is
  * open. It starts on a greeting, this week's insights and four ways in; ask it
  * anything and it "thinks" (a `ThoughtProcess`), "works" (a `ToolCall`) and
  * answers. The answers are canned — this is a mock — but every part of the turn
- * is the library's.
+ * is the library's. The chat itself is the shell's (`useYakChat`), so Expand
+ * opens the full view (`YakScreen`) on the same conversation.
  *
  * History (`40005911:34386`) is a `Panel` written inside this one, so it stacks
  * over Yak with Yak's edge peeking out behind it, exactly as the file draws it.
@@ -55,47 +49,17 @@ export function YakPanel({
   history: historyOpen,
   onHistoryChange,
   onClose,
-  pendingAsk,
+  onExpand,
 }: {
   open: boolean
   history: boolean
-  /** A question another screen asked Yak to answer as it opens; asked once per `id`, in a new chat. */
-  pendingAsk?: { id: number; text: string }
   onHistoryChange: (open: boolean) => void
   onClose: () => void
+  /** Open the full-page view, `#/yak`, on the same chat. */
+  onExpand: () => void
 }) {
-  const [turns, setTurns] = useState<Turn[]>([])
-  const nextId = useRef(1)
-  const shell = useShell()
+  const chat = useYakChat()
   const { pathname } = useLocation()
-
-  const ask = useCallback(
-    (prompt: string) => {
-      const id = nextId.current++
-      setTurns((current) => [
-        ...current,
-        { id, prompt, state: 'thinking', work: pageWork(pathname), sentAt: new Date() },
-      ])
-      window.setTimeout(() => {
-        setTurns((current) =>
-          current.map((t) => (t.id === id ? { ...t, state: 'done', repliedAt: new Date() } : t)),
-        )
-      }, 1800)
-    },
-    [pathname],
-  )
-
-  const thinking = turns.some((t) => t.state === 'thinking')
-
-  // A question handed over by another screen starts a new chat with it, once.
-  // The id, not the words, says whether it is new — StrictMode runs this twice.
-  const asked = useRef<number | null>(null)
-  useEffect(() => {
-    if (!open || !pendingAsk || asked.current === pendingAsk.id) return
-    asked.current = pendingAsk.id
-    setTurns([])
-    ask(pendingAsk.text)
-  }, [open, pendingAsk, ask])
 
   return (
     <Panel
@@ -122,7 +86,13 @@ export function YakPanel({
               appearance="ghost"
               startIcon={SquarePen}
               aria-label="New chat"
-              onClick={() => setTurns([])}
+              onClick={chat.clear}
+            />
+            <Button
+              appearance="ghost"
+              startIcon={Maximize2}
+              aria-label="Expand"
+              onClick={onExpand}
             />
           </>
         }
@@ -130,18 +100,22 @@ export function YakPanel({
         Yak
       </Panel.Header>
       <Panel.Body className="flex flex-col gap-6">
-        {turns.length === 0 ? <StartScreen onAsk={ask} /> : <Conversation turns={turns} />}
+        {chat.turns.length === 0 ? (
+          <StartScreen from={pathname} onAsk={(prompt) => chat.ask(prompt, pathname)} />
+        ) : (
+          <Conversation turns={chat.turns} />
+        )}
 
         <YakHistory
           open={historyOpen}
           onOpenChange={onHistoryChange}
           onNewChat={() => {
-            setTurns([])
+            chat.clear()
             onHistoryChange(false)
           }}
           onPick={(title) => {
-            setTurns([])
-            ask(title)
+            chat.clear()
+            chat.ask(title, pathname)
             onHistoryChange(false)
           }}
         />
@@ -149,47 +123,50 @@ export function YakPanel({
       {/* No scope token above the composer: Yak works out whether a question
           is about this page or the whole workspace from the question. */}
       <Panel.Footer>
-        <ChatComposer
-          aria-label="Message Yak"
-          placeholder="How can I help today?"
-          streaming={thinking}
-          onStop={() =>
-            setTurns((current) =>
-              current.map((t) =>
-                t.state === 'thinking' ? { ...t, state: 'done', repliedAt: new Date() } : t,
-              ),
-            )
-          }
-          onSubmit={ask}
-          className="w-full"
-          actions={
-            <Button
-              appearance="ghost"
-              startIcon={Plus}
-              aria-label="Add context"
-              onClick={() => shell.notBuilt('Adding context')}
-            />
-          }
-          endActions={
-            <>
-              <Button
-                appearance="ghost"
-                endIcon={ChevronDown}
-                onClick={() => shell.notBuilt('Choosing a model')}
-              >
-                Opus 5.5
-              </Button>
-              <Button
-                appearance="ghost"
-                startIcon={Mic}
-                aria-label="Dictate"
-                onClick={() => shell.notBuilt('Dictation')}
-              />
-            </>
-          }
-        />
+        <YakComposer from={pathname} />
       </Panel.Footer>
     </Panel>
+  )
+}
+
+/** The composer, the same in the panel and the full view. */
+export function YakComposer({ from }: { from: string }) {
+  const chat = useYakChat()
+  const shell = useShell()
+  return (
+    <ChatComposer
+      aria-label="Message Yak"
+      placeholder="How can I help today?"
+      streaming={chat.thinking}
+      onStop={chat.stop}
+      onSubmit={(prompt) => chat.ask(prompt, from)}
+      className="w-full"
+      actions={
+        <Button
+          appearance="ghost"
+          startIcon={Plus}
+          aria-label="Add context"
+          onClick={() => shell.notBuilt('Adding context')}
+        />
+      }
+      endActions={
+        <>
+          <Button
+            appearance="ghost"
+            endIcon={ChevronDown}
+            onClick={() => shell.notBuilt('Choosing a model')}
+          >
+            Opus 5.5
+          </Button>
+          <Button
+            appearance="ghost"
+            startIcon={Mic}
+            aria-label="Dictate"
+            onClick={() => shell.notBuilt('Dictation')}
+          />
+        </>
+      }
+    />
   )
 }
 
@@ -200,9 +177,15 @@ function greeting(): string {
 }
 
 /** The start screen: greeting, the open page's `_Yak Insight`s in a card, four `_Yak Action Content` cards. */
-function StartScreen({ onAsk }: { onAsk: (prompt: string) => void }) {
-  const { pathname } = useLocation()
-  const { page, title, insights } = pageBrief(pathname)
+export function StartScreen({
+  from,
+  onAsk,
+}: {
+  /** The page the brief is about. */
+  from: string
+  onAsk: (prompt: string) => void
+}) {
+  const { page, title, insights } = pageBrief(from)
   return (
     <>
       <div className="flex items-center gap-2">
@@ -322,7 +305,7 @@ function ReplyActions() {
  * the answer as a ghost bubble across the column, with its time and actions;
  * and the still mark closing the thread once Yak is done.
  */
-function Conversation({ turns }: { turns: Turn[] }) {
+export function Conversation({ turns }: { turns: Turn[] }) {
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => {
     end.current?.scrollIntoView({ block: 'end' })
@@ -331,7 +314,11 @@ function Conversation({ turns }: { turns: Turn[] }) {
   const thinking = turns.some((t) => t.state === 'thinking')
 
   return (
-    <div role="log" aria-label="Conversation with Yak" className="flex flex-col gap-2">
+    <div
+      role="log"
+      aria-label="Conversation with Yak"
+      className="@container/yak flex flex-col gap-2"
+    >
       {turns.map((turn) => (
         <Fragment key={turn.id}>
           <ChatMessage
@@ -357,8 +344,11 @@ function Conversation({ turns }: { turns: Turn[] }) {
                 layout="fill"
                 metadata={<Stamp at={turn.repliedAt ?? turn.sentAt} actions={<ReplyActions />} />}
               >
-                <ChatMessage.Bubble appearance="ghost">{reply(turn.prompt)}</ChatMessage.Bubble>
+                <ChatMessage.Bubble appearance="ghost">
+                  {turn.results?.answer ?? reply(turn.prompt)}
+                </ChatMessage.Bubble>
               </ChatMessage>
+              {turn.results ? <Results results={turn.results} /> : null}
             </>
           )}
         </Fragment>
@@ -373,6 +363,55 @@ function Conversation({ turns }: { turns: Turn[] }) {
   )
 }
 
+/** A search's finds under Yak's answer: creators as Plan › Creators draws them, then trends. */
+function Results({ results }: { results: SearchResults }) {
+  const shell = useShell()
+  if (results.creators.length === 0 && results.trends.length === 0) return null
+  return (
+    <div className="flex flex-col gap-4 px-3">
+      {results.creators.length > 0 ? (
+        <section className="flex flex-col gap-2">
+          <Heading level={2} size="sm" weight="semibold" color="subtle">
+            Creators
+          </Heading>
+          <ul className="grid grid-cols-1 gap-3 @min-[480px]/yak:grid-cols-2 @min-[900px]/yak:grid-cols-3">
+            {results.creators.map((creator) => (
+              <li key={creator.id} className="flex">
+                <CreatorCard creator={creator} onClick={() => shell.notBuilt('Creator details')} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {results.trends.length > 0 ? (
+        <section className="flex flex-col gap-2">
+          <Heading level={2} size="sm" weight="semibold" color="subtle">
+            Trends
+          </Heading>
+          <ul className="flex flex-col gap-2">
+            {results.trends.map((trend) => (
+              <li key={trend.id}>
+                <Card className="flex items-center gap-3">
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <Text render={<span />} weight="semibold" color="emphasized">
+                      {trend.title}
+                    </Text>
+                    <Text render={<span />} size="sm" color="subtle">
+                      {trend.posts.toLocaleString('en-US')} posts
+                      {trend.note ? ` · ${trend.note}` : ''}
+                    </Text>
+                  </span>
+                  <Badge color={trend.tone}>{trend.change}</Badge>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </div>
+  )
+}
+
 function reply(prompt: string): string {
   return (
     allInsights().find((insight) => insight.action === prompt)?.answer ??
@@ -380,8 +419,8 @@ function reply(prompt: string): string {
   )
 }
 
-/** The history panel, stacked over Yak. */
-function YakHistory({
+/** The history panel: stacked over Yak in the panel, beside the page in the full view. */
+export function YakHistory({
   open,
   onOpenChange,
   onNewChat,

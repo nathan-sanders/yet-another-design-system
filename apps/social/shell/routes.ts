@@ -38,7 +38,7 @@ export const groups: RouteGroup[] = [
       { path: '/plan/calendar', label: 'Calendar', built: true, figma: '40005911-32756' },
       { path: '/plan/campaigns', label: 'Campaigns' },
       { path: '/plan/ideas', label: 'Ideas', figma: '40005911-32981' },
-      { path: '/plan/creators', label: 'Creators', figma: '40005911-35697' },
+      { path: '/plan/creators', label: 'Creators', built: true, figma: '40005911-35697' },
       { path: '/plan/assets', label: 'Asset library' },
       { path: '/plan/link-in-bio', label: 'Link in bio' },
     ],
