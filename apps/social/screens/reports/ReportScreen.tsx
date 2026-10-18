@@ -16,11 +16,12 @@ import {
   resizeBlock,
   resizeRow,
   rowSpans,
+  spareRow,
+  spareRowCollision,
   type ColumnSpan,
 } from '../../../../src/components/DragAndDrop'
 import { Icon } from '../../../../src/components/Icon'
 import { Link } from '../../../../src/components/Link'
-import { cn } from '../../../../src/lib/cn'
 import { ResizeHandle } from '../../../../src/components/Resize'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
@@ -28,7 +29,7 @@ import { me } from '../../data/people'
 import { rangeFor, reportFor, type ReportRange } from '../../data/reports'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import { reportsPath, withSpareRow } from './model'
+import { reportsPath } from './model'
 import { RangeControl } from './RangeControl'
 import { useReports } from './reportsState'
 import { WidgetBlock } from './WidgetBlock'
@@ -58,15 +59,9 @@ function Board({ report }: { report: Report }) {
   const current = boardFor(report.id)!
   const board = current.board
   const snapshot = useRef(board)
-  const lastRow = board.order[board.order.length - 1]
-  const spareRow =
-    lastRow !== undefined && board.containers[lastRow]!.length === 0 ? lastRow : undefined
-
+  // The file's dashed Add widget zone is the board's spare row (`withSpareRow`, FINDINGS 41).
+  const spare = spareRow(board)
   const rowHeights = useRowHeights(board.order)
-  // While a widget is carried the spare row opens into a real drop area: a
-  // 400px trend aimed at a 64px strip lands in the row above it instead, because
-  // collisions are read off the carried block's corners, not the pointer.
-  const [carrying, setCarrying] = useState(false)
 
   const setRange = (next: ReportRange) => {
     const nextParams = new URLSearchParams(params)
@@ -140,38 +135,28 @@ function Board({ report }: { report: Report }) {
         </div>
 
         <DragAndDrop
+          collisionDetection={spareRowCollision(spare)}
           onDragStart={() => {
             snapshot.current = board
-            setCarrying(true)
           }}
           onDragOver={({ active, over }) => {
-            // The spare row takes a widget on release, not while it is carried.
-            // Joining it mid-drag reflows the whole board under the pointer —
-            // the row above shrinks as the widget leaves it, the spare grows as
-            // it arrives — and the collision then flips between the spare and
-            // the row above on every frame, remounting the chart each time
-            // until React gives up (FINDINGS 41). Every other row joins live.
-            if (over && over.id !== spareRow) {
-              setBoard(report.id, (b) => dragOver(b, active.id, over.id))
-            }
+            // `dragOver` refuses the spare row, which takes a widget only on
+            // release; `DragAndDrop/CLAUDE.md` says why (FINDINGS 41).
+            if (over) setBoard(report.id, (b) => dragOver(b, active.id, over.id))
           }}
           onDragEnd={({ active, over }) => {
-            setBoard(report.id, (b) => withSpareRow(dragEnd(b, active.id, over ? over.id : null)))
-            setCarrying(false)
+            setBoard(report.id, (b) => dragEnd(b, active.id, over ? over.id : null))
             swallowNextClick()
           }}
-          onDragCancel={() => {
-            setBoard(report.id, () => snapshot.current)
-            setCarrying(false)
-          }}
+          onDragCancel={() => setBoard(report.id, () => snapshot.current)}
         >
           {/* On a desktop the strip under each row is the gap between rows. */}
           <div ref={rowHeights.container} className="flex flex-col max-md:gap-3">
             {board.order.map((row, index) => {
               const items = board.containers[row]!
               const spans = rowSpans(board, row) as ColumnSpan[]
-              const spare = index === board.order.length - 1 && items.length === 0
-              const name = spare ? 'New row' : `Row ${index + 1}`
+              const isSpare = row === spare
+              const name = isSpare ? 'New row' : `Row ${index + 1}`
               // A row is as tall as its widgets until somebody sizes it; then
               // it holds that height and the charts in it follow.
               const fixed = board.heights[row]
@@ -190,12 +175,12 @@ function Board({ report }: { report: Report }) {
                     strategy={horizontalListSortingStrategy}
                     // The spare row holds a button, not widgets, so it is a group
                     // until something is carried into it (axe: a list owns items).
-                    role={spare ? 'group' : 'list'}
+                    role={isSpare ? 'group' : 'list'}
                     aria-label={name}
                     // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
                     className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1"
                   >
-                    {spare ? (
+                    {isSpare ? (
                       // The file's dashed Add widget zone, and the drop target
                       // that gives a carried widget a row of its own. The whole
                       // zone is the button.
@@ -203,10 +188,7 @@ function Board({ report }: { report: Report }) {
                         appearance="ghost"
                         startIcon={Plus}
                         onClick={() => shell.notBuilt('Adding a widget')}
-                        className={cn(
-                          'col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized',
-                          carrying && 'h-60',
-                        )}
+                        className="col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized"
                       >
                         Add widget
                       </Button>
@@ -230,7 +212,7 @@ function Board({ report }: { report: Report }) {
                       })
                     )}
                   </Sortable>
-                  {spare ? null : (
+                  {isSpare ? null : (
                     // The strip under a row sets its height, from the height it
                     // has now — measured, until it has been sized by hand.
                     <ResizeHandle

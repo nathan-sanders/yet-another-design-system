@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 
-import { createBoard, removeBlock, type Board } from '../../../../src/components/DragAndDrop'
+import { createBoard, removeBlock, withSpareRow, type Board } from '../../../../src/components/DragAndDrop'
 import { boardFixture, reportFor } from '../../data/reports'
 import type { Widget } from '../../data/types'
-import { withSpareRow } from './model'
 import { ReportsContext, type ReportBoard, type ReportsState } from './reportsState'
 
 // One per report and kept, so an untouched board is the same object on every
@@ -60,10 +59,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
 
   const removeWidget = useCallback(
     (reportId: string, widgetId: string) =>
-      change(reportId, (current) => ({
-        ...current,
-        board: withSpareRow(removeBlock(current.board, widgetId)),
-      })),
+      change(reportId, (current) => ({ ...current, board: removeBlock(current.board, widgetId) })),
     [change],
   )
 
@@ -72,8 +68,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       if (draft?.reportId === reportId && draft.widget.id === widgetId) return draft.widget
       const current = boardFor(reportId)
       // A removed widget is gone from the layout; its settings are kept but unreachable.
-      const placed =
-        current && Object.values(current.board.containers).some((row) => row.includes(widgetId))
+      const placed = current && Object.values(current.board.containers).some((row) => row.includes(widgetId))
       return placed ? current.widgets[widgetId] : undefined
     },
     [boardFor, draft],
