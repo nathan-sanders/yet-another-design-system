@@ -31,7 +31,7 @@ import { useShell } from '../../shell/ShellContext'
 /**
  * One section header in the panel: icon, title, an optional count Badge and a
  * "see all" arrow. Figma draws these as plain rows (`Past conversations`,
- * `Notes`, `About` …) at 12/20 semibold; they are `h3`s here under the panel's
+ * `Notes`, `About` …) at 14/24 semibold; they are `h3`s here under the panel's
  * `h2`, so a screen reader can walk the sections.
  */
 function SectionHeader({
@@ -50,7 +50,7 @@ function SectionHeader({
   return (
     <div className="flex min-h-8 items-center gap-2">
       <Icon icon={icon} size="base" className="text-content-primary" />
-      <Heading level={3} size="sm" weight="semibold" className="min-w-0 flex-1">
+      <Heading level={3} size="base" weight="semibold" className="min-w-0 flex-1">
         {title}
       </Heading>
       {count !== undefined ? <Badge>{count}</Badge> : null}
@@ -139,7 +139,7 @@ export function ContactDetailPanel({
         <section aria-labelledby="contact-tags" className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Icon icon={Tag} size="base" className="text-content-primary" />
-            <Heading id="contact-tags" level={3} size="sm" weight="semibold">
+            <Heading id="contact-tags" level={3} size="base" weight="semibold">
               Contact tags
             </Heading>
           </div>
