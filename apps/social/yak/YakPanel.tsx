@@ -3,8 +3,8 @@ import { useLocation } from 'react-router'
 import {
   ChevronDown,
   Copy,
+  Fullscreen,
   History,
-  Maximize2,
   Mic,
   Plus,
   RefreshCw,
@@ -88,7 +88,7 @@ export function YakPanel({
             />
             <Button
               appearance="ghost"
-              startIcon={Maximize2}
+              startIcon={Fullscreen}
               aria-label="Expand"
               onClick={onExpand}
             />
