@@ -483,3 +483,48 @@ The date range is in the URL (`?range=30d`).
 - A post card opens post detail.
 - axe on the live app, in real Chromium: no violations in light, dark, or with Yak open.
 - Phone: no document scroll, and nothing wider than the page.
+
+## Floating Yak (2026-10-18)
+
+Search left the nav. Yak is search now, and its results come back as a chat in the full view. The
+floating bar (`Floating Yak`, `40005929:39292`) replaces Discover's Ask bar and Creators' search
+block (`YakSearchBar` is gone with their starters). It floats over the bottom of the page column on
+every page except Engage's, which pin a reply box there, and the full view, which has its own
+composer. It hides while Yak is in its panel. A question opens the full view, which minimizes to
+the panel. On Discover and Creators, a search answers with results.
+
+### Open: library changes worth making
+
+58. **The library has no Yak/Yet mark to import.** `Chat/story-mark.tsx` keeps it a story fixture
+    on purpose, because the assistant's mark is the application's business. The app still reaches
+    into it from three places now: the panel, the nav and the bar. `yak/YakMark.tsx` wraps it as a
+    decorative icon. It is `aria-hidden`, because `Mark` is `role="img"` named "Yet" and would
+    rename the nav item "Yet Yak". It carries Icon's non-scaling 1.5 stroke, so at 16px it weighs
+    what the lucide glyphs beside it weigh. `NavItem.startIcon` takes only a `LucideIcon`, so the
+    mark goes in `start`. `Panel.Header`'s `icon` has the same limit, so the Yak panel header lost
+    its `Bot` and shows no icon, as the file draws it.
+59. **InputGroup has no pill shape and no height past `large`.** The bar is the group's own box,
+    which keeps the library's border, hover and ring. `rounded-full` overrides `rounded-md`, and
+    `min-h-14.5` gives the file's 58: a 40 row plus 8 of padding and the border on each side.
+
+### Figma owes
+
+60. **Decided here:**
+    - Placeholders per page (`yak/floating.ts`). The file draws Discover's, and Creators'
+      "Find the best creators for your brand" copied onto Calendar and the rest.
+    - `/` puts the caret in the bar where there is one, and opens the panel where there is not
+      (Engage).
+    - No bar on a phone (below 768), where MobileNav owns the bottom edge.
+    - The panel button takes anything already typed into the panel and asks it there.
+    - Attach and Voice input are toasts, like the panel composer's.
+
+### Measured, and fine
+
+- At 1440 × 1024, the bar is 700 × 58, 246 in from each side of the page column, as drawn. With
+  Post detail open, it is 50 in from each side, as the Week + Post Detail frame has it.
+- Scrolled to the bottom, the last content sits 22px above the bar on Calendar, Reports, Discover,
+  Home and Ideas (`md:pb-24` on each page's scroll region).
+- No bar on `#/engage/all` or `#/yak`, and none while the panel is open. It comes back on close.
+- Submitting on Reports opens the full view with the chat. Submitting on Discover opens it with
+  creator results. Collapse to panel lands on the page with the panel open and no bar.
+- axe on Discover: no violations.

@@ -33,6 +33,8 @@ import { reportsPath } from './model'
 import { RangeControl } from './RangeControl'
 import { useReports } from './reportsState'
 import { WidgetBlock } from './WidgetBlock'
+import { cn } from '../../../../src/lib/cn'
+import { floatingYakClearance } from '../../components/FloatingYak'
 
 /**
  * A report board (`40005911:34608`): the date range, then the report's
@@ -118,7 +120,7 @@ function Board({ report }: { report: Report }) {
           </>
         }
       />
-      <AppShell.Content className="gap-3">
+      <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
         {/* `shrink-0`: a row that scrolls sideways has no minimum height, so the
             page column would squash it to nothing on a phone. */}
         <div className="flex shrink-0 items-center gap-2 overflow-x-auto max-md:-mx-4 max-md:px-4">

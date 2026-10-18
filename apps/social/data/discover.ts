@@ -37,14 +37,6 @@ export function rangeScale(range: DiscoverRange): number {
   return DISCOVER_RANGES.find((r) => r.value === range)!.scale
 }
 
-/** The Ask bar's starters, which hand their question to Yak. */
-export const suggestions = [
-  'How do we stack up against GreenCrate?',
-  'Which creators share our audience?',
-  "What's driving plant-based talk this week?",
-  'Where is #SummerMenu getting picked up?',
-]
-
 // ---------------------------------------------------------------------------
 // Trending near your brand
 // ---------------------------------------------------------------------------

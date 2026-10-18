@@ -13,6 +13,8 @@ import { DayView } from './DayView'
 import { MonthView } from './MonthView'
 import { today, type CalendarView } from './model'
 import { WeekView } from './WeekView'
+import { cn } from '../../../../src/lib/cn'
+import { floatingYakClearance } from '../../components/FloatingYak'
 
 const STEP_LABEL: Record<CalendarView, string> = { day: 'day', week: 'week', month: 'month' }
 
@@ -160,7 +162,7 @@ export function CalendarScreen() {
       />
       {/* The grid runs edge to edge in the page, as drawn; the shell's 16px
           content padding is for blocks, and the grid's own rules do the job. */}
-      <AppShell.Content className="gap-0 p-0">
+      <AppShell.Content className={cn('gap-0 p-0', floatingYakClearance)}>
         {view === 'week' ? (
           <WeekView
             anchor={anchor}

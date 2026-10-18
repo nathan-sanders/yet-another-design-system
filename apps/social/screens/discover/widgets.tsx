@@ -28,7 +28,6 @@ import {
   opportunities,
   praisedFor,
   sentimentSplit,
-  suggestions,
   trends,
   visualTrends,
   type Creator,
@@ -42,7 +41,6 @@ import { useShell } from '../../shell/ShellContext'
 import { formatCount, peakDay } from '../reports/model'
 import { TwoLineCell } from '../reports/widgets/ListWidgets'
 import { postDate } from '../calendar/model'
-import { YakSearchBar } from '../../components/YakSearchBar'
 
 /** Every widget's header `⋯`, which the mock does not fill. */
 function WidgetActions({ title }: { title: string }) {
@@ -108,26 +106,6 @@ function Stats({
         </Row>
       ))}
     </List>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Ask
-// ---------------------------------------------------------------------------
-
-/**
- * The Ask bar (`Discovery Search`, `40005911:35236`): a question or a search,
- * and four starters, handed to Yak's full view (`YakSearchBar`).
- */
-export function AskBar() {
-  return (
-    <YakSearchBar
-      size="large"
-      label="Ask a question, or search topics, brands and creators"
-      placeholder="Ask a question, or search topics, brands and creators…"
-      suggestions={suggestions}
-      suggestionsLabel="Suggested questions"
-    />
   )
 }
 

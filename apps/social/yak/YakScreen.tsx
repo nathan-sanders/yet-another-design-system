@@ -1,14 +1,14 @@
 import { useNavigate, useSearchParams } from 'react-router'
-import { ArrowLeft, Bot, History, Minimize2, SquarePen, X } from 'lucide-react'
+import { ArrowLeft, History, Minimize2, SquarePen, X } from 'lucide-react'
 
 import { AppShell } from '../../../src/components/AppShell'
 import { Button } from '../../../src/components/Button'
-import { Icon } from '../../../src/components/Icon'
 import { Heading } from '../../../src/components/Text'
 import { TopBar } from '../../../src/components/TopBar'
 import { useShell } from '../shell/ShellContext'
 import { useYakChat } from './chat'
 import { yakFrom } from './paths'
+import { YakMark } from './YakMark'
 import { Conversation, StartScreen, YakComposer } from './YakPanel'
 
 /**
@@ -50,7 +50,7 @@ export function YakScreen() {
               aria-label="Back"
               onClick={() => leave(false)}
             />
-            <Icon icon={Bot} className="text-content-primary" />
+            <YakMark className="size-4 text-content-primary" />
             <Heading level={1} size="base" weight="semibold">
               Yak
             </Heading>
