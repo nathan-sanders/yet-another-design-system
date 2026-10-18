@@ -282,3 +282,11 @@ Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
     inbox and it leaves the list but stays open, so the reply you were writing is not lost.
     #1285 and #1289 are now assigned to Nathan too, so the count starts at the 3 the nav
     already showed.
+34. **On a phone nothing opens by itself.** On a desktop the first message opens when no
+    `message` is in the URL, as the file draws it. On a phone that made the first card look
+    selected, with your face on it, in a list you had not picked from yet. The screen now reads
+    the library's `usePhone` (`src/lib/viewport.ts`) and opens nothing there. That hook is
+    documented as popup-only, because on a server-rendered page a `matchMedia` hook paints the
+    wrong layout first. Yet Social renders only in the browser, so the first render already has
+    the real answer, and CSS alone could not have taken `aria-current` off the card. If the
+    library ever wants a rule here, it is "popup-only *unless the consumer never server-renders*".
