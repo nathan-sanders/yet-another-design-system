@@ -77,7 +77,15 @@ const tabsList = tv({
     // The anchor for the indicator and the bottom rule, both absolutely
     // positioned. Base UI measures the active tab with `offsetLeft`, so this
     // has to be their offset parent or the indicator lands somewhere else.
-    'relative items-center',
+    //
+    // **Full width at both layouts.** `layout` decides how wide the *tabs* are,
+    // never the strip: under `hug` the tabs keep their label widths and the rule
+    // still runs the width of the container, which is the shape nearly every
+    // panel and page header wants. The strip used to be `inline-flex` under
+    // `hug`, and the rule — this box's `::before` — stopped short at the last
+    // tab (140px of a 350px panel, Yet Social FINDINGS 34). A caller who really
+    // wants the strip to shrink-wrap passes `className="inline-flex w-auto"`.
+    'relative flex w-full items-center',
     // py-1 = spacing/1 (4px). This is what makes the arithmetic work: a tab sits
     // 4px in from the top, and Figma hangs its 2px underline 4px *below* the tab,
     // which is precisely the bottom edge of this box. **40px at `default`
@@ -116,21 +124,9 @@ const tabsList = tv({
       false: '',
     },
 
-    /**
-     * `hug` sizes tabs to their labels; `fill` stretches them to equal widths.
-     * Astryx's `layout`, and the one thing here Figma does not draw — a gap in
-     * the file rather than an invention, as with SegmentedControl.
-     *
-     * Display lives here rather than in `base` so the two can never fight.
-     */
-    layout: {
-      hug: 'inline-flex',
-      fill: 'flex w-full',
-    },
   },
 
   defaultVariants: {
-    layout: 'hug',
     divider: true,
   },
 })
@@ -184,6 +180,13 @@ const tab = tv({
       large: 'min-h-10 px-3 text-base', // 40px
     },
 
+    /**
+     * `hug` sizes tabs to their labels; `fill` stretches them to equal widths.
+     * Astryx's `layout`, and the one thing here Figma does not draw — a gap in
+     * the file rather than an invention, as with SegmentedControl. It lives on
+     * the tab alone: the strip is full width either way, and only the tabs in it
+     * change.
+     */
     layout: {
       hug: 'shrink-0',
       // Equal widths. `min-w-0` lets a long label shrink the tab instead of
@@ -254,7 +257,10 @@ export interface TabsProps
   children: ReactNode
   /** Tab size. Matches Button's scale: 24 / 32 / 40px tall. */
   size?: TabsSize
-  /** `hug` sizes tabs to their labels, `fill` stretches them equally. */
+  /**
+   * `hug` sizes tabs to their labels, `fill` stretches them equally. The strip
+   * and its rule run the full width of the container either way.
+   */
   layout?: TabsLayout
   className?: string
 }
@@ -286,10 +292,8 @@ export interface TabsListProps
 }
 
 function TabsList({ children, divider = true, className, ...props }: TabsListProps) {
-  const { layout } = useContext(TabsContext)
-
   return (
-    <TabsPrimitive.List className={cn(tabsList({ layout, divider }), className)} {...props}>
+    <TabsPrimitive.List className={cn(tabsList({ divider }), className)} {...props}>
       {children}
       {/* Base UI gives the indicator role="presentation", so it is allowed
           inside a tablist where a real element with a role would not be. */}

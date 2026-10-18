@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, waitFor, within } from 'storybook/test'
 import { Activity, Inbox, LayoutGrid, Send, Settings } from 'lucide-react'
 
 import { Tabs, type TabsSize } from './Tabs'
@@ -221,7 +222,8 @@ export const IconOnly: Story = {
 /**
  * `layout="fill"` stretches the tabs to equal widths across the container, for a
  * panel or sidebar where a hugging strip would look adrift. Both are shown in
- * the same 320px column.
+ * the same 320px column — and the rule runs the full width under both, because
+ * `layout` sizes the tabs, not the strip.
  */
 export const FillLayout: Story = {
   parameters: { controls: { disable: true } },
@@ -243,6 +245,60 @@ export const FillLayout: Story = {
       </Tabs>
     </div>
   ),
+}
+
+/**
+ * The default shape: `hug` tabs on a rule that runs the full width of the
+ * container. The tabs keep their label widths and the 1px line carries on past
+ * the last one to the edge of the 320px column — what a panel or a page header
+ * wants, and what Yet Social's post detail asked for (FINDINGS 34). `layout`
+ * changes the tabs, never the strip.
+ *
+ * Asserted, not eyeballed: the rule is as wide as the column, each tab is its
+ * label plus 12px either side, and the indicator still lands on the active tab.
+ */
+export const HugOnFullWidthRule: Story = {
+  parameters: { controls: { disable: true } },
+  render: ({ children: _children, ...args }) => (
+    <div className="w-80" data-testid="column">
+      <Tabs {...args} layout="hug" defaultValue="notes">
+        <Tabs.List aria-label="Post detail sections">
+          <Tabs.Tab value="notes">Notes</Tabs.Tab>
+          <Tabs.Tab value="activity">Activity</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const column = canvas.getByTestId('column').getBoundingClientRect()
+    const list = canvas.getByRole('tablist')
+    const rule = getComputedStyle(list, '::before')
+
+    // The strip and its rule span the column, not just the tabs.
+    await expect(list.getBoundingClientRect().width).toBe(column.width)
+    await expect(rule.width).toBe(`${column.width}px`)
+    // Still 40px at `default`.
+    await expect(list.getBoundingClientRect().height).toBe(40)
+
+    // Each tab hugs its label: the label's (bold-reserved) cell plus px-3.
+    const tabs = canvas.getAllByRole('tab')
+    for (const tab of tabs) {
+      const label = tab.querySelector('.grid')!.getBoundingClientRect().width
+      await expect(tab.getBoundingClientRect().width).toBeCloseTo(label + 24, 1)
+    }
+    const tabsWidth = tabs.reduce((sum, tab) => sum + tab.getBoundingClientRect().width, 0)
+    await expect(tabsWidth).toBeLessThan(column.width / 2)
+
+    // The indicator is measured against the list, so a wider list must not move it.
+    const indicator = list.querySelector('[role="presentation"]') as HTMLElement
+    const active = tabs[0].getBoundingClientRect()
+    await waitFor(() => {
+      const box = indicator.getBoundingClientRect()
+      expect(box.width).toBeCloseTo(active.width, 1)
+      expect(box.left).toBeCloseTo(active.left, 1)
+    })
+  },
 }
 
 /**

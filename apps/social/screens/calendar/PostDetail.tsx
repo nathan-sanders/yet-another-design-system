@@ -201,9 +201,7 @@ export function PostDetailPanel({
         </div>
 
         <Tabs value={current} onValueChange={(value) => setTab(value as DetailTab)}>
-          {/* Hugged tabs on a full-width rule; `hug` makes the whole strip
-              inline, rule included — see FINDINGS 34. */}
-          <Tabs.List aria-label="Post detail sections" className="flex">
+          <Tabs.List aria-label="Post detail sections">
             {published ? <Tabs.Tab value="comments">Comments</Tabs.Tab> : null}
             <Tabs.Tab value="notes">Notes</Tabs.Tab>
             <Tabs.Tab value="activity">Activity</Tabs.Tab>
