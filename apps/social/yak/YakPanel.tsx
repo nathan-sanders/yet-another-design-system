@@ -1,4 +1,5 @@
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useLocation } from 'react-router'
 import {
   Bot,
   ChevronDown,
@@ -11,35 +12,32 @@ import {
   SquarePen,
   ThumbsDown,
   ThumbsUp,
-} from "lucide-react";
+} from 'lucide-react'
 
-import { Badge } from "../../../src/components/Badge";
-import { Button } from "../../../src/components/Button";
-import { Card, ClickableCard } from "../../../src/components/Card";
-import {
-  ChatComposer,
-  ChatMessage,
-  ThoughtProcess,
-  ToolCall,
-} from "../../../src/components/Chat";
-import { Mark } from "../../../src/components/Chat/story-mark";
-import { Icon } from "../../../src/components/Icon";
-import { InputGroup } from "../../../src/components/Input";
-import { Panel } from "../../../src/components/Panel";
-import { Heading, Text } from "../../../src/components/Text";
-import { Tooltip } from "../../../src/components/Tooltip";
-import { me } from "../data/people";
-import { history, startActions } from "../data/yak";
-import { useShell } from "../shell/ShellContext";
-import { weekInsights, weekRange } from "./insights";
+import { Badge } from '../../../src/components/Badge'
+import { Button } from '../../../src/components/Button'
+import { Card, ClickableCard } from '../../../src/components/Card'
+import { ChatComposer, ChatMessage, ThoughtProcess, ToolCall } from '../../../src/components/Chat'
+import { Mark } from '../../../src/components/Chat/story-mark'
+import { Icon } from '../../../src/components/Icon'
+import { InputGroup } from '../../../src/components/Input'
+import { Panel } from '../../../src/components/Panel'
+import { Heading, Text } from '../../../src/components/Text'
+import { Tooltip } from '../../../src/components/Tooltip'
+import { me } from '../data/people'
+import { history, startActions } from '../data/yak'
+import { useShell } from '../shell/ShellContext'
+import { allInsights, pageBrief, pageWork, type PageWork } from './insights'
 
 interface Turn {
-  id: number;
-  prompt: string;
+  id: number
+  prompt: string
   /** `thinking` until the canned reply lands. */
-  state: "thinking" | "done";
-  sentAt: Date;
-  repliedAt?: Date;
+  state: 'thinking' | 'done'
+  /** The page it was asked beside, which decides what Yak reads to answer. */
+  work: PageWork
+  sentAt: Date
+  repliedAt?: Date
 }
 
 /**
@@ -58,38 +56,37 @@ export function YakPanel({
   onHistoryChange,
   onClose,
 }: {
-  open: boolean;
-  history: boolean;
-  onHistoryChange: (open: boolean) => void;
-  onClose: () => void;
+  open: boolean
+  history: boolean
+  onHistoryChange: (open: boolean) => void
+  onClose: () => void
 }) {
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const nextId = useRef(1);
-  const shell = useShell();
+  const [turns, setTurns] = useState<Turn[]>([])
+  const nextId = useRef(1)
+  const shell = useShell()
+  const { pathname } = useLocation()
 
   const ask = (prompt: string) => {
-    const id = nextId.current++;
+    const id = nextId.current++
     setTurns((current) => [
       ...current,
-      { id, prompt, state: "thinking", sentAt: new Date() },
-    ]);
+      { id, prompt, state: 'thinking', work: pageWork(pathname), sentAt: new Date() },
+    ])
     window.setTimeout(() => {
       setTurns((current) =>
-        current.map((t) =>
-          t.id === id ? { ...t, state: "done", repliedAt: new Date() } : t,
-        ),
-      );
-    }, 1800);
-  };
+        current.map((t) => (t.id === id ? { ...t, state: 'done', repliedAt: new Date() } : t)),
+      )
+    }, 1800)
+  }
 
-  const thinking = turns.some((t) => t.state === "thinking");
+  const thinking = turns.some((t) => t.state === 'thinking')
 
   return (
     <Panel
       aria-label="Yak"
       open={open}
       onOpenChange={(next) => {
-        if (!next) onClose();
+        if (!next) onClose()
       }}
       resizable
     >
@@ -117,23 +114,19 @@ export function YakPanel({
         Yak
       </Panel.Header>
       <Panel.Body className="flex flex-col gap-6">
-        {turns.length === 0 ? (
-          <StartScreen onAsk={ask} />
-        ) : (
-          <Conversation turns={turns} />
-        )}
+        {turns.length === 0 ? <StartScreen onAsk={ask} /> : <Conversation turns={turns} />}
 
         <YakHistory
           open={historyOpen}
           onOpenChange={onHistoryChange}
           onNewChat={() => {
-            setTurns([]);
-            onHistoryChange(false);
+            setTurns([])
+            onHistoryChange(false)
           }}
           onPick={(title) => {
-            setTurns([]);
-            ask(title);
-            onHistoryChange(false);
+            setTurns([])
+            ask(title)
+            onHistoryChange(false)
           }}
         />
       </Panel.Body>
@@ -147,9 +140,7 @@ export function YakPanel({
           onStop={() =>
             setTurns((current) =>
               current.map((t) =>
-                t.state === "thinking"
-                  ? { ...t, state: "done", repliedAt: new Date() }
-                  : t,
+                t.state === 'thinking' ? { ...t, state: 'done', repliedAt: new Date() } : t,
               ),
             )
           }
@@ -160,7 +151,7 @@ export function YakPanel({
               appearance="ghost"
               startIcon={Plus}
               aria-label="Add context"
-              onClick={() => shell.notBuilt("Adding context")}
+              onClick={() => shell.notBuilt('Adding context')}
             />
           }
           endActions={
@@ -168,7 +159,7 @@ export function YakPanel({
               <Button
                 appearance="ghost"
                 endIcon={ChevronDown}
-                onClick={() => shell.notBuilt("Choosing a model")}
+                onClick={() => shell.notBuilt('Choosing a model')}
               >
                 Opus 5.5
               </Button>
@@ -176,25 +167,26 @@ export function YakPanel({
                 appearance="ghost"
                 startIcon={Mic}
                 aria-label="Dictate"
-                onClick={() => shell.notBuilt("Dictation")}
+                onClick={() => shell.notBuilt('Dictation')}
               />
             </>
           }
         />
       </Panel.Footer>
     </Panel>
-  );
+  )
 }
 
 function greeting(): string {
-  const hour = new Date().getHours();
-  const part = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
-  return `Good ${part}, ${me.name.split(" ")[0]}`;
+  const hour = new Date().getHours()
+  const part = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
+  return `Good ${part}, ${me.name.split(' ')[0]}`
 }
 
-/** The start screen: greeting, `_Yak Insight`s in a card, four `_Yak Action Content` cards. */
+/** The start screen: greeting, the open page's `_Yak Insight`s in a card, four `_Yak Action Content` cards. */
 function StartScreen({ onAsk }: { onAsk: (prompt: string) => void }) {
-  const insights = weekInsights();
+  const { pathname } = useLocation()
+  const { page, title, insights } = pageBrief(pathname)
   return (
     <>
       <div className="flex items-center gap-2">
@@ -207,10 +199,10 @@ function StartScreen({ onAsk }: { onAsk: (prompt: string) => void }) {
       <Card emphasis="subtle" className="flex flex-col gap-3">
         <div className="flex flex-col">
           <Text size="sm" color="subtle">
-            Yak insight
+            Yak insight · {page}
           </Text>
           <Heading level={3} size="base" weight="semibold">
-            Next 7 days · {weekRange()}
+            {title}
           </Heading>
         </div>
         <ul className="flex flex-col gap-2">
@@ -243,20 +235,13 @@ function StartScreen({ onAsk }: { onAsk: (prompt: string) => void }) {
         <ul className="grid grid-cols-2 gap-2">
           {startActions.map((action) => (
             <li key={action.title} className="flex">
-              <ClickableCard
-                onClick={() => onAsk(action.prompt)}
-                className="w-full"
-              >
+              <ClickableCard onClick={() => onAsk(action.prompt)} className="w-full">
                 <div className="flex flex-col items-start gap-2 text-left">
                   <span className="flex size-8 items-center justify-center rounded-md border border-surface-border">
                     <Icon icon={action.icon} />
                   </span>
                   <span className="flex flex-col">
-                    <Text
-                      render={<span />}
-                      weight="semibold"
-                      color="emphasized"
-                    >
+                    <Text render={<span />} weight="semibold" color="emphasized">
                       {action.title}
                     </Text>
                     <Text render={<span />} size="sm" color="subtle">
@@ -270,13 +255,13 @@ function StartScreen({ onAsk }: { onAsk: (prompt: string) => void }) {
         </ul>
       </div>
     </>
-  );
+  )
 }
 
-const time = new Intl.DateTimeFormat("en-US", {
-  hour: "numeric",
-  minute: "2-digit",
-});
+const time = new Intl.DateTimeFormat('en-US', {
+  hour: 'numeric',
+  minute: '2-digit',
+})
 
 function Stamp({ at, actions }: { at: Date; actions?: ReactNode }) {
   return (
@@ -285,21 +270,16 @@ function Stamp({ at, actions }: { at: Date; actions?: ReactNode }) {
       dateTime={at.toISOString()}
       actions={actions}
     />
-  );
+  )
 }
 
 /** The four ghost buttons under a reply, as the ChatMessage `InContext` story draws them. */
 function ReplyActions() {
-  const shell = useShell();
+  const shell = useShell()
   return (
     <>
       <Tooltip label="Copy">
-        <Button
-          appearance="ghost"
-          size="small"
-          startIcon={Copy}
-          aria-label="Copy"
-        />
+        <Button appearance="ghost" size="small" startIcon={Copy} aria-label="Copy" />
       </Tooltip>
       <Tooltip label="Regenerate">
         <Button
@@ -307,27 +287,17 @@ function ReplyActions() {
           size="small"
           startIcon={RefreshCw}
           aria-label="Regenerate"
-          onClick={() => shell.notBuilt("Regenerating")}
+          onClick={() => shell.notBuilt('Regenerating')}
         />
       </Tooltip>
       <Tooltip label="Good response">
-        <Button
-          appearance="ghost"
-          size="small"
-          startIcon={ThumbsUp}
-          aria-label="Good response"
-        />
+        <Button appearance="ghost" size="small" startIcon={ThumbsUp} aria-label="Good response" />
       </Tooltip>
       <Tooltip label="Bad response">
-        <Button
-          appearance="ghost"
-          size="small"
-          startIcon={ThumbsDown}
-          aria-label="Bad response"
-        />
+        <Button appearance="ghost" size="small" startIcon={ThumbsDown} aria-label="Bad response" />
       </Tooltip>
     </>
-  );
+  )
 }
 
 /**
@@ -337,66 +307,41 @@ function ReplyActions() {
  * and the still mark closing the thread once Yak is done.
  */
 function Conversation({ turns }: { turns: Turn[] }) {
-  const end = useRef<HTMLDivElement>(null);
+  const end = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    end.current?.scrollIntoView({ block: "end" });
-  }, [turns]);
+    end.current?.scrollIntoView({ block: 'end' })
+  }, [turns])
 
-  const thinking = turns.some((t) => t.state === "thinking");
+  const thinking = turns.some((t) => t.state === 'thinking')
 
   return (
-    <div
-      role="log"
-      aria-label="Conversation with Yak"
-      className="flex flex-col gap-2"
-    >
+    <div role="log" aria-label="Conversation with Yak" className="flex flex-col gap-2">
       {turns.map((turn) => (
         <Fragment key={turn.id}>
           <ChatMessage
             direction="sent"
-            sender={me.name.split(" ")[0]}
+            sender={me.name.split(' ')[0]}
             metadata={<Stamp at={turn.sentAt} />}
           >
             <ChatMessage.Bubble>{turn.prompt}</ChatMessage.Bubble>
           </ChatMessage>
-          {turn.state === "thinking" ? (
-            <ThoughtProcess
-              thinking
-              icon={<Mark animate />}
-              phrases={[
-                "Reading your calendar",
-                "Checking reach by day",
-                "Drafting",
-              ]}
-            >
-              <ToolCall status="done">
-                Read the calendar · {weekRange()}
-              </ToolCall>
-              <ToolCall status="running">
-                Checking reach by day and hour
-              </ToolCall>
+          {turn.state === 'thinking' ? (
+            <ThoughtProcess thinking icon={<Mark animate />} phrases={turn.work.phrases}>
+              <ToolCall status="done">{turn.work.steps[0]}</ToolCall>
+              <ToolCall status="running">{turn.work.steps[1]}</ToolCall>
             </ThoughtProcess>
           ) : (
             <>
-              <ThoughtProcess label="Checked the calendar against your audience">
-                <ToolCall status="done">
-                  Read the calendar · {weekRange()}
-                </ToolCall>
-                <ToolCall status="done">Checked reach by day and hour</ToolCall>
+              <ThoughtProcess label={turn.work.summary}>
+                <ToolCall status="done">{turn.work.steps[0]}</ToolCall>
+                <ToolCall status="done">{turn.work.steps[1]}</ToolCall>
               </ThoughtProcess>
               <ChatMessage
                 sender="Yak"
                 layout="fill"
-                metadata={
-                  <Stamp
-                    at={turn.repliedAt ?? turn.sentAt}
-                    actions={<ReplyActions />}
-                  />
-                }
+                metadata={<Stamp at={turn.repliedAt ?? turn.sentAt} actions={<ReplyActions />} />}
               >
-                <ChatMessage.Bubble appearance="ghost">
-                  {reply(turn.prompt)}
-                </ChatMessage.Bubble>
+                <ChatMessage.Bubble appearance="ghost">{reply(turn.prompt)}</ChatMessage.Bubble>
               </ChatMessage>
             </>
           )}
@@ -409,17 +354,14 @@ function Conversation({ turns }: { turns: Turn[] }) {
       )}
       <div ref={end} />
     </div>
-  );
+  )
 }
 
 function reply(prompt: string): string {
-  if (/^fill/i.test(prompt)) {
-    return "I drafted two evergreen posts for that day: the Green Vitality Smoothie at 11 am on Instagram and a behind-the-counter Thread at 2 pm. They’re in the calendar as drafts for you to approve.";
-  }
-  if (/^spread/i.test(prompt)) {
-    return "I moved the Feel Good Thread from 10 am to 3 pm so the two 10 am posts aren’t competing. Everything else stays put.";
-  }
-  return "Here’s a first pass. In the real product this is where I’d draft it into the right place — the calendar, a campaign or a report — for you to review.";
+  return (
+    allInsights().find((insight) => insight.action === prompt)?.answer ??
+    'Here’s a first pass. In the real product this is where I’d draft it into the right place — the calendar, a campaign or a report — for you to review.'
+  )
 }
 
 /** The history panel, stacked over Yak. */
@@ -429,13 +371,13 @@ function YakHistory({
   onNewChat,
   onPick,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onNewChat: () => void;
-  onPick: (title: string) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onNewChat: () => void
+  onPick: (title: string) => void
 }) {
-  const [query, setQuery] = useState("");
-  const q = query.trim().toLowerCase();
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
 
   return (
     <Panel aria-label="History" open={open} onOpenChange={onOpenChange}>
@@ -466,19 +408,11 @@ function YakHistory({
           />
         </InputGroup>
         {history.map((group) => {
-          const rows = group.rows.filter((row) =>
-            row.title.toLowerCase().includes(q),
-          );
-          if (rows.length === 0) return null;
+          const rows = group.rows.filter((row) => row.title.toLowerCase().includes(q))
+          if (rows.length === 0) return null
           return (
             <section key={group.group} className="flex flex-col gap-1">
-              <Heading
-                level={3}
-                size="sm"
-                weight="semibold"
-                color="subtle"
-                className="px-2"
-              >
+              <Heading level={3} size="sm" weight="semibold" color="subtle" className="px-2">
                 {group.group}
               </Heading>
               <ul className="flex flex-col">
@@ -502,18 +436,16 @@ function YakHistory({
                             </Text>
                           </span>
                         </span>
-                        {row.status ? (
-                          <Badge color="yellow">{row.status}</Badge>
-                        ) : null}
+                        {row.status ? <Badge color="yellow">{row.status}</Badge> : null}
                       </span>
                     </ClickableCard>
                   </li>
                 ))}
               </ul>
             </section>
-          );
+          )
         })}
       </Panel.Body>
     </Panel>
-  );
+  )
 }
