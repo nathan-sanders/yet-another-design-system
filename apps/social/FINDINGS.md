@@ -207,3 +207,29 @@ list's card and the Unassigned filter.
     header it sits in Figma's `Currently Viewing` frame (`40005911:33672`), 32 tall with 12px
     either side, the footprint of an icon-only Button. Before this it was a bare inline span, and
     it sat off the button's line.
+
+## Slice 3 — published posts (2026-10-17)
+
+A past post on Plan › Calendar now shows what it earned. Week and day cards carry impressions,
+likes and comments as `Token`s, and the post detail panel grows tabs: **Comments** (the public
+thread, each comment a ticket with the inbox's `TicketMeta` and toolbar), **Notes** (the team's
+thread and composer, as before), **Activity** (created, approved, scheduled, published, first
+comment, milestones, notes) and **Performance** (`MetricGrid` of `MetricCard`s, an `AreaSeries`
+of the first 24 hours, a `HorizontalBar` breakdown). No Figma frame yet; the comments tab follows
+Nathan's screenshot of the Sprout thread. Numbers are seeded from the post id
+(`data/performance.ts`); `p-10`'s thread is written out.
+
+### Kept in the app, worth knowing
+
+31. **The charts' time axis is UTC unless told otherwise.** `AreaSeries` with `xPreset="hours"`
+    drew a noon post's first hour as 5 PM. That is the documented default, `timeZone` is a prop,
+    and the app passes the browser's zone. Any chart of local events will need the same line.
+32. **The composer belongs to one tab.** `Panel.Footer` pins the notes composer under the body;
+    on Comments, Activity and Performance it would be writing to a thread you can't see, so the
+    footer only renders on Notes.
+
+### Figma owes
+
+33. **The published post detail.** Tabs, the stats row and the three new tabs are code-first.
+    The week and agenda card components (`_Calendar Post Content`, `_Calendar Agenda Content`)
+    also want a published state with the three stat tokens.

@@ -135,3 +135,44 @@ export interface ContactNote {
   /** Already formatted: `Jun 20`. */
   date: string
 }
+
+// Plan — what a post did once it went out.
+
+/** A public comment on a published post. Each one is a ticket, as in the inbox. */
+export interface PostReply {
+  id: string
+  /** A customer id, or a profile id when the brand replied. */
+  authorId: string
+  body: string
+  ago: string
+  /** The ticket number, without the `#`. */
+  ticket: string
+  sentiment: TicketSentiment
+  replies?: PostReply[]
+}
+
+/** The numbers a published post earned. Counts, except `positive`, a percent. */
+export interface PostStats {
+  impressions: number
+  reach: number
+  likes: number
+  comments: number
+  shares: number
+  saves: number
+  clicks: number
+  /** Share of comments Yak read as positive, 0–100. */
+  positive: number
+  /** Comments nobody on the team has opened yet. */
+  unread: number
+}
+
+/** One line in a post's activity log. */
+export interface PostEvent {
+  id: string
+  kind: 'created' | 'note' | 'approved' | 'scheduled' | 'published' | 'comment' | 'milestone' | 'assigned'
+  /** A person id, when someone did it. The system did it otherwise. */
+  actorId?: string
+  /** What happened, after the actor's name. */
+  text: string
+  at: Date
+}

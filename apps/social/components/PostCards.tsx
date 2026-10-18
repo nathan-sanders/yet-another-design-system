@@ -1,14 +1,17 @@
-import { MessageSquare, Tag } from 'lucide-react'
+import { Eye, Heart, MessageSquare, Tag } from "lucide-react";
 
-import { ClickableCard } from '../../../src/components/Card'
-import { Token } from '../../../src/components/Token'
-import { Text } from '../../../src/components/Text'
-import { cn } from '../../../src/lib/cn'
-import { focusRing } from '../../../src/lib/focus'
-import { formatTime } from '../data/dates'
-import { profileFor } from '../data/posts'
-import type { Post } from '../data/types'
-import { NetworkIcon } from './NetworkIcon'
+import { ClickableCard } from "../../../src/components/Card";
+import { formatCompactNumber } from "../../../src/components/Chart";
+import { Token } from "../../../src/components/Token";
+import { Text } from "../../../src/components/Text";
+import { cn } from "../../../src/lib/cn";
+import { focusRing } from "../../../src/lib/focus";
+import { formatTime } from "../data/dates";
+import { statsFor } from "../data/performance";
+import { profileFor } from "../data/posts";
+import type { Post } from "../data/types";
+import { isPublished } from "../screens/calendar/model";
+import { NetworkIcon } from "./NetworkIcon";
 
 // The three ways the calendar draws a post. Figma keeps them as `_` local
 // symbols on the Components frame (`40005911:32755`) because each is slot
@@ -16,16 +19,21 @@ import { NetworkIcon } from './NetworkIcon'
 // than a component in its own right. Same here: app components, not library ones.
 
 interface PostCardProps {
-  post: Post
-  selected?: boolean
-  onOpen: (post: Post) => void
+  post: Post;
+  selected?: boolean;
+  onOpen: (post: Post) => void;
 }
 
 /** Network, account, time — the header every variant shares. */
-function PostHeader({ post, size }: { post: Post; size: 'sm' | 'base' }) {
-  const profile = profileFor(post)
+function PostHeader({ post, size }: { post: Post; size: "sm" | "base" }) {
+  const profile = profileFor(post);
   return (
-    <div className={cn('flex min-w-0 items-center', size === 'sm' ? 'gap-1' : 'gap-2')}>
+    <div
+      className={cn(
+        "flex min-w-0 items-center",
+        size === "sm" ? "gap-1" : "gap-2",
+      )}
+    >
       <NetworkIcon network={profile.network} />
       <Text
         render={<span />}
@@ -41,18 +49,37 @@ function PostHeader({ post, size }: { post: Post; size: 'sm' | 'base' }) {
         {formatTime(post.time)}
       </Text>
     </div>
-  )
+  );
 }
 
-/** The `Tags` / comment count pill, a `Token` with an icon. */
+/**
+ * The pills under a post. A scheduled post shows its tag count; once it has
+ * gone out, what it earned — impressions, likes and comments, compact so three
+ * fit across a week cell.
+ */
 function PostMeta({ post }: { post: Post }) {
-  if (!post.tags && !post.comments) return null
+  const stats = isPublished(post) ? statsFor(post) : undefined;
+  if (!post.tags && !stats) return null;
   return (
     <div className="flex flex-wrap gap-1">
-      {post.comments ? (
-        <Token startIcon={MessageSquare} aria-label={`${post.comments} comments`}>
-          {post.comments}
-        </Token>
+      {stats ? (
+        <>
+          <Token
+            startIcon={Eye}
+            aria-label={`${stats.impressions} impressions`}
+          >
+            {formatCompactNumber(stats.impressions)}
+          </Token>
+          <Token startIcon={Heart} aria-label={`${stats.likes} likes`}>
+            {formatCompactNumber(stats.likes)}
+          </Token>
+          <Token
+            startIcon={MessageSquare}
+            aria-label={`${stats.comments} comments`}
+          >
+            {formatCompactNumber(stats.comments)}
+          </Token>
+        </>
       ) : null}
       {post.tags ? (
         <Token startIcon={Tag} aria-label={`${post.tags} tags`}>
@@ -60,18 +87,28 @@ function PostMeta({ post }: { post: Post }) {
         </Token>
       ) : null}
     </div>
-  )
+  );
 }
 
-function Thumbnail({ post, size }: { post: Post; size: 'size-5' | 'size-10' | 'size-12' }) {
-  if (!post.photo) return null
+function Thumbnail({
+  post,
+  size,
+}: {
+  post: Post;
+  size: "size-5" | "size-10" | "size-12";
+}) {
+  if (!post.photo) return null;
   return (
     <img
       src={post.photo}
-      alt={post.photoAlt ?? ''}
-      className={cn('shrink-0 object-cover', size === 'size-5' ? 'rounded-sm' : 'rounded-md', size)}
+      alt={post.photoAlt ?? ""}
+      className={cn(
+        "shrink-0 object-cover",
+        size === "size-5" ? "rounded-sm" : "rounded-md",
+        size,
+      )}
     />
-  )
+  );
 }
 
 /**
@@ -95,7 +132,7 @@ export function CalendarPostCard({ post, selected, onOpen }: PostCardProps) {
         <PostMeta post={post} />
       </div>
     </ClickableCard>
-  )
+  );
 }
 
 /**
@@ -121,7 +158,7 @@ export function CalendarAgendaCard({ post, selected, onOpen }: PostCardProps) {
         <PostMeta post={post} />
       </div>
     </ClickableCard>
-  )
+  );
 }
 
 /**
@@ -133,7 +170,7 @@ export function CalendarAgendaCard({ post, selected, onOpen }: PostCardProps) {
  * radius. So it is a button with the card's surface, border and hover tokens.
  */
 export function CalendarPostChip({ post, selected, onOpen }: PostCardProps) {
-  const profile = profileFor(post)
+  const profile = profileFor(post);
   return (
     <button
       type="button"
@@ -141,11 +178,12 @@ export function CalendarPostChip({ post, selected, onOpen }: PostCardProps) {
       aria-label={`${profile.name}, ${formatTime(post.time)}: ${post.body}`}
       aria-pressed={selected}
       className={cn(
-        'flex h-6 w-full min-w-0 items-center gap-1 rounded-sm border py-px pr-px pl-1 text-left',
-        'border-surface-border bg-surface-background-primary hover:bg-surface-background-subtle',
+        "flex h-6 w-full min-w-0 items-center gap-1 rounded-sm border py-px pr-px pl-1 text-left",
+        "border-surface-border bg-surface-background-primary hover:bg-surface-background-subtle",
         focusRing,
         // ClickableCard's `selected`, copied: subtle fill plus the emphasized border.
-        selected && 'border-surface-border-emphasized bg-surface-background-subtle',
+        selected &&
+          "border-surface-border-emphasized bg-surface-background-subtle",
       )}
     >
       <NetworkIcon network={profile.network} size="small" />
@@ -154,5 +192,5 @@ export function CalendarPostChip({ post, selected, onOpen }: PostCardProps) {
       </Text>
       <Thumbnail post={post} size="size-5" />
     </button>
-  )
+  );
 }

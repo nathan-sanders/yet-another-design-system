@@ -27,6 +27,24 @@ export function postsOn(date: Date): Post[] {
     .sort((a, b) => a.time.localeCompare(b.time))
 }
 
+/** When a post goes out, to the minute. */
+export function postMoment(post: Post): Date {
+  const at = postDate(post)
+  const [h, m] = post.time.split(':').map(Number)
+  at.setHours(h!, m!)
+  return at
+}
+
+/**
+ * Whether a post has gone out: its moment is behind the clock. Read once per
+ * load like `today`, so a post does not flip state under an open panel.
+ */
+export function isPublished(post: Post): boolean {
+  return postMoment(post) <= loadedAt
+}
+
+const loadedAt = new Date()
+
 export function postHour(post: Post): number {
   return Number(post.time.slice(0, 2))
 }
