@@ -13,6 +13,7 @@ import { me } from '../data/people'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { useInbox } from '../screens/inbox/inboxState'
+import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { YakPanel } from '../yak/YakPanel'
 import { Logo } from './Logo'
 import { groups, home, type AppRoute } from './routes'
@@ -37,8 +38,15 @@ export function SocialShell() {
   if (panel?.type === 'contact' && panel.customerId !== lastCustomerId) {
     setLastCustomerId(panel.customerId)
   }
+  const [lastWidget, setLastWidget] = useState<{ reportId: string; widgetId: string }>()
+  if (
+    panel?.type === 'widget' &&
+    (panel.reportId !== lastWidget?.reportId || panel.widgetId !== lastWidget?.widgetId)
+  ) {
+    setLastWidget({ reportId: panel.reportId, widgetId: panel.widgetId })
+  }
 
-  // A post or contact panel belongs to the screen that opened it: leave the
+  // A post, contact or widget panel belongs to the screen that opened it: leave the
   // screen and it closes. Yak follows you everywhere, so it stays.
   const [lastPath, setLastPath] = useState(location.pathname)
   if (location.pathname !== lastPath) {
@@ -199,6 +207,11 @@ export function SocialShell() {
         <ContactDetailPanel
           open={panel?.type === 'contact'}
           customerId={lastCustomerId}
+          onClose={() => setPanel(null)}
+        />
+        <WidgetEditPanel
+          open={panel?.type === 'widget'}
+          target={lastWidget}
           onClose={() => setPanel(null)}
         />
 
