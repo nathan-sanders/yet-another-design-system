@@ -7,7 +7,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Star,
 } from 'lucide-react'
 
 import { Avatar } from '../../../../src/components/Avatar'
@@ -302,12 +301,9 @@ export function CreatorDetailPanel({
 }) {
   const shell = useShell()
   const [tab, setTab] = useState<DetailTab>('overview')
-  // Saved creators live for the session.
-  const [saved, setSaved] = useState<string[]>([])
 
   const creator = creatorId ? creatorById(creatorId) : undefined
   if (!creator) return null
-  const isSaved = saved.includes(creator.id)
 
   return (
     <Panel
@@ -357,26 +353,12 @@ export function CreatorDetailPanel({
         </Tabs>
       </Panel.Body>
       <Panel.Footer className="flex items-center justify-between pt-4">
-        <div className="flex items-center gap-2">
-          <Button
-            appearance="ghost"
-            startIcon={Star}
-            aria-label="Save creator"
-            aria-pressed={isSaved}
-            className={isSaved ? '[&_svg]:fill-current' : undefined}
-            onClick={() =>
-              setSaved((all) =>
-                isSaved ? all.filter((id) => id !== creator.id) : [...all, creator.id],
-              )
-            }
-          />
-          <Button
-            appearance="ghost"
-            startIcon={ExternalLink}
-            aria-label="Open profile"
-            onClick={() => shell.notBuilt('Creator profiles')}
-          />
-        </div>
+        <Button
+          appearance="ghost"
+          startIcon={ExternalLink}
+          aria-label="Open profile"
+          onClick={() => shell.notBuilt('Creator profiles')}
+        />
         <Button appearance="primary" onClick={() => shell.notBuilt('Campaigns')}>
           Add to campaign
         </Button>

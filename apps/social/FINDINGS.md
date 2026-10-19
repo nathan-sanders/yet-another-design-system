@@ -555,9 +555,10 @@ descending) writes nothing.
     other table in the app uses equal weights, so nothing showed it before. The app now uses two
     `proportional()` columns. Repro and fix belong in `src/components/Table` with a story that
     measures unequal weights.
-63. **Button has no pressed or toggle state.** The panel's Save (star) is a ghost icon Button with
-    `aria-pressed` and an app-side `[&_svg]:fill-current` to fill the star when saved. A
-    `pressed` prop, or a ToggleButton, would own both.
+63. **Withdrawn: Button has no pressed or toggle state.** The panel's Save (star) needed one,
+    and was removed from the footer at Nathan's request on 2026-10-18, so nothing in the app asks
+    for a toggle Button now. If a second caller wants one, a `pressed` prop or a ToggleButton is
+    still the library change to make.
 
 ### Kept in the app, worth knowing
 
@@ -588,8 +589,8 @@ descending) writes nothing.
     - Brand safety at zero flags: a green ShieldCheck "0" and "No sensitive posts".
     - Location, talking points, channels, collaborations and peer engagement for the seven
       creators the file doesn't detail.
-    - Save toggles for the session. Open profile and Add to campaign are toasts (Campaigns has no
-      design).
+    - No Save action: the footer is Open profile and Add to campaign, both toasts (Campaigns has
+      no design).
     - The tab strip is sticky at the top of the panel body, as the file's Tabs frame is.
     - Ten more creators (18 in all), so the grid reads like a real roster. Their faces are inbox
       contacts with creator-like handles. Brand fit is the default sort.
