@@ -13,6 +13,7 @@ import { useDocumentTheme } from '../../shared/theme'
 import { FloatingYak } from '../components/FloatingYak'
 import type { MentionQuery } from '../data/mentions'
 import { me } from '../data/people'
+import { DayDetailPanel } from '../screens/calendar/DayDetail'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
@@ -52,6 +53,8 @@ export function SocialShell() {
   // The post panel keeps showing the last post while it slides closed.
   const [lastPostId, setLastPostId] = useState<string>()
   if (panel?.type === 'post' && panel.postId !== lastPostId) setLastPostId(panel.postId)
+  const [lastDay, setLastDay] = useState<string>()
+  if (panel?.type === 'day' && panel.date !== lastDay) setLastDay(panel.date)
   const [lastCustomerId, setLastCustomerId] = useState<string>()
   if (panel?.type === 'contact' && panel.customerId !== lastCustomerId) {
     setLastCustomerId(panel.customerId)
@@ -285,6 +288,11 @@ export function SocialShell() {
           <PostDetailPanel
             open={panel?.type === 'post'}
             postId={lastPostId}
+            onClose={() => setPanel(null)}
+          />
+          <DayDetailPanel
+            open={panel?.type === 'day'}
+            date={lastDay}
             onClose={() => setPanel(null)}
           />
           <ContactDetailPanel

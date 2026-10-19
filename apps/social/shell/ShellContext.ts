@@ -16,6 +16,8 @@ export type ShellPanel =
   /** Yak's history beside the full view, which has no panel to stack it on. */
   | { type: 'yak-history' }
   | { type: 'post'; postId: string }
+  /** A day from the month view, as an ISO date (`screens/calendar/DayDetail.tsx`). */
+  | { type: 'day'; date: string }
   | { type: 'contact'; customerId: string }
   /** `tab` is the one to open on, when the full view collapses back to the panel. */
   | { type: 'creator'; creatorId: string; tab?: DetailTab }

@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { Link } from '../../../../src/components/Link'
 import { Text } from '../../../../src/components/Text'
 import { cn } from '../../../../src/lib/cn'
+import { focusRing } from '../../../../src/lib/focus'
 import { CalendarNote } from '../../components/CalendarNote'
 import { CalendarPostChip } from '../../components/PostCards'
 import { fullDate, monthShort, sameDay, toISODate, weekdayShort } from '../../data/dates'
@@ -14,7 +15,9 @@ interface MonthViewProps {
   anchor: Date
   selectedPostId?: string
   onOpenPost: (post: Post) => void
-  onAddNote: (date: Date) => void
+  /** The day whose panel is open, drawn selected. */
+  selectedDate?: Date
+  onOpenDay: (date: Date) => void
   onOpenNote: (note: Note) => void
 }
 
@@ -37,8 +40,9 @@ const NOTE_LANES = 2
 export function MonthView({
   anchor,
   selectedPostId,
+  selectedDate,
   onOpenPost,
-  onAddNote,
+  onOpenDay,
   onOpenNote,
 }: MonthViewProps) {
   const days = monthDays(anchor)
@@ -74,8 +78,9 @@ export function MonthView({
           days={week}
           first={w === 0}
           selectedPostId={selectedPostId}
+          selectedDate={selectedDate}
           onOpenPost={onOpenPost}
-          onAddNote={onAddNote}
+          onOpenDay={onOpenDay}
           onOpenNote={onOpenNote}
         />
       ))}
@@ -87,15 +92,17 @@ function Week({
   days,
   first,
   selectedPostId,
+  selectedDate,
   onOpenPost,
-  onAddNote,
+  onOpenDay,
   onOpenNote,
 }: {
   days: Date[]
   first: boolean
   selectedPostId?: string
+  selectedDate?: Date
   onOpenPost: (post: Post) => void
-  onAddNote: (date: Date) => void
+  onOpenDay: (date: Date) => void
   onOpenNote: (note: Note) => void
 }) {
   const { notes } = useCalendarNotes()
@@ -121,6 +128,7 @@ function Week({
     >
       {days.map((day, i) => {
         const isToday = sameDay(day, today)
+        const selected = selectedDate !== undefined && sameDay(day, selectedDate)
         const past = isPast(day)
         const dayPosts = postsOn(day)
         const dayNotes = segments.filter(
@@ -140,17 +148,19 @@ function Week({
           // The cell itself, behind everything in its column. It is positioned
           // for today's rule, which would otherwise paint it — hatch and all —
           // over the date, notes and posts, so -z-10 puts it back underneath.
-          // A click on its empty part starts a note — a pointer shortcut; the
-          // week's + menu is the keyboard route — so it is not a button.
+          // A click on its empty part opens the day's panel — a pointer
+          // shortcut; the date is the button that does it from the keyboard.
+          // Past days open too: what went out is worth reading.
           <div
             key={`cell-${i}`}
             className={cn(
-              'relative -z-10 col-(--day) row-span-full border-surface-border',
+              'relative -z-10 col-(--day) row-span-full cursor-pointer border-surface-border',
               i > 0 && 'border-l',
-              past ? pastDayPattern : 'cursor-pointer hover:bg-surface-background-subtle',
+              past && pastDayPattern,
+              selected ? 'bg-surface-background-subtle' : 'hover:bg-surface-background-subtle',
             )}
             style={column}
-            onClick={past ? undefined : () => onAddNote(day)}
+            onClick={() => onOpenDay(day)}
           >
             {isToday ? (
               <span
@@ -159,21 +169,31 @@ function Week({
               />
             ) : null}
           </div>,
-          <Text
+          <div
             key={`date-${i}`}
-            render={<span />}
-            size="sm"
-            weight={isToday ? 'semibold' : 'normal'}
-            color={isToday ? 'emphasized' : 'primary'}
-            className="pointer-events-none col-(--day) row-start-1 px-2 pt-1"
+            className="pointer-events-none col-(--day) row-start-1 flex min-w-0 px-1 pt-1"
             style={column}
           >
-            {label}
-            <span className="sr-only">
-              {`, ${fullDate.format(day)}${isToday ? ', today' : ''}, ${dayPosts.length} posts`}
-              {dayNotes.length > 0 ? `, ${dayNotes.length} notes` : ''}
-            </span>
-          </Text>,
+            <button
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onOpenDay(day)}
+              className={cn('pointer-events-auto rounded-sm px-1 text-left', focusRing)}
+            >
+              <Text
+                render={<span />}
+                size="sm"
+                weight={isToday || selected ? 'semibold' : 'normal'}
+                color={isToday || selected ? 'emphasized' : 'primary'}
+              >
+                {label}
+                <span className="sr-only">
+                  {`, ${fullDate.format(day)}${isToday ? ', today' : ''}, ${dayPosts.length} posts`}
+                  {dayNotes.length > 0 ? `, ${dayNotes.length} notes` : ''}
+                </span>
+              </Text>
+            </button>
+          </div>,
           <div
             key={`posts-${i}`}
             className="pointer-events-none col-(--day) row-[-2] flex min-w-0 flex-col gap-1 p-1 *:pointer-events-auto"
