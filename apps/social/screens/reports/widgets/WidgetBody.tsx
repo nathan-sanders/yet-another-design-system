@@ -34,6 +34,7 @@ export function WidgetBody({
     case 'chart':
       return (
         <ChartWidget
+          report={report}
           widget={widget}
           range={range}
           groupBy={groupBy}
