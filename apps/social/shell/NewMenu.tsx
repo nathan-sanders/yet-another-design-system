@@ -32,7 +32,7 @@ const create: NewItem[] = [
   },
   {
     label: 'Campaign',
-    description: 'Group posts around a goal',
+    description: 'Plan a coordinated push',
     icon: Megaphone,
     what: 'Creating campaigns',
   },
@@ -44,13 +44,13 @@ const create: NewItem[] = [
   },
   {
     label: 'Report',
-    description: 'See how content performs',
+    description: 'Measure how content performs',
     icon: LayoutGrid,
     what: 'Building reports',
   },
   {
     label: 'Topic',
-    description: 'Track a theme or keyword',
+    description: 'Track conversations on a theme',
     icon: Radar,
     what: 'Topic tracking',
   },
@@ -89,8 +89,8 @@ export function NewMenu({ trigger, tooltip }: { trigger: ReactElement; tooltip?:
       ) : (
         <Menu.Trigger render={trigger} />
       )}
-      {/* w-62 = 248, Figma's width for this menu. */}
-      <Menu.Popup aria-label="New" className="w-62">
+      {/* w-71 = 284, Figma's width for this menu. */}
+      <Menu.Popup aria-label="New" className="w-71">
         <Menu.Group>{create.map(row)}</Menu.Group>
         <Menu.Group>{invite.map(row)}</Menu.Group>
       </Menu.Popup>

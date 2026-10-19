@@ -695,11 +695,11 @@ Every item is a not-built toast for now.
     tooltip. The tooltip wraps `Menu.Trigger`, not the Button, so both sets of props land on
     the same element. If a second app puts a button in `top`, that's the time to have SideNav
     expose `collapsed` to its slots.
-74. **Sub label copy has to fit in 178px.** The menu is 248 wide, and that leaves a 178px text
-    column at 12px Inter. "Measure how content performs" measured exactly 178 and wrapped,
-    which made the row 72 tall instead of 52. Report and Topic use "See how content performs"
-    and "Track a theme or keyword" (148 each). Figma still shows "Sub label" on those three
-    rows.
+74. **Read the copy off the file on the day.** The first build used sub labels suggested in
+    chat the day before, against a 248-wide menu whose 178px text column wrapped two of them.
+    By the time it was built, the file had moved to a 284-wide menu (216px column) with its
+    own copy. Campaign is "Plan a coordinated push", Report is "Measure how content
+    performs", and Topic is "Track conversations on a theme". The code now follows the file.
 
 ### Figma owes
 
@@ -707,14 +707,13 @@ Every item is a not-built toast for now.
     - Collapsed rail: an icon-only `large` primary button (40×40) with a `New` tooltip.
     - Phone: an icon-only default-size primary button in `MobileNav`'s utilities, between Yak
       and the theme toggle. The menu flips up above the bar.
-    - Sub labels for Campaign ("Group posts around a goal"), Report and Topic (see 74).
 
 ### Measured, and fine
 
 - At 1440 × 1024 the button is 208 × 40 at the top of the rail, and Yak starts right below it
-  (68 + 40 = 108), as drawn. The popup is 248 wide, with rows of 52 (with a sub label) and 32
-  (without). Two-line rows center their icon, which matches the file (y = 18 in 52).
+  (68 + 40 = 108), as drawn. The popup is 284 wide (`w-71`), as drawn, with rows of 52 (with a
+  sub label) and 32 (without). Two-line rows center their icon, which matches the file (y = 18 in 52).
 - Click opens, Escape closes and returns focus to New, and an item fires its toast.
 - Dark mode: the button takes the inverted `action-primary-background`.
-- 393 × 852: the menu opens upward inside the screen (x 85–333).
+- 393 × 852: the menu opens upward inside the screen and none of its rows wrap.
 - axe with the menu open: only `region`, which is entry 26.
