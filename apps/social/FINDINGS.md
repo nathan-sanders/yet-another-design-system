@@ -896,9 +896,11 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     reads stronger than the drawing. The fold's flap is the hue's foreground at 30%, `InternalNote`'s
     recipe, because there is no `Overlay/Background`. **Owed to the file:** rebind the set to the
     Decorative tokens, and decide Magenta/Aqua. The color picker keeps the file's names.
-94. **No swatch picker in the library.** The color choice is `Radio.Group` with a swatch inside each
-    label, ten radios in two columns. It works and is accessible, but a picker that is just the
-    swatches would be a library component (`ColorSwatchGroup`, or a `swatch` variant of Radio).
+94. ~~**No swatch picker in the library.**~~ **Closed 2026-10-19.** Figma's `New note` frame
+    (`40005957:64172`) answered it: the color is a `Select` whose value shows the swatch. The library
+    gained that in #289: `startIcon` takes an element as well as a Lucide icon, and the chosen row's
+    icon now shows in the trigger, for Select and single-select Combobox. The app passes
+    `noteSwatch(color)` as a 14px dot.
 95. **`Dialog.Body` stretches a short dialog to the viewport.** It is `flex-1` so it can scroll, which
     also makes it grow: the note dialog came out 868px tall with 470px of form. `flex-initial` on
     the Body (shrink to scroll, never grow) fixed it here. That may be the right default for the
@@ -920,3 +922,16 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     part (in the Notes row, or a month cell) starts a one-day note there. The cell click is a pointer
     shortcut with no tab stop; the + menu is the keyboard route. Past days offer neither. Clicking a
     note opens the same dialog with Delete.
+100. **The dialog follows the file now, and the date field is the app's.** `NoteDialog` was a
+    two-column form (radios on the left, an inline range `DatePicker` on the right). It is now Figma's
+    single column at 600: Title, Description, Color, then Start date and End date at 280 each, 8 apart.
+    Measured against the frame, every field lands on the frame's y. Each date is
+    `components/DateInput.tsx`, an `Input` that opens `DatePicker` with a single `Date`, which is
+    Figma's `Date Picker Type=Single`. That popover is positioned with `anchor`, not
+    `Popover.Trigger`, because the trigger writes `aria-expanded` (not allowed on a textbox) and
+    toggles on every click into the field. The library leaves a date-field trigger out on purpose
+    (`Calendar/CLAUDE.md`), so this stays in the app. **A second date field anywhere is the signal to
+    promote it.** End's grid disables days before the start, a typed date before it reverts, and an
+    empty end saves a one-day note. Checked in real Chromium (pick, type, Enter, Tab, ArrowDown into
+    the grid, Escape closes only the panel), and axe is clean on the open dialog and panel in both
+    themes.
