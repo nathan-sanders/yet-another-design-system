@@ -223,6 +223,7 @@ export function MentionsPanel({
         <div className="flex flex-wrap items-center gap-2">
           {query.sentiment ? null : (
             <Select
+              size="small"
               hug
               aria-label="Sentiment"
               value={sentiment}
@@ -244,6 +245,7 @@ export function MentionsPanel({
             </Select>
           )}
           <Select
+            size="small"
             hug
             aria-label="Network"
             value={network}
@@ -264,6 +266,7 @@ export function MentionsPanel({
             ))}
           </Select>
           <Select
+            size="small"
             hug
             aria-label="Sort by"
             value={sort}
