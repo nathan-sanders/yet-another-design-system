@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 
 import { Avatar } from '../../../src/components/Avatar'
+import { Badge } from '../../../src/components/Badge'
 import { Icon } from '../../../src/components/Icon'
 import { Menu } from '../../../src/components/Menu'
 import { Token } from '../../../src/components/Token'
@@ -328,10 +329,13 @@ export function TicketMeta({
     </>
   )
 
+  // The ticket number is an identifier you read, never a value you change, so
+  // it is a Badge rather than a Token. Badge is a 20px pill; `min-h-6` brings
+  // it to the tokens' 24 so the row keeps one height. FINDINGS 61.
   const number = (
-    <Token startIcon={TicketIcon}>
+    <Badge startIcon={TicketIcon} className="min-h-6">
       <Spoken>Ticket</Spoken>#{ticket.number}
-    </Token>
+    </Badge>
   )
 
   if (!onChange) {

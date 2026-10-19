@@ -528,3 +528,10 @@ the panel. On Discover and Creators, a search answers with results.
 - Submitting on Reports opens the full view with the chat. Submitting on Discover opens it with
   creator results. Collapse to panel lands on the page with the panel open and no bar.
 - axe on Discover: no violations.
+
+61. **The ticket number is a Badge, at 24px.** In the message cards and the detail view it is
+    an identifier you read, never a value you change, so it is a neutral `Badge` with the ticket
+    glyph rather than a `Token`. Badge is a 20px pill (`min-h-5`), one size by its Figma spec, so
+    the call site adds `min-h-6`. Measured at 24 in the list and the detail, level with the five
+    tokens beside it. If a second caller needs a Badge to sit in a row of tokens, a `size` to
+    match Token's 24 is the library change to make.
