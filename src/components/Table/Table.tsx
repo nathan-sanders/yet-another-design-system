@@ -184,7 +184,10 @@ export interface TableProps<T>
   /** What body text does when it outgrows its column. Headers always truncate. */
   textOverflow?: TableTextOverflow
   verticalAlign?: TableVerticalAlign
-  /** A hover highlight on rows. */
+  /**
+   * A hover highlight on rows: Surface/Background Subtle, the same as
+   * `ClickableCard`'s, or the translucent wash when `isStriped` is on.
+   */
   hasHover?: boolean
   /** A wash on every other row. See `styles.ts` for why it is not the hover fill. */
   isStriped?: boolean
@@ -409,7 +412,7 @@ export function Table<T>({
       aria-label={label}
       className={scrollRegion}
     >
-      <TableContext.Provider value={{ density, dividers, textOverflow, verticalAlign }}>
+      <TableContext.Provider value={{ density, dividers, textOverflow, verticalAlign, isStriped }}>
         <table
           className={cn(tableRoot, className)}
           style={{ minWidth }}
@@ -641,13 +644,15 @@ export interface TableRowProps extends ComponentPropsWithRef<'tr'> {
   selected?: boolean
   /** The zebra wash. A prop and not `odd:`, for the reason given in `Table`. */
   striped?: boolean
+  /** The hover fill. Which one depends on the table's `isStriped`, read from context. */
   hoverable?: boolean
 }
 
 function TableRow({ selected = false, striped = false, hoverable = false, className, ...props }: TableRowProps) {
+  const { isStriped } = useTableContext()
   return (
     <TableRowContext.Provider value={{ selected }}>
-      <tr className={cn(row({ selected, striped, hoverable }), className)} {...props} />
+      <tr className={cn(row({ selected, striped, hoverable, zebra: isStriped }), className)} {...props} />
     </TableRowContext.Provider>
   )
 }

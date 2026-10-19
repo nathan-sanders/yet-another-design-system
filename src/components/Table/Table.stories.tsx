@@ -29,6 +29,62 @@ const columns = [
   { key: 'seats', header: 'Seats' },
 ] as const
 
+/*
+  What a row's `:hover` rule paints, read from the stylesheet rather than from a
+  hovered row. `userEvent.hover` dispatches pointer events but does not move a
+  real cursor, so CSS `:hover` never matches inside a story — the limitation
+  `ContextMenu`'s story records. The rules Tailwind emitted can still be read:
+  the last flat `…:hover` rule whose selector, minus the `:hover`, matches the
+  row is the one a real pointer gets (same specificity, so source order
+  decides). Reading the rule and not the class name is what catches a class
+  Tailwind never generated.
+*/
+function hoverFill(element: Element): string {
+  let fill = ''
+  const walk = (rules: CSSRuleList) => {
+    for (const rule of Array.from(rules)) {
+      if (rule instanceof CSSStyleRule && rule.selectorText.endsWith(':hover')) {
+        const resting = rule.selectorText.slice(0, -':hover'.length)
+        if (rule.style.backgroundColor && !resting.includes(':hover') && element.matches(resting)) {
+          fill = rule.style.backgroundColor
+        }
+      }
+      if ('cssRules' in rule) walk((rule as CSSGroupingRule).cssRules)
+    }
+  }
+  for (const sheet of Array.from(document.styleSheets)) walk(sheet.cssRules)
+  return fill
+}
+
+/** A color as the browser computes it, by painting a probe. Same serializer on both sides. */
+function computed(color: string): string {
+  const probe = document.createElement('div')
+  probe.style.backgroundColor = color
+  document.body.append(probe)
+  const value = getComputedStyle(probe).backgroundColor
+  probe.remove()
+  return value
+}
+
+/*
+  How light a fill actually looks, by painting it over the table's own surface
+  and reading the pixel back. Comparing the color *strings* would not work: one
+  of these is an opaque `oklch(...)` and another a translucent
+  `oklab(... / 0.1)`, and the whole question is what they come to once
+  composited.
+*/
+function lightness(color: string, surface: Element): number {
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = 1
+  const context = canvas.getContext('2d')!
+  context.fillStyle = getComputedStyle(surface).backgroundColor
+  context.fillRect(0, 0, 1, 1)
+  context.fillStyle = color
+  context.fillRect(0, 0, 1, 1)
+  const [r, g, b] = context.getImageData(0, 0, 1, 1).data
+  return r + g + b
+}
+
 const meta = {
   title: 'Components/Table',
   component: Table<Row>,
@@ -400,6 +456,30 @@ export const Selection: Story = {
       const row = canvas.getByRole('checkbox', { name: 'Select Bob Smith' }).closest('tr')!
       await expect(row).not.toHaveAttribute('aria-selected')
     })
+
+    await step('a plain table hovers in ClickableCard\'s fill, and selection stays louder', async () => {
+      const surface = canvasElement.querySelector('table')!.parentElement!
+      const plainRow = canvas.getByText('Alice Johnson').closest('tr')!
+      const selectedRow = canvas.getByText('Bob Smith').closest('tr')!
+      const subtle = computed('var(--surface-background-subtle)')
+
+      // Not striped, so there is one resting fill to stay ahead of and the
+      // house hover does it: the same Surface/Background Subtle as ClickableCard.
+      await expect(computed(hoverFill(plainRow))).toBe(subtle)
+      // The pointer cannot wash a selection off: a selected row keeps its fill.
+      // The token, not the row's computed fill — Bob was selected a moment ago
+      // and the row is still mid `transition-colors`.
+      const selected = computed('var(--surface-overlay-subtle)')
+      await expect(computed(hoverFill(selectedRow))).toBe(selected)
+
+      // Order, in either theme: hover departs from a plain row, and a selected
+      // row departs further. A distance, because the direction differs — in
+      // dark the hover is a step darker and the selection wash a step lighter.
+      const plain = getComputedStyle(plainRow).backgroundColor
+      const departure = (color: string) => Math.abs(lightness(color, surface) - lightness(plain, surface))
+      await expect(departure(subtle)).toBeGreaterThan(0)
+      await expect(departure(selected)).toBeGreaterThan(departure(subtle))
+    })
   },
 }
 
@@ -534,10 +614,10 @@ export const ColumnResizing: Story = {
 /**
  * Striping, and the three fills it has to stay clear of.
  *
- * Hover is `surface-background-subtle` — the library's one hover fill — and a
- * selected row is that same fill plus the emphasized rule on its cells. If the
- * stripe used it too, then on a striped table hover would be invisible on half
- * the rows and selection invisible on half the rows: three states, one color.
+ * A plain table hovers in `surface-background-subtle`, the library's usual
+ * hover fill. A striped table cannot: the stripe is that fill, so hover would
+ * be invisible on half the rows — and a selected row, which shares hover's
+ * fill, would be invisible on half the rows too. Three states, one color.
  *
  * They also have to stay in the right *order*: pointing at a row should add
  * ink, never take it away. So the stripe is the opaque whisper
@@ -564,43 +644,23 @@ export const Striped: Story = {
     const rowFor = (name: string) => canvas.getByText(name).closest('tr')!
     const fill = (element: HTMLElement) => getComputedStyle(element).backgroundColor
 
-    /*
-      How light a row actually looks, by painting it over the table's own
-      surface and reading the pixel back. Comparing the color *strings* would
-      not work: one of these is an opaque `oklch(...)` and another a translucent
-      `oklab(... / 0.1)`, and the whole question is what they come to once
-      composited.
-    */
-    function lightness(color: string): number {
-      const canvas = document.createElement('canvas')
-      canvas.width = canvas.height = 1
-      const context = canvas.getContext('2d')!
-      context.fillStyle = getComputedStyle(canvasElement.querySelector('table')!.parentElement!)
-        .backgroundColor
-      context.fillRect(0, 0, 1, 1)
-      context.fillStyle = color
-      context.fillRect(0, 0, 1, 1)
-      const [r, g, b] = context.getImageData(0, 0, 1, 1).data
-      return r + g + b
-    }
+    const surface = canvasElement.querySelector('table')!.parentElement!
 
     /*
-      Hover is not measured here, and cannot be: `userEvent.hover` dispatches
-      pointer events but does not move a real cursor, so CSS `:hover` never
-      matches and the row reads back exactly as it did before. Same limitation
-      `ContextMenu`'s story records.
-
-      It does not need to be measured. The hover fill and the selected fill are
-      the *same token* by construction — that is `Card`'s split, where the fill
-      says something is true of this row and the rule says which thing — so
-      proving the selected fill differs from plain and from striped proves the
-      hover fill does too. The three colors below are the whole claim.
+      On a striped table the hover fill and the selected fill are the *same
+      token* — that is `Card`'s split, where the fill says something is true of
+      this row and the rule says which thing — so proving the selected fill
+      differs from plain and from striped proves the hover fill does too. The
+      hover rule is read below to hold that "same token" to account at both
+      parities; `hoverFill` says why it is the rule and not a hovered row.
     */
     const plain = fill(rowFor('Alice Johnson')) // index 0 — no stripe
     const striped = fill(rowFor('Bob Smith')) // index 1 — striped
     const selected = fill(rowFor('Charlie Brown')) // index 2 — selected, and hover's fill
 
     await expect(new Set([plain, striped, selected]).size).toBe(3)
+    await expect(computed(hoverFill(rowFor('Alice Johnson')))).toBe(selected)
+    await expect(computed(hoverFill(rowFor('Bob Smith')))).toBe(selected)
 
     /*
       And in that order — the stripe a smaller departure from a plain row than
@@ -614,7 +674,7 @@ export const Striped: Story = {
       inverts between themes: an overlay wash darkens a light table and lightens
       a dark one. What has to hold in both is that hover departs further.
     */
-    const departure = (color: string) => Math.abs(lightness(color) - lightness(plain))
+    const departure = (color: string) => Math.abs(lightness(color, surface) - lightness(plain, surface))
     await expect(departure(selected)).toBeGreaterThan(departure(striped))
     await expect(departure(striped)).toBeGreaterThan(0)
 

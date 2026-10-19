@@ -90,7 +90,7 @@ export const tableRoot = ['w-full table-fixed border-separate border-spacing-0 f
  * *lighter* than it was at rest, so the pointer read as less attention rather
  * than more, on every other row.
  *
- * So they are the other way round:
+ * So on a striped table they are the other way round:
  *
  * - **stripe** is `surface-background-subtle` — an opaque whisper, quieter than
  *   anything that responds to you, which is all a zebra should be.
@@ -111,6 +111,19 @@ export const tableRoot = ['w-full table-fixed border-separate border-spacing-0 f
  * hues and Divider's `emphasis`. The `Striped` story measures all three and
  * asserts they differ, so a token edit cannot quietly collapse them.
  *
+ * ## A table that is not striped hovers like everything else
+ *
+ * The wash only earns its place where there are two resting fills to stay
+ * ahead of. A plain table has one, so its hover is `surface-background-subtle`,
+ * the fill `ClickableCard` and every other clickable surface takes: one hover
+ * color across an app, rather than a darker one on table rows alone. Selected
+ * keeps the wash, so on a plain table it is the louder of the two in both
+ * themes, and its own `hover:` class is why the plain-table hover compound
+ * excludes it — compound classes merge last and would otherwise win. The row
+ * learns whether its table is striped from `TableContext` (`zebra`), not from
+ * its own `striped`, because the *even* rows of a striped table carry no
+ * stripe and still need the wash.
+ *
  * One thing to know before moving the stripe: `surface-background-subtle` is
  * the same stone as `surface-canvas` in both themes, so a striped table sitting
  * on the canvas would have invisible stripes. The table's own surface is
@@ -119,11 +132,17 @@ export const tableRoot = ['w-full table-fixed border-separate border-spacing-0 f
 export const row = tv({
   base: 'transition-colors duration-fast-min ease-standard',
   variants: {
-    hoverable: { true: 'hover:bg-surface-overlay-subtle', false: '' },
+    hoverable: { true: '', false: '' },
+    /** The row's table is striped — not this row: see above. */
+    zebra: { true: '', false: '' },
     striped: { true: 'bg-surface-background-subtle', false: '' },
     selected: { true: 'bg-surface-overlay-subtle hover:bg-surface-overlay-subtle', false: '' },
   },
-  defaultVariants: { hoverable: false, striped: false, selected: false },
+  compoundVariants: [
+    { hoverable: true, zebra: true, class: 'hover:bg-surface-overlay-subtle' },
+    { hoverable: true, zebra: false, selected: false, class: 'hover:bg-surface-background-subtle' },
+  ],
+  defaultVariants: { hoverable: false, zebra: false, striped: false, selected: false },
 })
 
 /**
