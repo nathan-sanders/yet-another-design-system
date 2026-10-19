@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, within } from 'storybook/test'
 import {
   Archive,
   ArchiveX,
@@ -97,9 +98,28 @@ export const Playground: Story = {
  * rather than removing the border — so a ghost row and a bordered card line up
  * in a mixed list, and the hover is one color move rather than a border
  * appearing from nowhere. Hover both to see it.
+ *
+ * **`default` keeps `Surface/Border` under the pointer.** Only its fill moves,
+ * so the card's edge never disappears into the hover fill; ghost's border
+ * moves with its fill. A story cannot trigger CSS `:hover`, so the play
+ * function checks the recipe's classes; the hovered color was measured with a
+ * real pointer in Yet Social.
  */
 export const Emphasis: Story = {
   parameters: { controls: { disable: true } },
+  play: async ({ canvasElement }) => {
+    // CSS `:hover` cannot be reached from here: `userEvent.hover` dispatches
+    // pointer events without moving a real cursor (Table's and ContextMenu's
+    // records). So this pins the recipe instead. Default must carry no
+    // hover border, which leaves its rest `border-surface-border` in place
+    // under the pointer. Ghost's border must still follow its fill.
+    const canvas = within(canvasElement)
+    const card = canvas.getByRole('button', { name: /emphasis="default"/ })
+    const ghost = canvas.getByRole('button', { name: /emphasis="ghost"/ })
+    await expect(card.className).toContain('border-surface-border')
+    await expect(card.className).not.toMatch(/(^|\s)hover:border-/)
+    await expect(ghost.className).toContain('hover:border-surface-background-subtle')
+  },
   render: () => (
     <div className="bg-surface-background-primary border-surface-border flex max-w-100 flex-col gap-2 rounded-lg border p-4">
       {emphases.map((emphasis) => (
