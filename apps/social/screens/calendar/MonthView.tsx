@@ -1,12 +1,11 @@
 import type { CSSProperties } from 'react'
 
-import { Link } from '../../../../src/components/Link'
 import { Text } from '../../../../src/components/Text'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
 import { CalendarNote } from '../../components/CalendarNote'
 import { CalendarPostChip } from '../../components/PostCards'
-import { fullDate, monthShort, sameDay, toISODate, weekdayShort } from '../../data/dates'
+import { fullDate, monthShort, sameDay, weekdayShort } from '../../data/dates'
 import type { CalendarNote as Note, Post } from '../../data/types'
 import { useCalendarNotes } from './calendarNotesState'
 import { isPast, layoutNotes, monthDays, pastDayPattern, postsOn, today } from './model'
@@ -208,13 +207,19 @@ function Week({
               />
             ))}
             {hidden > 0 ? (
-              <Link
-                href={`#/plan/calendar?view=day&date=${toISODate(day)}`}
-                size="sm"
-                className="self-start px-1"
+              // Figma's `+2 more` (`40005959:68801`) is plain text-sm in
+              // Content/Subtle, flush with the chips, not a link. It opens the
+              // day's panel, where every note and post is listed.
+              <button
+                type="button"
+                onClick={() => onOpenDay(day)}
+                aria-label={`${hidden} more on ${fullDate.format(day)}`}
+                className={cn('self-start rounded-sm', focusRing)}
               >
-                +{hidden} more
-              </Link>
+                <Text render={<span />} size="sm" color="subtle">
+                  +{hidden} more
+                </Text>
+              </button>
             ) : null}
           </div>,
         ]
