@@ -101,7 +101,7 @@ The first pass had it inverted. It struck the stripe in `surface-overlay-subtle`
 the pointer read as less attention rather than more, on every other row. Nothing in the first version
 of the story caught it, because the story asserted the fills were **distinct** and they were.
 
-So they are the other way round:
+So on a striped table they are the other way round:
 
 - **stripe** is `surface-background-subtle` — an opaque whisper, quieter than anything that responds
   to you, which is all a zebra should be.
@@ -117,6 +117,21 @@ So they are the other way round:
 That is still an overlay token doing a surface's job, and **the file owes either a `Striped` drawing
 or a pair of row-state tokens.** Until then this is the code-first route the root record documents
 for Badge's hues and Divider's `emphasis`.
+
+**A table that is not striped hovers like everything else.** The wash only earns its place where
+there are two resting fills to stay ahead of; a plain table has one. So with `isStriped` off, hover is
+`surface-background-subtle`, the same fill as `ClickableCard`'s hover — one hover color across an app
+(Yet Social's FINDINGS 83, where three clickable tables had to override it). Selected keeps the wash,
+and stays the louder of the two in both themes: composited over the table's surface, light reads
+plain 765 → hover 734 → selected 699 (RGB sum), dark 76 → 31 → 142. In dark the hover is a step
+*darker* (`subtle` is the canvas stone, `neutral-950`) and the selection a step lighter, which is why
+the story asserts a distance rather than a direction.
+
+Two mechanics. The row reads `isStriped` from `TableContext` (the `zebra` variant), not from its own
+`striped` prop, because the even rows of a striped table carry no stripe and still need the wash —
+and in children mode that keeps a caller from having to thread it onto every `Table.Row`. And the
+plain-table hover compound excludes `selected`, because tailwind-variants appends compound classes
+after variant ones and the merge would otherwise let the opaque hover wash the selection off.
 
 Before moving the stripe: `surface-background-subtle` is the same stone as `surface-canvas` in both
 themes, so a striped table on the canvas would have invisible stripes. The table's own surface is
@@ -257,11 +272,14 @@ primitive. The absence of a `Table.Root` is a decision.
 
 ## What the tests cannot reach
 
-**Hover is not measured, and cannot be.** `userEvent.hover` dispatches pointer events but does not
-move a real cursor, so CSS `:hover` never matches and the row reads back exactly as it did before —
-the same limitation `ContextMenu`'s story records. It does not need to be: the hover fill and the
-selected fill are the *same token*, so proving the selected fill departs from plain and from striped
-proves hover does too. Verified by eye in a real browser in both themes as well.
+**A hovered row is not measured; its hover rule is.** `userEvent.hover` dispatches pointer events but
+does not move a real cursor, so CSS `:hover` never matches and the row reads back exactly as it did
+before — the same limitation `ContextMenu`'s story records. So the stories read the stylesheet
+instead: `hoverFill` finds the last flat `…:hover` rule whose resting selector matches the row and
+paints its value on a probe. That catches a class Tailwind never generated, which a class-name check
+would not. `Selection` asserts a plain row's rule paints `surface-background-subtle` and a selected
+row's keeps the wash; `Striped` asserts both parities paint the wash. The stories run in light only;
+the dark numbers above were measured with a real Playwright pointer, along with the light ones.
 
 **The stripe's translucency is written down rather than asserted.** It comes back from
 `getComputedStyle` as an `oklab(... / 0.1)` string whose exact shape is the browser's to change, and

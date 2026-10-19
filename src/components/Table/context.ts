@@ -19,6 +19,12 @@ export interface TableContextValue {
   dividers: TableDividers
   textOverflow: TableTextOverflow
   verticalAlign: TableVerticalAlign
+  /**
+   * Whether the table is zebra-striped. A row reads it to pick its hover fill:
+   * the translucent wash on a striped table, the house's opaque hover on a
+   * plain one. See `row` in `styles.ts`.
+   */
+  isStriped: boolean
 }
 
 export const TableContext = createContext<TableContextValue | null>(null)
@@ -39,6 +45,7 @@ export function useTableContext(): TableContextValue {
       dividers: 'rows',
       textOverflow: 'wrap',
       verticalAlign: 'middle',
+      isStriped: false,
     }
   )
 }
