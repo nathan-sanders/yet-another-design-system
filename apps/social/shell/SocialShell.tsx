@@ -12,6 +12,7 @@ import { useDocumentTheme } from '../../shared/theme'
 import { FloatingYak } from '../components/FloatingYak'
 import { me } from '../data/people'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
+import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { useInbox } from '../screens/inbox/inboxState'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
@@ -50,6 +51,10 @@ export function SocialShell() {
   const [lastCustomerId, setLastCustomerId] = useState<string>()
   if (panel?.type === 'contact' && panel.customerId !== lastCustomerId) {
     setLastCustomerId(panel.customerId)
+  }
+  const [lastCreatorId, setLastCreatorId] = useState<string>()
+  if (panel?.type === 'creator' && panel.creatorId !== lastCreatorId) {
+    setLastCreatorId(panel.creatorId)
   }
   const [lastWidget, setLastWidget] = useState<{ reportId: string; widgetId: string }>()
   if (
@@ -252,6 +257,11 @@ export function SocialShell() {
           <ContactDetailPanel
             open={panel?.type === 'contact'}
             customerId={lastCustomerId}
+            onClose={() => setPanel(null)}
+          />
+          <CreatorDetailPanel
+            open={panel?.type === 'creator'}
+            creatorId={lastCreatorId}
             onClose={() => setPanel(null)}
           />
           <WidgetEditPanel

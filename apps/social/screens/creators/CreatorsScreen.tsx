@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { Ellipsis, LayoutGrid, List, ListFilter, Radar } from 'lucide-react'
 
@@ -7,59 +8,76 @@ import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Select } from '../../../../src/components/Select'
-import { Table, type TableColumn } from '../../../../src/components/Table'
+import {
+  pixel,
+  proportional,
+  Table,
+  type TableColumn,
+  type TableSort,
+  type TableSortDirection,
+} from '../../../../src/components/Table'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
 import { TopBar } from '../../../../src/components/TopBar'
 import { CreatorCard } from '../../components/CreatorCard'
 import { floatingYakClearance } from '../../components/FloatingYak'
-import { brandCreators, CATEGORY_ICON, fitColor, type BrandCreator } from '../../data/creators'
+import { NetworkIcon } from '../../components/NetworkIcon'
+import { brandCreators, CATEGORY_ICON, fitColor, type Creator } from '../../data/creators'
 import { useShell } from '../../shell/ShellContext'
 import { formatCount } from '../reports/model'
 import { cn } from '../../../../src/lib/cn'
+import { focusRing } from '../../../../src/lib/focus'
 
 type CreatorsView = 'grid' | 'list'
-type CreatorSort = 'audience' | 'fit' | 'name'
 
-const SORTS: { value: CreatorSort; label: string }[] = [
-  { value: 'audience', label: 'Audience size' },
-  { value: 'fit', label: 'Brand fit' },
-  { value: 'name', label: 'Name' },
+/** The Sort by menu: each option is a column key and the direction it starts in. */
+const SORTS: { value: string; label: string; direction: TableSortDirection }[] = [
+  { value: 'followers', label: 'Audience size', direction: 'descending' },
+  { value: 'fit', label: 'Brand fit', direction: 'descending' },
+  { value: 'engagement', label: 'Engagement', direction: 'descending' },
+  { value: 'name', label: 'Name', direction: 'ascending' },
 ]
 
-const compare: Record<CreatorSort, (a: BrandCreator, b: BrandCreator) => number> = {
-  audience: (a, b) => b.followers - a.followers,
-  fit: (a, b) => b.fit - a.fit,
-  name: (a, b) => a.name.localeCompare(b.name),
-}
+/** Every other order is a column's; this is the one the page opens in. */
+const DEFAULT_SORT: TableSort = { key: 'followers', direction: 'descending' }
 
-const columns: TableColumn<BrandCreator>[] = [
+// The short columns are fixed so their headers and sort arrows never truncate
+// when the details panel takes 384px; the name and Top topic give way instead.
+const columns: TableColumn<Creator>[] = [
   {
     key: 'name',
     header: 'Creator',
+    sortable: false,
+    width: proportional(),
     renderCell: (c) => (
-      <span className="flex min-w-0 items-center gap-3">
-        <Avatar name={c.name} src={c.avatar} alt="" />
+      <span className="flex min-w-0 items-center gap-2">
+        <Avatar size="large" name={c.name} src={c.avatar} alt="" />
         <span className="flex min-w-0 flex-col">
-          <Text render={<span />} weight="semibold" truncate>
+          {/* The row's control: a click anywhere on the row forwards here (`openRow`). */}
+          <button
+            type="button"
+            data-creator={c.id}
+            className={cn(
+              'truncate rounded-xs text-left font-semibold text-content-emphasized hover:underline',
+              focusRing,
+            )}
+          >
             {c.name}
-          </Text>
-          <Text render={<span />} size="sm" color="subtle" truncate>
-            @{c.handle}
-          </Text>
+          </button>
+          <span className="flex min-w-0 items-center gap-1 text-content-subtle">
+            <NetworkIcon network={c.network} size="small" />
+            <Text render={<span />} size="sm" color="subtle" truncate>
+              @{c.handle}
+            </Text>
+          </span>
         </span>
       </span>
     ),
   },
   {
-    key: 'category',
-    header: 'Category',
-    renderCell: (c) => <Token startIcon={CATEGORY_ICON[c.category]}>{c.category}</Token>,
-  },
-  {
     key: 'fit',
     header: 'Brand fit',
-    align: 'right',
+    width: pixel(120),
     renderCell: (c) => (
       <Badge color={fitColor(c.fit)} startIcon={Radar}>
         {c.fit}%
@@ -67,34 +85,107 @@ const columns: TableColumn<BrandCreator>[] = [
     ),
   },
   {
+    key: 'category',
+    header: 'Category',
+    sortable: false,
+    width: pixel(144),
+    renderCell: (c) => <Token startIcon={CATEGORY_ICON[c.category]}>{c.category}</Token>,
+  },
+  {
+    key: 'topTopic',
+    header: 'Top topic',
+    sortable: false,
+    renderCell: (c) => c.topTopic,
+  },
+  {
     key: 'followers',
     header: 'Audience',
     numeric: true,
-    align: 'right',
+    width: pixel(120),
     renderCell: (c) => formatCount(c.followers),
+  },
+  {
+    key: 'engagement',
+    header: 'Engagement',
+    numeric: true,
+    width: pixel(152),
+    renderCell: (c) => `${c.engagement.toFixed(1)}%`,
   },
 ]
 
+/** The grid sorts the way the table would, so both views agree on one order. */
+function sortCreators(creators: readonly Creator[], sort: TableSort): Creator[] {
+  const direction = sort.direction === 'ascending' ? 1 : -1
+  return [...creators].sort((a, b) => {
+    const left = a[sort.key as keyof Creator]
+    const right = b[sort.key as keyof Creator]
+    return typeof left === 'number' && typeof right === 'number'
+      ? direction * (left - right)
+      : direction * String(left).localeCompare(String(right))
+  })
+}
+
 /**
- * Plan › Creators (`40005911:35697`): creators worth working with. A search
- * block on top hands its words to Yak's full view, which answers with the
- * matching creators; under it, every creator as Figma's `_Creator Card
- * Content` in a grid, or as a table in List view. View and sort are in the
- * URL (`?view=list&sort=fit`).
+ * Plan › Creators (`40005911:35697`, List `40005911:35964`): creators worth
+ * working with, as Figma's `_Creator Card Content` in a grid or as a table in
+ * List view. Either one opens Creator details (`40005911:35788`) in the
+ * shell's panel. View and sort are in the URL (`?view=list&sort=fit&dir=asc`);
+ * the Sort by menu and the table's column headers are the same sort.
  */
 export function CreatorsScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   const view: CreatorsView = params.get('view') === 'list' ? 'list' : 'grid'
-  const sort = (SORTS.find((s) => s.value === params.get('sort'))?.value ??
-    'audience') as CreatorSort
-  const sorted = [...brandCreators].sort(compare[sort])
+  const option = SORTS.find((s) => s.value === params.get('sort'))
+  const sort: TableSort = option
+    ? {
+        key: option.value,
+        direction:
+          params.get('dir') === 'asc'
+            ? 'ascending'
+            : params.get('dir') === 'desc'
+              ? 'descending'
+              : option.direction,
+      }
+    : DEFAULT_SORT
+  const sorted = sortCreators(brandCreators, sort)
+  const openId = shell.panel?.type === 'creator' ? shell.panel.creatorId : undefined
 
   const update = (key: string, value: string, fallback: string) => {
     const next = new URLSearchParams(params)
     if (value === fallback) next.delete(key)
     else next.set(key, value)
     setParams(next, { replace: true })
+  }
+
+  // A header click cycles ascending → descending → the page's own order.
+  const setSort = (next: TableSort | null) => {
+    const nextParams = new URLSearchParams(params)
+    const chosen = next ?? DEFAULT_SORT
+    const start = SORTS.find((s) => s.value === chosen.key)?.direction
+    if (chosen.key === DEFAULT_SORT.key && chosen.direction === DEFAULT_SORT.direction) {
+      nextParams.delete('sort')
+      nextParams.delete('dir')
+    } else {
+      nextParams.set('sort', chosen.key)
+      if (chosen.direction === start) nextParams.delete('dir')
+      else nextParams.set('dir', chosen.direction === 'ascending' ? 'asc' : 'desc')
+    }
+    setParams(nextParams, { replace: true })
+  }
+
+  // Clicking the open creator again closes the panel, as a calendar post does.
+  const openCreator = (id: string) =>
+    shell.setPanel(openId === id ? null : { type: 'creator', creatorId: id })
+
+  // Table has no `onRowClick` on purpose (a <tr> has no keyboard equivalent),
+  // so the row forwards to the name button, which stays the keyboard path —
+  // the Reports table's pattern (FINDINGS 48).
+  const openRow = (event: MouseEvent) => {
+    const target = event.target as HTMLElement
+    const button = target.closest('tbody tr')?.querySelector<HTMLElement>('[data-creator]')
+    if (!button || (target.closest('a, button') && target.closest('a, button') !== button)) return
+    openCreator(button.dataset.creator!)
   }
 
   return (
@@ -147,8 +238,11 @@ export function CreatorsScreen() {
               size="small"
               hug
               aria-label="Sort creators"
-              value={sort}
-              onValueChange={(value) => update('sort', String(value), 'audience')}
+              value={sort.key}
+              onValueChange={(value) => {
+                const picked = SORTS.find((s) => s.value === value)
+                if (picked) setSort({ key: picked.value, direction: picked.direction })
+              }}
               items={SORTS}
             >
               {SORTS.map((option) => (
@@ -169,18 +263,30 @@ export function CreatorsScreen() {
           >
             {sorted.map((creator) => (
               <li key={creator.id} className="flex">
-                <CreatorCard creator={creator} onClick={() => shell.notBuilt('Creator details')} />
+                <CreatorCard
+                  creator={creator}
+                  selected={creator.id === openId}
+                  onClick={() => openCreator(creator.id)}
+                />
               </li>
             ))}
           </ul>
         ) : (
-          <Table
-            label="Creators"
-            columns={columns}
-            data={sorted}
-            idKey="id"
-            textOverflow="truncate"
-          />
+          // A pointer convenience over the name buttons; see `openRow`.
+          <div onClick={openRow} className="shrink-0 [&_tbody_tr]:cursor-pointer">
+            <Table
+              label="Creators"
+              columns={columns}
+              data={sorted}
+              idKey="id"
+              density="spacious"
+              sortable
+              sort={sort}
+              onSortChange={setSort}
+              textOverflow="truncate"
+              hasHover
+            />
+          </div>
         )}
       </AppShell.Content>
     </>

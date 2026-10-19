@@ -20,6 +20,8 @@ import streetCorn from '../assets/photos/street-corn.jpg'
 import takeoutBox from '../assets/photos/takeout-box.jpg'
 import wraps from '../assets/photos/wraps.jpg'
 import { customerFor } from './inbox'
+import { seeded } from './performance'
+import type { Network } from './types'
 
 // Plan › Creators (`40005911:35697`): the creators worth working with, written
 // out from the file's eight cards. Five are Discover's creators — same people,
@@ -50,6 +52,40 @@ export interface BrandCreator {
   /** What they post about, for search. */
   topics: string[]
 }
+
+/** One account of theirs, a row in the details panel's Channels card. */
+export interface CreatorChannel {
+  network: Network
+  handle: string
+  followers: number
+}
+
+/**
+ * What the List view's extra columns and the Creator details panel
+ * (`40005911:35788`) show. Alena's are the file's own; the other seven are
+ * written to match her shape, and the list's Top topic and Engagement columns
+ * are copied from `40005911:35964`.
+ */
+export interface CreatorDetails {
+  /** The network the handle is on: the glyph before it in the list. */
+  network: Network
+  location: string
+  /** List › Top topic. */
+  topTopic: string
+  /** Engagement rate, percent. */
+  engagement: number
+  /** The same rate across creators like them, as Yet benchmarks it. */
+  peerEngagement: number
+  /** Posts Yet flagged as sensitive for a brand to sit beside. */
+  flaggedPosts: number
+  /** Brands they have worked with: a count and the first few names. */
+  collaborations: { count: number; brands: string[] }
+  /** The panel's "Topics they talk about". */
+  talkingPoints: string[]
+  channels: CreatorChannel[]
+}
+
+export type Creator = BrandCreator & CreatorDetails
 
 const drawn: BrandCreator[] = [
   {
@@ -137,10 +173,186 @@ const drawn: BrandCreator[] = [
   },
 ]
 
-export const brandCreators: BrandCreator[] = drawn.map((c) => ({
+const details: Record<string, CreatorDetails> = {
+  maya: {
+    network: 'instagram',
+    location: 'Brooklyn, NY',
+    topTopic: 'Plant-based bowls',
+    engagement: 3.9,
+    peerEngagement: 2.6,
+    flaggedPosts: 0,
+    collaborations: { count: 22, brands: ['Oatly', 'Sweetgreen'] },
+    talkingPoints: ['Plant-based bowls', 'Big-batch salads', 'Vegan protein', 'Greens on a budget'],
+    channels: [
+      { network: 'instagram', handle: '@mayaeatsgreen', followers: 1_600_000 },
+      { network: 'tiktok', handle: '@mayaeatsgreen', followers: 640_000 },
+      { network: 'facebook', handle: 'Maya Okafor', followers: 160_000 },
+    ],
+  },
+  jonah: {
+    network: 'tiktok',
+    location: 'Chicago, IL',
+    topTopic: 'Sourdough & pastry',
+    engagement: 2.4,
+    peerEngagement: 2.9,
+    flaggedPosts: 3,
+    collaborations: { count: 9, brands: ['King Arthur', 'DoorDash'] },
+    talkingPoints: ['Sourdough & pastry', 'Takeout taste tests', 'Street food'],
+    channels: [
+      { network: 'tiktok', handle: '@jonahbakes', followers: 1_300_000 },
+      { network: 'instagram', handle: '@jonahbakes', followers: 500_000 },
+    ],
+  },
+  alena: {
+    network: 'instagram',
+    location: 'Austin, TX',
+    topTopic: 'Easy Mediterranean meals',
+    engagement: 4.8,
+    peerEngagement: 2.1,
+    flaggedPosts: 1,
+    collaborations: { count: 14, brands: ['Green Fork', 'Bright Farms'] },
+    talkingPoints: [
+      'Easy Mediterranean meals',
+      'Healthy recipe ideas',
+      'Quick breakfasts',
+      'Fresh & flavorful dishes',
+    ],
+    channels: [
+      { network: 'instagram', handle: '@alenakenter', followers: 820_000 },
+      { network: 'tiktok', handle: '@alenakenter', followers: 310_000 },
+      { network: 'facebook', handle: 'Alena Kenter', followers: 74_000 },
+    ],
+  },
+  kaylynn: {
+    network: 'instagram',
+    location: 'Portland, OR',
+    topTopic: 'Café culture',
+    engagement: 3.1,
+    peerEngagement: 2.8,
+    flaggedPosts: 0,
+    collaborations: { count: 6, brands: ['Blue Bottle', 'Califia'] },
+    talkingPoints: ['Café culture', 'Smoothie bowls', 'Weekend brunch'],
+    channels: [
+      { network: 'instagram', handle: '@kaylynncooks', followers: 700_000 },
+      { network: 'tiktok', handle: '@kaylynncooks', followers: 190_000 },
+    ],
+  },
+  davis: {
+    network: 'instagram',
+    location: 'Denver, CO',
+    topTopic: 'Weeknight dinners',
+    engagement: 5.2,
+    peerEngagement: 3.4,
+    flaggedPosts: 0,
+    collaborations: { count: 11, brands: ['Hello Fresh', 'Chipotle'] },
+    talkingPoints: ['Weeknight dinners', 'Grain bowls', 'Restaurant reviews'],
+    channels: [
+      { network: 'instagram', handle: '@davislevin.eats', followers: 450_000 },
+      { network: 'tiktok', handle: '@davislevin.eats', followers: 150_000 },
+      { network: 'facebook', handle: 'Davis Levin', followers: 40_000 },
+    ],
+  },
+  ann: {
+    network: 'tiktok',
+    location: 'Atlanta, GA',
+    topTopic: 'Sunday meal prep',
+    engagement: 2.7,
+    peerEngagement: 2.5,
+    flaggedPosts: 0,
+    collaborations: { count: 8, brands: ['Factor', 'Ziploc'] },
+    talkingPoints: ['Sunday meal prep', 'High-protein lunches', 'Five-ingredient dinners'],
+    channels: [
+      { network: 'tiktok', handle: '@annpreps', followers: 360_000 },
+      { network: 'instagram', handle: '@annpreps', followers: 120_000 },
+    ],
+  },
+  priya: {
+    network: 'instagram',
+    location: 'Houston, TX',
+    topTopic: 'Street food',
+    engagement: 1.9,
+    peerEngagement: 2.4,
+    flaggedPosts: 2,
+    collaborations: { count: 4, brands: ['Takis', 'Uber Eats'] },
+    talkingPoints: ['Street food', 'Night markets', 'Desserts'],
+    channels: [
+      { network: 'instagram', handle: '@priyaplates', followers: 240_000 },
+      { network: 'tiktok', handle: '@priyaplates', followers: 80_000 },
+    ],
+  },
+  carter: {
+    network: 'tiktok',
+    location: 'San Diego, CA',
+    topTopic: 'High-protein meals',
+    engagement: 6.1,
+    peerEngagement: 3.8,
+    flaggedPosts: 0,
+    collaborations: { count: 5, brands: ['Huel', 'Fairlife'] },
+    talkingPoints: ['High-protein meals', 'Gym-day breakfasts', 'Macro-friendly snacks'],
+    channels: [
+      { network: 'tiktok', handle: '@carterdokidis', followers: 160_000 },
+      { network: 'instagram', handle: '@carterdokidis', followers: 50_000 },
+    ],
+  },
+}
+
+export const brandCreators: Creator[] = drawn.map((c) => ({
   ...c,
+  ...details[c.id],
   avatar: c.avatar ?? customerFor(c.id).avatar,
 }))
+
+export function creatorById(id: string): Creator | undefined {
+  return brandCreators.find((c) => c.id === id)
+}
+
+/** The fit Badge's words beside it in the details panel, on the same three tiers. */
+export function fitLabel(fit: number): string {
+  return fit >= 80 ? 'Great match' : fit >= 40 ? 'Good match' : 'Weak match'
+}
+
+/** The three creators nearest this one: same category first, then brand fit. */
+export function similarCreators(creator: Creator): Creator[] {
+  return brandCreators
+    .filter((c) => c.id !== creator.id)
+    .sort(
+      (a, b) =>
+        Number(b.category === creator.category) - Number(a.category === creator.category) ||
+        b.fit - a.fit,
+    )
+    .slice(0, 3)
+}
+
+export interface CreatorAudience {
+  /** Share of followers per age band, percent; sums to 100. */
+  ages: { band: string; share: number }[]
+  /** Top cities, percent of followers. */
+  cities: { city: string; share: number }[]
+  women: number
+  men: number
+}
+
+const AGE_BANDS = ['18–24', '25–34', '35–44', '45–54', '55+']
+const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Austin', 'Seattle', 'Atlanta']
+
+/**
+ * Code-first: Figma draws no Audience tab. Seeded from the creator id, as post
+ * stats are, so a creator's audience is the same every visit.
+ */
+export function audienceFor(creator: Creator): CreatorAudience {
+  const random = seeded(creator.id)
+  const weights = AGE_BANDS.map((_, i) => (i === 1 ? 3 : i === 0 || i === 2 ? 2 : 1) + random())
+  const total = weights.reduce((a, b) => a + b, 0)
+  const ages = AGE_BANDS.map((band, i) => ({ band, share: Math.round((weights[i] / total) * 100) }))
+  // Rounding can miss 100 by one; the biggest band absorbs it.
+  ages[1].share += 100 - ages.reduce((a, b) => a + b.share, 0)
+  const home = creator.location.split(',')[0]
+  const cities = [home, ...CITIES.filter((c) => c !== home)]
+    .slice(0, 4)
+    .map((city, i) => ({ city, share: Math.round((18 - i * 4) * (0.8 + random() * 0.4)) }))
+  const women = Math.round(55 + random() * 25)
+  return { ages, cities, women, men: 100 - women }
+}
 
 export function fitColor(fit: number): 'green' | 'orange' | 'red' {
   return fit >= 80 ? 'green' : fit >= 40 ? 'orange' : 'red'

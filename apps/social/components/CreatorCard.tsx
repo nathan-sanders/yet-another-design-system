@@ -12,11 +12,21 @@ import { formatCount } from '../screens/reports/model'
  * `_Creator Card Content` (`40005902:28198`) in a `Clickable Card`: two recent
  * posts, the creator's portrait on a ring that overlaps them, name, handle and
  * audience, brand fit and category. Plan › Creators lays them out in a grid,
- * and Yak shows the same card for a creator search.
+ * Yak shows the same card for a creator search, and the details panel's
+ * Similar tab lists the nearest three.
  */
-export function CreatorCard({ creator, onClick }: { creator: BrandCreator; onClick?: () => void }) {
+export function CreatorCard({
+  creator,
+  selected,
+  onClick,
+}: {
+  creator: BrandCreator
+  /** Its details are open in the panel: Figma's `State=Selected`. */
+  selected?: boolean
+  onClick?: () => void
+}) {
   return (
-    <ClickableCard onClick={onClick} className="w-full">
+    <ClickableCard onClick={onClick} selected={selected} className="w-full">
       <span className="relative flex w-full flex-col text-left">
         {/* Two of their recent posts; the name says whose, so they are decoration. */}
         <span className="flex h-50 gap-1 overflow-hidden rounded-sm">

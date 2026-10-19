@@ -528,3 +528,72 @@ the panel. On Discover and Creators, a search answers with results.
 - Submitting on Reports opens the full view with the chat. Submitting on Discover opens it with
   creator results. Collapse to panel lands on the page with the panel open and no bar.
 - axe on Discover: no violations.
+
+## Plan › Creators: Creator details and the full List view (2026-10-18)
+
+Creator details (`40005911:35788`) is the shell's right `Panel`, opened from a grid card or a list
+row (`screens/creators/CreatorDetail.tsx`). Clicking the open creator again closes it, as a
+calendar post does, and the card reads `selected` while its panel is open. The List view
+(`40005911:35964`) gained the file's Top topic and Engagement columns and the network glyph before
+each handle. Brand fit, Audience and Engagement sort from their headers. The Sort by menu and the
+headers are one sort in the URL (`?sort=engagement&dir=asc`), and the page's default (Audience,
+descending) writes nothing.
+
+### Open: library changes worth making
+
+61. **`proportional(n)` weights other than 1 do not reach the browser.** The Table writes
+    `calc(63.1579% - 328.421px)` and `calc(36.8421% - 191.579px)` on the two `<col>`s for
+    `proportional(2.4)` and `proportional(1.4)` beside four pixel columns. Under `table-fixed`,
+    Chrome rendered them 350 / 350 at a 1220 table, not the 442 / 258 those expressions give. Every
+    other table in the app uses equal weights, so nothing showed it before. The app now uses two
+    `proportional()` columns. Repro and fix belong in `src/components/Table` with a story that
+    measures unequal weights.
+62. **Button has no pressed or toggle state.** The panel's Save (star) is a ghost icon Button with
+    `aria-pressed` and an app-side `[&_svg]:fill-current` to fill the star when saved. A
+    `pressed` prop, or a ToggleButton, would own both.
+
+### Kept in the app, worth knowing
+
+63. **The "Engagement rate vs similar creators" bars are plain spans, not ProgressBar.** Figma
+    draws two 8px bars with no track, on `Data Viz/Categorical/01` and
+    `Decorative/Neutral/Highlight`. ProgressBar always draws a track and has no categorical color.
+    The bigger rate fills the row, and the bars are `aria-hidden` because the mono number beside
+    each says it. Measured in both themes: each bar's computed color equals its token.
+64. **"Similar creators" is a written number per creator** (`peerEngagement`), not an average.
+    The file has Alena at 2.1%, and no average over the app's eight creators comes out that low.
+65. **Collaborations shows brand initials.** The file's first avatar is a photo, and there are
+    no brand logos in the app's assets. `AvatarGroup` sits on `surface="card-primary"` because it
+    is inside a Card.
+66. **With the panel open, the list is 828px for six columns.** The four short columns are pixel
+    widths sized so their headers and sort arrows never clip (120 / 144 / 120 / 152). Creator and
+    Top topic share the rest, so a long name truncates while the panel, which shows it in full,
+    is open.
+
+### Figma owes
+
+67. **Decided here (code-first):**
+    - The Audience, Content and Similar tabs. Audience shows the gender split as two `Metric`s, age
+      as a `HorizontalBar`, and top cities. Content shows four recent posts with likes and
+      comments. Similar shows the three nearest creators as cards, and opening one swaps the
+      panel. Their numbers are seeded per creator id.
+    - Brand fit words on the card's three tiers: Great match 80+, Good match 40–79, Weak match
+      under 40.
+    - Brand safety at zero flags: a green ShieldCheck "0" and "No sensitive posts".
+    - Location, talking points, channels, collaborations and peer engagement for the seven
+      creators the file doesn't detail.
+    - Save toggles for the session. Open profile and Add to campaign are toasts (Campaigns has no
+      design).
+    - The tab strip is sticky at the top of the panel body, as the file's Tabs frame is.
+
+### Measured, and fine
+
+- Panel 384 wide at 1504 × 1088. The grid keeps three columns beside it, as drawn.
+- Alena's Overview reads exactly the file's values: 92% Great match, 1 Sensitive post, 14 brands,
+  the four topics, 4.8% vs 2.1%, IG 820K / TikTok 310K / Facebook 74K.
+- At 1504 × 700 the body scrolls, the tabs pin to its top, and the last card ends 16px above the
+  footer.
+- Header sort on Engagement cycles ascending → descending → the page's order. The URL and the
+  Sort by menu follow each step, and the grid sorts the same way.
+- A click anywhere on a list row opens that creator (the name button stays the keyboard path).
+- axe on the list and the grid with the panel open, on all four tabs: no violations. No console
+  errors.
