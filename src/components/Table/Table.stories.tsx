@@ -642,7 +642,8 @@ export const Striped: Story = {
  * because `table-fixed` means the browser has stopped sizing them to content.
  *
  * The floor is what makes the frame scroll instead of the columns collapsing:
- * the table refuses to go below the sum of its columns' minimums.
+ * the table refuses to go below the width at which every column still meets
+ * its minimum. `ProportionalWidths` measures both.
  */
 export const ColumnWidths: Story = {
   parameters: { controls: { disable: true } },
@@ -659,6 +660,73 @@ export const ColumnWidths: Story = {
       <Table {...args} />
     </div>
   ),
+}
+
+/**
+ * Unequal weights beside pixel columns, measured.
+ *
+ * `proportional(2)` has to come out twice as wide as `proportional(1)` after the
+ * pixel columns are paid. This is the story the first implementation would have
+ * failed: it wrote `calc((100% - 216px) * 0.667)` on the `<col>`, which Chromium
+ * ignores under `table-fixed`, so both columns rendered at an equal half of the
+ * leftover and nothing on screen looked broken.
+ *
+ * Then the frame is narrowed past the floors. The table stops at the width where
+ * the 1-share column still gets its 120px — 576, not the 456 that summing the
+ * floors gives — and the 2 : 1 ratio holds at that width too.
+ */
+export const ProportionalWidths: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Proportional widths',
+    columns: [
+      { key: 'name', header: 'Name', width: proportional(2) },
+      { key: 'region', header: 'Region', width: proportional(1) },
+      { key: 'seats', header: 'Seats', width: pixel(96), align: 'right' },
+      { key: 'spend', header: 'Spend', width: pixel(120), numeric: true },
+    ],
+  },
+  render: (args) => (
+    <div data-testid="frame" style={{ width: 800 }}>
+      <Table {...args} />
+    </div>
+  ),
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const table = canvas.getByRole('table')
+    const widthOf = (name: string) =>
+      canvas.getByRole('columnheader', { name }).getBoundingClientRect().width
+    const pixels = 96 + 120
+
+    await step('the pixel columns get exactly their pixels', async () => {
+      await expect(widthOf('Seats')).toBeCloseTo(96, 0)
+      await expect(widthOf('Spend')).toBeCloseTo(120, 0)
+    })
+
+    await step('the proportional columns split what is left 2 : 1', async () => {
+      const leftover = table.getBoundingClientRect().width - pixels
+      await expect(widthOf('Name')).toBeCloseTo((leftover * 2) / 3, 0)
+      await expect(widthOf('Region')).toBeCloseTo(leftover / 3, 0)
+    })
+
+    await step('the columns fill the table and do not overrun it', async () => {
+      const sum = ['Name', 'Region', 'Seats', 'Spend'].reduce(
+        (total, name) => total + widthOf(name),
+        0,
+      )
+      await expect(sum).toBeCloseTo(table.getBoundingClientRect().width, 0)
+    })
+
+    await step('narrowed past the floors, the lightest share still gets its 120', async () => {
+      canvas.getByTestId('frame').style.width = '300px'
+      await expect(table.getBoundingClientRect().width).toBeCloseTo(
+        MIN_COLUMN_WIDTH * 3 + pixels,
+        0,
+      )
+      await expect(widthOf('Region')).toBeCloseTo(MIN_COLUMN_WIDTH, 0)
+      await expect(widthOf('Name')).toBeCloseTo(MIN_COLUMN_WIDTH * 2, 0)
+    })
+  },
 }
 
 /**
