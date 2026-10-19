@@ -367,7 +367,7 @@ export { Radial } from './components/Radial'
 export type { RadialProps } from './components/Radial'
 
 export { Radio } from './components/Radio'
-export type { RadioProps, RadioGroupProps } from './components/Radio'
+export type { RadioProps, RadioGroupProps, RadioCardProps } from './components/Radio'
 
 export { Sankey } from './components/Sankey'
 export type { SankeyProps, SankeyNodeDef, SankeyFlow } from './components/Sankey'

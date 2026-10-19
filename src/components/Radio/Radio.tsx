@@ -13,6 +13,7 @@ import {
   radioDial,
   type ControlRowVariants,
 } from '../Checkbox/styles'
+import { RadioCard } from './RadioCard'
 
 /**
  * Radio — pick exactly one option from a list you can see all of.
@@ -211,6 +212,12 @@ function RadioGroupComponent({
 RadioGroupComponent.displayName = 'Radio.Group'
 
 Radio.Group = RadioGroupComponent
+
+/**
+ * An option drawn as a card you pick — Clickable Card's surface, with the
+ * radio's checked state on it and no dial. See `RadioCard.tsx`.
+ */
+Radio.Card = RadioCard
 
 /**
  * The raw Base UI parts, for a radio that needs a different shape than
