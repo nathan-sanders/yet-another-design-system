@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { Bell, Moon, Sun } from 'lucide-react'
+import { Bell, Moon, Plus, Sun } from 'lucide-react'
 
 import { AppShell } from '../../../src/components/AppShell'
 import { Avatar } from '../../../src/components/Avatar'
 import { Badge } from '../../../src/components/Badge'
+import { Button } from '../../../src/components/Button'
 import { Kbd } from '../../../src/components/Kbd'
 import { MobileNav, NavItem, SideNav } from '../../../src/components/Nav'
 import { Toast } from '../../../src/components/Toast'
@@ -23,6 +24,7 @@ import { YakMark } from '../yak/YakMark'
 import { YakHistory, YakPanel } from '../yak/YakPanel'
 import { yakFrom, yakPath } from '../yak/paths'
 import { Logo } from './Logo'
+import { NewMenu } from './NewMenu'
 import { groups, home, type AppRoute } from './routes'
 import { ShellContext, type ShellPanel, type ShellState } from './ShellContext'
 
@@ -72,6 +74,9 @@ export function SocialShell() {
     if (panel && panel.type !== 'yak') setPanel(null)
   }
   const [theme, setTheme] = useDocumentTheme()
+  // Held here only so the New button can drop its label on the 56px rail: the
+  // top slot is ours, and SideNav does not reshape what we put in it.
+  const [railCollapsed, setRailCollapsed] = useState(false)
   const toast = Toast.useToast()
 
   const notBuilt = useCallback(
@@ -181,8 +186,26 @@ export function SocialShell() {
           <SideNav
             aria-label="Main"
             logo={<Logo />}
+            collapsed={railCollapsed}
+            onCollapsedChange={setRailCollapsed}
             top={
               <>
+                {/* Figma's Top Slot leads with it (`40005939:57450`): 40 tall,
+                    the rail's full width, flush on Yak with no gap. */}
+                {railCollapsed ? (
+                  <NewMenu
+                    tooltip="New"
+                    trigger={<Button size="large" startIcon={Plus} aria-label="New" />}
+                  />
+                ) : (
+                  <NewMenu
+                    trigger={
+                      <Button size="large" startIcon={Plus} className="w-full">
+                        New
+                      </Button>
+                    }
+                  />
+                )}
                 <NavItem
                   {...railYak.handlers}
                   start={
@@ -284,6 +307,7 @@ export function SocialShell() {
                   aria-pressed={yakOpen || onYakPage}
                   onClick={toggleYak}
                 />
+                <NewMenu trigger={<Button startIcon={Plus} aria-label="New" />} />
                 {themeItem(true)}
               </>
             }
