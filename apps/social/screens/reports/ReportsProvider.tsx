@@ -1,6 +1,14 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 
-import { createBoard, removeBlock, withSpareRow, type Board } from '../../../../src/components/DragAndDrop'
+import {
+  MAX_BLOCKS_PER_ROW,
+  createBoard,
+  findContainer,
+  removeBlock,
+  settle,
+  withSpareRow,
+  type Board,
+} from '../../../../src/components/DragAndDrop'
 import { boardFixture, reportFor } from '../../data/reports'
 import type { Widget } from '../../data/types'
 import { ReportsContext, type ReportBoard, type ReportsState } from './reportsState'
@@ -63,6 +71,40 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     [change],
   )
 
+  // The copy sits right after its source: in the same row while the row has
+  // room, else in a new row under it.
+  const duplicateWidget = useCallback(
+    (reportId: string, widgetId: string) =>
+      change(reportId, (current) => {
+        const source = current.widgets[widgetId]
+        const row = findContainer(current.board.containers, widgetId)
+        if (!source || !row) return current
+        let n = 2
+        while (current.widgets[`${widgetId}-copy-${n}`]) n += 1
+        const id = `${widgetId}-copy-${n}`
+        const { containers, order } = current.board
+        const items = containers[row]
+        let board: Board
+        if (items.length < MAX_BLOCKS_PER_ROW) {
+          const at = items.indexOf(widgetId) + 1
+          board = settle(current.board, { ...containers, [row]: [...items.slice(0, at), id, ...items.slice(at)] })
+        } else {
+          const newRow = `row-${id}`
+          const at = order.indexOf(row) + 1
+          board = settle(
+            current.board,
+            { ...containers, [newRow]: [id] },
+            [...order.slice(0, at), newRow, ...order.slice(at)],
+          )
+        }
+        return {
+          board: withSpareRow(board),
+          widgets: { ...current.widgets, [id]: { ...source, id, title: `${source.title} (copy)` } },
+        }
+      }),
+    [change],
+  )
+
   const widgetFor = useCallback(
     (reportId: string, widgetId: string) => {
       if (draft?.reportId === reportId && draft.widget.id === widgetId) return draft.widget
@@ -75,8 +117,8 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   )
 
   const value = useMemo<ReportsState>(
-    () => ({ boardFor, setBoard, widgetFor, saveWidget, removeWidget, draft, setDraft }),
-    [boardFor, setBoard, widgetFor, saveWidget, removeWidget, draft],
+    () => ({ boardFor, setBoard, widgetFor, saveWidget, removeWidget, duplicateWidget, draft, setDraft }),
+    [boardFor, setBoard, widgetFor, saveWidget, removeWidget, duplicateWidget, draft],
   )
 
   return <ReportsContext.Provider value={value}>{children}</ReportsContext.Provider>

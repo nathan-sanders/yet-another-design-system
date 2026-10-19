@@ -1,6 +1,6 @@
 import { useRef, type MouseEvent } from 'react'
 import { useNavigate } from 'react-router'
-import { Ellipsis } from 'lucide-react'
+import { Copy, Ellipsis, Image, Share, SlidersHorizontal, Table2, Trash2 } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
@@ -12,6 +12,7 @@ import {
   Sortable,
   type ColumnSpan,
 } from '../../../../src/components/DragAndDrop'
+import { Menu } from '../../../../src/components/Menu'
 import { ResizeHandle } from '../../../../src/components/Resize'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
@@ -21,6 +22,7 @@ import { useShell } from '../../shell/ShellContext'
 import { ViewMessagesButton } from '../../components/ViewMessagesButton'
 import { widgetMentionQuery } from './mentions'
 import { isTimeViz, widgetPath } from './model'
+import { useReports } from './reportsState'
 import { WidgetBody } from './widgets/WidgetBody'
 
 /** The board's gutter, `gap-3`, which the column arithmetic has to know about. */
@@ -50,6 +52,10 @@ function plotHeight(widget: Widget, span: number, rowHeight?: number): number {
 /**
  * One widget on a report board: a `ContentBlock` carried by the grip before
  * its title, with the strip to its right resizing it by the column.
+ *
+ * **The `⋯` opens the widget's actions** (Figma `Menu`, `40005946:62025`). Edit goes to the
+ * detail page with its Edit panel open (`?edit=1`); Duplicate and Remove change the board;
+ * the rest are not built.
  *
  * **Everywhere but the grip, the title, View messages and the `⋯` opens the widget's detail**
  * (Nathan's inline-editing board, `40005911:34608`). A press that travels is a
@@ -85,6 +91,7 @@ export function WidgetBlock({
   const item = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const shell = useShell()
+  const { duplicateWidget, removeWidget } = useReports()
   const href = widgetPath(report.id, widget.id)
   const messages = widgetMentionQuery(report, widget, range)
 
@@ -116,13 +123,45 @@ export function WidgetBlock({
           actions={
             <>
               {messages ? <ViewMessagesButton title={widget.title} query={messages} /> : null}
-              <Button
-                appearance="ghost"
-                startIcon={Ellipsis}
-                aria-label={`${widget.title} actions`}
-                data-drag-ignore
-                onClick={() => shell.notBuilt('Widget actions')}
-              />
+              <Menu>
+                <Menu.Trigger
+                  render={
+                    <Button
+                      appearance="ghost"
+                      startIcon={Ellipsis}
+                      aria-label={`${widget.title} actions`}
+                      data-drag-ignore
+                    />
+                  }
+                />
+                {/* w-71 = 284, Figma's width for this menu. */}
+                <Menu.Popup align="end" className="w-71">
+                  <Menu.Group>
+                    <Menu.Item startIcon={Share} onClick={() => shell.notBuilt('Sharing widgets')}>
+                      Share
+                    </Menu.Item>
+                  </Menu.Group>
+                  <Menu.Group>
+                    <Menu.Item startIcon={SlidersHorizontal} onClick={() => navigate(`${href}?edit=1`)}>
+                      Edit
+                    </Menu.Item>
+                    <Menu.Item startIcon={Copy} onClick={() => duplicateWidget(report.id, widget.id)}>
+                      Duplicate
+                    </Menu.Item>
+                    <Menu.Item startIcon={Image} onClick={() => shell.notBuilt('Saving as an image')}>
+                      Save as Image
+                    </Menu.Item>
+                    <Menu.Item startIcon={Table2} onClick={() => shell.notBuilt('Exporting as CSV')}>
+                      Export as CSV
+                    </Menu.Item>
+                  </Menu.Group>
+                  <Menu.Group>
+                    <Menu.Item startIcon={Trash2} onClick={() => removeWidget(report.id, widget.id)}>
+                      Remove
+                    </Menu.Item>
+                  </Menu.Group>
+                </Menu.Popup>
+              </Menu>
             </>
           }
         >
