@@ -779,6 +779,12 @@ Three rules worth having in mind before touching a chart:
 These were each settled inside one component and then held everywhere. They are the reason a new
 component usually has fewer decisions in it than it looks.
 
+- **A menu's rows always go in a `Menu.Group`, even a two-row menu with no heading.** The 8px
+  round the rows is the Group's, not the Popup's — Figma draws it on `Menu Group` so a separator can
+  run edge to edge between groups — so items written straight into `Menu.Popup` (or
+  `ContextMenu.Popup`) sit flush against the edge. `Menu.RadioGroup` is Base UI's raw part with no
+  padding, so it goes inside a Group too. It shipped wrong seven times while the rule lived only in
+  Menu's record, so `src/components/Menu/groups.test.ts` now fails on it across `src` and `apps`.
 - **Derive a variant instead of adding a prop, where the value already says it.** Figma models these
   as axes, but Avatar's `Content`, Button's icon-only form, Slider's `range` and Breadcrumbs' current
   page all follow from what you pass. A prop that can contradict the children is a prop that will.

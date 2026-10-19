@@ -41,6 +41,9 @@ Deployed with Storybook: the Pages workflow builds the apps with
 - **Mock data is typed, and relative to today.** Yet Social's data is written around Figma's
   Monday "today", and `postDate` slides the whole schedule so that Monday lands on the real
   date, so there is always something scheduled ahead (`screens/calendar/model.ts`).
+- **Every `Menu.Popup` opens with a `Menu.Group`**, even for two items with no heading — the
+  Group carries the 8px padding, and without it the rows sit flush against the popup's edge.
+  `groups.test.ts` in `src/components/Menu/` checks the apps too.
 - The library's rules hold here too: semantic tokens only, `focusRing` for focus, default sizes
   first, runtime values in custom properties read by utilities.
 
