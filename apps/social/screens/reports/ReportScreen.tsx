@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable'
-import { ArrowLeft, Construction, Ellipsis, Calendars, ListFilter, Plus, Share } from 'lucide-react'
+import {
+  ArrowLeft,
+  Calendars,
+  Construction,
+  Ellipsis,
+  LayoutDashboard,
+  ListFilter,
+  Plus,
+  Share,
+} from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Avatar } from '../../../../src/components/Avatar'
@@ -26,10 +35,10 @@ import { ResizeHandle } from '../../../../src/components/Resize'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { me } from '../../data/people'
-import { rangeFor, reportFor, type ReportRange } from '../../data/reports'
+import { rangeFor, starterWidget, type ReportRange } from '../../data/reports'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import { reportsPath } from './model'
+import { reportsPath, widgetPath } from './model'
 import { RangeControl } from './RangeControl'
 import { useReports } from './reportsState'
 import { WidgetBlock } from './WidgetBlock'
@@ -47,6 +56,7 @@ import { floatingYakClearance } from '../../components/FloatingYak'
  */
 export function ReportScreen() {
   const { reportId } = useParams()
+  const { reportFor } = useReports()
   const report = reportFor(reportId)
   if (!report) return <Missing />
   if (report.kind === 'builtin') return <BuiltIn report={report} />
@@ -56,7 +66,8 @@ export function ReportScreen() {
 function Board({ report }: { report: Report }) {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
-  const { boardFor, setBoard, widgetFor } = useReports()
+  const { boardFor, setBoard, widgetFor, addWidget } = useReports()
+  const navigate = useNavigate()
   const range = rangeFor(params.get('range'))
   const current = boardFor(report.id)!
   const board = current.board
@@ -64,6 +75,18 @@ function Board({ report }: { report: Report }) {
   // The file's dashed Add widget zone is the board's spare row (`withSpareRow`, FINDINGS 41).
   const spare = spareRow(board)
   const rowHeights = useRowHeights(board.order)
+
+  const empty = board.order.every((row) => row === spare)
+
+  // Add widget puts a trend of the report's topics in a row of its own and
+  // opens its Edit panel, where it becomes whatever was wanted.
+  const addStarter = () => {
+    let n = Object.keys(current.widgets).length + 1
+    while (current.widgets[`widget-${n}`]) n += 1
+    const id = `widget-${n}`
+    addWidget(report.id, starterWidget(report, id))
+    navigate(`${widgetPath(report.id, id)}?edit=1${params.has('range') ? `&range=${range}` : ''}`)
+  }
 
   const setRange = (next: ReportRange) => {
     const nextParams = new URLSearchParams(params)
@@ -102,11 +125,7 @@ function Board({ report }: { report: Report }) {
                 onClick={() => shell.notBuilt('More actions')}
               />
               <Viewing />
-              <Button
-                appearance="primary"
-                startIcon={Plus}
-                onClick={() => shell.notBuilt('Adding a widget')}
-              >
+              <Button appearance="primary" startIcon={Plus} onClick={addStarter}>
                 Add widget
               </Button>
             </div>
@@ -115,7 +134,7 @@ function Board({ report }: { report: Report }) {
               startIcon={Plus}
               aria-label="Add widget"
               className="md:hidden"
-              onClick={() => shell.notBuilt('Adding a widget')}
+              onClick={addStarter}
             />
           </>
         }
@@ -135,6 +154,20 @@ function Board({ report }: { report: Report }) {
             Compare
           </Button>
         </div>
+
+        {empty ? (
+          // A Blank report, or one with every widget removed.
+          <div className="flex flex-col items-center gap-1 rounded-lg bg-surface-background-primary px-4 py-10 text-center">
+            <Icon icon={LayoutDashboard} className="mb-2 text-content-subtle" aria-hidden />
+            <Heading level={2} size="base" weight="semibold">
+              This report has no widgets yet
+            </Heading>
+            <Text color="subtle">
+              Add a widget to chart {report.topics.join(', ') || report.name}, then change it to
+              whatever you need.
+            </Text>
+          </div>
+        ) : null}
 
         <DragAndDrop
           collisionDetection={spareRowCollision(spare)}
@@ -189,7 +222,7 @@ function Board({ report }: { report: Report }) {
                       <Button
                         appearance="ghost"
                         startIcon={Plus}
-                        onClick={() => shell.notBuilt('Adding a widget')}
+                        onClick={addStarter}
                         className="col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized"
                       >
                         Add widget

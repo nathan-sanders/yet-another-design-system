@@ -6,12 +6,8 @@ import { Button } from '../../../../src/components/Button'
 import { Menu } from '../../../../src/components/Menu'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
-import { addDays, startOfDay } from '../../data/dates'
 import { DISCOVER_RANGES, discoverRangeFor, type DiscoverRange } from '../../data/discover'
-import { statsFor } from '../../data/performance'
-import { posts } from '../../data/posts'
 import { useShell } from '../../shell/ShellContext'
-import { isPublished, postDate } from '../calendar/model'
 import {
   CreatorsWidget,
   OpportunitiesWidget,
@@ -20,19 +16,11 @@ import {
   TrendingWidget,
   VisualTrendsWidget,
 } from './widgets'
+import { topPosts } from './topPosts'
 import { cn } from '../../../../src/lib/cn'
 import { floatingYakClearance } from '../../components/FloatingYak'
 
 const DAYS: Record<DiscoverRange, number> = { '24h': 1, '7d': 7, '30d': 30 }
-
-/** The brand's published posts in the range, best first by impressions. */
-function topPosts(range: DiscoverRange) {
-  const from = addDays(startOfDay(new Date()), -(DAYS[range] - 1))
-  return posts
-    .filter((post) => isPublished(post) && postDate(post) >= from)
-    .sort((a, b) => statsFor(b).impressions - statsFor(a).impressions)
-    .slice(0, 4)
-}
 
 /**
  * Measure › Discover (`40005911:35187`): what the brand's audience is talking
@@ -112,7 +100,7 @@ export function DiscoverScreen() {
           <OpportunitiesWidget range={range} />
           <SentimentWidget range={range} />
         </div>
-        <TopPostsWidget posts={topPosts(range)} />
+        <TopPostsWidget posts={topPosts(DAYS[range])} />
       </AppShell.Content>
     </>
   )

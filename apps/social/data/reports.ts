@@ -1,8 +1,10 @@
 import { addDays, startOfDay, toISODate } from './dates'
 import { seeded } from './performance'
 import type {
+  FeedItem,
   GroupBy,
   Report,
+  ReportType,
   Spike,
   Story,
   Voice,
@@ -104,17 +106,15 @@ export const reports: Report[] = [
       ['care-performance', 'Care team performance', 'Weekly'],
       ['inbox-performance', 'Inbox performance', undefined],
     ] as const
-  ).map(
-    ([id, name, delivery]): Report => ({
-      id,
-      name,
-      kind: 'builtin',
-      createdBy: 'yet',
-      sharedWith: 'all',
-      delivery,
-      topics: [],
-    }),
-  ),
+  ).map(([id, name, delivery]): Report => ({
+    id,
+    name,
+    kind: 'builtin',
+    createdBy: 'yet',
+    sharedWith: 'all',
+    delivery,
+    topics: [],
+  })),
 ]
 
 export function reportFor(id: string | undefined): Report | undefined {
@@ -316,7 +316,8 @@ export function seriesPoints(
   const buckets: Date[][] = []
   if (by === 'week') {
     // Weeks counted back from the last day, so the newest bucket is whole.
-    for (let end = days.length; end > 0; end -= 7) buckets.unshift(days.slice(Math.max(0, end - 7), end))
+    for (let end = days.length; end > 0; end -= 7)
+      buckets.unshift(days.slice(Math.max(0, end - 7), end))
   } else {
     for (const day of days) buckets.push([day])
   }
@@ -386,7 +387,11 @@ export interface OverviewNumbers {
   sentimentChange: number
 }
 
-export function overviewFor(report: Report, range: ReportRange, sources: WidgetSources = 'all'): OverviewNumbers {
+export function overviewFor(
+  report: Report,
+  range: ReportRange,
+  sources: WidgetSources = 'all',
+): OverviewNumbers {
   const subject = report.topics[0] ?? report.name
   const [now] = seriesSummaries({ series: [subject], measure: 'mentions', sources }, range)
   const random = seeded(`${report.id}|sentiment|${range}`)
@@ -514,9 +519,223 @@ function generated(report: Report): BoardFixture {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Templates: the board each New report type opens on
+// ---------------------------------------------------------------------------
+
+/** A board from widgets laid out as rows of ids. */
+function laidOut(widgets: Widget[], rows: string[][]): BoardFixture {
+  return {
+    widgets: Object.fromEntries(widgets.map((w) => [w.id, w])),
+    rows: Object.fromEntries(rows.map((row, i) => [`row-${i + 1}`, row])),
+  }
+}
+
+/** The networks a brand posts to, as series of its own engagement. */
+export const OWNED_NETWORKS = ['Instagram', 'TikTok', 'LinkedIn', 'Facebook', 'Threads']
+
+/**
+ * What each type of report is made of. Every one draws from the report's own
+ * topics, first the subject, so a Competitive report on four brands and a
+ * Crisis report on one keyword are the same numbers the rest of Measure has
+ * for them. Media monitoring is NewsWhip Spike's shape: what was just found,
+ * how far it is predicted to go, media interest against public interest, and
+ * what is spiking.
+ */
+function template(type: ReportType, report: Report): BoardFixture {
+  const topics = report.topics
+  const subject = topics.slice(0, 1)
+  const sources = report.sources ?? 'all'
+  const w = (spec: Parameters<typeof widget>[0]) => widget({ sources, ...spec })
+  const overview = w({ id: 'overview', kind: 'overview', title: 'Overview', viz: 'metric' })
+  switch (type) {
+    case 'media':
+      return laidOut(
+        [
+          overview,
+          w({ id: 'feed', kind: 'feed', title: 'Live feed', viz: 'table' }),
+          w({
+            id: 'timeline',
+            kind: 'timeline',
+            title: 'Media vs public interest',
+            viz: 'line',
+            series: subject,
+          }),
+          w({ id: 'spikes', kind: 'spikes', title: 'Spike alerts', viz: 'table' }),
+          w({ id: 'voices', kind: 'voices', title: 'Top outlets & authors', viz: 'table' }),
+        ],
+        [['overview'], ['feed'], ['timeline'], ['spikes', 'voices']],
+      )
+    case 'listening':
+      return laidOut(
+        [
+          overview,
+          w({
+            id: 'mentions',
+            kind: 'chart',
+            title: 'Mentions over time',
+            viz: 'line',
+            series: topics,
+            spikes: true,
+          }),
+          w({ id: 'sentiment', kind: 'sentiment', title: 'Sentiment', viz: 'donut' }),
+          w({ id: 'voices', kind: 'voices', title: 'Top voices', viz: 'table' }),
+          w({ id: 'stories', kind: 'stories', title: 'Top stories', viz: 'table' }),
+        ],
+        [['overview'], ['mentions'], ['sentiment', 'voices'], ['stories']],
+      )
+    case 'competitive':
+      return laidOut(
+        [
+          overview,
+          w({ id: 'share', kind: 'chart', title: 'Share of voice', viz: 'donut', series: topics }),
+          w({
+            id: 'engagement',
+            kind: 'chart',
+            title: 'Engagement by brand',
+            viz: 'bar',
+            measure: 'engagements',
+            series: topics,
+          }),
+          w({
+            id: 'mentions',
+            kind: 'chart',
+            title: 'Mentions by brand',
+            viz: 'line',
+            series: topics,
+          }),
+          w({
+            id: 'breakdown',
+            kind: 'chart',
+            title: 'Brand breakdown',
+            viz: 'table',
+            series: topics,
+          }),
+          w({ id: 'stories', kind: 'stories', title: 'Top stories', viz: 'table' }),
+        ],
+        [['overview'], ['share', 'engagement'], ['mentions'], ['breakdown'], ['stories']],
+      )
+    case 'crisis':
+      return laidOut(
+        [
+          overview,
+          w({
+            id: 'timeline',
+            kind: 'timeline',
+            title: 'How the story is spreading',
+            viz: 'line',
+            series: subject,
+          }),
+          w({ id: 'spikes', kind: 'spikes', title: 'Spike alerts', viz: 'table' }),
+          w({ id: 'sentiment', kind: 'sentiment', title: 'Sentiment', viz: 'donut' }),
+          w({ id: 'voices', kind: 'voices', title: 'Who is amplifying it', viz: 'table' }),
+          w({ id: 'feed', kind: 'feed', title: 'Latest coverage', viz: 'table' }),
+        ],
+        [['overview'], ['timeline'], ['spikes', 'sentiment'], ['voices'], ['feed']],
+      )
+    case 'campaign':
+      return laidOut(
+        [
+          overview,
+          w({
+            id: 'mentions',
+            kind: 'chart',
+            title: 'Mentions over time',
+            viz: 'area',
+            series: topics,
+            compare: true,
+          }),
+          w({
+            id: 'reach',
+            kind: 'chart',
+            title: 'Reach by topic',
+            viz: 'bar',
+            measure: 'reach',
+            series: topics,
+          }),
+          w({ id: 'voices', kind: 'voices', title: 'Top voices', viz: 'table' }),
+          w({ id: 'stories', kind: 'stories', title: 'Earned coverage', viz: 'table' }),
+        ],
+        [['overview'], ['mentions'], ['reach', 'voices'], ['stories']],
+      )
+    case 'trend':
+      return laidOut(
+        [
+          w({ id: 'trending', kind: 'trending', title: 'Trending near your brand', viz: 'table' }),
+          w({
+            id: 'growth',
+            kind: 'chart',
+            title: 'Topic growth',
+            viz: 'line',
+            series: topics,
+          }),
+          w({
+            id: 'share',
+            kind: 'chart',
+            title: 'Share of conversation',
+            viz: 'donut',
+            series: topics,
+          }),
+          w({ id: 'stories', kind: 'stories', title: 'Stories driving it', viz: 'table' }),
+        ],
+        [['growth'], ['trending', 'share'], ['stories']],
+      )
+    case 'performance':
+      return laidOut(
+        [
+          overview,
+          w({
+            id: 'networks',
+            kind: 'chart',
+            title: 'Engagement by network',
+            viz: 'line',
+            measure: 'engagements',
+            series: OWNED_NETWORKS,
+          }),
+          w({
+            id: 'network-share',
+            kind: 'chart',
+            title: 'Engagement share',
+            viz: 'donut',
+            measure: 'engagements',
+            series: OWNED_NETWORKS,
+          }),
+          w({
+            id: 'network-table',
+            kind: 'chart',
+            title: 'Network breakdown',
+            viz: 'table',
+            measure: 'engagements',
+            series: OWNED_NETWORKS,
+          }),
+          w({ id: 'posts', kind: 'posts', title: 'Your top posts', viz: 'table' }),
+        ],
+        [['overview'], ['networks'], ['network-share', 'network-table'], ['posts']],
+      )
+    case 'blank':
+      return { widgets: {}, rows: {} }
+  }
+}
+
+/**
+ * The widget an empty board's Add widget puts on it: the subject's mentions
+ * over time, which the Edit panel then turns into whatever was wanted.
+ */
+export function starterWidget(report: Report, id: string): Widget {
+  return widget({
+    id,
+    kind: 'chart',
+    title: 'Mentions over time',
+    viz: 'line',
+    series: report.topics.length ? report.topics : [report.name],
+    sources: report.sources ?? 'all',
+  })
+}
+
 /** The board a report opens on, or nothing for a built-in report, which has no design. */
 export function boardFixture(report: Report): BoardFixture | undefined {
   if (report.kind === 'builtin') return undefined
+  if (report.type) return template(report.type, report)
   return report.id === 'brand-pulse' ? brandPulse() : generated(report)
 }
 
@@ -594,11 +813,46 @@ export const stories: Story[] = [
 ]
 
 export const voices: Voice[] = [
-  { id: 'v1', name: 'Paige Patel', handle: '@plantpowerpaige', source: 'tiktok', mentions: 34, reach: 1_200_000 },
-  { id: 'v2', name: 'Food & Wine Daily', handle: 'foodandwinedaily.com', source: 'web', mentions: 12, reach: 3_800_000 },
-  { id: 'v3', name: 'Marcus Lee', handle: '@marcuseatsgreen', source: 'instagram', mentions: 9, reach: 640_000 },
-  { id: 'v4', name: 'Dana Okafor', handle: '@danacooksplants', source: 'threads', mentions: 7, reach: 210_000 },
-  { id: 'v5', name: 'r/MealPrepSunday', handle: 'reddit.com/r/MealPrepSunday', source: 'reddit', mentions: 6, reach: 3_100_000 },
+  {
+    id: 'v1',
+    name: 'Paige Patel',
+    handle: '@plantpowerpaige',
+    source: 'tiktok',
+    mentions: 34,
+    reach: 1_200_000,
+  },
+  {
+    id: 'v2',
+    name: 'Food & Wine Daily',
+    handle: 'foodandwinedaily.com',
+    source: 'web',
+    mentions: 12,
+    reach: 3_800_000,
+  },
+  {
+    id: 'v3',
+    name: 'Marcus Lee',
+    handle: '@marcuseatsgreen',
+    source: 'instagram',
+    mentions: 9,
+    reach: 640_000,
+  },
+  {
+    id: 'v4',
+    name: 'Dana Okafor',
+    handle: '@danacooksplants',
+    source: 'threads',
+    mentions: 7,
+    reach: 210_000,
+  },
+  {
+    id: 'v5',
+    name: 'r/MealPrepSunday',
+    handle: 'reddit.com/r/MealPrepSunday',
+    source: 'reddit',
+    mentions: 6,
+    reach: 3_100_000,
+  },
 ]
 
 export const spikes: Spike[] = [
@@ -641,5 +895,105 @@ export const spikes: Spike[] = [
     icon: 'down',
     change: '−32%',
     tone: 'neutral',
+  },
+]
+
+/**
+ * Media monitoring's live feed: what was found in the last hour or so, newest
+ * first, each with the interactions it is predicted to reach in its first 24
+ * hours. The prediction is what NewsWhip Spike sorts on, so a two-minute-old
+ * article can outrank an older one with more so far.
+ */
+export const feed: FeedItem[] = [
+  {
+    id: 'f1',
+    title: 'Veggie Vault confirms compostable trays are coming to every box',
+    outlet: 'Grocery Dive',
+    source: 'news',
+    sourceLabel: 'News',
+    hoursAgo: 0,
+    foundMinutes: 2,
+    engagements: 1_240,
+    predicted: 58_000,
+    velocity: 4_100,
+    sentiment: 'Positive',
+  },
+  {
+    id: 'f2',
+    title: 'Thread: my Veggie Vault box arrived with half the ice packs melted',
+    outlet: '@samcooksslow',
+    source: 'threads',
+    sourceLabel: 'Threads',
+    hoursAgo: 0,
+    foundMinutes: 6,
+    engagements: 880,
+    predicted: 21_000,
+    velocity: 1_900,
+    sentiment: 'Negative',
+  },
+  {
+    id: 'f3',
+    title: 'The meal-kit price war: GreenCrate cuts boxes to $7.99 a plate',
+    outlet: 'Bloomberg',
+    source: 'news',
+    sourceLabel: 'News',
+    hoursAgo: 0,
+    foundMinutes: 11,
+    engagements: 3_600,
+    predicted: 44_000,
+    velocity: 3_200,
+    sentiment: 'Neutral',
+  },
+  {
+    id: 'f4',
+    title: 'Protein Plates restock day — full haul and taste test',
+    outlet: '@plantpowerpaige',
+    source: 'tiktok',
+    sourceLabel: 'TikTok',
+    hoursAgo: 0,
+    foundMinutes: 18,
+    engagements: 12_400,
+    predicted: 120_000,
+    velocity: 9_800,
+    sentiment: 'Positive',
+  },
+  {
+    id: 'f5',
+    title: 'Is Veggie Vault’s packaging actually compostable? An update',
+    outlet: 'r/ZeroWaste',
+    source: 'reddit',
+    sourceLabel: 'Reddit',
+    hoursAgo: 0,
+    foundMinutes: 26,
+    engagements: 2_100,
+    predicted: 9_500,
+    velocity: 640,
+    sentiment: 'Negative',
+  },
+  {
+    id: 'f6',
+    title: '12 plant-based meal kits ranked for summer 2026',
+    outlet: 'The Kitchn',
+    source: 'web',
+    sourceLabel: 'Web',
+    hoursAgo: 0,
+    foundMinutes: 41,
+    engagements: 1_700,
+    predicted: 14_000,
+    velocity: 820,
+    sentiment: 'Neutral',
+  },
+  {
+    id: 'f7',
+    title: 'Mango Chili Bowl is the best thing on the summer menu, fight me',
+    outlet: '@marcuseatsgreen',
+    source: 'instagram',
+    sourceLabel: 'Instagram',
+    hoursAgo: 1,
+    foundMinutes: 58,
+    engagements: 6_300,
+    predicted: 31_000,
+    velocity: 2_400,
+    sentiment: 'Positive',
   },
 ]

@@ -10,8 +10,12 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import { useSearchParams } from 'react-router'
+
 import { Menu } from '../../../src/components/Menu'
 import { Tooltip } from '../../../src/components/Tooltip'
+import type { ReportType } from '../data/types'
+import { openNewReport } from '../screens/reports/newReport'
 import { useShell } from './ShellContext'
 
 interface NewItem {
@@ -20,6 +24,8 @@ interface NewItem {
   icon: LucideIcon
   /** What the not-built toast calls it. */
   what: string
+  /** Opens New report, on this type when there is one, instead of the toast. */
+  report?: ReportType | true
 }
 
 /** Figma's `Menu` (`40005939:57476`): things to make, then people and channels to add. */
@@ -47,12 +53,14 @@ const create: NewItem[] = [
     description: 'Measure how content performs',
     icon: LayoutGrid,
     what: 'Building reports',
+    report: true,
   },
   {
     label: 'Topic',
     description: 'Track conversations on a theme',
     icon: Radar,
     what: 'Topic tracking',
+    report: 'listening',
   },
 ]
 
@@ -68,12 +76,17 @@ const invite: NewItem[] = [
  */
 export function NewMenu({ trigger, tooltip }: { trigger: ReactElement; tooltip?: string }) {
   const shell = useShell()
+  const [params, setParams] = useSearchParams()
   const row = (item: NewItem) => (
     <Menu.Item
       key={item.label}
       startIcon={item.icon}
       description={item.description}
-      onClick={() => shell.notBuilt(item.what)}
+      onClick={() =>
+        item.report
+          ? openNewReport(params, setParams, item.report === true ? undefined : item.report)
+          : shell.notBuilt(item.what)
+      }
     >
       {item.label}
     </Menu.Item>

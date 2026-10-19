@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { Board } from '../../../../src/components/DragAndDrop'
-import type { Widget } from '../../data/types'
+import type { Report, Widget } from '../../data/types'
 
 /** One report's board as the session has left it: the layout, and each widget's settings. */
 export interface ReportBoard {
@@ -21,6 +21,13 @@ export interface ReportBoard {
  * close drop it.
  */
 export interface ReportsState {
+  /** Every report: those made this session first, newest first, then the fixtures. */
+  reports: Report[]
+  reportFor: (reportId: string | undefined) => Report | undefined
+  /** Adds a report made with New report; its board is its type's template. */
+  createReport: (report: Report) => void
+  /** Puts a widget on a report's board in a row of its own, at the end. */
+  addWidget: (reportId: string, widget: Widget) => void
   /** A report's board, or nothing for a built-in report, which has none. */
   boardFor: (reportId: string) => ReportBoard | undefined
   setBoard: (reportId: string, update: (board: Board) => Board) => void

@@ -160,51 +160,58 @@ const TREND_ICON: Record<Trend['icon'], LucideIcon> = {
  * a ghost `ClickableCard` that opens the posts in the trend.
  */
 export function TrendingWidget({ range }: { range: DiscoverRange }) {
+  return (
+    <Widget title="Trending near your brand" messages={trendsQuery(range)}>
+      <TrendingList range={range} />
+    </Widget>
+  )
+}
+
+/** The trending rows on their own, for a widget that has its own frame (a report board's). */
+export function TrendingList({ range }: { range: DiscoverRange }) {
   const scale = rangeScale(range)
   const mentions = useMentions()
   return (
-    <Widget title="Trending near your brand" messages={trendsQuery(range)}>
-      <ul className="flex flex-col divide-y divide-surface-border">
-        {trends.map((trend) => {
-          const meta = [
-            `${formatCount(Math.round(trend.posts * scale))} posts`,
-            trend.overlap !== undefined && trend.note === 'with your audience'
-              ? `${trend.overlap}% overlap with your audience`
-              : trend.overlap !== undefined
-                ? `${trend.overlap}% overlap`
-                : undefined,
-            trend.note && trend.note !== 'with your audience' ? trend.note : undefined,
-          ].filter(Boolean)
-          const query = trendQuery(trend, range)
-          return (
-            <li key={trend.id} className="flex py-1 first:pt-0 last:pb-0">
-              <ClickableCard
-                emphasis="ghost"
-                padding={2}
-                selected={mentions.isOpen(query.key)}
-                onClick={() => mentions.toggle(query)}
-                className="w-full"
-              >
-                <span className="flex w-full min-w-0 items-center gap-3 text-left">
-                  <Icon icon={TREND_ICON[trend.icon]} className="shrink-0" aria-hidden />
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <Text render={<span />} weight="semibold" truncate>
-                      {trend.title}
-                    </Text>
-                    <Text render={<span />} size="sm" color="subtle" truncate>
-                      {meta.join(' · ')}
-                    </Text>
-                  </span>
-                  <Badge color={trend.tone} className="shrink-0">
-                    {trend.change}
-                  </Badge>
+    <ul className="flex flex-col divide-y divide-surface-border">
+      {trends.map((trend) => {
+        const meta = [
+          `${formatCount(Math.round(trend.posts * scale))} posts`,
+          trend.overlap !== undefined && trend.note === 'with your audience'
+            ? `${trend.overlap}% overlap with your audience`
+            : trend.overlap !== undefined
+              ? `${trend.overlap}% overlap`
+              : undefined,
+          trend.note && trend.note !== 'with your audience' ? trend.note : undefined,
+        ].filter(Boolean)
+        const query = trendQuery(trend, range)
+        return (
+          <li key={trend.id} className="flex py-1 first:pt-0 last:pb-0">
+            <ClickableCard
+              emphasis="ghost"
+              padding={2}
+              selected={mentions.isOpen(query.key)}
+              onClick={() => mentions.toggle(query)}
+              className="w-full"
+            >
+              <span className="flex w-full min-w-0 items-center gap-3 text-left">
+                <Icon icon={TREND_ICON[trend.icon]} className="shrink-0" aria-hidden />
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <Text render={<span />} weight="semibold" truncate>
+                    {trend.title}
+                  </Text>
+                  <Text render={<span />} size="sm" color="subtle" truncate>
+                    {meta.join(' · ')}
+                  </Text>
                 </span>
-              </ClickableCard>
-            </li>
-          )
-        })}
-      </ul>
-    </Widget>
+                <Badge color={trend.tone} className="shrink-0">
+                  {trend.change}
+                </Badge>
+              </span>
+            </ClickableCard>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 
@@ -594,61 +601,70 @@ function SentimentLegend({ range }: { range: DiscoverRange }) {
 
 /** How people feel about the brand, and what for (`40005911:35368`). */
 export function SentimentWidget({ range }: { range: DiscoverRange }) {
+  return (
+    <Widget title="Brand sentiment" messages={brandSentimentQuery(range)}>
+      <SentimentBody range={range} />
+    </Widget>
+  )
+}
+
+/** The gauge and the two theme lists on their own, for a report board's frame. */
+export function SentimentBody({ range }: { range: DiscoverRange }) {
   const mentions = useMentions()
   const max = Math.max(
     ...praisedFor.map((t) => t.mentions),
     ...criticizedFor.map((t) => t.mentions),
   )
   return (
-    <Widget title="Brand sentiment" messages={brandSentimentQuery(range)}>
-      <div className="flex flex-col gap-6">
-        <div className={cn(SENTIMENT_SCOPE, 'flex flex-col gap-3')}>
-          <SentimentLegend range={range} />
-          <Gauge
-            // In SENTIMENTS' order, so a slice's index is its sentiment.
-            data={SENTIMENTS.map((s) => ({ name: s.label, value: sentimentSplit[s.value] }))}
-            nameKey="name"
-            valueKey="value"
-            label="Share of mentions by sentiment, last 7 days"
-            legend={false}
-            height={170}
-            onSliceClick={({ index }) => mentions.toggle(sentimentQuery(SENTIMENTS[index]!.value, range))}
-            center={
-              <span className="flex flex-col items-center gap-1">
-                <Text render={<span />} color="subtle">
-                  Positive
+    <div className="flex flex-col gap-6">
+      <div className={cn(SENTIMENT_SCOPE, 'flex flex-col gap-3')}>
+        <SentimentLegend range={range} />
+        <Gauge
+          // In SENTIMENTS' order, so a slice's index is its sentiment.
+          data={SENTIMENTS.map((s) => ({ name: s.label, value: sentimentSplit[s.value] }))}
+          nameKey="name"
+          valueKey="value"
+          label="Share of mentions by sentiment, last 7 days"
+          legend={false}
+          height={170}
+          onSliceClick={({ index }) =>
+            mentions.toggle(sentimentQuery(SENTIMENTS[index]!.value, range))
+          }
+          center={
+            <span className="flex flex-col items-center gap-1">
+              <Text render={<span />} color="subtle">
+                Positive
+              </Text>
+              <span className="flex items-center gap-2">
+                <Text render={<span />} size="lg" weight="semibold">
+                  {sentimentSplit.positive}%
                 </Text>
-                <span className="flex items-center gap-2">
-                  <Text render={<span />} size="lg" weight="semibold">
-                    {sentimentSplit.positive}%
-                  </Text>
-                  <TrendBadge
-                    trend={sentimentSplit.change}
-                    format={(value) => `${Math.abs(value)} pts`}
-                  />
-                </span>
+                <TrendBadge
+                  trend={sentimentSplit.change}
+                  format={(value) => `${Math.abs(value)} pts`}
+                />
               </span>
-            }
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-5">
-          <ThemeList
-            title="Praised for"
-            themes={praisedFor}
-            tone="positive"
-            max={max}
-            range={range}
-          />
-          <ThemeList
-            title="Criticized for"
-            themes={criticizedFor}
-            tone="negative"
-            max={max}
-            range={range}
-          />
-        </div>
+            </span>
+          }
+        />
       </div>
-    </Widget>
+      <div className="grid grid-cols-2 gap-5">
+        <ThemeList
+          title="Praised for"
+          themes={praisedFor}
+          tone="positive"
+          max={max}
+          range={range}
+        />
+        <ThemeList
+          title="Criticized for"
+          themes={criticizedFor}
+          tone="negative"
+          max={max}
+          range={range}
+        />
+      </div>
+    </div>
   )
 }
 
@@ -662,64 +678,66 @@ export function SentimentWidget({ range }: { range: DiscoverRange }) {
  * same post detail Plan › Calendar does.
  */
 export function TopPostsWidget({ posts }: { posts: Post[] }) {
-  const shell = useShell()
-  const open = shell.panel?.type === 'post' ? shell.panel.postId : undefined
   return (
     <Widget title="Your top posts" className="h-auto shrink-0">
-      {posts.length === 0 ? (
-        <Text color="subtle">Nothing published in this range yet.</Text>
-      ) : (
-        <ul className="grid grid-cols-1 gap-3 @min-[560px]/page:grid-cols-2 @min-[1000px]/page:grid-cols-4">
-          {posts.map((post) => {
-            const profile = profileFor(post)
-            const stats = statsFor(post)
-            const engagements = engagementsOf(stats)
-            return (
-              <li key={post.id} className="contents">
-                <ClickableCard
-                  selected={open === post.id}
-                  onClick={() =>
-                    shell.setPanel(open === post.id ? null : { type: 'post', postId: post.id })
-                  }
-                  className="flex flex-col gap-3"
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <NetworkIcon network={profile.network} />
-                    <Text render={<span />} weight="semibold" truncate className="min-w-0 flex-1">
-                      {profile.name}
-                    </Text>
-                    <Text render={<span />} size="sm" color="subtle" className="shrink-0">
-                      {peakDay.format(postDate(post))}
-                    </Text>
-                  </span>
-                  {/* Always two lines tall, so the four cards' photos and stats line up. */}
-                  <Text render={<span />} truncate={2} className="min-h-12">
-                    {post.body}
-                  </Text>
-                  {post.photo ? (
-                    <img
-                      src={post.photo}
-                      alt={post.photoAlt ?? ''}
-                      className="aspect-[3/2] w-full rounded-md object-cover"
-                    />
-                  ) : null}
-                  <Stats
-                    inButton
-                    rows={[
-                      ['Impressions', formatCount(stats.impressions)],
-                      ['Engagements', formatCount(engagements)],
-                      [
-                        'Engagement rate',
-                        `${((engagements / stats.impressions) * 100).toFixed(1)}%`,
-                      ],
-                    ]}
-                  />
-                </ClickableCard>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      <TopPostsGrid posts={posts} />
     </Widget>
+  )
+}
+
+/** The post cards on their own, for a report board's frame. */
+export function TopPostsGrid({ posts }: { posts: Post[] }) {
+  const shell = useShell()
+  const open = shell.panel?.type === 'post' ? shell.panel.postId : undefined
+  return posts.length === 0 ? (
+    <Text color="subtle">Nothing published in this range yet.</Text>
+  ) : (
+    <ul className="grid grid-cols-1 gap-3 @min-[560px]/page:grid-cols-2 @min-[1000px]/page:grid-cols-4">
+      {posts.map((post) => {
+        const profile = profileFor(post)
+        const stats = statsFor(post)
+        const engagements = engagementsOf(stats)
+        return (
+          <li key={post.id} className="contents">
+            <ClickableCard
+              selected={open === post.id}
+              onClick={() =>
+                shell.setPanel(open === post.id ? null : { type: 'post', postId: post.id })
+              }
+              className="flex flex-col gap-3"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <NetworkIcon network={profile.network} />
+                <Text render={<span />} weight="semibold" truncate className="min-w-0 flex-1">
+                  {profile.name}
+                </Text>
+                <Text render={<span />} size="sm" color="subtle" className="shrink-0">
+                  {peakDay.format(postDate(post))}
+                </Text>
+              </span>
+              {/* Always two lines tall, so the four cards' photos and stats line up. */}
+              <Text render={<span />} truncate={2} className="min-h-12">
+                {post.body}
+              </Text>
+              {post.photo ? (
+                <img
+                  src={post.photo}
+                  alt={post.photoAlt ?? ''}
+                  className="aspect-[3/2] w-full rounded-md object-cover"
+                />
+              ) : null}
+              <Stats
+                inButton
+                rows={[
+                  ['Impressions', formatCount(stats.impressions)],
+                  ['Engagements', formatCount(engagements)],
+                  ['Engagement rate', `${((engagements / stats.impressions) * 100).toFixed(1)}%`],
+                ]}
+              />
+            </ClickableCard>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
