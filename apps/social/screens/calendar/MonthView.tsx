@@ -109,7 +109,8 @@ function Week({
   return (
     <div
       className={cn(
-        'grid min-h-36 flex-1 grid-cols-7 grid-rows-(--week-rows)',
+        // `isolate` keeps the cells' -z-10 inside the week, above the page.
+        'isolate grid min-h-36 flex-1 grid-cols-7 grid-rows-(--week-rows)',
         !first && 'border-t border-surface-border',
       )}
       style={
@@ -136,13 +137,15 @@ function Week({
         const column = { '--day': i + 1 } as CSSProperties
 
         return [
-          // The cell itself, behind everything in its column. A click on its
-          // empty part starts a note — a pointer shortcut; the week's + menu is
-          // the keyboard route — so it is not a button.
+          // The cell itself, behind everything in its column. It is positioned
+          // for today's rule, which would otherwise paint it — hatch and all —
+          // over the date, notes and posts, so -z-10 puts it back underneath.
+          // A click on its empty part starts a note — a pointer shortcut; the
+          // week's + menu is the keyboard route — so it is not a button.
           <div
             key={`cell-${i}`}
             className={cn(
-              'relative col-(--day) row-span-full border-surface-border',
+              'relative -z-10 col-(--day) row-span-full border-surface-border',
               i > 0 && 'border-l',
               past ? pastDayPattern : 'cursor-pointer hover:bg-surface-background-subtle',
             )}
