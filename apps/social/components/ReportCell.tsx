@@ -4,6 +4,7 @@ import { Badge, type BadgeProps } from '../../../src/components/Badge'
 import { focusRing } from '../../../src/lib/focus'
 import { cn } from '../../../src/lib/cn'
 import type { Report, ReportKind } from '../data/types'
+import { reportTypeFor } from '../screens/reports/reportTypes'
 
 const KIND: Record<ReportKind, { icon: LucideIcon; color: BadgeProps['color']; label: string }> = {
   topic: { icon: Radar, color: 'pink', label: 'Topic monitor' },
@@ -13,7 +14,9 @@ const KIND: Record<ReportKind, { icon: LucideIcon; color: BadgeProps['color']; l
 
 /**
  * A report's row label on Measure › Reports: its kind as a colored glyph, and
- * its name. Figma's `_Measure Report Cell` (`40005882:26324`).
+ * its name. Figma's `_Measure Report Cell` (`40005882:26324`). A report made
+ * from a New report type wears that type's glyph, the one on its card in the
+ * picker, in its kind's color; the rest keep their kind's glyph.
  *
  * The name is a link, not a row click: a table row is not a control, and a
  * link opens in a new tab and reads as one. It is a plain anchor in the
@@ -24,10 +27,11 @@ const KIND: Record<ReportKind, { icon: LucideIcon; color: BadgeProps['color']; l
  */
 export function ReportCell({ report, href }: { report: Report; href: string }) {
   const kind = KIND[report.kind]
+  const type = reportTypeFor(report.type)
   return (
     <span className="flex min-w-0 items-center gap-2">
-      <Badge color={kind.color} startIcon={kind.icon}>
-        <span className="sr-only">{kind.label}</span>
+      <Badge color={kind.color} startIcon={type?.icon ?? kind.icon}>
+        <span className="sr-only">{type ? `${type.label} report` : kind.label}</span>
       </Badge>
       <a href={href} className={cn('truncate rounded-xs hover:underline', focusRing)}>
         {report.name}
