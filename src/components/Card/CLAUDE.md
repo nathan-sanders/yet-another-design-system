@@ -48,6 +48,14 @@ per variant:
 | Clickable default hover | Surface/Background Subtle | **Surface/Border** |
 | Clickable ghost hover | Surface/Background Subtle | *Surface/Background Subtle* |
 
+**Default keeps its edge on hover; ghost does not.** Default used to hover its border to the fill's
+token too, so the card's outline vanished under the pointer. Figma's `Emphasis=Default, State=Hover`
+had already moved to `Surface/Border`, and the code followed. A story cannot reach CSS `:hover`
+(`userEvent.hover` moves no real cursor, as Table's record notes), so the `Emphasis` play function
+pins the recipe: no `hover:border-*` on default, `hover:border-surface-background-subtle` on ghost.
+The hovered colors were measured with a real pointer in Yet Social: border `--surface-border`,
+fill `--surface-background-subtle`.
+
 So a subtle card is a **fill**, not an outline — where `ContentBlock`'s `subtle` keeps
 `border-surface-border` and *is* an outline. Same word, two components, drawn differently on
 purpose: a block is a region of a page and wants an edge; a card is an object in a list and wants a

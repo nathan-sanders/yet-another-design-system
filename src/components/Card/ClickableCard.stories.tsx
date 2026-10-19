@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, userEvent, waitFor, within } from 'storybook/test'
+import { expect, within } from 'storybook/test'
 import {
   Archive,
   ArchiveX,
@@ -101,42 +101,24 @@ export const Playground: Story = {
  *
  * **`default` keeps `Surface/Border` under the pointer.** Only its fill moves,
  * so the card's edge never disappears into the hover fill; ghost's border
- * moves with its fill. The play function hovers each and compares the border
- * against a probe painted with the token, so both strings come out of the same
- * serializer.
+ * moves with its fill. A story cannot trigger CSS `:hover`, so the play
+ * function checks the recipe's classes; the hovered color was measured with a
+ * real pointer in Yet Social.
  */
 export const Emphasis: Story = {
   parameters: { controls: { disable: true } },
   play: async ({ canvasElement }) => {
+    // CSS `:hover` cannot be reached from here: `userEvent.hover` dispatches
+    // pointer events without moving a real cursor (Table's and ContextMenu's
+    // records). So this pins the recipe instead. Default must carry no
+    // hover border, which leaves its rest `border-surface-border` in place
+    // under the pointer. Ghost's border must still follow its fill.
     const canvas = within(canvasElement)
-    const probe = (token: string) => {
-      const el = document.createElement('span')
-      el.style.color = `var(${token})`
-      canvasElement.append(el)
-      const color = getComputedStyle(el).color
-      el.remove()
-      return color
-    }
-    const hover = async (name: RegExp) => {
-      const card = canvas.getByRole('button', { name })
-      await userEvent.hover(card)
-      card.getAnimations().forEach((animation) => animation.finish())
-      return card
-    }
-
-    const card = await hover(/emphasis="default"/)
-    await waitFor(() =>
-      expect(getComputedStyle(card).borderTopColor).toBe(probe('--surface-border')),
-    )
-    await waitFor(() =>
-      expect(getComputedStyle(card).backgroundColor).toBe(probe('--surface-background-subtle')),
-    )
-
-    const ghost = await hover(/emphasis="ghost"/)
-    await waitFor(() =>
-      expect(getComputedStyle(ghost).borderTopColor).toBe(probe('--surface-background-subtle')),
-    )
-    await userEvent.unhover(ghost)
+    const card = canvas.getByRole('button', { name: /emphasis="default"/ })
+    const ghost = canvas.getByRole('button', { name: /emphasis="ghost"/ })
+    await expect(card.className).toContain('border-surface-border')
+    await expect(card.className).not.toMatch(/(^|\s)hover:border-/)
+    await expect(ghost.className).toContain('hover:border-surface-background-subtle')
   },
   render: () => (
     <div className="bg-surface-background-primary border-surface-border flex max-w-100 flex-col gap-2 rounded-lg border p-4">
