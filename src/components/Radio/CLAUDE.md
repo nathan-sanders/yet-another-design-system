@@ -66,15 +66,27 @@ component would carry two incompatible prop sets. A card you tick on and off ind
 checkbox, and nothing asks for one yet — if something does, it is `Checkbox.Card` by the same
 argument.
 
-**The drawing is Clickable Card's `State=Selected`.** Figma has no selectable-card set; searched
-2026-10-19. What it has is `Clickable Card` (`40004251:16237`) with `State=Selected` on both
-emphases, and Social Media Management's `_Measure Viz Option` (`40005872:24935`), whose own
-description says to drop it "into a Clickable Card slot" with Selected marking the current chart.
-So the surface is that card's, driven by the radio: `radioCard` in `Card/styles.ts` is
-`tv({ extend: clickableCard })` with the selected surface restated under `data-checked:`, written
-beside the prop version so the two cannot drift. **No dial** — the file draws none, and the first
-Yet Social tile with one was sent back for it. Emphasis and padding are ClickableCard's props;
-`selected`, `href` and `render` are not, because the radio owns all three.
+**The drawing is Clickable Card's `State=Selected`, and since 2026-10-19 it is its own set.** When
+this was built the file had no selectable card: only `Clickable Card` (`40004251:16237`) with
+`State=Selected` on both emphases, and Social Media Management's `_Measure Viz Option`
+(`40005872:24935`), whose own description says to drop it "into a Clickable Card slot" with Selected
+marking the current chart. So the surface is that card's, driven by the radio: `radioCard` in
+`Card/styles.ts` is `tv({ extend: clickableCard })` with the selected surface restated under
+`data-checked:`, written beside the prop version so the two cannot drift. **No dial**: the file
+draws none, and the first Yet Social tile with one was sent back for it. Emphasis and padding are
+ClickableCard's props. `selected`, `href` and `render` are not, because the radio owns all three.
+
+**Figma's `Radio Card` set (`40005966:25534`)** was then drawn from the code on `↪ Radio Group`,
+below `Radio` in the Components section: `Emphasis` Default | Ghost × `State` Default | Hover |
+Focus | Invalid | Disabled × `Selected State` Default | Selected, 20 variants cloned from Clickable
+Card's so every binding came along, with a `Content` slot (`Content#40005966:0`) holding Clickable
+Card's default Title and Description. Prop to property: `emphasis` is `Emphasis`, checked is
+`Selected State`, and `State`'s Invalid and Disabled are what a Field or the group sets. Read back
+per variant: Selected and Selected Hover are Surface/Background Subtle on Surface/Border Emphasized,
+Invalid is Feedback/Danger/Highlight on either fill, Disabled is `opacity/opacity-40`. The Docs
+frame gained a three-card row in both Preview themes (`40005966:75130` light, `40005966:75152`
+dark), the header now points at Radio Cards, and Clickable Card's set description now names this
+set where it used to say "a different component".
 
 **Three states read Base UI's attributes rather than props**, which is the point of not wrapping
 `ClickableCard`. `data-checked` is the selection. `data-disabled` is set on every card a disabled
@@ -123,15 +135,12 @@ The two are one text in two places — change one and change the other.
 - Use it when exactly one answer is allowed and the options need room to be explained.
 - Keep it to between two and seven options.
 - Put the question, the description and the message on a Field above the group. Each option keeps its own label.
+- Use Radio Cards when each option is something to look at, like a chart type or a report template. Keep sentences in a radio list.
+- Give every card a short title. It is what a screen reader announces as the option; the rest of the card describes it.
 
 **Don't**
 
 - Do not run more than four options horizontally. They wrap awkwardly past that.
 - Do not use a radio list where the options are short and sit beside a button. That is a Segmented Control.
 - Do not offer a radio group somebody may want to answer with nothing. A radio cannot be unpicked once it is picked.
-
-`Radio.Card` has no block of its own on the canvas — Figma draws it as a Clickable Card with
-`State=Selected` — so these are written here and owed to the file: **use cards when the options
-are things to look at** (a chart, a template) and a radio list when they are sentences to read;
-**name a rich card by its title** and describe it with the rest; **keep the grid even**, one card
-size per group.
+- Do not mix card sizes in one group. Keep the grid even, one card size per row.

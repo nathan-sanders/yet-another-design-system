@@ -20,15 +20,13 @@ import { radioCard, type CardPadding, type ClickableCardEmphasis } from '../Card
  * beside `Radio` rather than a component with a group of its own. A card you
  * tick on and off independently would be a checkbox, and nothing asks for one.
  *
- * **The surface is Clickable Card's, and that is the drawing.** Figma has no
- * selectable-card set. What it has is `Clickable Card` (`40004251:16237`) with
- * `State=Selected` — Surface/Background Subtle on Surface/Border Emphasized —
- * and the Pulse widget editor's `_Measure Viz Option` (`40005872:24935`), a
- * glyph over a word "dropped into a Clickable Card slot", wearing Selected on
- * the chosen chart. So this is that card with the state driven by the radio:
- * `radioCard` in `Card/styles.ts` extends `clickableCard` and restates its
- * selected surface under `data-checked:`. No dial: the file draws none, and
- * the first Yet Social tile that had one was sent back for it.
+ * **The surface is Clickable Card's.** Figma's `Radio Card` set
+ * (`40005966:25534`, on `↪ Radio Group`) is Clickable Card's variants cloned:
+ * `Emphasis` × `State` (Default | Hover | Focus | Invalid | Disabled) ×
+ * `Selected State`, with Selected drawn as Surface/Background Subtle on
+ * Surface/Border Emphasized. Here that is `radioCard` in `Card/styles.ts`,
+ * which extends `clickableCard` and restates its selected surface under
+ * `data-checked:`. No dial: the file draws none.
  *
  * **Not `aria-current`.** ClickableCard's `selected` is a navigation state;
  * this one is `aria-checked`, set by Base UI. Rendering `Radio.Root` onto a

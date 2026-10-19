@@ -641,7 +641,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Toast](src/components/Toast/CLAUDE.md) | a notification that leaves | a stack that collapses |
 | [Checkbox](src/components/Checkbox/CLAUDE.md) | tick one thing on or off | plus `Checkbox.Group`, and `inContainer` |
 | [Radio](src/components/Radio/CLAUDE.md) | exactly one of a visible list | plus `Radio.Group` |
-| [Radio.Card](src/components/Radio/CLAUDE.md) | exactly one of a visible set, each option a card | Clickable Card's `State=Selected` driven by the radio, no dial; a part of Radio rather than a `SelectableCard`, because the group is where all the behavior lives; named by its own content against a Field's label |
+| [Radio.Card](src/components/Radio/CLAUDE.md) | exactly one of a visible set, each option a card | Clickable Card's `State=Selected` driven by the radio, no dial, drawn as Figma's `Radio Card` set; a part of Radio rather than a `SelectableCard`, because the group is where all the behavior lives; named by its own content against a Field's label |
 | [Menu](src/components/Menu/CLAUDE.md) | actions in a popup | items, separators, submenus |
 | [ContextMenu](src/components/ContextMenu/CLAUDE.md) | the same actions, on right-click | Menu's rows re-attached, not copied; opens at the pointer |
 | [Popover](src/components/Popover/CLAUDE.md) | a panel of content, on click | the library's first `role="dialog"`; Figma's own drawing has no accessible name, which is why `label` exists |
