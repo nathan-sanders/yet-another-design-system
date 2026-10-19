@@ -7,12 +7,7 @@ import { Menu } from '../../../../src/components/Menu'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { addDays, startOfDay } from '../../data/dates'
-import {
-  DISCOVER_RANGES,
-  discoverRangeFor,
-  rangeScale,
-  type DiscoverRange,
-} from '../../data/discover'
+import { DISCOVER_RANGES, discoverRangeFor, type DiscoverRange } from '../../data/discover'
 import { statsFor } from '../../data/performance'
 import { posts } from '../../data/posts'
 import { useShell } from '../../shell/ShellContext'
@@ -52,7 +47,6 @@ export function DiscoverScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   const range = discoverRangeFor(params.get('range'))
-  const scale = rangeScale(range)
   const label = DISCOVER_RANGES.find((r) => r.value === range)!.label
 
   const setRange = (next: DiscoverRange) => {
@@ -110,13 +104,13 @@ export function DiscoverScreen() {
       />
       <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
         <div className="grid shrink-0 grid-cols-1 gap-3 @min-[900px]/page:grid-cols-2">
-          <TrendingWidget scale={scale} />
-          <CreatorsWidget />
+          <TrendingWidget range={range} />
+          <CreatorsWidget range={range} />
         </div>
-        <VisualTrendsWidget />
+        <VisualTrendsWidget range={range} />
         <div className="grid shrink-0 grid-cols-1 gap-3 @min-[900px]/page:grid-cols-2">
-          <OpportunitiesWidget />
-          <SentimentWidget scale={scale} />
+          <OpportunitiesWidget range={range} />
+          <SentimentWidget range={range} />
         </div>
         <TopPostsWidget posts={topPosts(range)} />
       </AppShell.Content>

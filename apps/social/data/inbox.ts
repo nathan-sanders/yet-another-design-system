@@ -6,11 +6,14 @@ import davis from '../assets/people/davis.jpg'
 import dulce from '../assets/people/dulce.jpg'
 import kaiya from '../assets/people/kaiya.jpg'
 import kaylynn from '../assets/people/kaylynn.jpg'
+import jonah from '../assets/people/jonah.jpg'
 import lindsey from '../assets/people/lindsey.jpg'
 import lydia from '../assets/people/lydia.jpg'
 import mango from '../assets/people/mango.jpg'
 import maria from '../assets/people/maria.jpg'
+import maya from '../assets/people/maya.jpg'
 import nolan from '../assets/people/nolan.jpg'
+import priya from '../assets/people/priya.jpg'
 import skylar from '../assets/people/skylar.jpg'
 import talan from '../assets/people/talan.jpg'
 import zain from '../assets/people/zain.jpg'
@@ -56,6 +59,24 @@ export const customers: Customer[] = [
   { id: 'davis', handle: 'davis_levin', avatar: davis },
   { id: 'carter', handle: 'carter_dokidis', avatar: carter },
   { id: 'ann', handle: 'ann_emery', avatar: ann },
+  // People who talk about the brand in public without writing in: the authors
+  // of Measure's mentions (`data/mentions.ts`). The first three are creators
+  // (`data/creators.ts`), the next five are Brand Pulse's Top voices, and the
+  // rest have no photo, as plenty of accounts do not.
+  { id: 'maya', handle: 'mayaeatsgreen', name: 'Maya Okafor', avatar: maya },
+  { id: 'jonah', handle: 'jonahbakes', name: 'Jonah Reyes', avatar: jonah },
+  { id: 'priya', handle: 'priyaplates', name: 'Priya Lal', avatar: priya },
+  { id: 'paige', handle: 'plantpowerpaige', name: 'Paige Patel' },
+  { id: 'foodandwine', handle: 'foodandwinedaily', name: 'Food & Wine Daily' },
+  { id: 'marcus', handle: 'marcuseatsgreen', name: 'Marcus Lee' },
+  { id: 'danacooks', handle: 'danacooksplants', name: 'Dana Okafor' },
+  { id: 'mealprepsunday', handle: 'MealPrepSunday' },
+  { id: 'jen', handle: 'greenforkjen' },
+  { id: 'plantdad', handle: 'theplantdad' },
+  { id: 'ollie', handle: 'oatmilkollie' },
+  { id: 'sam', handle: 'budgetbites_sam' },
+  { id: 'zoe', handle: 'zero.waste.zoe' },
+  { id: 'reese', handle: 'reese.lifts' },
 ]
 
 export function customerFor(id: string): Customer {

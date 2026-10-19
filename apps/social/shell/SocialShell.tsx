@@ -11,10 +11,12 @@ import { MobileNav, NavItem, SideNav } from '../../../src/components/Nav'
 import { Toast } from '../../../src/components/Toast'
 import { useDocumentTheme } from '../../shared/theme'
 import { FloatingYak } from '../components/FloatingYak'
+import type { MentionQuery } from '../data/mentions'
 import { me } from '../data/people'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
+import { MentionsPanel } from '../screens/mentions/MentionsPanel'
 import { useInbox } from '../screens/inbox/inboxState'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { YakChatContext, useYakChatState } from '../yak/chat'
@@ -64,6 +66,10 @@ export function SocialShell() {
     (panel.reportId !== lastWidget?.reportId || panel.widgetId !== lastWidget?.widgetId)
   ) {
     setLastWidget({ reportId: panel.reportId, widgetId: panel.widgetId })
+  }
+  const [lastMentions, setLastMentions] = useState<MentionQuery>()
+  if (panel?.type === 'mentions' && panel.query.key !== lastMentions?.key) {
+    setLastMentions(panel.query)
   }
 
   // A post, contact or widget panel belongs to the screen that opened it: leave the
@@ -290,6 +296,11 @@ export function SocialShell() {
           <WidgetEditPanel
             open={panel?.type === 'widget'}
             target={lastWidget}
+            onClose={() => setPanel(null)}
+          />
+          <MentionsPanel
+            open={panel?.type === 'mentions'}
+            query={lastMentions}
             onClose={() => setPanel(null)}
           />
 

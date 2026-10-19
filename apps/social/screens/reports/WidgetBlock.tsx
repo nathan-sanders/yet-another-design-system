@@ -18,6 +18,8 @@ import { focusRing } from '../../../../src/lib/focus'
 import type { ReportRange } from '../../data/reports'
 import type { Report, Widget } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { ViewMessagesButton } from '../../components/ViewMessagesButton'
+import { widgetMentionQuery } from './mentions'
 import { isTimeViz, widgetPath } from './model'
 import { WidgetBody } from './widgets/WidgetBody'
 
@@ -49,7 +51,7 @@ function plotHeight(widget: Widget, span: number, rowHeight?: number): number {
  * One widget on a report board: a `ContentBlock` carried by the grip before
  * its title, with the strip to its right resizing it by the column.
  *
- * **Everywhere but the grip, the title and the `⋯` opens the widget's detail**
+ * **Everywhere but the grip, the title, View messages and the `⋯` opens the widget's detail**
  * (Nathan's inline-editing board, `40005911:34608`). A press that travels is a
  * drag and the drag foundation swallows the click after it; a press that
  * does not is a click, and it navigates. The title is the same destination as
@@ -84,6 +86,7 @@ export function WidgetBlock({
   const navigate = useNavigate()
   const shell = useShell()
   const href = widgetPath(report.id, widget.id)
+  const messages = widgetMentionQuery(report, widget, range)
 
   const open = (event: MouseEvent) => {
     const target = event.target as HTMLElement
@@ -110,13 +113,16 @@ export function WidgetBlock({
         <ContentBlock.Header
           className="pl-10"
           actions={
-            <Button
-              appearance="ghost"
-              startIcon={Ellipsis}
-              aria-label={`${widget.title} actions`}
-              data-drag-ignore
-              onClick={() => shell.notBuilt('Widget actions')}
-            />
+            <>
+              {messages ? <ViewMessagesButton title={widget.title} query={messages} /> : null}
+              <Button
+                appearance="ghost"
+                startIcon={Ellipsis}
+                aria-label={`${widget.title} actions`}
+                data-drag-ignore
+                onClick={() => shell.notBuilt('Widget actions')}
+              />
+            </>
           }
         >
           <a

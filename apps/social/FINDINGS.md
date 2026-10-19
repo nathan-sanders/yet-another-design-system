@@ -717,3 +717,71 @@ Every item is a not-built toast for now.
 - Dark mode: the button takes the inverted `action-primary-background`.
 - 393 × 852: the menu opens upward inside the screen and none of its rows wrap.
 - axe with the menu open: only `region`, which is entry 26.
+
+## Measure › Messages behind a number (2026-10-19)
+
+Every number on Measure now opens the posts that make it up. On Discover you click the data point
+itself: a trend row, a creator, a visual trend card, an opportunity, a sentiment in the gauge's
+legend, or a Praised for / Criticized for theme. On a report board, every widget has a **View
+messages** button before its `⋯`, as the mock draws it (`40005911:34686`). Both open one shell
+panel, `screens/mentions/MentionsPanel.tsx`: a list of `MentionCard`s you can filter by sentiment
+and network and sort by Newest or Most engagement, 20 at a time. Each card has Like, Reply,
+Share and Open in Engage. A card opens its detail, a `Panel` stacked inside the list's
+(like Yak's History), with the full post, Yak's read, its numbers, the replies and a reply field.
+**Open in Engage** makes the post a ticket once (`InboxProvider.addTicket`, numbered after the
+last) and goes to it at `#/engage/all?message=<n>`.
+
+The posts are generated (`data/mentions.ts`), seeded on the question asked so the same click
+gives the same list. Each list is steered by what was clicked, so Packaging waste reads like
+packaging complaints. Authors are inbox `customers` (fourteen added, five of them Brand Pulse's
+Top voices), so a mention can become a ticket. Every total comes from the same function its
+widget draws with, so the panel's count matches the number you clicked: 40.3K on Overview,
+26.2K (9.5K + 8.7K + 8K) on Mentions over time at 7D, 68 on Top voices, 2.1K Negative on
+Discover at 30 days. A list generates the latest 120 at most and says so: "Showing the latest
+120 of 40.3K mentions".
+
+### Open: library changes worth making
+
+76. **No chart takes a click on a data point.** `Gauge`, `Donut`, `LineSeries`, `AreaSeries` and
+    `HorizontalBar` have no point, slice or bar handler, and none passes extra props through
+    to Recharts. Discover works around it for the gauge: `legend={false}` and a row of three
+    legend buttons above it, which open Positive, Neutral or Negative. Reports opens the whole
+    widget from its header button. An `onPointClick` / `onSliceClick` across the chart family
+    would let a click on one day of the trend open that day's mentions.
+77. **`Table` has no row click.** The Creators table's Author cell is a `<button>` instead, so
+    the name is the target and the rest of the row is not.
+78. **`Card` has no `selected` state; only `ClickableCard` does.** A mention card can't be a
+    `ClickableCard` (it's one `<button>`, and the card holds Like, Reply and a menu). So the
+    card marks its open detail with `ClickableCard`'s selected tokens written by hand.
+
+### Kept in the app, worth knowing
+
+79. **Clicking the same point again closes the panel.** This is the top-post pattern
+    (`open === id ? null : …`), shared through `useMentions().toggle`. The thing that opened
+    the panel shows as pressed or selected while it's open.
+80. **`Customer.avatar` is optional now.** Not every account that mentions the brand has a
+    photo, and `Avatar` draws initials. No existing customer lost its photo.
+81. **Likes and replies are held by the panel**, which the shell always renders. They survive a
+    filter change, closing the detail, and switching lists. A reply goes out from the brand
+    account on the mention's network, or the first account when the brand has none there.
+
+### Figma owes
+
+82. **Decided here (code-first):** the mentions panel (header with the clicked thing's name,
+    count and source line, three filters, the card list, Load more), the mention card, the
+    stacked Message detail, Discover's clickable legend row under Brand sentiment, the
+    clickable theme rows, and hover/selected states on the trend rows and visual trend cards.
+    The View messages button follows the mock, and the file draws it only on Mentions over
+    time.
+
+### Measured, and fine
+
+- Brand Pulse: all seven widgets have View messages first and `⋯` second. Clicking it opens
+  the panel without navigating to the widget's detail page.
+- The panel is 384 wide. The detail stacks 12px in (x 1036 → 1048).
+- Like and reply carry over to the card after the detail closes. Open in Engage lands on
+  #1293 with "Opened from Measure · Packaging waste", and a toast.
+- axe on the detail page with the panel open, and on Discover with the list and detail open:
+  no violations.
+- Dark mode reads correctly. At 390 × 844 the panel goes under the page at 374 wide, and nothing
+  overflows.

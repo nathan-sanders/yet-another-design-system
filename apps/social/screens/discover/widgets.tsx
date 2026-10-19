@@ -14,33 +14,53 @@ import {
 import { Avatar } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
-import { Card, ClickableCard } from '../../../../src/components/Card'
+import { ClickableCard } from '../../../../src/components/Card'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
+import { ChartSwatch } from '../../../../src/components/Chart'
 import { Gauge } from '../../../../src/components/Gauge'
 import { Icon } from '../../../../src/components/Icon'
 import { TrendBadge } from '../../../../src/components/Metric'
 import { Table, pixel, type TableColumn } from '../../../../src/components/Table'
 import { Heading, Text } from '../../../../src/components/Text'
+import { cn } from '../../../../src/lib/cn'
+import { focusRing } from '../../../../src/lib/focus'
 import { NetworkIcon } from '../../components/NetworkIcon'
+import { ViewMessagesButton } from '../../components/ViewMessagesButton'
 import {
   creators,
   criticizedFor,
   opportunities,
   praisedFor,
+  rangeScale,
   sentimentSplit,
   trends,
   visualTrends,
   type Creator,
+  type DiscoverRange,
   type Theme,
   type Trend,
 } from '../../data/discover'
+import type { MentionQuery } from '../../data/mentions'
 import { engagementsOf, statsFor } from '../../data/performance'
 import { profileFor } from '../../data/posts'
-import type { Post } from '../../data/types'
+import type { MentionSentiment, Post } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { useMentions } from '../mentions/useMentions'
 import { formatCount, peakDay } from '../reports/model'
 import { TwoLineCell } from '../reports/widgets/ListWidgets'
 import { postDate } from '../calendar/model'
+import {
+  brandSentimentQuery,
+  creatorQuery,
+  creatorsQuery,
+  opportunitiesQuery,
+  sentimentQuery,
+  themeQuery,
+  trendQuery,
+  trendsQuery,
+  visualQuery,
+  visualsQuery,
+} from './mentions'
 
 /** Every widget's header `⋯`, which the mock does not fill. */
 function WidgetActions({ title }: { title: string }) {
@@ -56,23 +76,36 @@ function WidgetActions({ title }: { title: string }) {
 }
 
 /**
- * A Discover widget: a `ContentBlock` with the file's header and its `⋯`. One
+ * A Discover widget: a `ContentBlock` with the file's header and its `⋯`,
+ * and before it View messages when the widget counts posts (`messages`). One
  * standing alone in the page column passes `h-auto shrink-0`: the column is a
  * flex column that would otherwise squash it to fit the window and let its
  * content spill over the next widget (FINDINGS 43's `h-full`, plus the shrink).
  */
 function Widget({
   title,
+  messages,
   children,
   className,
 }: {
   title: string
+  /** The posts behind the whole widget. */
+  messages?: MentionQuery
   children: ReactNode
   className?: string
 }) {
   return (
     <ContentBlock headingLevel={2} className={className}>
-      <ContentBlock.Header actions={<WidgetActions title={title} />}>{title}</ContentBlock.Header>
+      <ContentBlock.Header
+        actions={
+          <>
+            {messages ? <ViewMessagesButton title={title} query={messages} /> : null}
+            <WidgetActions title={title} />
+          </>
+        }
+      >
+        {title}
+      </ContentBlock.Header>
       <ContentBlock.Content>{children}</ContentBlock.Content>
     </ContentBlock>
   )
@@ -121,10 +154,15 @@ const TREND_ICON: Record<Trend['icon'], LucideIcon> = {
   zap: Zap,
 }
 
-/** Topics climbing among the brand's audience (`40005911:35267`). */
-export function TrendingWidget({ scale }: { scale: number }) {
+/**
+ * Topics climbing among the brand's audience (`40005911:35267`). Each row is
+ * a ghost `ClickableCard` that opens the posts in the trend.
+ */
+export function TrendingWidget({ range }: { range: DiscoverRange }) {
+  const scale = rangeScale(range)
+  const mentions = useMentions()
   return (
-    <Widget title="Trending near your brand">
+    <Widget title="Trending near your brand" messages={trendsQuery(range)}>
       <ul className="flex flex-col divide-y divide-surface-border">
         {trends.map((trend) => {
           const meta = [
@@ -136,20 +174,31 @@ export function TrendingWidget({ scale }: { scale: number }) {
                 : undefined,
             trend.note && trend.note !== 'with your audience' ? trend.note : undefined,
           ].filter(Boolean)
+          const query = trendQuery(trend, range)
           return (
-            <li key={trend.id} className="flex items-center gap-3 py-3 first:pt-1 last:pb-0">
-              <Icon icon={TREND_ICON[trend.icon]} className="shrink-0" aria-hidden />
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <Text render={<span />} weight="semibold" truncate>
-                  {trend.title}
-                </Text>
-                <Text render={<span />} size="sm" color="subtle" truncate>
-                  {meta.join(' · ')}
-                </Text>
-              </span>
-              <Badge color={trend.tone} className="shrink-0">
-                {trend.change}
-              </Badge>
+            <li key={trend.id} className="flex py-1 first:pt-0 last:pb-0">
+              <ClickableCard
+                emphasis="ghost"
+                padding={2}
+                selected={mentions.isOpen(query.key)}
+                onClick={() => mentions.toggle(query)}
+                className="w-full"
+              >
+                <span className="flex w-full min-w-0 items-center gap-3 text-left">
+                  <Icon icon={TREND_ICON[trend.icon]} className="shrink-0" aria-hidden />
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <Text render={<span />} weight="semibold" truncate>
+                      {trend.title}
+                    </Text>
+                    <Text render={<span />} size="sm" color="subtle" truncate>
+                      {meta.join(' · ')}
+                    </Text>
+                  </span>
+                  <Badge color={trend.tone} className="shrink-0">
+                    {trend.change}
+                  </Badge>
+                </span>
+              </ClickableCard>
             </li>
           )
         })}
@@ -162,15 +211,31 @@ export function TrendingWidget({ scale }: { scale: number }) {
 // Creators your audience follows
 // ---------------------------------------------------------------------------
 
-const creatorColumns: TableColumn<Creator>[] = [
+/**
+ * The columns, given what a name does when pressed. `Table` has no row click,
+ * so the Author cell is the button: it opens the creator's mentions.
+ */
+const creatorColumns = (
+  open: (creator: Creator) => void,
+  isOpen: (creator: Creator) => boolean,
+): TableColumn<Creator>[] => [
   {
     key: 'name',
     header: 'Author',
     renderCell: (c) => (
-      <span className="flex min-w-0 items-center gap-3">
+      <button
+        type="button"
+        aria-pressed={isOpen(c)}
+        aria-label={`${c.name}, view mentions`}
+        onClick={() => open(c)}
+        className={cn(
+          'flex w-full min-w-0 items-center gap-3 rounded-xs text-left hover:underline',
+          focusRing,
+        )}
+      >
         <Avatar name={c.name} src={c.avatar} alt="" />
         <TwoLineCell title={c.name} source={c.network} meta={c.handle} />
-      </span>
+      </button>
     ),
   },
   {
@@ -194,12 +259,17 @@ const creatorColumns: TableColumn<Creator>[] = [
 ]
 
 /** Creators the brand's followers also follow, by overlap (`40005911:35324`). */
-export function CreatorsWidget() {
+export function CreatorsWidget({ range }: { range: DiscoverRange }) {
+  const mentions = useMentions()
+  const query = (c: Creator) => creatorQuery(c, range, 'Creators your audience follows')
   return (
-    <Widget title="Creators your audience follows">
+    <Widget title="Creators your audience follows" messages={creatorsQuery(range)}>
       <Table
         label="Creators your audience follows"
-        columns={creatorColumns}
+        columns={creatorColumns(
+          (c) => mentions.toggle(query(c)),
+          (c) => mentions.isOpen(query(c).key),
+        )}
         data={creators}
         idKey="id"
         sortable
@@ -213,41 +283,58 @@ export function CreatorsWidget() {
 // Visual trends in your space
 // ---------------------------------------------------------------------------
 
-/** What the space's posts look like, four styles with a photo each (`40005911:35339`). */
-export function VisualTrendsWidget() {
+/**
+ * What the space's posts look like, four styles with a photo each
+ * (`40005911:35339`). Each is a `ClickableCard` that opens the posts in it.
+ */
+export function VisualTrendsWidget({ range }: { range: DiscoverRange }) {
+  const mentions = useMentions()
   return (
-    <Widget title="Visual trends in your space" className="h-auto shrink-0">
+    <Widget
+      title="Visual trends in your space"
+      messages={visualsQuery(range)}
+      className="h-auto shrink-0"
+    >
       <ul className="grid grid-cols-1 gap-3 @min-[560px]/page:grid-cols-2 @min-[1000px]/page:grid-cols-4">
-        {visualTrends.map((trend) => (
-          <li key={trend.id} className="contents">
-            <Card className="flex flex-col gap-3">
-              {/* Four examples of the look; the title names it, so they are decoration. */}
-              <div className="grid grid-cols-2 gap-1">
-                {trend.photos.map((photo, i) => (
-                  <img
-                    key={i}
-                    src={photo}
-                    alt=""
-                    className="aspect-[10/9] w-full rounded-sm object-cover"
-                  />
-                ))}
-              </div>
-              <Heading level={3} size="base" weight="semibold">
-                {trend.title}
-              </Heading>
-              <Stats
-                rows={[
-                  ['% of posts', `${trend.share}%`],
-                  ['Avg. engagements', trend.engagements.toLocaleString('en-US')],
-                  ['Positive sentiment', `${trend.positive}%`],
-                ]}
-              />
-              <Badge color={trend.yours ? 'neutral' : 'blue'} className="self-start">
-                {trend.yours ? 'You post this' : 'Untapped for you'}
-              </Badge>
-            </Card>
-          </li>
-        ))}
+        {visualTrends.map((trend) => {
+          const query = visualQuery(trend, range)
+          return (
+            <li key={trend.id} className="contents">
+              <ClickableCard
+                selected={mentions.isOpen(query.key)}
+                onClick={() => mentions.toggle(query)}
+                className="flex flex-col gap-3"
+              >
+                {/* Four examples of the look; the title names it, so they are decoration. */}
+                <div className="grid grid-cols-2 gap-1">
+                  {trend.photos.map((photo, i) => (
+                    <img
+                      key={i}
+                      src={photo}
+                      alt=""
+                      className="aspect-[10/9] w-full rounded-sm object-cover"
+                    />
+                  ))}
+                </div>
+                {/* A span, not a heading: the card is a button, which holds phrasing content only. */}
+                <Text render={<span />} weight="semibold" className="text-left">
+                  {trend.title}
+                </Text>
+                <Stats
+                  inButton
+                  rows={[
+                    ['% of posts', `${trend.share}%`],
+                    ['Avg. engagements', trend.engagements.toLocaleString('en-US')],
+                    ['Positive sentiment', `${trend.positive}%`],
+                  ]}
+                />
+                <Badge color={trend.yours ? 'neutral' : 'blue'} className="self-start">
+                  {trend.yours ? 'You post this' : 'Untapped for you'}
+                </Badge>
+              </ClickableCard>
+            </li>
+          )
+        })}
       </ul>
     </Widget>
   )
@@ -257,16 +344,32 @@ export function VisualTrendsWidget() {
 // Opportunities to engage
 // ---------------------------------------------------------------------------
 
-/** Posts worth a reply or a share, and why (`40005911:35352`). */
-export function OpportunitiesWidget() {
+/**
+ * Posts worth a reply or a share, and why (`40005911:35352`). A row opens the
+ * poster's mentions of the brand: the post is the button, and a pointer
+ * anywhere on the row but Reply / Share does the same.
+ */
+export function OpportunitiesWidget({ range }: { range: DiscoverRange }) {
   const shell = useShell()
+  const mentions = useMentions()
   return (
-    <Widget title="Opportunities to engage">
+    <Widget title="Opportunities to engage" messages={opportunitiesQuery(range)}>
       <ul className="flex flex-col divide-y divide-surface-border">
         {opportunities.map((o) => {
           const creator = creators.find((c) => c.id === o.creatorId)
+          const query = creator
+            ? creatorQuery(creator, range, 'Opportunities to engage')
+            : undefined
+          const open = query && mentions.isOpen(query.key)
           return (
-            <li key={o.id} className="flex gap-3 py-4 first:pt-1 last:pb-0">
+            <li
+              key={o.id}
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest('button') || !query) return
+                mentions.toggle(query)
+              }}
+              className={cn('flex gap-3 py-4 first:pt-1 last:pb-0', query && 'cursor-pointer')}
+            >
               <Avatar name={creator?.name ?? o.handle} src={creator?.avatar} alt="" size="small" />
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex min-w-0 items-center gap-2">
@@ -292,10 +395,33 @@ export function OpportunitiesWidget() {
                     {o.action === 'reply' ? 'Reply' : 'Share'}
                   </Button>
                 </div>
-                <Text truncate>{o.body}</Text>
-                <Text size="sm" color="subtle" truncate>
-                  {o.why}
-                </Text>
+                {query ? (
+                  <button
+                    type="button"
+                    aria-pressed={open}
+                    aria-label={`${o.handle}: ${o.body} View their mentions`}
+                    onClick={() => mentions.toggle(query)}
+                    className={cn(
+                      'flex min-w-0 flex-col gap-1 rounded-xs text-left',
+                      open && 'underline',
+                      focusRing,
+                    )}
+                  >
+                    <Text render={<span />} truncate>
+                      {o.body}
+                    </Text>
+                    <Text render={<span />} size="sm" color="subtle" truncate>
+                      {o.why}
+                    </Text>
+                  </button>
+                ) : (
+                  <>
+                    <Text truncate>{o.body}</Text>
+                    <Text size="sm" color="subtle" truncate>
+                      {o.why}
+                    </Text>
+                  </>
+                )}
               </div>
             </li>
           )
@@ -328,54 +454,120 @@ function ThemeList({
   themes,
   tone,
   max,
-  scale,
+  range,
 }: {
   title: string
   themes: Theme[]
   tone: 'positive' | 'negative'
   max: number
-  scale: number
+  range: DiscoverRange
 }) {
+  const scale = rangeScale(range)
+  const mentions = useMentions()
   return (
     <section aria-label={title} className="flex flex-col gap-3">
       <Heading level={3} size="base" weight="semibold">
         {title}
       </Heading>
       <ul className="flex flex-col gap-3">
-        {themes.map((theme) => (
-          <li key={theme.name} className="flex flex-col gap-1">
-            <span className="flex items-baseline gap-2">
-              <Text render={<span />} truncate className="min-w-0 flex-1">
-                {theme.name}
-              </Text>
-              <Text render={<span />} mono>
-                {formatCount(Math.round(theme.mentions * scale))}
-              </Text>
-            </span>
-            {/* Decorative: the number beside the name says it. */}
-            <span aria-hidden className="h-1 w-full rounded-full bg-surface-border">
-              <span
-                className={`block h-full w-(--share) rounded-full ${tone === 'positive' ? 'bg-data-viz-sentiment-positive' : 'bg-data-viz-sentiment-negative'}`}
-                style={{ '--share': `${(theme.mentions / max) * 100}%` } as CSSProperties}
-              />
-            </span>
-          </li>
-        ))}
+        {themes.map((theme) => {
+          const query = themeQuery(theme, tone, range)
+          const open = mentions.isOpen(query.key)
+          return (
+            <li key={theme.name} className="flex">
+              {/* A row button with the hover and selected fills of a ghost card,
+                but none of its padding: the bar has to reach the column's edge. */}
+              <button
+                type="button"
+                aria-pressed={open}
+                onClick={() => mentions.toggle(query)}
+                className={cn(
+                  '-m-1 flex w-full flex-col gap-1 rounded-sm p-1 text-left',
+                  'hover:bg-surface-background-subtle',
+                  open && 'bg-surface-background-subtle',
+                  focusRing,
+                )}
+              >
+                <span className="flex w-full items-baseline gap-2">
+                  <Text render={<span />} truncate className="min-w-0 flex-1">
+                    {theme.name}
+                  </Text>
+                  <Text render={<span />} mono>
+                    {formatCount(Math.round(theme.mentions * scale))}
+                  </Text>
+                </span>
+                {/* Decorative: the number beside the name says it. */}
+                <span aria-hidden className="h-1 w-full rounded-full bg-surface-border">
+                  <span
+                    className={`block h-full w-(--share) rounded-full ${tone === 'positive' ? 'bg-data-viz-sentiment-positive' : 'bg-data-viz-sentiment-negative'}`}
+                    style={{ '--share': `${(theme.mentions / max) * 100}%` } as CSSProperties}
+                  />
+                </span>
+              </button>
+            </li>
+          )
+        })}
       </ul>
     </section>
   )
 }
 
+const SENTIMENTS: { value: MentionSentiment; label: string; color: string }[] = [
+  { value: 'positive', label: 'Positive', color: 'var(--data-viz-sentiment-positive)' },
+  { value: 'neutral', label: 'Neutral', color: 'var(--data-viz-sentiment-neutral)' },
+  { value: 'negative', label: 'Negative', color: 'var(--data-viz-sentiment-negative)' },
+]
+
+/**
+ * The gauge's legend, as buttons: each opens that sentiment's mentions. The
+ * slices themselves cannot take a click (FINDINGS 76), so the legend is the
+ * way in, and the gauge draws none of its own.
+ */
+function SentimentLegend({ range }: { range: DiscoverRange }) {
+  const mentions = useMentions()
+  return (
+    <ul aria-label="Mentions by sentiment" className="flex flex-wrap justify-center gap-1">
+      {SENTIMENTS.map((s) => {
+        const query = sentimentQuery(s.value, range)
+        const open = mentions.isOpen(query.key)
+        return (
+          <li key={s.value}>
+            <button
+              type="button"
+              aria-pressed={open}
+              aria-label={`${s.label}, ${sentimentSplit[s.value]}%, view mentions`}
+              onClick={() => mentions.toggle(query)}
+              className={cn(
+                'flex h-8 items-center gap-1 rounded-sm pr-2',
+                'hover:bg-surface-background-subtle',
+                open && 'bg-surface-background-subtle',
+                focusRing,
+              )}
+            >
+              <ChartSwatch shape="colorSwatch" color={s.color} aria-hidden />
+              <Text render={<span />}>{s.label}</Text>
+              <Text render={<span />} mono color="subtle">
+                {sentimentSplit[s.value]}%
+              </Text>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
 /** How people feel about the brand, and what for (`40005911:35368`). */
-export function SentimentWidget({ scale }: { scale: number }) {
+export function SentimentWidget({ range }: { range: DiscoverRange }) {
   const max = Math.max(
     ...praisedFor.map((t) => t.mentions),
     ...criticizedFor.map((t) => t.mentions),
   )
   return (
-    <Widget title="Brand sentiment">
+    <Widget title="Brand sentiment" messages={brandSentimentQuery(range)}>
       <div className="flex flex-col gap-6">
-        <div className={SENTIMENT_SCOPE}>
+        <div className={cn(SENTIMENT_SCOPE, 'flex flex-col gap-3')}>
+          <SentimentLegend range={range} />
           <Gauge
             data={[
               { name: 'Positive', value: sentimentSplit.positive },
@@ -385,6 +577,7 @@ export function SentimentWidget({ scale }: { scale: number }) {
             nameKey="name"
             valueKey="value"
             label="Share of mentions by sentiment, last 7 days"
+            legend={false}
             height={170}
             center={
               <span className="flex flex-col items-center gap-1">
@@ -410,14 +603,14 @@ export function SentimentWidget({ scale }: { scale: number }) {
             themes={praisedFor}
             tone="positive"
             max={max}
-            scale={scale}
+            range={range}
           />
           <ThemeList
             title="Criticized for"
             themes={criticizedFor}
             tone="negative"
             max={max}
-            scale={scale}
+            range={range}
           />
         </div>
       </div>

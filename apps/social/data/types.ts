@@ -55,7 +55,8 @@ export interface Customer {
   handle: string
   /** Their real name, when the network gives one. */
   name?: string
-  avatar: string
+  /** Absent for accounts with no photo; Avatar draws their initials. */
+  avatar?: string
   location?: string
   /** Pre-formatted, as the panel's Token prints it: `10.4K`. */
   followers?: string
@@ -128,6 +129,8 @@ export interface Ticket {
   drafts?: string[]
   /** The system line under the message: an assignment, a routing. */
   note?: string
+  /** The Measure mention it was opened from ("Open in Engage"), if it was. */
+  mentionId?: string
 }
 
 /** The team's private note on a customer, in the contact panel. */
@@ -297,4 +300,40 @@ export interface Idea {
 export interface IdeaGroup {
   id: string
   name: string
+}
+
+// Measure — the mentions behind a number
+
+export type MentionSentiment = 'positive' | 'neutral' | 'negative'
+
+/** A reply under a mention, from someone else on the network. */
+export interface MentionReply {
+  id: string
+  /** A customer id, or a profile id when the brand replied. */
+  authorId: string
+  body: string
+  /** Hours since it was posted. */
+  hoursAgo: number
+}
+
+/**
+ * One public post that counts toward a number on Measure: a mention of the
+ * brand or a rival, or a post in a trend. Authors are inbox `customers`, so
+ * one can be opened in Engage as a ticket.
+ */
+export interface Mention {
+  id: string
+  authorId: string
+  network: Network
+  /** Hours since it was posted. */
+  hoursAgo: number
+  body: string
+  photo?: string
+  sentiment: MentionSentiment
+  /** The brand or topic it counts toward, as a report's series names it. */
+  topic: string
+  likes: number
+  shares: number
+  /** The replies under it, oldest first. Its comment count is their length. */
+  thread: MentionReply[]
 }

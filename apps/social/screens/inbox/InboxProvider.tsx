@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 
 import { tickets as fixtures } from '../../data/inbox'
-import type { TicketEdit } from '../../data/types'
+import type { Ticket, TicketEdit } from '../../data/types'
 import { InboxContext, type InboxState } from './inboxState'
 import type { SentItem } from './model'
 
@@ -9,6 +9,8 @@ import type { SentItem } from './model'
 export function InboxProvider({ children }: { children: ReactNode }) {
   const [edits, setEdits] = useState<Record<string, TicketEdit>>({})
   const [sent, setSent] = useState<Record<string, SentItem[]>>({})
+  // Newest first, above the fixtures: the list's order is the array's.
+  const [created, setCreated] = useState<Ticket[]>([])
 
   const editTicket = useCallback(
     (number: string, edit: TicketEdit) =>
@@ -21,14 +23,27 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const addTicket = useCallback(
+    (ticket: Omit<Ticket, 'number'>) => {
+      const last = Math.max(...[...fixtures, ...created].map((t) => Number(t.number)))
+      const number = String(last + 1)
+      setCreated((all) => [{ ...ticket, number }, ...all])
+      return number
+    },
+    [created],
+  )
+
   const value = useMemo<InboxState>(
     () => ({
-      tickets: fixtures.map((t) => (edits[t.number] ? { ...t, ...edits[t.number] } : t)),
+      tickets: [...created, ...fixtures].map((t) =>
+        edits[t.number] ? { ...t, ...edits[t.number] } : t,
+      ),
       editTicket,
       sent,
       addSent,
+      addTicket,
     }),
-    [edits, sent, editTicket, addSent],
+    [created, edits, sent, editTicket, addSent, addTicket],
   )
 
   return <InboxContext.Provider value={value}>{children}</InboxContext.Provider>
