@@ -406,13 +406,15 @@ function ModelPicker() {
     <Menu>
       <Menu.Trigger render={<Button appearance="ghost" endIcon={ChevronDown}>Opus 5</Button>} />
       <Menu.Popup align="end">
-        <Menu.RadioGroup defaultValue="opus">
-          {models.map((model) => (
-            <Menu.RadioItem key={model.value} value={model.value}>
-              {model.label}
-            </Menu.RadioItem>
-          ))}
-        </Menu.RadioGroup>
+        <Menu.Group>
+          <Menu.RadioGroup defaultValue="opus">
+            {models.map((model) => (
+              <Menu.RadioItem key={model.value} value={model.value}>
+                {model.label}
+              </Menu.RadioItem>
+            ))}
+          </Menu.RadioGroup>
+        </Menu.Group>
       </Menu.Popup>
     </Menu>
   )

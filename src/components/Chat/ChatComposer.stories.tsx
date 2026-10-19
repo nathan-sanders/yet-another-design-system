@@ -38,13 +38,15 @@ function ModelPicker({ size = 'default' }: { size?: 'default' | 'small' }) {
         }
       />
       <Menu.Popup align="end">
-        <Menu.RadioGroup value={model} onValueChange={setModel}>
-          {models.map((m) => (
-            <Menu.RadioItem key={m.value} value={m.value}>
-              {m.label}
-            </Menu.RadioItem>
-          ))}
-        </Menu.RadioGroup>
+        <Menu.Group>
+          <Menu.RadioGroup value={model} onValueChange={setModel}>
+            {models.map((m) => (
+              <Menu.RadioItem key={m.value} value={m.value}>
+                {m.label}
+              </Menu.RadioItem>
+            ))}
+          </Menu.RadioGroup>
+        </Menu.Group>
       </Menu.Popup>
     </Menu>
   )

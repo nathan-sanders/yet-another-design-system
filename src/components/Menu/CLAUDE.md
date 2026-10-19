@@ -91,6 +91,12 @@ look broken. Four `InContext` stories had it (Popover's, Dialog's, then Panel's 
 copied from Dialog's) until Nathan saw it on 2026-09-19. Always one `Menu.Group`, even for a
 two-row menu.
 
+It kept happening after that — two Chat stories put a `Menu.RadioGroup` straight in the popup
+(Base UI's raw part, no padding), and Yet Social's calendar + menu put two items there — because
+this record only loads for someone working in this folder. So since 2026-10-19 it is a test,
+`groups.test.ts`, which reads every `.tsx` in `src` and `apps` and fails on a popup whose first
+element is not a `Menu.Group`, and the rule is in the root `CLAUDE.md` and `apps/CLAUDE.md`.
+
 ## Best practices
 
 Mirrored from the **Best practices** block on `↪ Menu` (`40004242:15006`) in Figma.
