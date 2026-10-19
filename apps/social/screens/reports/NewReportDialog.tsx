@@ -2,11 +2,11 @@ import { useId, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft, Plus } from 'lucide-react'
 
+import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { ClickableCard } from '../../../../src/components/Card'
 import { Dialog } from '../../../../src/components/Dialog'
 import { Field } from '../../../../src/components/Field'
-import { Icon } from '../../../../src/components/Icon'
 import { Input } from '../../../../src/components/Input'
 import { Radio } from '../../../../src/components/Radio'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
@@ -295,8 +295,8 @@ function NewReportForm({ startType, onClose }: { startType: ReportType; onClose:
 }
 
 /**
- * One report type: its glyph, its name, the sentence saying what it answers,
- * and the widgets it opens with. The radio primitive is rendered onto the
+ * One report type: its badge (the one its reports wear in the table), its
+ * name, the sentence saying what it answers, and the widgets it opens with. The radio primitive is rendered onto the
  * card, so the eight are one radio group — one tab stop, arrows move — the
  * Edit panel's Visualization tiles' arrangement, because the library has no
  * selectable card yet (FINDINGS 40).
@@ -308,7 +308,7 @@ function TypeCard({ option, selected }: { option: ReportTypeOption; selected: bo
       nativeButton
       render={
         <ClickableCard selected={selected} className="flex flex-col items-start gap-2 text-left">
-          <Icon icon={option.icon} aria-hidden />
+          <Badge color={option.color} startIcon={option.icon} aria-hidden />
           <span className="flex min-w-0 flex-col gap-1">
             <Text render={<span />} weight="semibold">
               {option.label}

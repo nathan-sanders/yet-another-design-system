@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import type { BadgeProps } from '../../../../src/components/Badge'
 import type { ReportKind, ReportType, WidgetSources } from '../../data/types'
 
 /** One option on New report's first step. */
@@ -17,6 +18,12 @@ export interface ReportTypeOption {
   value: ReportType
   label: string
   icon: LucideIcon
+  /**
+   * The badge it wears in the picker and the Reports table, one hue per type.
+   * Pink, blue and green are left to the reports that have no type (topic,
+   * custom and built-in), so a typed report never reads as one of those.
+   */
+  color: NonNullable<BadgeProps['color']>
   /** One sentence: what the report answers. */
   description: string
   /** The widgets it opens with, by title, for the card's "Includes" line. */
@@ -42,6 +49,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'media',
     label: 'Media monitoring',
     icon: Newspaper,
+    color: 'sky',
     description: 'New articles and posts as they are found, and which ones are about to matter.',
     includes: ['Live feed', 'Media vs public interest', 'Spike alerts', 'Top outlets'],
     name: 'Veggie Vault in the news',
@@ -54,6 +62,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'listening',
     label: 'Topic / social listening',
     icon: Radar,
+    color: 'purple',
     description: 'What people are saying about a theme, how they feel, and who is saying it.',
     includes: ['Mentions over time', 'Sentiment', 'Top voices', 'Top stories'],
     name: 'Plant-based conversation',
@@ -66,6 +75,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'competitive',
     label: 'Competitive / share of voice',
     icon: BarChart3,
+    color: 'orange',
     description:
       'How much of the conversation you own against your rivals, and where they are winning.',
     includes: ['Share of voice', 'Engagement by brand', 'Mentions by brand', 'Top stories'],
@@ -79,6 +89,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'crisis',
     label: 'Crisis / issue tracker',
     icon: Siren,
+    color: 'red',
     description:
       'One story or issue: how fast it is spreading, who is amplifying it, and how it is landing.',
     includes: ['How the story is spreading', 'Spike alerts', 'Sentiment', 'Latest coverage'],
@@ -92,6 +103,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'campaign',
     label: 'Campaign / event',
     icon: CalendarRange,
+    color: 'amber',
     description:
       'The coverage and conversation a launch or event earned, against the weeks before it.',
     includes: ['Mentions over time', 'Reach by topic', 'Top voices', 'Earned coverage'],
@@ -105,6 +117,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'trend',
     label: 'Trend',
     icon: TrendingUp,
+    color: 'lime',
     description: 'Topics climbing near your brand, and the stories pushing them up.',
     includes: [
       'Trending near your brand',
@@ -122,6 +135,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'performance',
     label: 'Social performance',
     icon: Activity,
+    color: 'indigo',
     description: 'How your own profiles and posts are doing, network by network.',
     includes: ['Overview', 'Engagement by network', 'Network breakdown', 'Your top posts'],
     name: 'Veggie Vault social performance',
@@ -134,6 +148,7 @@ export const REPORT_TYPES: ReportTypeOption[] = [
     value: 'blank',
     label: 'Blank',
     icon: LayoutDashboard,
+    color: 'neutral',
     description: 'Start from an empty board and add the widgets you want.',
     includes: [],
     name: 'Untitled report',
