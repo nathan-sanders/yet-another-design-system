@@ -748,8 +748,9 @@ Discover at 30 days. A list generates the latest 120 at most and says so: "Showi
     legend buttons above it, which open Positive, Neutral or Negative. Reports opens the whole
     widget from its header button. An `onPointClick` / `onSliceClick` across the chart family
     would let a click on one day of the trend open that day's mentions.
-77. **`Table` has no row click.** The Creators table's Author cell is a `<button>` instead, so
-    the name is the target and the rest of the row is not.
+77. **`Table` has no row click.** The Creators table's Author cell is a `<button>`, which is
+    the keyboard path, and a click anywhere else on the row forwards to it. This is the
+    Reports list's pattern (entry 48) with `hasHover`, so the row shows the same hover.
 78. **`Card` has no `selected` state; only `ClickableCard` does.** A mention card can't be a
     `ClickableCard` (it's one `<button>`, and the card holds Like, Reply and a menu). So the
     card marks its open detail with `ClickableCard`'s selected tokens written by hand.

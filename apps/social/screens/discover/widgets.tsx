@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode } from 'react'
+import { type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import {
   Ellipsis,
   Flame,
@@ -212,8 +212,9 @@ export function TrendingWidget({ range }: { range: DiscoverRange }) {
 // ---------------------------------------------------------------------------
 
 /**
- * The columns, given what a name does when pressed. `Table` has no row click,
- * so the Author cell is the button: it opens the creator's mentions.
+ * The columns, given what a name does when pressed. The Author cell is the
+ * button that opens the creator's mentions: the keyboard and screen-reader
+ * path. A pointer can press anywhere on the row (see `CreatorsWidget`).
  */
 const creatorColumns = (
   open: (creator: Creator) => void,
@@ -227,11 +228,9 @@ const creatorColumns = (
         type="button"
         aria-pressed={isOpen(c)}
         aria-label={`${c.name}, view mentions`}
+        data-creator={c.id}
         onClick={() => open(c)}
-        className={cn(
-          'flex w-full min-w-0 items-center gap-3 rounded-xs text-left hover:underline',
-          focusRing,
-        )}
+        className={cn('flex w-full min-w-0 items-center gap-3 rounded-xs text-left', focusRing)}
       >
         <Avatar name={c.name} src={c.avatar} alt="" />
         <TwoLineCell title={c.name} source={c.network} meta={c.handle} />
@@ -258,23 +257,44 @@ const creatorColumns = (
   },
 ]
 
-/** Creators the brand's followers also follow, by overlap (`40005911:35324`). */
+/**
+ * Creators the brand's followers also follow, by overlap (`40005911:35324`).
+ * The whole row opens the creator's mentions, as a row on Measure › Reports
+ * opens its report.
+ */
 export function CreatorsWidget({ range }: { range: DiscoverRange }) {
   const mentions = useMentions()
   const query = (c: Creator) => creatorQuery(c, range, 'Creators your audience follows')
+
+  // Table has no `onRowClick` on purpose (a <tr> has no keyboard equivalent),
+  // so a click on the row forwards to its name button, which stays the
+  // keyboard path — the Reports table's pattern (FINDINGS 48). A press on a
+  // header's sort button is its own.
+  const openRow = (event: MouseEvent) => {
+    const target = event.target as HTMLElement
+    const button = target.closest('tbody tr')?.querySelector<HTMLElement>('[data-creator]')
+    if (!button || target.closest('button') === button) return
+    if (target.closest('a, button')) return
+    button.click()
+  }
+
   return (
     <Widget title="Creators your audience follows" messages={creatorsQuery(range)}>
-      <Table
-        label="Creators your audience follows"
-        columns={creatorColumns(
-          (c) => mentions.toggle(query(c)),
-          (c) => mentions.isOpen(query(c).key),
-        )}
-        data={creators}
-        idKey="id"
-        sortable
-        textOverflow="truncate"
-      />
+      {/* A pointer convenience over the rows' own buttons; see `openRow`. */}
+      <div onClick={openRow} className="[&_tbody_tr]:cursor-pointer">
+        <Table
+          label="Creators your audience follows"
+          columns={creatorColumns(
+            (c) => mentions.toggle(query(c)),
+            (c) => mentions.isOpen(query(c).key),
+          )}
+          data={creators}
+          idKey="id"
+          sortable
+          textOverflow="truncate"
+          hasHover
+        />
+      </div>
     </Widget>
   )
 }
