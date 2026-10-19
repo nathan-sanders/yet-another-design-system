@@ -26,8 +26,13 @@ export interface MentionQuery {
   total: number
   /** What a row counts as. Trends count posts; everything else counts mentions. */
   noun: 'mentions' | 'posts'
-  /** How far back they go. */
+  /** How far back they go, from the window's end. */
   withinHours: number
+  /**
+   * How long ago the window ends, in hours; now when absent. A point on a
+   * trend is a window in the past: one day's mentions end where that day does.
+   */
+  endsHoursAgo?: number
   /** The brands or topics they are about, weighted. One topic when absent: Veggie Vault. */
   topics?: { name: string; weight: number }[]
   /** Fixed when the thing clicked was a sentiment. */
@@ -514,7 +519,8 @@ export function mentionsFor(query: MentionQuery): Mention[] {
     const { topic, sentiment, authorId, body, photo } = compose(query, random)
     const id = `${query.key}#${i}`
     // Newest first, spread over the window, a little bunched toward now.
-    const hoursAgo = Math.round(query.withinHours * random() ** 1.6 * 10) / 10
+    const hoursAgo =
+      Math.round(((query.endsHoursAgo ?? 0) + query.withinHours * random() ** 1.6) * 10) / 10
     const viral = random() ** 3
     list.push({
       id,

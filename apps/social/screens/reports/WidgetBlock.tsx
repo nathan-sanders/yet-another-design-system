@@ -90,7 +90,8 @@ export function WidgetBlock({
 
   const open = (event: MouseEvent) => {
     const target = event.target as HTMLElement
-    if (target.closest('a, button, input, [role="separator"], [role="menu"]')) return
+    // A chart's point opens its own mentions (ChartWidget), not the detail page.
+    if (target.closest('a, button, input, [role="separator"], [role="menu"], [data-opens-mentions]')) return
     navigate(href)
   }
 

@@ -553,9 +553,10 @@ const SENTIMENTS: { value: MentionSentiment; label: string; color: string }[] = 
 ]
 
 /**
- * The gauge's legend, as buttons: each opens that sentiment's mentions. The
- * slices themselves cannot take a click (FINDINGS 76), so the legend is the
- * way in, and the gauge draws none of its own.
+ * The gauge's legend, as buttons: each opens that sentiment's mentions, as a
+ * click on its slice does. The legend stays because it is the only place the
+ * open sentiment can show as pressed — a slice has no selected state
+ * (FINDINGS 87) — and the gauge draws none of its own.
  */
 function SentimentLegend({ range }: { range: DiscoverRange }) {
   const mentions = useMentions()
@@ -593,6 +594,7 @@ function SentimentLegend({ range }: { range: DiscoverRange }) {
 
 /** How people feel about the brand, and what for (`40005911:35368`). */
 export function SentimentWidget({ range }: { range: DiscoverRange }) {
+  const mentions = useMentions()
   const max = Math.max(
     ...praisedFor.map((t) => t.mentions),
     ...criticizedFor.map((t) => t.mentions),
@@ -603,16 +605,14 @@ export function SentimentWidget({ range }: { range: DiscoverRange }) {
         <div className={cn(SENTIMENT_SCOPE, 'flex flex-col gap-3')}>
           <SentimentLegend range={range} />
           <Gauge
-            data={[
-              { name: 'Positive', value: sentimentSplit.positive },
-              { name: 'Neutral', value: sentimentSplit.neutral },
-              { name: 'Negative', value: sentimentSplit.negative },
-            ]}
+            // In SENTIMENTS' order, so a slice's index is its sentiment.
+            data={SENTIMENTS.map((s) => ({ name: s.label, value: sentimentSplit[s.value] }))}
             nameKey="name"
             valueKey="value"
             label="Share of mentions by sentiment, last 7 days"
             legend={false}
             height={170}
+            onSliceClick={({ index }) => mentions.toggle(sentimentQuery(SENTIMENTS[index]!.value, range))}
             center={
               <span className="flex flex-col items-center gap-1">
                 <Text render={<span />} color="subtle">

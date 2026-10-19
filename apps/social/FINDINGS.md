@@ -742,7 +742,7 @@ Discover at 30 days. A list generates the latest 120 at most and says so: "Showi
 
 ### Open: library changes worth making
 
-76. **No chart takes a click on a data point.** `Gauge`, `Donut`, `LineSeries`, `AreaSeries` and
+76. **Closed by #279; wired in below.** **No chart takes a click on a data point.** `Gauge`, `Donut`, `LineSeries`, `AreaSeries` and
     `HorizontalBar` have no point, slice or bar handler, and none passes extra props through
     to Recharts. Discover works around it for the gauge: `legend={false}` and a row of three
     legend buttons above it, which open Positive, Neutral or Negative. Reports opens the whole
@@ -810,3 +810,42 @@ translucent `surface-overlay-subtle`. Nathan asked for one color everywhere, Rep
   Subtle, on a Reports row, a Discover Creators row, a trend row and an opportunity row, after
   finishing the 0.1s color transition.
 - An opportunity row's fill has 8px corners and sits 4px inside the dividers, like a trend row.
+
+## Measure › Click a point (2026-10-19)
+
+The charts take a click on one mark now (#279), so the number under the pointer opens its own
+messages. On a report board or a widget's detail page, a day of a line or area trend opens that
+day's mentions — Brand Pulse's Mentions over time at 7D, Oct 17, opens "Oct 17 · 2.9K mentions",
+which is 1,077 + 1,030 + 796, the three numbers in that day's tooltip. A Share of voice slice opens
+that brand over the range (GreenCrate at 7D: 8.7K, the same figure as above), and so does a bar.
+On Discover, a slice of the Brand sentiment gauge opens that sentiment, as its legend button does.
+
+### Kept in the app, worth knowing
+
+84. **A point is a window in the past.** `MentionQuery` has `endsHoursAgo`, so a day's mentions
+    are generated inside that day: `widgetPointMentionQuery` (beside `widgetMentionQuery` in
+    `screens/reports/mentions.ts`) takes the bucket the chart is grouped by — hour, day or week
+    — from its start to the next point's, and stops at now. Its count is the point's own, every
+    series added up, or the one series when the click landed on a dot or inside an area.
+    `widgetSeriesMentionQuery` is the slice and the bar: one series over the range.
+85. **"Other" opens nothing.** It is everyone else, and there is nobody to write its posts as
+    (the rule `widgetMentionQuery` already had). Its slice shows the halo and stays shut.
+86. **A chart on a board block opens mentions, not the widget.** The block's click-anywhere
+    goes to the detail page; it skips anything inside `[data-opens-mentions]`, which
+    `ChartWidget` wraps round every clickable chart.
+
+### Open: library changes worth making
+
+87. **A mark has no selected state.** The thing that opened the panel shows as pressed (entry
+    79), and a slice or a day can't: the halo is hover, and the library has no way to hold one.
+    The gauge keeps its row of legend buttons for that reason, so the open sentiment still reads
+    as pressed. A day on the trend and a Share of voice slice show nothing while open.
+
+### Measured, and fine
+
+- With a real pointer — hover, then click — every slice opened. A click that moves and presses
+  in the same instant (the Browser pane's `left_click`) can be lost on a slice; see the Chart
+  record. A person's pointer always arrives first.
+- Clicking a chart on the Brand Pulse board left the URL on the board.
+- A second click on the same day or slice closes the panel (entry 79's `toggle`).
+

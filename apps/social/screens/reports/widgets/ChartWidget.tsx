@@ -1,6 +1,11 @@
 import { AreaSeries } from '../../../../../src/components/AreaSeries'
 import { Badge } from '../../../../../src/components/Badge'
-import { ChartSwatch, categorical, markerForIndex } from '../../../../../src/components/Chart'
+import {
+  ChartSwatch,
+  categorical,
+  markerForIndex,
+  type ChartPointClick,
+} from '../../../../../src/components/Chart'
 import { Donut } from '../../../../../src/components/Donut'
 import { HorizontalBar } from '../../../../../src/components/HorizontalBar'
 import { LineSeries } from '../../../../../src/components/LineSeries'
@@ -15,7 +20,9 @@ import {
   type ReportRange,
   type SeriesSummary,
 } from '../../../data/reports'
-import type { GroupBy, Widget } from '../../../data/types'
+import type { GroupBy, Report, Widget } from '../../../data/types'
+import { useMentions } from '../../mentions/useMentions'
+import { widgetPointMentionQuery, widgetSeriesMentionQuery } from '../mentions'
 import { formatChange, formatCount, localZone } from '../model'
 
 /** Past this many points a marker per point merges into a band (LineSeries' `showPoints`). */
@@ -29,12 +36,14 @@ const MAX_POINTS_WITH_MARKERS = 40
  * changes, which is what the panel promises.
  */
 export function ChartWidget({
+  report,
   widget,
   range,
   groupBy,
   height,
   columns,
 }: {
+  report: Report
   widget: Widget
   range: ReportRange
   groupBy: GroupBy
@@ -47,6 +56,20 @@ export function ChartWidget({
   const series = widget.series.map((key) => ({ key, label: key }))
   const legend: 'horizontal' | false = widget.legend ? 'horizontal' : false
   const over = rangeLabel(range)
+  const mentions = useMentions()
+
+  // A point opens the mentions behind it: a day of the trend (one series when
+  // the click was on its dot or area), or one series' slice or bar over the
+  // range. `data-opens-mentions` tells the board block not to open the widget
+  // detail as well (WidgetBlock).
+  const openPoint = (index: number, series?: string) => {
+    const query = widgetPointMentionQuery(report, widget, range, groupBy, index, series)
+    if (query) mentions.toggle(query)
+  }
+  const openSeries = (series: string) => {
+    const query = widgetSeriesMentionQuery(report, widget, range, series)
+    if (query) mentions.toggle(query)
+  }
 
   if (widget.viz === 'line' || widget.viz === 'area') {
     const by = effectiveGroupBy(range, groupBy)
@@ -61,10 +84,19 @@ export function ChartWidget({
       xPreset: by === 'hour' ? ('hours' as const) : ('days' as const),
       timeZone: localZone,
     }
-    return widget.viz === 'line' ? (
-      <LineSeries {...shared} showPoints={data.length <= MAX_POINTS_WITH_MARKERS} />
-    ) : (
-      <AreaSeries {...shared} />
+    const onPointClick = ({ index, series }: ChartPointClick) => openPoint(index, series?.key)
+    return (
+      <div data-opens-mentions className="contents">
+        {widget.viz === 'line' ? (
+          <LineSeries
+            {...shared}
+            showPoints={data.length <= MAX_POINTS_WITH_MARKERS}
+            onPointClick={onPointClick}
+          />
+        ) : (
+          <AreaSeries {...shared} onPointClick={onPointClick} />
+        )}
+      </div>
     )
   }
 
@@ -74,24 +106,30 @@ export function ChartWidget({
   switch (widget.viz) {
     case 'bar':
       return (
-        <HorizontalBar
-          data={totals}
-          yKey="name"
-          series={[{ key: 'value', label: measure }]}
-          label={`${measure} by topic over ${over}`}
-          legend={legend}
-        />
+        <div data-opens-mentions className="contents">
+          <HorizontalBar
+            data={totals}
+            yKey="name"
+            series={[{ key: 'value', label: measure }]}
+            label={`${measure} by topic over ${over}`}
+            legend={legend}
+            onBarClick={({ row }) => openSeries(String(row.name))}
+          />
+        </div>
       )
     case 'donut':
       return (
-        <Donut
-          data={totals}
-          nameKey="name"
-          valueKey="value"
-          label={`${measure} share over ${over}`}
-          height={height}
-          legend={legend}
-        />
+        <div data-opens-mentions className="contents">
+          <Donut
+            data={totals}
+            nameKey="name"
+            valueKey="value"
+            label={`${measure} share over ${over}`}
+            height={height}
+            legend={legend}
+            onSliceClick={({ name }) => openSeries(name)}
+          />
+        </div>
       )
     case 'metric':
       return (
