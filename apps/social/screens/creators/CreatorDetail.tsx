@@ -171,7 +171,7 @@ function OverviewTab({ creator }: { creator: Creator }) {
           {creator.channels.map((channel) => (
             <li key={channel.network} className="flex items-center gap-2">
               <NetworkIcon network={channel.network} />
-              <Text render={<span />} size="lg" truncate className="min-w-0 flex-1">
+              <Text render={<span />} truncate className="min-w-0 flex-1">
                 {channel.handle}
               </Text>
               <Text render={<span />} mono>
