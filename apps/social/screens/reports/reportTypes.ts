@@ -20,8 +20,9 @@ export interface ReportTypeOption {
   icon: LucideIcon
   /**
    * The badge it wears in the picker and the Reports table, one hue per type.
-   * Pink, blue and green are left to the reports that have no type (topic,
-   * custom and built-in), so a typed report never reads as one of those.
+   * Pink and green are left to the topic monitors and built-in reports that
+   * have no type. A custom report with no type was built by hand, so it wears
+   * Blank's neutral (`ReportCell`).
    */
   color: NonNullable<BadgeProps['color']>
   /** One sentence: what the report answers. */

@@ -8,7 +8,9 @@ import { reportTypeFor } from '../screens/reports/reportTypes'
 
 const KIND: Record<ReportKind, { icon: LucideIcon; color: BadgeProps['color']; label: string }> = {
   topic: { icon: Radar, color: 'pink', label: 'Topic monitor' },
-  custom: { icon: LayoutDashboard, color: 'blue', label: 'Custom report' },
+  // A custom report with no type was built by hand, widget by widget, which is
+  // what Blank makes, so it wears Blank's glyph and neutral color.
+  custom: { icon: LayoutDashboard, color: 'neutral', label: 'Custom report' },
   builtin: { icon: ChartNoAxesColumnIncreasing, color: 'green', label: 'Built-in report' },
 }
 
