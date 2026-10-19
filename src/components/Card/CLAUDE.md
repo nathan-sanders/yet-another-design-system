@@ -45,7 +45,8 @@ per variant:
 | Card accent | Surface/Background Emphasized | **Surface/Border Emphasized** |
 | Clickable default rest | Surface/Background Primary | **Surface/Border** |
 | Clickable ghost rest | Surface/Background Primary | *Surface/Background Primary* |
-| Either, hover | Surface/Background Subtle | *Surface/Background Subtle* |
+| Clickable default hover | Surface/Background Subtle | **Surface/Border** |
+| Clickable ghost hover | Surface/Background Subtle | *Surface/Background Subtle* |
 
 So a subtle card is a **fill**, not an outline — where `ContentBlock`'s `subtle` keeps
 `border-surface-border` and *is* an outline. Same word, two components, drawn differently on

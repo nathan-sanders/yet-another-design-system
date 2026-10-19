@@ -151,7 +151,7 @@ export const clickableCard = tv({
     */
     ...focusRing,
     // Link's motion, not Button's bare `transition-colors`, which predates the
-    // tier. The hover moves both fill and border, so both animate together.
+    // tier. The hover moves the fill (and ghost's border with it), so both animate together.
     'transition-colors duration-fast-min ease-standard',
   ],
 
@@ -161,15 +161,18 @@ export const clickableCard = tv({
      * nor `floating` appears here, which is why this is a second component
      * rather than a flag on the first.
      *
-     * Both hover to Surface/Background Subtle, **fill and border together** — read
-     * back from the hover variants, where the stroke is bound to the same
-     * `Surface/Background Subtle` as the fill.
+     * Both hover their fill to Surface/Background Subtle. The border is where
+     * they differ, read back from the hover variants: **default keeps
+     * `Surface/Border`**, so the card's edge stays put under the pointer, while
+     * ghost's stroke follows its fill to `Surface/Background Subtle`. Default
+     * used to follow the fill too, and the edge vanished on hover; Figma moved
+     * first and the code followed.
      */
     emphasis: {
       /** A card that happens to be clickable. Surface/Background Primary on Surface/Border. */
       default: [
         'bg-surface-background-primary border-surface-border',
-        'hover:bg-surface-background-subtle hover:border-surface-background-subtle',
+        'hover:bg-surface-background-subtle',
       ],
       /**
        * The list row. Figma binds the stroke to `Surface/Background Primary` — the

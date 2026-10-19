@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 import {
   Archive,
   ArchiveX,
@@ -97,9 +98,46 @@ export const Playground: Story = {
  * rather than removing the border — so a ghost row and a bordered card line up
  * in a mixed list, and the hover is one color move rather than a border
  * appearing from nowhere. Hover both to see it.
+ *
+ * **`default` keeps `Surface/Border` under the pointer.** Only its fill moves,
+ * so the card's edge never disappears into the hover fill; ghost's border
+ * moves with its fill. The play function hovers each and compares the border
+ * against a probe painted with the token, so both strings come out of the same
+ * serializer.
  */
 export const Emphasis: Story = {
   parameters: { controls: { disable: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const probe = (token: string) => {
+      const el = document.createElement('span')
+      el.style.color = `var(${token})`
+      canvasElement.append(el)
+      const color = getComputedStyle(el).color
+      el.remove()
+      return color
+    }
+    const hover = async (name: RegExp) => {
+      const card = canvas.getByRole('button', { name })
+      await userEvent.hover(card)
+      card.getAnimations().forEach((animation) => animation.finish())
+      return card
+    }
+
+    const card = await hover(/emphasis="default"/)
+    await waitFor(() =>
+      expect(getComputedStyle(card).borderTopColor).toBe(probe('--surface-border')),
+    )
+    await waitFor(() =>
+      expect(getComputedStyle(card).backgroundColor).toBe(probe('--surface-background-subtle')),
+    )
+
+    const ghost = await hover(/emphasis="ghost"/)
+    await waitFor(() =>
+      expect(getComputedStyle(ghost).borderTopColor).toBe(probe('--surface-background-subtle')),
+    )
+    await userEvent.unhover(ghost)
+  },
   render: () => (
     <div className="bg-surface-background-primary border-surface-border flex max-w-100 flex-col gap-2 rounded-lg border p-4">
       {emphases.map((emphasis) => (
