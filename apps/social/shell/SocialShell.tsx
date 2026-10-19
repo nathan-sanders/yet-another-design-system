@@ -19,6 +19,7 @@ import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { MentionsPanel } from '../screens/mentions/MentionsPanel'
 import { useInbox } from '../screens/inbox/inboxState'
+import { NewReportDialog } from '../screens/reports/NewReportDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { YakChatContext, useYakChatState } from '../yak/chat'
 import { floatingYakFor } from '../yak/floating'
@@ -316,6 +317,7 @@ export function SocialShell() {
             query={lastMentions}
             onClose={() => setPanel(null)}
           />
+          <NewReportDialog />
 
           <MobileNav
             aria-label="Main"

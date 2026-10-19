@@ -2,6 +2,7 @@ import { VOICE_AUTHORS, SPIKE_MENTIONS, type MentionQuery } from '../../data/men
 import {
   RANGES,
   effectiveGroupBy,
+  feed,
   overviewFor,
   seriesPoints,
   seriesSummaries,
@@ -86,6 +87,20 @@ export function widgetMentionQuery(
       }
     case 'spikes':
       return { ...base, total: SPIKE_MENTIONS, angle: { kind: 'spikes' } }
+    case 'feed':
+      return {
+        ...base,
+        total: Math.round(feed.reduce((sum, s) => sum + s.engagements, 0) / ENGAGEMENTS_PER_SHARE),
+        angle: { kind: 'stories' },
+      }
+    case 'timeline': {
+      const subject = widget.series[0] ?? report.name
+      const [summary] = seriesSummaries(
+        { series: [subject], measure: 'mentions', sources: 'news' },
+        range,
+      )
+      return { ...base, total: summary?.total ?? 0, topics: [{ name: subject, weight: 1 }] }
+    }
     default:
       return undefined
   }
@@ -94,7 +109,11 @@ export function widgetMentionQuery(
 const HOUR = 60 * 60 * 1000
 const BUCKET_HOURS = { hour: 1, day: 24, week: 24 * 7 } as const
 
-const DAY_FORMAT = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: localZone })
+const DAY_FORMAT = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  timeZone: localZone,
+})
 const HOUR_FORMAT = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
@@ -123,13 +142,20 @@ export function widgetPointMentionQuery(
   if (!base || widget.kind !== 'chart') return undefined
   const by = effectiveGroupBy(range, groupBy)
   const keys = series ? [series] : widget.series
-  const points = seriesPoints({ series: keys, measure: 'mentions', sources: widget.sources }, range, by)
+  const points = seriesPoints(
+    { series: keys, measure: 'mentions', sources: widget.sources },
+    range,
+    by,
+  )
   const point = points[index]
   if (!point) return undefined
 
   const start = new Date(point.date).getTime()
   const next = points[index + 1]
-  const end = Math.min(next ? new Date(next.date).getTime() : start + BUCKET_HOURS[by] * HOUR, Date.now())
+  const end = Math.min(
+    next ? new Date(next.date).getTime() : start + BUCKET_HOURS[by] * HOUR,
+    Date.now(),
+  )
   const when =
     by === 'hour'
       ? HOUR_FORMAT.format(start)
@@ -164,7 +190,10 @@ export function widgetSeriesMentionQuery(
 ): MentionQuery | undefined {
   const base = widgetMentionQuery(report, widget, range)
   if (!base || widget.kind !== 'chart' || series === 'Other') return undefined
-  const [summary] = seriesSummaries({ series: [series], measure: 'mentions', sources: widget.sources }, range)
+  const [summary] = seriesSummaries(
+    { series: [series], measure: 'mentions', sources: widget.sources },
+    range,
+  )
   return {
     ...base,
     key: `${base.key}|series|${series}`,

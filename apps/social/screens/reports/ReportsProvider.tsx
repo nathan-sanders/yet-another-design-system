@@ -9,18 +9,23 @@ import {
   withSpareRow,
   type Board,
 } from '../../../../src/components/DragAndDrop'
-import { boardFixture, reportFor } from '../../data/reports'
-import type { Widget } from '../../data/types'
+import { boardFixture, reportFor as fixtureFor, reports as fixtures } from '../../data/reports'
+import type { Report, Widget } from '../../data/types'
 import { ReportsContext, type ReportBoard, type ReportsState } from './reportsState'
 
 // One per report and kept, so an untouched board is the same object on every
 // render — `dragOver` answers "nothing changed" by returning its input.
 const initialBoards = new Map<string, ReportBoard | undefined>()
 
+// Reports made with New report this session. Kept beside the boards' cache,
+// outside React, so `initial` can find one; `created` state below is what
+// makes the screens redraw when one is added.
+const madeReports = new Map<string, Report>()
+
 /** A report's board as the fixtures draw it, before anybody touches it. */
 function initial(reportId: string): ReportBoard | undefined {
   if (!initialBoards.has(reportId)) {
-    const report = reportFor(reportId)
+    const report = madeReports.get(reportId) ?? fixtureFor(reportId)
     const fixture = report && boardFixture(report)
     initialBoards.set(
       reportId,
@@ -35,6 +40,17 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   // Only boards somebody changed are stored; the rest are their fixtures.
   const [boards, setBoards] = useState<Record<string, ReportBoard>>({})
   const [draft, setDraft] = useState<ReportsState['draft']>(null)
+  const [created, setCreated] = useState<Report[]>([])
+
+  const reports = useMemo(() => [...created, ...fixtures], [created])
+  const reportFor = useCallback(
+    (reportId: string | undefined) => reports.find((r) => r.id === reportId),
+    [reports],
+  )
+  const createReport = useCallback((report: Report) => {
+    madeReports.set(report.id, report)
+    setCreated((all) => [report, ...all])
+  }, [])
 
   const boardFor = useCallback(
     (reportId: string) => boards[reportId] ?? initial(reportId),
@@ -87,19 +103,37 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
         let board: Board
         if (items.length < MAX_BLOCKS_PER_ROW) {
           const at = items.indexOf(widgetId) + 1
-          board = settle(current.board, { ...containers, [row]: [...items.slice(0, at), id, ...items.slice(at)] })
+          board = settle(current.board, {
+            ...containers,
+            [row]: [...items.slice(0, at), id, ...items.slice(at)],
+          })
         } else {
           const newRow = `row-${id}`
           const at = order.indexOf(row) + 1
-          board = settle(
-            current.board,
-            { ...containers, [newRow]: [id] },
-            [...order.slice(0, at), newRow, ...order.slice(at)],
-          )
+          board = settle(current.board, { ...containers, [newRow]: [id] }, [
+            ...order.slice(0, at),
+            newRow,
+            ...order.slice(at),
+          ])
         }
         return {
           board: withSpareRow(board),
           widgets: { ...current.widgets, [id]: { ...source, id, title: `${source.title} (copy)` } },
+        }
+      }),
+    [change],
+  )
+
+  const addWidget = useCallback(
+    (reportId: string, widget: Widget) =>
+      change(reportId, (current) => {
+        const row = `row-${widget.id}`
+        const { containers, order } = current.board
+        return {
+          board: withSpareRow(
+            settle(current.board, { ...containers, [row]: [widget.id] }, [...order, row]),
+          ),
+          widgets: { ...current.widgets, [widget.id]: widget },
         }
       }),
     [change],
@@ -110,15 +144,41 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       if (draft?.reportId === reportId && draft.widget.id === widgetId) return draft.widget
       const current = boardFor(reportId)
       // A removed widget is gone from the layout; its settings are kept but unreachable.
-      const placed = current && Object.values(current.board.containers).some((row) => row.includes(widgetId))
+      const placed =
+        current && Object.values(current.board.containers).some((row) => row.includes(widgetId))
       return placed ? current.widgets[widgetId] : undefined
     },
     [boardFor, draft],
   )
 
   const value = useMemo<ReportsState>(
-    () => ({ boardFor, setBoard, widgetFor, saveWidget, removeWidget, duplicateWidget, draft, setDraft }),
-    [boardFor, setBoard, widgetFor, saveWidget, removeWidget, duplicateWidget, draft],
+    () => ({
+      reports,
+      reportFor,
+      createReport,
+      addWidget,
+      boardFor,
+      setBoard,
+      widgetFor,
+      saveWidget,
+      removeWidget,
+      duplicateWidget,
+      draft,
+      setDraft,
+    }),
+    [
+      reports,
+      reportFor,
+      createReport,
+      addWidget,
+      boardFor,
+      setBoard,
+      widgetFor,
+      saveWidget,
+      removeWidget,
+      duplicateWidget,
+      draft,
+    ],
   )
 
   return <ReportsContext.Provider value={value}>{children}</ReportsContext.Provider>

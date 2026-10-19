@@ -1,8 +1,18 @@
-import type { ReportRange } from '../../../data/reports'
+import type { DiscoverRange } from '../../../data/discover'
+import { RANGES, type ReportRange } from '../../../data/reports'
 import type { GroupBy, Report, Widget } from '../../../data/types'
+import { topPosts } from '../../discover/topPosts'
+import { SentimentBody, TopPostsGrid, TrendingList } from '../../discover/widgets'
 import { ChartWidget } from './ChartWidget'
 import { SpikesWidget, StoriesWidget, VoicesWidget } from './ListWidgets'
+import { FeedWidget, TimelineWidget } from './MonitoringWidgets'
 import { OverviewWidget } from './OverviewWidget'
+
+/** Discover has three ranges to a report's seven; a board's range picks the nearest. */
+function discoverRange(range: ReportRange): DiscoverRange {
+  if (range === 'today' || range === 'yesterday') return '24h'
+  return range === '7d' ? '7d' : '30d'
+}
 
 /** Whatever a widget draws, by its kind — the one switch the board and the detail page share. */
 export function WidgetBody({
@@ -31,6 +41,24 @@ export function WidgetBody({
       return <VoicesWidget />
     case 'spikes':
       return <SpikesWidget />
+    case 'feed':
+      return <FeedWidget />
+    case 'timeline':
+      return (
+        <TimelineWidget
+          report={report}
+          widget={widget}
+          range={range}
+          groupBy={groupBy}
+          height={height}
+        />
+      )
+    case 'sentiment':
+      return <SentimentBody range={discoverRange(range)} />
+    case 'trending':
+      return <TrendingList range={discoverRange(range)} />
+    case 'posts':
+      return <TopPostsGrid posts={topPosts(RANGES.find((r) => r.value === range)!.days)} />
     case 'chart':
       return (
         <ChartWidget

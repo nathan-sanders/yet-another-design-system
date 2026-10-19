@@ -33,6 +33,7 @@ export function formatChange(percent: number, unit = '%'): string {
 
 /** `Edited 4m ago` … `Edited yesterday` … `Edited 2d ago`. */
 export function editedLabel(minutes: number): string {
+  if (minutes < 1) return 'Edited just now'
   if (minutes < 60) return `Edited ${minutes}m ago`
   if (minutes < 60 * 24) return `Edited ${Math.round(minutes / 60)}h ago`
   if (minutes < 60 * 48) return 'Edited yesterday'

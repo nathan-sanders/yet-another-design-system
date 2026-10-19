@@ -30,6 +30,7 @@ export const apps: ShowcaseApp[] = [
       'Inbox: all messages, my inbox, public thread and contact detail',
       'Comments by post: every published post, with its comments, notes, activity and numbers',
       'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
+      'New report: eight report types, from NewsWhip-style media monitoring to a blank board',
       'Ideas: a board of idea cards you drag between groups, or a gallery',
       'Creators: a grid or list of creators, sorted by audience, brand fit or name',
       'Discover: trends, creators, visual trends, sentiment and top posts',

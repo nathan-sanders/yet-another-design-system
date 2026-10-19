@@ -8,7 +8,7 @@ import { Button } from '../../../../src/components/Button'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading } from '../../../../src/components/Text'
-import { groupByAllowed, rangeFor, reportFor, type ReportRange } from '../../data/reports'
+import { groupByAllowed, rangeFor, type ReportRange } from '../../data/reports'
 import type { GroupBy } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { GROUP_BY_LABEL, boardPath, isTimeViz, peakDay, peakHour } from './model'
@@ -38,7 +38,7 @@ export function WidgetDetailScreen() {
   const { reportId = '', widgetId = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const shell = useShell()
-  const { widgetFor, setDraft } = useReports()
+  const { widgetFor, setDraft, reportFor } = useReports()
   const report = reportFor(reportId)
   const widget = report ? widgetFor(report.id, widgetId) : undefined
 

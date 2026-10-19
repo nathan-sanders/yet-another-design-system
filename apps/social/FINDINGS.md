@@ -949,3 +949,43 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     reading. A post opens **stacked** on the day (a `PostDetailPanel` written inside the day's
     `Panel.Body`), so closing it lands back on the day. Clicking the open day again closes the
     panel. axe is clean with the day panel open and with a post stacked on it.
+
+## Measure › New report and report types (2026-10-19)
+
+New report opens from the list's New report button and from the New menu's Report and Topic items,
+on any page (`?new=report&type=`). The first step picks one of eight types, the second sets the
+name, topics, sources and delivery, and Create report lands on the type's board
+(`screens/reports/NewReportDialog.tsx`, `reportTypes.ts`, templates in `data/reports.ts`).
+Code-first: the file has no flow behind the list's create entry point.
+
+### Open
+
+102. **`LineSeries` has no second y-axis.** Media monitoring's NewsWhip-style timeline puts media
+    interest (articles) against public interest (interactions), and the second is about a hundred
+    times the first, so on one axis the article line is flat on zero. `TimelineWidget`
+    (`widgets/MonitoringWidgets.tsx`) draws two stacked plots on the same days instead. A right
+    axis would let it be one chart.
+103. **No selectable card, a second time.** The type picker is FINDINGS 40's workaround again
+    (`Radio.Root` rendered onto a `ClickableCard`). That is two screens hand-rolling the same
+    radio card, which is the bar for a library `SelectableCard` / `Radio` card variant.
+
+### Kept in the app, worth knowing
+
+104. **Each type is a template over the report's own topics**, built by `widget()` like every
+    other board, so a new Competitive report on GreenCrate shows the same GreenCrate numbers as
+    Brand Pulse. Five widget kinds were added: `feed` and `timeline` (Media monitoring's own),
+    and `sentiment`, `trending` and `posts`, which are Discover's widget bodies on a board's frame
+    (Discover now exports `SentimentBody`, `TrendingList` and `TopPostsGrid`, and
+    `discover/topPosts.ts`). A board's seven ranges map to Discover's three (today and yesterday
+    → 24h, 7D → 7d, everything longer → 30d).
+105. **Social performance's Overview is still the mentions overview.** Its Engagements counts
+    engagement with mentions of the brand, not with the brand's own posts, so it does not add
+    up to the posts below it. An owned-profile overview (followers, impressions, engagement
+    rate) is the right widget there and does not exist yet.
+106. **Add widget works now, on every board.** It puts Mentions over time in a row of its own
+    and opens its Edit panel (`?edit=1`). A Blank report opens on an empty state with the same
+    button. Reports made this session live in `ReportsProvider` (`createReport`), so the list,
+    board and widget detail all read reports through `useReports()` rather than the fixtures.
+107. **Weekly grouping starts on a partial week.** Thirty days is four weeks and two days, so a
+    weekly line opens on a two-day bucket that reads as a dip. The Trend template groups by day
+    for that reason; `seriesPoints` is unchanged.

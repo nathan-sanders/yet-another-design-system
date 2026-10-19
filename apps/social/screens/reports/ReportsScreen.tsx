@@ -17,10 +17,11 @@ import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { ReportCell } from '../../components/ReportCell'
 import { personFor } from '../../data/people'
-import { reports } from '../../data/reports'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { boardPath, editedLabel } from './model'
+import { openNewReport } from './newReport'
+import { useReports } from './reportsState'
 import { floatingYakClearance } from '../../components/FloatingYak'
 import { clickableRows } from '../../components/clickableRows'
 
@@ -41,13 +42,13 @@ function SharedWith({ report }: { report: Report }) {
   return (
     <AvatarGroup
       size="small"
-      aria-label={`Shared with ${people.map((id) => personFor(id).name).join(', ')} and ${more} more`}
+      aria-label={`Shared with ${people.map((id) => personFor(id).name).join(', ')}${more ? ` and ${more} more` : ''}`}
     >
       {people.map((id) => {
         const person = personFor(id)
         return <Avatar key={id} name={person.name} src={person.avatar} />
       })}
-      <AvatarGroup.Overflow count={more} />
+      {more ? <AvatarGroup.Overflow count={more} /> : null}
     </AvatarGroup>
   )
 }
@@ -110,6 +111,7 @@ export function ReportsScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   const navigate = useNavigate()
+  const { reports } = useReports()
 
   // The whole row opens the report, for a pointer. Table has no `onRowClick`
   // on purpose — a click on a <tr> has no keyboard equivalent — so the row
@@ -158,7 +160,7 @@ export function ReportsScreen() {
             <Button
               appearance="primary"
               startIcon={Plus}
-              onClick={() => shell.notBuilt('Creating a report')}
+              onClick={() => openNewReport(params, setParams)}
               className="max-md:hidden"
             >
               New report
@@ -167,7 +169,7 @@ export function ReportsScreen() {
               appearance="primary"
               startIcon={Plus}
               aria-label="New report"
-              onClick={() => shell.notBuilt('Creating a report')}
+              onClick={() => openNewReport(params, setParams)}
               className="md:hidden"
             />
           </div>

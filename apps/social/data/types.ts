@@ -249,6 +249,14 @@ export interface PostEvent {
  */
 export type ReportKind = 'topic' | 'custom' | 'builtin'
 
+/**
+ * What a new report is for, picked from New report's first step. Each one
+ * opens on a board of its own (`boardFixture`); `blank` opens on none. The
+ * fixtures written before the picker existed have no type.
+ */
+export type ReportType =
+  'media' | 'listening' | 'competitive' | 'crisis' | 'campaign' | 'trend' | 'performance' | 'blank'
+
 export interface Report {
   id: string
   name: string
@@ -264,6 +272,10 @@ export interface Report {
   delivery?: 'Daily' | 'Weekly' | 'Monthly'
   /** What the report tracks, first the one it is about. Its trend lines. */
   topics: string[]
+  /** The template it was made from, for a report made in this session. */
+  type?: ReportType
+  /** Where its numbers come from, as set when it was made. */
+  sources?: WidgetSources
 }
 
 /** The panel's Visualization options (`_Pulse Viz Option`, `40005872:24935`). */
@@ -273,7 +285,22 @@ export type WidgetViz = 'line' | 'area' | 'bar' | 'donut' | 'metric' | 'table'
  * What a widget is. `chart` widgets are a measure across a set of series, and
  * can be drawn as any `WidgetViz`; the other four have a shape of their own.
  */
-export type WidgetKind = 'chart' | 'overview' | 'stories' | 'voices' | 'spikes'
+export type WidgetKind =
+  | 'chart'
+  | 'overview'
+  | 'stories'
+  | 'voices'
+  | 'spikes'
+  /** New articles and posts as they are found, with the interactions each is predicted to reach. */
+  | 'feed'
+  /** How much was written against how much people engaged with it, on one time axis. */
+  | 'timeline'
+  /** Discover's brand sentiment: the gauge, and what the brand is praised and criticized for. */
+  | 'sentiment'
+  /** Discover's trending topics. */
+  | 'trending'
+  /** The brand's own best published posts. */
+  | 'posts'
 
 export type WidgetMeasure = 'mentions' | 'engagements' | 'reach'
 
@@ -309,6 +336,14 @@ export interface Story {
   /** Engagements per hour, right now. */
   velocity: number
   sentiment: 'Positive' | 'Neutral' | 'Negative'
+}
+
+/** A story in a live feed: just found, and how far it is expected to go. */
+export interface FeedItem extends Story {
+  /** Minutes since it was found. */
+  foundMinutes: number
+  /** The interactions it is predicted to have 24 hours after publishing. */
+  predicted: number
 }
 
 export interface Voice {
