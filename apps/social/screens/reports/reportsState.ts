@@ -28,6 +28,8 @@ export interface ReportsState {
   widgetFor: (reportId: string, widgetId: string) => Widget | undefined
   saveWidget: (reportId: string, widget: Widget) => void
   removeWidget: (reportId: string, widgetId: string) => void
+  /** Copies a widget onto its board, right after the original. */
+  duplicateWidget: (reportId: string, widgetId: string) => void
   draft: { reportId: string; widget: Widget } | null
   setDraft: (draft: { reportId: string; widget: Widget } | null) => void
 }
