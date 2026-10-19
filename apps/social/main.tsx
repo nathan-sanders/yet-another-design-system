@@ -5,6 +5,8 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
+import { PostNotesProvider } from './screens/calendar/PostNotesProvider'
+import { CommentsScreen } from './screens/comments/CommentsScreen'
 import { CreatorFullView } from './screens/creators/CreatorFullView'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
 import { IdeasProvider } from './screens/ideas/IdeasProvider'
@@ -33,6 +35,7 @@ const router = createHashRouter([
       { path: 'plan/creators/:creatorId', element: <CreatorFullView /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
+      { path: 'engage/comments', element: <CommentsScreen /> },
       { path: 'measure/discover', element: <DiscoverScreen /> },
       { path: 'measure/reports', element: <ReportsScreen /> },
       { path: 'measure/reports/:reportId', element: <ReportScreen /> },
@@ -49,7 +52,9 @@ createRoot(document.getElementById('root')!).render(
       <InboxProvider>
         <ReportsProvider>
           <IdeasProvider>
-            <RouterProvider router={router} />
+            <PostNotesProvider>
+              <RouterProvider router={router} />
+            </PostNotesProvider>
           </IdeasProvider>
         </ReportsProvider>
       </InboxProvider>

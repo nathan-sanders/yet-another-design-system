@@ -56,7 +56,7 @@ export const groups: RouteGroup[] = [
         figma: '40005911-33580',
       },
       { path: '/engage/assignments', label: 'All assignments', badge: 20 },
-      { path: '/engage/comments', label: 'Comments by post' },
+      { path: '/engage/comments', label: 'Comments by post', built: true },
       { path: '/engage/approvals', label: 'Reply approvals' },
       { path: '/engage/spam', label: 'Spam' },
       { path: '/engage/teams', label: 'Team inboxes' },

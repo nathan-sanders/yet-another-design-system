@@ -28,6 +28,7 @@ export const apps: ShowcaseApp[] = [
       'Calendar: week, day and month',
       'Post detail',
       'Inbox: all messages, my inbox, public thread and contact detail',
+      'Comments by post: every published post, with its comments, notes, activity and numbers',
       'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
       'Ideas: a board of idea cards you drag between groups, or a gallery',
       'Creators: a grid or list of creators, sorted by audience, brand fit or name',
