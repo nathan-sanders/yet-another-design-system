@@ -2,13 +2,12 @@ import { useRef, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox'
 import type { ComboboxRootProps } from '@base-ui/react/combobox'
 import { Check, ChevronDown, Search } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
 import { overlayLayer } from '../../lib/layers'
-import { Icon } from '../Icon'
+import { Icon, LeadingIcon, type StartIcon } from '../Icon'
 import { Token } from '../Token'
 import { ComboboxContext, useCombobox } from './context'
 import { empty, groupLabel, item, itemLabel, list, popup, separator } from './styles'
@@ -385,6 +384,11 @@ export interface ComboboxItemData {
   label: string
   /** Secondary line under the label. Figma's `Sub Label`. */
   description?: ReactNode
+  /**
+   * Before the label, in the row and — in the single-select shape — in the
+   * trigger once chosen. A Lucide component or an element (a swatch, a flag).
+   */
+  startIcon?: StartIcon
   /** Grays the row out and stops it being chosen. */
   disabled?: boolean
 }
@@ -476,8 +480,12 @@ function labelOf(chosen: unknown): string {
 
 export interface ComboboxItemProps
   extends Omit<ComponentPropsWithRef<typeof ComboboxPrimitive.Item>, 'className' | 'render'> {
-  /** Lucide icon before the label. Pass the component: `startIcon={Circle}`. */
-  startIcon?: LucideIcon
+  /**
+   * Before the label: a Lucide component (`startIcon={Globe}`) or an element,
+   * for what is not a glyph — a color swatch, a flag. Rows built from `items`
+   * take it from the data's own `startIcon`.
+   */
+  startIcon?: StartIcon
   /** Secondary line under the label. Figma's `Sub Label`. */
   description?: ReactNode
   className?: string
@@ -517,7 +525,7 @@ function ComboboxItem({
           </ComboboxPrimitive.ItemIndicator>
         </span>
       )}
-      {startIcon && <Icon icon={startIcon} />}
+      {startIcon && <LeadingIcon icon={startIcon} />}
       <span className={itemLabel()}>
         <Text render={<span />} color="inherit">{children}</Text>
         {description != null && <Text render={<span />} size="sm" color="subtle">{description}</Text>}
@@ -777,7 +785,29 @@ export function Combobox({
             className={cn(trigger({ size, invalid }), className)}
           >
             <span className={value()}>
-              <ComboboxPrimitive.Value placeholder={placeholder} />
+              <ComboboxPrimitive.Value placeholder={placeholder}>
+                {/* The chosen row's icon comes with it, at `_Select Value`'s
+                    8px — Base UI's default renders the label alone. The icon
+                    sits outside the truncation so only the text clips. A
+                    children function replaces `placeholder`, so it is
+                    returned by hand while nothing is chosen. */}
+                {(chosen: unknown) => {
+                  if (chosen == null) {
+                    return placeholder
+                  }
+
+                  const icon = (chosen as Partial<ComboboxItemData>).startIcon
+
+                  return icon != null ? (
+                    <span className="flex min-w-0 items-center gap-2">
+                      <LeadingIcon icon={icon} />
+                      <span className="truncate">{labelOf(chosen)}</span>
+                    </span>
+                  ) : (
+                    labelOf(chosen)
+                  )
+                }}
+              </ComboboxPrimitive.Value>
             </span>
             <ComboboxPrimitive.Icon render={<span className="flex shrink-0" />}>
               <Icon icon={ChevronDown} size={size === 'small' ? 'small' : 'base'} />
@@ -854,6 +884,7 @@ function defaultItem(data: ComboboxItemData) {
       key={String(data.value)}
       value={data}
       description={data.description}
+      startIcon={data.startIcon}
       disabled={data.disabled}
     >
       {data.label}

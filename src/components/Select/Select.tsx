@@ -2,13 +2,12 @@ import { Children, Fragment, isValidElement, useMemo } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Select as SelectPrimitive } from '@base-ui/react/select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
 import { focusRing } from '../../lib/focus'
 import { overlayLayer } from '../../lib/layers'
-import { Icon } from '../Icon'
+import { Icon, LeadingIcon, type StartIcon } from '../Icon'
 import { SelectContext, useSelect } from './context'
 import { Text } from '../Text'
 
@@ -289,6 +288,7 @@ function ItemLabel({ children, description }: { children: ReactNode; description
 interface DerivedItem {
   value: unknown
   label: ReactNode
+  startIcon?: StartIcon
 }
 
 /**
@@ -313,10 +313,10 @@ function collectItems(children: ReactNode, out: DerivedItem[] = []): DerivedItem
       return
     }
 
-    const props = child.props as { value?: unknown; children?: ReactNode }
+    const props = child.props as { value?: unknown; children?: ReactNode; startIcon?: StartIcon }
 
     if (child.type === SelectItem) {
-      out.push({ value: props.value, label: props.children })
+      out.push({ value: props.value, label: props.children, startIcon: props.startIcon })
     } else if (props.children != null) {
       collectItems(props.children, out)
     }
@@ -357,6 +357,39 @@ function renderMultiple(selected: unknown, items: unknown, placeholder: ReactNod
     <span className="flex min-w-0 items-center gap-1">
       <span className="truncate">{match?.label ?? String(values[0])}</span>
       {rest > 0 && <span className="shrink-0">+{rest} more</span>}
+    </span>
+  )
+}
+
+/**
+ * The trigger's content for a single select, when any row has a `startIcon`.
+ *
+ * Base UI's own `Select.Value` renders the chosen item's label and nothing
+ * else, so the row's icon would vanish the moment it was picked. This looks the
+ * value up in the same `items` the label comes from and draws `[icon] label` at
+ * Figma's `_Select Value` spacing: the 16px icon, then the text 8px after it.
+ * The icon sits outside the `truncate`, so a long label clips and the icon
+ * never shrinks.
+ *
+ * Only called when an icon exists anywhere in the list — a plain select keeps
+ * Base UI's default rendering untouched.
+ */
+function renderSingle(selected: unknown, items: unknown, placeholder: ReactNode) {
+  if (selected == null) {
+    return placeholder
+  }
+
+  const entries = Array.isArray(items) ? (items as DerivedItem[]) : []
+  const match = entries.find((entry) => entry.value === selected)
+
+  if (!match) {
+    return String(selected)
+  }
+
+  return (
+    <span className="flex min-w-0 items-center gap-2">
+      {match.startIcon && <LeadingIcon icon={match.startIcon} />}
+      <span className="truncate">{match.label}</span>
     </span>
   )
 }
@@ -438,8 +471,12 @@ SelectGroup.displayName = 'Select.Group'
 
 export interface SelectItemProps
   extends Omit<ComponentPropsWithRef<typeof SelectPrimitive.Item>, 'className' | 'render'> {
-  /** Lucide icon before the label. Pass the component: `startIcon={Circle}`. */
-  startIcon?: LucideIcon
+  /**
+   * Before the label: a Lucide component (`startIcon={Globe}`) or an element,
+   * for what is not a glyph — a color swatch, a flag. The trigger shows the
+   * chosen row's icon too, in a single select.
+   */
+  startIcon?: StartIcon
   /** Secondary line under the label. Figma's `Sub Label`. */
   description?: ReactNode
   className?: string
@@ -466,7 +503,7 @@ function SelectItem({ children, startIcon, description, className, ...props }: S
           </SelectPrimitive.ItemIndicator>
         </span>
       )}
-      {startIcon && <Icon icon={startIcon} />}
+      {startIcon && <LeadingIcon icon={startIcon} />}
       <ItemLabel description={description}>{children}</ItemLabel>
       {!multiple && (
         <SelectPrimitive.ItemIndicator className="flex shrink-0">
@@ -524,6 +561,10 @@ export function Select({
   )
 
   const resolvedItems = items ?? derivedItems
+  // Only take over the single trigger's rendering when there is an icon to show.
+  const hasIcons =
+    Array.isArray(resolvedItems) &&
+    (resolvedItems as DerivedItem[]).some((entry) => entry?.startIcon != null)
   const grouped = useMemo(() => hasGroup(children), [children])
 
   return (
@@ -550,7 +591,9 @@ export function Select({
           <SelectPrimitive.Value className={value()} placeholder={placeholder}>
             {multiple
               ? (selected: unknown) => renderMultiple(selected, resolvedItems, placeholder)
-              : undefined}
+              : hasIcons
+                ? (selected: unknown) => renderSingle(selected, resolvedItems, placeholder)
+                : undefined}
           </SelectPrimitive.Value>
           <SelectPrimitive.Icon render={<span className="flex shrink-0" />}>
             <Icon icon={ChevronDown} size={size === 'small' ? 'small' : 'base'} />

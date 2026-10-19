@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Globe, Lock, Users } from 'lucide-react'
-import { expect, waitFor } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Combobox } from './Combobox'
 import { countries } from './countries'
@@ -389,4 +389,43 @@ export const InContext: Story = {
       </Field>
     </div>
   ),
+}
+
+const visibilityWithIcons = [
+  { value: 'only-me', label: 'Only me', startIcon: Lock },
+  { value: 'team', label: 'My team', startIcon: Users },
+  { value: 'anyone', label: 'Anyone with the link', startIcon: Globe },
+]
+
+/**
+ * `startIcon` in the data. Rows built from `items` draw it without a function
+ * child, and in the single-select shape the chosen row's icon follows it into
+ * the trigger — 16px, then the label 8px after, Figma's `_Select Value`.
+ *
+ * It also takes an element, for a swatch or a flag; Select's `Swatches` story
+ * shows that form. The tokenizer is unchanged: its chips are `Token`s.
+ */
+export const WithIcons: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Field label="Visibility" nativeLabel={false} className="w-80">
+      <Combobox items={visibilityWithIcons} defaultValue={visibilityWithIcons[1]} placeholder="Choose visibility" />
+    </Field>
+  ),
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('combobox')
+    expect(trigger).toHaveTextContent('My team')
+    expect(trigger.querySelector('svg')!.classList.toString()).toContain('lucide-users')
+
+    await userEvent.click(trigger)
+    const option = await waitFor(() => within(document.body).getByRole('option', { name: 'Anyone with the link' }))
+    expect(option.querySelector('svg')!.classList.toString()).toContain('lucide-globe')
+    await userEvent.click(option)
+
+    await waitFor(() => expect(trigger).toHaveTextContent('Anyone with the link'))
+    const icon = trigger.querySelector('svg')!
+    expect(icon.classList.toString()).toContain('lucide-globe')
+    expect(icon.getBoundingClientRect().width).toBe(16)
+    expect(icon.nextElementSibling!.getBoundingClientRect().left - icon.getBoundingClientRect().right).toBe(8)
+  },
 }
