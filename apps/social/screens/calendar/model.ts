@@ -1,6 +1,6 @@
 import { addDays, sameDay, startOfDay, startOfWeek } from '../../data/dates'
 import { posts } from '../../data/posts'
-import type { Post } from '../../data/types'
+import type { CalendarDay, CalendarNote, Post } from '../../data/types'
 
 export type CalendarView = 'day' | 'week' | 'month'
 
@@ -17,7 +17,22 @@ export const today = startOfDay(new Date())
  * what was published.
  */
 export function postDate(post: Post): Date {
-  return addDays(today, post.week * 7 + post.day - 1)
+  return dayDate(post)
+}
+
+/** A `{week, day}` as a date — the same slide as `postDate`. */
+export function dayDate({ week, day }: CalendarDay): Date {
+  return addDays(today, week * 7 + day - 1)
+}
+
+/** A date back in `{week, day}` terms, counted from today in the Figma week. */
+export function toCalendarDay(date: Date): CalendarDay {
+  return { week: 0, day: daysBetween(today, date) + 1 }
+}
+
+/** Whole days from `from` to `to`; rounded, so a DST hour does not cost a day. */
+export function daysBetween(from: Date, to: Date): number {
+  return Math.round((startOfDay(to).getTime() - startOfDay(from).getTime()) / 86_400_000)
 }
 
 /** The posts on one calendar day, earliest first. */
@@ -81,3 +96,53 @@ export const HOURS = Array.from({ length: 18 }, (_, i) => i + 6)
  */
 export const pastDayPattern =
   'bg-[repeating-linear-gradient(135deg,var(--surface-border)_0_1px,transparent_1px_8px)]'
+
+/** One note's piece of a run of days: where it starts, how far it reaches, which lane. */
+export interface NoteSegment {
+  note: CalendarNote
+  /** Index into the days drawn. */
+  column: number
+  span: number
+  lane: number
+  /** The note started before the first day drawn, or runs past the last. */
+  continuesBefore: boolean
+  continuesAfter: boolean
+}
+
+/**
+ * Lays notes over a run of consecutive days — a week, or one day — as bars in
+ * lanes, the way a calendar's all-day strip does. Each note is clipped to the
+ * days drawn; earlier starts go first, and the longer of two that start
+ * together, so a campaign's run keeps the top lane and one-day callouts fill in
+ * below it. Greedy: a note takes the first lane that is free across its span.
+ */
+export function layoutNotes(notes: CalendarNote[], days: Date[]): NoteSegment[] {
+  if (days.length === 0) return []
+  const first = days[0]!
+  const last = days.length - 1
+  const placed = notes
+    .map((note) => {
+      const from = daysBetween(first, dayDate(note.start))
+      const to = daysBetween(first, dayDate(note.end))
+      return { note, from, to }
+    })
+    .filter(({ from, to }) => to >= 0 && from <= last)
+    .sort((a, b) => a.from - b.from || b.to - a.to)
+
+  const laneEnds: number[] = []
+  return placed.map(({ note, from, to }) => {
+    const column = Math.max(0, from)
+    const end = Math.min(last, to)
+    let lane = laneEnds.findIndex((taken) => taken < column)
+    if (lane === -1) lane = laneEnds.length
+    laneEnds[lane] = end
+    return {
+      note,
+      column,
+      span: end - column + 1,
+      lane,
+      continuesBefore: from < 0,
+      continuesAfter: to > last,
+    }
+  })
+}
