@@ -7,7 +7,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Star,
 } from 'lucide-react'
 
 import { Avatar } from '../../../../src/components/Avatar'
@@ -74,7 +73,7 @@ function EngagementBars({ creator }: { creator: Creator }) {
     <ul className="flex flex-col gap-2">
       {rows.map((row) => (
         <li key={row.label} className="flex items-center gap-3">
-          <Text render={<span />} size="sm" truncate className="w-26 shrink-0">
+          <Text render={<span />} truncate className="w-26 shrink-0">
             {row.label}
           </Text>
           <span aria-hidden className="flex min-w-0 flex-1">
@@ -83,7 +82,7 @@ function EngagementBars({ creator }: { creator: Creator }) {
               style={{ '--share': `${(row.value / max) * 100}%` } as CSSProperties}
             />
           </span>
-          <Text render={<span />} size="sm" mono className="shrink-0">
+          <Text render={<span />} mono className="shrink-0">
             {row.value.toFixed(1)}%
           </Text>
         </li>
@@ -171,10 +170,10 @@ function OverviewTab({ creator }: { creator: Creator }) {
           {creator.channels.map((channel) => (
             <li key={channel.network} className="flex items-center gap-2">
               <NetworkIcon network={channel.network} />
-              <Text render={<span />} size="sm" truncate className="min-w-0 flex-1">
+              <Text render={<span />} truncate className="min-w-0 flex-1">
                 {channel.handle}
               </Text>
-              <Text render={<span />} size="sm" mono>
+              <Text render={<span />} mono>
                 {formatCount(channel.followers)}
               </Text>
             </li>
@@ -302,12 +301,9 @@ export function CreatorDetailPanel({
 }) {
   const shell = useShell()
   const [tab, setTab] = useState<DetailTab>('overview')
-  // Saved creators live for the session.
-  const [saved, setSaved] = useState<string[]>([])
 
   const creator = creatorId ? creatorById(creatorId) : undefined
   if (!creator) return null
-  const isSaved = saved.includes(creator.id)
 
   return (
     <Panel
@@ -357,26 +353,12 @@ export function CreatorDetailPanel({
         </Tabs>
       </Panel.Body>
       <Panel.Footer className="flex items-center justify-between pt-4">
-        <div className="flex items-center gap-2">
-          <Button
-            appearance="ghost"
-            startIcon={Star}
-            aria-label="Save creator"
-            aria-pressed={isSaved}
-            className={isSaved ? '[&_svg]:fill-current' : undefined}
-            onClick={() =>
-              setSaved((all) =>
-                isSaved ? all.filter((id) => id !== creator.id) : [...all, creator.id],
-              )
-            }
-          />
-          <Button
-            appearance="ghost"
-            startIcon={ExternalLink}
-            aria-label="Open profile"
-            onClick={() => shell.notBuilt('Creator profiles')}
-          />
-        </div>
+        <Button
+          appearance="ghost"
+          startIcon={ExternalLink}
+          aria-label="Open profile"
+          onClick={() => shell.notBuilt('Creator profiles')}
+        />
         <Button appearance="primary" onClick={() => shell.notBuilt('Campaigns')}>
           Add to campaign
         </Button>
