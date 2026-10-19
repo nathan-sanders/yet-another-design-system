@@ -52,6 +52,14 @@ export function CalendarScreen() {
   }
 
   const selectedPostId = shell.panel?.type === 'post' ? shell.panel.postId : undefined
+  const selectedDate =
+    shell.panel?.type === 'day' ? fromISODate(shell.panel.date) : undefined
+  const openDay = (date: Date) =>
+    shell.setPanel(
+      selectedDate && toISODate(selectedDate) === toISODate(date)
+        ? null
+        : { type: 'day', date: toISODate(date) },
+    )
   const openPost = (post: Post) =>
     shell.setPanel(selectedPostId === post.id ? null : { type: 'post', postId: post.id })
 
@@ -183,8 +191,9 @@ export function CalendarScreen() {
           <MonthView
             anchor={anchor}
             selectedPostId={selectedPostId}
+            selectedDate={selectedDate}
             onOpenPost={openPost}
-            onAddNote={addNote}
+            onOpenDay={openDay}
             onOpenNote={openNote}
           />
         ) : (

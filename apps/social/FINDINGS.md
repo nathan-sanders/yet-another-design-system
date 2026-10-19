@@ -919,7 +919,8 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     counts hidden notes and hidden posts together. The lanes take rows from each cell's four, so
     a week with two lanes shows one post and the link.
 99. **Two ways in.** The day header's + is now a Menu (Add post, Add note). A click on a day's empty
-    part (in the Notes row, or a month cell) starts a one-day note there. The cell click is a pointer
+    part (in the Notes row) starts a one-day note there. (A month cell did too, until finding 101 made it
+    open the day panel.) The cell click is a pointer
     shortcut with no tab stop; the + menu is the keyboard route. Past days offer neither. Clicking a
     note opens the same dialog with Delete.
 100. **The dialog follows the file now, and the date field is the app's.** `NoteDialog` was a
@@ -935,3 +936,16 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     empty end saves a one-day note. Checked in real Chromium (pick, type, Enter, Tab, ArrowDown into
     the grid, Escape closes only the panel), and axe is clean on the open dialog and panel in both
     themes.
+
+## Plan › Calendar day panel (2026-10-19)
+
+### Kept in the app, worth knowing
+
+101. **A month day opens a day panel.** Clicking a month cell, or its date (the keyboard route, a
+    real button with `aria-pressed`), opens `screens/calendar/DayDetail.tsx` as the shell panel
+    `{type: 'day', date}`: the day's notes, then its posts by time. Code-first; Figma has no day
+    panel. Its header carries the week view's + menu (Add post, Add note) through `Panel.Header`'s
+    `actions`, and a day that has gone by has no + but still opens, since what went out is worth
+    reading. A post opens **stacked** on the day (a `PostDetailPanel` written inside the day's
+    `Panel.Body`), so closing it lands back on the day. Clicking the open day again closes the
+    panel. axe is clean with the day panel open and with a post stacked on it.
