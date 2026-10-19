@@ -786,3 +786,28 @@ Discover at 30 days. A list generates the latest 120 at most and says so: "Showi
   no violations.
 - Dark mode reads correctly. At 390 × 844 the panel goes under the page at 374 wide, and nothing
   overflows.
+
+## Measure › One hover color for clickable rows (2026-10-19)
+
+On Discover, everything you can click (trend rows, visual trend cards, theme rows, the sentiment
+legend, and now the opportunity rows, which had no hover) fills to `ClickableCard`'s
+Surface/Background Subtle. The clickable table rows didn't: `Table`'s `hasHover` is the
+translucent `surface-overlay-subtle`. Nathan asked for one color everywhere, Reports included.
+
+### Open: library changes worth making
+
+83. **`Table`'s row hover is a different color from `ClickableCard`'s.** The Table picked the
+    translucent wash on purpose: on a zebra table, an opaque hover is lighter than one of the
+    two resting fills. But a table that isn't striped could use the card's hover, and then a
+    clickable row and a clickable card would agree. A fix in the library would be something like
+    `hasHover` using Surface/Background Subtle when `striped` is off. Until then,
+    `components/clickableRows.ts` overrides it on the three clickable tables (Reports, Discover's
+    Creators widget, Plan › Creators). The override is a descendant selector, (0,2,2) against
+    Table's (0,2,0), so it needs no `!important`.
+
+### Measured, and fine
+
+- With a real pointer, the hovered fill is `oklch(0.97 0.001 106.424)`, Surface/Background
+  Subtle, on a Reports row, a Discover Creators row, a trend row and an opportunity row, after
+  finishing the 0.1s color transition.
+- An opportunity row's fill has 8px corners and sits 4px inside the dividers, like a trend row.

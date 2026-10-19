@@ -22,6 +22,7 @@ import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { boardPath, editedLabel } from './model'
 import { floatingYakClearance } from '../../components/FloatingYak'
+import { clickableRows } from '../../components/clickableRows'
 
 /** The face and name of whoever made a report — `_Measure Owner Cell` (`40005882:26335`). */
 function Owner({ id }: { id: string }) {
@@ -174,7 +175,7 @@ export function ReportsScreen() {
       />
       <AppShell.Content className={floatingYakClearance}>
         {/* A pointer convenience over the rows' own links; see `openRow`. */}
-        <div onClick={openRow} className="[&_tbody_tr]:cursor-pointer">
+        <div onClick={openRow} className={clickableRows}>
           <Table
             label="Reports"
             columns={columns}

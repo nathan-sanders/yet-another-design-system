@@ -61,6 +61,7 @@ import {
   visualQuery,
   visualsQuery,
 } from './mentions'
+import { clickableRows } from '../../components/clickableRows'
 
 /** Every widget's header `⋯`, which the mock does not fill. */
 function WidgetActions({ title }: { title: string }) {
@@ -281,7 +282,7 @@ export function CreatorsWidget({ range }: { range: DiscoverRange }) {
   return (
     <Widget title="Creators your audience follows" messages={creatorsQuery(range)}>
       {/* A pointer convenience over the rows' own buttons; see `openRow`. */}
-      <div onClick={openRow} className="[&_tbody_tr]:cursor-pointer">
+      <div onClick={openRow} className={clickableRows}>
         <Table
           label="Creators your audience follows"
           columns={creatorColumns(
@@ -388,60 +389,73 @@ export function OpportunitiesWidget({ range }: { range: DiscoverRange }) {
                 if ((event.target as HTMLElement).closest('button') || !query) return
                 mentions.toggle(query)
               }}
-              className={cn('flex gap-3 py-4 first:pt-1 last:pb-0', query && 'cursor-pointer')}
+              className="flex py-1 first:pt-0 last:pb-0"
             >
-              <Avatar name={creator?.name ?? o.handle} src={creator?.avatar} alt="" size="small" />
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <div className="flex min-w-0 items-center gap-2">
-                  <NetworkIcon network={o.network} />
-                  <Text render={<span />} weight="semibold" truncate>
-                    {o.handle}
-                  </Text>
-                  <Text render={<span />} size="sm" color="subtle" className="shrink-0">
-                    · {o.ago}
-                  </Text>
-                  <Button
-                    appearance="secondary"
-                    size="small"
-                    startIcon={o.action === 'reply' ? Reply : Share}
-                    className="ml-auto shrink-0"
-                    aria-label={`${o.action === 'reply' ? 'Reply to' : 'Share'} ${o.handle}`}
-                    onClick={() =>
-                      shell.notBuilt(
-                        o.action === 'reply' ? 'Replying from Discover' : 'Sharing a post',
-                      )
-                    }
-                  >
-                    {o.action === 'reply' ? 'Reply' : 'Share'}
-                  </Button>
-                </div>
-                {query ? (
-                  <button
-                    type="button"
-                    aria-pressed={open}
-                    aria-label={`${o.handle}: ${o.body} View their mentions`}
-                    onClick={() => mentions.toggle(query)}
-                    className={cn(
-                      'flex min-w-0 flex-col gap-1 rounded-xs text-left',
-                      open && 'underline',
-                      focusRing,
-                    )}
-                  >
-                    <Text render={<span />} truncate>
-                      {o.body}
-                    </Text>
-                    <Text render={<span />} size="sm" color="subtle" truncate>
-                      {o.why}
-                    </Text>
-                  </button>
-                ) : (
-                  <>
-                    <Text truncate>{o.body}</Text>
-                    <Text size="sm" color="subtle" truncate>
-                      {o.why}
-                    </Text>
-                  </>
+              {/* The hover and open fills of a ghost `ClickableCard`, which the
+                  trend rows are, inset from the dividers the same way: one
+                  color for every clickable thing on the page. */}
+              <div
+                className={cn(
+                  'flex w-full gap-3 rounded-md px-2 py-3',
+                  'transition-colors duration-fast-min ease-standard',
+                  query && 'cursor-pointer hover:bg-surface-background-subtle',
+                  open && 'bg-surface-background-subtle',
                 )}
+              >
+                <Avatar
+                  name={creator?.name ?? o.handle}
+                  src={creator?.avatar}
+                  alt=""
+                  size="small"
+                />
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <NetworkIcon network={o.network} />
+                    <Text render={<span />} weight="semibold" truncate>
+                      {o.handle}
+                    </Text>
+                    <Text render={<span />} size="sm" color="subtle" className="shrink-0">
+                      · {o.ago}
+                    </Text>
+                    <Button
+                      appearance="secondary"
+                      size="small"
+                      startIcon={o.action === 'reply' ? Reply : Share}
+                      className="ml-auto shrink-0"
+                      aria-label={`${o.action === 'reply' ? 'Reply to' : 'Share'} ${o.handle}`}
+                      onClick={() =>
+                        shell.notBuilt(
+                          o.action === 'reply' ? 'Replying from Discover' : 'Sharing a post',
+                        )
+                      }
+                    >
+                      {o.action === 'reply' ? 'Reply' : 'Share'}
+                    </Button>
+                  </div>
+                  {query ? (
+                    <button
+                      type="button"
+                      aria-pressed={open}
+                      aria-label={`${o.handle}: ${o.body} View their mentions`}
+                      onClick={() => mentions.toggle(query)}
+                      className={cn('flex min-w-0 flex-col gap-1 rounded-xs text-left', focusRing)}
+                    >
+                      <Text render={<span />} truncate>
+                        {o.body}
+                      </Text>
+                      <Text render={<span />} size="sm" color="subtle" truncate>
+                        {o.why}
+                      </Text>
+                    </button>
+                  ) : (
+                    <>
+                      <Text truncate>{o.body}</Text>
+                      <Text size="sm" color="subtle" truncate>
+                        {o.why}
+                      </Text>
+                    </>
+                  )}
+                </div>
               </div>
             </li>
           )
