@@ -96,6 +96,13 @@ below its content, so the popup grows straight past its own cap. Measured on the
 at a 900-tall viewport: popup 868 (= 900 − the two 16px gutters), body 724 visible against 840 of
 content, and after scrolling 116px the header is still at top 29 and the footer still at bottom 867.
 
+**`-m-1 p-1` gives the focus ring room inside the clip** (2026-10-19, found in Yet Social's note
+dialog). A scroll container clips both axes, since `overflow-y: auto` computes `overflow-x` to `auto`,
+and the ring paints 4px outside its control. So a full-width field flush with the Body lost its
+ring's sides and corners. The 4px of padding holds the ring and the negative margin cancels it, so
+nothing moves. Drawer and Panel already pad inside their scroll bodies (16px) and never had it.
+The `Form` story now puts its fields in a Body and asserts the 4px.
+
 **It is deliberately not required.** A `flex-1` region in a `max-h-full` column with nothing to
 overflow just makes a short dialog as tall as the viewport allows. Reach for it when the content is
 long, and not otherwise.

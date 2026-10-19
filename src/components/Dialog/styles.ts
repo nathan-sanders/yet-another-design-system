@@ -127,7 +127,16 @@ export const popup = tv({
  * `min-h-0` is the whole trick: a flex child's default `min-height: auto`
  * refuses to shrink below its content, so without it the popup grows past its
  * own `max-h-full` and nothing scrolls at all.
+ *
+ * **`-m-1 p-1` is room for the focus ring.** A scroll container clips on both
+ * axes — `overflow-y: auto` computes `overflow-x` to `auto` too — and the ring
+ * paints 4px *outside* its control, so a full-width Input flush with the Body's
+ * edge lost the sides and corners of its ring. 4px of padding gives the ring
+ * somewhere to land inside the clip, and the matching negative margin hands the
+ * 4px back so the content still sits on the popup's 16px. Same idea as
+ * `overflow-clip` never being ported, from the other side: here the clip is
+ * real behavior and cannot go, so the ring has to fit inside it.
  */
 export const body = tv({
-  base: ['min-h-0 flex-1 overflow-y-auto'],
+  base: ['min-h-0 flex-1 overflow-y-auto -m-1 p-1'],
 })

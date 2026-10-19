@@ -205,12 +205,15 @@ export const Form: Story = {
           <Dialog.Description>
             Clicking outside will not close this one, so nothing you type gets lost.
           </Dialog.Description>
-          <Field label="Display name">
-            <Input value={name} onChange={(event) => setName(event.target.value)} />
-          </Field>
-          <Field label="Bio" description="A sentence or two, shown on your profile.">
-            <Input placeholder="Product designer" />
-          </Field>
+          {/* `flex-initial` so a short form does not stretch to the viewport. */}
+          <Dialog.Body className="flex flex-initial flex-col gap-3">
+            <Field label="Display name">
+              <Input value={name} onChange={(event) => setName(event.target.value)} />
+            </Field>
+            <Field label="Bio" description="A sentence or two, shown on your profile.">
+              <Input placeholder="Product designer" />
+            </Field>
+          </Dialog.Body>
           <div className="flex justify-end gap-2">
             <Dialog.Close render={<Button appearance="secondary">Cancel</Button>} />
             <Dialog.Close render={<Button>Save</Button>} />
@@ -218,6 +221,25 @@ export const Form: Story = {
         </Dialog.Popup>
       </Dialog>
     )
+  },
+  // A full-width field inside the Body has its whole focus ring inside the
+  // Body's clip. The ring paints 4px outside the control and the Body scrolls,
+  // which clips both axes; it used to slice the ring's sides and corners off.
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Edit profile' }))
+    const dialog = await waitFor(() => within(document.body).getByRole('dialog'))
+    const input = within(dialog).getByLabelText('Display name')
+    const body = input.closest<HTMLElement>('.overflow-y-auto')!
+    // The bordered box the ring is drawn round.
+    expect(getComputedStyle(body).overflowY).toBe('auto')
+    // Measured once the popup has finished scaling in from 95%.
+    await waitFor(() => expect(dialog.getAnimations()).toHaveLength(0))
+    const box = input.closest('div')!.getBoundingClientRect()
+    const clip = body.getBoundingClientRect()
+    expect(box.left - clip.left).toBeGreaterThanOrEqual(4)
+    expect(clip.right - box.right).toBeGreaterThanOrEqual(4)
+    expect(box.top - clip.top).toBeGreaterThanOrEqual(4)
+    await userEvent.keyboard('{Escape}')
   },
 }
 
