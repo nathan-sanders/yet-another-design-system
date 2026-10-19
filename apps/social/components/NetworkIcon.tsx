@@ -1,5 +1,5 @@
 import { cn } from '../../../src/lib/cn'
-import type { Network } from '../data/types'
+import { NETWORK_NAMES, type Network } from '../data/types'
 
 /**
  * A social network's mark, sized and colored like a Lucide glyph.
@@ -36,16 +36,6 @@ export function NetworkIcon({
       </g>
     </svg>
   )
-}
-
-const NETWORK_NAMES: Record<Network, string> = {
-  instagram: 'Instagram',
-  facebook: 'Facebook',
-  x: 'X',
-  threads: 'Threads',
-  reddit: 'Reddit',
-  tiktok: 'TikTok',
-  bluesky: 'Bluesky',
 }
 
 /** Each export's own width and height, so it centres in the 24 box as drawn. */

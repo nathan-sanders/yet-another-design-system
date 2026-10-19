@@ -1,6 +1,9 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import {
   ExternalLink,
+  Eye,
+  Fullscreen,
   Heart,
   MessageCircle,
   Radar,
@@ -14,9 +17,8 @@ import { AvatarGroup } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { Card } from '../../../../src/components/Card'
-import { HorizontalBar } from '../../../../src/components/HorizontalBar'
-import { Metric } from '../../../../src/components/Metric'
 import { Panel } from '../../../../src/components/Panel'
+import { Select } from '../../../../src/components/Select'
 import { Tabs } from '../../../../src/components/Tabs'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
@@ -25,17 +27,19 @@ import { CreatorCard } from '../../components/CreatorCard'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import {
   audienceFor,
+  audienceOverlap,
+  contentFor,
   creatorById,
   fitColor,
   fitLabel,
   similarCreators,
   type Creator,
+  type CreatorPost,
+  type Share,
 } from '../../data/creators'
-import { seeded } from '../../data/performance'
 import { useShell } from '../../shell/ShellContext'
 import { formatCount } from '../reports/model'
-
-type DetailTab = 'overview' | 'audience' | 'content' | 'similar'
+import { creatorPath, type DetailTab } from './paths'
 
 /**
  * One of Overview's cards: a 12px-padded `Card` with a small subtle label over
@@ -91,7 +95,7 @@ function EngagementBars({ creator }: { creator: Creator }) {
   )
 }
 
-function OverviewTab({ creator }: { creator: Creator }) {
+export function OverviewTab({ creator }: { creator: Creator }) {
   const { collaborations } = creator
   const shown = collaborations.brands.length
   return (
@@ -184,101 +188,257 @@ function OverviewTab({ creator }: { creator: Creator }) {
   )
 }
 
-/** Code-first: Figma draws no Audience tab. */
-function AudienceTab({ creator }: { creator: Creator }) {
-  const audience = audienceFor(creator)
+/**
+ * A row of labelled shares on one 0–100 scale: Figma's plain 8px bars in the
+ * first categorical color, the Engagement card's drawing at the full view's
+ * width (`40005952:23519`). The bars are decoration; the mono number beside
+ * each says it, and the list is the structure a screen reader walks.
+ */
+function ShareBars({ rows, label }: { rows: Share[]; label: string }) {
   return (
-    <div className="flex flex-col gap-4">
-      <DetailCard label="Gender">
-        <div className="flex gap-6">
-          <Metric label="Women" value={`${audience.women}%`} />
-          <Metric label="Men" value={`${audience.men}%`} />
-        </div>
-      </DetailCard>
-      <DetailCard label="Age">
-        <HorizontalBar
-          data={audience.ages}
-          yKey="band"
-          series={[{ key: 'share', label: 'Share of followers (%)' }]}
-          label={`${creator.name}'s followers by age`}
-          legend={false}
-        />
-      </DetailCard>
-      <DetailCard label="Top cities">
-        <ul className="flex flex-col gap-2">
-          {audience.cities.map((city) => (
-            <li key={city.city} className="flex items-center gap-2">
-              <Text render={<span />} size="sm" className="min-w-0 flex-1" truncate>
-                {city.city}
-              </Text>
-              <Text render={<span />} size="sm" mono>
-                {city.share}%
-              </Text>
-            </li>
-          ))}
-        </ul>
-      </DetailCard>
-    </div>
+    <ul aria-label={label} className="flex flex-col gap-2">
+      {rows.map((row) => (
+        <li key={row.label} className="flex items-center gap-3">
+          <Text render={<span />} truncate className="w-32 shrink-0">
+            {row.label}
+          </Text>
+          <span aria-hidden className="flex min-w-0 flex-1">
+            <span
+              className="block h-2 w-(--share) min-w-1 rounded-full bg-data-viz-categorical-01"
+              style={{ '--share': `${row.share}%` } as CSSProperties}
+            />
+          </span>
+          <Text render={<span />} mono className="shrink-0">
+            {row.share}%
+          </Text>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** A KPI card: the file's label over a semibold value, as the Collaborations card is drawn. */
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <DetailCard label={label}>
+      <Text render={<span />} weight="semibold" color="emphasized">
+        {value}
+      </Text>
+    </DetailCard>
   )
 }
 
 /**
- * Code-first: Figma draws no Content tab. The same four posts the card scrolls
- * through, newest first, with seeded likes and comments.
+ * The tab bodies lay out by the room they are given, not the window: one
+ * column in the 384 panel, the file's grid in the full view's right column.
+ * `@container/creator` is that room; the 560 breakpoint sits between the
+ * panel at its widest (640) less padding and the full view at its narrowest.
  */
-function ContentTab({ creator }: { creator: Creator }) {
-  const random = seeded(`${creator.id}-content`)
-  const photos = creator.posts
-  const reach = creator.followers * (creator.engagement / 100)
+const tabBody = '@container/creator flex flex-col gap-3'
+const kpiRow = 'grid grid-cols-2 gap-3 @min-[560px]/creator:grid-cols-4'
+const cardPair = 'grid grid-cols-1 items-stretch gap-3 @min-[560px]/creator:grid-cols-2'
+
+/** Audience (`Full View`, `40005952:23519`): who follows them. */
+export function AudienceTab({ creator }: { creator: Creator }) {
+  const audience = audienceFor(creator)
+  const growth = `${audience.growth > 0 ? '+' : ''}${audience.growth.toFixed(1)}%`
   return (
-    <ul aria-label="Recent posts" className="grid grid-cols-2 gap-3">
-      {photos.map((photo, i) => {
-        const likes = Math.round(reach * (0.6 + random() * 0.8))
-        const comments = Math.round(likes * (0.02 + random() * 0.03))
-        return (
-          <li key={photo} className="flex flex-col gap-1">
-            <img
-              src={photo}
-              alt={`Recent post ${i + 1}`}
-              className="aspect-square w-full rounded-sm object-cover"
-            />
-            <span className="flex items-center gap-3 text-content-subtle">
-              <span className="flex items-center gap-1">
-                <Heart aria-hidden size={14} strokeWidth={1.5} />
-                <Text render={<span />} size="sm" mono color="subtle">
-                  <span className="sr-only">Likes </span>
-                  {formatCount(likes)}
-                </Text>
-              </span>
-              <span className="flex items-center gap-1">
-                <MessageCircle aria-hidden size={14} strokeWidth={1.5} />
-                <Text render={<span />} size="sm" mono color="subtle">
-                  <span className="sr-only">Comments </span>
-                  {formatCount(comments)}
-                </Text>
-              </span>
-            </span>
-          </li>
-        )
-      })}
-    </ul>
+    <div className={tabBody}>
+      <div className={kpiRow}>
+        <StatCard label="Followers" value={formatCount(creator.followers)} />
+        <StatCard label="Audience growth (30 days)" value={growth} />
+        <StatCard label="Avg. engagement rate" value={`${creator.engagement.toFixed(1)}%`} />
+        <StatCard label="Authentic followers" value={`${audience.authentic}%`} />
+      </div>
+      <div className={cardPair}>
+        <DetailCard label="Age range">
+          <ShareBars rows={audience.ages} label="Followers by age" />
+        </DetailCard>
+        <DetailCard label="Gender">
+          <ShareBars rows={audience.genders} label="Followers by gender" />
+        </DetailCard>
+      </div>
+      <div className={cardPair}>
+        <DetailCard label="Top locations">
+          <ShareBars rows={audience.locations} label="Followers by country" />
+        </DetailCard>
+        <DetailCard label="Audience interests">
+          <ul className="flex flex-wrap gap-2">
+            {audience.interests.map((interest) => (
+              <li key={interest} className="flex">
+                <Token startIcon={Sparkles}>{interest}</Token>
+              </li>
+            ))}
+          </ul>
+        </DetailCard>
+      </div>
+    </div>
   )
 }
 
-/** Code-first: the three nearest creators, as the grid's cards. One swaps the panel to them. */
-function SimilarTab({ creator }: { creator: Creator }) {
-  const shell = useShell()
+const postDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
+
+/**
+ * `_Creator Post Card Content` (`40005955:24023`) in a Card: the photo, a
+ * two-line caption, network and format, and likes, comments and views. A plain
+ * Card rather than the file's Clickable Card, because a creator's post has
+ * nowhere to open to yet (FINDINGS 88).
+ */
+function PostCard({ post }: { post: CreatorPost }) {
+  const day = new Date()
+  day.setDate(day.getDate() - post.daysAgo)
+  const stats = [
+    { icon: Heart, label: 'Likes', value: post.likes },
+    { icon: MessageCircle, label: 'Comments', value: post.comments },
+    { icon: Eye, label: 'Views', value: post.views },
+  ]
   return (
-    <ul aria-label={`Creators like ${creator.name}`} className="flex flex-col gap-3">
-      {similarCreators(creator).map((other) => (
-        <li key={other.id} className="flex">
-          <CreatorCard
-            creator={other}
-            onClick={() => shell.setPanel({ type: 'creator', creatorId: other.id })}
-          />
-        </li>
-      ))}
-    </ul>
+    <Card className="h-full gap-2">
+      <img src={post.photo} alt="" className="h-40 w-full rounded-sm object-cover" />
+      <div className="flex flex-col gap-2 px-2 pt-1">
+        <Text weight="semibold" color="emphasized" className="line-clamp-2">
+          {post.caption}
+        </Text>
+        <span className="flex items-center gap-1.5 text-content-subtle">
+          <NetworkIcon network={post.network} size="small" />
+          <Text render={<span />} size="sm" color="subtle">
+            {post.format} · {postDay.format(day)}
+          </Text>
+        </span>
+        <span className="flex flex-wrap items-center gap-3">
+          {stats.map(({ icon: Icon, label, value }) => (
+            <span key={label} className="flex items-center gap-1">
+              <Icon aria-hidden size={14} strokeWidth={1.5} className="text-content-primary" />
+              <Text render={<span />} mono color="subtle">
+                <span className="sr-only">{label} </span>
+                {formatCount(value)}
+              </Text>
+            </span>
+          ))}
+        </span>
+      </div>
+    </Card>
+  )
+}
+
+/** Content (`Full View / Content`, `40005955:24767`): what they post, and how it does. */
+export function ContentTab({ creator }: { creator: Creator }) {
+  const content = contentFor(creator)
+  return (
+    <div className={tabBody}>
+      <div className={kpiRow}>
+        <StatCard label="Posts (30 days)" value={String(content.posts)} />
+        <StatCard label="Avg. likes" value={formatCount(content.likes)} />
+        <StatCard label="Avg. comments" value={formatCount(content.comments)} />
+        <StatCard label="Avg. views" value={formatCount(content.views)} />
+      </div>
+      <section aria-labelledby="top-posts" className="flex flex-col gap-3">
+        <Heading id="top-posts" level={3} size="sm" weight="normal" color="subtle">
+          Top posts · last 30 days
+        </Heading>
+        <ul className="grid grid-cols-1 gap-3 @min-[560px]/creator:grid-cols-3">
+          {content.top.map((post) => (
+            <li key={post.caption} className="flex">
+              <PostCard post={post} />
+            </li>
+          ))}
+        </ul>
+      </section>
+      <div className={cardPair}>
+        <DetailCard label="Content format">
+          <ShareBars rows={content.formats} label="Posts by format" />
+        </DetailCard>
+        <DetailCard label="Posts by channel">
+          <ShareBars rows={content.channels} label="Posts by channel" />
+        </DetailCard>
+      </div>
+    </div>
+  )
+}
+
+const SIMILAR_SORTS = [
+  { value: 'overlap', label: 'Audience overlap' },
+  { value: 'fit', label: 'Brand fit' },
+  { value: 'followers', label: 'Audience size' },
+]
+
+/**
+ * Similar (`Full View / Similar`, `40005955:75412`): the six creators whose
+ * audiences overlap most, as the grid's cards, under Creators' own Sort by row.
+ * Opening one is the caller's: the panel swaps to them, the full view goes to
+ * theirs.
+ */
+export function SimilarTab({
+  creator,
+  onOpen,
+}: {
+  creator: Creator
+  onOpen: (creatorId: string) => void
+}) {
+  const [sort, setSort] = useState('overlap')
+  const similar = similarCreators(creator)
+  const sorted =
+    sort === 'overlap'
+      ? similar
+      : [...similar].sort((a, b) => (sort === 'fit' ? b.fit - a.fit : b.followers - a.followers))
+  return (
+    <div className={tabBody}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Text render={<span />} size="sm" color="subtle">
+            Sort by
+          </Text>
+          <Select
+            size="small"
+            hug
+            aria-label="Sort similar creators"
+            value={sort}
+            onValueChange={(value) => setSort(String(value))}
+            items={SIMILAR_SORTS}
+          >
+            {SIMILAR_SORTS.map((option) => (
+              <Select.Item key={option.value} value={option.value}>
+                {option.label}
+              </Select.Item>
+            ))}
+          </Select>
+        </div>
+        <Text render={<span />} size="sm" color="subtle">
+          {similar.length} creators
+        </Text>
+      </div>
+      <ul
+        aria-label={`Creators like ${creator.name}`}
+        className="grid grid-cols-1 gap-3 @min-[480px]/creator:grid-cols-2 @min-[720px]/creator:grid-cols-3"
+      >
+        {sorted.map((other) => (
+          <li
+            key={other.id}
+            className="flex"
+            title={`${audienceOverlap(creator, other)}% audience overlap`}
+          >
+            <CreatorCard creator={other} onClick={() => onOpen(other.id)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/** The creator's portrait, name, location and handle: the top of the panel and of the full view's Overview column. */
+export function CreatorHeading({ creator }: { creator: Creator }) {
+  return (
+    <div className="flex items-center gap-3">
+      <Avatar size="large" name={creator.name} src={creator.avatar} alt="" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Heading level={2} size="lg" weight="semibold" color="emphasized" truncate>
+          {creator.name}
+        </Heading>
+        <Text size="sm" color="subtle" truncate>
+          {creator.location} · @{creator.handle}
+        </Text>
+      </div>
+    </div>
   )
 }
 
@@ -286,24 +446,47 @@ function SimilarTab({ creator }: { creator: Creator }) {
  * Creator details (`40005911:35788`, the `Creator Details Panel`): who the
  * creator is, how well they fit the brand, and what they post about. A
  * `Panel`, as post detail is, because the grid stays live beside it and the
- * next card opens in its place. Only Overview is drawn; Audience, Content and
- * Similar are code-first (FINDINGS).
+ * next card opens in its place. Expand opens the same creator in the full view
+ * (`40005952:23519`) on the tab you were reading, or Audience from Overview,
+ * which the full view always shows.
  */
 export function CreatorDetailPanel({
   creatorId,
+  tab: requestedTab,
   open,
   onClose,
 }: {
   /** Kept after closing so the panel slides out with its content. */
   creatorId?: string
+  /** The tab to open on, when the full view collapses back to the panel. */
+  tab?: DetailTab
   open: boolean
   onClose: () => void
 }) {
   const shell = useShell()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [tab, setTab] = useState<DetailTab>('overview')
+  // Each opening starts on the requested tab, or Overview. Switching creators
+  // while it is open keeps the tab, so Similar can walk from one to the next.
+  const [wasOpen, setWasOpen] = useState(open)
+  if (open !== wasOpen) {
+    setWasOpen(open)
+    if (open) setTab(requestedTab ?? 'overview')
+  }
 
   const creator = creatorId ? creatorById(creatorId) : undefined
   if (!creator) return null
+
+  const expand = () => {
+    navigate(
+      creatorPath(
+        creator.id,
+        tab === 'overview' ? 'audience' : tab,
+        location.pathname + location.search,
+      ),
+    )
+  }
 
   return (
     <Panel
@@ -314,19 +497,16 @@ export function CreatorDetailPanel({
       }}
       resizable
     >
-      <Panel.Header closeButton>Creator details</Panel.Header>
+      <Panel.Header
+        closeButton
+        actions={
+          <Button appearance="ghost" startIcon={Fullscreen} aria-label="Expand" onClick={expand} />
+        }
+      >
+        Creator details
+      </Panel.Header>
       <Panel.Body className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <Avatar size="large" name={creator.name} src={creator.avatar} alt="" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Heading level={2} size="lg" weight="semibold" color="emphasized" truncate>
-              {creator.name}
-            </Heading>
-            <Text size="sm" color="subtle" truncate>
-              {creator.location} · @{creator.handle}
-            </Text>
-          </div>
-        </div>
+        <CreatorHeading creator={creator} />
 
         <Tabs value={tab} onValueChange={(value) => setTab(value as DetailTab)} layout="hug">
           <Tabs.List
@@ -348,21 +528,38 @@ export function CreatorDetailPanel({
             <ContentTab creator={creator} />
           </Tabs.Panel>
           <Tabs.Panel value="similar" className="pt-4">
-            <SimilarTab creator={creator} />
+            <SimilarTab
+              creator={creator}
+              onOpen={(id) => shell.setPanel({ type: 'creator', creatorId: id })}
+            />
           </Tabs.Panel>
         </Tabs>
       </Panel.Body>
       <Panel.Footer className="flex items-center justify-between pt-4">
-        <Button
-          appearance="ghost"
-          startIcon={ExternalLink}
-          aria-label="Open profile"
-          onClick={() => shell.notBuilt('Creator profiles')}
-        />
-        <Button appearance="primary" onClick={() => shell.notBuilt('Campaigns')}>
-          Add to campaign
-        </Button>
+        <CreatorActions />
       </Panel.Footer>
     </Panel>
+  )
+}
+
+/**
+ * Open profile and Add to campaign: the panel's footer, and the full view's
+ * top bar, where the file moved them. Both are toasts — profiles and Campaigns
+ * have no design.
+ */
+export function CreatorActions() {
+  const shell = useShell()
+  return (
+    <>
+      <Button
+        appearance="ghost"
+        startIcon={ExternalLink}
+        aria-label="Open profile"
+        onClick={() => shell.notBuilt('Creator profiles')}
+      />
+      <Button appearance="primary" onClick={() => shell.notBuilt('Campaigns')}>
+        Add to campaign
+      </Button>
+    </>
   )
 }

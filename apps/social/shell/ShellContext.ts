@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { MentionQuery } from '../data/mentions'
+import type { DetailTab } from '../screens/creators/paths'
 
 /**
  * What is open in the shell's right-hand `Panel`. One at a time: the Figma
@@ -16,7 +17,8 @@ export type ShellPanel =
   | { type: 'yak-history' }
   | { type: 'post'; postId: string }
   | { type: 'contact'; customerId: string }
-  | { type: 'creator'; creatorId: string }
+  /** `tab` is the one to open on, when the full view collapses back to the panel. */
+  | { type: 'creator'; creatorId: string; tab?: DetailTab }
   | { type: 'widget'; reportId: string; widgetId: string }
   /** The posts behind a number on Measure (`screens/mentions/MentionsPanel.tsx`). */
   | { type: 'mentions'; query: MentionQuery }

@@ -21,7 +21,7 @@ import takeoutBox from '../assets/photos/takeout-box.jpg'
 import wraps from '../assets/photos/wraps.jpg'
 import { customerFor } from './inbox'
 import { seeded } from './performance'
-import type { Network } from './types'
+import { NETWORK_NAMES, type Network } from './types'
 
 // Plan › Creators (`40005911:35697`): the creators worth working with. The
 // first eight are the file's cards: five are Discover's creators — same people,
@@ -557,47 +557,286 @@ export function fitLabel(fit: number): string {
   return fit >= 80 ? 'Great match' : fit >= 40 ? 'Good match' : 'Weak match'
 }
 
-/** The three creators nearest this one: same category first, then brand fit. */
-export function similarCreators(creator: Creator): Creator[] {
+/**
+ * How much of two creators' audiences follow both, 0–100. Seeded from the pair,
+ * so it is the same whichever side asks, and a shared category counts for a lot:
+ * a wellness audience follows other wellness accounts.
+ */
+export function audienceOverlap(a: BrandCreator, b: BrandCreator): number {
+  const pair = [a.id, b.id].sort().join('+')
+  const base = 12 + seeded(pair)() * 30
+  return Math.round(a.category === b.category ? base + 30 : base)
+}
+
+/** The creators nearest this one, most overlapping audience first. */
+export function similarCreators(creator: Creator, count = 6): Creator[] {
   return brandCreators
     .filter((c) => c.id !== creator.id)
-    .sort(
-      (a, b) =>
-        Number(b.category === creator.category) - Number(a.category === creator.category) ||
-        b.fit - a.fit,
-    )
-    .slice(0, 3)
+    .sort((a, b) => audienceOverlap(creator, b) - audienceOverlap(creator, a))
+    .slice(0, count)
+}
+
+/** One labelled share in an Audience or Content card, percent. */
+export interface Share {
+  label: string
+  share: number
 }
 
 export interface CreatorAudience {
-  /** Share of followers per age band, percent; sums to 100. */
-  ages: { band: string; share: number }[]
-  /** Top cities, percent of followers. */
-  cities: { city: string; share: number }[]
-  women: number
-  men: number
+  /** Audience growth over the last 30 days, percent. */
+  growth: number
+  /** Followers Yet believes are real people, percent. */
+  authentic: number
+  /** Share of followers per age band; sums to 100. */
+  ages: Share[]
+  /** Women, men and another gender; sums to 100. */
+  genders: Share[]
+  /** Top five countries, percent of followers. */
+  locations: Share[]
+  /** What their followers are into, beyond food. */
+  interests: string[]
 }
 
 const AGE_BANDS = ['18–24', '25–34', '35–44', '45–54', '55+']
-const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Austin', 'Seattle', 'Atlanta']
+const COUNTRIES = ['Canada', 'United Kingdom', 'Australia', 'Germany', 'Mexico', 'Brazil']
+
+const INTERESTS: Record<CreatorCategory, string[]> = {
+  Wellness: ['Healthy eating', 'Fitness', 'Yoga', 'Wellness', 'Plant-based', 'Sustainability'],
+  'Food & drink': ['Restaurants', 'Home cooking', 'Travel', 'Coffee', 'Baking', 'Street food'],
+  Lifestyle: ['Home decor', 'Travel', 'Fashion', 'Entertaining', 'Coffee', 'Parenting'],
+  'Meal prep': [
+    'Meal prep',
+    'Budget living',
+    'Fitness',
+    'Home cooking',
+    'Parenting',
+    'Batch cooking',
+  ],
+  Fitness: ['Fitness', 'Running', 'Nutrition', 'Strength training', 'Wellness', 'Outdoors'],
+}
+
+/** Rounded shares can miss 100 by a point or two; the biggest one absorbs it. */
+function toHundred(weights: number[]): number[] {
+  const total = weights.reduce((a, b) => a + b, 0)
+  const shares = weights.map((w) => Math.round((w / total) * 100))
+  const biggest = shares.indexOf(Math.max(...shares))
+  shares[biggest] += 100 - shares.reduce((a, b) => a + b, 0)
+  return shares
+}
 
 /**
- * Code-first: Figma draws no Audience tab. Seeded from the creator id, as post
- * stats are, so a creator's audience is the same every visit.
+ * Alena's are the file's own (`Full View`, `40005952:23519`); everyone else's
+ * are written to her shape, seeded from their id so a creator's audience is the
+ * same every visit.
  */
+const ALENA_AUDIENCE: CreatorAudience = {
+  growth: 3.4,
+  authentic: 94,
+  ages: [
+    { label: '18–24', share: 22 },
+    { label: '25–34', share: 41 },
+    { label: '35–44', share: 21 },
+    { label: '45–54', share: 10 },
+    { label: '55+', share: 6 },
+  ],
+  genders: [
+    { label: 'Women', share: 68 },
+    { label: 'Men', share: 29 },
+    { label: 'Another gender', share: 3 },
+  ],
+  locations: [
+    { label: 'United States', share: 58 },
+    { label: 'Canada', share: 9 },
+    { label: 'United Kingdom', share: 8 },
+    { label: 'Australia', share: 6 },
+    { label: 'Germany', share: 4 },
+  ],
+  interests: [
+    'Healthy eating',
+    'Fitness',
+    'Home cooking',
+    'Meal prep',
+    'Travel',
+    'Wellness',
+    'Plant-based',
+    'Sustainability',
+  ],
+}
+
 export function audienceFor(creator: Creator): CreatorAudience {
+  if (creator.id === 'alena') return ALENA_AUDIENCE
   const random = seeded(creator.id)
-  const weights = AGE_BANDS.map((_, i) => (i === 1 ? 3 : i === 0 || i === 2 ? 2 : 1) + random())
-  const total = weights.reduce((a, b) => a + b, 0)
-  const ages = AGE_BANDS.map((band, i) => ({ band, share: Math.round((weights[i] / total) * 100) }))
-  // Rounding can miss 100 by one; the biggest band absorbs it.
-  ages[1].share += 100 - ages.reduce((a, b) => a + b.share, 0)
-  const home = creator.location.split(',')[0]
-  const cities = [home, ...CITIES.filter((c) => c !== home)]
-    .slice(0, 4)
-    .map((city, i) => ({ city, share: Math.round((18 - i * 4) * (0.8 + random() * 0.4)) }))
-  const women = Math.round(55 + random() * 25)
-  return { ages, cities, women, men: 100 - women }
+  const ages = toHundred(AGE_BANDS.map((_, i) => [2, 3, 2, 1, 0.6][i] + random()))
+  const women = Math.round(52 + random() * 26)
+  const another = 1 + Math.round(random() * 3)
+  const home = Math.round(48 + random() * 20)
+  const abroad = COUNTRIES.slice(0, 4).map((label, i) => ({
+    label,
+    share: Math.max(2, Math.round((10 - i * 2) * (0.7 + random() * 0.6))),
+  }))
+  return {
+    growth: Math.round((random() * 6 - 0.8) * 10) / 10,
+    authentic: Math.round(86 + random() * 11),
+    ages: AGE_BANDS.map((label, i) => ({ label, share: ages[i] })),
+    genders: [
+      { label: 'Women', share: women },
+      { label: 'Men', share: 100 - women - another },
+      { label: 'Another gender', share: another },
+    ],
+    locations: [{ label: 'United States', share: home }, ...abroad],
+    interests: [...creator.topics.slice(0, 2).map(capitalize), ...INTERESTS[creator.category]]
+      .filter((topic, i, all) => all.indexOf(topic) === i)
+      .slice(0, 8),
+  }
+}
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+export type PostFormat = 'Reel' | 'Video' | 'Carousel' | 'Photo'
+
+/** One of the Content tab's top posts. */
+export interface CreatorPost {
+  photo: string
+  caption: string
+  format: PostFormat
+  network: Network
+  /** Days before today it went out. */
+  daysAgo: number
+  likes: number
+  comments: number
+  views: number
+}
+
+export interface CreatorContent {
+  /** Posts in the last 30 days. */
+  posts: number
+  likes: number
+  comments: number
+  views: number
+  /** Their three best posts of the last 30 days, best first. */
+  top: CreatorPost[]
+  formats: Share[]
+  channels: Share[]
+}
+
+const CAPTIONS: Record<CreatorCategory, string[]> = {
+  Wellness: [
+    'A gut-friendly lunch I make every Monday',
+    'Three smoothies that keep me full till noon',
+    'What I eat in a day, the honest version',
+  ],
+  'Food & drink': [
+    'Rating every taco on this street',
+    'The bakery line was worth it',
+    'Recreating a $28 sandwich at home',
+  ],
+  Lifestyle: [
+    'Hosting eight on a Tuesday, no stress',
+    'My kitchen reset routine',
+    'A slow Sunday brunch spread',
+  ],
+  'Meal prep': [
+    'Five lunches for under $20',
+    'One sheet pan, four dinners',
+    'Prep with me: freezer breakfast burritos',
+  ],
+  Fitness: [
+    'High-protein bowls after leg day',
+    'What I eat before a long run',
+    'Five-minute post-workout snacks',
+  ],
+}
+
+const ALENA_TOP: Omit<CreatorPost, 'photo'>[] = [
+  {
+    caption: '5 Mediterranean bowls for busy weeknights',
+    format: 'Reel',
+    network: 'instagram',
+    daysAgo: 7,
+    likes: 48_200,
+    comments: 1_300,
+    views: 412_000,
+  },
+  {
+    caption: 'My go-to green smoothie (no banana, promise)',
+    format: 'Video',
+    network: 'tiktok',
+    daysAgo: 11,
+    likes: 31_500,
+    comments: 884,
+    views: 268_000,
+  },
+  {
+    caption: 'Sunday meal prep in 45 minutes, start to finish',
+    format: 'Carousel',
+    network: 'instagram',
+    daysAgo: 14,
+    likes: 22_900,
+    comments: 517,
+    views: 190_000,
+  },
+]
+
+/**
+ * The Content tab (`Full View / Content`, `40005955:24767`). Alena's numbers
+ * and posts are the file's; the rest are seeded from reach — followers times
+ * engagement — so a bigger, livelier creator gets bigger posts.
+ */
+export function contentFor(creator: Creator): CreatorContent {
+  if (creator.id === 'alena') {
+    return {
+      posts: 18,
+      likes: 24_100,
+      comments: 612,
+      views: 96_000,
+      top: ALENA_TOP.map((post, i) => ({ ...post, photo: creator.posts[i] })),
+      formats: [
+        { label: 'Reels', share: 52 },
+        { label: 'Carousels', share: 31 },
+        { label: 'Photos', share: 17 },
+      ],
+      channels: [
+        { label: 'Instagram', share: 61 },
+        { label: 'TikTok', share: 28 },
+        { label: 'Facebook', share: 11 },
+      ],
+    }
+  }
+  const random = seeded(`${creator.id}-content`)
+  const reach = creator.followers * (creator.engagement / 100)
+  const formats: PostFormat[] = ['Reel', 'Carousel', 'Video']
+  const top = CAPTIONS[creator.category].map((caption, i) => {
+    const likes = Math.round(reach * (1.6 - i * 0.3) * (0.8 + random() * 0.4))
+    return {
+      photo: creator.posts[i],
+      caption,
+      format: formats[i],
+      network: creator.channels[i % creator.channels.length].network,
+      daysAgo: 3 + i * 4 + Math.round(random() * 3),
+      likes,
+      comments: Math.round(likes * (0.02 + random() * 0.02)),
+      views: Math.round(likes * (7 + random() * 3)),
+    }
+  })
+  const formatShares = toHundred([3 + random(), 2 + random(), 1 + random()])
+  const channelShares = toHundred(creator.channels.map((c) => c.followers))
+  return {
+    posts: 8 + Math.round(random() * 16),
+    likes: Math.round(reach * 0.5),
+    comments: Math.round(reach * 0.5 * 0.025),
+    views: Math.round(reach * 2),
+    top,
+    formats: ['Reels', 'Carousels', 'Photos'].map((label, i) => ({
+      label,
+      share: formatShares[i],
+    })),
+    channels: creator.channels.map((c, i) => ({
+      label: NETWORK_NAMES[c.network],
+      share: channelShares[i],
+    })),
+  }
 }
 
 export function fitColor(fit: number): 'green' | 'orange' | 'red' {
