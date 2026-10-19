@@ -136,6 +136,12 @@ reaches Menu's rows. The field half — `trigger`, `value`, `field`, `chips`, `c
 `searchInput`, `indicatorBox` — stayed here, because `Root`, `Item`, `Trigger`, `Value` and
 `Separator` really are different components in the two namespaces. Nothing about this component
 changed; the story suite passing unchanged is what says so.
+**`startIcon` lives in the data** (2026-10-19). `ComboboxItemData` gained `startIcon` (a Lucide
+component or an element — `StartIcon`, shared with Select through `Icon/LeadingIcon.tsx`), and
+`defaultItem` forwards it, so icon rows no longer need a function child. In the single-select shape
+the trigger's `Value` renders the chosen row's icon before its label, 16px then 8px, the icon
+outside the truncation — Select's rule, the same reason. The tokenizer is unchanged: its chips are
+`Token`s. `WithIcons` picks a row and measures it.
 **`overflow-clip` is not ported** — ninth time.
 **No new tokens and no `generate.py` run** — `input-*`, `surface-*`, `surface-border`,
 `feedback-danger-highlight` and `shadow-medium` all existed.
@@ -154,6 +160,7 @@ The two are one text in two places — change one and change the other.
 
 - Reach for it when the value must come from a list too long to scroll, and typing is how you find it.
 - Pass the options as items. Rows written as children are never filtered, so the search would silently match nothing.
+- Give every row an icon or none. The trigger shows the chosen row's icon, and a list where only some rows have one reads as misaligned.
 - Use the multi-select shape when several values are chosen: the field becomes the input, and the chosen values sit in front of the caret as Tokens.
 
 **Don't**

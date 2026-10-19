@@ -47,6 +47,16 @@ to be drawn, like Divider's `emphasis` and Menu's `destructive`.
 **`Select.Value` renders the raw value unless Root is given `items`**, so `value="gala"` would put
 "gala" in the trigger rather than "Gala". `Select` derives that list by walking its own children,
 which keeps one source; passing `items` yourself skips it.
+**The chosen row's `startIcon` follows it into the trigger** (2026-10-19, for Yet Social's note
+color field). Base UI's `Select.Value` renders the label alone, so a picked row lost its icon.
+`collectItems` now records `startIcon` too, and a single select whose list has any icon renders the
+value as `[icon] label` at `_Select Value`'s spacing — 16px icon, label 8px after, the icon outside
+the `truncate`. A plain select keeps Base UI's rendering untouched; multi select is unchanged.
+Derived, not declared: the row already says it has an icon. **`startIcon` also takes an element**
+(`LucideIcon | ReactElement`, `StartIcon` in `Icon/LeadingIcon.tsx`) for what is not a glyph — a
+color swatch, a flag — drawn `aria-hidden` in the same 16px box. `WithIcons` measures 16 and 8 at
+all three sizes; `Swatches` is the element form. Figma's `_Select Value` has the `Icon` layer
+(`40005959:65748`).
 **Story trap, Menu's by a different route:** a closed select keeps its popup in the DOM but inside a
 `hidden` subtree, and axe walks past anything hidden — so the run passes by checking nothing. `Open`,
 `Groups` and `MultiSelect` start open on purpose.
@@ -71,6 +81,7 @@ The two are one text in two places — change one and change the other.
 - Use it when the value must come from a list too long to show at once and short enough to scroll.
 - Order the options the way somebody would look for them, not the way the data arrives.
 - Let a Field label it. The trigger draws the value, never the label.
+- Give every row an icon or none. The trigger shows the chosen row's icon, and a list where only some rows have one reads as misaligned.
 
 **Don't**
 

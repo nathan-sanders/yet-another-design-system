@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Circle, Globe, Lock, Users } from 'lucide-react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Select } from './Select'
 import { Field } from '../Field'
@@ -278,4 +279,104 @@ export const Standalone: Story = {
       <Select.Item value="name">Name</Select.Item>
     </Select>
   ),
+}
+
+const visibility = [
+  { value: 'only-me', label: 'Only me', icon: Lock },
+  { value: 'team', label: 'My team', icon: Users },
+  { value: 'anyone', label: 'Anyone with the link', icon: Globe },
+] as const
+
+/**
+ * A row's `startIcon` follows it into the trigger once it is chosen.
+ *
+ * Base UI's own value renders the label alone, so without this the icon would
+ * vanish the moment the row was picked. The trigger draws it at Figma's
+ * `_Select Value` spacing — the 16px icon, then the label 8px after — at all
+ * three sizes, and the icon stays outside the truncation so a long label clips
+ * rather than squashing it.
+ *
+ * The play picks a row with the mouse and checks the trigger took that row's
+ * icon and label with it.
+ */
+export const WithIcons: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-80 flex-col gap-4">
+      {sizes.map((size) => (
+        <Field key={size} label={`Visibility (${size})`} nativeLabel={false}>
+          <Select size={size} defaultValue="team" placeholder="Choose visibility…">
+            {visibility.map(({ value, label, icon }) => (
+              <Select.Item key={value} value={value} startIcon={icon}>
+                {label}
+              </Select.Item>
+            ))}
+          </Select>
+        </Field>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const triggers = canvas.getAllByRole('combobox')
+
+    for (const trigger of triggers) {
+      // 16px icon, 8px before the label.
+      const svg = trigger.querySelector('svg')
+      expect(svg).not.toBeNull()
+      expect(svg!.getBoundingClientRect().width).toBe(16)
+      expect(trigger).toHaveTextContent('My team')
+    }
+
+    await userEvent.click(triggers[1])
+    const option = await waitFor(() => within(document.body).getByRole('option', { name: 'Anyone with the link' }))
+    await userEvent.click(option)
+
+    await waitFor(() => expect(triggers[1]).toHaveTextContent('Anyone with the link'))
+    const icon = triggers[1].querySelector('svg')!
+    const label = icon.nextElementSibling!
+    expect(label.getBoundingClientRect().left - icon.getBoundingClientRect().right).toBe(8)
+    expect(icon.classList.toString()).toContain('lucide-globe')
+  },
+}
+
+const swatches = [
+  { value: 'neutral', label: 'Neutral', swatch: 'border-decorative-neutral-highlight bg-decorative-neutral-background' },
+  { value: 'blue', label: 'Blue', swatch: 'border-decorative-blue-highlight bg-decorative-blue-background' },
+  { value: 'green', label: 'Green', swatch: 'border-decorative-green-highlight bg-decorative-green-background' },
+  { value: 'red', label: 'Red', swatch: 'border-decorative-red-highlight bg-decorative-red-background' },
+] as const
+
+/**
+ * `startIcon` also takes an **element**, for what is not a Lucide glyph — here
+ * a color swatch, in the 16px leading box. The chosen one shows in the trigger
+ * exactly as it does in its row.
+ *
+ * Give every row one or none: a list where some rows carry an icon and others
+ * do not reads as misaligned.
+ */
+export const Swatches: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Field label="Color" nativeLabel={false} className="w-80">
+      <Select defaultValue="neutral" placeholder="Choose a color…">
+        {swatches.map(({ value, label, swatch }) => (
+          <Select.Item
+            key={value}
+            value={value}
+            startIcon={<span data-swatch={value} className={`size-3.5 rounded-full border ${swatch}`} />}
+          >
+            {label}
+          </Select.Item>
+        ))}
+      </Select>
+    </Field>
+  ),
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('combobox')
+    expect(trigger).toHaveTextContent('Neutral')
+    expect(trigger.querySelector('[data-swatch="neutral"]')).not.toBeNull()
+    // The swatch's box is hidden from assistive tech; the label carries the name.
+    expect(trigger.querySelector('[data-swatch]')!.parentElement).toHaveAttribute('aria-hidden', 'true')
+  },
 }
