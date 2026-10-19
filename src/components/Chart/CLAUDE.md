@@ -409,6 +409,14 @@ is often on the shape inside it (`.recharts-active-dot`'s circle). Hover and wai
 before clicking a line or an area: the chart's `onClick` reads the hovered index, and a press with
 no hover first has none. The `*Click` stories on all five charts do all three ways in.
 
+**A click that arrives with its own move is lost on a slice, and it looks like a bug.** Recharts
+throttles pointer moves to the next frame, so a tool that moves and presses in one instant (the
+Browser pane's `left_click`) gets the hover's re-render *between* mousedown and mouseup: the slice
+is redrawn as its active shape under the pointer, the two events land on different elements, and
+the browser fires no click — the halo appears and nothing opens. A person's pointer arrives first.
+Hover, wait a frame, then click; measured in Yet Social, that opened the slice every time. The
+first reading blamed focus moving onto the sector, and a fix for that changed nothing.
+
 **Left open:** the focused plot shows Chrome's default focus outline, not `focusRing`. The surface is
 Recharts' `<svg>`, so the ring needs a selector rather than a class, and nothing asked for it yet.
 
