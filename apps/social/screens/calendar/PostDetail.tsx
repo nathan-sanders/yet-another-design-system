@@ -1,19 +1,10 @@
-import { useState } from 'react'
-import {
-  AtSign,
-  Ellipsis,
-  Eye,
-  FileText,
-  Paperclip,
-  Pencil,
-  Smile,
-  Tag,
-} from 'lucide-react'
+import { useState, type ReactNode } from 'react'
+import { AtSign, Ellipsis, Eye, FileText, Paperclip, Pencil, Smile, Tag } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
 import { ChatComposer } from '../../../../src/components/Chat'
 import { Panel } from '../../../../src/components/Panel'
-import { Text } from '../../../../src/components/Text'
+import { Heading, Text } from '../../../../src/components/Text'
 import { Tabs } from '../../../../src/components/Tabs'
 import { Token } from '../../../../src/components/Token'
 import { NoteThread } from '../../components/InternalNote'
@@ -25,7 +16,12 @@ import { posts, profileFor } from '../../data/posts'
 import type { Post, PostComment, PostEvent } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { isPublished, postDate, postMoment } from './model'
+import { currentTab, usePostThread, type DetailTab } from './postDetailState'
 import { ActivityTab, CommentsTab, MeasureTab, PostStatsRow } from './PublishedPost'
+
+// The post detail, in pieces. The calendar shows it in a `Panel`; Engage ›
+// Comments by post shows the same pieces as a column beside its list
+// (`screens/comments/PostColumn.tsx`). One implementation, two frames.
 
 const headerDate = new Intl.DateTimeFormat('en-US', {
   weekday: 'short',
@@ -33,20 +29,202 @@ const headerDate = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
 })
 
-type DetailTab = 'comments' | 'notes' | 'activity' | 'measure'
+/**
+ * Network, account, date and time, and the post's actions: the row over the
+ * copy. `heading` makes the account name the column's heading, where the row is
+ * the column's header bar; `start` and `end` take that bar's extra controls.
+ */
+export function PostByline({
+  post,
+  heading,
+  start,
+  end,
+}: {
+  post: Post
+  heading?: boolean
+  start?: ReactNode
+  end?: ReactNode
+}) {
+  const shell = useShell()
+  const profile = profileFor(post)
+  const when = (
+    <Text render={<span />} size="sm" color="subtle" className="shrink-0">
+      {headerDate.format(postDate(post))} · {formatTime(post.time)}
+    </Text>
+  )
+  return (
+    <div className="flex w-full min-w-0 items-center gap-2">
+      {start}
+      <NetworkIcon network={profile.network} />
+      {heading ? (
+        // In a header bar the name and the date share the row until a phone,
+        // where four buttons leave the name a few letters; there the date
+        // drops under it, which the bar's 56px has room for.
+        <div className="flex min-w-0 flex-1 items-center gap-2 max-md:flex-col max-md:items-start max-md:gap-0">
+          <Heading level={2} size="base" truncate className="max-w-full min-w-0 md:flex-1">
+            {profile.name}
+          </Heading>
+          {when}
+        </div>
+      ) : (
+        <>
+          <Text
+            render={<span />}
+            weight="semibold"
+            color="emphasized"
+            truncate
+            className="min-w-0 flex-1"
+          >
+            {profile.name}
+          </Text>
+          {when}
+        </>
+      )}
+      {end}
+      <Button
+        appearance="ghost"
+        startIcon={Ellipsis}
+        aria-label="Post actions"
+        onClick={() => shell.notBuilt('Post actions')}
+      />
+    </div>
+  )
+}
+
+/**
+ * The post as it went (or will go) out: copy, photo, tags and owner, then its
+ * numbers once published, or Edit and Preview while it is still scheduled.
+ */
+export function PostBody({ post }: { post: Post }) {
+  const shell = useShell()
+  return (
+    <div className="flex flex-col gap-3">
+      <Text>{post.body}</Text>
+      {post.photo ? (
+        <img
+          src={post.photo}
+          alt={post.photoAlt ?? ''}
+          className="aspect-video w-full max-w-60 rounded-lg object-cover"
+        />
+      ) : null}
+      <div className="flex flex-wrap gap-1">
+        {post.tags ? (
+          <Token startIcon={Tag} aria-label={`${post.tags} tags`}>
+            {post.tags}
+          </Token>
+        ) : null}
+        <Token avatar={<Token.Avatar name={me.name} src={me.avatar} />}>{me.name}</Token>
+      </div>
+      {isPublished(post) ? (
+        <PostStatsRow stats={statsFor(post)} />
+      ) : (
+        <div className="flex items-center justify-between gap-2">
+          <Button appearance="ghost" startIcon={Pencil} onClick={() => shell.notBuilt('Editing')}>
+            Edit
+          </Button>
+          <Button appearance="ghost" startIcon={Eye} onClick={() => shell.notBuilt('Preview')}>
+            Preview
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * **The thread and the log are tabs.** A scheduled post has two: Notes (the
+ * internal thread) and Activity (who made, approved and scheduled it). Once it
+ * has gone out there is more to it: Comments first (the public thread, each
+ * comment a ticket as in the inbox), Activity carrying on past publishing, and
+ * Measure (what it earned).
+ */
+export function PostDetailTabs({
+  post,
+  thread,
+  tab,
+  onTabChange,
+}: {
+  post: Post
+  thread: PostComment[]
+  tab: DetailTab
+  onTabChange: (tab: DetailTab) => void
+}) {
+  const published = isPublished(post)
+  return (
+    <Tabs value={currentTab(post, tab)} onValueChange={(value) => onTabChange(value as DetailTab)}>
+      <Tabs.List aria-label="Post detail sections">
+        {published ? <Tabs.Tab value="comments">Comments</Tabs.Tab> : null}
+        <Tabs.Tab value="notes">Notes</Tabs.Tab>
+        <Tabs.Tab value="activity">Activity</Tabs.Tab>
+        {published ? <Tabs.Tab value="measure">Measure</Tabs.Tab> : null}
+      </Tabs.List>
+      {published ? (
+        <Tabs.Panel value="comments" className="pt-4">
+          <CommentsTab key={post.id} post={post} thread={commentsFor(post)} />
+        </Tabs.Panel>
+      ) : null}
+      <Tabs.Panel value="notes" className="pt-4">
+        <section aria-label="Notes" className="flex flex-col gap-4">
+          <NoteThread notes={thread} />
+          {thread.length === 0 ? (
+            <Text size="sm" color="subtle" className="text-center">
+              No notes yet. Leave one for the team below.
+            </Text>
+          ) : null}
+        </section>
+      </Tabs.Panel>
+      <Tabs.Panel value="activity" className="pt-4">
+        <ActivityTab events={withNotes(post, eventsFor(post), thread)} />
+      </Tabs.Panel>
+      {published ? (
+        <Tabs.Panel value="measure" className="pt-4">
+          <MeasureTab post={post} />
+        </Tabs.Panel>
+      ) : null}
+    </Tabs>
+  )
+}
+
+/** The composer under the Notes tab: a note for the team, never a public reply. */
+export function NoteComposer({ onSubmit }: { onSubmit: (body: string) => void }) {
+  const shell = useShell()
+  return (
+    <ChatComposer
+      aria-label="Leave a note for your team"
+      placeholder="Leave a note for your team. @mention to notify"
+      rows={2}
+      actions={
+        <>
+          <Button
+            appearance="ghost"
+            startIcon={AtSign}
+            aria-label="Mention"
+            onClick={() => shell.notBuilt('Mentions')}
+          />
+          <Button
+            appearance="ghost"
+            startIcon={Paperclip}
+            aria-label="Attach"
+            onClick={() => shell.notBuilt('Attachments')}
+          />
+          <Button
+            appearance="ghost"
+            startIcon={Smile}
+            aria-label="Emoji"
+            onClick={() => shell.notBuilt('Emoji')}
+          />
+        </>
+      }
+      onSubmit={onSubmit}
+    />
+  )
+}
 
 /**
  * The post detail panel (`40005911:33082`): the post as it will go out, then
- * the team's internal thread about it and a composer to add to it. A `Panel`,
- * because the calendar stays live beside it — click another post and the panel
- * follows.
- *
- * **The thread and the log are tabs.** A scheduled post has two: Notes (the
- * internal thread and composer) and Activity (who made, approved and
- * scheduled it). Once it has gone out there is more to it: its numbers under
- * the copy, Comments first (the public thread, each comment a ticket as in the
- * inbox), Activity carrying on past publishing, and Measure (what it earned).
- * The composer shows only on Notes.
+ * the tabs, and on Notes a composer to add to the team's thread. A `Panel`,
+ * because the calendar stays live beside it — click another post and the
+ * panel follows.
  */
 export function PostDetailPanel({
   postId,
@@ -58,31 +236,11 @@ export function PostDetailPanel({
   open: boolean
   onClose: () => void
 }) {
-  const shell = useShell()
   const post = posts.find((p) => p.id === postId)
-  // Notes added here live for the session, per post — enough to show the
-  // composer working without a backend.
-  const [added, setAdded] = useState<Record<string, PostComment[]>>({})
+  const { thread, add } = usePostThread(post)
   const [tab, setTab] = useState<DetailTab>('comments')
 
   if (!post) return null
-  const profile = profileFor(post)
-  const thread = [...(post.thread ?? []), ...(added[post.id] ?? [])]
-  const published = isPublished(post)
-  // The tab picked on a published post may not exist on a scheduled one.
-  const current: DetailTab = published || tab === 'activity' ? tab : 'notes'
-  const showComposer = current === 'notes'
-
-  const notes = (
-    <section aria-label="Notes" className="flex flex-col gap-4">
-      <NoteThread notes={thread} />
-      {thread.length === 0 ? (
-        <Text size="sm" color="subtle" className="text-center">
-          No notes yet. Leave one for the team below.
-        </Text>
-      ) : null}
-    </section>
-  )
 
   return (
     <Panel
@@ -98,129 +256,14 @@ export function PostDetailPanel({
       </Panel.Header>
       <Panel.Body className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <NetworkIcon network={profile.network} />
-            <Text
-              render={<span />}
-              weight="semibold"
-              color="emphasized"
-              truncate
-              className="min-w-0 flex-1"
-            >
-              {profile.name}
-            </Text>
-            <Text render={<span />} size="sm" color="subtle" className="shrink-0">
-              {headerDate.format(postDate(post))} · {formatTime(post.time)}
-            </Text>
-            <Button
-              appearance="ghost"
-              startIcon={Ellipsis}
-              aria-label="Post actions"
-              onClick={() => shell.notBuilt('Post actions')}
-            />
-          </div>
-          <Text>{post.body}</Text>
-          {post.photo ? (
-            <img
-              src={post.photo}
-              alt={post.photoAlt ?? ''}
-              className="aspect-video w-full max-w-60 rounded-lg object-cover"
-            />
-          ) : null}
-          <div className="flex flex-wrap gap-1">
-            {post.tags ? (
-              <Token startIcon={Tag} aria-label={`${post.tags} tags`}>
-                {post.tags}
-              </Token>
-            ) : null}
-            <Token avatar={<Token.Avatar name={me.name} src={me.avatar} />}>{me.name}</Token>
-          </div>
-          {published ? (
-            <PostStatsRow stats={statsFor(post)} />
-          ) : (
-            <div className="flex items-center justify-between gap-2">
-              <Button
-                appearance="ghost"
-                startIcon={Pencil}
-                onClick={() => shell.notBuilt('Editing')}
-              >
-                Edit
-              </Button>
-              <Button appearance="ghost" startIcon={Eye} onClick={() => shell.notBuilt('Preview')}>
-                Preview
-              </Button>
-            </div>
-          )}
+          <PostByline post={post} />
+          <PostBody post={post} />
         </div>
-
-        <Tabs value={current} onValueChange={(value) => setTab(value as DetailTab)}>
-          <Tabs.List aria-label="Post detail sections">
-            {published ? <Tabs.Tab value="comments">Comments</Tabs.Tab> : null}
-            <Tabs.Tab value="notes">Notes</Tabs.Tab>
-            <Tabs.Tab value="activity">Activity</Tabs.Tab>
-            {published ? <Tabs.Tab value="measure">Measure</Tabs.Tab> : null}
-          </Tabs.List>
-          {published ? (
-            <Tabs.Panel value="comments" className="pt-4">
-              <CommentsTab key={post.id} post={post} thread={commentsFor(post)} />
-            </Tabs.Panel>
-          ) : null}
-          <Tabs.Panel value="notes" className="pt-4">
-            {notes}
-          </Tabs.Panel>
-          <Tabs.Panel value="activity" className="pt-4">
-            <ActivityTab events={withNotes(post, eventsFor(post), thread)} />
-          </Tabs.Panel>
-          {published ? (
-            <Tabs.Panel value="measure" className="pt-4">
-              <MeasureTab post={post} />
-            </Tabs.Panel>
-          ) : null}
-        </Tabs>
+        <PostDetailTabs post={post} thread={thread} tab={tab} onTabChange={setTab} />
       </Panel.Body>
-      {showComposer ? (
+      {currentTab(post, tab) === 'notes' ? (
         <Panel.Footer>
-          <ChatComposer
-            aria-label="Leave a note for your team"
-            placeholder="Leave a note for your team. @mention to notify"
-            rows={2}
-            actions={
-              <>
-                <Button
-                  appearance="ghost"
-                  startIcon={AtSign}
-                  aria-label="Mention"
-                  onClick={() => shell.notBuilt('Mentions')}
-                />
-                <Button
-                  appearance="ghost"
-                  startIcon={Paperclip}
-                  aria-label="Attach"
-                  onClick={() => shell.notBuilt('Attachments')}
-                />
-                <Button
-                  appearance="ghost"
-                  startIcon={Smile}
-                  aria-label="Emoji"
-                  onClick={() => shell.notBuilt('Emoji')}
-                />
-              </>
-            }
-            onSubmit={(body) =>
-              setAdded((current) => ({
-                ...current,
-                [post.id]: [
-                  ...(current[post.id] ?? []),
-                  {
-                    id: `local-${Date.now()}`,
-                    authorId: me.id,
-                    body,
-                    ago: 'now',
-                  },
-                ],
-              }))
-            }
-          />
+          <NoteComposer onSubmit={add} />
         </Panel.Footer>
       ) : null}
     </Panel>
