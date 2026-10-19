@@ -22,6 +22,39 @@ const initialBoards = new Map<string, ReportBoard | undefined>()
 // makes the screens redraw when one is added.
 const madeReports = new Map<string, Report>()
 
+// Reports made with New report survive a reload, in this browser only. Their
+// boards are their type's template, so the report is all that needs keeping.
+const STORAGE_KEY = 'yet-social:created-reports'
+
+// Kept with the time each was made, so "Edited 2h ago" still counts after a reload.
+const madeAt = new Map<string, number>()
+
+function loadCreated(): Report[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as {
+      report: Report
+      at: number
+    }[]
+    return saved.map(({ report, at }) => {
+      const aged = { ...report, editedMinutes: Math.floor((Date.now() - at) / 60_000) }
+      madeAt.set(report.id, at)
+      madeReports.set(report.id, aged)
+      return aged
+    })
+  } catch {
+    return []
+  }
+}
+
+function saveCreated(created: Report[]) {
+  try {
+    const saved = created.map((report) => ({ report, at: madeAt.get(report.id) ?? Date.now() }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
+  } catch {
+    // Storage blocked or full: the reports still last the session.
+  }
+}
+
 /** A report's board as the fixtures draw it, before anybody touches it. */
 function initial(reportId: string): ReportBoard | undefined {
   if (!initialBoards.has(reportId)) {
@@ -40,7 +73,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   // Only boards somebody changed are stored; the rest are their fixtures.
   const [boards, setBoards] = useState<Record<string, ReportBoard>>({})
   const [draft, setDraft] = useState<ReportsState['draft']>(null)
-  const [created, setCreated] = useState<Report[]>([])
+  const [created, setCreated] = useState<Report[]>(loadCreated)
 
   const reports = useMemo(() => [...created, ...fixtures], [created])
   const reportFor = useCallback(
@@ -49,7 +82,12 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   )
   const createReport = useCallback((report: Report) => {
     madeReports.set(report.id, report)
-    setCreated((all) => [report, ...all])
+    madeAt.set(report.id, Date.now())
+    setCreated((all) => {
+      const next = [report, ...all]
+      saveCreated(next)
+      return next
+    })
   }, [])
 
   const boardFor = useCallback(
