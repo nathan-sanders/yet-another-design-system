@@ -171,7 +171,7 @@ export interface ChartContextValue {
   /**
    * Where `ChartActiveRow` reports the row the tooltip is on. Present only when
    * the chart takes a click, so a plain chart does no work for it. See
-   * `clicks.tsx`.
+   * `clicks.ts`.
    */
   reportActiveRow?: (row: Record<string, unknown> | undefined) => void
 }

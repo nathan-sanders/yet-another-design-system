@@ -105,7 +105,7 @@ export interface HorizontalBarProps {
   /**
    * Open one bar. A click on a bar carries its series; Enter or Space on the
    * focused chart and the row's button in the hidden table open the row, with
-   * the series set only when the chart was given one — see `Chart/clicks.tsx`.
+   * the series set only when the chart was given one — see `Chart/clicks.ts`.
    */
   onBarClick?: (bar: ChartPointClick) => void
   className?: string
@@ -228,6 +228,7 @@ export function HorizontalBar({
       className={cn(activate && clickableCursor.bar, className)}
       interactiveLegend={interactiveLegend}
       onRowActivate={activate}
+      keyboard="rows"
       swatch="colorSwatch"
       formatY={(value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? ''))}
       header={legend === false ? undefined : <ChartLegend type={legend} />}

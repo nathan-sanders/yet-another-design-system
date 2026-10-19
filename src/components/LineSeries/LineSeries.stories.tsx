@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { LineSeries } from './LineSeries'
 import { dailyData, hourlyData, monthlyData } from '../Chart/sample-data'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 const SERIES = [
   { key: 'sessions', label: 'Sessions' },
@@ -228,4 +231,77 @@ export const WithoutLegend: Story = {
       />
     </figure>
   ),
+}
+
+/** "Jan 5", in UTC like the axis — see `formatDateTick`. */
+const day = (row: Record<string, unknown>) =>
+  new Date(String(row.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+
+/** Move the pointer to an element's center and click there, in one gesture. */
+async function clickAt(element: Element) {
+  const box = element.getBoundingClientRect()
+  const coords = { clientX: box.left + box.width / 2, clientY: box.top + box.height / 2 }
+  await userEvent.pointer([{ target: element, coords }, { keys: '[MouseLeft]', target: element, coords }])
+}
+
+/**
+ * A day that opens something — `onPointClick`.
+ *
+ * A line is too thin to aim at, so a click anywhere in a day's column counts,
+ * the same column the tooltip answers for. On a dot it also says which series;
+ * off one, with three series drawn, it cannot, and leaves `series` unset. From
+ * the keyboard: tab to the chart, arrow along the days, Enter. A screen reader
+ * gets a button per day in the hidden table.
+ */
+export const PointClick: Story = {
+  render: function Render(args) {
+    const [opened, setOpened] = useState<string>()
+    return (
+      <div className="flex flex-col gap-4">
+        <LineSeries
+          {...args}
+          onPointClick={({ row, index, series }) =>
+            setOpened(`${day(row)} · ${series?.label ?? 'every series'} (row ${index})`)
+          }
+        />
+        <Text role="status" size="sm" color="subtle">
+          {opened ? `Opened ${opened}` : 'Click a day'}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const status = canvas.getByRole('status')
+
+    await step('a click on a dot opens that day, for that series', async () => {
+      // Hover the fifth day's first dot, then click the second series' active dot.
+      const dot = canvasElement.querySelectorAll('.recharts-line-dots')[0]!.children[4]!
+      const box = dot.getBoundingClientRect()
+      await userEvent.pointer({ target: dot, coords: { clientX: box.left + box.width / 2, clientY: box.top + box.height / 2 } })
+      const active = await waitFor(() => {
+        const found = canvasElement.querySelectorAll('.recharts-active-dot')
+        expect(found).toHaveLength(3)
+        return found
+      })
+      // The dot is the circle inside Recharts' `.recharts-active-dot` group,
+      // and that circle is where its handler is.
+      await clickAt(active[1]!.firstElementChild!)
+      await expect(status).toHaveTextContent('Opened Jan 5 · Signups (row 4)')
+    })
+
+    await step('Enter on the focused chart opens the day the tooltip is on', async () => {
+      await userEvent.unhover(canvasElement.querySelector('.recharts-surface')!)
+      canvasElement.querySelector<SVGElement>('.recharts-surface')!.focus()
+      await userEvent.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}')
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Jan 4'))
+      await userEvent.keyboard('{Enter}')
+      await expect(status).toHaveTextContent('Opened Jan 4 · every series (row 3)')
+    })
+
+    await step('the hidden table has a button per day', async () => {
+      await userEvent.click(within(canvasElement.querySelector('table')!).getByRole('button', { name: 'Jan 7' }))
+      await expect(status).toHaveTextContent('Opened Jan 7 · every series (row 6)')
+    })
+  },
 }

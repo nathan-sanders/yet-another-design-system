@@ -58,6 +58,14 @@ reader could reach. Same reasoning as the hidden table, and just as easy to get 
 
 It is `pointer-events-none`, so hovering *through* the total onto the slices behind it still works.
 
+## `onSliceClick`
+
+A click on a slice, Enter or Space on the focused chart, or the slice's button in the hidden table
+opens it, with the row, its index into `data` and its name. The index stays right after the legend
+has switched slices off, because it is mapped back from the row rather than taken from Recharts. The
+arrow keys walk the slices (`keyboard="slices"`), which Recharts' own layer cannot do on a pie. All
+of it is shared, and written up in the Chart record. Story: `SliceClick`.
+
 ## When not to use it
 
 Past about six slices the small ones are arcs of a few degrees and the legend is doing the work the

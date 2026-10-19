@@ -64,7 +64,7 @@ export interface GaugeProps {
   /**
    * Open one slice. Fires for a click on the slice, Enter or Space on the
    * focused chart with the tooltip on it, and the slice's button in the hidden
-   * table — see `Chart/clicks.tsx`. `index` is into `data`, so it stays right
+   * table — see `Chart/clicks.ts`. `index` is into `data`, so it stays right
    * when the legend has switched slices off.
    */
   onSliceClick?: (slice: ChartSliceClick) => void
@@ -212,6 +212,7 @@ export function Gauge({
       interactiveLegend={interactiveLegend}
       table={table}
       onRowActivate={activate}
+      keyboard="slices"
       overlay={
         center ? (
           // Under the arch rather than centered: the arc's own center is at the

@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { HorizontalBar } from './HorizontalBar'
 import { channelData, longLabelData, sliceData } from '../Chart/sample-data'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 const SERIES = [
   { key: 'conversions', label: 'Conversions' },
@@ -121,5 +124,57 @@ export const AccessibilityBorder: Story = {
         </figure>
       </div>
     )
+  },
+}
+
+/**
+ * A bar that opens something — `onBarClick`.
+ *
+ * A click on a bar carries its row and its series. From the keyboard — tab to
+ * the chart, arrow through the rows, Enter — and from the hidden table's
+ * buttons, a grouped chart opens the row, and `series` stays unset because
+ * nothing says which of its bars was meant.
+ */
+export const BarClick: Story = {
+  args: { data: channelData(), yKey: 'channel', series: SERIES, label: 'Sessions, signups and conversions by channel' },
+  render: function Render(args) {
+    const [opened, setOpened] = useState<string>()
+    return (
+      <div className="flex flex-col gap-4">
+        <HorizontalBar
+          {...args}
+          onBarClick={({ row, index, series }) =>
+            setOpened(`${String(row.channel)} · ${series?.label ?? 'every series'} (row ${index})`)
+          }
+        />
+        <Text role="status" size="sm" color="subtle">
+          {opened ? `Opened ${opened}` : 'Click a bar'}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const status = canvas.getByRole('status')
+
+    await step('a click on a bar opens its row, for its series', async () => {
+      const signups = canvasElement.querySelectorAll('.recharts-bar')[1]!
+      await userEvent.click(signups.querySelectorAll('.recharts-bar-rectangle')[1]!)
+      await expect(status).toHaveTextContent('Opened Direct · Signups (row 1)')
+    })
+
+    await step('Enter on the focused chart opens the row the tooltip is on', async () => {
+      await userEvent.unhover(canvasElement.querySelector('.recharts-surface')!)
+      canvasElement.querySelector<SVGElement>('.recharts-surface')!.focus()
+      await userEvent.keyboard('{ArrowRight}{ArrowRight}')
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Paid search'))
+      await userEvent.keyboard('{Enter}')
+      await expect(status).toHaveTextContent('Opened Paid search · every series (row 2)')
+    })
+
+    await step('the hidden table has a button per row', async () => {
+      await userEvent.click(within(canvasElement.querySelector('table')!).getByRole('button', { name: 'Email' }))
+      await expect(status).toHaveTextContent('Opened Email · every series (row 4)')
+    })
   },
 }

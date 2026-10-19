@@ -102,7 +102,7 @@ export interface AreaSeriesProps {
   /**
    * Open one point. A click anywhere in a point's column counts — the same
    * column the tooltip answers for — as do Enter or Space on the focused chart
-   * and the row's button in the hidden table; see `Chart/clicks.tsx`. `series`
+   * and the row's button in the hidden table; see `Chart/clicks.ts`. `series`
    * is the one the click landed on, when it landed on one.
    */
   onPointClick?: (point: ChartPointClick) => void

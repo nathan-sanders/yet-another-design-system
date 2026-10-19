@@ -142,14 +142,13 @@ export const SliceClick: Story = {
       // and the caller's data calls it 1.
       await userEvent.click(sectors[0]!)
       await expect(status).toHaveTextContent('Opened Safari (row 1)')
-      await userEvent.unhover(sectors[0]!)
     })
 
     await step('Enter on the focused chart opens the slice the tooltip is on', async () => {
       const surface = canvasElement.querySelector<SVGElement>('.recharts-surface')!
       surface.focus()
       await userEvent.keyboard('{ArrowRight}')
-      await waitFor(() => expect(String(document.activeElement?.outerHTML.slice(0,120)) + ' :: ' + canvasElement.querySelector('.recharts-tooltip-wrapper')?.textContent).toBe('x'), {timeout: 1500})
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Firefox'))
       await userEvent.keyboard('{Enter}')
       await expect(status).toHaveTextContent('Opened Firefox (row 2)')
     })
