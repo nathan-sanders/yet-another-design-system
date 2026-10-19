@@ -1,8 +1,11 @@
 import { useMemo, type ReactNode } from 'react'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 
+import { cn } from '../../lib/cn'
 import {
+  ChartActiveRow,
   ChartContainer,
+  ChartRowHeader,
   ChartLegend,
   ChartTooltip,
   chartTooltipWrapperStyle,
@@ -10,11 +13,14 @@ import {
   GAUGE_INNER_RATIO,
   GAUGE_START_ANGLE,
   SLICE_GAP,
+  clickableCursor,
   formatFullNumber,
   gaugeGeometry,
+  indexOfRow,
   surface,
   useChart,
   useVisibleSeries,
+  type ChartSliceClick,
 } from '../Chart'
 import { activeSliceShape } from '../Donut'
 
@@ -55,6 +61,13 @@ export interface GaugeProps {
   center?: ReactNode
   legend?: 'horizontal' | 'vertical' | false
   interactiveLegend?: boolean
+  /**
+   * Open one slice. Fires for a click on the slice, Enter or Space on the
+   * focused chart with the tooltip on it, and the slice's button in the hidden
+   * table — see `Chart/clicks.ts`. `index` is into `data`, so it stays right
+   * when the legend has switched slices off.
+   */
+  onSliceClick?: (slice: ChartSliceClick) => void
   className?: string
 }
 
@@ -63,11 +76,13 @@ function GaugePlot({
   nameKey,
   valueKey,
   height,
+  onActivate,
 }: {
   data: readonly Record<string, unknown>[]
   nameKey: string
   valueKey: string
   height: number
+  onActivate?: (index: number) => void
 }) {
   const visible = useVisibleSeries()
   const plotWidth = useChart()?.plotWidth ?? 0
@@ -92,6 +107,7 @@ function GaugePlot({
 
   return (
     <PieChart accessibilityLayer>
+      {onActivate ? <ChartActiveRow /> : null}
       <Tooltip
         isAnimationActive={false}
         wrapperStyle={chartTooltipWrapperStyle}
@@ -117,6 +133,16 @@ function GaugePlot({
         strokeWidth={SLICE_GAP}
         isAnimationActive={false}
         activeShape={activeSliceShape}
+        // The row comes back on the sector's `payload`; it is matched in the
+        // caller's `data` because `rows` has dropped any hidden slices.
+        onClick={
+          onActivate
+            ? (sector: { payload?: Record<string, unknown> }) => {
+                const index = indexOfRow(data, sector.payload, nameKey)
+                if (index >= 0) onActivate(index)
+              }
+            : undefined
+        }
       >
         {rows.map((row) => (
           <Cell key={String(row[nameKey])} fill={colorFor(String(row[nameKey]))} />
@@ -135,12 +161,20 @@ export function Gauge({
   center,
   legend = 'horizontal',
   interactiveLegend = false,
+  onSliceClick,
   className,
 }: GaugeProps) {
   const series = useMemo(
     () => data.map((row) => ({ key: String(row[nameKey]), label: String(row[nameKey]) })),
     [data, nameKey],
   )
+
+  const activate = onSliceClick
+    ? (index: number) => {
+        const row = data[index]
+        if (row) onSliceClick({ row, index, name: String(row[nameKey]) })
+      }
+    : undefined
 
   const table = (
     <table>
@@ -152,9 +186,11 @@ export function Gauge({
         </tr>
       </thead>
       <tbody>
-        {data.map((row) => (
+        {data.map((row, index) => (
           <tr key={String(row[nameKey])}>
-            <th scope="row">{String(row[nameKey])}</th>
+            <ChartRowHeader onActivate={activate ? () => activate(index) : undefined}>
+              {String(row[nameKey])}
+            </ChartRowHeader>
             <td>
               {typeof row[valueKey] === 'number' ? formatFullNumber(row[valueKey] as number) : String(row[valueKey])}
             </td>
@@ -171,10 +207,12 @@ export function Gauge({
       xKey={nameKey}
       label={label}
       height={height}
-      className={className}
+      className={cn(activate && clickableCursor.slice, className)}
       swatch="colorSwatch"
       interactiveLegend={interactiveLegend}
       table={table}
+      onRowActivate={activate}
+      keyboard="slices"
       overlay={
         center ? (
           // Under the arch rather than centered: the arc's own center is at the
@@ -189,7 +227,7 @@ export function Gauge({
       }
       header={legend === false ? undefined : <ChartLegend type={legend} />}
     >
-      <GaugePlot data={data} nameKey={nameKey} valueKey={valueKey} height={height} />
+      <GaugePlot data={data} nameKey={nameKey} valueKey={valueKey} height={height} onActivate={activate} />
     </ChartContainer>
   )
 }

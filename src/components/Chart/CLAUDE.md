@@ -152,7 +152,9 @@ wraps whatever it renders, so the six charts that pass their own `table` hand in
 and the `Floating` shell story asserts the document does not scroll. The same family as
 `Table.Cell`'s min-height note: a table element ignores half of what CSS says about height.
 
-Recharts' `accessibilityLayer` is set on each chart for keyboard traversal of the points.
+Recharts' `accessibilityLayer` is set on each chart for keyboard traversal of the points — except where
+its arrows do nothing, a pie and a horizontal bar, which the container walks itself (see "A chart can
+take a click on one mark" below).
 
 ## Motion
 
@@ -347,6 +349,69 @@ landed on Recharts' defaults.
 `requestAnimationFrame` never running. When the Browser pane is hidden, measure in a real browser —
 a short Playwright script against the Storybook iframe — rather than trusting what the pane reports.
 Same family as the animation clock never advancing there.
+
+## A chart can take a click on one mark
+
+Added 2026-10-19 for Yet Social, where a number on a report opens the messages behind it
+(`apps/social/FINDINGS.md` 76). `Donut` and `Gauge` take `onSliceClick`, `LineSeries` and
+`AreaSeries` `onPointClick`, `HorizontalBar` `onBarClick`. The mechanism is in `clicks.ts`, its two
+components in `ChartClickParts.tsx` (apart only for Fast Refresh), and `ChartContainer`'s
+`onRowActivate`; each chart wires only its own marks.
+
+**Three ways in, because each serves someone the others do not.**
+
+- **The pointer, on the mark.** A slice and a bar take Recharts' own `onClick`. A line or an area is
+  too thin to aim at, so the click goes on the chart and lands on whichever day the tooltip is
+  showing — hover anywhere in a column and the tooltip is about that day, so a click there is too.
+  A click on a mark (a line's dot, an area's fill, a bar) also says which series.
+- **The keyboard, on the plot.** Tab to the chart, arrow to a mark, **Enter or Space** opens it.
+  `ChartActiveRow`, rendered inside the Recharts chart, keeps the row the tooltip is on where the
+  container's key handler can read it. The container takes the key in the **capture** phase: Recharts'
+  own Enter only toggles the tooltip off, and Space would scroll the page.
+- **A screen reader, in the hidden table.** The plot is inside `role="img"` and invisible to
+  assistive technology, so the keyboard path does nothing there. Each row header in the hidden table
+  becomes a `<button>` named after the row (`ChartRowHeader`). They are `tabIndex={-1}`: the table is
+  visually hidden, and a tab stop nobody can see is a focus ring lost off screen. Browse mode reaches
+  them without the tab order, and a sighted keyboard user has the plot.
+
+**`index` is into the caller's `data`, never Recharts'.** A donut drops the slices its legend has
+switched off before Recharts sees them, so Recharts' index is the wrong row as soon as one is
+hidden. `indexOfRow` maps back by identity, then by the name or x key. `Donut`'s `SliceClick` story
+switches Chrome off first to prove it.
+
+**`series` is set only when something said which.** A pointer click on a mark carries it. The
+keyboard, the hidden table and a click on empty space in a column cannot tell three lines apart, so
+a chart given several series leaves it unset and the row stands for all of them; a chart given one
+always sets it. It is the caller's own series object.
+
+**Recharts' arrows do nothing on two shapes, and the container walks those itself.** On a pie the
+key handler steps through the tooltip axis's domain and a pie has none; on a `layout="vertical"`
+bar chart it stays on the first row. Its keyboard state cannot be set from outside — but Recharts
+ranks a pointer above its keyboard, and a pointer can be simulated. So `keyboard="slices"` (Donut,
+Gauge) and `keyboard="rows"` (HorizontalBar) make each arrow move a synthetic pointer to the next
+mark: a `mouseout` with the next sector as `relatedTarget` for a slice, a `mousemove` at the middle of
+the row's band for a bar. The tooltip, the halo and the hover band then follow the keyboard exactly
+as they follow the mouse, and Enter opens through the same path. This fixed arrow keys on all three
+charts whether or not they take a click — before it, a donut's arrows silently did nothing. Home and
+End go to the ends, and it wraps. `'rows'` finds the rows by their y-axis labels, which are one per
+row only because `categoryYAxisProps` sets `interval: 0`.
+
+**Testing it.** `userEvent.click` on a Recharts group dispatches on the `<g>`, and Recharts' handler
+is often on the shape inside it (`.recharts-active-dot`'s circle). Hover and wait for the tooltip
+before clicking a line or an area: the chart's `onClick` reads the hovered index, and a press with
+no hover first has none. The `*Click` stories on all five charts do all three ways in.
+
+**A click that arrives with its own move is lost on a slice, and it looks like a bug.** Recharts
+throttles pointer moves to the next frame, so a tool that moves and presses in one instant (the
+Browser pane's `left_click`) gets the hover's re-render *between* mousedown and mouseup: the slice
+is redrawn as its active shape under the pointer, the two events land on different elements, and
+the browser fires no click — the halo appears and nothing opens. A person's pointer arrives first.
+Hover, wait a frame, then click; measured in Yet Social, that opened the slice every time. The
+first reading blamed focus moving onto the sector; a fix for that changed nothing and was taken
+back out.
+
+**Left open:** the focused plot shows Chrome's default focus outline, not `focusRing`. The surface is
+Recharts' `<svg>`, so the ring needs a selector rather than a class, and nothing asked for it yet.
 
 ## Left for later, deliberately
 

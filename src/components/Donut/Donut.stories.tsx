@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Donut } from './Donut'
 import { sliceData } from '../Chart/sample-data'
@@ -95,4 +97,65 @@ export const VerticalLegend: Story = {
  */
 export const TooManySlices: Story = {
   args: { data: sliceData(8), label: 'Sessions by browser, eight slices' },
+}
+
+/**
+ * A slice that opens something — `onSliceClick`.
+ *
+ * Three ways in, and the story walks all three: click a slice; tab to the chart,
+ * arrow to a slice and press Enter; or, with a screen reader, the slice's button
+ * in the hidden table, since the plot itself is a picture to assistive
+ * technology. The handler gets the row and its index into `data`, which stays
+ * right after the legend has switched a slice off — the play switches Chrome off
+ * first to prove it.
+ */
+export const SliceClick: Story = {
+  args: { interactiveLegend: true },
+  render: function Render(args) {
+    const [opened, setOpened] = useState<string>()
+    return (
+      <div className="flex flex-col gap-4">
+        <Donut {...args} onSliceClick={({ name, index }) => setOpened(`${name} (row ${index})`)} />
+        <Text role="status" size="sm" color="subtle">
+          {opened ? `Opened ${opened}` : 'Click a slice'}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const status = canvas.getByRole('status')
+    // A slice's name is on two buttons: its legend toggle, and its row in the
+    // hidden table. The toggle is the one with a pressed state.
+    const legendButton = (name: string) =>
+      canvas.getAllByRole('button', { name }).find((button) => button.hasAttribute('aria-pressed'))!
+    const table = within(canvasElement.querySelector('table')!)
+
+    await step('a click on a slice opens that slice, by its row in data', async () => {
+      await userEvent.click(legendButton('Chrome'))
+      const sectors = await waitFor(() => {
+        const found = canvasElement.querySelectorAll('.recharts-pie-sector')
+        expect(found).toHaveLength(5)
+        return found
+      })
+      // Chrome is off, so the first slice drawn is Safari — Recharts calls it 0,
+      // and the caller's data calls it 1.
+      await userEvent.click(sectors[0]!)
+      await expect(status).toHaveTextContent('Opened Safari (row 1)')
+    })
+
+    await step('Enter on the focused chart opens the slice the tooltip is on', async () => {
+      const surface = canvasElement.querySelector<SVGElement>('.recharts-surface')!
+      surface.focus()
+      await userEvent.keyboard('{ArrowRight}')
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Firefox'))
+      await userEvent.keyboard('{Enter}')
+      await expect(status).toHaveTextContent('Opened Firefox (row 2)')
+    })
+
+    await step('the hidden table has a button per slice', async () => {
+      await userEvent.click(table.getByRole('button', { name: 'Edge' }))
+      await expect(status).toHaveTextContent('Opened Edge (row 3)')
+    })
+  },
 }

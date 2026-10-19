@@ -1,8 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FocusEvent,
+  type KeyboardEvent,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { ResponsiveContainer } from 'recharts'
 
 import { cn } from '../../lib/cn'
 import { CHART_BREAKPOINT } from './axes'
+import { ChartRowHeader } from './ChartClickParts'
+import { indexOfRow, leaveMarks, walkMarks, type ChartWalk } from './clicks'
 import { ChartContext, resolveSeries, type ChartSeries } from './context'
 import type { ChartSwatchShape } from './Swatch'
 
@@ -140,6 +152,25 @@ export interface ChartContainerProps {
    * questions, not the same one at two settings.
    */
   responsive?: boolean
+  /**
+   * Open one row — the chart takes a click. The container's half of it is the
+   * two ways in that are not the pointer: Enter or Space on the focused plot
+   * opens the row the tooltip is on, and each row header in the generated table
+   * becomes a button. The chart wires the pointer on its own marks and renders
+   * `ChartActiveRow` inside the Recharts chart. See `clicks.ts`.
+   *
+   * `index` is into `data`. A chart passing its own `table` adds the buttons
+   * itself, with `ChartRowHeader`.
+   */
+  onRowActivate?: (index: number) => void
+  /**
+   * How the arrow keys walk the plot. `'axis'`, the default, is Recharts' own
+   * `accessibilityLayer`, which steps along the x axis. `'slices'` (`Donut`,
+   * `Gauge`) and `'rows'` (`HorizontalBar`) are the two shapes where Recharts'
+   * arrows do nothing at all, so the container walks the marks itself. See
+   * `walkMarks` in `clicks.ts`.
+   */
+  keyboard?: 'axis' | ChartWalk
   className?: string
 }
 
@@ -159,6 +190,8 @@ export function ChartContainer({
   table,
   overlay,
   responsive = true,
+  onRowActivate,
+  keyboard = 'axis',
   className,
 }: ChartContainerProps) {
   const resolved = useMemo(() => resolveSeries(series, swatch), [series, swatch])
@@ -205,6 +238,38 @@ export function ChartContainer({
     return () => observer.disconnect()
   }, [])
 
+  // A ref, not state: the row changes on every pointer move and nothing renders
+  // from it — only the key handler reads it, at the moment of the key.
+  const activeRow = useRef<Record<string, unknown> | undefined>(undefined)
+  const reportActiveRow = useCallback((row: Record<string, unknown> | undefined) => {
+    activeRow.current = row
+  }, [])
+
+  // The mark the arrow keys are on, when the container walks them; -1 is none yet.
+  const walked = useRef(-1)
+
+  const onPlotKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (keyboard !== 'axis' && walkMarks(event, keyboard, walked)) return
+      if (!onRowActivate || (event.key !== 'Enter' && event.key !== ' ')) return
+      const index = indexOfRow(data, activeRow.current, xKey)
+      if (index < 0) return
+      // Capture phase, so Recharts' own Enter — which only toggles the tooltip
+      // off — never sees it, and Space does not scroll the page.
+      event.preventDefault()
+      event.stopPropagation()
+      onRowActivate(index)
+    },
+    [keyboard, onRowActivate, data, xKey],
+  )
+
+  const onPlotBlur = useCallback(
+    (event: FocusEvent<HTMLDivElement>) => {
+      if (keyboard !== 'axis') leaveMarks(event.currentTarget, keyboard, walked)
+    },
+    [keyboard],
+  )
+
   const value = useMemo(
     () => ({
       series: resolved,
@@ -214,8 +279,20 @@ export function ChartContainer({
       wide,
       plotWidth,
       toggleSeries: interactiveLegend ? toggleSeries : undefined,
+      reportActiveRow: onRowActivate ? reportActiveRow : undefined,
     }),
-    [resolved, visibleSeries, hidden, swatchLine, wide, plotWidth, interactiveLegend, toggleSeries],
+    [
+      resolved,
+      visibleSeries,
+      hidden,
+      swatchLine,
+      wide,
+      plotWidth,
+      interactiveLegend,
+      toggleSeries,
+      onRowActivate,
+      reportActiveRow,
+    ],
   )
 
   return (
@@ -224,7 +301,13 @@ export function ChartContainer({
         {header}
 
         <div style={{ height }} className="relative w-full min-w-0">
-          <div role="img" aria-label={label} className="h-full w-full">
+          <div
+            role="img"
+            aria-label={label}
+            className="h-full w-full"
+            onKeyDownCapture={onRowActivate || keyboard !== 'axis' ? onPlotKeyDown : undefined}
+            onBlur={keyboard !== 'axis' ? onPlotBlur : undefined}
+          >
             {responsive ? (
               <ResponsiveContainer width="100%" height="100%">
                 {children}
@@ -268,7 +351,9 @@ export function ChartContainer({
           <tbody>
             {data.map((row, index) => (
               <tr key={index}>
-                <th scope="row">{formatX(row[xKey])}</th>
+                <ChartRowHeader onActivate={onRowActivate ? () => onRowActivate(index) : undefined}>
+                  {formatX(row[xKey])}
+                </ChartRowHeader>
                 {resolved.map((s) => (
                   <td key={s.key}>{formatY(row[s.key])}</td>
                 ))}

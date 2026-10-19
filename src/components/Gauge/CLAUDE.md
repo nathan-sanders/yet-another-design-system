@@ -32,6 +32,14 @@ half of it falls outside — and the hover halo has nowhere to go at all. `gauge
 `POLAR_MARGIN` and puts the center just above the bottom edge rather than on it, so the flat radial
 ends keep their stroke too. Pinned in `Chart/polar.test.ts`.
 
+## `onSliceClick`
+
+A click on a slice, Enter or Space on the focused chart, or the slice's button in the hidden table
+opens it, with the row, its index into `data` and its name. The index stays right after the legend
+has switched slices off, because it is mapped back from the row rather than taken from Recharts. The
+arrow keys walk the slices (`keyboard="slices"`), which Recharts' own layer cannot do on a pie. All
+of it is shared, and written up in the Chart record, and identical to `Donut`'s. Story: `SliceClick`.
+
 ## What a gauge is for
 
 Progress toward one thing: a budget spent, a quota filled, a score out of a maximum. It is the

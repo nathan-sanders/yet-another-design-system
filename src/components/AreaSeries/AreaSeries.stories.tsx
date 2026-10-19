@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { AreaSeries } from './AreaSeries'
 import { dailyData, monthlyData } from '../Chart/sample-data'
 import { onSurface } from '../Chart/story-surface'
+import { Text } from '../Text'
 
 /** Ordered largest-first, which is what an opaque `solid` fill requires. */
 const SERIES = [
@@ -107,5 +110,69 @@ export const SingleSeries: Story = {
     series: [{ key: 'sessions', label: 'Sessions' }],
     label: 'Sessions over 12 months',
     fill: 'gradient',
+  },
+}
+
+/** "Jan 5", in UTC like the axis — see `formatDateTick`. */
+const day = (row: Record<string, unknown>) =>
+  new Date(String(row.date)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+
+/**
+ * A day that opens something — `onPointClick`, as on `LineSeries`.
+ *
+ * Click inside an area and the click carries that area's series as well as the
+ * day under the pointer. With two series drawn, the keyboard and the hidden
+ * table open the day for both, and `series` stays unset.
+ */
+export const PointClick: Story = {
+  render: function Render(args) {
+    const [opened, setOpened] = useState<string>()
+    return (
+      <div className="flex flex-col gap-4">
+        <AreaSeries
+          {...args}
+          onPointClick={({ row, index, series }) =>
+            setOpened(`${day(row)} · ${series?.label ?? 'every series'} (row ${index})`)
+          }
+        />
+        <Text role="status" size="sm" color="subtle">
+          {opened ? `Opened ${opened}` : 'Click a day'}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const status = canvas.getByRole('status')
+
+    await step('a click inside an area opens the day under the pointer, for that area', async () => {
+      // Signups is painted last, so it is on top along the baseline.
+      const area = canvasElement.querySelectorAll('.recharts-area-area')[1]!
+      const box = area.getBoundingClientRect()
+      const coords = { clientX: box.left + box.width / 2, clientY: box.bottom - 4 }
+      await userEvent.pointer({ target: area, coords })
+      // The tooltip lands on the day under the pointer; the click opens that one.
+      const heading = await waitFor(() => {
+        const text = canvasElement.querySelector('.recharts-tooltip-wrapper')?.textContent ?? ''
+        expect(text).toMatch(/^Jan \d+/)
+        return text.match(/^Jan \d+/)![0]
+      })
+      await userEvent.pointer({ keys: '[MouseLeft]', target: area, coords })
+      await expect(status).toHaveTextContent(`Opened ${heading} · Signups`)
+    })
+
+    await step('Enter on the focused chart opens the day the tooltip is on', async () => {
+      await userEvent.unhover(canvasElement.querySelector('.recharts-surface')!)
+      canvasElement.querySelector<SVGElement>('.recharts-surface')!.focus()
+      await userEvent.keyboard('{ArrowRight}')
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Jan 2'))
+      await userEvent.keyboard(' ')
+      await expect(status).toHaveTextContent('Opened Jan 2 · every series (row 1)')
+    })
+
+    await step('the hidden table has a button per day', async () => {
+      await userEvent.click(within(canvasElement.querySelector('table')!).getByRole('button', { name: 'Jan 10' }))
+      await expect(status).toHaveTextContent('Opened Jan 10 · every series (row 9)')
+    })
   },
 }

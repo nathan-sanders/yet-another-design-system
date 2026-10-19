@@ -1,12 +1,15 @@
-import { useId, useMemo } from 'react'
+import { useId, useMemo, useRef } from 'react'
 import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { cn } from '../../lib/cn'
 import {
+  ChartActiveRow,
   ChartContainer,
   ChartLegend,
   ChartTooltip,
   chartTooltipWrapperStyle,
   chartGridProps,
+  clickableCursor,
   formatDateTick,
   formatFullNumber,
   cursorHighlight,
@@ -16,6 +19,7 @@ import {
   useVisibleSeries,
   xAxisProps,
   yAxisProps,
+  type ChartPointClick,
   type ChartSeries,
   type ChartXPreset,
 } from '../Chart'
@@ -95,6 +99,13 @@ export interface AreaSeriesProps {
   interactiveLegend?: boolean
   xPreset?: ChartXPreset
   timeZone?: string
+  /**
+   * Open one point. A click anywhere in a point's column counts — the same
+   * column the tooltip answers for — as do Enter or Space on the focused chart
+   * and the row's button in the hidden table; see `Chart/clicks.ts`. `series`
+   * is the one the click landed on, when it landed on one.
+   */
+  onPointClick?: (point: ChartPointClick) => void
   className?: string
 }
 
@@ -112,6 +123,7 @@ function AreaSeriesPlot({
   preset,
   timeZone,
   gradientId,
+  onActivate,
 }: {
   data: readonly Record<string, unknown>[]
   xKey: string
@@ -121,6 +133,7 @@ function AreaSeriesPlot({
   preset: ChartXPreset
   timeZone: string
   gradientId: string
+  onActivate?: (index: number, seriesKey?: string) => void
 }) {
   const chart = useChart()
   // `visibleSeries`, not `series`: a series switched off in an interactive
@@ -129,8 +142,26 @@ function AreaSeriesPlot({
   const series = useVisibleSeries()
   const wide = chart?.wide ?? true
 
+  // The series whose mark took the click. Its own handler runs first, as the
+  // event bubbles up to the chart's, which reads and clears it.
+  const clickedSeries = useRef<string | undefined>(undefined)
+
   return (
-    <AreaChart data={data as Record<string, unknown>[]} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} accessibilityLayer>
+    <AreaChart
+      data={data as Record<string, unknown>[]}
+      margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
+      accessibilityLayer
+      onClick={
+        onActivate
+          ? (state) => {
+              const seriesKey = clickedSeries.current
+              clickedSeries.current = undefined
+              if (state.activeTooltipIndex != null) onActivate(Number(state.activeTooltipIndex), seriesKey)
+            }
+          : undefined
+      }
+    >
+      {onActivate ? <ChartActiveRow /> : null}
       {fill === 'gradient' ? (
         <defs>
           {series.map((s) => (
@@ -182,7 +213,14 @@ function AreaSeriesPlot({
           // An area's own mark is the fill; a dot on top would be a second
           // encoding of the same number.
           dot={false}
-          activeDot={{ r: 5, fill: s.color, stroke: surface, strokeWidth: 2 }}
+          activeDot={{
+            r: 5,
+            fill: s.color,
+            stroke: surface,
+            strokeWidth: 2,
+            onClick: onActivate ? () => (clickedSeries.current = s.key) : undefined,
+          }}
+          onClick={onActivate ? () => (clickedSeries.current = s.key) : undefined}
         />
       ))}
     </AreaChart>
@@ -202,10 +240,22 @@ export function AreaSeries({
   interactiveLegend = false,
   xPreset,
   timeZone = 'UTC',
+  onPointClick,
   className,
 }: AreaSeriesProps) {
   const gradientId = useId()
   const preset = useMemo(() => xPreset ?? inferXPreset(data.map((row) => row[xKey])), [xPreset, data, xKey])
+
+  const activate = onPointClick
+    ? (index: number, seriesKey?: string) => {
+        const row = data[index]
+        if (!row) return
+        // Without a mark to say which, one series is the only case that
+        // can answer — see `ChartPointClick.series`.
+        const hit = seriesKey === undefined ? undefined : series.find((s) => s.key === seriesKey)
+        onPointClick({ row, index, series: hit ?? (series.length === 1 ? series[0] : undefined) })
+      }
+    : undefined
 
   return (
     <ChartContainer
@@ -214,8 +264,9 @@ export function AreaSeries({
       xKey={xKey}
       label={label}
       height={height}
-      className={className}
+      className={cn(activate && clickableCursor.plot, className)}
       interactiveLegend={interactiveLegend}
+      onRowActivate={activate}
       // An area has no plot points, so its key is the plain color square —
       // which is what Figma's Area Series legend uses.
       swatch="colorSwatch"
@@ -232,6 +283,7 @@ export function AreaSeries({
         preset={preset}
         timeZone={timeZone}
         gradientId={gradientId}
+        onActivate={activate}
       />
     </ChartContainer>
   )

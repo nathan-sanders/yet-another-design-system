@@ -86,6 +86,14 @@ Both are pinned in `Chart/axes.test.ts`, which is a plain node test — the stor
 catch a regression here by screenshot, and a subtly wrong tick label reads as a design choice rather
 than a bug.
 
+## `onPointClick`
+
+A click anywhere in a day's column opens that day — the column the tooltip answers for, because the
+line is too thin to aim at. A click on a dot also carries its series; anywhere else, and from the
+keyboard (Enter or Space on the point the arrows are on) or the hidden table's buttons, `series` is
+set only when the chart was given one. Shared with every clickable chart; see the Chart record.
+Story: `PointClick`.
+
 ## The Dashboard story is the point of the exercise
 
 `BentoGrid` + `ContentBlock`, both of which already existed, with charts as their content — which is

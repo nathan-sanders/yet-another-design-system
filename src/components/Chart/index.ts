@@ -86,5 +86,9 @@ export {
 } from './axes'
 export type { ChartXPreset, XAxisOptions, YAxisOptions } from './axes'
 
+export { ChartActiveRow, ChartRowHeader } from './ChartClickParts'
+export { clickableCursor, indexOfRow } from './clicks'
+export type { ChartPointClick, ChartSliceClick } from './clicks'
+
 export { useChart, useVisibleSeries, resolveSeries, seriesByKey } from './context'
 export type { ChartSeries, ResolvedChartSeries, ChartContextValue } from './context'

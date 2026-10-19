@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { TrendingUp } from 'lucide-react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Gauge } from './Gauge'
 import { gaugeData } from '../Chart/sample-data'
@@ -76,4 +78,46 @@ export const InteractiveLegend: Story = {
   args: { interactiveLegend: true },
   parameters: { surfaceWidth: 'w-100' },
   render: (args) => <Gauge {...args} />,
+}
+
+/**
+ * A slice that opens something — `onSliceClick`, the same three ways in as
+ * `Donut`'s: click a slice; tab to the gauge and walk it with the arrow keys,
+ * Home and End, then press Enter; or a screen reader's button in the hidden
+ * table.
+ */
+export const SliceClick: Story = {
+  render: function Render(args) {
+    const [opened, setOpened] = useState<string>()
+    return (
+      <div className="flex flex-col gap-4">
+        <Gauge {...args} onSliceClick={({ name, index }) => setOpened(`${name} (row ${index})`)} />
+        <Text role="status" size="sm" color="subtle">
+          {opened ? `Opened ${opened}` : 'Click a slice'}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const status = canvas.getByRole('status')
+
+    await step('a click on a slice opens it', async () => {
+      await userEvent.click(canvasElement.querySelectorAll('.recharts-pie-sector')[1]!)
+      await expect(status).toHaveTextContent('Opened In progress (row 1)')
+    })
+
+    await step('End, then Enter, opens the last slice', async () => {
+      canvasElement.querySelector<SVGElement>('.recharts-surface')!.focus()
+      await userEvent.keyboard('{End}')
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Remaining'))
+      await userEvent.keyboard('{Enter}')
+      await expect(status).toHaveTextContent('Opened Remaining (row 2)')
+    })
+
+    await step('the hidden table has a button per slice', async () => {
+      await userEvent.click(within(canvasElement.querySelector('table')!).getByRole('button', { name: 'Committed' }))
+      await expect(status).toHaveTextContent('Opened Committed (row 0)')
+    })
+  },
 }

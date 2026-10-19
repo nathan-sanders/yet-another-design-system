@@ -47,6 +47,15 @@ meaningful whole. [VerticalBar](../VerticalBar/CLAUDE.md)'s `stacked` covers the
 genuinely do, and it is a better form for it: discrete columns make the parts countable in a way a
 smooth stacked area never does.
 
+## `onPointClick`
+
+A click anywhere in a day's column opens that day — the column the tooltip answers for, because an
+area's edge is too thin to aim at. A click inside an area's fill also carries its series — for a
+`solid` chart, the one painted on top there; anywhere else, and from the
+keyboard (Enter or Space on the point the arrows are on) or the hidden table's buttons, `series` is
+set only when the chart was given one. Shared with every clickable chart; see the Chart record.
+Story: `PointClick`.
+
 ## The legend keys with `colorSwatch`
 
 An area has no plot point to echo, so its key is the plain color square rather than the

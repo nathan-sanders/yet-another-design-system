@@ -98,6 +98,15 @@ Both `type`s are stated. Neither axis infers its type from the chart's `layout`;
 axis and never along the category axis.** `chartGridProps`' "horizontal lines only" was always an
 instance of that, and its comment now says so.
 
+## `onBarClick`
+
+A click on a bar opens its row, with its series. Enter or Space on the focused chart opens the row
+the arrows are on, and so does its button in the hidden table; there `series` is set only when the
+chart was given one. **Recharts' own arrow keys do nothing on this chart** — `layout="vertical"`
+leaves them stuck on the first row — so it passes `keyboard="rows"` and the container walks the rows
+itself, which fixed the arrows whether or not the chart takes a click. See the Chart record. Story:
+`BarClick`.
+
 ## What did not change
 
 `stacked` and `showTotal` mean what they mean on VerticalBar. `barCategoryGap` is 20% stacked and
