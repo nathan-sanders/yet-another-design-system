@@ -529,6 +529,13 @@ the panel. On Discover and Creators, a search answers with results.
   creator results. Collapse to panel lands on the page with the panel open and no bar.
 - axe on Discover: no violations.
 
+61. **The ticket number is a Badge, at 24px.** In the message cards and the detail view it is
+    an identifier you read, never a value you change, so it is a neutral `Badge` with the ticket
+    glyph rather than a `Token`. Badge is a 20px pill (`min-h-5`), one size by its Figma spec, so
+    the call site adds `min-h-6`. Measured at 24 in the list and the detail, level with the five
+    tokens beside it. If a second caller needs a Badge to sit in a row of tokens, a `size` to
+    match Token's 24 is the library change to make.
+
 ## Plan › Creators: Creator details and the full List view (2026-10-18)
 
 Creator details (`40005911:35788`) is the shell's right `Panel`, opened from a grid card or a list
@@ -541,37 +548,37 @@ descending) writes nothing.
 
 ### Open: library changes worth making
 
-61. **`proportional(n)` weights other than 1 do not reach the browser.** The Table writes
+62. **`proportional(n)` weights other than 1 do not reach the browser.** The Table writes
     `calc(63.1579% - 328.421px)` and `calc(36.8421% - 191.579px)` on the two `<col>`s for
     `proportional(2.4)` and `proportional(1.4)` beside four pixel columns. Under `table-fixed`,
     Chrome rendered them 350 / 350 at a 1220 table, not the 442 / 258 those expressions give. Every
     other table in the app uses equal weights, so nothing showed it before. The app now uses two
     `proportional()` columns. Repro and fix belong in `src/components/Table` with a story that
     measures unequal weights.
-62. **Button has no pressed or toggle state.** The panel's Save (star) is a ghost icon Button with
+63. **Button has no pressed or toggle state.** The panel's Save (star) is a ghost icon Button with
     `aria-pressed` and an app-side `[&_svg]:fill-current` to fill the star when saved. A
     `pressed` prop, or a ToggleButton, would own both.
 
 ### Kept in the app, worth knowing
 
-63. **The "Engagement rate vs similar creators" bars are plain spans, not ProgressBar.** Figma
+64. **The "Engagement rate vs similar creators" bars are plain spans, not ProgressBar.** Figma
     draws two 8px bars with no track, on `Data Viz/Categorical/01` and
     `Decorative/Neutral/Highlight`. ProgressBar always draws a track and has no categorical color.
     The bigger rate fills the row, and the bars are `aria-hidden` because the mono number beside
     each says it. Measured in both themes: each bar's computed color equals its token.
-64. **"Similar creators" is a written number per creator** (`peerEngagement`), not an average.
+65. **"Similar creators" is a written number per creator** (`peerEngagement`), not an average.
     The file has Alena at 2.1%, and no average over the app's eight creators comes out that low.
-65. **Collaborations shows brand initials.** The file's first avatar is a photo, and there are
+66. **Collaborations shows brand initials.** The file's first avatar is a photo, and there are
     no brand logos in the app's assets. `AvatarGroup` sits on `surface="card-primary"` because it
     is inside a Card.
-66. **With the panel open, the list is 828px for six columns.** The four short columns are pixel
+67. **With the panel open, the list is 828px for six columns.** The four short columns are pixel
     widths sized so their headers and sort arrows never clip (120 / 144 / 120 / 152). Creator and
     Top topic share the rest, so a long name truncates while the panel, which shows it in full,
     is open.
 
 ### Figma owes
 
-67. **Decided here (code-first):**
+68. **Decided here (code-first):**
     - The Audience, Content and Similar tabs. Audience shows the gender split as two `Metric`s, age
       as a `HorizontalBar`, and top cities. Content shows four recent posts with likes and
       comments. Similar shows the three nearest creators as cards, and opening one swaps the
