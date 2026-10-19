@@ -73,11 +73,15 @@ export function SocialShell() {
   }
 
   // A post, contact or widget panel belongs to the screen that opened it: leave the
-  // screen and it closes. Yak follows you everywhere, so it stays.
+  // screen and it closes. Yak follows you everywhere, so it stays. A navigation
+  // can carry the panel the next screen opens with (`state.panel`): a full view
+  // collapsing back to its panel.
   const [lastPath, setLastPath] = useState(location.pathname)
   if (location.pathname !== lastPath) {
     setLastPath(location.pathname)
-    if (panel && panel.type !== 'yak') setPanel(null)
+    const carried = (location.state as { panel?: ShellPanel } | null)?.panel
+    if (carried) setPanel(carried)
+    else if (panel && panel.type !== 'yak') setPanel(null)
   }
   const [theme, setTheme] = useDocumentTheme()
   // Held here only so the New button can drop its label on the 56px rail: the
@@ -291,6 +295,7 @@ export function SocialShell() {
           <CreatorDetailPanel
             open={panel?.type === 'creator'}
             creatorId={lastCreatorId}
+            tab={panel?.type === 'creator' ? panel.tab : undefined}
             onClose={() => setPanel(null)}
           />
           <WidgetEditPanel

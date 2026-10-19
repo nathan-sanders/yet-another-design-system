@@ -581,10 +581,8 @@ descending) writes nothing.
 ### Figma owes
 
 68. **Decided here (code-first):**
-    - The Audience, Content and Similar tabs. Audience shows the gender split as two `Metric`s, age
-      as a `HorizontalBar`, and top cities. Content shows four recent posts with likes and
-      comments. Similar shows the three nearest creators as cards, and opening one swaps the
-      panel. Their numbers are seeded per creator id.
+    - ~~The Audience, Content and Similar tabs.~~ Figma drew all three on 2026-10-19 and the code
+      follows the file now (entry 88).
     - Brand fit words on the card's three tiers: Great match 80+, Good match 40–79, Weak match
       under 40.
     - Brand safety at zero flags: a green ShieldCheck "0" and "No sensitive posts".
@@ -848,4 +846,35 @@ On Discover, a slice of the Brand sentiment gauge opens that sentiment, as its l
   record. A person's pointer always arrives first.
 - Clicking a chart on the Brand Pulse board left the URL on the board.
 - A second click on the same day or slice closes the panel (entry 79's `toggle`).
+
+## Plan › Creator full view (2026-10-19)
+
+Figma: `Plan - Creators / Creator Details / Full View` `40005952:23519`, `… / Content`
+`40005955:24767`, `… / Similar` `40005955:75412`. Route `#/plan/creators/:id?tab=&from=`
+(`screens/creators/CreatorFullView.tsx`).
+
+### Kept in the app, worth knowing
+
+88. **The tabs are the file's now, in both places.** Audience (four KPIs, age, gender, top
+    countries, interests), Content (four KPIs, top three posts, format and channel mix) and Similar
+    (Sort by + six cards) replace the code-first tabs. One set of components serves the 384 panel and
+    the full view's right column by laying out off `@container/creator` at 560, so the panel gets one
+    column and the full view gets the file's grid. Alena's numbers are the file's; everyone else's are
+    seeded to her shape (`audienceFor`, `contentFor`). The bars are the Engagement card's plain 8px
+    drawing on a 0–100 scale, not `HorizontalBar`, because the file draws them that way. A post card
+    is a plain `Card`, not the file's `Clickable Card`: a creator's post has nowhere to open to yet.
+89. **Similar is by audience overlap, seeded per pair.** `audienceOverlap` is symmetric and a shared
+    category adds 30, so the six differ from the file's six (which were picked by hand). Its Sort by is
+    local state, not the URL: it is a small list inside a tab, and the tab itself is in the URL.
+90. **Collapse carries the panel through the navigation.** The shell closes a screen's panel when the
+    path changes; a navigation can now carry the one the next screen opens with
+    (`navigate(from, { state: { panel } })`), so Collapse lands on Creators with the panel open on
+    the same tab, and Expand opens the full view on the panel's tab (Audience from Overview, which
+    the full view always shows). The panel starts on the requested tab each time it opens and keeps
+    its tab when Similar swaps the creator.
+91. **The floating Yak bar comes free.** `/plan/creators/:id` matches Creators' prefix in
+    `yak/floating.ts`, so it is Creators' bar, as the file draws. Both columns carry
+    `floatingYakClearance`; at 1280×700 the last Similar card ends 22px above the bar.
+92. **Below 768 of page the columns stack** into one scroll, and Open profile and Add to campaign
+    move from the top bar to under the name, where on a phone they had covered the title.
 

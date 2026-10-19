@@ -1,5 +1,16 @@
 export type Network = 'instagram' | 'facebook' | 'x' | 'threads' | 'reddit' | 'tiktok' | 'bluesky'
 
+/** Each network's name, as its own brand writes it. */
+export const NETWORK_NAMES: Record<Network, string> = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  x: 'X',
+  threads: 'Threads',
+  reddit: 'Reddit',
+  tiktok: 'TikTok',
+  bluesky: 'Bluesky',
+}
+
 /** A connected social account the brand posts from. */
 export interface Profile {
   id: string

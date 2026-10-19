@@ -5,6 +5,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
+import { CreatorFullView } from './screens/creators/CreatorFullView'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
 import { IdeasProvider } from './screens/ideas/IdeasProvider'
 import { IdeasScreen } from './screens/ideas/IdeasScreen'
@@ -29,6 +30,7 @@ const router = createHashRouter([
       { path: 'plan/calendar', element: <CalendarScreen /> },
       { path: 'plan/ideas', element: <IdeasScreen /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },
+      { path: 'plan/creators/:creatorId', element: <CreatorFullView /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
       { path: 'measure/discover', element: <DiscoverScreen /> },
