@@ -9,7 +9,7 @@ import {
 import { Donut } from '../../../../../src/components/Donut'
 import { HorizontalBar } from '../../../../../src/components/HorizontalBar'
 import { LineSeries } from '../../../../../src/components/LineSeries'
-import { MetricCard, MetricGrid } from '../../../../../src/components/Metric'
+import { MetricGrid } from '../../../../../src/components/Metric'
 import { Table, type TableColumn } from '../../../../../src/components/Table'
 import {
   MEASURE_LABEL,
@@ -24,6 +24,7 @@ import type { GroupBy, Report, Widget } from '../../../data/types'
 import { useMentions } from '../../mentions/useMentions'
 import { widgetPointMentionQuery, widgetSeriesMentionQuery } from '../mentions'
 import { formatChange, formatCount, localZone } from '../model'
+import { ClickableMetric, MentionRows, RowButton } from './clickable'
 
 /** Past this many points a marker per point merges into a band (LineSeries' `showPoints`). */
 const MAX_POINTS_WITH_MARKERS = 40
@@ -134,18 +135,23 @@ export function ChartWidget({
     case 'metric':
       return (
         <MetricGrid columns={columns}>
-          {summaries.map((s) => (
-            <MetricCard
-              key={s.series}
-              label={s.series}
-              value={formatCount(s.total)}
-              trend={widget.compare ? s.change : undefined}
-            />
-          ))}
+          {summaries.map((s) => {
+            const query = widgetSeriesMentionQuery(report, widget, range, s.series)
+            return (
+              <ClickableMetric
+                key={s.series}
+                selected={query ? mentions.isOpen(query.key) : false}
+                onClick={() => openSeries(s.series)}
+                label={s.series}
+                value={formatCount(s.total)}
+                trend={widget.compare ? s.change : undefined}
+              />
+            )
+          })}
         </MetricGrid>
       )
     case 'table':
-      return <BreakdownTable widget={widget} range={range} summaries={summaries} />
+      return <BreakdownTable report={report} widget={widget} range={range} summaries={summaries} />
   }
 }
 
@@ -155,11 +161,13 @@ export function ChartWidget({
  * are the chart legend's `_Swatch Label`s. Also the `table` viz.
  */
 export function BreakdownTable({
+  report,
   widget,
   range,
   summaries = seriesSummaries(widget, range),
   peakFormat,
 }: {
+  report: Report
   widget: Widget
   range: ReportRange
   summaries?: SeriesSummary[]
@@ -168,13 +176,15 @@ export function BreakdownTable({
 }) {
   const measure = MEASURE_LABEL[widget.measure]
   const marks = widget.viz === 'line'
+  const mentions = useMentions()
   const columns: TableColumn<SeriesSummary>[] = [
     {
       key: 'series',
       header: 'Series',
       renderCell: (s) => {
         const index = widget.series.indexOf(s.series)
-        return (
+        const query = widgetSeriesMentionQuery(report, widget, range, s.series)
+        const label = (
           <span className="flex items-center gap-2">
             {/* The chart's own key: a marker on a line for a line chart, a
                 square for everything else. Decorative — the name follows. */}
@@ -185,6 +195,18 @@ export function BreakdownTable({
             />
             {s.series}
           </span>
+        )
+        // "Other" is everyone else and has no mentions to open.
+        return query ? (
+          <RowButton
+            label={`${s.series}, view mentions`}
+            pressed={mentions.isOpen(query.key)}
+            onClick={() => mentions.toggle(query)}
+          >
+            {label}
+          </RowButton>
+        ) : (
+          label
         )
       },
       sortValue: (s) => s.series,
@@ -231,12 +253,15 @@ export function BreakdownTable({
       : []),
   ]
   return (
-    <Table
-      label={`${widget.title}: ${measure} by series`}
-      columns={columns}
-      data={summaries}
-      idKey="series"
-      sortable
-    />
+    <MentionRows>
+      <Table
+        label={`${widget.title}: ${measure} by series`}
+        columns={columns}
+        data={summaries}
+        idKey="series"
+        sortable
+        hasHover
+      />
+    </MentionRows>
   )
 }

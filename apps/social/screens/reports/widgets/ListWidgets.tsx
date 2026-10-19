@@ -10,14 +10,19 @@ import {
 } from 'lucide-react'
 
 import { Avatar } from '../../../../../src/components/Avatar'
+import { ClickableCard } from '../../../../../src/components/Card'
 import { Badge } from '../../../../../src/components/Badge'
 import { Icon } from '../../../../../src/components/Icon'
 import { Table, pixel, type TableColumn } from '../../../../../src/components/Table'
 import { Text } from '../../../../../src/components/Text'
 import { NetworkIcon } from '../../../components/NetworkIcon'
-import { spikes, stories, voices } from '../../../data/reports'
-import type { Network, Spike, Story, Voice } from '../../../data/types'
+import { spikes, stories, voices, type ReportRange } from '../../../data/reports'
+import type { Network, Report, Spike, Story, Voice, Widget } from '../../../data/types'
+import { useMentions } from '../../mentions/useMentions'
+import { spikeMentionQuery, storyMentionQuery, voiceMentionQuery } from '../mentions'
 import { agoLabel, formatCount, formatVelocity } from '../model'
+import { MentionRows, RowButton } from './clickable'
+import { rowMentions, type RowMentions } from './rowMentions'
 
 /** A network's mark, or a glyph for an outlet that has none. */
 export function SourceMark({ source }: { source: Network | 'news' | 'web' }) {
@@ -53,12 +58,14 @@ export function TwoLineCell({
 
 const SENTIMENT_COLOR = { Positive: 'green', Neutral: 'neutral', Negative: 'red' } as const
 
-const storyColumns: TableColumn<Story>[] = [
+const storyColumns = ({ open, isOpen }: RowMentions<Story>): TableColumn<Story>[] => [
   {
     key: 'title',
     header: 'Story',
     renderCell: (s) => (
-      <TwoLineCell title={s.title} source={s.source} meta={`${s.outlet} · ${s.sourceLabel}`} />
+      <RowButton label={`${s.title}, view mentions`} pressed={isOpen(s)} onClick={() => open(s)}>
+        <TwoLineCell title={s.title} source={s.source} meta={`${s.outlet} · ${s.sourceLabel}`} />
+      </RowButton>
     ),
   },
   {
@@ -98,29 +105,41 @@ const storyColumns: TableColumn<Story>[] = [
   },
 ]
 
-/** Brand Pulse's top stories, newest first, as the file lists them. */
-export function StoriesWidget() {
+/** The props every list widget takes: which board, which widget, which range. */
+interface ListProps {
+  report: Report
+  widget: Widget
+  range: ReportRange
+}
+
+/** Brand Pulse's top stories, newest first, as the file lists them. A row opens its shares. */
+export function StoriesWidget({ report, widget, range }: ListProps) {
+  const mentions = useMentions()
+  const query = (s: Story) => storyMentionQuery(report, widget, range, s)
   return (
-    <Table
-      label="Top stories"
-      columns={storyColumns}
-      data={stories}
-      idKey="id"
-      sortable
-      textOverflow="truncate"
-    />
+    <MentionRows>
+      <Table
+        label={widget.title}
+        columns={storyColumns(rowMentions(mentions, query))}
+        data={stories}
+        idKey="id"
+        sortable
+        textOverflow="truncate"
+        hasHover
+      />
+    </MentionRows>
   )
 }
 
-const voiceColumns: TableColumn<Voice>[] = [
+const voiceColumns = ({ open, isOpen }: RowMentions<Voice>): TableColumn<Voice>[] => [
   {
     key: 'name',
     header: 'Author',
     renderCell: (v) => (
-      <span className="flex min-w-0 items-center gap-3">
+      <RowButton label={`${v.name}, view mentions`} pressed={isOpen(v)} onClick={() => open(v)}>
         <Avatar name={v.name} alt="" />
         <TwoLineCell title={v.name} source={v.source} meta={v.handle} />
-      </span>
+      </RowButton>
     ),
   },
   {
@@ -144,16 +163,21 @@ const voiceColumns: TableColumn<Voice>[] = [
 ]
 
 /** The accounts talking about the brand most — `_Pulse Author Cell` (`40005871:24336`). */
-export function VoicesWidget() {
+export function VoicesWidget({ report, widget, range }: ListProps) {
+  const mentions = useMentions()
+  const query = (v: Voice) => voiceMentionQuery(report, widget, range, v)
   return (
-    <Table
-      label="Top voices"
-      columns={voiceColumns}
-      data={voices}
-      idKey="id"
-      sortable
-      textOverflow="truncate"
-    />
+    <MentionRows>
+      <Table
+        label={widget.title}
+        columns={voiceColumns(rowMentions(mentions, query))}
+        data={voices}
+        idKey="id"
+        sortable
+        textOverflow="truncate"
+        hasHover
+      />
+    </MentionRows>
   )
 }
 
@@ -165,26 +189,44 @@ const SPIKE_ICON: Record<Spike['icon'], LucideIcon> = {
   down: TrendingDown,
 }
 
-/** What moved unusually fast — `_Pulse Spike Row` (`40005870:21980`), one per alert. */
-export function SpikesWidget() {
+/**
+ * What moved unusually fast — `_Pulse Spike Row` (`40005870:21980`), one per
+ * alert. Each row is a ghost `ClickableCard`, as Discover's trending rows are,
+ * that opens the mentions which set it off.
+ */
+export function SpikesWidget({ report, widget, range }: ListProps) {
+  const mentions = useMentions()
   return (
-    <ul className="flex flex-col divide-y divide-surface-border">
-      {spikes.map((spike) => (
-        <li key={spike.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-          <Icon icon={SPIKE_ICON[spike.icon]} className="shrink-0" aria-hidden />
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <Text render={<span />} weight="semibold" truncate>
-              {spike.title}
-            </Text>
-            <Text render={<span />} size="sm" color="subtle" truncate>
-              {spike.detail}
-            </Text>
-          </span>
-          <Badge color={spike.tone} className="shrink-0">
-            {spike.change}
-          </Badge>
-        </li>
-      ))}
+    <ul data-opens-mentions className="flex flex-col divide-y divide-surface-border">
+      {spikes.map((spike, index) => {
+        const query = spikeMentionQuery(report, widget, range, spike, index)
+        return (
+          <li key={spike.id} className="flex py-1 first:pt-0 last:pb-0">
+            <ClickableCard
+              emphasis="ghost"
+              padding={2}
+              selected={query ? mentions.isOpen(query.key) : false}
+              onClick={() => query && mentions.toggle(query)}
+              className="w-full"
+            >
+              <span className="flex w-full min-w-0 items-center gap-3 text-left">
+                <Icon icon={SPIKE_ICON[spike.icon]} className="shrink-0" aria-hidden />
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <Text render={<span />} weight="semibold" truncate>
+                    {spike.title}
+                  </Text>
+                  <Text render={<span />} size="sm" color="subtle" truncate>
+                    {spike.detail}
+                  </Text>
+                </span>
+                <Badge color={spike.tone} className="shrink-0">
+                  {spike.change}
+                </Badge>
+              </span>
+            </ClickableCard>
+          </li>
+        )
+      })}
     </ul>
   )
 }

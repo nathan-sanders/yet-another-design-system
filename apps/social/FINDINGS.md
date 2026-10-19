@@ -989,3 +989,21 @@ Code-first: the file has no flow behind the list's create entry point.
 107. **Weekly grouping starts on a partial week.** Thirty days is four weeks and two days, so a
     weekly line opens on a two-day bucket that reads as a dip. The Trend template groups by day
     for that reason; `seriesPoints` is unchanged.
+
+## Measure › Report widgets open their mentions (2026-10-19)
+
+### Kept in the app, worth knowing
+
+108. **Every number and row on a board opens the mentions behind it, as on Discover.** The four
+    Overview metrics and a chart's metric viz are `ClickableMetric`s. Story, feed, voice and
+    breakdown rows each have a `RowButton` in their first cell, and a press anywhere on the row
+    forwards to it. Spike alerts are ghost `ClickableCard`s, and a timeline point opens that day's
+    articles or interactions (`widgets/clickable.tsx`, query builders in `reports/mentions.ts`). The
+    mention generator gained `story` and `spike` angles, so a story's list is people sharing that
+    story. Everything hovers to Discover's one fill, Surface/Background Subtle, measured on a row
+    and a metric card. The Overview cards are bordered `ClickableCard`s now rather than subtle
+    `MetricCard`s, because a filled card cannot hover to the fill it already has.
+109. **A table row does not stay filled while its list is open.** `Table`'s `selectedKeys` is tied to
+    its checkbox selection, so an open row says so through its button's `aria-pressed` only.
+    Discover's Creators table behaves the same. A row "current" state with no checkbox would let
+    both tables show it.

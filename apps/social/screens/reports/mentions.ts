@@ -1,4 +1,9 @@
-import { VOICE_AUTHORS, SPIKE_MENTIONS, type MentionQuery } from '../../data/mentions'
+import {
+  VOICE_AUTHORS,
+  SPIKE_MENTIONS,
+  spikeMentions,
+  type MentionQuery,
+} from '../../data/mentions'
 import {
   RANGES,
   effectiveGroupBy,
@@ -10,7 +15,7 @@ import {
   voices,
   type ReportRange,
 } from '../../data/reports'
-import type { GroupBy, Report, Widget } from '../../data/types'
+import type { GroupBy, Report, Spike, Story, Voice, Widget } from '../../data/types'
 import { localZone } from './model'
 
 /** The range in words, for the panel's context line; the board's control says `30D`. */
@@ -201,5 +206,101 @@ export function widgetSeriesMentionQuery(
     context: `${widget.title} · ${report.name} · ${RANGE_WORDS[range]}`,
     total: summary?.total ?? 0,
     topics: [{ name: series, weight: 1 }],
+  }
+}
+
+// ---------------------------------------------------------------------------
+// One thing inside a widget: a metric, a story, a voice, a spike
+// ---------------------------------------------------------------------------
+
+/** The four Overview numbers, by what each one counts. */
+export type OverviewMetric = 'mentions' | 'engagements' | 'reach' | 'sentiment'
+
+const OVERVIEW_TITLE: Record<OverviewMetric, string> = {
+  mentions: 'Mentions',
+  engagements: 'Engagements',
+  reach: 'Potential reach',
+  sentiment: 'Net sentiment',
+}
+
+/**
+ * The mentions behind one Overview number. Every one of the four is made by
+ * the same mentions of the subject (engagements and reach are what they
+ * earned), so the list is theirs and the title says which number was pressed.
+ */
+export function overviewMetricQuery(
+  report: Report,
+  widget: Widget,
+  range: ReportRange,
+  metric: OverviewMetric,
+): MentionQuery | undefined {
+  const base = widgetMentionQuery(report, widget, range)
+  if (!base) return undefined
+  return {
+    ...base,
+    key: `${base.key}|metric|${metric}`,
+    title: OVERVIEW_TITLE[metric],
+    context: `${widget.title} · ${report.name} · ${RANGE_WORDS[range]}`,
+  }
+}
+
+/** The posts sharing and reacting to one story, or one item of a live feed. */
+export function storyMentionQuery(
+  report: Report,
+  widget: Widget,
+  range: ReportRange,
+  story: Story,
+): MentionQuery | undefined {
+  const base = widgetMentionQuery(report, widget, range)
+  if (!base) return undefined
+  return {
+    ...base,
+    key: `${base.key}|story|${story.id}`,
+    title: story.title,
+    context: `${story.outlet} · ${widget.title} · ${report.name}`,
+    total: Math.max(1, Math.round(story.engagements / ENGAGEMENTS_PER_SHARE)),
+    angle: { kind: 'story', id: story.id },
+  }
+}
+
+/** One voice's own mentions. */
+export function voiceMentionQuery(
+  report: Report,
+  widget: Widget,
+  range: ReportRange,
+  voice: Voice,
+): MentionQuery | undefined {
+  const base = widgetMentionQuery(report, widget, range)
+  const author = VOICE_AUTHORS[voice.id]
+  if (!base || !author) return undefined
+  return {
+    ...base,
+    key: `${base.key}|voice|${voice.id}`,
+    title: voice.name,
+    context: `${voice.handle} · ${widget.title} · ${report.name}`,
+    total: voice.mentions,
+    angle: { kind: 'authors', ids: [author] },
+  }
+}
+
+/** The mentions that set off one spike alert. */
+export function spikeMentionQuery(
+  report: Report,
+  widget: Widget,
+  range: ReportRange,
+  spike: Spike,
+  index: number,
+): MentionQuery | undefined {
+  const base = widgetMentionQuery(report, widget, range)
+  if (!base) return undefined
+  return {
+    ...base,
+    key: `${base.key}|spike|${spike.id}`,
+    title: spike.title,
+    context: `${spike.detail} · ${report.name}`,
+    total: spikeMentions(index),
+    angle: { kind: 'spike', index },
+    // A spike is the last few hours, not the board's range.
+    withinHours: 6,
   }
 }
