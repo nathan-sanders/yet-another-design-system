@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'react'
 
+import type { MentionQuery } from '../data/mentions'
+
 /**
  * What is open in the shell's right-hand `Panel`. One at a time: the Figma
  * screens never show two side panels, and a second would be stacked *inside*
@@ -16,6 +18,8 @@ export type ShellPanel =
   | { type: 'contact'; customerId: string }
   | { type: 'creator'; creatorId: string }
   | { type: 'widget'; reportId: string; widgetId: string }
+  /** The posts behind a number on Measure (`screens/mentions/MentionsPanel.tsx`). */
+  | { type: 'mentions'; query: MentionQuery }
   | null
 
 export interface ShellState {

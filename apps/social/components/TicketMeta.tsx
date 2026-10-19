@@ -75,6 +75,25 @@ function Glyph({ option, size }: { option: Option<string>; size: 'small' | 'base
   return <Icon icon={option.icon} size={size} className={option.tone} />
 }
 
+/** Yak's read of a message, as the glyph and color its Token wears. Measure's mentions use it too. */
+export function SentimentGlyph({
+  sentiment,
+  size = 'base',
+}: {
+  sentiment: TicketSentiment
+  size?: 'small' | 'base'
+}) {
+  const option = find(SENTIMENT, sentiment)
+  return (
+    <Icon
+      icon={option.icon}
+      size={size}
+      className={option.tone}
+      label={`${option.label} sentiment`}
+    />
+  )
+}
+
 interface PriorityOption {
   value: TicketPriority
   label: string
