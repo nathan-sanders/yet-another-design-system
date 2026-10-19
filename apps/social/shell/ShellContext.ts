@@ -14,6 +14,7 @@ export type ShellPanel =
   | { type: 'yak-history' }
   | { type: 'post'; postId: string }
   | { type: 'contact'; customerId: string }
+  | { type: 'creator'; creatorId: string }
   | { type: 'widget'; reportId: string; widgetId: string }
   | null
 
