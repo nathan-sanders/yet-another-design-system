@@ -74,7 +74,7 @@ function EngagementBars({ creator }: { creator: Creator }) {
     <ul className="flex flex-col gap-2">
       {rows.map((row) => (
         <li key={row.label} className="flex items-center gap-3">
-          <Text render={<span />} size="sm" truncate className="w-26 shrink-0">
+          <Text render={<span />} truncate className="w-26 shrink-0">
             {row.label}
           </Text>
           <span aria-hidden className="flex min-w-0 flex-1">
@@ -83,7 +83,7 @@ function EngagementBars({ creator }: { creator: Creator }) {
               style={{ '--share': `${(row.value / max) * 100}%` } as CSSProperties}
             />
           </span>
-          <Text render={<span />} size="sm" mono className="shrink-0">
+          <Text render={<span />} mono className="shrink-0">
             {row.value.toFixed(1)}%
           </Text>
         </li>
@@ -171,10 +171,10 @@ function OverviewTab({ creator }: { creator: Creator }) {
           {creator.channels.map((channel) => (
             <li key={channel.network} className="flex items-center gap-2">
               <NetworkIcon network={channel.network} />
-              <Text render={<span />} size="sm" truncate className="min-w-0 flex-1">
+              <Text render={<span />} size="lg" truncate className="min-w-0 flex-1">
                 {channel.handle}
               </Text>
-              <Text render={<span />} size="sm" mono>
+              <Text render={<span />} mono>
                 {formatCount(channel.followers)}
               </Text>
             </li>
