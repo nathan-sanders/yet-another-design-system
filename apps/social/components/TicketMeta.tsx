@@ -331,7 +331,7 @@ export function TicketMeta({
 
   // The ticket number is an identifier you read, never a value you change, so
   // it is a Badge rather than a Token. Badge is a 20px pill; `min-h-6` brings
-  // it to the tokens. 24 so the row keeps one height. FINDINGS 61.
+  // it to the tokens' 24 so the row keeps one height. FINDINGS 61.
   const number = (
     <Badge startIcon={TicketIcon} className="min-h-6">
       <Spoken>Ticket</Spoken>#{ticket.number}
