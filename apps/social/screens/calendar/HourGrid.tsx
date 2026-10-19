@@ -1,12 +1,15 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, SquarePen, StickyNote } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
+import { Menu } from '../../../../src/components/Menu'
 import { Text } from '../../../../src/components/Text'
 import { cn } from '../../../../src/lib/cn'
 import { formatHour, fullDate, sameDay, weekdayShort } from '../../data/dates'
-import type { Post } from '../../data/types'
-import { HOURS, isPast, pastDayPattern, postHour, postsOn, today } from './model'
+import { CalendarNote } from '../../components/CalendarNote'
+import type { CalendarNote as Note, Post } from '../../data/types'
+import { useCalendarNotes } from './calendarNotesState'
+import { HOURS, isPast, layoutNotes, pastDayPattern, postHour, postsOn, today } from './model'
 
 const GUTTER = 'w-14 shrink-0' // 56px, the file's `Gutter`
 
@@ -14,6 +17,8 @@ interface HourGridProps {
   days: Date[]
   renderPost: (post: Post) => ReactNode
   onAddPost: (date: Date) => void
+  onAddNote: (date: Date) => void
+  onOpenNote: (note: Note) => void
   /** The day header's label: `Mon 7` in the week, the full date in a day. */
   dayLabel?: (date: Date) => string
 }
@@ -32,7 +37,14 @@ interface HourGridProps {
  * cards in it need. So it is a stack of flex rows, not an absolutely positioned
  * timeline, and the now line is placed inside the current hour's row.
  */
-export function HourGrid({ days, renderPost, onAddPost, dayLabel = weekLabel }: HourGridProps) {
+export function HourGrid({
+  days,
+  renderPost,
+  onAddPost,
+  onAddNote,
+  onOpenNote,
+  dayLabel = weekLabel,
+}: HourGridProps) {
   const byDay = days.map((day) => postsOn(day))
   const todayIndex = days.findIndex((day) => sameDay(day, today))
   const now = useNow()
@@ -72,21 +84,32 @@ export function HourGrid({ days, renderPost, onAddPost, dayLabel = weekLabel }: 
                 {isToday ? <span className="sr-only"> (today)</span> : null}
               </Text>
               {past ? null : (
-                <Button
-                  appearance="ghost"
-                  startIcon={Plus}
-                  aria-label={`Add post on ${fullDate.format(day)}`}
-                  onClick={() => onAddPost(day)}
-                />
+                <Menu>
+                  <Menu.Trigger
+                    render={
+                      <Button
+                        appearance="ghost"
+                        startIcon={Plus}
+                        aria-label={`Add to ${fullDate.format(day)}`}
+                      />
+                    }
+                  />
+                  <Menu.Popup aria-label={`Add to ${fullDate.format(day)}`}>
+                    <Menu.Item startIcon={SquarePen} onClick={() => onAddPost(day)}>
+                      Add post
+                    </Menu.Item>
+                    <Menu.Item startIcon={StickyNote} onClick={() => onAddNote(day)}>
+                      Add note
+                    </Menu.Item>
+                  </Menu.Popup>
+                </Menu>
               )}
             </div>
           )
         })}
       </div>
 
-      <Row label="Notes" days={days}>
-        {() => null}
-      </Row>
+      <NotesRow days={days} onAddNote={onAddNote} onOpenNote={onOpenNote} />
       {HOURS.map((hour) => (
         <Row
           key={hour}
@@ -144,6 +167,94 @@ function Row({
         </div>
       ))}
       {now ? <NowLine minute={now.minute} column={now.column} columns={days.length} /> : null}
+    </div>
+  )
+}
+
+/**
+ * The Notes row: the hour rows' frame — gutter label, a column per day with its
+ * rule and past-day hatch — but a grid rather than a flex row, so a note can
+ * span columns. Notes stack in lanes (`layoutNotes`), one 24px bar and a 4px
+ * gap each, and the row grows to fit them; with none it keeps the hour rows'
+ * 56px.
+ *
+ * A click on a day's empty part starts a note there. It is a pointer shortcut
+ * only — the day header's + menu is the keyboard route to the same thing — so
+ * the cells are not buttons and add no tab stops to the grid.
+ */
+function NotesRow({
+  days,
+  onAddNote,
+  onOpenNote,
+}: {
+  days: Date[]
+  onAddNote: (date: Date) => void
+  onOpenNote: (note: Note) => void
+}) {
+  const { notes } = useCalendarNotes()
+  const segments = layoutNotes(notes, days)
+  const lanes = segments.reduce((most, segment) => Math.max(most, segment.lane + 1), 0)
+
+  return (
+    <div className="relative flex min-h-14 border-b border-dashed border-surface-border">
+      <div className={cn(GUTTER, 'flex items-start justify-end pr-2')}>
+        <Text
+          render={<span />}
+          size="sm"
+          color="subtle"
+          className="sticky top-12 mt-2 whitespace-nowrap"
+        >
+          Notes
+        </Text>
+      </div>
+      <div
+        className={cn(
+          'grid flex-1 grid-rows-(--note-rows)',
+          // The hour rows' columns: 112px each on a phone, sharing the width above.
+          'grid-cols-[repeat(var(--days),minmax(--spacing(28),1fr))] md:grid-cols-[repeat(var(--days),minmax(0,1fr))]',
+        )}
+        style={
+          {
+            '--days': days.length,
+            '--note-rows': lanes > 0 ? `repeat(${lanes}, auto) minmax(4px, 1fr)` : '1fr',
+          } as CSSProperties
+        }
+      >
+        {days.map((day, i) => {
+          const past = isPast(day)
+          return (
+            <div
+              key={day.toISOString()}
+              className={cn(
+                'col-(--day) row-span-full border-l border-surface-border',
+                past ? pastDayPattern : 'cursor-pointer hover:bg-surface-background-subtle',
+              )}
+              style={{ '--day': i + 1 } as CSSProperties}
+              onClick={past ? undefined : () => onAddNote(day)}
+            />
+          )
+        })}
+        {segments.map((segment) => (
+          <div
+            key={segment.note.id}
+            className="pointer-events-none col-(--note-col) row-(--note-row) min-w-0 px-1 pt-1"
+            style={
+              {
+                '--note-col': `${segment.column + 1} / span ${segment.span}`,
+                '--note-row': segment.lane + 1,
+              } as CSSProperties
+            }
+          >
+            <CalendarNote
+              note={segment.note}
+              continuesBefore={segment.continuesBefore}
+              continuesAfter={segment.continuesAfter}
+              onOpen={onOpenNote}
+              className="pointer-events-auto"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

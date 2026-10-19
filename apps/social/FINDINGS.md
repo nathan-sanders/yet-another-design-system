@@ -878,3 +878,45 @@ Figma: `Plan - Creators / Creator Details / Full View` `40005952:23519`, `… / 
 92. **Below 768 of page the columns stack** into one scroll, and Open profile and Add to campaign
     move from the top bar to under the name, where on a phone they had covered the title.
 
+
+## Plan › Calendar notes (2026-10-19)
+
+Figma: `Calendar Note` `40005949:63968` (10 colors × Default / Hover / Focus, plus `X more`).
+Notes live in the week's and day's Notes row and in each month week, and are made and edited in
+`screens/calendar/NoteDialog.tsx`. The note is `components/CalendarNote.tsx`.
+
+### Open
+
+93. **The note's colors are not YADS tokens.** The set binds Seeds-style variables
+    (`green.background`, `magenta.highlight`, `aqua.foreground`, …) and `Overlay/Background` for the
+    fold, none of which exist in `tokens/`. Two of the ten names have no YADS hue at all, so Magenta
+    is drawn in `decorative-fuchsia-*` and Aqua in `decorative-cyan-*`. The others map by name to
+    `decorative-<hue>-{background,highlight,foreground}`. Those tokens are deeper than the file's
+    pastels (the file's green background is `#d7f4d7`; YADS's is `green-300`), so a note in the app
+    reads stronger than the drawing. The fold's flap is the hue's foreground at 30%, `InternalNote`'s
+    recipe, because there is no `Overlay/Background`. **Owed to the file:** rebind the set to the
+    Decorative tokens, and decide Magenta/Aqua. The color picker keeps the file's names.
+94. **No swatch picker in the library.** The color choice is `Radio.Group` with a swatch inside each
+    label, ten radios in two columns. It works and is accessible, but a picker that is just the
+    swatches would be a library component (`ColorSwatchGroup`, or a `swatch` variant of Radio).
+95. **`Dialog.Body` stretches a short dialog to the viewport.** It is `flex-1` so it can scroll, which
+    also makes it grow: the note dialog came out 868px tall with 470px of form. `flex-initial` on
+    the Body (shrink to scroll, never grow) fixed it here. That may be the right default for the
+    library.
+
+### Kept in the app, worth knowing
+
+96. **Notes are laid out in lanes, per run of days drawn.** `layoutNotes` in `model.ts` clips each
+    note to the days on screen, sorts by start (longest first on a tie), and puts each in the first
+    free lane. So a campaign keeps the top lane and one-day callouts fill in under it. A note that runs
+    off the days drawn squares that end and drops the fold, because it has not finished there.
+97. **The Notes row is a grid, the hour rows are flex.** At 375 wide both give 112px columns at the
+    same x (measured: 65, 177, … 737 in both). The day cells span all of the row's lanes behind the
+    notes.
+98. **Month weeks show two lanes.** Further notes go behind the cell's existing `+N more`, which now
+    counts hidden notes and hidden posts together. The lanes take rows from each cell's four, so
+    a week with two lanes shows one post and the link.
+99. **Two ways in.** The day header's + is now a Menu (Add post, Add note). A click on a day's empty
+    part (in the Notes row, or a month cell) starts a one-day note there. The cell click is a pointer
+    shortcut with no tab stop; the + menu is the keyboard route. Past days offer neither. Clicking a
+    note opens the same dialog with Delete.

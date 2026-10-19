@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft, ArrowRight, Ellipsis, Lightbulb, ListFilter, SquarePen } from 'lucide-react'
 
@@ -7,10 +8,11 @@ import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { addDays, fromISODate, monthYear, toISODate } from '../../data/dates'
-import type { Post } from '../../data/types'
+import type { CalendarNote, Post } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { DayView } from './DayView'
 import { MonthView } from './MonthView'
+import { NoteDialog, type NoteDialogRequest } from './NoteDialog'
 import { today, type CalendarView } from './model'
 import { WeekView } from './WeekView'
 import { cn } from '../../../../src/lib/cn'
@@ -52,6 +54,10 @@ export function CalendarScreen() {
   const selectedPostId = shell.panel?.type === 'post' ? shell.panel.postId : undefined
   const openPost = (post: Post) =>
     shell.setPanel(selectedPostId === post.id ? null : { type: 'post', postId: post.id })
+
+  const [noteRequest, setNoteRequest] = useState<NoteDialogRequest | null>(null)
+  const addNote = (date: Date) => setNoteRequest({ mode: 'new', date })
+  const openNote = (note: CalendarNote) => setNoteRequest({ mode: 'edit', note })
 
   // With a panel open the page is 800 wide, and Figma folds Filter and Ideas to
   // icon-only buttons to make room (`40005911:33082`). New post keeps its label.
@@ -170,18 +176,29 @@ export function CalendarScreen() {
             selectedPostId={selectedPostId}
             onOpenPost={openPost}
             onAddPost={() => shell.notBuilt('The post composer')}
+            onAddNote={addNote}
+            onOpenNote={openNote}
           />
         ) : view === 'month' ? (
-          <MonthView anchor={anchor} selectedPostId={selectedPostId} onOpenPost={openPost} />
+          <MonthView
+            anchor={anchor}
+            selectedPostId={selectedPostId}
+            onOpenPost={openPost}
+            onAddNote={addNote}
+            onOpenNote={openNote}
+          />
         ) : (
           <DayView
             anchor={anchor}
             selectedPostId={selectedPostId}
             onOpenPost={openPost}
             onAddPost={() => shell.notBuilt('The post composer')}
+            onAddNote={addNote}
+            onOpenNote={openNote}
           />
         )}
       </AppShell.Content>
+      <NoteDialog request={noteRequest} onClose={() => setNoteRequest(null)} />
     </>
   )
 }

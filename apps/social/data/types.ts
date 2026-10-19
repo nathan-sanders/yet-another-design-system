@@ -57,6 +57,43 @@ export interface Post {
   thread?: PostComment[]
 }
 
+/**
+ * The ten colors Figma's `Calendar Note` set (`40005949:63968`) offers. The file
+ * names two of them `Magenta` and `Aqua`, which the library has no tokens for;
+ * they are drawn here in `fuchsia` and `cyan` — see FINDINGS.md.
+ */
+export type NoteColor =
+  | 'neutral'
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | 'yellow'
+  | 'orange'
+  | 'red'
+  | 'pink'
+  | 'fuchsia'
+  | 'cyan'
+
+/** A day in the Figma week's terms, as a `Post` places itself. */
+export interface CalendarDay {
+  week: number
+  day: number
+}
+
+/**
+ * A note pinned across one or more days of the calendar — a campaign's run, an
+ * event to plan around. The team writes them; they are not posts.
+ */
+export interface CalendarNote {
+  id: string
+  title: string
+  description?: string
+  color: NoteColor
+  /** Both ends inclusive. */
+  start: CalendarDay
+  end: CalendarDay
+}
+
 // Engage — the inbox. Customers write in on a network; each message is a ticket.
 
 /** Someone outside the brand: who wrote in, and who the contact panel describes. */

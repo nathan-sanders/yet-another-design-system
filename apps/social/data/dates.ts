@@ -67,3 +67,4 @@ export const fullDate = new Intl.DateTimeFormat('en-US', {
   month: 'long',
   day: 'numeric',
 })
+export const monthDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })

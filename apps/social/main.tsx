@@ -5,6 +5,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
+import { CalendarNotesProvider } from './screens/calendar/CalendarNotesProvider'
 import { PostNotesProvider } from './screens/calendar/PostNotesProvider'
 import { CommentsScreen } from './screens/comments/CommentsScreen'
 import { CreatorFullView } from './screens/creators/CreatorFullView'
@@ -53,7 +54,9 @@ createRoot(document.getElementById('root')!).render(
         <ReportsProvider>
           <IdeasProvider>
             <PostNotesProvider>
-              <RouterProvider router={router} />
+              <CalendarNotesProvider>
+                <RouterProvider router={router} />
+              </CalendarNotesProvider>
             </PostNotesProvider>
           </IdeasProvider>
         </ReportsProvider>
