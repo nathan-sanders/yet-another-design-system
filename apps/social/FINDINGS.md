@@ -677,3 +677,44 @@ DragAndDrop's Kanban story put to work, and it needed no library change. State l
 - axe on the board (with a fifth group added), at rest: no violations. Mid-drag, the half-opacity
   carried card fails color contrast, which is the library's drag style and is expected.
 - Light and dark, both views.
+
+## Shell › New menu (2026-10-19)
+
+A primary **New** button at the top of the rail, so you can create something from any page.
+Figma drew it first: the calendar frame (`40005911:32756`) puts a full-width `Button`
+(`40005939:57450`) first in the side nav's Top Slot, above Yak, and the menu it opens is
+`40005939:57476`. The code is `shell/NewMenu.tsx`, and it needed no library change: `SideNav`'s
+`top`, `Menu.Trigger` rendering a `Button`, and `Menu.Item`'s `startIcon` and `description`.
+Every item is a not-built toast for now.
+
+### Kept in the app, worth knowing
+
+73. **The shell holds the rail's `collapsed` state, only for this button.** `top` is the
+    caller's content, and SideNav doesn't reshape it for the 56px rail the way it does its own
+    rows. So the shell controls `collapsed` and swaps in an icon-only button with a `New`
+    tooltip. The tooltip wraps `Menu.Trigger`, not the Button, so both sets of props land on
+    the same element. If a second app puts a button in `top`, that's the time to have SideNav
+    expose `collapsed` to its slots.
+74. **Sub label copy has to fit in 178px.** The menu is 248 wide, and that leaves a 178px text
+    column at 12px Inter. "Measure how content performs" measured exactly 178 and wrapped,
+    which made the row 72 tall instead of 52. Report and Topic use "See how content performs"
+    and "Track a theme or keyword" (148 each). Figma still shows "Sub label" on those three
+    rows.
+
+### Figma owes
+
+75. **Decided here (code-first):**
+    - Collapsed rail: an icon-only `large` primary button (40×40) with a `New` tooltip.
+    - Phone: an icon-only default-size primary button in `MobileNav`'s utilities, between Yak
+      and the theme toggle. The menu flips up above the bar.
+    - Sub labels for Campaign ("Group posts around a goal"), Report and Topic (see 74).
+
+### Measured, and fine
+
+- At 1440 × 1024 the button is 208 × 40 at the top of the rail, and Yak starts right below it
+  (68 + 40 = 108), as drawn. The popup is 248 wide, with rows of 52 (with a sub label) and 32
+  (without). Two-line rows center their icon, which matches the file (y = 18 in 52).
+- Click opens, Escape closes and returns focus to New, and an item fires its toast.
+- Dark mode: the button takes the inverted `action-primary-background`.
+- 393 × 852: the menu opens upward inside the screen (x 85–333).
+- axe with the menu open: only `region`, which is entry 26.
