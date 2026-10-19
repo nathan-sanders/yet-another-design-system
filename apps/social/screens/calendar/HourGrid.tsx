@@ -95,12 +95,15 @@ export function HourGrid({
                     }
                   />
                   <Menu.Popup aria-label={`Add to ${fullDate.format(day)}`}>
-                    <Menu.Item startIcon={SquarePen} onClick={() => onAddPost(day)}>
-                      Add post
-                    </Menu.Item>
-                    <Menu.Item startIcon={StickyNote} onClick={() => onAddNote(day)}>
-                      Add note
-                    </Menu.Item>
+                    {/* The 8px round the rows is the Group's, not the Popup's. */}
+                    <Menu.Group>
+                      <Menu.Item startIcon={SquarePen} onClick={() => onAddPost(day)}>
+                        Add post
+                      </Menu.Item>
+                      <Menu.Item startIcon={StickyNote} onClick={() => onAddNote(day)}>
+                        Add note
+                      </Menu.Item>
+                    </Menu.Group>
                   </Menu.Popup>
                 </Menu>
               )}
