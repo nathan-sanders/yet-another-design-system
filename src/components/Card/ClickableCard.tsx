@@ -58,8 +58,8 @@ export interface ClickableCardProps
    * list, the active item in a nav. Sets `aria-current`.
    *
    * Deliberately **not** `aria-pressed`: this is a navigation state, not a
-   * toggle. A card you switch on and off is a different component (Astryx calls
-   * it `SelectableCard`), and nothing in the file asks for one yet.
+   * toggle. A card picked as one of a set is `Radio.Card`, which wears this
+   * card's selected surface with `aria-checked` instead.
    */
   selected?: boolean
   /**

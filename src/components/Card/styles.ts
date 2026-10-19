@@ -235,6 +235,37 @@ export const clickableCard = tv({
   },
 })
 
+/**
+ * `Radio.Card`'s surface: a clickable card whose selected state comes from the
+ * radio rather than from a prop.
+ *
+ * **The same card, keyed on Base UI's attributes.** `extend` takes the
+ * clickable card whole — box, emphases, padding, ring, motion — and the
+ * classes below restate its `selected` surface under `data-checked:`, its
+ * `disabled` under `data-disabled:`. They sit here, beside the prop versions,
+ * so the two selected looks cannot drift apart: change one and the other is a
+ * line away. Reading the attribute rather than a prop is what lets a disabled
+ * `Radio.Group` or `Field` reach every card, which a boolean on each card
+ * would not.
+ *
+ * **Invalid is Radio's dial border on the card's edge**, Feedback/Danger/
+ * Highlight, arriving as `data-invalid` from a surrounding `Field` exactly as
+ * it does for Radio and Checkbox. It wins over the checked border: an invalid
+ * answer that is also the chosen one should still say it is wrong. Code-first
+ * — the file draws no invalid state on Clickable Card.
+ */
+export const radioCard = tv({
+  extend: clickableCard,
+  base: [
+    'data-checked:bg-surface-background-subtle',
+    'data-checked:not-data-invalid:border-surface-border-emphasized',
+    'data-checked:not-data-invalid:hover:border-surface-border-emphasized',
+    'data-invalid:border-feedback-danger-highlight',
+    'data-invalid:hover:border-feedback-danger-highlight',
+    'data-disabled:pointer-events-none data-disabled:cursor-default data-disabled:opacity-40',
+  ],
+})
+
 type CardVariants = VariantProps<typeof card>
 type ClickableCardVariants = VariantProps<typeof clickableCard>
 

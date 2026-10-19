@@ -106,8 +106,10 @@ and is a white block on the canvas: check what is behind it.
 - **`disabled` is a variant, not Button's `disabled:` modifier**, because only one of the two
   element paths can carry the native attribute.
 - **`selected` is `aria-current`, not `aria-pressed`.** This is "the one you are viewing" — a
-  navigation state. A card you switch on and off is a different component (Astryx's
-  `SelectableCard`), and nothing in the file or the compositions asks for one. Drawn as the subtle
+  navigation state. A card you pick as one of a set is a different component:
+  `Radio.Card`, built 2026-10-19 after Yet Social hand-rolled it twice by rendering `Radio.Root`
+  onto this one, which said `aria-current` and `aria-checked` at once. It extends this recipe
+  (`radioCard` in `styles.ts`) with the selected surface keyed on `data-checked`. Drawn as the subtle
   fill *plus* the emphasized border, repeated under `hover:` so the pointer cannot wash the outline
   off the selected row — otherwise "selected" and "the pointer is here" are the same pixel.
   **Drawn in the file now** — `State=Selected` on both emphases, Surface/Background Subtle on
