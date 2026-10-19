@@ -27,6 +27,7 @@ import { useShell } from '../../shell/ShellContext'
 import { formatCount } from '../reports/model'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
+import { clickableRows } from '../../components/clickableRows'
 
 type CreatorsView = 'grid' | 'list'
 
@@ -276,7 +277,7 @@ export function CreatorsScreen() {
           </ul>
         ) : (
           // A pointer convenience over the name buttons; see `openRow`.
-          <div onClick={openRow} className="shrink-0 [&_tbody_tr]:cursor-pointer">
+          <div onClick={openRow} className={cn('shrink-0', clickableRows)}>
             <Table
               label="Creators"
               columns={columns}
