@@ -6,6 +6,7 @@ import {
   useState,
   type FocusEvent,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactElement,
   type ReactNode,
 } from 'react'
@@ -174,6 +175,8 @@ export interface ChartContainerProps {
   className?: string
 }
 
+const preventFocusOnPress = (event: MouseEvent<HTMLDivElement>) => event.preventDefault()
+
 export function ChartContainer({
   series,
   data,
@@ -307,6 +310,12 @@ export function ChartContainer({
             className="h-full w-full"
             onKeyDownCapture={onRowActivate || keyboard !== 'axis' ? onPlotKeyDown : undefined}
             onBlur={keyboard !== 'axis' ? onPlotBlur : undefined}
+            // A press does not move focus into a clickable plot. Recharts makes
+            // the surface and every pie sector focusable, and focus landing on
+            // a hovered sector re-renders its active shape between mousedown
+            // and mouseup, so the two land on different elements and the
+            // browser fires no click at all. The keyboard still tabs in.
+            onMouseDown={onRowActivate ? preventFocusOnPress : undefined}
           >
             {responsive ? (
               <ResponsiveContainer width="100%" height="100%">

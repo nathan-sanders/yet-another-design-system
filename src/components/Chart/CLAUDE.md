@@ -396,6 +396,14 @@ charts whether or not they take a click — before it, a donut's arrows silently
 End go to the ends, and it wraps. `'rows'` finds the rows by their y-axis labels, which are one per
 row only because `categoryYAxisProps` sets `interval: 0`.
 
+**A press does not move focus into a clickable plot** (`onMouseDown` prevents the default). Recharts
+makes the surface and every pie sector focusable, and a real pointer pressing a hovered slice moved
+focus onto the sector, which re-rendered its active shape between mousedown and mouseup. The two
+landed on different elements, so the browser fired no click at all: the slice showed its halo and
+did nothing. Found by clicking Share of voice in Yet Social. **`userEvent` does not reproduce it**, so
+the story passes either way; check slice clicks with a real pointer. It also keeps Chrome's focus
+outline off a chart that was only clicked. The keyboard still tabs in.
+
 **Testing it.** `userEvent.click` on a Recharts group dispatches on the `<g>`, and Recharts' handler
 is often on the shape inside it (`.recharts-active-dot`'s circle). Hover and wait for the tooltip
 before clicking a line or an area: the chart's `onClick` reads the hovered index, and a press with
