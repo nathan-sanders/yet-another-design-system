@@ -139,13 +139,8 @@ export const SliceClick: Story = {
         return found
       })
       // Chrome is off, so the first slice drawn is Safari — Recharts calls it 0,
-      // and the caller's data calls it 1. Hover first, as a real pointer does,
-      // so the click lands on the slice's active shape. (A real pointer's press
-      // also moved focus onto the slice and swallowed the click — see
-      // `ChartContainer`'s `onMouseDown`. `userEvent` does not reproduce that,
-      // so it was checked by hand in the app.)
-      await userEvent.hover(sectors[0]!)
-      await userEvent.click(canvasElement.querySelector('.recharts-active-shape')!)
+      // and the caller's data calls it 1.
+      await userEvent.click(sectors[0]!)
       await expect(status).toHaveTextContent('Opened Safari (row 1)')
     })
 
