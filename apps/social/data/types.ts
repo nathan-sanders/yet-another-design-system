@@ -277,3 +277,24 @@ export interface Spike {
   change: string
   tone: 'red' | 'green' | 'yellow' | 'neutral'
 }
+
+/** A campaign an idea can belong to. Campaigns has no screen yet, so this is all it is. */
+export interface Campaign {
+  id: string
+  name: string
+}
+
+/** One card on Plan › Ideas: a post that has not been written yet. */
+export interface Idea {
+  id: string
+  title: string
+  body: string
+  image?: string
+  campaignId?: string
+}
+
+/** A column on the Ideas board. Figma calls them groups ("New group"). */
+export interface IdeaGroup {
+  id: string
+  name: string
+}
