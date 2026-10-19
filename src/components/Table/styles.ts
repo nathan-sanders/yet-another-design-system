@@ -65,7 +65,9 @@ export const scrollRegion = [
  * browser re-solves widths on every render, and a text-heavy column with no
  * declared width squishes toward nothing on a narrow viewport. The cost —
  * columns no longer size themselves to their contents — is what the width API
- * and the table's own `min-width` are for.
+ * and the table's own `min-width` are for. And under `table-fixed` a `<col>`'s
+ * width has to be a plain length or a plain percentage: Chromium ignores a
+ * `calc()` mixing the two, which is why `widths.ts` emits percentages.
  *
  * `border-separate border-spacing-0` rather than `collapse`, for the reasons
  * at the top of this file.

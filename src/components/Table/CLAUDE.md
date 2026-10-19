@@ -202,11 +202,41 @@ meaningless under `auto` (the browser sizes columns to content, so nothing overf
 never appears), a resized column does not stay resized because widths are re-solved every render, and
 a text-heavy column with no declared width squishes toward nothing on a narrow viewport.
 
-So every column has a width whether the caller gave it one or not — `proportional(1)` by default. A
-proportional column resolves to `calc((100% - <fixed>px) * <share>)` and not to a bare percentage: the
-two agree only when there are no pixel columns, and the moment one exists a percentage of the *whole*
-table over-allocates by exactly that column's width. The table carries a `min-width` of the sum of its
-columns' floors, which is what makes the frame scroll instead of the columns collapsing.
+So every column has a width whether the caller gave it one or not — `proportional(1)` by default.
+
+**A proportional column is a plain percentage of the proportional share, even beside pixel
+columns.** `proportional(2)` next to `proportional(1)` is `66.6667%` and `33.3333%`, so with a pixel
+column present the `<col>`s ask for more than 100% of the table. That is deliberate: under
+`table-fixed`, Chromium pays every pixel column first and scales the percentage columns down, in
+proportion, to fill what is left — which is exactly the leftover split by weight, with the table held
+at its own width.
+
+**It used to be `calc((100% - <fixed>px) * <share>)`, and that was a bug that looked right.** The
+reasoning was sound on paper — a percentage of the *whole* table over-allocates by the pixel columns'
+width — but nobody measured it. Chromium does not honor a `calc()` that mixes a percentage and a
+length on a `<col>`: it treats the column as having no width, so every proportional column fell back
+to an equal share of the leftover whatever its weight. Yet Social's Creators list (`proportional(2.4)`
+and `proportional(1.4)` beside four 130px columns) rendered **350 / 350** in a 1220px table where the
+weights say **442 / 258**, and nothing on screen looked broken, because two equal columns are a
+perfectly plausible table. Every unequal-weight table in the library had this, `ColumnWidths`
+included. Probed shapes, same table: both `calc` spellings 350 / 350; percentages 442.1 / 257.9. The
+`ProportionalWidths` story measures the rendered columns, and fails against the old `calc`.
+
+Only Chromium is verified, because that is what the browser runner drives. The percentage shape is
+the one the fixed-layout algorithm is written around, so it is the safer bet elsewhere too, but if a
+Safari or Firefox table ever shows the proportional columns overrunning, this is the place to look.
+
+**The `min-width` is solved for the floors, not summed.** The table carries a `min-width`, which is
+what makes the frame scroll instead of the columns collapsing. Summing the floors is only right when
+the shares are equal: a 2 : 1 pair floored at 120 each splits a 240px leftover 160 / 80, and the
+lighter column is under its floor. So `tableMinWidth` takes the pixel columns at their floors plus the
+leftover that the *lightest share for its floor* needs — `min × totalWeight / weight`, maximized over
+the proportional columns — which is 360 for that pair. The story narrows its frame to 300px and
+asserts the 1-share column lands on exactly 120.
+
+**After the first resize every column is pixels**, frozen to what it measured, so none of this
+applies to a resized table; a still-proportional column beside resized ones is `100%` of what is
+left.
 
 Children mode gets no `<colgroup>` and no resizing — the caller owns the widths, and so owns what
 changes them.
