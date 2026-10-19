@@ -32,14 +32,17 @@ type CreatorsView = 'grid' | 'list'
 
 /** The Sort by menu: each option is a column key and the direction it starts in. */
 const SORTS: { value: string; label: string; direction: TableSortDirection }[] = [
-  { value: 'followers', label: 'Audience size', direction: 'descending' },
   { value: 'fit', label: 'Brand fit', direction: 'descending' },
+  { value: 'followers', label: 'Audience size', direction: 'descending' },
   { value: 'engagement', label: 'Engagement', direction: 'descending' },
   { value: 'name', label: 'Name', direction: 'ascending' },
 ]
 
-/** Every other order is a column's; this is the one the page opens in. */
-const DEFAULT_SORT: TableSort = { key: 'followers', direction: 'descending' }
+/**
+ * The order the page opens in: best brand fit first, because the question this
+ * page answers is who to work with. Every other order is a column's.
+ */
+const DEFAULT_SORT: TableSort = { key: 'fit', direction: 'descending' }
 
 // The short columns are fixed so their headers and sort arrows never truncate
 // when the details panel takes 384px; the name and Top topic give way instead.

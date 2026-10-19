@@ -543,7 +543,7 @@ row (`screens/creators/CreatorDetail.tsx`). Clicking the open creator again clos
 calendar post does, and the card reads `selected` while its panel is open. The List view
 (`40005911:35964`) gained the file's Top topic and Engagement columns and the network glyph before
 each handle. Brand fit, Audience and Engagement sort from their headers. The Sort by menu and the
-headers are one sort in the URL (`?sort=engagement&dir=asc`), and the page's default (Audience,
+headers are one sort in the URL (`?sort=engagement&dir=asc`), and the page's default (Brand fit,
 descending) writes nothing.
 
 ### Open: library changes worth making
@@ -591,6 +591,17 @@ descending) writes nothing.
     - Save toggles for the session. Open profile and Add to campaign are toasts (Campaigns has no
       design).
     - The tab strip is sticky at the top of the panel body, as the file's Tabs frame is.
+    - Ten more creators (18 in all), so the grid reads like a real roster. Their faces are inbox
+      contacts with creator-like handles. Brand fit is the default sort.
+    - Each card scrolls sideways through the creator's latest four posts. The file draws two
+      images, the second cut off at 64px, and the strip keeps that look: each post is the card's
+      width less 68px, and it snaps one post at a time. It sits inside the card's `<button>`, so
+      it can't have its own controls or tab stop. It is `aria-hidden` decoration, scrolled by
+      trackpad, swipe or Shift+wheel. The Content tab lists the same four posts for a keyboard or
+      a screen reader. The scroll and snap were measured headless; a real trackpad hasn't been
+      tried.
+    - The app has 17 food photos, so posts repeat across creators. No card repeats one, and no
+      two neighbours open on the same photo at the default sort.
 
 ### Measured, and fine
 

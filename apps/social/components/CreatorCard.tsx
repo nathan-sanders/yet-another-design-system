@@ -9,9 +9,9 @@ import { CATEGORY_ICON, fitColor, type BrandCreator } from '../data/creators'
 import { formatCount } from '../screens/reports/model'
 
 /**
- * `_Creator Card Content` (`40005902:28198`) in a `Clickable Card`: two recent
- * posts, the creator's portrait on a ring that overlaps them, name, handle and
- * audience, brand fit and category. Plan › Creators lays them out in a grid,
+ * `_Creator Card Content` (`40005902:28198`) in a `Clickable Card`: their latest
+ * four posts in a sideways-scrolling strip, the creator's portrait on a ring
+ * that overlaps them, name, handle and audience, brand fit and category. Plan › Creators lays them out in a grid,
  * Yak shows the same card for a creator search, and the details panel's
  * Similar tab lists the nearest three.
  */
@@ -28,10 +28,26 @@ export function CreatorCard({
   return (
     <ClickableCard onClick={onClick} selected={selected} className="w-full">
       <span className="relative flex w-full flex-col text-left">
-        {/* Two of their recent posts; the name says whose, so they are decoration. */}
-        <span className="flex h-50 gap-1 overflow-hidden rounded-sm">
-          <img src={creator.photos[0]} alt="" className="h-full min-w-0 flex-1 object-cover" />
-          <img src={creator.photos[1]} alt="" className="h-full w-16 shrink-0 object-cover" />
+        {/* Their latest four posts, newest first, in a strip that scrolls
+            sideways (trackpad, swipe or Shift+wheel). Each post is the card's
+            width less 68px, so the next one peeks in by the file's 64 and says
+            there is more. The strip sits inside the card's <button>, so it
+            cannot hold a control or a tab stop of its own; it is decoration
+            here, and the details panel's Content tab is where the posts are
+            listed for a keyboard or a screen reader. */}
+        <span
+          aria-hidden
+          className="flex h-50 snap-x snap-mandatory gap-1 overflow-x-auto overscroll-x-contain rounded-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {creator.posts.map((post) => (
+            <img
+              key={post}
+              src={post}
+              alt=""
+              draggable={false}
+              className="h-full w-[calc(100%-4.25rem)] shrink-0 snap-start object-cover"
+            />
+          ))}
         </span>
         {/* The file's Avatar Ring: a 48px disc of the card's own surface, the 40px portrait centered in it. */}
         <span className="absolute top-44.5 left-2 flex size-12 items-center justify-center rounded-full bg-surface-background-primary">

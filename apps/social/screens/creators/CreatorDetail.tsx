@@ -26,7 +26,6 @@ import { CreatorCard } from '../../components/CreatorCard'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import {
   audienceFor,
-  brandCreators,
   creatorById,
   fitColor,
   fitLabel,
@@ -224,18 +223,13 @@ function AudienceTab({ creator }: { creator: Creator }) {
   )
 }
 
-/** Every photo the creators post, for the Content tab to draw more from. */
-const PHOTO_POOL = [...new Set(brandCreators.flatMap((c) => c.photos))]
-
 /**
- * Code-first: Figma draws no Content tab. Their two card photos first, then
- * two more picked by the creator's seed, with seeded likes and comments.
+ * Code-first: Figma draws no Content tab. The same four posts the card scrolls
+ * through, newest first, with seeded likes and comments.
  */
 function ContentTab({ creator }: { creator: Creator }) {
   const random = seeded(`${creator.id}-content`)
-  const others = PHOTO_POOL.filter((p) => !creator.photos.includes(p))
-  const first = Math.floor(random() * others.length)
-  const photos = [...creator.photos, others[first], others[(first + 5) % others.length]]
+  const photos = creator.posts
   const reach = creator.followers * (creator.engagement / 100)
   return (
     <ul aria-label="Recent posts" className="grid grid-cols-2 gap-3">
