@@ -168,6 +168,12 @@ export interface ChartContextValue {
    * container is already measuring for the breakpoint, so the number is free.
    */
   plotWidth: number
+  /**
+   * Where `ChartActiveRow` reports the row the tooltip is on. Present only when
+   * the chart takes a click, so a plain chart does no work for it. See
+   * `clicks.tsx`.
+   */
+  reportActiveRow?: (row: Record<string, unknown> | undefined) => void
 }
 
 export const ChartContext = createContext<ChartContextValue | null>(null)

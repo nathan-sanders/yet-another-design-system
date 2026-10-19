@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { ResponsiveContainer } from 'recharts'
 
 import { cn } from '../../lib/cn'
 import { CHART_BREAKPOINT } from './axes'
+import { ChartRowHeader, indexOfRow } from './clicks'
 import { ChartContext, resolveSeries, type ChartSeries } from './context'
 import type { ChartSwatchShape } from './Swatch'
 
@@ -140,6 +150,17 @@ export interface ChartContainerProps {
    * questions, not the same one at two settings.
    */
   responsive?: boolean
+  /**
+   * Open one row — the chart takes a click. The container's half of it is the
+   * two ways in that are not the pointer: Enter or Space on the focused plot
+   * opens the row the tooltip is on, and each row header in the generated table
+   * becomes a button. The chart wires the pointer on its own marks and renders
+   * `ChartActiveRow` inside the Recharts chart. See `clicks.tsx`.
+   *
+   * `index` is into `data`. A chart passing its own `table` adds the buttons
+   * itself, with `ChartRowHeader`.
+   */
+  onRowActivate?: (index: number) => void
   className?: string
 }
 
@@ -159,6 +180,7 @@ export function ChartContainer({
   table,
   overlay,
   responsive = true,
+  onRowActivate,
   className,
 }: ChartContainerProps) {
   const resolved = useMemo(() => resolveSeries(series, swatch), [series, swatch])
@@ -205,6 +227,27 @@ export function ChartContainer({
     return () => observer.disconnect()
   }, [])
 
+  // A ref, not state: the row changes on every pointer move and nothing renders
+  // from it — only the key handler reads it, at the moment of the key.
+  const activeRow = useRef<Record<string, unknown> | undefined>(undefined)
+  const reportActiveRow = useCallback((row: Record<string, unknown> | undefined) => {
+    activeRow.current = row
+  }, [])
+
+  const onPlotKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (!onRowActivate || (event.key !== 'Enter' && event.key !== ' ')) return
+      const index = indexOfRow(data, activeRow.current, xKey)
+      if (index < 0) return
+      // Capture phase, so Recharts' own Enter — which only toggles the tooltip
+      // off — never sees it, and Space does not scroll the page.
+      event.preventDefault()
+      event.stopPropagation()
+      onRowActivate(index)
+    },
+    [onRowActivate, data, xKey],
+  )
+
   const value = useMemo(
     () => ({
       series: resolved,
@@ -214,8 +257,20 @@ export function ChartContainer({
       wide,
       plotWidth,
       toggleSeries: interactiveLegend ? toggleSeries : undefined,
+      reportActiveRow: onRowActivate ? reportActiveRow : undefined,
     }),
-    [resolved, visibleSeries, hidden, swatchLine, wide, plotWidth, interactiveLegend, toggleSeries],
+    [
+      resolved,
+      visibleSeries,
+      hidden,
+      swatchLine,
+      wide,
+      plotWidth,
+      interactiveLegend,
+      toggleSeries,
+      onRowActivate,
+      reportActiveRow,
+    ],
   )
 
   return (
@@ -224,7 +279,12 @@ export function ChartContainer({
         {header}
 
         <div style={{ height }} className="relative w-full min-w-0">
-          <div role="img" aria-label={label} className="h-full w-full">
+          <div
+            role="img"
+            aria-label={label}
+            className="h-full w-full"
+            onKeyDownCapture={onRowActivate ? onPlotKeyDown : undefined}
+          >
             {responsive ? (
               <ResponsiveContainer width="100%" height="100%">
                 {children}
@@ -268,7 +328,9 @@ export function ChartContainer({
           <tbody>
             {data.map((row, index) => (
               <tr key={index}>
-                <th scope="row">{formatX(row[xKey])}</th>
+                <ChartRowHeader onActivate={onRowActivate ? () => onRowActivate(index) : undefined}>
+                  {formatX(row[xKey])}
+                </ChartRowHeader>
                 {resolved.map((s) => (
                   <td key={s.key}>{formatY(row[s.key])}</td>
                 ))}

@@ -1,12 +1,15 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { cn } from '../../lib/cn'
 import {
+  ChartActiveRow,
   ChartContainer,
   ChartLegend,
   ChartTooltip,
   chartTooltipWrapperStyle,
   chartGridProps,
+  clickableCursor,
   formatDateTick,
   formatFullNumber,
   cursorHighlight,
@@ -17,6 +20,7 @@ import {
   useVisibleSeries,
   xAxisProps,
   yAxisProps,
+  type ChartPointClick,
   type ChartSeries,
   type ChartXPreset,
 } from '../Chart'
@@ -106,6 +110,13 @@ export interface LineSeriesProps {
    * place.
    */
   timeZone?: string
+  /**
+   * Open one point. A click anywhere in a point's column counts — the same
+   * column the tooltip answers for — as do Enter or Space on the focused chart
+   * and the row's button in the hidden table; see `Chart/clicks.tsx`. `series`
+   * is the one the click landed on, when it landed on one.
+   */
+  onPointClick?: (point: ChartPointClick) => void
   className?: string
 }
 
@@ -135,6 +146,7 @@ function LineSeriesPlot({
   yLines,
   preset,
   timeZone,
+  onActivate,
 }: {
   data: readonly Record<string, unknown>[]
   xKey: string
@@ -143,6 +155,7 @@ function LineSeriesPlot({
   yLines: number
   preset: ChartXPreset
   timeZone: string
+  onActivate?: (index: number, seriesKey?: string) => void
 }) {
   const chart = useChart()
   // `visibleSeries`, not `series`: a series switched off in an interactive
@@ -150,6 +163,10 @@ function LineSeriesPlot({
   // ones that remain keep the colors they already had.
   const series = useVisibleSeries()
   const wide = chart?.wide ?? true
+
+  // The series whose mark took the click. Its own handler runs first, as the
+  // event bubbles up to the chart's, which reads and clears it.
+  const clickedSeries = useRef<string | undefined>(undefined)
 
   return (
     <LineChart
@@ -159,7 +176,17 @@ function LineSeriesPlot({
       // tooltip with them. It costs nothing and is the only way a keyboard user
       // reaches the values without the hidden table.
       accessibilityLayer
+      onClick={
+        onActivate
+          ? (state) => {
+              const seriesKey = clickedSeries.current
+              clickedSeries.current = undefined
+              if (state.activeTooltipIndex != null) onActivate(Number(state.activeTooltipIndex), seriesKey)
+            }
+          : undefined
+      }
     >
+      {onActivate ? <ChartActiveRow /> : null}
       <CartesianGrid {...chartGridProps} />
 
       <XAxis
@@ -222,7 +249,14 @@ function LineSeriesPlot({
                     })
                 : false
             }
-            activeDot={{ r: 5, fill: s.color, stroke: surface, strokeWidth: 2 }}
+            activeDot={{
+              r: 5,
+              fill: s.color,
+              stroke: surface,
+              strokeWidth: 2,
+              onClick: onActivate ? () => (clickedSeries.current = s.key) : undefined,
+            }}
+            onClick={onActivate ? () => (clickedSeries.current = s.key) : undefined}
           />
         )
       })}
@@ -243,12 +277,24 @@ export function LineSeries({
   interactiveLegend = false,
   xPreset,
   timeZone = 'UTC',
+  onPointClick,
   className,
 }: LineSeriesProps) {
   const preset = useMemo(
     () => xPreset ?? inferXPreset(data.map((row) => row[xKey])),
     [xPreset, data, xKey],
   )
+
+  const activate = onPointClick
+    ? (index: number, seriesKey?: string) => {
+        const row = data[index]
+        if (!row) return
+        // Without a mark to say which, one series is the only case that
+        // can answer — see `ChartPointClick.series`.
+        const hit = seriesKey === undefined ? undefined : series.find((s) => s.key === seriesKey)
+        onPointClick({ row, index, series: hit ?? (series.length === 1 ? series[0] : undefined) })
+      }
+    : undefined
 
   return (
     <ChartContainer
@@ -257,8 +303,9 @@ export function LineSeries({
       xKey={xKey}
       label={label}
       height={height}
-      className={className}
+      className={cn(activate && clickableCursor.plot, className)}
       interactiveLegend={interactiveLegend}
+      onRowActivate={activate}
       formatX={(value) => formatDateTick(value, preset, undefined, timeZone)}
       formatY={(value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? ''))}
       header={legend === false ? undefined : <ChartLegend type={legend} />}
@@ -271,6 +318,7 @@ export function LineSeries({
         yLines={yLines}
         preset={preset}
         timeZone={timeZone}
+        onActivate={activate}
       />
     </ChartContainer>
   )

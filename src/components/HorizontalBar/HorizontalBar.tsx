@@ -1,21 +1,25 @@
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { cn } from '../../lib/cn'
 import {
   BAR_GROUP_GAP,
   BAR_MAX_WIDTH,
   BAR_SEGMENT_GAP,
+  ChartActiveRow,
   ChartContainer,
   ChartLegend,
   ChartTooltip,
   chartTooltipWrapperStyle,
   barSegment,
   categoryYAxisProps,
+  clickableCursor,
   cursorHighlight,
   formatFullNumber,
   horizontalBarHeight,
   useVisibleSeries,
   valueXAxisProps,
   verticalGridProps,
+  type ChartPointClick,
   type ChartSeries,
 } from '../Chart'
 
@@ -98,6 +102,12 @@ export interface HorizontalBarProps {
   legend?: 'horizontal' | 'vertical' | false
   /** Let the reader switch series off by clicking the legend. */
   interactiveLegend?: boolean
+  /**
+   * Open one bar. A click on a bar carries its series; Enter or Space on the
+   * focused chart and the row's button in the hidden table open the row, with
+   * the series set only when the chart was given one — see `Chart/clicks.tsx`.
+   */
+  onBarClick?: (bar: ChartPointClick) => void
   className?: string
 }
 
@@ -111,6 +121,7 @@ function HorizontalBarPlot({
   showTotal,
   accessibilityOverlay,
   xLines,
+  onActivate,
 }: {
   data: readonly Record<string, unknown>[]
   yKey: string
@@ -118,6 +129,7 @@ function HorizontalBarPlot({
   showTotal: boolean
   accessibilityOverlay: boolean
   xLines: number
+  onActivate?: (index: number, seriesKey?: string) => void
 }) {
   // `visibleSeries`, not `series`: a series switched off in an interactive
   // legend must stop being drawn. Color was assigned before this filter, so the
@@ -138,6 +150,7 @@ function HorizontalBarPlot({
       barCategoryGap={stacked ? '20%' : '10%'}
       accessibilityLayer
     >
+      {onActivate ? <ChartActiveRow /> : null}
       <CartesianGrid {...verticalGridProps} />
 
       <YAxis dataKey={yKey} {...categoryYAxisProps()} />
@@ -173,6 +186,8 @@ function HorizontalBarPlot({
             gap: stacked ? BAR_SEGMENT_GAP : 0,
             accessibilityOverlay,
           })}
+          // Recharts' index here is into `data` — a bar chart never drops rows.
+          onClick={onActivate ? (_bar: unknown, rowIndex: number) => onActivate(rowIndex, s.key) : undefined}
         />
       ))}
     </BarChart>
@@ -191,8 +206,18 @@ export function HorizontalBar({
   xLines = 5,
   legend = 'horizontal',
   interactiveLegend = false,
+  onBarClick,
   className,
 }: HorizontalBarProps) {
+  const activate = onBarClick
+    ? (index: number, seriesKey?: string) => {
+        const row = data[index]
+        if (!row) return
+        const hit = seriesKey === undefined ? undefined : series.find((s) => s.key === seriesKey)
+        onBarClick({ row, index, series: hit ?? (series.length === 1 ? series[0] : undefined) })
+      }
+    : undefined
+
   return (
     <ChartContainer
       series={series}
@@ -200,8 +225,9 @@ export function HorizontalBar({
       xKey={yKey}
       label={label}
       height={height ?? horizontalBarHeight(data.length, { seriesCount: series.length, stacked })}
-      className={className}
+      className={cn(activate && clickableCursor.bar, className)}
       interactiveLegend={interactiveLegend}
+      onRowActivate={activate}
       swatch="colorSwatch"
       formatY={(value) => (typeof value === 'number' ? formatFullNumber(value) : String(value ?? ''))}
       header={legend === false ? undefined : <ChartLegend type={legend} />}
@@ -213,6 +239,7 @@ export function HorizontalBar({
         showTotal={showTotal ?? stacked}
         accessibilityOverlay={accessibilityOverlay}
         xLines={xLines}
+        onActivate={activate}
       />
     </ChartContainer>
   )

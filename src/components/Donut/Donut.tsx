@@ -3,7 +3,9 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 
 import { cn } from '../../lib/cn'
 import {
+  ChartActiveRow,
   ChartContainer,
+  ChartRowHeader,
   ChartLegend,
   ChartTooltip,
   chartTooltipWrapperStyle,
@@ -11,11 +13,14 @@ import {
   DONUT_INNER_RATIO,
   DONUT_START_ANGLE,
   SLICE_GAP,
+  clickableCursor,
   donutRadius,
   formatFullNumber,
+  indexOfRow,
   surface,
   useChart,
   useVisibleSeries,
+  type ChartSliceClick,
 } from '../Chart'
 import { activeSliceShape } from './slices'
 
@@ -81,6 +86,13 @@ export interface DonutProps {
   legend?: 'horizontal' | 'vertical' | false
   /** Let the reader switch slices off by clicking the legend. */
   interactiveLegend?: boolean
+  /**
+   * Open one slice. Fires for a click on the slice, Enter or Space on the
+   * focused chart with the tooltip on it, and the slice's button in the hidden
+   * table — see `Chart/clicks.tsx`. `index` is into `data`, so it stays right
+   * when the legend has switched slices off.
+   */
+  onSliceClick?: (slice: ChartSliceClick) => void
   className?: string
 }
 
@@ -89,11 +101,13 @@ function DonutPlot({
   nameKey,
   valueKey,
   height,
+  onActivate,
 }: {
   data: readonly Record<string, unknown>[]
   nameKey: string
   valueKey: string
   height: number
+  onActivate?: (index: number) => void
 }) {
   const visible = useVisibleSeries()
   const plotWidth = useChart()?.plotWidth ?? 0
@@ -114,6 +128,7 @@ function DonutPlot({
 
   return (
     <PieChart accessibilityLayer>
+      {onActivate ? <ChartActiveRow /> : null}
       <Tooltip
         isAnimationActive={false}
         wrapperStyle={chartTooltipWrapperStyle}
@@ -134,6 +149,16 @@ function DonutPlot({
         strokeWidth={SLICE_GAP}
         isAnimationActive={false}
         activeShape={activeSliceShape}
+        // The row comes back on the sector's `payload`; it is matched in the
+        // caller's `data` because `rows` has dropped any hidden slices.
+        onClick={
+          onActivate
+            ? (sector: { payload?: Record<string, unknown> }) => {
+                const index = indexOfRow(data, sector.payload, nameKey)
+                if (index >= 0) onActivate(index)
+              }
+            : undefined
+        }
       >
         {rows.map((row) => (
           <Cell key={String(row[nameKey])} fill={colorFor(String(row[nameKey]))} />
@@ -152,6 +177,7 @@ export function Donut({
   center,
   legend = 'horizontal',
   interactiveLegend = false,
+  onSliceClick,
   className,
 }: DonutProps) {
   // A slice is a series with one value, so the whole series machinery — color
@@ -160,6 +186,13 @@ export function Donut({
     () => data.map((row) => ({ key: String(row[nameKey]), label: String(row[nameKey]) })),
     [data, nameKey],
   )
+
+  const activate = onSliceClick
+    ? (index: number) => {
+        const row = data[index]
+        if (row) onSliceClick({ row, index, name: String(row[nameKey]) })
+      }
+    : undefined
 
   const table = (
     <table>
@@ -171,9 +204,11 @@ export function Donut({
         </tr>
       </thead>
       <tbody>
-        {data.map((row) => (
+        {data.map((row, index) => (
           <tr key={String(row[nameKey])}>
-            <th scope="row">{String(row[nameKey])}</th>
+            <ChartRowHeader onActivate={activate ? () => activate(index) : undefined}>
+              {String(row[nameKey])}
+            </ChartRowHeader>
             <td>{typeof row[valueKey] === 'number' ? formatFullNumber(row[valueKey] as number) : String(row[valueKey])}</td>
           </tr>
         ))}
@@ -188,14 +223,15 @@ export function Donut({
       xKey={nameKey}
       label={label}
       height={height}
-      className={className}
+      className={cn(activate && clickableCursor.slice, className)}
       swatch="colorSwatch"
       interactiveLegend={interactiveLegend}
       table={table}
+      onRowActivate={activate}
       overlay={center ? <DonutCenter>{center}</DonutCenter> : undefined}
       header={legend === false ? undefined : <ChartLegend type={legend} />}
     >
-      <DonutPlot data={data} nameKey={nameKey} valueKey={valueKey} height={height} />
+      <DonutPlot data={data} nameKey={nameKey} valueKey={valueKey} height={height} onActivate={activate} />
     </ChartContainer>
   )
 }
