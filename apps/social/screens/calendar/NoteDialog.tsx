@@ -1,14 +1,13 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 
 import { Button } from '../../../../src/components/Button'
-import { DatePicker, type CalendarValue } from '../../../../src/components/Calendar'
 import { Dialog } from '../../../../src/components/Dialog'
 import { Field } from '../../../../src/components/Field'
 import { Input } from '../../../../src/components/Input'
-import { Radio } from '../../../../src/components/Radio'
-import { Text } from '../../../../src/components/Text'
+import { Select } from '../../../../src/components/Select'
 import { Toast } from '../../../../src/components/Toast'
 import { cn } from '../../../../src/lib/cn'
+import { DateInput } from '../../components/DateInput'
 import { NOTE_COLORS, noteSwatch } from '../../components/calendarNoteColors'
 import type { CalendarNote, NoteColor } from '../../data/types'
 import { useCalendarNotes } from './calendarNotesState'
@@ -23,10 +22,10 @@ interface NoteDialogProps {
 }
 
 /**
- * Making and editing a calendar note. Figma draws the note but not how one is
- * made, so this is the library's `Dialog` holding a title, a description, the
- * days it runs (`DatePicker` in range mode, which brings its own start and end
- * inputs), and the ten colors of `Calendar Note`.
+ * Making and editing a calendar note — Figma's `New note` dialog
+ * (`40005957:64172`): Title, Description, Color, then Start date and End date
+ * side by side. Color is a `Select` whose rows and trigger carry the note's own
+ * swatch; each date is a `DateInput` that opens the single-month picker.
  *
  * The form is keyed by the request so each opening starts from that note — or
  * from a blank one-day note on the day that was clicked.
@@ -63,15 +62,13 @@ function NoteForm({ request, onDone }: { request: NoteDialogRequest; onDone: () 
   const [title, setTitle] = useState(editing?.title ?? '')
   const [description, setDescription] = useState(editing?.description ?? '')
   const [color, setColor] = useState<NoteColor>(editing?.color ?? 'neutral')
-  const [range, setRange] = useState<CalendarValue>(
-    editing
-      ? [dayDate(editing.start), dayDate(editing.end)]
-      : [request.mode === 'new' ? request.date : null, null],
+  const [start, setStart] = useState<Date | null>(
+    editing ? dayDate(editing.start) : request.mode === 'new' ? request.date : null,
   )
+  // A new note has no end until one is picked; it saves as a one-day note.
+  const [end, setEnd] = useState<Date | null>(editing ? dayDate(editing.end) : null)
   const [submitted, setSubmitted] = useState(false)
-  const datesLabel = useId()
 
-  const [start, end] = Array.isArray(range) ? range : [null, null]
   const titleMissing = title.trim() === ''
   const startMissing = start === null
 
@@ -84,8 +81,8 @@ function NoteForm({ request, onDone }: { request: NoteDialogRequest; onDone: () 
       ...(description.trim() && { description: description.trim() }),
       color,
       start: toCalendarDay(start),
-      // A range with no end is a one-day note.
-      end: toCalendarDay(end ?? start),
+      // An end before the start (the start moved later) or no end is one day.
+      end: toCalendarDay(end && end >= start ? end : start),
     }
     if (editing) {
       updateNote(editing.id, note)
@@ -111,82 +108,60 @@ function NoteForm({ request, onDone }: { request: NoteDialogRequest; onDone: () 
           <Dialog.Title>{editing ? 'Edit note' : 'New note'}</Dialog.Title>
           <Dialog.Close />
         </div>
-        <Dialog.Description>
-          Call out an event, or mark how long a campaign runs. Everyone on the calendar sees it.
-        </Dialog.Description>
 
         {/* `flex-initial`: the Body is `flex-1` so it can scroll, which on its
-            own stretches a short dialog to the viewport's height. This one
-            shrinks to scroll on a short screen and never grows past its form. */}
-        <Dialog.Body className="flex flex-initial flex-col gap-4 sm:flex-row">
-          <div className="flex min-w-0 flex-1 flex-col gap-4">
-            <Field
-              label="Title"
-              invalid={submitted && titleMissing}
-              error={submitted && titleMissing ? 'Give the note a title.' : undefined}
-            >
-              <Input
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Summer Menu"
-                autoFocus
-              />
-            </Field>
-            <Field label="Description">
-              <Input
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder="Launch campaign"
-              />
-            </Field>
-
-            <Field label="Color">
-              <Radio.Group
-                value={color}
-                onValueChange={(value) => setColor(value as NoteColor)}
-                className="grid grid-cols-2"
-              >
-                {NOTE_COLORS.map((option) => (
-                  <Radio
-                    key={option.value}
-                    value={option.value}
-                    label={
-                      <span className="flex items-center gap-2">
-                        <span
-                          aria-hidden
-                          className={cn(
-                            'size-4 shrink-0 rounded-sm inset-ring',
-                            noteSwatch(option.value),
-                          )}
-                        />
-                        {option.label}
-                      </span>
-                    }
-                  />
-                ))}
-              </Radio.Group>
-            </Field>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Text id={datesLabel} size="sm" weight="semibold">
-              Dates
-            </Text>
-            <DatePicker
-              aria-labelledby={datesLabel}
-              value={range}
-              onValueChange={setRange}
-              presets={false}
-              className="self-start"
+            own stretches a short dialog to the viewport's height (finding 95). */}
+        <Dialog.Body className="flex flex-initial flex-col gap-4">
+          <Field
+            label="Title"
+            invalid={submitted && titleMissing}
+            error={submitted && titleMissing ? 'Give the note a title.' : undefined}
+          >
+            <Input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Summer Menu"
+              autoFocus
             />
-            {submitted && startMissing ? (
-              <Text size="sm" color="danger">
-                Pick the day the note starts.
-              </Text>
-            ) : null}
+          </Field>
+          <Field label="Description">
+            <Input
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Launch campaign"
+            />
+          </Field>
+          <Field label="Color" nativeLabel={false}>
+            <Select value={color} onValueChange={(value) => setColor(value as NoteColor)}>
+              {NOTE_COLORS.map((option) => (
+                <Select.Item
+                  key={option.value}
+                  value={option.value}
+                  startIcon={
+                    <span className={cn('size-3.5 rounded-full inset-ring', noteSwatch(option.value))} />
+                  }
+                >
+                  {option.label}
+                </Select.Item>
+              ))}
+            </Select>
+          </Field>
+          {/* The frame's two 280 fields with 8px between them. */}
+          <div className="grid grid-cols-2 gap-2">
+            <Field
+              label="Start date"
+              invalid={submitted && startMissing}
+              error={submitted && startMissing ? 'Pick the day the note starts.' : undefined}
+            >
+              <DateInput value={start} onValueChange={setStart} invalid={submitted && startMissing} />
+            </Field>
+            <Field label="End date">
+              <DateInput value={end} onValueChange={setEnd} min={start ?? undefined} />
+            </Field>
           </div>
         </Dialog.Body>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pt-4">
           {editing ? (
             <Button appearance="destructive" onClick={remove}>
               Delete
