@@ -794,16 +794,15 @@ legend, and now the opportunity rows, which had no hover) fills to `ClickableCar
 Surface/Background Subtle. The clickable table rows didn't: `Table`'s `hasHover` is the
 translucent `surface-overlay-subtle`. Nathan asked for one color everywhere, Reports included.
 
-### Open: library changes worth making
+### Fixed in the library (2026-10-19)
 
-83. **`Table`'s row hover is a different color from `ClickableCard`'s.** The Table picked the
-    translucent wash on purpose: on a zebra table, an opaque hover is lighter than one of the
-    two resting fills. But a table that isn't striped could use the card's hover, and then a
-    clickable row and a clickable card would agree. A fix in the library would be something like
-    `hasHover` using Surface/Background Subtle when `striped` is off. Until then,
-    `components/clickableRows.ts` overrides it on the three clickable tables (Reports, Discover's
-    Creators widget, Plan › Creators). The override is a descendant selector, (0,2,2) against
-    Table's (0,2,0), so it needs no `!important`.
+83. **Fixed (#278): `Table`'s row hover is `ClickableCard`'s on a table that isn't striped.**
+    The Table picked the translucent `surface-overlay-subtle` on purpose: on a zebra table, an
+    opaque hover is lighter than one of the two resting fills. A table that isn't striped has one
+    resting fill, so `hasHover` there now uses Surface/Background Subtle, and a clickable row and
+    a clickable card agree. Striped tables keep the wash. The override in
+    `components/clickableRows.ts` on the three clickable tables (Reports, Discover's Creators
+    widget, Plan › Creators) is gone; the file keeps only the pointer cursor.
 
 ### Measured, and fine
 
