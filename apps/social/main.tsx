@@ -6,6 +6,8 @@ import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
+import { IdeasProvider } from './screens/ideas/IdeasProvider'
+import { IdeasScreen } from './screens/ideas/IdeasScreen'
 import { DiscoverScreen } from './screens/discover/DiscoverScreen'
 import { InboxProvider } from './screens/inbox/InboxProvider'
 import { InboxScreen } from './screens/inbox/InboxScreen'
@@ -25,6 +27,7 @@ const router = createHashRouter([
     children: [
       { index: true, element: <Navigate to="/plan/calendar" replace /> },
       { path: 'plan/calendar', element: <CalendarScreen /> },
+      { path: 'plan/ideas', element: <IdeasScreen /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
@@ -43,7 +46,9 @@ createRoot(document.getElementById('root')!).render(
     <Toast.Provider>
       <InboxProvider>
         <ReportsProvider>
-          <RouterProvider router={router} />
+          <IdeasProvider>
+            <RouterProvider router={router} />
+          </IdeasProvider>
         </ReportsProvider>
       </InboxProvider>
     </Toast.Provider>

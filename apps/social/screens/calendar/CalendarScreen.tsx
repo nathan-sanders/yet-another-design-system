@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft, ArrowRight, Ellipsis, Lightbulb, ListFilter, SquarePen } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
@@ -26,6 +26,7 @@ const STEP_LABEL: Record<CalendarView, string> = { day: 'day', week: 'week', mon
 export function CalendarScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
+  const navigate = useNavigate()
 
   const view: CalendarView =
     params.get('view') === 'day' || params.get('view') === 'month'
@@ -115,7 +116,7 @@ export function CalendarScreen() {
                     appearance="ghost"
                     startIcon={Lightbulb}
                     aria-label="Ideas"
-                    onClick={() => shell.notBuilt('Ideas')}
+                    onClick={() => navigate('/plan/ideas')}
                   />
                 </>
               ) : (
@@ -130,7 +131,7 @@ export function CalendarScreen() {
                   <Button
                     appearance="ghost"
                     startIcon={Lightbulb}
-                    onClick={() => shell.notBuilt('Ideas')}
+                    onClick={() => navigate('/plan/ideas')}
                   >
                     Ideas
                   </Button>

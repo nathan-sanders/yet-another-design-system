@@ -29,6 +29,7 @@ export const apps: ShowcaseApp[] = [
       'Post detail',
       'Inbox: all messages, my inbox, public thread and contact detail',
       'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
+      'Ideas: a board of idea cards you drag between groups, or a gallery',
       'Creators: a grid or list of creators, sorted by audience, brand fit or name',
       'Discover: trends, creators, visual trends, sentiment and top posts',
       'Yak assistant: a panel beside every page, a full-page view, and history',

@@ -523,7 +523,8 @@ the panel. On Discover and Creators, a search answers with results.
 - At 1440 × 1024, the bar is 700 × 58, 246 in from each side of the page column, as drawn. With
   Post detail open, it is 50 in from each side, as the Week + Post Detail frame has it.
 - Scrolled to the bottom, the last content sits 22px above the bar on Calendar, Reports, Discover,
-  Home and Ideas (`md:pb-24` on each page's scroll region).
+  Home and Ideas (`md:pb-24` on each page's scroll region). Ideas wasn't built when this was
+  written; measured once it was, at 1440 × 640, the last "New idea" ends 52px above the bar.
 - No bar on `#/engage/all` or `#/yak`, and none while the panel is open. It comes back on close.
 - Submitting on Reports opens the full view with the chat. Submitting on Discover opens it with
   creator results. Collapse to panel lands on the page with the panel open and no bar.
@@ -616,3 +617,63 @@ descending) writes nothing.
 - A click anywhere on a list row opens that creator (the name button stays the keyboard path).
 - axe on the list and the grid with the panel open, on all four tabs: no violations. No console
   errors.
+
+## Plan › Ideas (2026-10-18)
+
+The board from `40005911:32981`: four groups as `ContentBlock`s on the subtle surface, each a
+`Sortable` of `_Idea Content` cards (`components/IdeaCard.tsx`) in a `ClickableCard`. It is
+DragAndDrop's Kanban story put to work, and it needed no library change. State lives in
+`IdeasProvider` beside `ReportsProvider`, so moved cards survive a visit to another page.
+
+### Open: library changes worth making
+
+69. **DragAndDrop's floor for an empty column is too short for tall cards.** Its CLAUDE.md and
+    the Kanban story give an empty `Sortable` a `min-h-24` floor. Here the cards are up to 322px
+    tall with a photo, and a keyboard-carried card is placed by its corners (`closestCorners`).
+    A 48px floor at the top of Done was never closer than the In Progress cards beside it, so
+    Arrow Right stopped one column short. The fix in the app is to make the `Sortable` the whole
+    column body, "New idea" button included, with the `role="list"` one level in on the cards
+    alone. The record should say that the floor has to be about as tall as the cards, or be the
+    column.
+
+### Kept in the app, worth knowing
+
+70. **The grip shows on hover and on focus.** Figma draws no grip, but the keyboard path needs
+    one. `DragHandle` sits beside the card, as the story's does (a button in a button fails
+    axe). It is hidden until the card is hovered or the grip has focus, and it takes the card's
+    surface (`bg-surface-background-primary`), because it lands on the photo's corner. A ghost
+    button on a photo has no background of its own. `DragHandle` takes no `appearance`, so
+    `overlay` wasn't an option.
+71. **The board scrolls both ways.** `overflow-x: auto` makes `overflow-y` auto too, so the page
+    region never scrolls on Ideas; the board does. Stretched to the board, the columns stopped
+    at its height and cards spilled out of them at short viewports. The track inside is
+    `items-start` with `min-h-full`, so columns end level and grow with the tallest one. The
+    groups share the width between 256 and 320 (267 each at 1440, the file's number), and past
+    that the board scrolls sideways.
+
+### Figma owes
+
+72. **Decided here (code-first):**
+    - Gallery (`?view=gallery`): the same cards in Creators' responsive grid, each with its group
+      as a neutral Badge.
+    - Card click, Filter and the top bar's More are toasts; no idea detail or filter is drawn.
+    - "New idea" (top bar, a column's `+`, or the row under its cards) adds "Untitled idea" to that
+      group, the top bar's to Unassigned, and focuses it. "New group" adds "Untitled group" and
+      focuses its `+`.
+    - A group's `…` menu: Rename (a toast), Clear ideas, and Delete group, which moves its ideas
+      to Unassigned rather than losing them. Unassigned has no menu, as drawn.
+    - Two bodies Figma cuts off mid-word are finished in `data/ideas.ts`.
+    - The Calendar's Ideas button now opens this page.
+
+### Measured, and fine
+
+- At 1440 × 1024 the four groups are 267 wide with 12 between, and the New group strip is 44, as
+  drawn. Nothing scrolls sideways until a fifth group is added; then they go to 256 and scroll.
+- Keyboard: Space on Threads' grip, Arrow Right twice, Space. It's announced "over To Do",
+  "over In Progress", "over Done", then "dropped in Done, position 1 of 1". The counts follow and
+  focus returns to the grip. Escape puts it back ("Move cancelled"). In the hidden Browser pane,
+  keys sent faster than it re-measures can leave the card one column short. Paced, it lands every
+  time. A pointer drag wasn't tried there; the pane can't run one.
+- axe on the board (with a fifth group added), at rest: no violations. Mid-drag, the half-opacity
+  carried card fails color contrast, which is the library's drag style and is expected.
+- Light and dark, both views.

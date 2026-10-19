@@ -1,0 +1,60 @@
+import { Megaphone } from 'lucide-react'
+
+import { Badge } from '../../../src/components/Badge'
+import { ClickableCard } from '../../../src/components/Card'
+import { Text } from '../../../src/components/Text'
+import { Token } from '../../../src/components/Token'
+import { cn } from '../../../src/lib/cn'
+import { campaignFor, ideaCardId } from '../data/ideas'
+import type { Idea } from '../data/types'
+
+/**
+ * `_Idea Content` (`40005837:57433`) in a `Clickable Card`: an optional photo,
+ * the title, three lines of the body, and the campaign it belongs to. The
+ * Ideas board stacks them in its columns and the gallery lays them in a grid.
+ *
+ * The card is a `<button>`, so everything in it is a span, and the photo is
+ * `draggable={false}`: an `<img>` starts the browser's own drag, which would
+ * take the pointer before dnd-kit saw it (DragAndDrop's CLAUDE.md).
+ */
+export function IdeaCard({
+  idea,
+  status,
+  onClick,
+  className,
+}: {
+  idea: Idea
+  /** The group it is in, as a Badge — for the gallery, where there are no columns to say so. */
+  status?: string
+  onClick?: () => void
+  className?: string
+}) {
+  const campaign = campaignFor(idea.campaignId)
+
+  return (
+    <ClickableCard id={ideaCardId(idea.id)} onClick={onClick} className={cn('w-full', className)}>
+      <span className="flex w-full flex-col gap-2 text-left">
+        {idea.image && (
+          <img
+            src={idea.image}
+            alt=""
+            draggable={false}
+            className="h-32 w-full rounded-md object-cover"
+          />
+        )}
+        <Text render={<span />} weight="semibold" color="emphasized">
+          {idea.title}
+        </Text>
+        <Text render={<span />} color="subtle" className="line-clamp-3">
+          {idea.body}
+        </Text>
+        {(campaign || status) && (
+          <span className="flex flex-wrap items-center gap-2">
+            {status && <Badge color="neutral">{status}</Badge>}
+            {campaign && <Token startIcon={Megaphone}>{campaign.name}</Token>}
+          </span>
+        )}
+      </span>
+    </ClickableCard>
+  )
+}
