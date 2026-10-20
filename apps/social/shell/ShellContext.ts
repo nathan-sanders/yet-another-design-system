@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { MentionQuery } from '../data/mentions'
+import type { DetailTab as PostDetailTab } from '../screens/calendar/postDetailState'
 import type { DetailTab } from '../screens/creators/paths'
 
 /**
@@ -15,7 +16,11 @@ export type ShellPanel =
     }
   /** Yak's history beside the full view, which has no panel to stack it on. */
   | { type: 'yak-history' }
-  | { type: 'post'; postId: string }
+  /**
+   * `tab` is the one to open on, and `noteId` a note on it to scroll to: a
+   * notification about a note opens on Notes, at that note.
+   */
+  | { type: 'post'; postId: string; tab?: PostDetailTab; noteId?: string }
   /** A day from the month view, as an ISO date (`screens/calendar/DayDetail.tsx`). */
   | { type: 'day'; date: string }
   | { type: 'contact'; customerId: string }
@@ -24,6 +29,8 @@ export type ShellPanel =
   | { type: 'widget'; reportId: string; widgetId: string }
   /** The posts behind a number on Measure (`screens/mentions/MentionsPanel.tsx`). */
   | { type: 'mentions'; query: MentionQuery }
+  /** The rail's bell (`screens/notifications/NotificationsPanel.tsx`). */
+  | { type: 'notifications' }
   | null
 
 export interface ShellState {

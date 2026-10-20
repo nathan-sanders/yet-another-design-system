@@ -256,8 +256,9 @@ export const posts: Post[] = [
           {
             id: 'c-2',
             authorId: 'katie',
-            body: 'Swapped. I also moved it to 9 am so it lands before the lunch rush.',
-            ago: '16d',
+            // The Notifications panel's first row quotes this note and opens on it.
+            body: '@Nathan I swapped the hero for the overhead shot. Is 9 am still OK?',
+            ago: '3m',
           },
         ],
       },

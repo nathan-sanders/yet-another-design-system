@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AtSign, Ellipsis, Eye, FileText, Paperclip, Pencil, Smile, Tag } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
@@ -228,17 +228,42 @@ export function NoteComposer({ onSubmit }: { onSubmit: (body: string) => void })
  */
 export function PostDetailPanel({
   postId,
+  tab: requestedTab,
+  noteId,
   open,
   onClose,
 }: {
   /** The post to show — kept after closing so the panel slides out with it. */
   postId?: string
+  /**
+   * The tab to open on, when whoever opened the panel asked for one — a
+   * notification about a note. Without it the panel keeps the tab you were on.
+   */
+  tab?: DetailTab
+  /** A note to scroll to once the panel is on `tab`: the one a notification quotes. */
+  noteId?: string
   open: boolean
   onClose: () => void
 }) {
   const post = posts.find((p) => p.id === postId)
   const { thread, add } = usePostThread(post)
   const [tab, setTab] = useState<DetailTab>('comments')
+  // A request lands when the panel opens with it, or when another post is
+  // opened in place with one; clicking around afterwards is yours.
+  const [seen, setSeen] = useState({ open, postId, requestedTab })
+  if (open !== seen.open || postId !== seen.postId || requestedTab !== seen.requestedTab) {
+    setSeen({ open, postId, requestedTab })
+    if (open && requestedTab) setTab(requestedTab)
+  }
+  const content = useRef<HTMLDivElement>(null)
+  // A reply sits under its note and can start below the fold, so the note a
+  // notification quotes is scrolled into the Body once the tab has rendered.
+  useEffect(() => {
+    if (!open || !noteId) return
+    content.current
+      ?.querySelector(`[data-note-id="${noteId}"]`)
+      ?.scrollIntoView({ block: 'nearest' })
+  }, [open, postId, noteId])
 
   if (!post) return null
 
@@ -259,7 +284,11 @@ export function PostDetailPanel({
           <PostByline post={post} />
           <PostBody post={post} />
         </div>
-        <PostDetailTabs post={post} thread={thread} tab={tab} onTabChange={setTab} />
+        {/* `contents`, so the Body's gap still spaces the tabs; it is only a
+            place to look for the note to scroll to. */}
+        <div ref={content} className="contents">
+          <PostDetailTabs post={post} thread={thread} tab={tab} onTabChange={setTab} />
+        </div>
       </Panel.Body>
       {currentTab(post, tab) === 'notes' ? (
         <Panel.Footer>

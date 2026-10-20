@@ -37,6 +37,7 @@ export const apps: ShowcaseApp[] = [
       'Discover: trends, creators, visual trends, sentiment and top posts',
       'Yak assistant: a panel beside every page, a full-page view, and history',
       'Floating Yak: ask or search from the bottom of any page, answered in Yak full page',
+      'Notifications: an activity feed from the bell, each row going to the post, ticket or report it is about',
     ],
     components: [
       'AppShell',

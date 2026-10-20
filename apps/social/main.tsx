@@ -12,6 +12,7 @@ import { CreatorFullView } from './screens/creators/CreatorFullView'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
 import { HomeScreen } from './screens/home/HomeScreen'
 import { IdeasProvider } from './screens/ideas/IdeasProvider'
+import { NotificationsProvider } from './screens/notifications/NotificationsProvider'
 import { IdeasScreen } from './screens/ideas/IdeasScreen'
 import { DiscoverScreen } from './screens/discover/DiscoverScreen'
 import { InboxProvider } from './screens/inbox/InboxProvider'
@@ -57,7 +58,9 @@ createRoot(document.getElementById('root')!).render(
           <IdeasProvider>
             <PostNotesProvider>
               <CalendarNotesProvider>
-                <RouterProvider router={router} />
+                <NotificationsProvider>
+                  <RouterProvider router={router} />
+                </NotificationsProvider>
               </CalendarNotesProvider>
             </PostNotesProvider>
           </IdeasProvider>
