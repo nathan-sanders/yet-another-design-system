@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { ArrowLeft, ArrowRight, Ellipsis, Lightbulb, ListFilter, SquarePen } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Ellipsis,
+  Lightbulb,
+  Link,
+  ListFilter,
+  SquarePen,
+} from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Button } from '../../../../src/components/Button'
@@ -151,6 +159,12 @@ export function CalendarScreen() {
                   </Button>
                 </>
               )}
+              <Button
+                appearance="ghost"
+                startIcon={Link}
+                aria-label="Share"
+                onClick={() => shell.notBuilt('Sharing')}
+              />
               <Button
                 appearance="ghost"
                 startIcon={Ellipsis}

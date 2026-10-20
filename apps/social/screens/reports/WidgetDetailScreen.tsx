@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router'
-import { Ellipsis, Calendars, Share, SlidersHorizontal } from 'lucide-react'
+import { Ellipsis, Calendars, Link, SlidersHorizontal } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Breadcrumbs } from '../../../../src/components/Breadcrumbs'
@@ -146,7 +146,7 @@ export function WidgetDetailScreen() {
           <div className="flex items-center gap-2 max-md:hidden">
             <Button
               appearance="ghost"
-              startIcon={Share}
+              startIcon={Link}
               aria-label="Share"
               onClick={() => shell.notBuilt('Sharing')}
             />
