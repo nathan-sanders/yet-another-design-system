@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 
 import { postDate, today } from '../screens/calendar/model'
+import type { DetailTab as PostDetailTab } from '../screens/calendar/postDetailState'
 import { boardPath, widgetPath } from '../screens/reports/model'
 import type { ShellPanel } from '../shell/ShellContext'
 import { toISODate } from './dates'
@@ -104,11 +105,14 @@ function post(id: string) {
   return found
 }
 
-/** The calendar on the week a post sits in, with that post open beside it. */
-function postTarget(id: string): NotificationTarget {
+/**
+ * The calendar on the week a post sits in, with that post open beside it — on
+ * a tab, at a note, when the notification is about one.
+ */
+function postTarget(id: string, at?: { tab: PostDetailTab; noteId?: string }): NotificationTarget {
   return {
     path: `/plan/calendar?view=week&date=${toISODate(postDate(post(id)))}`,
-    panel: { type: 'post', postId: id },
+    panel: { type: 'post', postId: id, ...at },
   }
 }
 
@@ -137,7 +141,8 @@ export const seedNotifications: AppNotification[] = [
     },
     profileId: 'vv-threads',
     unread: true,
-    target: postTarget('p-12'),
+    // Katie's reply in the post's notes thread (`data/posts.ts`, `c-2`).
+    target: postTarget('p-12', { tab: 'notes', noteId: 'c-2' }),
   },
   {
     id: 'n-approval',

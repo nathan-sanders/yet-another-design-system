@@ -325,6 +325,8 @@ export function SocialShell() {
           <PostDetailPanel
             open={panel?.type === 'post'}
             postId={lastPostId}
+            tab={panel?.type === 'post' ? panel.tab : undefined}
+            noteId={panel?.type === 'post' ? panel.noteId : undefined}
             onClose={() => setPanel(null)}
           />
           <DayDetailPanel

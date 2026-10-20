@@ -1084,3 +1084,8 @@ Figma `Notifications - D · Activity cards` (`40005993:27777`) and its `_Notific
 119. **Read state is per session** (`NotificationsProvider`), and the bell's dot is the unread
     count. NavItem draws its new indicator `aria-hidden`, so the count goes in the bell's name
     ("Notifications, 3 unread"). Settings is a not-built toast.
+120. **A post panel can be asked to open on a tab, at a note.** `{ type: 'post', postId, tab,
+    noteId }`: the mention opens Notes and scrolls Katie's reply into view, because a reply sits
+    under its note and starts below the fold. Without a `tab` the panel keeps the one you were on,
+    as it always has. Katie's reply on `p-12` (`c-2`) now says what the notification quotes, and
+    is 3m old rather than 16d.

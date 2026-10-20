@@ -74,7 +74,11 @@ export function InternalNote({ note, threaded }: { note: PostComment; threaded?:
   const replies = note.replies?.length ?? 0
 
   return (
-    <article aria-label={`${author.name}, internal note, ${note.ago}`} className="flex gap-2">
+    <article
+      aria-label={`${author.name}, internal note, ${note.ago}`}
+      data-note-id={note.id}
+      className="flex gap-2"
+    >
       <div className="flex shrink-0 flex-col items-center">
         <Avatar
           name={author.name}
