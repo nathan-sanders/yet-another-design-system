@@ -15,11 +15,11 @@ import { posts } from '../../data/posts'
 import { useShell } from '../../shell/ShellContext'
 import { useYakChat } from '../../yak/chat'
 import { yakPath } from '../../yak/paths'
-import { greeting } from '../../yak/greeting'
 import { YakComposer } from '../../yak/YakPanel'
 import { YakMark } from '../../yak/YakMark'
 import { today } from '../calendar/model'
 import { WeekStrip } from './WeekStrip'
+import { welcome } from './welcome'
 
 const HOME = '/home'
 
@@ -86,7 +86,7 @@ export function HomeScreen() {
             <div className="flex flex-col gap-2">
               <YakMark className="size-6 text-content-emphasized" />
               <Heading id="home-greeting" level={2} size="2xl" weight="bold">
-                {greeting()}
+                {welcome()}
               </Heading>
               <Text color="subtle">
                 {dayAndDate.format(today)}. {COUNT_WORDS[tasks.length] ?? tasks.length} things need
