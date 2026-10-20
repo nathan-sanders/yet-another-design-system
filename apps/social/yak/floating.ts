@@ -5,7 +5,7 @@
  * in-page search bars used to; everywhere else a question starts a chat. Both
  * open in Yak's full view, which minimizes to the panel.
  *
- * `null` is "no bar": Engage pins a reply box to the bottom of its pages, and
+ * `null` is "no bar": Home has the composer in the page, Engage pins a reply box to the bottom of its pages, and
  * the full view has its own composer. The placeholders are this app's, not the
  * file's (FINDINGS 60) — Figma draws Discover's and Creators' and copies
  * Creators' onto the rest.
@@ -60,6 +60,9 @@ function matches(prefix: string, pathname: string): boolean {
 }
 
 export function floatingYakFor(pathname: string): FloatingYakConfig | null {
-  if (pathname.startsWith('/engage') || pathname.startsWith('/yak')) return null
+  // Home has the composer in the page, so a second box at the bottom would repeat it.
+  if (pathname === '/home' || pathname.startsWith('/engage') || pathname.startsWith('/yak')) {
+    return null
+  }
   return PAGES.find((page) => matches(page.prefix, pathname))?.config ?? FALLBACK
 }

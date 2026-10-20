@@ -28,7 +28,13 @@ export interface RouteGroup {
   routes: AppRoute[]
 }
 
-export const home: AppRoute & { icon: LucideIcon } = { path: '/home', label: 'Home', icon: House }
+export const home: AppRoute & { icon: LucideIcon } = {
+  path: '/home',
+  label: 'Home',
+  icon: House,
+  built: true,
+  figma: '40005972-26336',
+}
 
 export const groups: RouteGroup[] = [
   {

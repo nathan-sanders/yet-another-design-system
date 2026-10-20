@@ -10,6 +10,7 @@ import { PostNotesProvider } from './screens/calendar/PostNotesProvider'
 import { CommentsScreen } from './screens/comments/CommentsScreen'
 import { CreatorFullView } from './screens/creators/CreatorFullView'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
+import { HomeScreen } from './screens/home/HomeScreen'
 import { IdeasProvider } from './screens/ideas/IdeasProvider'
 import { IdeasScreen } from './screens/ideas/IdeasScreen'
 import { DiscoverScreen } from './screens/discover/DiscoverScreen'
@@ -29,7 +30,8 @@ const router = createHashRouter([
   {
     element: <SocialShell />,
     children: [
-      { index: true, element: <Navigate to="/plan/calendar" replace /> },
+      { index: true, element: <Navigate to="/home" replace /> },
+      { path: 'home', element: <HomeScreen /> },
       { path: 'plan/calendar', element: <CalendarScreen /> },
       { path: 'plan/ideas', element: <IdeasScreen /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },

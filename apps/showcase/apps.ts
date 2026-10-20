@@ -25,6 +25,7 @@ export const apps: ShowcaseApp[] = [
     pitch:
       'A social media management tool: schedule posts, run campaigns, answer customers and report on all of it, with Yak, an assistant, beside every screen.',
     built: [
+      'Home: a daily brief that opens on Yak, with what needs you, the last few days and the week ahead',
       'Calendar: week, day and month',
       'Post detail',
       'Inbox: all messages, my inbox, public thread and contact detail',
