@@ -1044,3 +1044,43 @@ Code-first: the file has no flow behind the list's create entry point.
     picked. The stacked level is the same component (`CreatorPanel`), so its own Similar stacks
     again. A new creator from the grid, or closing the root, clears the stack. The full view's
     Similar still goes to the other creator's full view, because a page has nothing to stack on.
+
+## Notifications (2026-10-20)
+
+Figma `Notifications - D · Activity cards` (`40005993:27777`) and its `_Notification Item`
+(`40005993:27689`), as `screens/notifications/NotificationsPanel.tsx` and
+`components/NotificationItem.tsx`. The bell on the rail and in the phone sheet opens it.
+
+### Open: library changes worth making
+
+114. **A ghost `ClickableCard` cannot hold a subtle card.** Its hover is
+    `Surface/Background Subtle`, which is exactly the fill of the card inside each notification,
+    so on hover the inner card disappears into the row. The row overrides the hover to
+    `Surface/Overlay Subtle`, which is translucent and darkens the inner card along with the row.
+    Table's rows already hover that way (`src/components/Table/CLAUDE.md`). A
+    ghost row with nested surfaces probably wants the overlay hover in the library, or a variant
+    that has it.
+115. **Avatar has no badge slot.** The file lays a 20px Type badge (a white circle with a 14px
+    glyph) over the avatar's lower right, 22 in and 20 down. `Avatar` only knows `status`, a
+    presence dot in the same corner, so the badge is positioned by hand in `SenderMark`, and the
+    Show Icon tile used for Instagram, Yak and the brand account is hand-drawn beside it. A
+    `badge` slot on Avatar would cover both.
+
+### Kept in the app, worth knowing
+
+116. **Every row goes somewhere real.** Posts open on the calendar's week with the post panel
+    beside it (`state.panel`), the Reddit reply and the assignment open their tickets in Engage
+    (1293 is new, for Carter), the comment bundle opens Comments by post on `p-11`, the Yak spike
+    opens the performance report's top-posts widget, and the report, follower and report-comment
+    rows open that report's board. Approvals have no screen, so the approval opens today's day
+    view. When the target is the screen you are on, only the query changes and the shell's
+    panel is set by hand, because a carried panel is only read on a path change.
+117. **Two card icons follow the data rather than the frame.** The file shows Facebook on
+    "Our Green Vitality Smoothie" and Instagram on Talan's conversation, but `p-11` is a Threads
+    post and ticket 1283 came in on Threads. The icon now matches the place the click lands.
+118. **The section label is 32 tall, as drawn.** The file pads it 12 above and 4 below a 20px
+    line in a 32px frame, so the 4 falls inside the first row's 12. The code drops the bottom 4
+    to match.
+119. **Read state is per session** (`NotificationsProvider`), and the bell's dot is the unread
+    count. NavItem draws its new indicator `aria-hidden`, so the count goes in the bell's name
+    ("Notifications, 3 unread"). Settings is a not-built toast.

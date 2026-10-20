@@ -326,6 +326,22 @@ export const tickets: Ticket[] = [
     postId: 'smoothie-week',
     drafts: ['A person of taste. 🥭'],
   },
+  // The Reddit reply in the Notifications panel ("Packaging question") opens this.
+  {
+    number: '1293',
+    customerId: 'carter',
+    network: 'reddit',
+    subject: 'Asks if the packaging is compostable',
+    body: 'Is the packaging compostable? Asking before I order a case.',
+    ago: '2h',
+    status: 'new',
+    priority: 'medium',
+    sentiment: 'neutral',
+    drafts: [
+      'Good question, u/carter_dokidis! Our bowls and lids are certified compostable in industrial facilities. Check whether your city collects them before you order.',
+      'They are: bowls and lids are industrially compostable. Home bins vary, so it is worth checking with your city first.',
+    ],
+  },
 ]
 
 /** Closed tickets, shown under a customer's past conversations. */

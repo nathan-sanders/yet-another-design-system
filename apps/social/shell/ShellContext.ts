@@ -24,6 +24,8 @@ export type ShellPanel =
   | { type: 'widget'; reportId: string; widgetId: string }
   /** The posts behind a number on Measure (`screens/mentions/MentionsPanel.tsx`). */
   | { type: 'mentions'; query: MentionQuery }
+  /** The rail's bell (`screens/notifications/NotificationsPanel.tsx`). */
+  | { type: 'notifications' }
   | null
 
 export interface ShellState {

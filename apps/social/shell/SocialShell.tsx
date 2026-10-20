@@ -18,6 +18,8 @@ import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
 import { MentionsPanel } from '../screens/mentions/MentionsPanel'
+import { NotificationsPanel } from '../screens/notifications/NotificationsPanel'
+import { useNotifications } from '../screens/notifications/notificationsState'
 import { useInbox } from '../screens/inbox/inboxState'
 import { NewReportDialog } from '../screens/reports/NewReportDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
@@ -143,6 +145,13 @@ export function SocialShell() {
     return count ? <Badge>{count}</Badge> : undefined
   }
   const yakOpen = panel?.type === 'yak' && !onYakPage
+  const notificationsOpen = panel?.type === 'notifications'
+  const toggleNotifications = () =>
+    setPanel((current) => (current?.type === 'notifications' ? null : { type: 'notifications' }))
+  // The bell's dot is the unread count, so reading the last one puts it out.
+  // NavItem draws the dot `aria-hidden`; the count is said in the name instead.
+  const { unreadCount } = useNotifications()
+  const notificationsLabel = unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications'
   // The nav marks scribble while pointed at or focused, and while Yak answers.
   const railYak = useMarkActive()
   const mobileYak = useMarkActive()
@@ -257,7 +266,13 @@ export function SocialShell() {
             utilities={
               <>
                 {themeItem(false)}
-                <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
+                <NavItem
+                  startIcon={Bell}
+                  newIndicator={unreadCount > 0}
+                  aria-label={notificationsLabel}
+                  aria-pressed={notificationsOpen}
+                  onClick={toggleNotifications}
+                >
                   Notifications
                 </NavItem>
                 {account('right')}
@@ -338,6 +353,7 @@ export function SocialShell() {
             query={lastMentions}
             onClose={() => setPanel(null)}
           />
+          <NotificationsPanel open={notificationsOpen} onClose={() => setPanel(null)} />
           <NewReportDialog />
 
           <MobileNav
@@ -361,7 +377,13 @@ export function SocialShell() {
           >
             {sections}
             <SideNav.Section header="Account">
-              <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
+              <NavItem
+                startIcon={Bell}
+                newIndicator={unreadCount > 0}
+                aria-label={notificationsLabel}
+                aria-pressed={notificationsOpen}
+                onClick={toggleNotifications}
+              >
                 Notifications
               </NavItem>
               {account('top')}
