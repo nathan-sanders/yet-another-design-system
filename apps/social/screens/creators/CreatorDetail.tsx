@@ -457,7 +457,7 @@ export function CreatorHeading({ creator }: { creator: Creator }) {
  */
 export function CreatorDetailPanel({
   creatorId,
-  tab: requestedTab,
+  tab,
   open,
   onClose,
 }: {
@@ -468,16 +468,52 @@ export function CreatorDetailPanel({
   open: boolean
   onClose: () => void
 }) {
-  const shell = useShell()
+  return (
+    <CreatorPanel
+      creatorId={creatorId}
+      initialTab={tab}
+      open={open}
+      onClose={onClose}
+      resizable
+    />
+  )
+}
+
+/**
+ * One level of the creator stack. A creator picked on Similar opens in a
+ * `Panel` written inside this one's body, so it stacks over it on Overview
+ * while this level stays on Similar underneath — closing it (or clicking the
+ * peeking edge) lands back on the list you were walking. The stacked level is
+ * this same component, so its own Similar stacks again.
+ */
+function CreatorPanel({
+  creatorId,
+  initialTab,
+  open,
+  onClose,
+  resizable,
+}: {
+  creatorId?: string
+  initialTab?: DetailTab
+  open: boolean
+  onClose: () => void
+  /** Only the root resizes; a stacked panel takes the root's width. */
+  resizable?: boolean
+}) {
   const navigate = useNavigate()
   const location = useLocation()
   const [tab, setTab] = useState<DetailTab>('overview')
-  // Each opening starts on the requested tab, or Overview. Switching creators
-  // while it is open keeps the tab, so Similar can walk from one to the next.
-  const [wasOpen, setWasOpen] = useState(open)
-  if (open !== wasOpen) {
-    setWasOpen(open)
-    if (open) setTab(requestedTab ?? 'overview')
+  // The stacked creator is kept after it closes, so it slides out with its content.
+  const [stacked, setStacked] = useState<{ id?: string; open: boolean }>({ open: false })
+  // Each opening starts on the requested tab, or Overview, with nothing
+  // stacked; so does a different creator opened in place from the grid.
+  const [seen, setSeen] = useState({ open, creatorId })
+  if (open !== seen.open || creatorId !== seen.creatorId) {
+    setSeen({ open, creatorId })
+    if (open) {
+      if (!seen.open) setTab(initialTab ?? 'overview')
+      setStacked((s) => ({ ...s, open: false }))
+    }
   }
 
   const creator = creatorId ? creatorById(creatorId) : undefined
@@ -500,7 +536,7 @@ export function CreatorDetailPanel({
       onOpenChange={(next) => {
         if (!next) onClose()
       }}
-      resizable
+      resizable={resizable}
     >
       <Panel.Header
         closeButton
@@ -533,12 +569,15 @@ export function CreatorDetailPanel({
             <ContentTab creator={creator} />
           </Tabs.Panel>
           <Tabs.Panel value="similar" className="pt-4">
-            <SimilarTab
-              creator={creator}
-              onOpen={(id) => shell.setPanel({ type: 'creator', creatorId: id })}
-            />
+            <SimilarTab creator={creator} onOpen={(id) => setStacked({ id, open: true })} />
           </Tabs.Panel>
         </Tabs>
+
+        <CreatorPanel
+          creatorId={stacked.id}
+          open={open && stacked.open}
+          onClose={() => setStacked((s) => ({ ...s, open: false }))}
+        />
       </Panel.Body>
       <Panel.Footer className="flex items-center justify-between pt-4">
         <CreatorActions />
