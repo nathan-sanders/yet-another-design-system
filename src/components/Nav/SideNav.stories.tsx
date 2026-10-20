@@ -322,6 +322,36 @@ export const GroupFollowsSelection: Story = {
       await userEvent.click(trigger('Beacon'))
       await expect(trigger('Beacon')).toHaveAttribute('aria-expanded', 'false')
     })
+
+    // The selected fill, resolved by the same serializer the triggers go through.
+    const probe = document.createElement('div')
+    probe.style.background = 'var(--nav-item-background-selected)'
+    canvasElement.append(probe)
+    const selectedFill = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    const fill = (name: string) => getComputedStyle(trigger(name)).backgroundColor
+    // Atlas is open and no longer holds the page, so it is at rest.
+    const restingFill = fill('Atlas')
+
+    await step('a closed group holding the page wears its selected state', async () => {
+      // waitFor: the row eases into the fill over `duration-fast-min`.
+      await waitFor(() => expect(fill('Beacon')).toBe(selectedFill))
+      // Visual only: the page is still the row, not the trigger.
+      await expect(trigger('Beacon')).not.toHaveAttribute('aria-current')
+      // Open, the row shows where you are and the trigger steps back.
+      await userEvent.click(trigger('Beacon'))
+      await waitFor(() => expect(fill('Beacon')).toBe(restingFill))
+      // A group that does not hold the page never does.
+      await userEvent.click(trigger('Atlas'))
+      await expect(fill('Atlas')).not.toBe(selectedFill)
+    })
+
+    await step('collapsed, the rail marks the group the page is in', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Collapse' }))
+      await waitFor(() => expect(fill('Beacon')).toBe(selectedFill))
+      await expect(fill('Atlas')).not.toBe(selectedFill)
+      await userEvent.click(canvas.getByRole('button', { name: 'Expand' }))
+    })
   },
 }
 

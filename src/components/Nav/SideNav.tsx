@@ -531,6 +531,12 @@ function SideNavGroup({
     the group's name in its own header instead, which is more than the tooltip
     was saying.
   */
+  /*
+    A parent row hiding the page you are on wears the selected state for it:
+    a closed group, or any group on the collapsed rail, where the rows are only
+    ever in the flyout. Visual only — the trigger is a button, not the page, so
+    `aria-current` stays on the row itself.
+  */
   if (parent.collapsed) {
     return (
       <Popover open={flyoutOpen} onOpenChange={setFlyoutOpen}>
@@ -538,7 +544,14 @@ function SideNavGroup({
           openOnHover
           delay={200}
           closeDelay={120}
-          render={<NavItem startIcon={startIcon} aria-label={label} className={className} />}
+          render={
+            <NavItem
+              startIcon={startIcon}
+              aria-label={label}
+              holdsSelected={holdsSelected}
+              className={className}
+            />
+          }
         />
         <Popover.Popup
           side="right"
@@ -586,9 +599,10 @@ function SideNavGroup({
     )
   }
 
+  const isOpen = open ?? innerOpen
   return (
     <CollapsiblePrimitive.Root
-      open={open ?? innerOpen}
+      open={isOpen}
       onOpenChange={handleOpenChange}
       className={cn('flex flex-col', className)}
     >
@@ -601,7 +615,7 @@ function SideNavGroup({
       */}
       <CollapsiblePrimitive.Trigger
         render={
-          <NavItem startIcon={startIcon} expandable>
+          <NavItem startIcon={startIcon} expandable holdsSelected={holdsSelected && !isOpen}>
             {label}
           </NavItem>
         }
