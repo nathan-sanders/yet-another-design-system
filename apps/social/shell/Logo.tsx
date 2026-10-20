@@ -28,10 +28,10 @@ export function Logo() {
 
 /**
  * The wordmark as the way home, for the rail and the phone bar: both put the
- * logo in a 40px box, and this fills it. The nav items' hover (their two
- * `Nav Item/… Hover` tokens and `rounded-lg`) and their ring, so it behaves
- * like the collapse toggle beside it. NavItem cannot take it, because its
- * icon slot takes a Lucide icon only.
+ * logo in a 40px box, and this fills it. No hover: Nathan wants the mark to
+ * stay as drawn under the pointer. It keeps the library's focus ring, on
+ * `rounded-lg` like the nav items beside it, so a keyboard user can still see
+ * where they are.
  */
 export function HomeLogo() {
   return (
@@ -40,8 +40,6 @@ export function HomeLogo() {
       aria-label="Yet Social home"
       className={cn(
         'flex size-10 items-center justify-center rounded-lg text-nav-content-primary',
-        'transition-colors duration-fast-min ease-standard',
-        'hover:bg-nav-item-background-hover hover:inset-ring-1 hover:inset-ring-nav-item-border-hover',
         focusRing,
       )}
     >
