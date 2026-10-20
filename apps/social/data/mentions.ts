@@ -1,6 +1,6 @@
 import { visualTrends } from './discover'
 import { seeded } from './performance'
-import { stories } from './reports'
+import { feed, stories } from './reports'
 import type { Mention, MentionReply, MentionSentiment, Network } from './types'
 
 // The posts behind Measure's numbers. Every count on Discover and every report
@@ -51,7 +51,11 @@ export type MentionAngle =
   | { kind: 'visuals' }
   | { kind: 'authors'; ids: string[] }
   | { kind: 'stories' }
+  /** One story or feed item: people sharing and reacting to it. */
+  | { kind: 'story'; id: string }
   | { kind: 'spikes' }
+  /** One spike alert, by its position in the list. */
+  | { kind: 'spike'; index: number }
 
 /** The most a list generates. A widget can count 40K; nobody scrolls that far. */
 export const MENTION_SAMPLE = 120
@@ -368,6 +372,9 @@ const SPIKES: { bank: string[]; sentiment: MentionSentiment; weight: number }[] 
 /** Every spike alert's mentions together: the View messages count on Spike alerts. */
 export const SPIKE_MENTIONS = SPIKES.reduce((sum, s) => sum + s.weight, 0)
 
+/** One spike alert's mentions, in the list's order. */
+export const spikeMentions = (index: number) => SPIKES[index]?.weight ?? 0
+
 /** What other people say under a post. */
 const REPLIES = [
   'Same here!',
@@ -464,17 +471,23 @@ function compose(query: MentionQuery, random: Random) {
       body = aboutTopic(random, topic, sentiment)
       break
     }
-    case 'stories': {
-      const story = pick(random, stories)
+    case 'stories':
+    case 'story': {
+      const story =
+        (angle.kind === 'story' && [...stories, ...feed].find((s) => s.id === angle.id)) ||
+        pick(random, stories)
       sentiment = query.sentiment ?? (story.sentiment.toLowerCase() as MentionSentiment)
       body = `${pick(random, ON_A_STORY[sentiment])} ${story.outlet}: “${story.title}”`
       break
     }
-    case 'spikes': {
-      const spike = weighted(
-        random,
-        SPIKES.map((s) => ({ item: s, weight: s.weight })),
-      )
+    case 'spikes':
+    case 'spike': {
+      const spike =
+        (angle.kind === 'spike' && SPIKES[angle.index]) ||
+        weighted(
+          random,
+          SPIKES.map((s) => ({ item: s, weight: s.weight })),
+        )
       sentiment = query.sentiment ?? spike.sentiment
       body = pick(random, spike.bank)
       break

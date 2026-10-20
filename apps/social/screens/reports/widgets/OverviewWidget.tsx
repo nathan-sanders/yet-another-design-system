@@ -1,12 +1,16 @@
-import { MetricCard, MetricGrid } from '../../../../../src/components/Metric'
+import { MetricGrid } from '../../../../../src/components/Metric'
 import { overviewFor, type ReportRange } from '../../../data/reports'
 import type { Report, Widget } from '../../../data/types'
+import { useMentions } from '../../mentions/useMentions'
+import { overviewMetricQuery, type OverviewMetric } from '../mentions'
 import { formatChange, formatCount } from '../model'
+import { ClickableMetric } from './clickable'
 
 /**
  * The four numbers at the top of a board (`40005911:34608`): mentions,
  * engagements, potential reach and net sentiment, each against the range
  * before. Net sentiment moves in points, not percent, so its trend says so.
+ * Each number opens the mentions behind it.
  */
 export function OverviewWidget({
   report,
@@ -21,24 +25,36 @@ export function OverviewWidget({
 }) {
   const n = overviewFor(report, range, widget.sources)
   const trend = (value: number) => (widget.compare ? value : undefined)
+  const mentions = useMentions()
+  const card = (metric: OverviewMetric) => {
+    const query = overviewMetricQuery(report, widget, range, metric)
+    return {
+      selected: query ? mentions.isOpen(query.key) : false,
+      onClick: () => query && mentions.toggle(query),
+    }
+  }
   return (
     <MetricGrid columns={columns}>
-      <MetricCard
+      <ClickableMetric
+        {...card('mentions')}
         label="Mentions"
         value={formatCount(n.mentions)}
         trend={trend(n.mentionsChange)}
       />
-      <MetricCard
+      <ClickableMetric
+        {...card('engagements')}
         label="Engagements"
         value={formatCount(n.engagements)}
         trend={trend(n.engagementsChange)}
       />
-      <MetricCard
+      <ClickableMetric
+        {...card('reach')}
         label="Potential reach"
         value={formatCount(n.reach)}
         trend={trend(n.reachChange)}
       />
-      <MetricCard
+      <ClickableMetric
+        {...card('sentiment')}
         label="Net sentiment"
         value={formatChange(n.sentiment, '')}
         trend={trend(n.sentimentChange)}

@@ -36,13 +36,13 @@ export function WidgetBody({
     case 'overview':
       return <OverviewWidget report={report} widget={widget} range={range} columns={columns} />
     case 'stories':
-      return <StoriesWidget />
+      return <StoriesWidget report={report} widget={widget} range={range} />
     case 'voices':
-      return <VoicesWidget />
+      return <VoicesWidget report={report} widget={widget} range={range} />
     case 'spikes':
-      return <SpikesWidget />
+      return <SpikesWidget report={report} widget={widget} range={range} />
     case 'feed':
-      return <FeedWidget />
+      return <FeedWidget report={report} widget={widget} range={range} />
     case 'timeline':
       return (
         <TimelineWidget

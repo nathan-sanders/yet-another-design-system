@@ -9,9 +9,13 @@ import {
   seriesPoints,
   type ReportRange,
 } from '../../../data/reports'
-import type { FeedItem, GroupBy, Report, Widget } from '../../../data/types'
+import type { FeedItem, GroupBy, Report, Widget, WidgetSources } from '../../../data/types'
+import { useMentions } from '../../mentions/useMentions'
+import { storyMentionQuery, widgetPointMentionQuery } from '../mentions'
 import { formatCount, formatVelocity, localZone } from '../model'
+import { MentionRows, RowButton } from './clickable'
 import { TwoLineCell } from './ListWidgets'
+import { rowMentions, type RowMentions } from './rowMentions'
 
 // Media monitoring's two widgets of its own — NewsWhip Spike's live feed and
 // its timeline of media interest against public interest.
@@ -22,12 +26,14 @@ function foundLabel(minutes: number): string {
   return minutes < 60 ? `${minutes}m ago` : `${Math.floor(minutes / 60)}h ago`
 }
 
-const feedColumns: TableColumn<FeedItem>[] = [
+const feedColumns = ({ open, isOpen }: RowMentions<FeedItem>): TableColumn<FeedItem>[] => [
   {
     key: 'title',
     header: 'Article or post',
     renderCell: (s) => (
-      <TwoLineCell title={s.title} source={s.source} meta={`${s.outlet} · ${s.sourceLabel}`} />
+      <RowButton label={`${s.title}, view mentions`} pressed={isOpen(s)} onClick={() => open(s)}>
+        <TwoLineCell title={s.title} source={s.source} meta={`${s.outlet} · ${s.sourceLabel}`} />
+      </RowButton>
     ),
   },
   {
@@ -78,16 +84,29 @@ const feedColumns: TableColumn<FeedItem>[] = [
  * New articles and posts as they are found, newest first. Sort by Predicted
  * 24h to see which will matter — the column NewsWhip Spike is built around.
  */
-export function FeedWidget() {
+export function FeedWidget({
+  report,
+  widget,
+  range,
+}: {
+  report: Report
+  widget: Widget
+  range: ReportRange
+}) {
+  const mentions = useMentions()
+  const query = (s: FeedItem) => storyMentionQuery(report, widget, range, s)
   return (
-    <Table
-      label="Live feed"
-      columns={feedColumns}
-      data={feed}
-      idKey="id"
-      sortable
-      textOverflow="truncate"
-    />
+    <MentionRows>
+      <Table
+        label={widget.title}
+        columns={feedColumns(rowMentions(mentions, query))}
+        data={feed}
+        idKey="id"
+        sortable
+        textOverflow="truncate"
+        hasHover
+      />
+    </MentionRows>
   )
 }
 
@@ -98,6 +117,7 @@ export function FeedWidget() {
  * is a hundred times the first, and one shared axis would flatten it.
  */
 export function TimelineWidget({
+  report,
   widget,
   range,
   groupBy,
@@ -111,10 +131,24 @@ export function TimelineWidget({
 }) {
   const by = effectiveGroupBy(range, groupBy)
   const subject = widget.series[0] ?? 'Veggie Vault'
+  const mentions = useMentions()
+  // A point opens that day's (or hour's) mentions: the articles for media
+  // interest, everything people posted for public interest.
+  const openPoint = (sources: WidgetSources, index: number) => {
+    const query = widgetPointMentionQuery(
+      report,
+      { ...widget, kind: 'chart', series: [subject], sources },
+      range,
+      groupBy,
+      index,
+    )
+    if (query) mentions.toggle(query)
+  }
   const over = rangeLabel(range)
   const plots = [
     {
       key: 'media',
+      sources: 'news' as const,
       title: 'Media interest',
       detail: 'Articles and posts published',
       label: `Articles and posts published about ${subject} by ${by} over ${over}`,
@@ -122,6 +156,7 @@ export function TimelineWidget({
     },
     {
       key: 'public',
+      sources: 'all' as const,
       title: 'Public interest',
       detail: 'Interactions with them',
       label: `Interactions with coverage of ${subject} by ${by} over ${over}`,
@@ -140,17 +175,20 @@ export function TimelineWidget({
               {plot.detail}
             </Text>
           </span>
-          <LineSeries
-            data={plot.data}
-            xKey="date"
-            series={[{ key: subject, label: plot.title }]}
-            label={plot.label}
-            height={Math.max(120, Math.round((height - 40) / 2))}
-            legend={false}
-            showPoints={false}
-            xPreset={by === 'hour' ? 'hours' : 'days'}
-            timeZone={localZone}
-          />
+          <div data-opens-mentions className="contents">
+            <LineSeries
+              onPointClick={({ index }) => openPoint(plot.sources, index)}
+              data={plot.data}
+              xKey="date"
+              series={[{ key: subject, label: plot.title }]}
+              label={plot.label}
+              height={Math.max(120, Math.round((height - 40) / 2))}
+              legend={false}
+              showPoints={false}
+              xPreset={by === 'hour' ? 'hours' : 'days'}
+              timeZone={localZone}
+            />
+          </div>
         </section>
       ))}
     </div>

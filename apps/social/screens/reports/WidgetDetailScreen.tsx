@@ -252,6 +252,7 @@ export function WidgetDetailScreen() {
             </ContentBlock.Header>
             <ContentBlock.Content>
               <BreakdownTable
+                report={report}
                 widget={widget}
                 range={range}
                 peakFormat={range === 'today' || range === 'yesterday' ? peakHour : peakDay}
