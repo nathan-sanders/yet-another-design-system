@@ -1,8 +1,11 @@
 import type { ReactElement } from 'react'
 import {
+  Bug,
   CircleArrowUp,
   CircleQuestionMark,
+  CircleUser,
   CreditCard,
+  Globe,
   Link,
   LogOut,
   Plug,
@@ -30,11 +33,14 @@ const account: UserItem[] = [
   { label: 'Upgrade plan', icon: CircleArrowUp, what: 'Upgrading plans' },
   { label: 'Integrations', icon: Plug, what: 'Integrations' },
   { label: 'Shared links', icon: Link, what: 'Shared links' },
+  { label: 'Connect new channel', icon: Globe, what: 'Connecting channels' },
+  { label: 'Invite team member', icon: CircleUser, what: 'Inviting teammates' },
 ]
 
 const help: UserItem[] = [
   { label: 'Get help', icon: CircleQuestionMark, what: 'Help' },
   { label: 'View changelog', icon: Scroll, what: 'The changelog' },
+  { label: 'Send feedback', icon: Bug, what: 'Sending feedback' },
 ]
 
 const out: UserItem[] = [{ label: 'Log out', icon: LogOut, what: 'Logging out' }]
