@@ -1031,3 +1031,16 @@ Code-first: the file has no flow behind the list's create entry point.
     departures from the frame: the app keeps "Posts by channel" and "Authentic followers" where
     the file says "Post by channel" and "Authentic follwers". The top posts are still plain
     `Card`s rather than the file's Clickable Cards, for the reason in 88.
+
+## Similar creators stack (2026-10-20)
+
+### Kept in the app, worth knowing
+
+113. **A creator picked on Similar stacks over the panel instead of replacing it.** The panel used
+    to swap to the picked creator in place and keep the Similar tab, so the list you were walking
+    was gone. Now the pick opens a `Panel` written inside this one's body, which `Panel`'s nested
+    stacking slides in 12px over it on Overview, while the panel behind stays on Similar. Closing,
+    Escape or a click on the peeking edge goes back to the list, and focus lands on the card you
+    picked. The stacked level is the same component (`CreatorPanel`), so its own Similar stacks
+    again. A new creator from the grid, or closing the root, clears the stack. The full view's
+    Similar still goes to the other creator's full view, because a page has nothing to stack on.
