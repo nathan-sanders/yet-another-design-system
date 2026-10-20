@@ -27,7 +27,7 @@ import { useMarkActive } from '../yak/useMarkActive'
 import { YakMark } from '../yak/YakMark'
 import { YakHistory, YakPanel } from '../yak/YakPanel'
 import { yakFrom, yakPath } from '../yak/paths'
-import { Logo } from './Logo'
+import { HomeLogo } from './Logo'
 import { NewMenu } from './NewMenu'
 import { UserMenu, type MyStatus } from './UserMenu'
 import { groups, home, type AppRoute } from './routes'
@@ -220,7 +220,7 @@ export function SocialShell() {
         <AppShell mode="contained">
           <SideNav
             aria-label="Main"
-            logo={<Logo />}
+            logo={<HomeLogo />}
             collapsed={railCollapsed}
             onCollapsedChange={setRailCollapsed}
             top={
@@ -342,7 +342,7 @@ export function SocialShell() {
 
           <MobileNav
             aria-label="Main"
-            logo={<Logo />}
+            logo={<HomeLogo />}
             utilities={
               <>
                 <NavItem
