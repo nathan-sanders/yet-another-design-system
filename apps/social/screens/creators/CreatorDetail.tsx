@@ -18,6 +18,7 @@ import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { Card } from '../../../../src/components/Card'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
+import { Icon } from '../../../../src/components/Icon'
 import { MetricCard, MetricGrid } from '../../../../src/components/Metric'
 import { Panel } from '../../../../src/components/Panel'
 import { Select } from '../../../../src/components/Select'
@@ -313,9 +314,9 @@ function PostCard({ post }: { post: CreatorPost }) {
           </Text>
         </span>
         <span className="flex flex-wrap items-center gap-3">
-          {stats.map(({ icon: Icon, label, value }) => (
+          {stats.map(({ icon: StatIcon, label, value }) => (
             <span key={label} className="flex items-center gap-1">
-              <Icon aria-hidden size={14} strokeWidth={1.5} className="text-content-primary" />
+              <Icon icon={StatIcon} size="small" className="text-content-primary" />
               <Text render={<span />} mono color="subtle">
                 <span className="sr-only">{label} </span>
                 {formatCount(value)}
