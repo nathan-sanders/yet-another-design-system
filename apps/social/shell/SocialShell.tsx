@@ -29,6 +29,7 @@ import { YakHistory, YakPanel } from '../yak/YakPanel'
 import { yakFrom, yakPath } from '../yak/paths'
 import { Logo } from './Logo'
 import { NewMenu } from './NewMenu'
+import { UserMenu, type MyStatus } from './UserMenu'
 import { groups, home, type AppRoute } from './routes'
 import { ShellContext, type ShellPanel, type ShellState } from './ShellContext'
 
@@ -91,6 +92,8 @@ export function SocialShell() {
   // Held here only so the New button can drop its label on the 56px rail: the
   // top slot is ours, and SideNav does not reshape what we put in it.
   const [railCollapsed, setRailCollapsed] = useState(false)
+  // The user menu's My status; both account rows' avatars read it.
+  const [myStatus, setMyStatus] = useState<MyStatus>('available')
   const toast = Toast.useToast()
 
   const notBuilt = useCallback(
@@ -184,13 +187,31 @@ export function SocialShell() {
     )
   }
 
-  const account = (
-    <NavItem
-      href="#/home"
-      start={<Avatar name={me.name} src={me.avatar} size="x-small" status="online" surface="nav" />}
-    >
-      Hi, Nathan!
-    </NavItem>
+  // The last item opens the user menu (`40005964:74176`). In the rail it opens
+  // beside the row, bottom edges level; in the phone sheet, above it.
+  const account = (side: 'right' | 'top') => (
+    <UserMenu
+      status={myStatus}
+      onStatusChange={setMyStatus}
+      side={side}
+      align={side === 'right' ? 'end' : 'start'}
+      trigger={
+        <NavItem
+          start={
+            <Avatar
+              name={me.name}
+              src={me.avatar}
+              size="x-small"
+              status={myStatus === 'away' ? 'offline' : 'online'}
+              statusLabel={myStatus === 'away' ? 'Away' : 'Available'}
+              surface="nav"
+            />
+          }
+        >
+          Hi, Nathan!
+        </NavItem>
+      }
+    />
   )
 
   return (
@@ -239,7 +260,7 @@ export function SocialShell() {
                 <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
                   Notifications
                 </NavItem>
-                {account}
+                {account('right')}
               </>
             }
           >
@@ -343,7 +364,7 @@ export function SocialShell() {
               <NavItem startIcon={Bell} newIndicator onClick={() => notBuilt('Notifications')}>
                 Notifications
               </NavItem>
-              {account}
+              {account('top')}
             </SideNav.Section>
           </MobileNav>
         </AppShell>
