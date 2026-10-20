@@ -1020,3 +1020,14 @@ Code-first: the file has no flow behind the list's create entry point.
     each column keeps 104px and the strip scrolls sideways.
 111. **`_Calendar Post Chip` gained `thumbnail={false}`**, the symbol's `Show Thumbnail` off. The
     month view still shows the photo. Home's columns are too narrow to give it 20px.
+
+## Creator details style pass (2026-10-19)
+
+### Kept in the app, worth knowing
+
+112. **Audience and Content now draw like Discover and Home.** The file swapped the KPI cards for
+    `Metric Card`s (subtle fill, mono value, two to a row at every width) and the bar and post
+    cards for headed `Content Block`s; Overview's card labels went from 12 to 14px. Two copy
+    departures from the frame: the app keeps "Posts by channel" and "Authentic followers" where
+    the file says "Post by channel" and "Authentic follwers". The top posts are still plain
+    `Card`s rather than the file's Clickable Cards, for the reason in 88.

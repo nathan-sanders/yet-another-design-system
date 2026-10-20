@@ -17,6 +17,8 @@ import { AvatarGroup } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { Card } from '../../../../src/components/Card'
+import { ContentBlock } from '../../../../src/components/ContentBlock'
+import { MetricCard, MetricGrid } from '../../../../src/components/Metric'
 import { Panel } from '../../../../src/components/Panel'
 import { Select } from '../../../../src/components/Select'
 import { Tabs } from '../../../../src/components/Tabs'
@@ -42,14 +44,14 @@ import { formatCount } from '../reports/model'
 import { creatorPath, type DetailTab } from './paths'
 
 /**
- * One of Overview's cards: a 12px-padded `Card` with a small subtle label over
- * its value, as every card in the file is drawn. The label is an `h3` under
- * the creator's name, so a screen reader can walk the cards.
+ * One of Overview's cards: a 12px-padded `Card` with a body-size subtle label
+ * over its value, as every Overview card in the file is drawn. The label is an
+ * `h3` under the creator's name, so a screen reader can walk the cards.
  */
 function DetailCard({ label, children }: { label: string; children: ReactNode }) {
   return (
     <Card className="gap-2">
-      <Heading level={3} size="sm" weight="normal" color="subtle">
+      <Heading level={3} size="base" weight="normal" color="subtle">
         {label}
       </Heading>
       {children}
@@ -217,14 +219,18 @@ function ShareBars({ rows, label }: { rows: Share[]; label: string }) {
   )
 }
 
-/** A KPI card: the file's label over a semibold value, as the Collaborations card is drawn. */
-function StatCard({ label, value }: { label: string; value: string }) {
+/**
+ * A titled block for the Audience and Content tabs: the file's `Content Block`
+ * with a header (`Widget / Opportunities` in `40005952:23519`), as Discover's
+ * and Home's widgets are drawn, so the full view reads like the rest of the
+ * app. The title is an `h3` under the creator's name.
+ */
+function DetailBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <DetailCard label={label}>
-      <Text render={<span />} weight="semibold" color="emphasized">
-        {value}
-      </Text>
-    </DetailCard>
+    <ContentBlock headingLevel={3} className="h-auto">
+      <ContentBlock.Header>{title}</ContentBlock.Header>
+      <ContentBlock.Content>{children}</ContentBlock.Content>
+    </ContentBlock>
   )
 }
 
@@ -233,9 +239,10 @@ function StatCard({ label, value }: { label: string; value: string }) {
  * column in the 384 panel, the file's grid in the full view's right column.
  * `@container/creator` is that room; the 560 breakpoint sits between the
  * panel at its widest (640) less padding and the full view at its narrowest.
+ * The KPIs are `MetricCard`s two to a row at every width, as the file's
+ * `KPIs` grid is.
  */
 const tabBody = '@container/creator flex flex-col gap-3'
-const kpiRow = 'grid grid-cols-2 gap-3 @min-[560px]/creator:grid-cols-4'
 const cardPair = 'grid grid-cols-1 items-stretch gap-3 @min-[560px]/creator:grid-cols-2'
 
 /** Audience (`Full View`, `40005952:23519`): who follows them. */
@@ -244,25 +251,25 @@ export function AudienceTab({ creator }: { creator: Creator }) {
   const growth = `${audience.growth > 0 ? '+' : ''}${audience.growth.toFixed(1)}%`
   return (
     <div className={tabBody}>
-      <div className={kpiRow}>
-        <StatCard label="Followers" value={formatCount(creator.followers)} />
-        <StatCard label="Audience growth (30 days)" value={growth} />
-        <StatCard label="Avg. engagement rate" value={`${creator.engagement.toFixed(1)}%`} />
-        <StatCard label="Authentic followers" value={`${audience.authentic}%`} />
-      </div>
+      <MetricGrid columns={2}>
+        <MetricCard label="Followers" value={formatCount(creator.followers)} />
+        <MetricCard label="Audience growth (30 days)" value={growth} />
+        <MetricCard label="Avg. engagement rate" value={`${creator.engagement.toFixed(1)}%`} />
+        <MetricCard label="Authentic followers" value={`${audience.authentic}%`} />
+      </MetricGrid>
       <div className={cardPair}>
-        <DetailCard label="Age range">
+        <DetailBlock title="Age range">
           <ShareBars rows={audience.ages} label="Followers by age" />
-        </DetailCard>
-        <DetailCard label="Gender">
+        </DetailBlock>
+        <DetailBlock title="Gender">
           <ShareBars rows={audience.genders} label="Followers by gender" />
-        </DetailCard>
+        </DetailBlock>
       </div>
       <div className={cardPair}>
-        <DetailCard label="Top locations">
+        <DetailBlock title="Top locations">
           <ShareBars rows={audience.locations} label="Followers by country" />
-        </DetailCard>
-        <DetailCard label="Audience interests">
+        </DetailBlock>
+        <DetailBlock title="Audience interests">
           <ul className="flex flex-wrap gap-2">
             {audience.interests.map((interest) => (
               <li key={interest} className="flex">
@@ -270,7 +277,7 @@ export function AudienceTab({ creator }: { creator: Creator }) {
               </li>
             ))}
           </ul>
-        </DetailCard>
+        </DetailBlock>
       </div>
     </div>
   )
@@ -326,16 +333,13 @@ export function ContentTab({ creator }: { creator: Creator }) {
   const content = contentFor(creator)
   return (
     <div className={tabBody}>
-      <div className={kpiRow}>
-        <StatCard label="Posts (30 days)" value={String(content.posts)} />
-        <StatCard label="Avg. likes" value={formatCount(content.likes)} />
-        <StatCard label="Avg. comments" value={formatCount(content.comments)} />
-        <StatCard label="Avg. views" value={formatCount(content.views)} />
-      </div>
-      <section aria-labelledby="top-posts" className="flex flex-col gap-3">
-        <Heading id="top-posts" level={3} size="sm" weight="normal" color="subtle">
-          Top posts · last 30 days
-        </Heading>
+      <MetricGrid columns={2}>
+        <MetricCard label="Posts (30 days)" value={String(content.posts)} />
+        <MetricCard label="Avg. likes" value={formatCount(content.likes)} />
+        <MetricCard label="Avg. comments" value={formatCount(content.comments)} />
+        <MetricCard label="Avg. views" value={formatCount(content.views)} />
+      </MetricGrid>
+      <DetailBlock title="Top posts (30 days)">
         <ul className="grid grid-cols-1 gap-3 @min-[560px]/creator:grid-cols-3">
           {content.top.map((post) => (
             <li key={post.caption} className="flex">
@@ -343,14 +347,14 @@ export function ContentTab({ creator }: { creator: Creator }) {
             </li>
           ))}
         </ul>
-      </section>
+      </DetailBlock>
       <div className={cardPair}>
-        <DetailCard label="Content format">
+        <DetailBlock title="Content format">
           <ShareBars rows={content.formats} label="Posts by format" />
-        </DetailCard>
-        <DetailCard label="Posts by channel">
+        </DetailBlock>
+        <DetailBlock title="Posts by channel">
           <ShareBars rows={content.channels} label="Posts by channel" />
-        </DetailCard>
+        </DetailBlock>
       </div>
     </div>
   )
