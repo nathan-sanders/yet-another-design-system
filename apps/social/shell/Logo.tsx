@@ -1,3 +1,7 @@
+import { cn } from '../../../src/lib/cn'
+import { focusRing } from '../../../src/lib/focus'
+import { home } from './routes'
+
 /**
  * The YET wordmark — the same mark the nav stories draw (`Nav/story-logo.tsx`),
  * copied rather than imported because that file is a story fixture, not part of
@@ -5,7 +9,7 @@
  */
 export function Logo() {
   return (
-    <svg width="36" height="16" viewBox="0 0 36 16" fill="none" role="img" aria-label="Yet Social">
+    <svg width="36" height="16" viewBox="0 0 36 16" fill="none" aria-hidden>
       <path
         d="M5.27579 8.52005H7.03438V0H12.3102V12.4444C12.3102 14.4081 10.7355 16 8.79298 16H0V12.7653H7.03438V10.9875H3.51719C1.5747 10.9875 2.83256e-08 9.39567 0 7.43199V0H5.27579V8.52005Z"
         fill="currentColor"
@@ -19,5 +23,29 @@ export function Logo() {
         fill="currentColor"
       />
     </svg>
+  )
+}
+
+/**
+ * The wordmark as the way home, for the rail and the phone bar: both put the
+ * logo in a 40px box, and this fills it. The nav items' hover (their two
+ * `Nav Item/… Hover` tokens and `rounded-lg`) and their ring, so it behaves
+ * like the collapse toggle beside it. NavItem cannot take it, because its
+ * icon slot takes a Lucide icon only.
+ */
+export function HomeLogo() {
+  return (
+    <a
+      href={`#${home.path}`}
+      aria-label="Yet Social home"
+      className={cn(
+        'flex size-10 items-center justify-center rounded-lg text-nav-content-primary',
+        'transition-colors duration-fast-min ease-standard',
+        'hover:bg-nav-item-background-hover hover:inset-ring-1 hover:inset-ring-nav-item-border-hover',
+        focusRing,
+      )}
+    >
+      <Logo />
+    </a>
   )
 }
