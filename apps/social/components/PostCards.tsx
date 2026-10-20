@@ -147,8 +147,16 @@ export function CalendarAgendaCard({ post, selected, onOpen }: PostCardProps) {
  * Not a `ClickableCard`: the card's 12px padding and `rounded-md` are the
  * whole difference Figma draws, and `padding={0}` would still bring the card's
  * radius. So it is a button with the card's surface, border and hover tokens.
+ *
+ * `thumbnail={false}` is the symbol's `Show Thumbnail` off, as Home's week
+ * strip draws it, where a column is too narrow to give 20px to the photo.
  */
-export function CalendarPostChip({ post, selected, onOpen }: PostCardProps) {
+export function CalendarPostChip({
+  post,
+  selected,
+  onOpen,
+  thumbnail = true,
+}: PostCardProps & { thumbnail?: boolean }) {
   const profile = profileFor(post)
   return (
     <button
@@ -168,7 +176,7 @@ export function CalendarPostChip({ post, selected, onOpen }: PostCardProps) {
       <Text render={<span />} size="sm" truncate className="min-w-0 flex-1">
         {post.body}
       </Text>
-      <Thumbnail post={post} size="size-5" />
+      {thumbnail ? <Thumbnail post={post} size="size-5" /> : null}
     </button>
   )
 }

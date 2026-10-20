@@ -26,6 +26,7 @@ import { Heading, Text } from '../../../src/components/Text'
 import { Tooltip } from '../../../src/components/Tooltip'
 import { CreatorCard } from '../components/CreatorCard'
 import { me } from '../data/people'
+import { greeting } from './greeting'
 import { history, startActions } from '../data/yak'
 import { useShell } from '../shell/ShellContext'
 import { useYakChat, type Turn } from './chat'
@@ -128,16 +129,28 @@ export function YakPanel({
 }
 
 /** The composer, the same in the panel and the full view. */
-export function YakComposer({ from }: { from: string }) {
+export function YakComposer({
+  from,
+  placeholder = 'How can I help today?',
+  onAsk,
+}: {
+  from: string
+  placeholder?: string
+  /** After the prompt is asked: Home sends it on to the full view. */
+  onAsk?: () => void
+}) {
   const chat = useYakChat()
   const shell = useShell()
   return (
     <ChatComposer
       aria-label="Message Yak"
-      placeholder="How can I help today?"
+      placeholder={placeholder}
       streaming={chat.thinking}
       onStop={chat.stop}
-      onSubmit={(prompt) => chat.ask(prompt, from)}
+      onSubmit={(prompt) => {
+        chat.ask(prompt, from)
+        onAsk?.()
+      }}
       className="w-full"
       actions={
         <Button
@@ -166,12 +179,6 @@ export function YakComposer({ from }: { from: string }) {
       }
     />
   )
-}
-
-function greeting(): string {
-  const hour = new Date().getHours()
-  const part = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
-  return `Good ${part}, ${me.name.split(' ')[0]}`
 }
 
 /** The start screen: greeting, the open page's `_Yak Insight`s in a card, four `_Yak Action Content` cards. */

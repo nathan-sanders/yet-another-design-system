@@ -1007,3 +1007,16 @@ Code-first: the file has no flow behind the list's create entry point.
     its checkbox selection, so an open row says so through its button's `aria-pressed` only.
     Discover's Creators table behaves the same. A row "current" state with no checkbox would let
     both tables show it.
+
+## Home (2026-10-19)
+
+### Kept in the app, worth knowing
+
+110. **Home follows "Home - B · Daily brief" (`40005972:26336`) with two departures.** The fourth
+    task is "Finish the Harvest Glow reel", not the file's Pineapple Sunrise draft, because Open
+    goes to Ideas and Harvest Glow is the idea in progress on that board. The week strip's day
+    headers pad 8 on the left with no gap before the +, where the calendar pads 12 with a 4px gap.
+    The file's week has single-digit dates, and at a 100px column "Mon 19" truncated. Below 768
+    each column keeps 104px and the strip scrolls sideways.
+111. **`_Calendar Post Chip` gained `thumbnail={false}`**, the symbol's `Show Thumbnail` off. The
+    month view still shows the photo. Home's columns are too narrow to give it 20px.
