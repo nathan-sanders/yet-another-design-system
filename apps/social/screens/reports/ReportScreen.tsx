@@ -9,7 +9,7 @@ import {
   LayoutDashboard,
   ListFilter,
   Plus,
-  Share,
+  Link as LinkIcon,
 } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
@@ -114,7 +114,7 @@ function Board({ report }: { report: Report }) {
               </Button>
               <Button
                 appearance="ghost"
-                startIcon={Share}
+                startIcon={LinkIcon}
                 aria-label="Share"
                 onClick={() => shell.notBuilt('Sharing')}
               />
