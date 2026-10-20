@@ -521,6 +521,22 @@ away the group they are in, and leaving a group does not close it for them. An e
 `defaultOpen` or a controlled `open` still wins. The `Group follows selection` story drives all
 three.
 
+### A parent row hiding the page wears its selected state
+
+Asked for by Nathan from Yet Social (2026-10-19): with the page inside a closed group, or with the
+rail collapsed, nothing on the rail said where you were. So a group trigger draws `State=Selected`
+— fill, ring, semibold — while it holds the selected row and that row is out of sight: the
+disclosure closed, or any time on the collapsed rail, where the rows only ever appear in the
+flyout. Opened, the trigger steps back and the row itself carries it, so there is only ever one
+selected thing on screen.
+
+**Visual only, through `NavItem`'s `holdsSelected`.** `selected` would also set
+`aria-current="page"`, and the trigger is a button, not the page — the pill in `MobileNav` makes the
+same call by taking the recipe instead of the component. A screen reader still reads the trigger's
+`aria-expanded` and finds the current row inside. `holdsSelected` is invisible to `findSelected`,
+which matches `selected === true` only, so the pill never names a group as the page. The
+`Group follows selection` story measures the fill in all three states against a `var()` probe.
+
 ### It slides both ways now, and for a year of its life it did not
 
 The entrance was a slide from the bottom through four attempts on Dialog's parts and never read

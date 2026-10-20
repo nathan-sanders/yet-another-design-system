@@ -83,6 +83,12 @@ interface NavItemBaseProps
    */
   selected?: boolean
   /**
+   * Draws `State=Selected` without claiming to be the page: no `aria-current`.
+   * For a parent row that is hiding the selected one — `SideNav.Group` sets it
+   * on its trigger while the group is closed, or always on the collapsed rail.
+   */
+  holdsSelected?: boolean
+  /**
    * The leading Lucide glyph, at 16px. Colored by the row, which is what Figma
    * binds the icon stroke to.
    */
@@ -136,6 +142,7 @@ export function NavItem({
   size,
   href,
   selected = false,
+  holdsSelected = false,
   startIcon,
   start,
   end,
@@ -181,7 +188,7 @@ export function NavItem({
         // header, an icon utility in the top bar. Keying this off `collapsed`
         // instead left the header's toggle stretching across everything to the
         // right of the logo, because the row recipe is `w-full`.
-        navItem({ size: resolvedSize, selected, iconOnly: !showLabel }),
+        navItem({ size: resolvedSize, selected: selected || holdsSelected, iconOnly: !showLabel }),
         className,
       ),
       href: disabled ? undefined : href,
