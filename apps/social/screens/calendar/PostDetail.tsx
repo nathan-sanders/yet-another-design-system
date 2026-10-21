@@ -193,6 +193,8 @@ export function NoteComposer({ onSubmit }: { onSubmit: (body: string) => void })
       aria-label="Leave a note for your team"
       placeholder="Leave a note for your team. @mention to notify"
       rows={2}
+      // The Yak composer's 16px corners (`YakComposer`).
+      className="rounded-xl"
       actions={
         <>
           <Button

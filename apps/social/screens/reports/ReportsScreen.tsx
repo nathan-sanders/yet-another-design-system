@@ -15,11 +15,13 @@ import {
 } from '../../../../src/components/Table'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
+import { cn } from '../../../../src/lib/cn'
 import { ReportCell } from '../../components/ReportCell'
 import { personFor } from '../../data/people'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { boardPath, editedLabel } from './model'
+import { ReportTypeShortcuts } from './ReportTypeShortcuts'
 import { useReports } from './reportsState'
 import { floatingYakClearance } from '../../components/FloatingYak'
 import { clickableRows } from '../../components/clickableRows'
@@ -102,9 +104,10 @@ const columns: TableColumn<Report>[] = [
 
 /**
  * Measure › Reports (`40005911:34877`): every board anybody has made, the
- * topic monitors, and Yet's own built-in reports, in one Spacious table. The
- * name opens the report; Last edit sorts, and the sort is in the URL
- * (`?sort=edited&dir=asc`) so it has a link.
+ * topic monitors, and Yet's own built-in reports, in one Spacious table,
+ * under a shortcut per report type that starts a new one. The name opens the
+ * report; Last edit sorts, and the sort is in the URL (`?sort=edited&dir=asc`)
+ * so it has a link.
  */
 export function ReportsScreen() {
   const [params, setParams] = useSearchParams()
@@ -159,7 +162,9 @@ export function ReportsScreen() {
           </div>
         }
       />
-      <AppShell.Content className={floatingYakClearance}>
+      {/* 40 between the shortcuts and the table, as the frame's Content Slot has it. */}
+      <AppShell.Content className={cn('gap-10', floatingYakClearance)}>
+        <ReportTypeShortcuts />
         {/* A pointer convenience over the rows' own links; see `openRow`. */}
         <div onClick={openRow} className={clickableRows}>
           <Table

@@ -151,7 +151,9 @@ export function YakComposer({
         chat.ask(prompt, from)
         onAsk?.()
       }}
-      className="w-full"
+      // 16px rather than the library's 8: Yak's composers and the reply boxes
+      // are rounder than a form field. The floating bar stays a pill.
+      className="w-full rounded-xl"
       actions={
         <Button
           appearance="ghost"

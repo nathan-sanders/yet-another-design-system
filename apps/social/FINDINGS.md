@@ -1090,6 +1090,19 @@ Figma `Notifications - D · Activity cards` (`40005993:27777`) and its `_Notific
     as it always has. Katie's reply on `p-12` (`c-2`) now says what the notification quotes, and
     is 3m old rather than 16d.
 
+## Report type shortcuts (2026-10-21)
+
+Figma's `Report Types` grid (`40006024:33222`) on `Measure - Reports`, as
+`screens/reports/ReportTypeShortcuts.tsx`: New report's eight types above the table, four across,
+two on a phone.
+
+### Kept in the app, worth knowing
+
+121. **A shortcut skips the picker.** Each card opens New report already on its setup step for that
+    type (`?new=report&type=…&step=setup`), so the name, topics and sources start filled and the
+    Name field has focus. Back still reaches the picker with that type chosen. The rail's New ›
+    Report passes no `step` and still starts on the picker. The 40 between the grid and the table
+    is the frame's Content Slot gap, so the screen overrides `AppShell.Content`'s 16.
 ## Add widget panel (2026-10-21)
 
 A report board's Add widget opens a `Panel` listing every widget a report can hold

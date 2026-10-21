@@ -39,13 +39,15 @@ const DELIVERY = [
  * behind it. Each type opens on a board of its own (`boardFixture`), built
  * from the topics chosen here, so the numbers agree with the rest of Measure.
  *
- * Mounted once by the shell, so it opens from any page; its open state and
- * starting type are the URL's (`?new=report&type=media`).
+ * Mounted once by the shell, so it opens from any page; its open state,
+ * starting type and starting step are the URL's
+ * (`?new=report&type=media&step=setup`).
  */
 export function NewReportDialog() {
   const [params, setParams] = useSearchParams()
   const open = params.get('new') === 'report'
   const startType = reportTypeFor(params.get('type'))?.value ?? 'media'
+  const startStep = params.get('step') === 'setup' ? 'setup' : 'type'
   // A key per opening, so every opening starts on step one with fresh fields.
   const [opening, setOpening] = useState(0)
   const [wasOpen, setWasOpen] = useState(open)
@@ -58,6 +60,7 @@ export function NewReportDialog() {
     const next = new URLSearchParams(params)
     next.delete('new')
     next.delete('type')
+    next.delete('step')
     setParams(next, { replace: true })
   }
 
@@ -69,13 +72,21 @@ export function NewReportDialog() {
       }}
       disablePointerDismissal
     >
-      <NewReportForm key={opening} startType={startType} onClose={close} />
+      <NewReportForm key={opening} startType={startType} startStep={startStep} onClose={close} />
     </Dialog>
   )
 }
 
-function NewReportForm({ startType, onClose }: { startType: ReportType; onClose: () => void }) {
-  const [step, setStep] = useState<'type' | 'setup'>('type')
+function NewReportForm({
+  startType,
+  startStep,
+  onClose,
+}: {
+  startType: ReportType
+  startStep: 'type' | 'setup'
+  onClose: () => void
+}) {
+  const [step, setStep] = useState(startStep)
   const [type, setType] = useState<ReportType>(startType)
   const option = reportTypeFor(type)!
 

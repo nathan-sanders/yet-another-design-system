@@ -23,6 +23,8 @@ export type ReplyMode = 'reply' | 'note'
  * one and because ChatComposer has no top slot to hold the account and the
  * draft. In `note` mode the account and the draft go: an internal note is
  * written by a teammate, to teammates.
+ *
+ * `rounded-xl` gives it the Yak composer's 16px corners (`YakComposer`).
  */
 export function ReplyBox({
   ticket,
@@ -69,7 +71,7 @@ export function ReplyBox({
     >
       {/* `ring="input"`: the box holds a Select and seven buttons, each with a
           ring of its own, so the box's ring is scoped to the caret. */}
-      <InputGroup size="large" ring="input" className="flex-col items-stretch">
+      <InputGroup size="large" ring="input" className="flex-col items-stretch rounded-xl">
         {note ? null : (
           <InputGroup.Addon align="block-start" className="flex-col items-stretch gap-3 py-3">
             <div className="flex min-w-0 items-center gap-2">
