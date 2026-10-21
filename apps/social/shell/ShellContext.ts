@@ -31,6 +31,8 @@ export type ShellPanel =
   | { type: 'mentions'; query: MentionQuery }
   /** The rail's bell (`screens/notifications/NotificationsPanel.tsx`). */
   | { type: 'notifications' }
+  /** The calendar's saved drafts (`screens/calendar/DraftsPanel.tsx`). */
+  | { type: 'drafts' }
   | null
 
 export interface ShellState {

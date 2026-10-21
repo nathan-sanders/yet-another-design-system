@@ -103,40 +103,28 @@ function Board({ report }: { report: Report }) {
           </Heading>
         }
         end={
-          <>
-            <div className="flex items-center gap-2 max-md:hidden">
-              <Button
-                appearance="ghost"
-                startIcon={ListFilter}
-                onClick={() => shell.notBuilt('Filters')}
-              >
-                Filters
-              </Button>
-              <Button
-                appearance="ghost"
-                startIcon={LinkIcon}
-                aria-label="Share"
-                onClick={() => shell.notBuilt('Sharing')}
-              />
-              <Button
-                appearance="ghost"
-                startIcon={Ellipsis}
-                aria-label="More"
-                onClick={() => shell.notBuilt('More actions')}
-              />
-              <Viewing />
-              <Button appearance="primary" startIcon={Plus} onClick={addStarter}>
-                Add widget
-              </Button>
-            </div>
+          <div className="flex items-center gap-2 max-md:hidden">
             <Button
-              appearance="primary"
-              startIcon={Plus}
-              aria-label="Add widget"
-              className="md:hidden"
-              onClick={addStarter}
+              appearance="ghost"
+              startIcon={ListFilter}
+              onClick={() => shell.notBuilt('Filters')}
+            >
+              Filters
+            </Button>
+            <Button
+              appearance="ghost"
+              startIcon={LinkIcon}
+              aria-label="Share"
+              onClick={() => shell.notBuilt('Sharing')}
             />
-          </>
+            <Button
+              appearance="ghost"
+              startIcon={Ellipsis}
+              aria-label="More"
+              onClick={() => shell.notBuilt('More actions')}
+            />
+            <Viewing />
+          </div>
         }
       />
       <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
@@ -152,6 +140,16 @@ function Board({ report }: { report: Report }) {
             onClick={() => shell.notBuilt('Adding a comparison date range')}
           >
             Compare
+          </Button>
+          {/* Add widget sits at the end of the range row, not in the top bar:
+              the rail's New is the page's one primary action. */}
+          <Button
+            appearance="secondary"
+            startIcon={Plus}
+            className="ml-auto shrink-0"
+            onClick={addStarter}
+          >
+            Add widget
           </Button>
         </div>
 

@@ -1,14 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
-import {
-  ArrowLeft,
-  ArrowRight,
-  Ellipsis,
-  Lightbulb,
-  Link,
-  ListFilter,
-  SquarePen,
-} from 'lucide-react'
+import { useSearchParams } from 'react-router'
+import { ArrowLeft, ArrowRight, Ellipsis, FilePenLine, Link, ListFilter } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Button } from '../../../../src/components/Button'
@@ -36,7 +28,6 @@ const STEP_LABEL: Record<CalendarView, string> = { day: 'day', week: 'week', mon
 export function CalendarScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
-  const navigate = useNavigate()
 
   const view: CalendarView =
     params.get('view') === 'day' || params.get('view') === 'month'
@@ -75,8 +66,11 @@ export function CalendarScreen() {
   const addNote = (date: Date) => setNoteRequest({ mode: 'new', date })
   const openNote = (note: CalendarNote) => setNoteRequest({ mode: 'edit', note })
 
-  // With a panel open the page is 800 wide, and Figma folds Filter and Ideas to
-  // icon-only buttons to make room (`40005911:33082`). New post keeps its label.
+  const draftsOpen = shell.panel?.type === 'drafts'
+  const toggleDrafts = () => shell.setPanel(draftsOpen ? null : { type: 'drafts' })
+
+  // With a panel open the page is 800 wide, and Figma folds Filter and Drafts
+  // to icon-only buttons to make room (`40005911:33082`).
   const compact = shell.panel !== null
 
   return (
@@ -122,8 +116,9 @@ export function CalendarScreen() {
           </div>
         }
         end={
-          // On a phone only New post stays, icon-only; the rest is one tap
-          // away in the real product and not worth a wrapped bar here.
+          // There is no New post here: the rail's New makes a post from any
+          // page, and each day's + makes one on that day. On a phone only
+          // Drafts stays, icon-only; the rest is not worth a wrapped bar.
           <>
             <div className="flex items-center gap-2 max-md:hidden">
               {compact ? (
@@ -136,9 +131,10 @@ export function CalendarScreen() {
                   />
                   <Button
                     appearance="ghost"
-                    startIcon={Lightbulb}
-                    aria-label="Ideas"
-                    onClick={() => navigate('/plan/ideas')}
+                    startIcon={FilePenLine}
+                    aria-label="Drafts"
+                    aria-pressed={draftsOpen}
+                    onClick={toggleDrafts}
                   />
                 </>
               ) : (
@@ -152,10 +148,11 @@ export function CalendarScreen() {
                   </Button>
                   <Button
                     appearance="ghost"
-                    startIcon={Lightbulb}
-                    onClick={() => navigate('/plan/ideas')}
+                    startIcon={FilePenLine}
+                    aria-pressed={draftsOpen}
+                    onClick={toggleDrafts}
                   >
-                    Ideas
+                    Drafts
                   </Button>
                 </>
               )}
@@ -171,20 +168,14 @@ export function CalendarScreen() {
                 aria-label="More"
                 onClick={() => shell.notBuilt('More actions')}
               />
-              <Button
-                appearance="primary"
-                startIcon={SquarePen}
-                onClick={() => shell.notBuilt('The post composer')}
-              >
-                New post
-              </Button>
             </div>
             <Button
-              appearance="primary"
-              startIcon={SquarePen}
-              aria-label="New post"
+              appearance="ghost"
+              startIcon={FilePenLine}
+              aria-label="Drafts"
+              aria-pressed={draftsOpen}
               className="md:hidden"
-              onClick={() => shell.notBuilt('The post composer')}
+              onClick={toggleDrafts}
             />
           </>
         }

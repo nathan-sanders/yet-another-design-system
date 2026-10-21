@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { Ellipsis, Plus } from 'lucide-react'
+import { Ellipsis } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Avatar, AvatarGroup } from '../../../../src/components/Avatar'
@@ -20,7 +20,6 @@ import { personFor } from '../../data/people'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { boardPath, editedLabel } from './model'
-import { openNewReport } from './newReport'
 import { useReports } from './reportsState'
 import { floatingYakClearance } from '../../components/FloatingYak'
 import { clickableRows } from '../../components/clickableRows'
@@ -156,21 +155,6 @@ export function ReportsScreen() {
               startIcon={Ellipsis}
               aria-label="More"
               onClick={() => shell.notBuilt('More actions')}
-            />
-            <Button
-              appearance="primary"
-              startIcon={Plus}
-              onClick={() => openNewReport(params, setParams)}
-              className="max-md:hidden"
-            >
-              New report
-            </Button>
-            <Button
-              appearance="primary"
-              startIcon={Plus}
-              aria-label="New report"
-              onClick={() => openNewReport(params, setParams)}
-              className="md:hidden"
             />
           </div>
         }
