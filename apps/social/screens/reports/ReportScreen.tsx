@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
+import {
+  pointerWithin,
+  type CollisionDetection,
+  type DragMoveEvent,
+  type DroppableContainer,
+} from '@dnd-kit/core'
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import {
   ArrowLeft,
@@ -15,18 +22,21 @@ import {
 import { AppShell } from '../../../../src/components/AppShell'
 import { Avatar } from '../../../../src/components/Avatar'
 import { Button } from '../../../../src/components/Button'
+import { Card } from '../../../../src/components/Card'
 import {
   DragAndDrop,
   MAX_BLOCKS_PER_ROW,
   Sortable,
   dragEnd,
   dragOver,
+  findContainer,
   maxSpan,
   resizeBlock,
   resizeRow,
   rowSpans,
   spareRow,
   spareRowCollision,
+  type Board as BoardLayout,
   type ColumnSpan,
 } from '../../../../src/components/DragAndDrop'
 import { Icon } from '../../../../src/components/Icon'
@@ -35,13 +45,15 @@ import { ResizeHandle } from '../../../../src/components/Resize'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { me } from '../../data/people'
-import { rangeFor, starterWidget, type ReportRange } from '../../data/reports'
+import { rangeFor, type ReportRange } from '../../data/reports'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import { reportsPath, widgetPath } from './model'
+import { AddWidgetPanel, CatalogTileFace } from './AddWidgetPanel'
+import { reportsPath } from './model'
 import { RangeControl } from './RangeControl'
-import { useReports } from './reportsState'
+import { useReports, type WidgetPlace } from './reportsState'
 import { WidgetBlock } from './WidgetBlock'
+import { isCatalogDrag, type CatalogEntry } from './widgetCatalog'
 import { cn } from '../../../../src/lib/cn'
 import { floatingYakClearance } from '../../components/FloatingYak'
 
@@ -66,8 +78,7 @@ export function ReportScreen() {
 function Board({ report }: { report: Report }) {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
-  const { boardFor, setBoard, widgetFor, addWidget } = useReports()
-  const navigate = useNavigate()
+  const { boardFor, setBoard, widgetFor, insertWidget } = useReports()
   const range = rangeFor(params.get('range'))
   const current = boardFor(report.id)!
   const board = current.board
@@ -78,15 +89,36 @@ function Board({ report }: { report: Report }) {
 
   const empty = board.order.every((row) => row === spare)
 
-  // Add widget puts a trend of the report's topics in a row of its own and
-  // opens its Edit panel, where it becomes whatever was wanted.
-  const addStarter = () => {
-    let n = Object.keys(current.widgets).length + 1
-    while (current.widgets[`widget-${n}`]) n += 1
-    const id = `widget-${n}`
-    addWidget(report.id, starterWidget(report, id))
-    navigate(`${widgetPath(report.id, id)}?edit=1${params.has('range') ? `&range=${range}` : ''}`)
+  // Add widget opens the catalog beside the board (`AddWidgetPanel`); every
+  // way in toggles the same panel.
+  const addOpen = shell.panel?.type === 'add-widget' && shell.panel.reportId === report.id
+  const toggleAdd = () =>
+    shell.setPanel(addOpen ? null : { type: 'add-widget', reportId: report.id })
+
+  // The widget just added: scrolled to and ringed for a moment, and said.
+  const [justAdded, setJustAdded] = useState<string>()
+  // Once per add, from here rather than from the widget's own mount: a drag
+  // remounts widgets. And instantly, not smoothly: a widget grabbed while a
+  // smooth scroll is still carrying the board is re-aimed on every frame of
+  // it, and the board reflowed until React gave up (max update depth).
+  useEffect(() => {
+    if (!justAdded) return
+    document.querySelector(`[data-widget="${justAdded}"]`)?.scrollIntoView({ block: 'nearest' })
+    const timer = setTimeout(() => setJustAdded(undefined), RING_MS)
+    return () => clearTimeout(timer)
+  }, [justAdded])
+  const [announcement, setAnnouncement] = useState('')
+  const add = (entry: CatalogEntry, at: WidgetPlace) => {
+    const { id, title } = insertWidget(report.id, (id) => entry.make(report, id), entry.id, at)
+    setJustAdded(id)
+    setAnnouncement(`${title} added to the board`)
   }
+
+  // A catalog tile on its way over: what it is, and where it would land.
+  const [carried, setCarried] = useState<CatalogEntry | null>(null)
+  const [target, setTarget] = useState<WidgetPlace | null>(null)
+  const aim = (next: WidgetPlace | null) =>
+    setTarget((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next))
 
   const setRange = (next: ReportRange) => {
     const nextParams = new URLSearchParams(params)
@@ -147,7 +179,8 @@ function Board({ report }: { report: Report }) {
             appearance="secondary"
             startIcon={Plus}
             className="ml-auto shrink-0"
-            onClick={addStarter}
+            aria-expanded={addOpen}
+            onClick={toggleAdd}
           >
             Add widget
           </Button>
@@ -168,20 +201,44 @@ function Board({ report }: { report: Report }) {
         ) : null}
 
         <DragAndDrop
-          collisionDetection={spareRowCollision(spare)}
-          onDragStart={() => {
-            snapshot.current = board
+          collisionDetection={catalogCollision(spareRowCollision(spare))}
+          onDragStart={({ active }) => {
+            if (isCatalogDrag(active.data.current)) setCarried(active.data.current.entry)
+            else snapshot.current = board
+          }}
+          onDragMove={(event) => {
+            if (isCatalogDrag(event.active.data.current)) aim(placeFor(board, spare, event))
           }}
           onDragOver={({ active, over }) => {
+            // A catalog tile changes nothing until it is let go: the board
+            // reflowing under the pointer is what made FINDINGS 41 oscillate.
+            if (isCatalogDrag(active.data.current)) return
             // `dragOver` refuses the spare row, which takes a widget only on
             // release; `DragAndDrop/CLAUDE.md` says why (FINDINGS 41).
             if (over) setBoard(report.id, (b) => dragOver(b, active.id, over.id))
           }}
-          onDragEnd={({ active, over }) => {
+          onDragEnd={(event) => {
+            const { active, over } = event
+            if (isCatalogDrag(active.data.current)) {
+              // Worked out again from the release, not read from `target`,
+              // which is a render behind the last move.
+              const place = placeFor(board, spare, event)
+              if (place) add(active.data.current.entry, place)
+              setCarried(null)
+              setTarget(null)
+              return
+            }
             setBoard(report.id, (b) => dragEnd(b, active.id, over ? over.id : null))
             swallowNextClick()
           }}
-          onDragCancel={() => setBoard(report.id, () => snapshot.current)}
+          onDragCancel={({ active }) => {
+            if (isCatalogDrag(active.data.current)) {
+              setCarried(null)
+              setTarget(null)
+              return
+            }
+            setBoard(report.id, () => snapshot.current)
+          }}
         >
           {/* On a desktop the strip under each row is the gap between rows. */}
           <div ref={rowHeights.container} className="flex flex-col max-md:gap-3">
@@ -193,10 +250,21 @@ function Board({ report }: { report: Report }) {
               // A row is as tall as its widgets until somebody sizes it; then
               // it holds that height and the charts in it follow.
               const fixed = board.heights[row]
+              // Where a carried catalog tile would land: in this row, or in a
+              // new row under it (a full row), or the spare.
+              const dropInto =
+                target !== null &&
+                ((typeof target === 'object' && 'row' in target && target.row === row) ||
+                  (target === 'end' && isSpare))
+              const dropUnder =
+                target !== null &&
+                typeof target === 'object' &&
+                'afterRow' in target &&
+                target.afterRow === row
               return (
                 <div
                   key={row}
-                  className="flex flex-col"
+                  className="relative flex flex-col"
                   style={fixed ? ({ '--row-height': `${fixed}px` } as CSSProperties) : undefined}
                 >
                   <Sortable
@@ -211,7 +279,10 @@ function Board({ report }: { report: Report }) {
                     role={isSpare ? 'group' : 'list'}
                     aria-label={name}
                     // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
-                    className="grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1"
+                    className={cn(
+                      'grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1',
+                      dropInto && !isSpare && dropTarget,
+                    )}
                   >
                     {isSpare ? (
                       // The file's dashed Add widget zone, and the drop target
@@ -220,8 +291,12 @@ function Board({ report }: { report: Report }) {
                       <Button
                         appearance="ghost"
                         startIcon={Plus}
-                        onClick={addStarter}
-                        className="col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized"
+                        aria-expanded={addOpen}
+                        onClick={toggleAdd}
+                        className={cn(
+                          'col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized',
+                          dropInto && 'bg-action-ghost-background-hover',
+                        )}
                       >
                         Add widget
                       </Button>
@@ -237,6 +312,7 @@ function Board({ report }: { report: Report }) {
                             max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
                             range={range}
                             rowHeight={fixed}
+                            highlight={id === justAdded}
                             onResize={(block, span) =>
                               setBoard(report.id, (b) => resizeBlock(b, block, span))
                             }
@@ -245,6 +321,13 @@ function Board({ report }: { report: Report }) {
                       })
                     )}
                   </Sortable>
+                  {dropUnder ? (
+                    // A full row takes no more: the tile would start a row under it.
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-0 -bottom-2.5 h-1 rounded-full bg-focus-focus-outer-border max-md:-bottom-2"
+                    />
+                  ) : null}
                   {isSpare ? null : (
                     // The strip under a row sets its height, from the height it
                     // has now — measured, until it has been sized by hand.
@@ -265,10 +348,101 @@ function Board({ report }: { report: Report }) {
               )
             })}
           </div>
+
+          {/* Rendered here so its tiles are inside this drag context, and
+              portalled after the Page, where the shell's panels go. */}
+          {shell.screenPanelHost
+            ? createPortal(
+                <AddWidgetPanel
+                  open={addOpen}
+                  onClose={() => shell.setPanel(null)}
+                  onAdd={(entry) => add(entry, 'end')}
+                  announcement={announcement}
+                />,
+                shell.screenPanelHost,
+              )
+            : null}
+          {/* The panel's body scrolls and would clip a tile carried out of it.
+              Mounted only for a catalog drag: an overlay present during a
+              widget's own drag is what dnd-kit measures and aims with, even
+              empty, and the board's drags are built on the widget itself. */}
+          {carried ? (
+            <DragAndDrop.Overlay>
+              <Card className="w-44 cursor-grabbing shadow-high">
+                <CatalogTileFace entry={carried} />
+              </Card>
+            </DragAndDrop.Overlay>
+          ) : null}
         </DragAndDrop>
       </AppShell.Content>
     </>
   )
+}
+
+/** How long a just-added widget keeps its ring before it fades. */
+const RING_MS = 1600
+
+/** A board row that a carried catalog tile would land in. */
+const dropTarget =
+  'bg-action-ghost-background-hover outline-1 outline-offset-4 outline-dashed outline-surface-border-emphasized'
+
+/**
+ * A catalog tile is aimed by the pointer, not by its rect: it starts in the
+ * panel, and `closestCorners` would find the nearest row from there and drop
+ * it on a release over the panel itself. With `pointerWithin` a tile still
+ * over the panel is over nothing. A keyboard never carries one — it clicks.
+ */
+function catalogCollision(board: CollisionDetection): CollisionDetection {
+  return (args) => (isCatalogDrag(args.active.data.current) ? pointerWithin(args) : board(args))
+}
+
+/**
+ * Where a catalog tile let go now would land. Over a widget: beside it, on the
+ * side of its middle the pointer is on. Over a row's own space: at its end.
+ * The spare sends it to a new row at the foot.
+ *
+ * It reads the collision itself, not `over`: in a move event `over` is still
+ * the one the last render saw, so a tile carried onto the spare was aimed at
+ * the row above it.
+ *
+ * **A full row is no drop target at all** — `Sortable`'s `capacity` turns it
+ * and its widgets off while something from outside is carried — so `over` is
+ * empty there. The row under the pointer is found by its rect instead, and the
+ * tile goes into a new row under it.
+ */
+function placeFor(
+  board: BoardLayout,
+  spare: string | undefined,
+  {
+    collisions,
+    delta,
+    activatorEvent,
+  }: Pick<DragMoveEvent, 'collisions' | 'delta' | 'activatorEvent'>,
+): WidgetPlace | null {
+  // A catalog drag is always a pointer's (`CatalogTile` spreads no keyboard listener).
+  const { clientX, clientY } = activatorEvent as PointerEvent
+  const x = clientX + delta.x
+  const y = clientY + delta.y
+  const hit = collisions?.[0]
+  if (!hit) {
+    const full = Object.keys(board.containers).find((row) => {
+      if (board.containers[row]!.length < MAX_BLOCKS_PER_ROW) return false
+      const rect = document.querySelector(`[data-row="${row}"]`)?.getBoundingClientRect()
+      return rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+    })
+    return full ? { afterRow: full } : null
+  }
+  const overId = String(hit.id)
+  const isRow = overId in board.containers
+  const row = isRow ? overId : findContainer(board.containers, overId)
+  if (!row) return null
+  if (row === spare) return 'end'
+  const items = board.containers[row]!
+  if (items.length >= MAX_BLOCKS_PER_ROW) return { afterRow: row }
+  if (isRow) return { row, index: items.length }
+  const rect = (hit.data?.droppableContainer as DroppableContainer | undefined)?.rect.current
+  const after = rect !== null && rect !== undefined && x > rect.left + rect.width / 2
+  return { row, index: items.indexOf(overId) + (after ? 1 : 0) }
 }
 
 /** How short and tall a hand can make a row; the default is only for a row not measured yet. */

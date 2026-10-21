@@ -76,6 +76,7 @@ export function WidgetBlock({
   max,
   range,
   rowHeight,
+  highlight = false,
   onResize,
 }: {
   report: Report
@@ -86,6 +87,8 @@ export function WidgetBlock({
   range: ReportRange
   /** The row's height once somebody has sized it; until then the widget sizes the row. */
   rowHeight?: number
+  /** Just added from the Add widget panel: ringed for a moment (the board scrolls to it). */
+  highlight?: boolean
   onResize: (id: string, next: number) => void
 }) {
   const item = useRef<HTMLDivElement>(null)
@@ -106,12 +109,16 @@ export function WidgetBlock({
     <Sortable.Item
       ref={item}
       id={widget.id}
+      data-widget={widget.id}
       label={widget.title}
       role="listitem"
       // One column on a phone, where every widget takes the row.
       className={cn(
         COL_SPAN[span],
         'relative min-w-0 rounded-lg max-md:col-span-full',
+        // The ring fades out on the motion tokens when `highlight` goes.
+        'transition-shadow duration-slow ease-standard',
+        highlight && 'ring-2 ring-focus-focus-outer-border',
         // A sized row: every widget in it is that tall, and what does not fit scrolls.
         rowHeight !== undefined && 'h-(--row-height) max-md:h-auto',
       )}

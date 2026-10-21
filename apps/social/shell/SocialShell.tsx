@@ -138,7 +138,11 @@ export function SocialShell() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [toggleYak])
 
-  const shell = useMemo<ShellState>(() => ({ panel, setPanel, notBuilt }), [panel, notBuilt])
+  const [screenPanelHost, setScreenPanelHost] = useState<HTMLElement | null>(null)
+  const shell = useMemo<ShellState>(
+    () => ({ panel, setPanel, notBuilt, screenPanelHost }),
+    [panel, notBuilt, screenPanelHost],
+  )
   // My inbox's count is live: assign a ticket to yourself anywhere and it goes up.
   const myInboxCount = useInbox().tickets.filter((t) => t.assigneeId === me.id).length
   const badgeFor = (route: AppRoute) => {
@@ -297,6 +301,10 @@ export function SocialShell() {
               />
             )}
           </AppShell.Page>
+
+          {/* A screen's own panel portals in here (`ShellState.screenPanelHost`).
+            `contents`, so the panel is still a child of the shell's row. */}
+          <div ref={setScreenPanelHost} className="contents" />
 
           {/* Both always rendered and driven by `open`, so each slides out with
             its content instead of vanishing — a closed Panel renders nothing. */}

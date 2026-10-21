@@ -26,8 +26,17 @@ export interface ReportsState {
   reportFor: (reportId: string | undefined) => Report | undefined
   /** Adds a report made with New report; its board is its type's template. */
   createReport: (report: Report) => void
-  /** Puts a widget on a report's board in a row of its own, at the end. */
-  addWidget: (reportId: string, widget: Widget) => void
+  /**
+   * Puts a widget from the Add widget catalog on a report's board, at `at`,
+   * and returns it as placed: its id is `<base>-<n>`, unique on that board,
+   * and its title is numbered if the board already has one by that name.
+   */
+  insertWidget: (
+    reportId: string,
+    make: (id: string) => Widget,
+    base: string,
+    at: WidgetPlace,
+  ) => Widget
   /** A report's board, or nothing for a built-in report, which has none. */
   boardFor: (reportId: string) => ReportBoard | undefined
   setBoard: (reportId: string, update: (board: Board) => Board) => void
@@ -40,6 +49,12 @@ export interface ReportsState {
   draft: { reportId: string; widget: Widget } | null
   setDraft: (draft: { reportId: string; widget: Widget } | null) => void
 }
+
+/**
+ * Where a widget goes: into a row at a position (when the row has room), into
+ * a new row right under one, or into a new row at the foot of the board.
+ */
+export type WidgetPlace = { row: string; index: number } | { afterRow: string } | 'end'
 
 export const ReportsContext = createContext<ReportsState | null>(null)
 

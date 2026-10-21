@@ -6,12 +6,18 @@ import {
   findContainer,
   removeBlock,
   settle,
+  spareRow,
   withSpareRow,
   type Board,
 } from '../../../../src/components/DragAndDrop'
 import { boardFixture, reportFor as fixtureFor, reports as fixtures } from '../../data/reports'
 import type { Report, Widget } from '../../data/types'
-import { ReportsContext, type ReportBoard, type ReportsState } from './reportsState'
+import {
+  ReportsContext,
+  type ReportBoard,
+  type ReportsState,
+  type WidgetPlace,
+} from './reportsState'
 
 // One per report and kept, so an untouched board is the same object on every
 // render — `dragOver` answers "nothing changed" by returning its input.
@@ -54,6 +60,9 @@ function saveCreated(created: Report[]) {
     // Storage blocked or full: the reports still last the session.
   }
 }
+
+// Every widget id `insertWidget` has handed out, by report, this session.
+const issuedIds = new Set<string>()
 
 /** A report's board as the fixtures draw it, before anybody touches it. */
 function initial(reportId: string): ReportBoard | undefined {
@@ -162,19 +171,61 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     [change],
   )
 
-  const addWidget = useCallback(
-    (reportId: string, widget: Widget) =>
+  // The widget is made here, before the change runs, so it can be handed back:
+  // the board scrolls to it and says its title. `issuedIds` keeps two adds in
+  // one render, before the state has caught up, from sharing one.
+  const insertWidget = useCallback(
+    (reportId: string, make: (id: string) => Widget, base: string, at: WidgetPlace) => {
+      const current = boards[reportId] ?? initial(reportId)
+      const taken = (id: string) => current?.widgets[id] || issuedIds.has(`${reportId}/${id}`)
+      let n = 1
+      while (taken(`${base}-${n}`)) n += 1
+      const id = `${base}-${n}`
+      issuedIds.add(`${reportId}/${id}`)
+      // A second Top stories is "Top stories 2": a widget's title names its
+      // table's region, and two regions with one name fail axe.
+      const made = make(id)
+      const placed = new Set(
+        Object.values(current?.board.containers ?? {})
+          .flat()
+          .map((placedId) => current?.widgets[placedId]?.title),
+      )
+      let copy = 1
+      while (placed.has(copy === 1 ? made.title : `${made.title} ${copy}`)) copy += 1
+      const widget = copy === 1 ? made : { ...made, title: `${made.title} ${copy}` }
       change(reportId, (current) => {
-        const row = `row-${widget.id}`
         const { containers, order } = current.board
-        return {
-          board: withSpareRow(
-            settle(current.board, { ...containers, [row]: [widget.id] }, [...order, row]),
-          ),
-          widgets: { ...current.widgets, [widget.id]: widget },
+        const spare = spareRow(current.board)
+        let board: Board
+        if (
+          typeof at === 'object' &&
+          'row' in at &&
+          containers[at.row]!.length < MAX_BLOCKS_PER_ROW
+        ) {
+          const items = containers[at.row]!
+          const index = Math.max(0, Math.min(at.index, items.length))
+          board = settle(current.board, {
+            ...containers,
+            [at.row]: [...items.slice(0, index), id, ...items.slice(index)],
+          })
+        } else {
+          // A row of its own: under the row asked for (or under a full one), else at the foot.
+          const newRow = `row-${id}`
+          const after = at === 'end' ? undefined : 'row' in at ? at.row : at.afterRow
+          const rest = order.filter((row) => row !== spare)
+          const index = after === undefined ? rest.length : rest.indexOf(after) + 1
+          board = settle(current.board, { ...containers, [newRow]: [id] }, [
+            ...rest.slice(0, index),
+            newRow,
+            ...rest.slice(index),
+            ...(spare === undefined ? [] : [spare]),
+          ])
         }
-      }),
-    [change],
+        return { board: withSpareRow(board), widgets: { ...current.widgets, [id]: widget } }
+      })
+      return widget
+    },
+    [boards, change],
   )
 
   const widgetFor = useCallback(
@@ -194,7 +245,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       reports,
       reportFor,
       createReport,
-      addWidget,
+      insertWidget,
       boardFor,
       setBoard,
       widgetFor,
@@ -208,7 +259,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       reports,
       reportFor,
       createReport,
-      addWidget,
+      insertWidget,
       boardFor,
       setBoard,
       widgetFor,
