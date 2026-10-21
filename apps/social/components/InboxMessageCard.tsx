@@ -31,9 +31,26 @@ function Viewers({ ticket }: { ticket: Ticket }) {
   )
 }
 
+const UNSEEN_LABEL = { message: 'new message', reply: 'new reply' } as const
+
 function label(ticket: Ticket) {
   const customer = customerFor(ticket.customerId)
-  return `${customer.handle}, ${ticket.ago} ago: ${ticket.subject}`
+  const unseen = ticket.unseen ? `, ${UNSEEN_LABEL[ticket.unseen]}` : ''
+  return `${customer.handle}, ${ticket.ago} ago: ${ticket.subject}${unseen}`
+}
+
+/**
+ * The file's `New Indicator`: an 8px `Decorative/Pink/Highlight` dot, as on
+ * the nav's bell and a notification row. Decoration only — the card's name
+ * says it. The caller places it.
+ */
+export function NewDot({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn('absolute size-2 rounded-full bg-decorative-pink-highlight', className)}
+    />
+  )
 }
 
 /**
@@ -43,6 +60,11 @@ function label(ticket: Ticket) {
  *
  * The card is `ghost` in the list, where the file draws the row with no visible
  * edge and a `Divider` between rows, and `selected` is the open conversation.
+ *
+ * The content pads 12 more on the left than the card does, a gutter for the
+ * `New` dot (`unseen`) that the file keeps whether or not the dot shows, so
+ * every row's face lines up. The dot centers on that gutter and on the header
+ * row: 8 in and 20 down from the card's padding edge.
  */
 export function InboxMessageCard({ ticket, selected, onOpen, emphasis = 'ghost' }: MessageCardProps) {
   const customer = customerFor(ticket.customerId)
@@ -51,9 +73,10 @@ export function InboxMessageCard({ ticket, selected, onOpen, emphasis = 'ghost' 
       emphasis={emphasis}
       selected={selected}
       onClick={() => onOpen(ticket)}
-      className="w-full"
+      className="relative w-full pl-6"
       aria-label={label(ticket)}
     >
+      {ticket.unseen ? <NewDot className="top-5 left-2" /> : null}
       <div className="flex w-full min-w-0 flex-col gap-2 text-left">
         <div className="flex min-w-0 items-center gap-2">
           <Avatar name={customer.handle} src={customer.avatar} alt="" size="small" />
@@ -101,6 +124,7 @@ export function InboxMessageCard({ ticket, selected, onOpen, emphasis = 'ghost' 
  * Not a `ClickableCard`, for the reason the month chip is not one: the card
  * brings 12px of padding the drawing does not have. It is a button wearing the
  * ghost card's tokens, with `aria-current` for the open message as the card has.
+ * The `New` dot centers on the content's top-left corner, 4 in from the padding.
  */
 export function InboxMessageAvatar({ ticket, selected, onOpen }: MessageCardProps) {
   const customer = customerFor(ticket.customerId)
@@ -119,6 +143,7 @@ export function InboxMessageAvatar({ ticket, selected, onOpen }: MessageCardProp
           'border-surface-border-emphasized bg-surface-background-subtle hover:border-surface-border-emphasized',
       )}
     >
+      {ticket.unseen ? <NewDot className="top-1 left-1" /> : null}
       <Avatar name={customer.handle} src={customer.avatar} alt="" />
       <Text render={<span />} size="sm" color="subtle">
         {ticket.ago}

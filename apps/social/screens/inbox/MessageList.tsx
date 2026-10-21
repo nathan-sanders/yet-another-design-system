@@ -75,7 +75,9 @@ export function MessageList({
           className,
         )}
       >
-        <div className="flex h-14 shrink-0 items-center gap-2 px-3 py-2">
+        {/* 32 in on the left, as the file's Toolbar pads: the sort lines up with
+            the cards' faces, past the list's 8, the card's 12 and the gutter's 12. */}
+        <div className="flex h-14 shrink-0 items-center gap-2 py-2 pr-3 pl-8">
           <Select
             size="small"
             hug

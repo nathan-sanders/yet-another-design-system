@@ -11,6 +11,8 @@ export function InboxProvider({ children }: { children: ReactNode }) {
   const [sent, setSent] = useState<Record<string, SentItem[]>>({})
   // Newest first, above the fixtures: the list's order is the array's.
   const [created, setCreated] = useState<Ticket[]>([])
+  const [seenTickets, setSeenTickets] = useState<ReadonlySet<string>>(new Set())
+  const [seenPosts, setSeenPosts] = useState<ReadonlySet<string>>(new Set())
 
   const editTicket = useCallback(
     (number: string, edit: TicketEdit) =>
@@ -33,17 +35,44 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     [created],
   )
 
+  // A no-op when already seen, so opening a seen item renders nothing new.
+  const markTicketSeen = useCallback(
+    (number: string) => setSeenTickets((all) => (all.has(number) ? all : new Set(all).add(number))),
+    [],
+  )
+  const markPostSeen = useCallback(
+    (id: string) => setSeenPosts((all) => (all.has(id) ? all : new Set(all).add(id))),
+    [],
+  )
+
   const value = useMemo<InboxState>(
     () => ({
-      tickets: [...created, ...fixtures].map((t) =>
-        edits[t.number] ? { ...t, ...edits[t.number] } : t,
-      ),
+      tickets: [...created, ...fixtures].map((t) => {
+        const edited = edits[t.number] ? { ...t, ...edits[t.number] } : t
+        return edited.unseen && seenTickets.has(t.number)
+          ? { ...edited, unseen: undefined }
+          : edited
+      }),
       editTicket,
       sent,
       addSent,
       addTicket,
+      markTicketSeen,
+      seenPosts,
+      markPostSeen,
     }),
-    [created, edits, sent, editTicket, addSent, addTicket],
+    [
+      created,
+      edits,
+      sent,
+      seenTickets,
+      seenPosts,
+      editTicket,
+      addSent,
+      addTicket,
+      markTicketSeen,
+      markPostSeen,
+    ],
   )
 
   return <InboxContext.Provider value={value}>{children}</InboxContext.Provider>

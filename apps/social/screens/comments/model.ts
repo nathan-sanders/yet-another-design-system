@@ -12,6 +12,10 @@ const isVeggieVault = (post: Post) => post.profileId.startsWith('vv-')
  * The list as the toolbar asks for it: every post Veggie Vault has published,
  * newest first by default, or by how many comments it has or how many nobody
  * has opened. Ties keep the newest first.
+ *
+ * "Most unread" ranks by the fixture counts, not what you have read this
+ * session: opening a post clears its count, and re-ranking on that would send
+ * the post you just opened to the bottom of the list from under you.
  */
 export function publishedPosts(sort: PostSort, descending: boolean): Post[] {
   const byNewest = posts

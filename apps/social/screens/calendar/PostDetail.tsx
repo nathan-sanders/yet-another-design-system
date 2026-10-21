@@ -15,6 +15,7 @@ import { commentsFor, eventsFor, statsFor } from '../../data/performance'
 import { posts, profileFor } from '../../data/posts'
 import type { Post, PostComment, PostEvent } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { useUnreadComments } from '../inbox/inboxState'
 import { isPublished, postDate, postMoment } from './model'
 import { currentTab, usePostThread, type DetailTab } from './postDetailState'
 import { ActivityTab, CommentsTab, MeasureTab, PostStatsRow } from './PublishedPost'
@@ -97,6 +98,8 @@ export function PostByline({
  */
 export function PostBody({ post }: { post: Post }) {
   const shell = useShell()
+  // Read once opened in Comments by post, here as in that list's card.
+  const unread = useUnreadComments(post)
   return (
     <div className="flex flex-col gap-3">
       <Text>{post.body}</Text>
@@ -116,7 +119,7 @@ export function PostBody({ post }: { post: Post }) {
         <Token avatar={<Token.Avatar name={me.name} src={me.avatar} />}>{me.name}</Token>
       </div>
       {isPublished(post) ? (
-        <PostStatsRow stats={statsFor(post)} />
+        <PostStatsRow stats={{ ...statsFor(post), unread }} />
       ) : (
         <div className="flex items-center justify-between gap-2">
           <Button appearance="ghost" startIcon={Pencil} onClick={() => shell.notBuilt('Editing')}>

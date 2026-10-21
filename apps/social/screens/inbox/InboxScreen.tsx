@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { Ellipsis, ListFilter } from 'lucide-react'
 
@@ -35,7 +36,7 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   // Edits and sent replies live above the routes, shared with the other scope.
-  const { tickets: allTickets, editTicket, sent, addSent } = useInbox()
+  const { tickets: allTickets, editTicket, sent, addSent, markTicketSeen } = useInbox()
   const phone = usePhone()
 
   const filter: InboxFilter =
@@ -55,6 +56,13 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
   const open = opened && withViewer(opened, opened.number)
   const listed = list.map((t) => withViewer(t, opened?.number))
   const view = params.get('view') === 'thread' && open?.postId ? 'thread' : 'conversation'
+
+  // Whatever is open has been seen, the one that opens by itself included, so
+  // its new dot goes out here and in the other scope.
+  const openNumber = open?.number
+  useEffect(() => {
+    if (openNumber) markTicketSeen(openNumber)
+  }, [openNumber, markTicketSeen])
 
   const update = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params)
