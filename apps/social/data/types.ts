@@ -154,6 +154,8 @@ export interface TicketReply {
   authorId: string
   body: string
   ago: string
+  /** The teammate who sent a brand reply, shown under it. A person id. */
+  sentBy?: string
 }
 
 export interface Ticket {

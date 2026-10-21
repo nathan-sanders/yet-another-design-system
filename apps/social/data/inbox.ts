@@ -345,7 +345,7 @@ export const tickets: Ticket[] = [
     ],
   },
   // Yours and done: what My inbox's Complete shows. No frame draws them. The
-  // replies go out as the brand, signed by you, as a care team signs them.
+  // replies go out as the brand, with you under them as the one who sent them.
   {
     number: '1276',
     customerId: 'cooper',
@@ -362,7 +362,8 @@ export const tickets: Ticket[] = [
       {
         id: 'h1276-1',
         authorId: 'vv-instagram',
-        body: 'Hi Cooper! Gift cards work in the app too. Go to Account › Payment › Add gift card and enter the number on the back, and the balance comes off your next order. – Nathan',
+        body: 'Hi Cooper! Gift cards work in the app too. Go to Account › Payment › Add gift card and enter the number on the back, and the balance comes off your next order.',
+        sentBy: 'nathan',
         ago: '1d',
       },
       {
@@ -374,7 +375,8 @@ export const tickets: Ticket[] = [
       {
         id: 'h1276-3',
         authorId: 'vv-instagram',
-        body: 'Glad it worked! Enjoy the next bowl 🥗 – Nathan',
+        body: 'Glad it worked! Enjoy the next bowl 🥗',
+        sentBy: 'nathan',
         ago: '1d',
       },
     ],
@@ -395,7 +397,8 @@ export const tickets: Ticket[] = [
       {
         id: 'h1271-1',
         authorId: 'vv-threads',
-        body: 'This made our day, @kaylynn_dorwart! Thanks for having us. We’ll pass the love on to the kitchen 💚 – Nathan',
+        body: 'This made our day, @kaylynn_dorwart! Thanks for having us. We’ll pass the love on to the kitchen 💚',
+        sentBy: 'nathan',
         ago: '2d',
       },
       {
@@ -407,7 +410,8 @@ export const tickets: Ticket[] = [
       {
         id: 'h1271-3',
         authorId: 'vv-threads',
-        body: 'Love to hear it. Our catering menu is at veggievault.com/catering whenever you’re ready. – Nathan',
+        body: 'Love to hear it. Our catering menu is at veggievault.com/catering whenever you’re ready.',
+        sentBy: 'nathan',
         ago: '2d',
       },
     ],
