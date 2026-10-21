@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { Ellipsis, ListFilter } from 'lucide-react'
 
@@ -9,6 +10,7 @@ import { usePhone } from '../../../../src/lib/viewport'
 import type { Post } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { DETAIL_TABS, type DetailTab } from '../calendar/postDetailState'
+import { useInbox } from '../inbox/inboxState'
 import { publishedPosts, type PostSort } from './model'
 import { PostColumn } from './PostColumn'
 import { PostList } from './PostList'
@@ -39,6 +41,14 @@ export function CommentsScreen() {
 
   const chosen = list.find((p) => p.id === params.get('post'))
   const open = chosen ?? (phone ? undefined : list[0])
+
+  // An open post's comments are read: its dot and Unread token go out. The
+  // list's order does not move for it (see `publishedPosts`).
+  const { markPostSeen } = useInbox()
+  const openId = open?.id
+  useEffect(() => {
+    if (openId) markPostSeen(openId)
+  }, [openId, markPostSeen])
 
   const update = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params)

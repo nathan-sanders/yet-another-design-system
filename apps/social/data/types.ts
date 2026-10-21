@@ -179,6 +179,13 @@ export interface Ticket {
   note?: string
   /** The Measure mention it was opened from ("Open in Engage"), if it was. */
   mentionId?: string
+  /**
+   * Something here you have not seen: the message itself, never opened, or a
+   * reply in its conversation since you last opened it. Either way the card
+   * shows the file's `New Indicator`; this only changes what it says aloud.
+   * Opening the ticket clears it (`markTicketSeen`).
+   */
+  unseen?: 'message' | 'reply'
 }
 
 /** The team's private note on a customer, in the contact panel. */
