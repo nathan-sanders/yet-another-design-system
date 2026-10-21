@@ -9,7 +9,7 @@ import {
   Newspaper,
   Rss,
   Send,
-  Smile,
+  Heart,
   Table2,
   TrendingUp,
   Users,
@@ -215,7 +215,7 @@ export const CATALOG: CatalogEntry[] = [
     group: 'Monitoring',
     title: 'Sentiment',
     description: 'How people feel, and why',
-    icon: Smile,
+    icon: Heart,
     make: (report, id) =>
       widget({
         id,

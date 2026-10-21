@@ -1108,7 +1108,12 @@ two on a phone.
 A report board's Add widget opens a `Panel` listing every widget a report can hold
 (`screens/reports/AddWidgetPanel.tsx`, `widgetCatalog.ts`). Click a tile and the widget goes
 in a row of its own at the foot of the board while the panel stays open. Drag one and it goes
-where it is dropped. Code-first: the file has no catalog. Numbered after #314's 121.
+where it is dropped. Built code-first, then drawn into the file from the code: `Measure - Report
+/ Add widget` (`40006031:28249`, on ↪ Social Media Management) shows the panel mid-drag, with
+Mention totals carried over Mentions over time. Its tiles are Clickable Cards holding
+`_Measure Widget Tile` (`40006031:28241`, in Components), the `_Measure Report Type Content`
+pattern: an exposed Icon, a Title and a two-line Description. The file has no `smile` glyph,
+so Sentiment's icon is `heart` on both sides. Numbered after #314's 121.
 
 ### Open: library changes worth making
 
