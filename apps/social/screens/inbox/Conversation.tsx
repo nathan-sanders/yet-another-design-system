@@ -136,7 +136,9 @@ export function Composer({
         // Remounted per ticket, so a draft or a half-typed reply never follows
         // you to someone else's conversation.
         key={ticket.number}
-        ticket={ticket}
+        network={ticket.network}
+        handle={customerFor(ticket.customerId).handle}
+        drafts={ticket.drafts}
         mode={mode}
         onSend={onSend}
         onNotBuilt={shell.notBuilt}

@@ -21,7 +21,7 @@ import { InboxComment } from '../../components/InboxComment'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
 import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
-import { brandPostFor } from '../../data/inbox'
+import { brandPostFor, customerFor } from '../../data/inbox'
 import { profiles } from '../../data/posts'
 import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
@@ -137,7 +137,9 @@ export function PublicThread({
                 <div className="pl-8">
                   <ReplyBox
                     key={ticket.number}
-                    ticket={ticket}
+                    network={ticket.network}
+                    handle={customerFor(ticket.customerId).handle}
+                    drafts={ticket.drafts}
                     onSend={onSend}
                     onNotBuilt={shell.notBuilt}
                   />
