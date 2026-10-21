@@ -23,7 +23,7 @@ import { NetworkIcon } from '../../components/NetworkIcon'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
 import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor, customerFor } from '../../data/inbox'
-import { personFor } from '../../data/people'
+import { me, personFor } from '../../data/people'
 import { profiles } from '../../data/posts'
 import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
@@ -104,11 +104,29 @@ export function SentItems({ items, onMore }: { items: SentItem[]; onMore: () => 
         authorId={item.authorId}
         ago="now"
         badge={<Badge color="green">Sent</Badge>}
+        // You sent it, under the brand's name. With no brand account on the
+        // network it went out as you, and your name is already the author.
+        sentBy={item.authorId === me.id ? undefined : me.id}
         onMore={onMore}
       >
         {item.body}
       </InboxComment>
     ),
+  )
+}
+
+/** A line from the system, centered in the log: an assignment, a completion. */
+function SystemLine({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex justify-center">
+      <Text
+        size="sm"
+        color="subtle"
+        className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic"
+      >
+        {children}
+      </Text>
+    </div>
   )
 }
 
@@ -271,16 +289,22 @@ export function Conversation({
           ) : null}
         </ActionRow>
 
-        {ticket.note ? (
-          <div className="flex justify-center">
-            <Text
-              size="sm"
-              color="subtle"
-              className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic"
-            >
-              {ticket.note}
-            </Text>
-          </div>
+        {ticket.note ? <SystemLine>{ticket.note}</SystemLine> : null}
+
+        {ticket.history?.map((reply) => (
+          <InboxComment
+            key={reply.id}
+            authorId={reply.authorId}
+            ago={reply.ago}
+            sentBy={reply.sentBy}
+            onMore={() => shell.notBuilt('Comment actions')}
+          >
+            {reply.body}
+          </InboxComment>
+        ))}
+
+        {ticket.status === 'complete' && ticket.assigneeId ? (
+          <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
         ) : null}
 
         <SentItems items={sent} onMore={() => shell.notBuilt('Message actions')} />
