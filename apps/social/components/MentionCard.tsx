@@ -1,10 +1,9 @@
-import { useState, type FormEvent, type MouseEvent } from 'react'
-import { Ellipsis, Heart, Inbox, MessageCircle, Repeat2, SendHorizontal } from 'lucide-react'
+import { useState, type MouseEvent } from 'react'
+import { Ellipsis, Heart, Inbox, MessageCircle, Repeat2 } from 'lucide-react'
 
 import { Avatar } from '../../../src/components/Avatar'
 import { Button } from '../../../src/components/Button'
 import { Card } from '../../../src/components/Card'
-import { InputGroup } from '../../../src/components/Input'
 import { Menu } from '../../../src/components/Menu'
 import { Text } from '../../../src/components/Text'
 import { cn } from '../../../src/lib/cn'
@@ -15,55 +14,8 @@ import type { Mention, MentionReply } from '../data/types'
 import { formatCount } from '../screens/reports/model'
 import { InboxComment } from './InboxComment'
 import { NetworkIcon } from './NetworkIcon'
+import { ReplyBox } from './ReplyBox'
 import { SentimentGlyph } from './TicketMeta'
-
-/**
- * A one-line reply field with Send at its end, under a mention in the list
- * and at the foot of its detail. Enter sends; a blank reply does nothing.
- */
-export function MentionReplyForm({
-  handle,
-  onSend,
-  autoFocus,
-  className,
-}: {
-  handle: string
-  onSend: (body: string) => void
-  autoFocus?: boolean
-  className?: string
-}) {
-  const [text, setText] = useState('')
-  const submit = (event: FormEvent) => {
-    event.preventDefault()
-    const body = text.trim()
-    if (!body) return
-    onSend(body)
-    setText('')
-  }
-  return (
-    <form onSubmit={submit} aria-label={`Reply to @${handle}`} className={className}>
-      {/* `ring="input"`: Send has a ring of its own, so the box's is scoped to the caret. */}
-      <InputGroup ring="input">
-        <InputGroup.Input
-          aria-label={`Reply to @${handle}`}
-          placeholder={`Reply to @${handle}`}
-          value={text}
-          onValueChange={setText}
-          autoFocus={autoFocus}
-        />
-        <InputGroup.Addon align="inline-end">
-          <Button
-            type="submit"
-            appearance="ghost"
-            size="small"
-            startIcon={SendHorizontal}
-            aria-label="Send reply"
-          />
-        </InputGroup.Addon>
-      </InputGroup>
-    </form>
-  )
-}
 
 /** The brand's own replies sent from here, drawn as the inbox draws a comment. */
 export function SentReplies({ replies, onMore }: { replies: MentionReply[]; onMore: () => void }) {
@@ -226,13 +178,16 @@ export function MentionCard({
       </div>
 
       {replying ? (
-        <MentionReplyForm
+        <ReplyBox
+          network={mention.network}
           handle={author.handle}
+          savedReplies={false}
           autoFocus
           onSend={(body) => {
             onReply(body)
             setReplying(false)
           }}
+          onNotBuilt={onNotBuilt}
         />
       ) : null}
       <SentReplies replies={sent} onMore={() => onNotBuilt('Reply actions')} />

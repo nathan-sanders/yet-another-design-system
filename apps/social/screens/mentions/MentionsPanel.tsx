@@ -12,7 +12,8 @@ import { Select } from '../../../../src/components/Select'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Toast } from '../../../../src/components/Toast'
 import { InboxComment } from '../../components/InboxComment'
-import { MentionCard, MentionReplyForm } from '../../components/MentionCard'
+import { MentionCard } from '../../components/MentionCard'
+import { ReplyBox } from '../../components/ReplyBox'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { SentimentGlyph } from '../../components/TicketMeta'
 import { creatorById } from '../../data/creators'
@@ -466,7 +467,13 @@ function MentionDetail({
         </section>
       </Panel.Body>
       <Panel.Footer>
-        <MentionReplyForm handle={author.handle} onSend={onReply} />
+        <ReplyBox
+          network={mention.network}
+          handle={author.handle}
+          savedReplies={false}
+          onSend={onReply}
+          onNotBuilt={onNotBuilt}
+        />
       </Panel.Footer>
     </Panel>
   )

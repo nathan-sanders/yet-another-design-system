@@ -6,9 +6,8 @@ import { Icon } from '../../../src/components/Icon'
 import { InputGroup } from '../../../src/components/Input'
 import { Select } from '../../../src/components/Select'
 import { Text } from '../../../src/components/Text'
-import { customerFor } from '../data/inbox'
 import { profiles } from '../data/posts'
-import type { Ticket } from '../data/types'
+import type { Network } from '../data/types'
 import { NetworkIcon } from './NetworkIcon'
 
 export type ReplyMode = 'reply' | 'note'
@@ -26,29 +25,41 @@ export type ReplyMode = 'reply' | 'note'
  *
  * `rounded-xl` and `shadow-medium` give it the Yak composer's 16px corners and
  * elevation (`YakComposer`, which gets its shadow from ChatComposer).
+ *
+ * It answers a network and a handle rather than a ticket, so a mention in
+ * Measure gets the same box as a conversation in Engage.
  */
 export function ReplyBox({
-  ticket,
+  network,
+  handle,
+  drafts = [],
   mode = 'reply',
+  savedReplies = true,
+  autoFocus,
   onSend,
   onNotBuilt,
   className,
 }: {
-  ticket: Ticket
+  network: Network
+  /** Who the reply answers, without the @. */
+  handle: string
+  /** Yak's drafted replies, offered one at a time. */
+  drafts?: string[]
   mode?: ReplyMode
+  /** Saved replies are an Engage tool; a mention's reply goes without. */
+  savedReplies?: boolean
+  autoFocus?: boolean
   /** Fires with the text of a reply or note, never blank. */
   onSend: (body: string, mode: ReplyMode) => void
   onNotBuilt: (what: string) => void
   className?: string
 }) {
-  const customer = customerFor(ticket.customerId)
-  const accounts = profiles.filter((p) => p.network === ticket.network)
+  const accounts = profiles.filter((p) => p.network === network)
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? '')
   const [text, setText] = useState('')
   const [draftIndex, setDraftIndex] = useState(0)
   const [draftDismissed, setDraftDismissed] = useState(false)
 
-  const drafts = ticket.drafts ?? []
   const draft = mode === 'reply' && !draftDismissed ? drafts[draftIndex % drafts.length] : undefined
   const note = mode === 'note'
 
@@ -67,7 +78,7 @@ export function ReplyBox({
   return (
     <form
       onSubmit={submit}
-      aria-label={note ? 'Internal note' : `Reply to @${customer.handle}`}
+      aria-label={note ? 'Internal note' : `Reply to @${handle}`}
       className={className}
     >
       {/* `ring="input"`: the box holds a Select and seven buttons, each with a
@@ -76,7 +87,7 @@ export function ReplyBox({
         {note ? null : (
           <InputGroup.Addon align="block-start" className="flex-col items-stretch gap-3 py-3">
             <div className="flex min-w-0 items-center gap-2">
-              <NetworkIcon network={ticket.network} />
+              <NetworkIcon network={network} />
               {accounts.length ? (
                 <Select
                   size="small"
@@ -94,7 +105,7 @@ export function ReplyBox({
                 </Select>
               ) : null}
               <Text render={<span />} size="sm" color="primary" truncate>
-                Public reply to @{customer.handle}
+                Public reply to @{handle}
               </Text>
             </div>
             {draft ? (
@@ -144,6 +155,7 @@ export function ReplyBox({
           placeholder={note ? 'Leave a note for your team. @mention to notify' : 'Continue the conversation…'}
           value={text}
           onChange={(event) => setText(event.currentTarget.value)}
+          autoFocus={autoFocus}
         />
         <InputGroup.Addon align="block-end" className="gap-4 py-3">
           <div className="flex flex-1 items-center gap-4">
@@ -159,12 +171,14 @@ export function ReplyBox({
               aria-label="Emoji"
               onClick={() => onNotBuilt('Emoji')}
             />
-            <Button
-              appearance="ghost"
-              startIcon={FileLock}
-              aria-label="Saved replies"
-              onClick={() => onNotBuilt('Saved replies')}
-            />
+            {savedReplies ? (
+              <Button
+                appearance="ghost"
+                startIcon={FileLock}
+                aria-label="Saved replies"
+                onClick={() => onNotBuilt('Saved replies')}
+              />
+            ) : null}
             <Button
               appearance="ghost"
               startIcon={Ellipsis}
