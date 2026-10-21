@@ -94,6 +94,21 @@ export function SentimentGlyph({
   )
 }
 
+/**
+ * Yak's read of one message as a labeled Token: the glyph in its color and the
+ * word. A private message wears it under the customer's bubbles, where the
+ * row has room for the word that the list's square pill leaves to a reader.
+ */
+export function SentimentToken({ sentiment }: { sentiment: TicketSentiment }) {
+  const option = find(SENTIMENT, sentiment)
+  return (
+    <Token avatar={<Glyph option={option} size="small" />}>
+      <Spoken>Sentiment:</Spoken>
+      {option.label}
+    </Token>
+  )
+}
+
 interface PriorityOption {
   value: TicketPriority
   label: string
