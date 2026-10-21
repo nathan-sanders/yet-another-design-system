@@ -64,9 +64,8 @@ export const groups: RouteGroup[] = [
       { path: '/engage/assignments', label: 'All assignments', badge: 20 },
       { path: '/engage/comments', label: 'Comments by post', built: true },
       { path: '/engage/approvals', label: 'Reply approvals' },
+      { path: '/engage/complete', label: 'Complete' },
       { path: '/engage/spam', label: 'Spam' },
-      { path: '/engage/teams', label: 'Team inboxes' },
-      { path: '/engage/views', label: 'Views' },
     ],
   },
   {
