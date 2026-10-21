@@ -1,5 +1,6 @@
 import { Avatar, AvatarGroup } from '../../../src/components/Avatar'
 import { ClickableCard } from '../../../src/components/Card'
+import { ChatMessage } from '../../../src/components/Chat'
 import { Text } from '../../../src/components/Text'
 import { cn } from '../../../src/lib/cn'
 import { focusRing } from '../../../src/lib/focus'
@@ -36,7 +37,17 @@ const UNSEEN_LABEL = { message: 'new message', reply: 'new reply' } as const
 function label(ticket: Ticket) {
   const customer = customerFor(ticket.customerId)
   const unseen = ticket.unseen ? `, ${UNSEEN_LABEL[ticket.unseen]}` : ''
-  return `${customer.handle}, ${ticket.ago} ago: ${ticket.subject}${unseen}`
+  const kind = ticket.private ? ', private message' : ''
+  return `${customer.handle}${kind}, ${ticket.ago} ago: ${ticket.subject}${unseen}`
+}
+
+/**
+ * What a private message's card previews: the customer's latest message, not
+ * the first. The conversation is a chat, and the list shows where it stands.
+ */
+function latestFromCustomer(ticket: Ticket): string {
+  const last = ticket.history?.findLast((r) => r.authorId === ticket.customerId && !r.system)
+  return last?.body ?? ticket.body
 }
 
 /**
@@ -66,7 +77,12 @@ export function NewDot({ className }: { className?: string }) {
  * every row's face lines up. The dot centers on that gutter and on the header
  * row: 8 in and 20 down from the card's padding edge.
  */
-export function InboxMessageCard({ ticket, selected, onOpen, emphasis = 'ghost' }: MessageCardProps) {
+export function InboxMessageCard({
+  ticket,
+  selected,
+  onOpen,
+  emphasis = 'ghost',
+}: MessageCardProps) {
   const customer = customerFor(ticket.customerId)
   return (
     <ClickableCard
@@ -99,9 +115,24 @@ export function InboxMessageCard({ ticket, selected, onOpen, emphasis = 'ghost' 
           {ticket.subject}
         </Text>
         <div className="flex min-w-0 items-start gap-2">
-          <Text truncate className="min-w-0 flex-1">
-            {ticket.body}
-          </Text>
+          {ticket.private ? (
+            // A private message previews as a bubble, after Nathan's Sprout
+            // inbox, so a chat reads differently from a comment at a glance.
+            // The default bubble is Surface/Background Subtle, which is what
+            // the card turns to under the pointer and when selected, so there
+            // the bubble swaps to Primary rather than vanish (FINDINGS 140).
+            <ChatMessage.Bubble
+              size="small"
+              direction="received"
+              className="min-w-0 truncate whitespace-nowrap in-[button:hover]:bg-surface-background-primary in-[[aria-current=true]]:bg-surface-background-primary"
+            >
+              {latestFromCustomer(ticket)}
+            </ChatMessage.Bubble>
+          ) : (
+            <Text truncate className="min-w-0 flex-1">
+              {ticket.body}
+            </Text>
+          )}
           {ticket.photo ? (
             <img
               src={ticket.photo}

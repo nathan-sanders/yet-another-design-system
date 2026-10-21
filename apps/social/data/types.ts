@@ -156,6 +156,13 @@ export interface TicketReply {
   ago: string
   /** The teammate who sent a brand reply, shown under it. A person id. */
   sentBy?: string
+  /** Yak's read of one customer message. A private message shows it under the bubble. */
+  sentiment?: TicketSentiment
+  /**
+   * Not a message but a line from the system, centered in the log: `body` is
+   * the line, and `authorId` the teammate whose change it records.
+   */
+  system?: true
 }
 
 export interface Ticket {
@@ -180,8 +187,20 @@ export interface Ticket {
   viewers?: string[]
   photo?: string
   photoAlt?: string
-  /** The brand post this is a comment on. A DM has none. */
+  /** The brand post this is a comment on. A mention or a private message has none. */
   postId?: string
+  /**
+   * A private message: written to the brand, seen by nobody else. Drawn as a
+   * chat, with no post and no public reply. `body` is the first message and
+   * `history` the rest; the list previews the customer's latest.
+   */
+  private?: true
+  /**
+   * When the first message came in, when that is earlier than `ago`. A
+   * private message's `ago` is its latest message, which is what the list
+   * sorts and shows; the chat stamps `body` with this.
+   */
+  startedAgo?: string
   /** Replies under the customer's comment. */
   replies?: number
   /** Yak's suggested replies, cycled by "Try again". */

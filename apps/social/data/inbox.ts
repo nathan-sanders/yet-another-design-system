@@ -30,6 +30,10 @@ import type { BrandPost, ContactNote, Customer, Ticket } from './types'
  * `33732`, `33894`). The first seven tickets are the file's list, word for word;
  * the next five fill the collapsed rail, which draws twelve faces and no text.
  * Portraits are the file's own, pulled from the screens' image fills.
+ *
+ * Five are private messages (`private`), after Nathan's Sprout inbox screens:
+ * Maria's and Skylar's from the file's list, Rayna's and Maya's added, and
+ * Cooper's completed one. No Yet Social frame draws a private message yet.
  */
 
 export const customers: Customer[] = [
@@ -49,6 +53,8 @@ export const customers: Customer[] = [
   { id: 'maria', handle: 'Maria Vaccaro', name: 'Maria Vaccaro', avatar: maria },
   { id: 'zain', handle: 'zain.vetrovs', avatar: zain, followers: '2.1K' },
   { id: 'skylar', handle: 'Skylar Curtis', name: 'Skylar Curtis', avatar: skylar },
+  // Wrote in privately on X. No photo, so Avatar draws initials.
+  { id: 'rayna', handle: 'raynabotosh', name: 'Rayna Botosh', location: 'Springfield, IL' },
   { id: 'cooper', handle: 'cooper.eats', avatar: cooper, location: 'Denver, CO' },
   { id: 'kaylynn', handle: 'kaylynn_dorwart', avatar: kaylynn, followsYou: true },
   { id: 'nolan', handle: 'nolanbakes', avatar: nolan },
@@ -219,16 +225,99 @@ export const tickets: Ticket[] = [
     number: '1285',
     customerId: 'maria',
     network: 'facebook',
-    subject: 'Wants an order status update',
-    body: 'Could you please check on my order for me? Thanks!',
+    private: true,
+    subject: 'Missing items on a catering order',
+    body: 'I just placed a catering order through the website and need some help. My order number is #4471.',
     ago: '4m',
     status: 'new',
     priority: 'medium',
     sentiment: 'neutral',
     viewers: ['katie'],
     assigneeId: 'nathan',
+    note: `Assigned to Nathan Sanders from Customer Support inbox at 9:16 am on ${numericDate.format(today)}`,
+    history: [
+      {
+        id: 'h1285-1',
+        authorId: 'maria',
+        body: 'I noticed that some items were missing on the invoice I received. Can this be fixed?',
+        ago: '4m',
+        sentiment: 'neutral',
+      },
+      {
+        id: 'h1285-2',
+        authorId: 'maria',
+        body: 'This order is pretty important for a client meeting I have tomorrow.',
+        ago: '4m',
+        sentiment: 'neutral',
+      },
+      {
+        id: 'h1285-3',
+        authorId: 'maria',
+        // The file's list line, word for word.
+        body: 'Could you please check on my order for me? Thanks!',
+        ago: '4m',
+        sentiment: 'neutral',
+      },
+    ],
     drafts: [
-      "Hi Maria, happy to check! Could you send us your order number in a DM? We'll look it up right away.",
+      "Hi Maria, thanks for the order number. I can see #4471 is missing the two Harvest Bowls and the dressing tray. I've added them back at no charge, and everything will arrive together tomorrow morning.",
+      "Sorry about that, Maria! I've fixed the invoice for #4471 and flagged it for the catering team, so the full order will be there in time for your meeting.",
+    ],
+  },
+  {
+    number: '1294',
+    customerId: 'rayna',
+    network: 'x',
+    private: true,
+    subject: 'Delivery running late',
+    body: 'Hey, my order was supposed to be here an hour ago and the tracker hasn’t moved. Can you check?',
+    ago: '6m',
+    startedAgo: '20m',
+    status: 'in-progress',
+    priority: 'high',
+    sentiment: 'negative',
+    assigneeId: 'katie',
+    note: 'Assigned to Katie Powell from Delivery queue',
+    history: [
+      {
+        id: 'h1294-1',
+        authorId: 'vv-x',
+        body: 'Hello! I’m sorry for the delay. Let me check on that for you. Can you confirm your delivery address?',
+        sentBy: 'katie',
+        ago: '14m',
+      },
+      {
+        id: 'h1294-2',
+        authorId: 'katie',
+        body: 'Status changed to In progress by Katie Powell',
+        ago: '14m',
+        system: true,
+      },
+      {
+        id: 'h1294-3',
+        authorId: 'rayna',
+        body: 'Sure! It’s 456 Maple Street, Springfield, IL.',
+        ago: '12m',
+        sentiment: 'neutral',
+      },
+      {
+        id: 'h1294-4',
+        authorId: 'vv-x',
+        body: 'Thanks for confirming. I see that your order was delayed by a route issue. It should arrive within the next hour. I sincerely apologize for the inconvenience.',
+        sentBy: 'katie',
+        ago: '9m',
+      },
+      {
+        id: 'h1294-5',
+        authorId: 'rayna',
+        body: 'That’s disappointing. I have a meeting soon. Is there any way to speed it up?',
+        ago: '6m',
+        sentiment: 'negative',
+      },
+    ],
+    drafts: [
+      "I understand, Rayna. I've asked the driver to take your order next, and there's a credit for a free bowl on your account for the trouble.",
+      "I'm sorry, Rayna. I can't move the driver any faster, but I've refunded the delivery fee and added a free bowl to your next order.",
     ],
   },
   {
@@ -247,14 +336,25 @@ export const tickets: Ticket[] = [
     number: '1287',
     customerId: 'skylar',
     network: 'facebook',
+    private: true,
     subject: 'Checkout error needs help',
     body: 'I need some help. I keep getting an error when I check out.',
     ago: '11m',
+    startedAgo: '14m',
     status: 'new',
     priority: 'low',
     sentiment: 'neutral',
+    history: [
+      {
+        id: 'h1287-1',
+        authorId: 'skylar',
+        body: 'It says "Payment could not be processed" but my card works everywhere else. Tried twice.',
+        ago: '11m',
+        sentiment: 'negative',
+      },
+    ],
     drafts: [
-      "Sorry about that, Skylar! Could you DM us a screenshot of the error and the browser you're using? We'll get it fixed.",
+      "Sorry about that, Skylar! Could you send us a screenshot of the error and tell us which browser you're using? We'll get it fixed.",
     ],
   },
   {
@@ -285,6 +385,32 @@ export const tickets: Ticket[] = [
     assigneeId: 'nathan',
     drafts: [
       'We do! Send us a DM with the date and address and our catering team will put together a menu.',
+    ],
+  },
+  {
+    number: '1295',
+    customerId: 'maya',
+    network: 'instagram',
+    private: true,
+    subject: 'Asks about a paid collab',
+    body: 'Hi Veggie Vault team! I’ve been loving the Protein Plates and my followers keep asking about them.',
+    ago: '30m',
+    startedAgo: '32m',
+    status: 'new',
+    priority: 'medium',
+    sentiment: 'positive',
+    history: [
+      {
+        id: 'h1295-1',
+        authorId: 'maya',
+        body: 'Would you be open to a paid collab next month? Happy to send over my media kit and rates.',
+        ago: '30m',
+        sentiment: 'positive',
+      },
+    ],
+    drafts: [
+      "Hi Maya, we'd love that! Please send the media kit over and our partnerships lead will be in touch this week.",
+      'Thanks for reaching out, Maya! We are planning next month now. Could you share your media kit and the formats you have in mind?',
     ],
   },
   {
@@ -350,6 +476,7 @@ export const tickets: Ticket[] = [
     number: '1276',
     customerId: 'cooper',
     network: 'instagram',
+    private: true,
     subject: 'Asks if the app takes gift cards',
     body: 'Can I use my Veggie Vault gift card in the app or only in store?',
     ago: '1d',
@@ -371,6 +498,7 @@ export const tickets: Ticket[] = [
         authorId: 'cooper',
         body: 'Just added it and it worked. Thank you!',
         ago: '1d',
+        sentiment: 'positive',
       },
       {
         id: 'h1276-3',

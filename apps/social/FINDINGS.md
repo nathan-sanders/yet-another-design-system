@@ -1223,3 +1223,32 @@ drag or scheduling frames. Numbered after #316's 129.
     row with no React errors. The keyboard route was checked with Playwright as well, with
     axe clean while the dialogs were open. The hidden Browser pane cannot run a dnd-kit
     drag (72).
+
+## Private messages (2026-10-21)
+
+Five tickets are private messages (`Ticket.private`), after Nathan's Sprout inbox screens: Maria's
+and Skylar's from the file's list, Rayna's (X) and Maya's (Instagram) added, and Cooper's completed
+one in My inbox › Complete. No Yet Social frame draws a private message yet.
+
+139. **A private message is a `ChatMessage`; a public comment is not (17).** The customer's runs are
+     received bubbles over the ⋯ and the time; the brand's are `emphasized` sent bubbles beside the
+     brand's mark, with Read and the time. Consecutive messages from one sender are one message, the
+     library's Bubble Group rule (`components/chatEntries.ts`), and a system line ends a run.
+     **`ChatMessage` has no slot under its metadata**, and Sprout's screens put a Token there: the
+     sentiment under a customer's message, the teammate under the brand's. It is a row after the
+     `<article>`, padded 32 to line up with the bubble. Open: a library `footer`, if a second caller
+     wants one.
+140. **The list's preview bubble vanishes on a hovered or selected card.** The default bubble is
+     `Surface/Background Subtle`, and that is exactly the fill `ClickableCard` turns to under the
+     pointer and when selected. In those two states the bubble swaps to `Background Primary`
+     (`in-[button:hover]`, `in-[[aria-current=true]]`). That is the chat rule ("a log sits on
+     primary") seen from a card.
+141. **A private message's `ago` is its latest message**, which is what the list shows and sorts by.
+     The chat stamps the first message with `startedAgo`, or a reply from 14m ago sits under a first
+     message reading 6m.
+142. **The reply box knows it is private.** It reads "Private reply to {handle}" with no @, and
+     offers only the account the message was written to.
+
+### Figma owes
+
+- A private-message conversation and its list card on ↪ Social Media Management.

@@ -28,10 +28,14 @@ export type ReplyMode = 'reply' | 'note'
  *
  * It answers a network and a handle rather than a ticket, so a mention in
  * Measure gets the same box as a conversation in Engage.
+ *
+ * `private` is a private message's reply: it goes back to the person alone,
+ * from the account they wrote to, so there is no account to choose and no @.
  */
 export function ReplyBox({
   network,
   handle,
+  private: isPrivate = false,
   drafts = [],
   mode = 'reply',
   savedReplies = true,
@@ -43,6 +47,8 @@ export function ReplyBox({
   network: Network
   /** Who the reply answers, without the @. */
   handle: string
+  /** A reply to a private message, rather than a public one. */
+  private?: boolean
   /** Yak's drafted replies, offered one at a time. */
   drafts?: string[]
   mode?: ReplyMode
@@ -54,7 +60,10 @@ export function ReplyBox({
   onNotBuilt: (what: string) => void
   className?: string
 }) {
-  const accounts = profiles.filter((p) => p.network === network)
+  // A private message was written to one account, the network's first (as
+  // `replyAccountFor` says), and the reply can only come from it.
+  const onNetwork = profiles.filter((p) => p.network === network)
+  const accounts = isPrivate ? onNetwork.slice(0, 1) : onNetwork
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? '')
   const [text, setText] = useState('')
   const [draftIndex, setDraftIndex] = useState(0)
@@ -78,12 +87,16 @@ export function ReplyBox({
   return (
     <form
       onSubmit={submit}
-      aria-label={note ? 'Internal note' : `Reply to @${handle}`}
+      aria-label={note ? 'Internal note' : isPrivate ? `Reply to ${handle}` : `Reply to @${handle}`}
       className={className}
     >
       {/* `ring="input"`: the box holds a Select and seven buttons, each with a
           ring of its own, so the box's ring is scoped to the caret. */}
-      <InputGroup size="large" ring="input" className="flex-col items-stretch rounded-xl shadow-medium">
+      <InputGroup
+        size="large"
+        ring="input"
+        className="flex-col items-stretch rounded-xl shadow-medium"
+      >
         {note ? null : (
           <InputGroup.Addon align="block-start" className="flex-col items-stretch gap-3 py-3">
             <div className="flex min-w-0 items-center gap-2">
@@ -105,7 +118,7 @@ export function ReplyBox({
                 </Select>
               ) : null}
               <Text render={<span />} size="sm" color="primary" truncate>
-                Public reply to @{handle}
+                {isPrivate ? `Private reply to ${handle}` : `Public reply to @${handle}`}
               </Text>
             </div>
             {draft ? (
@@ -152,7 +165,9 @@ export function ReplyBox({
         )}
         <InputGroup.Input
           aria-label={note ? 'Note to your team' : 'Reply'}
-          placeholder={note ? 'Leave a note for your team. @mention to notify' : 'Continue the conversation…'}
+          placeholder={
+            note ? 'Leave a note for your team. @mention to notify' : 'Continue the conversation…'
+          }
           value={text}
           onChange={(event) => setText(event.currentTarget.value)}
           autoFocus={autoFocus}

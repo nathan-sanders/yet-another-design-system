@@ -20,6 +20,8 @@ import veggieVault from '../../assets/veggie-vault.png'
 import { InboxComment } from '../../components/InboxComment'
 import { InternalNote } from '../../components/InternalNote'
 import { NetworkIcon } from '../../components/NetworkIcon'
+import { PrivateChat, SystemLine } from '../../components/PrivateChat'
+import { chatEntries } from '../../components/chatEntries'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
 import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor, customerFor } from '../../data/inbox'
@@ -92,7 +94,8 @@ export function ConversationHeader({
 
 /**
  * What was sent from here this session, under the message it answers: a reply
- * as the customer will see it, a note as the team's sticky note.
+ * as the customer will see it, a note as the team's sticky note. A private
+ * message draws its replies in the chat itself, so it passes only the notes.
  */
 export function SentItems({ items, onMore }: { items: SentItem[]; onMore: () => void }) {
   return items.map((item) =>
@@ -112,21 +115,6 @@ export function SentItems({ items, onMore }: { items: SentItem[]; onMore: () => 
         {item.body}
       </InboxComment>
     ),
-  )
-}
-
-/** A line from the system, centered in the log: an assignment, a completion. */
-function SystemLine({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex justify-center">
-      <Text
-        size="sm"
-        color="subtle"
-        className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic"
-      >
-        {children}
-      </Text>
-    </div>
   )
 }
 
@@ -156,6 +144,7 @@ export function Composer({
         key={ticket.number}
         network={ticket.network}
         handle={customerFor(ticket.customerId).handle}
+        private={ticket.private}
         drafts={ticket.drafts}
         mode={mode}
         onSend={onSend}
@@ -172,8 +161,9 @@ function ActionRow({ children }: { children: ReactNode }) {
 
 /**
  * Engage › All messages › Conversation (`40005911:33580`, right of the list):
- * the ticket's toolbar, the brand post it answers, the customer's comment and
- * its actions, the system line, then the composer pinned to the foot.
+ * the ticket's toolbar, the log, then the composer pinned to the foot. A
+ * public comment's log is the post and the comment (`PublicLog`); a private
+ * message's is a chat (`PrivateLog`).
  */
 export function Conversation({
   ticket,
@@ -192,8 +182,6 @@ export function Conversation({
   onBack: () => void
 }) {
   const shell = useShell()
-  const post = ticket.postId ? brandPostFor(ticket.postId) : undefined
-  const postAccount = post ? profiles.find((p) => p.id === post.profileId) : undefined
 
   return (
     // On a phone the log and the composer scroll as one, so a drafted reply
@@ -240,77 +228,144 @@ export function Conversation({
         aria-label="Messages"
         className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4 max-md:flex-none max-md:overflow-visible"
       >
-        {post && postAccount ? (
-          <div className="flex min-w-0 items-center gap-2">
-            <Avatar name={postAccount.name} src={veggieVault} alt="" size="small" />
-            <Text render={<span />} size="sm" weight="semibold" className="shrink-0">
-              <span className="sr-only">In reply to </span>
-              {postAccount.name}
-            </Text>
-            {post.photo ? (
-              <img src={post.photo} alt="" className="size-6 shrink-0 rounded-sm object-cover" />
-            ) : null}
-            <Text
-              render={<span />}
-              size="sm"
-              color="subtle"
-              truncate
-              className="min-w-0 flex-1 italic"
-            >
-              {post.body}
-            </Text>
-          </div>
-        ) : null}
-
-        <InboxComment
-          authorId={ticket.customerId}
-          ago={ticket.ago}
-          onMore={() => shell.notBuilt('Comment actions')}
-        >
-          {ticket.body}
-        </InboxComment>
-
-        <ActionRow>
-          <Button appearance="ghost" startIcon={Reply} onClick={onOpenThread}>
-            {ticket.replies ? `${ticket.replies} Replies` : 'Reply'}
-          </Button>
-          <Button appearance="ghost" startIcon={Heart} onClick={() => shell.notBuilt('Likes')}>
-            Like
-          </Button>
-          {post ? (
-            <Button
-              appearance="ghost"
-              startIcon={ListTree}
-              className="ml-auto"
-              onClick={onOpenThread}
-            >
-              Full public thread
-            </Button>
-          ) : null}
-        </ActionRow>
-
-        {ticket.note ? <SystemLine>{ticket.note}</SystemLine> : null}
-
-        {ticket.history?.map((reply) => (
-          <InboxComment
-            key={reply.id}
-            authorId={reply.authorId}
-            ago={reply.ago}
-            sentBy={reply.sentBy}
-            onMore={() => shell.notBuilt('Comment actions')}
-          >
-            {reply.body}
-          </InboxComment>
-        ))}
-
-        {ticket.status === 'complete' && ticket.assigneeId ? (
-          <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
-        ) : null}
-
-        <SentItems items={sent} onMore={() => shell.notBuilt('Message actions')} />
+        {ticket.private ? (
+          <PrivateLog ticket={ticket} sent={sent} />
+        ) : (
+          <PublicLog ticket={ticket} sent={sent} onOpenThread={onOpenThread} />
+        )}
       </div>
 
       <Composer ticket={ticket} onSend={onSend} />
     </section>
+  )
+}
+
+/**
+ * A private message's log: the whole exchange as a chat, a reply sent from
+ * here landing as the brand's next bubble, notes as sticky notes after it.
+ */
+function PrivateLog({ ticket, sent }: { ticket: Ticket; sent: SentItem[] }) {
+  const shell = useShell()
+  const replies = sent.filter((item) => item.kind === 'reply')
+  const entries = [
+    ...chatEntries(ticket),
+    ...replies.map((item) => ({
+      kind: 'message' as const,
+      id: item.id,
+      authorId: item.authorId,
+      body: item.body,
+      ago: 'now',
+      // You sent it, under the brand's name. With no brand account on the
+      // network it went out as you, and your name is already the author.
+      sentBy: item.authorId === me.id ? undefined : me.id,
+      justSent: true,
+    })),
+  ]
+  return (
+    <>
+      <PrivateChat
+        ticket={ticket}
+        entries={entries}
+        onMore={() => shell.notBuilt('Message actions')}
+      />
+      {ticket.status === 'complete' && ticket.assigneeId ? (
+        <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
+      ) : null}
+      <SentItems
+        items={sent.filter((item) => item.kind === 'note')}
+        onMore={() => shell.notBuilt('Message actions')}
+      />
+    </>
+  )
+}
+
+/**
+ * A public comment's log: the post it answers, the customer's comment and its
+ * actions, the routing note, the replies since, and what was sent from here.
+ */
+function PublicLog({
+  ticket,
+  sent,
+  onOpenThread,
+}: {
+  ticket: Ticket
+  sent: SentItem[]
+  onOpenThread: () => void
+}) {
+  const shell = useShell()
+  const post = ticket.postId ? brandPostFor(ticket.postId) : undefined
+  const postAccount = post ? profiles.find((p) => p.id === post.profileId) : undefined
+
+  return (
+    <>
+      {post && postAccount ? (
+        <div className="flex min-w-0 items-center gap-2">
+          <Avatar name={postAccount.name} src={veggieVault} alt="" size="small" />
+          <Text render={<span />} size="sm" weight="semibold" className="shrink-0">
+            <span className="sr-only">In reply to </span>
+            {postAccount.name}
+          </Text>
+          {post.photo ? (
+            <img src={post.photo} alt="" className="size-6 shrink-0 rounded-sm object-cover" />
+          ) : null}
+          <Text
+            render={<span />}
+            size="sm"
+            color="subtle"
+            truncate
+            className="min-w-0 flex-1 italic"
+          >
+            {post.body}
+          </Text>
+        </div>
+      ) : null}
+
+      <InboxComment
+        authorId={ticket.customerId}
+        ago={ticket.ago}
+        onMore={() => shell.notBuilt('Comment actions')}
+      >
+        {ticket.body}
+      </InboxComment>
+
+      <ActionRow>
+        <Button appearance="ghost" startIcon={Reply} onClick={onOpenThread}>
+          {ticket.replies ? `${ticket.replies} Replies` : 'Reply'}
+        </Button>
+        <Button appearance="ghost" startIcon={Heart} onClick={() => shell.notBuilt('Likes')}>
+          Like
+        </Button>
+        {post ? (
+          <Button
+            appearance="ghost"
+            startIcon={ListTree}
+            className="ml-auto"
+            onClick={onOpenThread}
+          >
+            Full public thread
+          </Button>
+        ) : null}
+      </ActionRow>
+
+      {ticket.note ? <SystemLine>{ticket.note}</SystemLine> : null}
+
+      {ticket.history?.map((reply) => (
+        <InboxComment
+          key={reply.id}
+          authorId={reply.authorId}
+          ago={reply.ago}
+          sentBy={reply.sentBy}
+          onMore={() => shell.notBuilt('Comment actions')}
+        >
+          {reply.body}
+        </InboxComment>
+      ))}
+
+      {ticket.status === 'complete' && ticket.assigneeId ? (
+        <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
+      ) : null}
+
+      <SentItems items={sent} onMore={() => shell.notBuilt('Message actions')} />
+    </>
   )
 }
