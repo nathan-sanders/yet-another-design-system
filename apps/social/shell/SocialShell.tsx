@@ -21,6 +21,7 @@ import { MentionsPanel } from '../screens/mentions/MentionsPanel'
 import { NotificationsPanel } from '../screens/notifications/NotificationsPanel'
 import { useNotifications } from '../screens/notifications/notificationsState'
 import { useInbox } from '../screens/inbox/inboxState'
+import { isOpen } from '../screens/inbox/model'
 import { NewReportDialog } from '../screens/reports/NewReportDialog'
 import { ScheduleDialog } from '../screens/calendar/ScheduleDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
@@ -143,8 +144,9 @@ export function SocialShell() {
     () => ({ panel, setPanel, notBuilt, screenPanelHost }),
     [panel, notBuilt, screenPanelHost],
   )
-  // My inbox's count is live: assign a ticket to yourself anywhere and it goes up.
-  const myInboxCount = useInbox().tickets.filter((t) => t.assigneeId === me.id).length
+  // My inbox's count is live: assign a ticket to yourself anywhere and it goes
+  // up, complete one and it goes down. It counts what My inbox's Open shows.
+  const myInboxCount = useInbox().tickets.filter((t) => t.assigneeId === me.id && isOpen(t)).length
   const badgeFor = (route: AppRoute) => {
     const count = route.path === '/engage/my-inbox' ? myInboxCount : route.badge
     return count ? <Badge>{count}</Badge> : undefined

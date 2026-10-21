@@ -344,6 +344,31 @@ export const tickets: Ticket[] = [
       'They are: bowls and lids are industrially compostable. Home bins vary, so it is worth checking with your city first.',
     ],
   },
+  // Yours and done: what My inbox's Complete shows. No frame draws them.
+  {
+    number: '1276',
+    customerId: 'cooper',
+    network: 'instagram',
+    subject: 'Asks if the app takes gift cards',
+    body: 'Can I use my Veggie Vault gift card in the app or only in store?',
+    ago: '1d',
+    status: 'complete',
+    priority: 'low',
+    sentiment: 'neutral',
+    assigneeId: 'nathan',
+  },
+  {
+    number: '1271',
+    customerId: 'kaylynn',
+    network: 'threads',
+    subject: 'Thanks the team for a catering order',
+    body: 'Huge thanks to @veggie_vault for catering our offsite. Everyone is still talking about the Harvest Bowls!',
+    ago: '2d',
+    status: 'complete',
+    priority: 'none',
+    sentiment: 'positive',
+    assigneeId: 'nathan',
+  },
 ]
 
 /** Closed tickets, shown under a customer's past conversations. */

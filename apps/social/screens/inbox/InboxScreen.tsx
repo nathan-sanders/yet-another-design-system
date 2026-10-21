@@ -16,7 +16,13 @@ import { useShell } from '../../shell/ShellContext'
 import { Conversation } from './Conversation'
 import { useInbox } from './inboxState'
 import { MessageList } from './MessageList'
-import { visibleTickets, withViewer, type InboxFilter, type SortKey } from './model'
+import {
+  visibleTickets,
+  withViewer,
+  type InboxFilter,
+  type SortKey,
+  type StatusFilter,
+} from './model'
 import { PublicThread } from './PublicThread'
 
 /**
@@ -24,9 +30,9 @@ import { PublicThread } from './PublicThread'
  * messages is the conversation (`40005911:33580`), the public thread (`33732`)
  * and the contact panel (`33894`), with All / Unassigned in the top bar. My
  * inbox is the same screen showing only what is assigned to you; it has no
- * Figma frame of its own, and drops All / Unassigned, which would mean nothing
- * there. Everything worth linking to is in the URL —
- * `?message=1283&view=thread&filter=unassigned&sort=priority`.
+ * Figma frame of its own, and swaps All / Unassigned, which would mean nothing
+ * there, for Open / Complete. Everything worth linking to is in the URL —
+ * `?message=1283&view=thread&filter=unassigned&sort=priority`, `?status=complete`.
  *
  * On a phone the list and the conversation are two screens: with no `message`
  * the list shows, with one the conversation does. On a desktop the first
@@ -43,7 +49,10 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
     scope === 'mine' ? 'mine' : params.get('filter') === 'unassigned' ? 'unassigned' : 'all'
   const sort: SortKey = params.get('sort') === 'priority' ? 'priority' : 'received'
   const descending = params.get('dir') !== 'asc'
-  const list = visibleTickets(allTickets, filter, sort, descending)
+  // My inbox splits by status instead: Open, or Complete. All messages shows both.
+  const status: StatusFilter | undefined =
+    scope === 'mine' ? (params.get('status') === 'complete' ? 'complete' : 'open') : undefined
+  const list = visibleTickets(allTickets, filter, sort, descending, status)
 
   const chosen = allTickets.find((t) => t.number === params.get('message'))
   // On a desktop the first message opens by itself, as the file draws it. A
@@ -99,13 +108,28 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
               level={1}
               size="base"
               weight="semibold"
-              // Hidden on a phone beside the segmented control; My inbox has
-              // none, so its title stays.
-              className={scope === 'all' ? 'shrink-0 max-md:sr-only' : 'shrink-0'}
+              // Hidden on a phone beside the segmented control.
+              className="shrink-0 max-md:sr-only"
             >
               {scope === 'mine' ? 'My inbox' : 'All messages'}
             </Heading>
-            {scope === 'all' ? (
+            {scope === 'mine' ? (
+              <SegmentedControl
+                aria-label="Show"
+                value={status}
+                // A new pile opens its own first message, not the one you had.
+                onValueChange={(value) =>
+                  update({
+                    status: value === 'open' ? null : String(value),
+                    message: null,
+                    view: null,
+                  })
+                }
+              >
+                <SegmentedControl.Item value="open">Open</SegmentedControl.Item>
+                <SegmentedControl.Item value="complete">Complete</SegmentedControl.Item>
+              </SegmentedControl>
+            ) : (
               <SegmentedControl
                 aria-label="Show"
                 value={filter}
@@ -116,7 +140,7 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
                 <SegmentedControl.Item value="all">All</SegmentedControl.Item>
                 <SegmentedControl.Item value="unassigned">Unassigned</SegmentedControl.Item>
               </SegmentedControl>
-            ) : null}
+            )}
           </div>
         }
         end={
@@ -186,9 +210,11 @@ export function InboxScreen({ scope = 'all' }: { scope?: 'all' | 'mine' }) {
         ) : (
           <div className="flex flex-1 items-center justify-center p-4 max-md:hidden">
             <Text color="subtle">
-              {scope === 'mine'
-                ? 'Nothing is assigned to you right now.'
-                : 'No messages here. Everything is assigned.'}
+              {status === 'complete'
+                ? 'Nothing you have completed yet.'
+                : scope === 'mine'
+                  ? 'Nothing open is assigned to you right now.'
+                  : 'No messages here. Everything is assigned.'}
             </Text>
           </div>
         )}
