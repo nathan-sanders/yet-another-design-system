@@ -472,7 +472,10 @@ export function overviewFor(
 // Boards
 // ---------------------------------------------------------------------------
 
-const widget = (w: Partial<Widget> & Pick<Widget, 'id' | 'kind' | 'title' | 'viz'>): Widget => ({
+/** A widget with the defaults every board starts from; the Add widget panel's catalog makes its own with it. */
+export const widget = (
+  w: Partial<Widget> & Pick<Widget, 'id' | 'kind' | 'title' | 'viz'>,
+): Widget => ({
   measure: 'mentions',
   series: [],
   sources: 'all',
@@ -775,21 +778,6 @@ function template(type: ReportType, report: Report): BoardFixture {
     case 'blank':
       return { widgets: {}, rows: {} }
   }
-}
-
-/**
- * The widget an empty board's Add widget puts on it: the subject's mentions
- * over time, which the Edit panel then turns into whatever was wanted.
- */
-export function starterWidget(report: Report, id: string): Widget {
-  return widget({
-    id,
-    kind: 'chart',
-    title: 'Mentions over time',
-    viz: 'line',
-    series: report.topics.length ? report.topics : [report.name],
-    sources: report.sources ?? 'all',
-  })
 }
 
 /** The board a report opens on, or nothing for a built-in report, which has no design. */

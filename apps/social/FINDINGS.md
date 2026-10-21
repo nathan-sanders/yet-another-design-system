@@ -1089,3 +1089,59 @@ Figma `Notifications - D · Activity cards` (`40005993:27777`) and its `_Notific
     under its note and starts below the fold. Without a `tab` the panel keeps the one you were on,
     as it always has. Katie's reply on `p-12` (`c-2`) now says what the notification quotes, and
     is 3m old rather than 16d.
+
+## Add widget panel (2026-10-21)
+
+A report board's Add widget opens a `Panel` listing every widget a report can hold
+(`screens/reports/AddWidgetPanel.tsx`, `widgetCatalog.ts`). Click a tile and the widget goes
+in a row of its own at the foot of the board while the panel stays open. Drag one and it goes
+where it is dropped. Code-first: the file has no catalog. Numbered after #314's 121.
+
+### Open: library changes worth making
+
+122. **DragAndDrop has no draggable *source*.** It has sortable containers and items, and
+    nothing for a thing that is dragged *onto* a board without being one of its items: a
+    palette, a toolbox, this catalog. The tiles use `useDraggable` from `@dnd-kit/core`
+    directly, and spread only its `onPointerDown`. A `DragAndDrop.Source` would want the same
+    two decisions made once: pointer only, so the keyboard path is a click, and none of
+    dnd-kit's drag attributes, which would announce a drag the keyboard cannot do.
+123. **A full container is invisible to collision detection.** `Sortable`'s `capacity` turns
+    the row and its items off while anything from outside is carried, so a tile over a full
+    row is over *nothing*. That is right for refusing it and wrong for aiming it: "start a row
+    under this one" needs to know which row the pointer is in. The board finds it by rect
+    (`placeFor` in `ReportScreen.tsx`). If the library grows a source, it probably wants a way
+    to see a full container without dropping into it.
+
+### Kept in the app, worth knowing
+
+124. **A screen can own a shell panel.** The catalog's tiles have to sit inside the board's
+    `DragAndDrop`, which lives inside the page, and the shell's panels are the page's siblings.
+    So the board renders the panel itself and portals it into `ShellState.screenPanelHost`, a
+    `display: contents` div the shell keeps right after `AppShell.Page`. React context crosses
+    the portal, so the drag reaches the board. `AppShell`'s and `Panel`'s contexts cross it
+    too, and the phone split still fires, because `has-data-panel` is a descendant `:has()`.
+    Opening is still `setPanel({ type: 'add-widget', reportId })`, so it closes when another
+    panel opens or the page changes, like every other.
+125. **A catalog tile is aimed by the pointer, and lands only on release.** `pointerWithin`
+    rather than the board's `closestCorners`, so a tile still over the panel is over nothing;
+    `closestCorners` would aim at the nearest row from inside the panel. The board does not
+    reflow while a tile is carried, because FINDINGS 41's oscillation came from exactly that.
+    The row it would join takes a dashed outline instead, a full row shows a bar under itself,
+    and the spare row fills.
+126. **In a move event, `over` is a render behind `collisions`.** Aiming from `over` sent a tile
+    carried onto the spare into the row above it. `placeFor` reads `collisions[0]`, and the
+    drop is worked out again from the release event rather than from state set on the last
+    move.
+127. **A smooth scroll under a drag crashes the board.** The first build scrolled a just-added
+    widget into view smoothly. Grab another widget while that scroll was still carrying the
+    board, and dnd-kit re-aimed it on every frame, the rows reflowed, and React stopped with
+    "Maximum update depth exceeded" (about one run in eight in real Chromium; never in the
+    hidden pane). The scroll is now instant and happens once per add, from the board, not
+    from the widget's own mount (a drag remounts widgets). The ring is a class the board
+    takes off after 1.6s. A person scrolling with a wheel mid-drag may still be able to reach
+    the same state; that was not tested.
+128. **A repeated widget is numbered.** A second Top stories is "Top stories 2": its title
+    names its table's region, and two regions with one name fail axe (`landmark-unique`).
+    The status line says the numbered name, so two adds in a row are both announced.
+129. **Add widget no longer opens a starter's Edit panel.** `starterWidget` is gone. The
+    catalog's first tile, Mentions over time, is the same widget.

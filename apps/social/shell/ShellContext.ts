@@ -27,6 +27,12 @@ export type ShellPanel =
   /** `tab` is the one to open on, when the full view collapses back to the panel. */
   | { type: 'creator'; creatorId: string; tab?: DetailTab }
   | { type: 'widget'; reportId: string; widgetId: string }
+  /**
+   * A report board's Add widget catalog. The board renders it, not the shell,
+   * and portals it into `screenPanelHost`, so its tiles can be dragged onto the
+   * board (`screens/reports/AddWidgetPanel.tsx`).
+   */
+  | { type: 'add-widget'; reportId: string }
   /** The posts behind a number on Measure (`screens/mentions/MentionsPanel.tsx`). */
   | { type: 'mentions'; query: MentionQuery }
   /** The rail's bell (`screens/notifications/NotificationsPanel.tsx`). */
@@ -40,6 +46,13 @@ export interface ShellState {
   setPanel: (panel: ShellPanel) => void
   /** Toast for things the mock does not do yet — dictation, attachments. */
   notBuilt: (what: string) => void
+  /**
+   * Where a screen puts a panel it renders itself: right after the Page, where
+   * a right-hand Panel belongs. For a panel that has to sit inside the
+   * screen's own React context — the Add widget catalog is inside the board's
+   * drag context. `null` until the shell has mounted.
+   */
+  screenPanelHost: HTMLElement | null
 }
 
 export const ShellContext = createContext<ShellState | null>(null)
