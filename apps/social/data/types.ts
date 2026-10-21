@@ -147,6 +147,15 @@ export interface BrandPost {
   thread: ThreadComment[]
 }
 
+/** One message in a ticket's `history`. */
+export interface TicketReply {
+  id: string
+  /** A customer id, or a brand profile id for a reply the team sent. */
+  authorId: string
+  body: string
+  ago: string
+}
+
 export interface Ticket {
   /** The ticket number, without the `#`: `1283`. */
   number: string
@@ -177,6 +186,11 @@ export interface Ticket {
   drafts?: string[]
   /** The system line under the message: an assignment, a routing. */
   note?: string
+  /**
+   * The conversation after the first message, from before this session: the
+   * brand's replies (a profile id) and the customer's answers, oldest first.
+   */
+  history?: TicketReply[]
   /** The Measure mention it was opened from ("Open in Engage"), if it was. */
   mentionId?: string
   /**

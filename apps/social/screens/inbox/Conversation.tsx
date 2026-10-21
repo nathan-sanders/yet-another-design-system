@@ -112,6 +112,21 @@ export function SentItems({ items, onMore }: { items: SentItem[]; onMore: () => 
   )
 }
 
+/** A line from the system, centered in the log: an assignment, a completion. */
+function SystemLine({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex justify-center">
+      <Text
+        size="sm"
+        color="subtle"
+        className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic"
+      >
+        {children}
+      </Text>
+    </div>
+  )
+}
+
 /** The Composer block: Reply / Internal note over the reply box. */
 export function Composer({
   ticket,
@@ -271,16 +286,21 @@ export function Conversation({
           ) : null}
         </ActionRow>
 
-        {ticket.note ? (
-          <div className="flex justify-center">
-            <Text
-              size="sm"
-              color="subtle"
-              className="rounded-md bg-surface-background-subtle px-3 py-1 text-center italic"
-            >
-              {ticket.note}
-            </Text>
-          </div>
+        {ticket.note ? <SystemLine>{ticket.note}</SystemLine> : null}
+
+        {ticket.history?.map((reply) => (
+          <InboxComment
+            key={reply.id}
+            authorId={reply.authorId}
+            ago={reply.ago}
+            onMore={() => shell.notBuilt('Comment actions')}
+          >
+            {reply.body}
+          </InboxComment>
+        ))}
+
+        {ticket.status === 'complete' && ticket.assigneeId ? (
+          <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
         ) : null}
 
         <SentItems items={sent} onMore={() => shell.notBuilt('Message actions')} />
