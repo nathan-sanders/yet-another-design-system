@@ -14,7 +14,6 @@ import { FloatingYak } from '../components/FloatingYak'
 import type { MentionQuery } from '../data/mentions'
 import { me } from '../data/people'
 import { DayDetailPanel } from '../screens/calendar/DayDetail'
-import { DraftsPanel } from '../screens/calendar/DraftsPanel'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
@@ -23,6 +22,7 @@ import { NotificationsPanel } from '../screens/notifications/NotificationsPanel'
 import { useNotifications } from '../screens/notifications/notificationsState'
 import { useInbox } from '../screens/inbox/inboxState'
 import { NewReportDialog } from '../screens/reports/NewReportDialog'
+import { ScheduleDialog } from '../screens/calendar/ScheduleDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { YakChatContext, useYakChatState } from '../yak/chat'
 import { floatingYakFor } from '../yak/floating'
@@ -365,8 +365,8 @@ export function SocialShell() {
             onClose={() => setPanel(null)}
           />
           <NotificationsPanel open={notificationsOpen} onClose={() => setPanel(null)} />
-          <DraftsPanel open={panel?.type === 'drafts'} onClose={() => setPanel(null)} />
           <NewReportDialog />
+          <ScheduleDialog />
 
           <MobileNav
             aria-label="Main"

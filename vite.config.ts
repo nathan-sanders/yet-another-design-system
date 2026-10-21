@@ -21,7 +21,7 @@ export default defineConfig({
       test: {
         name: 'tokens',
         environment: 'node',
-        include: ['src/**/*.test.ts'],
+        include: ['src/**/*.test.ts', 'apps/**/*.test.ts'],
       }
     }, {
       extends: true,

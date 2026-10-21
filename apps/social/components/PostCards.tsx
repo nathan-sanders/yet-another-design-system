@@ -11,6 +11,7 @@ import { statsFor } from '../data/performance'
 import { profileFor } from '../data/posts'
 import type { Post } from '../data/types'
 import { isPublished } from '../screens/calendar/model'
+import type { CardDrag } from '../screens/calendar/dragHooks'
 import { NetworkIcon } from './NetworkIcon'
 
 // The three ways the calendar draws a post. Figma keeps them as `_` local
@@ -22,6 +23,17 @@ interface PostCardProps {
   post: Post
   selected?: boolean
   onOpen: (post: Post) => void
+  /**
+   * The calendar's drag, for a post that can still be moved: the card lifts
+   * on a pointer drag and fades while its copy is carried. Without it, a card
+   * that only opens.
+   */
+  drag?: CardDrag
+}
+
+/** A draggable card's look: grab cursor, and faded while the copy under the pointer is carried. */
+function dragClasses(drag: CardDrag | undefined) {
+  return cn(drag?.onPointerDown && 'cursor-grab', drag?.dragging && 'opacity-40')
 }
 
 /** Network, account, time — the header every variant shares. */
@@ -85,6 +97,9 @@ function Thumbnail({ post, size }: { post: Post; size: 'size-5' | 'size-10' | 's
     <img
       src={post.photo}
       alt={post.photoAlt ?? ''}
+      // An image is natively draggable, and the browser's own drag would take
+      // the pointer from the card's (DragAndDrop's "link cards" trap).
+      draggable={false}
       className={cn('shrink-0 object-cover', size === 'size-5' ? 'rounded-sm' : 'rounded-md', size)}
     />
   )
@@ -94,23 +109,32 @@ function Thumbnail({ post, size }: { post: Post; size: 'size-5' | 'size-10' | 's
  * `_Calendar Post Content` (`40005805:13368`) in a `Clickable Card`: one post in
  * a week cell. 12px of padding, 8 between rows, the copy clamped to two lines.
  */
-export function CalendarPostCard({ post, selected, onOpen }: PostCardProps) {
+export function CalendarPostCard({ post, selected, onOpen, drag }: PostCardProps) {
   return (
     <ClickableCard
+      ref={drag?.ref}
+      onPointerDown={drag?.onPointerDown}
       selected={selected}
       onClick={() => onOpen(post)}
-      className="w-full"
+      className={cn('w-full', dragClasses(drag))}
       aria-label={`${profileFor(post).name}, ${formatTime(post.time)}: ${post.body}`}
     >
-      <div className="flex w-full min-w-0 flex-col gap-2 text-left">
-        <PostHeader post={post} size="sm" />
-        <Text size="sm" truncate={2}>
-          {post.body}
-        </Text>
-        <Thumbnail post={post} size="size-12" />
-        <PostMeta post={post} />
-      </div>
+      <CalendarPostCardFace post={post} />
     </ClickableCard>
+  )
+}
+
+/** The week card's contents, shared with the copy carried under the pointer. */
+export function CalendarPostCardFace({ post }: { post: Post }) {
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2 text-left">
+      <PostHeader post={post} size="sm" />
+      <Text size="sm" truncate={2}>
+        {post.body}
+      </Text>
+      <Thumbnail post={post} size="size-12" />
+      <PostMeta post={post} />
+    </div>
   )
 }
 
@@ -118,25 +142,34 @@ export function CalendarPostCard({ post, selected, onOpen }: PostCardProps) {
  * `_Calendar Agenda Content` (`40005805:52756`): the day view's wider row, the
  * copy beside its thumbnail, on the 14px body size.
  */
-export function CalendarAgendaCard({ post, selected, onOpen }: PostCardProps) {
+export function CalendarAgendaCard({ post, selected, onOpen, drag }: PostCardProps) {
   return (
     <ClickableCard
+      ref={drag?.ref}
+      onPointerDown={drag?.onPointerDown}
       selected={selected}
       onClick={() => onOpen(post)}
-      className="w-full"
+      className={cn('w-full', dragClasses(drag))}
       aria-label={`${profileFor(post).name}, ${formatTime(post.time)}: ${post.body}`}
     >
-      <div className="flex w-full min-w-0 flex-col gap-2 text-left">
-        <PostHeader post={post} size="base" />
-        <div className="flex items-start gap-3">
-          <Text truncate={2} className="min-w-0 flex-1">
-            {post.body}
-          </Text>
-          <Thumbnail post={post} size="size-10" />
-        </div>
-        <PostMeta post={post} />
-      </div>
+      <CalendarAgendaFace post={post} />
     </ClickableCard>
+  )
+}
+
+/** The agenda card's contents, shared with the copy carried under the pointer. */
+export function CalendarAgendaFace({ post }: { post: Post }) {
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2 text-left">
+      <PostHeader post={post} size="base" />
+      <div className="flex items-start gap-3">
+        <Text truncate={2} className="min-w-0 flex-1">
+          {post.body}
+        </Text>
+        <Thumbnail post={post} size="size-10" />
+      </div>
+      <PostMeta post={post} />
+    </div>
   )
 }
 
@@ -155,28 +188,52 @@ export function CalendarPostChip({
   post,
   selected,
   onOpen,
+  drag,
   thumbnail = true,
 }: PostCardProps & { thumbnail?: boolean }) {
   const profile = profileFor(post)
   return (
     <button
+      ref={drag?.ref}
+      onPointerDown={drag?.onPointerDown}
       type="button"
       onClick={() => onOpen(post)}
       aria-label={`${profile.name}, ${formatTime(post.time)}: ${post.body}`}
       aria-pressed={selected}
       className={cn(
-        'flex h-6 w-full min-w-0 items-center gap-1 rounded-sm border py-px pr-px pl-1 text-left',
-        'border-surface-border bg-surface-background-primary hover:bg-surface-background-subtle',
+        chip,
+        'hover:bg-surface-background-subtle',
         focusRing,
         // ClickableCard's `selected`, copied: subtle fill plus the emphasized border.
         selected && 'border-surface-border-emphasized bg-surface-background-subtle',
+        dragClasses(drag),
       )}
     >
-      <NetworkIcon network={profile.network} size="small" />
+      <ChipContent post={post} thumbnail={thumbnail} />
+    </button>
+  )
+}
+
+const chip =
+  'flex h-6 w-full min-w-0 items-center gap-1 rounded-sm border py-px pr-px pl-1 text-left border-surface-border bg-surface-background-primary'
+
+function ChipContent({ post, thumbnail }: { post: Post; thumbnail: boolean }) {
+  return (
+    <>
+      <NetworkIcon network={profileFor(post).network} size="small" />
       <Text render={<span />} size="sm" truncate className="min-w-0 flex-1">
         {post.body}
       </Text>
       {thumbnail ? <Thumbnail post={post} size="size-5" /> : null}
-    </button>
+    </>
+  )
+}
+
+/** The chip as the copy carried under the pointer: its box and contents, and nothing to press. */
+export function CalendarPostChipFace({ post }: { post: Post }) {
+  return (
+    <div className={cn(chip, 'cursor-grabbing shadow-medium')}>
+      <ChipContent post={post} thumbnail />
+    </div>
   )
 }

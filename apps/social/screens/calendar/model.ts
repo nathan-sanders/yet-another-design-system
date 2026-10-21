@@ -1,5 +1,4 @@
 import { addDays, sameDay, startOfDay, startOfWeek } from '../../data/dates'
-import { posts } from '../../data/posts'
 import type { CalendarDay, CalendarNote, Post } from '../../data/types'
 
 export type CalendarView = 'day' | 'week' | 'month'
@@ -35,8 +34,8 @@ export function daysBetween(from: Date, to: Date): number {
   return Math.round((startOfDay(to).getTime() - startOfDay(from).getTime()) / 86_400_000)
 }
 
-/** The posts on one calendar day, earliest first. */
-export function postsOn(date: Date): Post[] {
+/** The posts on one calendar day, earliest first — out of the schedule's `posts`. */
+export function postsOn(posts: Post[], date: Date): Post[] {
   return posts
     .filter((post) => sameDay(postDate(post), date))
     .sort((a, b) => a.time.localeCompare(b.time))
@@ -59,6 +58,11 @@ export function isPublished(post: Post): boolean {
 }
 
 const loadedAt = new Date()
+
+/** Whether a post can still be moved: only one that has not gone out. */
+export function canMove(post: Post): boolean {
+  return !isPublished(post)
+}
 
 export function postHour(post: Post): number {
   return Number(post.time.slice(0, 2))

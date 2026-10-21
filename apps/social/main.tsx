@@ -6,6 +6,7 @@ import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
 import { CalendarNotesProvider } from './screens/calendar/CalendarNotesProvider'
+import { ScheduleProvider } from './screens/calendar/ScheduleProvider'
 import { PostNotesProvider } from './screens/calendar/PostNotesProvider'
 import { CommentsScreen } from './screens/comments/CommentsScreen'
 import { CreatorFullView } from './screens/creators/CreatorFullView'
@@ -58,9 +59,11 @@ createRoot(document.getElementById('root')!).render(
           <IdeasProvider>
             <PostNotesProvider>
               <CalendarNotesProvider>
-                <NotificationsProvider>
-                  <RouterProvider router={router} />
-                </NotificationsProvider>
+                <ScheduleProvider>
+                  <NotificationsProvider>
+                    <RouterProvider router={router} />
+                  </NotificationsProvider>
+                </ScheduleProvider>
               </CalendarNotesProvider>
             </PostNotesProvider>
           </IdeasProvider>

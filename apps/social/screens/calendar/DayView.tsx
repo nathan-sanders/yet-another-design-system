@@ -2,6 +2,7 @@ import { CalendarAgendaCard } from '../../components/PostCards'
 import { fullDate } from '../../data/dates'
 import type { CalendarNote, Post } from '../../data/types'
 import { HourGrid } from './HourGrid'
+import { MovablePost } from './MovablePost'
 
 interface DayViewProps {
   anchor: Date
@@ -34,11 +35,16 @@ export function DayView({
       onOpenNote={onOpenNote}
       renderPost={(post) => (
         <div key={post.id} className="mx-auto w-full max-w-184">
-          <CalendarAgendaCard
-            post={post}
-            selected={post.id === selectedPostId}
-            onOpen={onOpenPost}
-          />
+          <MovablePost post={post}>
+            {(drag) => (
+              <CalendarAgendaCard
+                post={post}
+                selected={post.id === selectedPostId}
+                onOpen={onOpenPost}
+                drag={drag}
+              />
+            )}
+          </MovablePost>
         </div>
       )}
     />

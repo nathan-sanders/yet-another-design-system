@@ -8,6 +8,10 @@ import { CalendarPostChip } from '../../components/PostCards'
 import { fullDate, monthShort, sameDay, weekdayShort } from '../../data/dates'
 import type { CalendarNote as Note, Post } from '../../data/types'
 import { useCalendarNotes } from './calendarNotesState'
+import { useSchedule } from './scheduleState'
+import { dayId } from './drag'
+import { dropRing, useDropTarget } from './dragHooks'
+import { MovablePost } from './MovablePost'
 import { isPast, layoutNotes, monthDays, pastDayPattern, postsOn, today } from './model'
 
 interface MonthViewProps {
@@ -105,6 +109,7 @@ function Week({
   onOpenNote: (note: Note) => void
 }) {
   const { notes } = useCalendarNotes()
+  const { posts } = useSchedule()
   const segments = layoutNotes(notes, days)
   const lanes = Math.min(
     NOTE_LANES,
@@ -128,8 +133,7 @@ function Week({
       {days.map((day, i) => {
         const isToday = sameDay(day, today)
         const selected = selectedDate !== undefined && sameDay(day, selectedDate)
-        const past = isPast(day)
-        const dayPosts = postsOn(day)
+        const dayPosts = postsOn(posts, day)
         const dayNotes = segments.filter(
           (segment) => segment.column <= i && i < segment.column + segment.span,
         )
@@ -144,30 +148,16 @@ function Week({
         const column = { '--day': i + 1 } as CSSProperties
 
         return [
-          // The cell itself, behind everything in its column. It is positioned
-          // for today's rule, which would otherwise paint it — hatch and all —
-          // over the date, notes and posts, so -z-10 puts it back underneath.
-          // A click on its empty part opens the day's panel — a pointer
-          // shortcut; the date is the button that does it from the keyboard.
-          // Past days open too: what went out is worth reading.
-          <div
+          // The day's own cell, behind everything in its column (`DayCell`).
+          <DayCell
             key={`cell-${i}`}
-            className={cn(
-              'relative -z-10 col-(--day) row-span-full cursor-pointer border-surface-border',
-              i > 0 && 'border-l',
-              past && pastDayPattern,
-              selected ? 'bg-surface-background-subtle' : 'hover:bg-surface-background-subtle',
-            )}
-            style={column}
-            onClick={() => onOpenDay(day)}
-          >
-            {isToday ? (
-              <span
-                aria-hidden
-                className="absolute top-0 right-0 -left-px h-0.5 bg-surface-border-emphasized"
-              />
-            ) : null}
-          </div>,
+            day={day}
+            first={i === 0}
+            isToday={isToday}
+            selected={selected}
+            column={column}
+            onOpenDay={onOpenDay}
+          />,
           <div
             key={`date-${i}`}
             className="pointer-events-none col-(--day) row-start-1 flex min-w-0 px-1 pt-1"
@@ -199,12 +189,16 @@ function Week({
             style={column}
           >
             {shown.map((post) => (
-              <CalendarPostChip
-                key={post.id}
-                post={post}
-                selected={post.id === selectedPostId}
-                onOpen={onOpenPost}
-              />
+              <MovablePost key={post.id} post={post}>
+                {(drag) => (
+                  <CalendarPostChip
+                    post={post}
+                    selected={post.id === selectedPostId}
+                    onOpen={onOpenPost}
+                    drag={drag}
+                  />
+                )}
+              </MovablePost>
             ))}
             {hidden > 0 ? (
               // Figma's `+2 more` (`40005959:68801`) is plain text-sm in
@@ -245,6 +239,58 @@ function Week({
           />
         </div>
       ))}
+    </div>
+  )
+}
+
+/**
+ * The cell itself, behind everything in its column. It is positioned for
+ * today's rule, which would otherwise paint it — hatch and all — over the
+ * date, notes and posts, so -z-10 puts it back underneath. A click on its
+ * empty part opens the day's panel — a pointer shortcut; the date is the
+ * button that does it from the keyboard. Past days open too: what went out is
+ * worth reading.
+ *
+ * It is also the day's drop target: a post carried here keeps its time, and a
+ * draft goes at 9 (`placeFor`). Behind the chips, but a drop is aimed by the
+ * pointer's position against the cell's rect, not by what is painted on top.
+ */
+function DayCell({
+  day,
+  first,
+  isToday,
+  selected,
+  column,
+  onOpenDay,
+}: {
+  day: Date
+  first: boolean
+  isToday: boolean
+  selected: boolean
+  column: CSSProperties
+  onOpenDay: (date: Date) => void
+}) {
+  const { ref, aimed } = useDropTarget(dayId(day), { kind: 'day', date: day }, fullDate.format(day))
+  return (
+    <div
+      ref={ref}
+      data-drop={dayId(day)}
+      className={cn(
+        'relative -z-10 col-(--day) row-span-full cursor-pointer border-surface-border',
+        !first && 'border-l',
+        isPast(day) && pastDayPattern,
+        selected ? 'bg-surface-background-subtle' : 'hover:bg-surface-background-subtle',
+        aimed && dropRing,
+      )}
+      style={column}
+      onClick={() => onOpenDay(day)}
+    >
+      {isToday ? (
+        <span
+          aria-hidden
+          className="absolute top-0 right-0 -left-px h-0.5 bg-surface-border-emphasized"
+        />
+      ) : null}
     </div>
   )
 }

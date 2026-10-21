@@ -2,8 +2,8 @@ import { CalendarX, CircleAlert, Inbox, Lightbulb, type LucideIcon } from 'lucid
 
 import { addDays, formatTime, sameDay } from '../data/dates'
 import { customerFor, tickets } from '../data/inbox'
-import { posts } from '../data/posts'
 import { allRoutes } from '../shell/routes'
+import type { Post } from '../data/types'
 import { postDate, postsOn, today } from '../screens/calendar/model'
 
 export interface Insight {
@@ -44,11 +44,11 @@ function nextSevenDays(): Date[] {
  * mock opens on. The file's three: an empty day, a crowded slot, and a launch
  * with a gap.
  */
-export function weekInsights(): Insight[] {
+export function weekInsights(posts: Post[]): Insight[] {
   const days = nextSevenDays()
   const insights: Insight[] = []
 
-  const empty = days.find((day) => postsOn(day).length === 0)
+  const empty = days.find((day) => postsOn(posts, day).length === 0)
   if (empty) {
     const name = dayName(empty)
     insights.push({
@@ -63,7 +63,7 @@ export function weekInsights(): Insight[] {
   let crowded: { day: Date; time: string; count: number } | undefined
   for (const day of days) {
     const byTime = new Map<string, number>()
-    for (const post of postsOn(day)) byTime.set(post.time, (byTime.get(post.time) ?? 0) + 1)
+    for (const post of postsOn(posts, day)) byTime.set(post.time, (byTime.get(post.time) ?? 0) + 1)
     for (const [time, count] of byTime) {
       if (count > 1 && (!crowded || count > crowded.count)) crowded = { day, time, count }
     }
@@ -141,12 +141,12 @@ export function inboxInsights(): Insight[] {
 }
 
 /** The brief for whatever page is open: its own insights, or a workspace roundup. */
-export function pageBrief(pathname: string): PageBrief {
+export function pageBrief(pathname: string, posts: Post[]): PageBrief {
   if (pathname.startsWith('/plan/calendar')) {
     return {
       page: 'Calendar',
       title: `Next 7 days · ${weekRange()}`,
-      insights: weekInsights(),
+      insights: weekInsights(posts),
     }
   }
   if (pathname.startsWith('/engage/')) {
@@ -162,13 +162,13 @@ export function pageBrief(pathname: string): PageBrief {
   return {
     page: 'Veggie Vault',
     title: 'Across your workspace',
-    insights: [weekInsights()[0], inboxInsights()[0]].filter((i): i is Insight => Boolean(i)),
+    insights: [weekInsights(posts)[0], inboxInsights()[0]].filter((i): i is Insight => Boolean(i)),
   }
 }
 
 /** Every insight any page can show, for finding a tapped fix's answer. */
-export function allInsights(): Insight[] {
-  return [...weekInsights(), ...inboxInsights()]
+export function allInsights(posts: Post[]): Insight[] {
+  return [...weekInsights(posts), ...inboxInsights()]
 }
 
 /** What Yak "does" for a question asked beside a page: the thought row's phrases, steps and summary. */
