@@ -1,8 +1,19 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { AtSign, Ellipsis, Eye, FileText, Paperclip, Pencil, Smile, Tag } from 'lucide-react'
+import {
+  AtSign,
+  CalendarClock,
+  Ellipsis,
+  Eye,
+  FileText,
+  Paperclip,
+  Pencil,
+  Smile,
+  Tag,
+} from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
 import { ChatComposer } from '../../../../src/components/Chat'
+import { Menu } from '../../../../src/components/Menu'
 import { Panel } from '../../../../src/components/Panel'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Tabs } from '../../../../src/components/Tabs'
@@ -12,11 +23,12 @@ import { NetworkIcon } from '../../components/NetworkIcon'
 import { formatTime } from '../../data/dates'
 import { me } from '../../data/people'
 import { commentsFor, eventsFor, statsFor } from '../../data/performance'
-import { posts, profileFor } from '../../data/posts'
+import { profileFor } from '../../data/posts'
 import type { Post, PostComment, PostEvent } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { useUnreadComments } from '../inbox/inboxState'
-import { isPublished, postDate, postMoment } from './model'
+import { canMove, isPublished, postDate, postMoment } from './model'
+import { useSchedule } from './scheduleState'
 import { currentTab, usePostThread, type DetailTab } from './postDetailState'
 import { ActivityTab, CommentsTab, MeasureTab, PostStatsRow } from './PublishedPost'
 
@@ -47,6 +59,7 @@ export function PostByline({
   end?: ReactNode
 }) {
   const shell = useShell()
+  const { requestSchedule } = useSchedule()
   const profile = profileFor(post)
   const when = (
     <Text render={<span />} size="sm" color="subtle" className="shrink-0">
@@ -82,12 +95,32 @@ export function PostByline({
         </>
       )}
       {end}
-      <Button
-        appearance="ghost"
-        startIcon={Ellipsis}
-        aria-label="Post actions"
-        onClick={() => shell.notBuilt('Post actions')}
-      />
+      {canMove(post) ? (
+        // A scheduled post can be moved: Reschedule… is the keyboard's way
+        // to do what dragging its card on the calendar does.
+        <Menu>
+          <Menu.Trigger
+            render={<Button appearance="ghost" startIcon={Ellipsis} aria-label="Post actions" />}
+          />
+          <Menu.Popup aria-label="Post actions">
+            <Menu.Group>
+              <Menu.Item
+                startIcon={CalendarClock}
+                onClick={() => requestSchedule({ source: 'post', post })}
+              >
+                Reschedule…
+              </Menu.Item>
+            </Menu.Group>
+          </Menu.Popup>
+        </Menu>
+      ) : (
+        <Button
+          appearance="ghost"
+          startIcon={Ellipsis}
+          aria-label="Post actions"
+          onClick={() => shell.notBuilt('Post actions')}
+        />
+      )}
     </div>
   )
 }
@@ -250,6 +283,7 @@ export function PostDetailPanel({
   open: boolean
   onClose: () => void
 }) {
+  const { posts } = useSchedule()
   const post = posts.find((p) => p.id === postId)
   const { thread, add } = usePostThread(post)
   const [tab, setTab] = useState<DetailTab>('comments')

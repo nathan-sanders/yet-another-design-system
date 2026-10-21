@@ -5,8 +5,10 @@ import wraps from '../assets/photos/wraps.jpg'
 
 /**
  * A post saved as a draft: written, not scheduled, so it has no day or time and
- * stays off the calendar until someone picks it up. Code-first — Figma draws
- * the Drafts button but no panel behind it.
+ * stays off the calendar until someone schedules it, by dragging it onto the
+ * calendar or with its Schedule… action. Then it leaves the list and becomes a
+ * post (`ScheduleProvider`). Code-first — Figma draws the Drafts button but no
+ * panel behind it.
  */
 export interface Draft {
   id: string

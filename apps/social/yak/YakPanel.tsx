@@ -31,6 +31,8 @@ import { history, startActions } from '../data/yak'
 import { useShell } from '../shell/ShellContext'
 import { useYakChat, type Turn } from './chat'
 import { allInsights, pageBrief } from './insights'
+import type { Post } from '../data/types'
+import { useSchedule } from '../screens/calendar/scheduleState'
 import type { SearchResults } from './search'
 
 /**
@@ -192,7 +194,8 @@ export function StartScreen({
   from: string
   onAsk: (prompt: string) => void
 }) {
-  const { page, title, insights } = pageBrief(from)
+  const { posts } = useSchedule()
+  const { page, title, insights } = pageBrief(from, posts)
   return (
     <>
       <div className="flex items-center gap-2">
@@ -313,6 +316,7 @@ function ReplyActions() {
  * and the still mark closing the thread once Yak is done.
  */
 export function Conversation({ turns }: { turns: Turn[] }) {
+  const { posts } = useSchedule()
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => {
     end.current?.scrollIntoView({ block: 'end' })
@@ -352,7 +356,7 @@ export function Conversation({ turns }: { turns: Turn[] }) {
                 metadata={<Stamp at={turn.repliedAt ?? turn.sentAt} actions={<ReplyActions />} />}
               >
                 <ChatMessage.Bubble appearance="ghost">
-                  {turn.results?.answer ?? reply(turn.prompt)}
+                  {turn.results?.answer ?? reply(turn.prompt, posts)}
                 </ChatMessage.Bubble>
               </ChatMessage>
               {turn.results ? <Results results={turn.results} /> : null}
@@ -419,9 +423,9 @@ function Results({ results }: { results: SearchResults }) {
   )
 }
 
-function reply(prompt: string): string {
+function reply(prompt: string, posts: Post[]): string {
   return (
-    allInsights().find((insight) => insight.action === prompt)?.answer ??
+    allInsights(posts).find((insight) => insight.action === prompt)?.answer ??
     'Here’s a first pass. In the real product this is where I’d draft it into the right place — the calendar, a campaign or a report — for you to review.'
   )
 }

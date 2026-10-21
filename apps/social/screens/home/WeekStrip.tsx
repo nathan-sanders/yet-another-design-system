@@ -7,6 +7,7 @@ import { CalendarPostChip } from '../../components/PostCards'
 import { fullDate, sameDay, weekdayShort } from '../../data/dates'
 import { useShell } from '../../shell/ShellContext'
 import { isPast, pastDayPattern, postsOn, today, weekDays } from '../calendar/model'
+import { useSchedule } from '../calendar/scheduleState'
 
 /**
  * Home's "This week" (`40005972:26336`): the calendar's week header over one
@@ -25,6 +26,7 @@ import { isPast, pastDayPattern, postsOn, today, weekDays } from '../calendar/mo
  */
 export function WeekStrip() {
   const shell = useShell()
+  const { posts } = useSchedule()
   const days = weekDays(today)
   const openPostId = shell.panel?.type === 'post' ? shell.panel.postId : undefined
 
@@ -81,7 +83,7 @@ export function WeekStrip() {
                 isPast(day) && pastDayPattern,
               )}
             >
-              {postsOn(day).map((post) => (
+              {postsOn(posts, day).map((post) => (
                 <CalendarPostChip
                   key={post.id}
                   post={post}

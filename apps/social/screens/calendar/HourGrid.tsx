@@ -9,6 +9,9 @@ import { formatHour, fullDate, sameDay, weekdayShort } from '../../data/dates'
 import { CalendarNote } from '../../components/CalendarNote'
 import type { CalendarNote as Note, Post } from '../../data/types'
 import { useCalendarNotes } from './calendarNotesState'
+import { useSchedule } from './scheduleState'
+import { slotId } from './drag'
+import { dropRing, useDropTarget } from './dragHooks'
 import { HOURS, isPast, layoutNotes, pastDayPattern, postHour, postsOn, today } from './model'
 
 const GUTTER = 'w-14 shrink-0' // 56px, the file's `Gutter`
@@ -45,7 +48,8 @@ export function HourGrid({
   onOpenNote,
   dayLabel = weekLabel,
 }: HourGridProps) {
-  const byDay = days.map((day) => postsOn(day))
+  const { posts } = useSchedule()
+  const byDay = days.map((day) => postsOn(posts, day))
   const todayIndex = days.findIndex((day) => sameDay(day, today))
   const now = useNow()
 
@@ -116,6 +120,7 @@ export function HourGrid({
       {HOURS.map((hour) => (
         <Row
           key={hour}
+          hour={hour}
           label={formatHour(hour)}
           days={days}
           now={
@@ -132,11 +137,13 @@ export function HourGrid({
 }
 
 function Row({
+  hour,
   label,
   days,
   now,
   children,
 }: {
+  hour: number
   label: string
   days: Date[]
   now?: { minute: number; column: number }
@@ -159,17 +166,38 @@ function Row({
         </Text>
       </div>
       {days.map((day, i) => (
-        <div
-          key={day.toISOString()}
-          className={cn(
-            'flex min-w-28 flex-1 flex-col gap-1 border-l border-surface-border p-1 md:min-w-0',
-            isPast(day) && pastDayPattern,
-          )}
-        >
+        <HourCell key={day.toISOString()} day={day} hour={hour}>
           {children(i)}
-        </div>
+        </HourCell>
       ))}
       {now ? <NowLine minute={now.minute} column={now.column} columns={days.length} /> : null}
+    </div>
+  )
+}
+
+/**
+ * One day's hour: where its posts stack, and where a post or a draft carried
+ * over it would land. Rings only when a release here would really schedule —
+ * see `AimContext`.
+ */
+function HourCell({ day, hour, children }: { day: Date; hour: number; children: ReactNode }) {
+  const id = slotId(day, hour)
+  const { ref, aimed } = useDropTarget(
+    id,
+    { kind: 'slot', date: day, hour },
+    `${fullDate.format(day)}, ${formatHour(hour)}`,
+  )
+  return (
+    <div
+      ref={ref}
+      data-drop={id}
+      className={cn(
+        'flex min-w-28 flex-1 flex-col gap-1 border-l border-surface-border p-1 md:min-w-0',
+        isPast(day) && pastDayPattern,
+        aimed && dropRing,
+      )}
+    >
+      {children}
     </div>
   )
 }

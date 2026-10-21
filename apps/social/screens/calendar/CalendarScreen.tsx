@@ -1,16 +1,30 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { pointerWithin, type DragMoveEvent } from '@dnd-kit/core'
 import { useSearchParams } from 'react-router'
 import { ArrowLeft, ArrowRight, Ellipsis, FilePenLine, Link, ListFilter } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Button } from '../../../../src/components/Button'
+import { Card } from '../../../../src/components/Card'
+import { DragAndDrop } from '../../../../src/components/DragAndDrop'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { addDays, fromISODate, monthYear, toISODate } from '../../data/dates'
 import type { CalendarNote, Post } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import {
+  CalendarAgendaFace,
+  CalendarPostCardFace,
+  CalendarPostChipFace,
+} from '../../components/PostCards'
 import { DayView } from './DayView'
+import { isCalendarDrag, parseTarget, placeFor, type CalendarDragData } from './drag'
+import { DraftFace, DraftsPanel } from './DraftsPanel'
+import { AimContext, fromOf } from './dragHooks'
+import { useSchedule } from './scheduleState'
+import { useCommitSchedule } from './scheduleCommit'
 import { MonthView } from './MonthView'
 import { NoteDialog, type NoteDialogRequest } from './NoteDialog'
 import { today, type CalendarView } from './model'
@@ -51,8 +65,7 @@ export function CalendarScreen() {
   }
 
   const selectedPostId = shell.panel?.type === 'post' ? shell.panel.postId : undefined
-  const selectedDate =
-    shell.panel?.type === 'day' ? fromISODate(shell.panel.date) : undefined
+  const selectedDate = shell.panel?.type === 'day' ? fromISODate(shell.panel.date) : undefined
   const openDay = (date: Date) =>
     shell.setPanel(
       selectedDate && toISODate(selectedDate) === toISODate(date)
@@ -68,6 +81,16 @@ export function CalendarScreen() {
 
   const draftsOpen = shell.panel?.type === 'drafts'
   const toggleDrafts = () => shell.setPanel(draftsOpen ? null : { type: 'drafts' })
+
+  const { requestSchedule } = useSchedule()
+  const commit = useCommitSchedule()
+  // What is under the pointer, and the cell a release would land it in.
+  const [carried, setCarried] = useState<CalendarDragData | null>(null)
+  const [aimed, setAimed] = useState<string | null>(null)
+  const endDrag = () => {
+    setCarried(null)
+    setAimed(null)
+  }
 
   // With a panel open the page is 800 wide, and Figma folds Filter and Drafts
   // to icon-only buttons to make room (`40005911:33082`).
@@ -183,36 +206,105 @@ export function CalendarScreen() {
       {/* The grid runs edge to edge in the page, as drawn; the shell's 16px
           content padding is for blocks, and the grid's own rules do the job. */}
       <AppShell.Content className={cn('gap-0 p-0', floatingYakClearance)}>
-        {view === 'week' ? (
-          <WeekView
-            anchor={anchor}
-            selectedPostId={selectedPostId}
-            onOpenPost={openPost}
-            onAddPost={() => shell.notBuilt('The post composer')}
-            onAddNote={addNote}
-            onOpenNote={openNote}
-          />
-        ) : view === 'month' ? (
-          <MonthView
-            anchor={anchor}
-            selectedPostId={selectedPostId}
-            selectedDate={selectedDate}
-            onOpenPost={openPost}
-            onOpenDay={openDay}
-            onOpenNote={openNote}
-          />
-        ) : (
-          <DayView
-            anchor={anchor}
-            selectedPostId={selectedPostId}
-            onOpenPost={openPost}
-            onAddPost={() => shell.notBuilt('The post composer')}
-            onAddNote={addNote}
-            onOpenNote={openNote}
-          />
-        )}
+        <DragAndDrop
+          collisionDetection={pointerWithin}
+          onDragStart={({ active }) => {
+            if (isCalendarDrag(active.data.current)) setCarried(active.data.current)
+          }}
+          onDragMove={(event) => setAimed(landing(event)?.id ?? null)}
+          onDragEnd={(event) => {
+            const landed = landing(event)
+            const data = event.active.data.current
+            if (landed && isCalendarDrag(data)) commit(data, landed.at)
+            endDrag()
+          }}
+          onDragCancel={endDrag}
+        >
+          <AimContext.Provider value={aimed}>
+            {view === 'week' ? (
+              <WeekView
+                anchor={anchor}
+                selectedPostId={selectedPostId}
+                onOpenPost={openPost}
+                onAddPost={() => shell.notBuilt('The post composer')}
+                onAddNote={addNote}
+                onOpenNote={openNote}
+              />
+            ) : view === 'month' ? (
+              <MonthView
+                anchor={anchor}
+                selectedPostId={selectedPostId}
+                selectedDate={selectedDate}
+                onOpenPost={openPost}
+                onOpenDay={openDay}
+                onOpenNote={openNote}
+              />
+            ) : (
+              <DayView
+                anchor={anchor}
+                selectedPostId={selectedPostId}
+                onOpenPost={openPost}
+                onAddPost={() => shell.notBuilt('The post composer')}
+                onAddNote={addNote}
+                onOpenNote={openNote}
+              />
+            )}
+          </AimContext.Provider>
+
+          {/* Rendered here so its drafts are inside this drag context, and
+              portalled after the Page, where the shell's panels go — the
+              report's Add widget panel does the same. */}
+          {shell.screenPanelHost
+            ? createPortal(
+                <DraftsPanel
+                  open={draftsOpen}
+                  onClose={() => shell.setPanel(null)}
+                  onSchedule={(draft) => requestSchedule({ source: 'draft', draft })}
+                />,
+                shell.screenPanelHost,
+              )
+            : null}
+          {/* A copy under the pointer: a draft is carried out of the panel's
+              scrolling body, and a post out of its cell, and either would be
+              clipped at the edge. The source stays put, faded. */}
+          {carried ? (
+            <DragAndDrop.Overlay>
+              {carried.source === 'draft' ? (
+                <Card className="w-56 cursor-grabbing shadow-high">
+                  <DraftFace draft={carried.draft} />
+                </Card>
+              ) : view === 'month' ? (
+                <CalendarPostChipFace post={carried.post} />
+              ) : (
+                <Card className="size-full cursor-grabbing shadow-high">
+                  {view === 'week' ? (
+                    <CalendarPostCardFace post={carried.post} />
+                  ) : (
+                    <CalendarAgendaFace post={carried.post} />
+                  )}
+                </Card>
+              )}
+            </DragAndDrop.Overlay>
+          ) : null}
+        </DragAndDrop>
       </AppShell.Content>
       <NoteDialog request={noteRequest} onClose={() => setNoteRequest(null)} />
     </>
   )
+}
+
+/**
+ * Where a card let go now would land, and the cell's id — or null where it
+ * cannot (`placeFor`). Read off the collision itself rather than `over`, which
+ * in a move event is still the one the last render saw (FINDINGS 126).
+ * `pointerWithin`, so a draft still over the panel is over nothing.
+ */
+function landing({ active, collisions }: Pick<DragMoveEvent, 'active' | 'collisions'>) {
+  const data = active.data.current
+  const hit = collisions?.[0]
+  if (!isCalendarDrag(data) || !hit) return null
+  const target = parseTarget(String(hit.id))
+  if (!target) return null
+  const at = placeFor(data, target, { from: fromOf(data), now: new Date() })
+  return at ? { id: String(hit.id), at } : null
 }

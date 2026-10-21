@@ -1163,3 +1163,63 @@ so Sentiment's icon is `heart` on both sides. Numbered after #314's 121.
     The status line says the numbered name, so two adds in a row are both announced.
 129. **Add widget no longer opens a starter's Edit panel.** `starterWidget` is gone. The
     catalog's first tile, Mentions over time, is the same widget.
+
+## Calendar drag (2026-10-21)
+
+Plan › Calendar's posts can be moved and its drafts scheduled, the report's Add widget drag
+(#316) carried over to a second screen. **Drag a scheduled post** to another hour in the
+week or day view, or to another day in the month. **Drag a draft** out of the Drafts panel
+onto an hour or a day: it leaves the panel and goes on the calendar as a post. The keyboard
+does both through one **Schedule dialog** (`screens/calendar/ScheduleDialog.tsx`), opened
+from the post detail's ⋯ (Reschedule…) and from a ⋯ on each draft (Schedule…). Either way a
+toast says where it went, with an Undo. Code-first, as the Drafts panel was; Figma has no
+drag or scheduling frames. Numbered after #316's 129.
+
+### Open: library changes worth making
+
+130. **The second draggable source.** FINDINGS 122 asked for a `DragAndDrop.Source` when a
+    second palette turned up, and this is it twice over: draft cards out of a panel, and
+    post cards that are not `Sortable.Item`s because a calendar cell is not a list. Both
+    make 122's two decisions again (`useCardDrag` in `screens/calendar/dragHooks.ts`):
+    pointer only, and no drag attributes. They also add a third: the carried copy is
+    `DragAndDrop.Overlay` every time, because a source is always being carried *out* of
+    something that clips. That is the bar for a library `Source`, in its own PR.
+
+### Kept in the app, worth knowing
+
+131. **Posts and drafts are state now.** `ScheduleProvider` (above the router, beside the
+    calendar's notes) holds both. `postsOn(posts, date)` takes the list, and everything that
+    can show a scheduled post reads it: the week, day and month, the day panel, the post
+    detail, Home's week strip and Yak's week insights. Screens that only show published
+    posts (Discover, Comments by post, notifications) still read `data/posts.ts`, because a
+    published post never moves. A scheduled draft becomes post `p-<draft id>`.
+132. **Where a drop lands is one pure function** (`placeFor` in `drag.ts`, tested in
+    `drag.test.ts`, the first test under `apps/`; `vite.config.ts`'s node project now
+    includes `apps/**/*.test.ts`). An hour keeps a post's minutes and gives a draft the
+    hour itself. A month day keeps a post's time and gives a draft 9:00, or on today, once
+    9 has gone, the next whole hour, which is the rule Nathan picked. Nothing lands in the
+    past, and dropping a post where it already is changes nothing.
+133. **The ring is aimed by `placeFor`, not by dnd-kit's `isOver`.** A cell that would
+    refuse the drop, such as an hour gone by or the post's own slot, never rings, so the
+    ring promises what the release will do. Days and hours that have passed are disabled
+    droppables. Like the report, it reads `collisions[0]` with `pointerWithin`, and nothing
+    reflows until release.
+134. **The Drafts panel moved from the shell to the calendar**, portalled into
+    `screenPanelHost` the way the report's catalog is (124). A draft has to sit inside the
+    calendar's `DragAndDrop`.
+135. **A card's `<img>` is `draggable={false}`.** A post's thumbnail and a draft's photo are
+    natively draggable, and the browser's drag took the pointer from dnd-kit's when a press
+    started on the picture. This is DragAndDrop's "link cards" trap, on an image.
+136. **The month's day cell is behind its chips and still the drop target.** It is `-z-10`,
+    and `pointerWithin` measures rects, not what is painted on top, so a chip let go over
+    another chip lands on that day.
+137. **The Schedule dialog is the shell's, not the calendar's.** The post detail is a shell
+    panel, and Home opens it too, so the request lives in `ScheduleProvider`
+    (`requestSchedule`) and the shell renders the one dialog. After a move on the calendar,
+    the calendar follows the post to its new day (`?date=`).
+138. **Verified in real Chromium with Playwright** (pointer drags, 12 checks): a move and
+    its Undo, a refused past day, a published post that will not lift, a draft into an
+    hour, a draft let go over the panel, a month chip keeping its time, and ten moves in a
+    row with no React errors. The keyboard route was checked with Playwright as well, with
+    axe clean while the dialogs were open. The hidden Browser pane cannot run a dnd-kit
+    drag (72).

@@ -13,6 +13,7 @@ import { useShell } from '../../shell/ShellContext'
 import { useCalendarNotes } from './calendarNotesState'
 import { isPast, layoutNotes, postHour, postsOn } from './model'
 import { NoteDialog, type NoteDialogRequest } from './NoteDialog'
+import { useSchedule } from './scheduleState'
 import { PostDetailPanel } from './PostDetail'
 
 const headerDate = new Intl.DateTimeFormat('en-US', {
@@ -41,6 +42,7 @@ export function DayDetailPanel({
 }) {
   const shell = useShell()
   const { notes } = useCalendarNotes()
+  const { posts } = useSchedule()
   const [noteRequest, setNoteRequest] = useState<NoteDialogRequest | null>(null)
   const [postId, setPostId] = useState<string>()
   const [lastPostId, setLastPostId] = useState<string>()
@@ -57,7 +59,7 @@ export function DayDetailPanel({
 
   const past = isPast(day)
   const dayNotes = layoutNotes(notes, [day]).map((segment) => segment.note)
-  const dayPosts = [...postsOn(day)].sort(
+  const dayPosts = [...postsOn(posts, day)].sort(
     (a, b) => postHour(a) - postHour(b) || a.time.localeCompare(b.time),
   )
   const openNote = (note: Note) => setNoteRequest({ mode: 'edit', note })

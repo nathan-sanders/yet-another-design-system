@@ -1,6 +1,7 @@
 import { CalendarPostCard } from '../../components/PostCards'
 import type { CalendarNote, Post } from '../../data/types'
 import { HourGrid } from './HourGrid'
+import { MovablePost } from './MovablePost'
 import { weekDays } from './model'
 
 interface WeekViewProps {
@@ -27,12 +28,16 @@ export function WeekView({
       onAddNote={onAddNote}
       onOpenNote={onOpenNote}
       renderPost={(post) => (
-        <CalendarPostCard
-          key={post.id}
-          post={post}
-          selected={post.id === selectedPostId}
-          onOpen={onOpenPost}
-        />
+        <MovablePost key={post.id} post={post}>
+          {(drag) => (
+            <CalendarPostCard
+              post={post}
+              selected={post.id === selectedPostId}
+              onOpen={onOpenPost}
+              drag={drag}
+            />
+          )}
+        </MovablePost>
       )}
     />
   )

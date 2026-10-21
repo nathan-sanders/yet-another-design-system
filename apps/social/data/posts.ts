@@ -36,6 +36,7 @@ export function profileFor(post: Post): Profile {
  * The posts, written as the Figma week draws them (`40005911:33082`), post for
  * post: by week and weekday around a Monday that is "today". `postDate` in
  * `screens/calendar/model.ts` slides them so that Monday is the real today.
+ * The calendar's live copy is `ScheduleProvider`'s, where posts can move.
  */
 export const posts: Post[] = [
   // Three and two weeks back — not in the file, written so Engage › Comments
