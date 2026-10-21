@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
 import type { DragEndEvent, DragOverEvent } from '@dnd-kit/core'
-import { Ellipsis, Lightbulb, ListFilter, Plus } from 'lucide-react'
+import { Ellipsis, ListFilter, Plus } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Badge } from '../../../../src/components/Badge'
@@ -117,9 +117,6 @@ export function IdeasScreen() {
               aria-label="More"
               onClick={() => shell.notBuilt('More actions')}
             />
-            <Button startIcon={Lightbulb} onClick={() => newIdea(UNASSIGNED)}>
-              New idea
-            </Button>
           </div>
         }
       />

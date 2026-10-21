@@ -14,6 +14,7 @@ import { FloatingYak } from '../components/FloatingYak'
 import type { MentionQuery } from '../data/mentions'
 import { me } from '../data/people'
 import { DayDetailPanel } from '../screens/calendar/DayDetail'
+import { DraftsPanel } from '../screens/calendar/DraftsPanel'
 import { PostDetailPanel } from '../screens/calendar/PostDetail'
 import { CreatorDetailPanel } from '../screens/creators/CreatorDetail'
 import { ContactDetailPanel } from '../screens/inbox/ContactDetail'
@@ -356,6 +357,7 @@ export function SocialShell() {
             onClose={() => setPanel(null)}
           />
           <NotificationsPanel open={notificationsOpen} onClose={() => setPanel(null)} />
+          <DraftsPanel open={panel?.type === 'drafts'} onClose={() => setPanel(null)} />
           <NewReportDialog />
 
           <MobileNav
