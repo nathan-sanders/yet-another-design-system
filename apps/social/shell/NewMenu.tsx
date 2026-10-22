@@ -10,11 +10,12 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 
 import { Menu } from '../../../src/components/Menu'
 import { Tooltip } from '../../../src/components/Tooltip'
 import type { ReportType } from '../data/types'
+import { composePath } from '../screens/compose/paths'
 import { openNewReport } from '../screens/reports/newReport'
 import { useShell } from './ShellContext'
 
@@ -26,6 +27,8 @@ interface NewItem {
   what: string
   /** Opens New report, on this type when there is one, instead of the toast. */
   report?: ReportType | true
+  /** Goes to a page instead of the toast: the composer, from wherever this was. */
+  to?: (pathname: string) => string
 }
 
 /** Figma's `Menu` (`40005939:57476`): things to make, then people and channels to add. */
@@ -35,6 +38,7 @@ const create: NewItem[] = [
     description: 'Publish content to a channel',
     icon: SquarePen,
     what: 'The post composer',
+    to: (pathname) => composePath({ from: pathname }),
   },
   {
     label: 'Campaign',
@@ -77,15 +81,19 @@ const invite: NewItem[] = [
 export function NewMenu({ trigger, tooltip }: { trigger: ReactElement; tooltip?: string }) {
   const shell = useShell()
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { pathname, search } = useLocation()
   const row = (item: NewItem) => (
     <Menu.Item
       key={item.label}
       startIcon={item.icon}
       description={item.description}
       onClick={() =>
-        item.report
-          ? openNewReport(params, setParams, item.report === true ? undefined : item.report)
-          : shell.notBuilt(item.what)
+        item.to
+          ? navigate(item.to(pathname + search))
+          : item.report
+            ? openNewReport(params, setParams, item.report === true ? undefined : item.report)
+            : shell.notBuilt(item.what)
       }
     >
       {item.label}

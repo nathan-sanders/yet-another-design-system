@@ -4,6 +4,9 @@ import { Toast } from '../../../../src/components/Toast'
 import { formatTime } from '../../data/dates'
 import { useSchedule, type ScheduleAt, type ScheduleRequest } from './scheduleState'
 
+/** The two requests that change the schedule; `pick` only hands a time back. */
+type CommitRequest = Exclude<ScheduleRequest, { source: 'pick' }>
+
 const toastDate = new Intl.DateTimeFormat('en-US', {
   weekday: 'short',
   month: 'short',
@@ -23,7 +26,7 @@ export function useCommitSchedule() {
   const { movePost, scheduleDraft } = useSchedule()
   const toast = Toast.useToast()
   return useCallback(
-    (request: ScheduleRequest, at: ScheduleAt) => {
+    (request: CommitRequest, at: ScheduleAt) => {
       const undo =
         request.source === 'post'
           ? movePost(request.post.id, at)

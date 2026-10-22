@@ -55,7 +55,22 @@ export interface Post {
   comments?: number
   /** The team's internal discussion, in the post detail panel. */
   thread?: PostComment[]
+  /** The idea it was made from, when it was. The Ideas board follows it from here. */
+  ideaId?: string
+  campaignId?: string
+  /** Tag names, from the composer. `tags` is the count the fixtures carry. */
+  tagNames?: string[]
+  /** A person id. */
+  assigneeId?: string
+  /** Goes out for review before it publishes. */
+  needsApproval?: boolean
+  format?: PostFormat
+  /** Posted under the post the moment it goes out. */
+  firstComment?: string
 }
+
+/** What shape a post takes on its network: the composer's format segment. */
+export type PostFormat = 'post' | 'carousel' | 'reel' | 'story'
 
 /**
  * The ten colors Figma's `Calendar Note` set (`40005949:63968`) offers. The file
@@ -416,9 +431,19 @@ export interface Campaign {
 export interface Idea {
   id: string
   title: string
+  /** The notes: what the post would be, before it is one. */
   body: string
   image?: string
   campaignId?: string
+  tagNames?: string[]
+  /** A person id. */
+  assigneeId?: string
+  /** Off the board, kept. */
+  archived?: boolean
+  /** A person id. */
+  createdBy?: string
+  /** When, as the page prints it: `Jul 2`. */
+  created?: string
 }
 
 /** A column on the Ideas board. Figma calls them groups ("New group"). */

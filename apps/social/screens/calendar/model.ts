@@ -1,5 +1,6 @@
 import { addDays, sameDay, startOfDay, startOfWeek } from '../../data/dates'
 import type { CalendarDay, CalendarNote, Post } from '../../data/types'
+import type { ScheduleAt } from './scheduleState'
 
 export type CalendarView = 'day' | 'week' | 'month'
 
@@ -149,4 +150,18 @@ export function layoutNotes(notes: CalendarNote[], days: Date[]): NoteSegment[] 
       continuesAfter: to > last,
     }
   })
+}
+
+/** Every quarter hour the day and week grids draw, 6:00 am to 11:45 pm. */
+export const TIMES = HOURS.flatMap((hour) =>
+  ['00', '15', '30', '45'].map((minute) => `${String(hour).padStart(2, '0')}:${minute}`),
+)
+
+/** A draft's first offer: the next whole hour today, or 9 tomorrow once today's grid has run out. */
+export function firstOffer(): ScheduleAt {
+  const next = new Date().getHours() + 1
+  if (next <= HOURS[HOURS.length - 1]! && next >= HOURS[0]!) {
+    return { date: today, time: `${String(next).padStart(2, '0')}:00` }
+  }
+  return { date: addDays(today, 1), time: '09:00' }
 }

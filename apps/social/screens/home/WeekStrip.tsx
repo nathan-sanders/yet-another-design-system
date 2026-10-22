@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react'
+import { useNavigate } from 'react-router'
 
 import { Button } from '../../../../src/components/Button'
 import { Text } from '../../../../src/components/Text'
@@ -6,6 +7,7 @@ import { cn } from '../../../../src/lib/cn'
 import { CalendarPostChip } from '../../components/PostCards'
 import { fullDate, sameDay, weekdayShort } from '../../data/dates'
 import { useShell } from '../../shell/ShellContext'
+import { composePath } from '../compose/paths'
 import { isPast, pastDayPattern, postsOn, today, weekDays } from '../calendar/model'
 import { useSchedule } from '../calendar/scheduleState'
 
@@ -26,6 +28,7 @@ import { useSchedule } from '../calendar/scheduleState'
  */
 export function WeekStrip() {
   const shell = useShell()
+  const navigate = useNavigate()
   const { posts } = useSchedule()
   const days = weekDays(today)
   const openPostId = shell.panel?.type === 'post' ? shell.panel.postId : undefined
@@ -67,7 +70,7 @@ export function WeekStrip() {
                     appearance="ghost"
                     startIcon={Plus}
                     aria-label={`Add a post on ${fullDate.format(day)}`}
-                    onClick={() => shell.notBuilt('The post composer')}
+                    onClick={() => navigate(composePath({ date: day, from: '/home' }))}
                   />
                 )}
               </div>
