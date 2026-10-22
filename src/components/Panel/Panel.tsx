@@ -17,7 +17,6 @@ import type {
   RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import type { LucideIcon } from 'lucide-react'
 import { X } from 'lucide-react'
 import { useRender } from '@base-ui/react/use-render'
 
@@ -28,6 +27,7 @@ import { Button } from '../Button'
 import { BlockHeader } from '../ContentBlock/BlockHeader'
 import { HEADING, title } from '../ContentBlock/styles'
 import { ResizeHandle } from '../Resize'
+import type { StartIcon } from '../Icon'
 import {
   PanelContext,
   PanelStackContext,
@@ -565,7 +565,7 @@ export interface PanelHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'ch
   /** The title. Keep it short — "Details", not a sentence. */
   children: ReactNode
   /** A 16px icon before the title. Pass the component: `icon={Info}`. */
-  icon?: LucideIcon
+  icon?: StartIcon
   /** After the title, left-aligned with it — a Badge, usually. ContentBlock's slot. */
   titleSlot?: ReactNode
   /** Controls for the panel, pushed to the right edge. Default-size ghost Buttons fit. */

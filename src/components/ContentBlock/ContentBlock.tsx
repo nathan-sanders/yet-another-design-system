@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
-import type { LucideIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import type { StartIcon } from '../Icon'
 import { BlockHeader } from './BlockHeader'
 import { HEADING, title } from './styles'
 
@@ -173,7 +173,7 @@ export interface ContentBlockHeaderProps extends ComponentPropsWithRef<'div'> {
    * `icon={Users}`, not `<Users />` — Button, Badge and Banner all take an icon
    * this way.
    */
-  icon?: LucideIcon
+  icon?: StartIcon
   /**
    * The Figma "Header Slot Items" — something that belongs *with* the title and
    * reads after it, usually a Badge carrying a delta. Left-aligned, beside the

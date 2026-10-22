@@ -102,6 +102,13 @@ icon-only variant yet.
 **Naming:** `src/components/Token/` is this component; `tokens/` at the repo root is the design
 token export from Figma. Unrelated, and the collision is worth a second's care when reading a path.
 
+## `startIcon` takes an element (2026-10-22)
+
+A Lucide component or an element, through `LeadingIcon` at `size="small"`: the same 14px box at both
+sizes, `aria-hidden`. Yet Social's channel tokens had been putting a network's logo in `avatar`
+(FINDINGS 156), which is a 16px ringed circle sized for a face; a logo is an icon, and now goes where
+icons go. Figma already allows it, since the Icon slot is an instance swap. `ElementIcon` measures it.
+
 ## Best practices
 
 Mirrored from the **Best practices** block on `↪ Token` (`40004242:15158`) in Figma.

@@ -1,15 +1,17 @@
 import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react'
-import type { LucideIcon } from 'lucide-react'
 
 import type { VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
-import { Icon } from '../Icon'
+import { LeadingIcon, type StartIcon } from '../Icon'
 import { header } from './styles'
 
 export interface BlockHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
-  /** The Figma "Icon" slot, at 16px, before the heading. */
-  icon?: LucideIcon
+  /**
+   * The Figma "Icon" slot, at 16px, before the heading: a Lucide component, or
+   * an element for a mark that is not one (an application's own logo).
+   */
+  icon?: StartIcon
   /**
    * The heading, already rendered. An element rather than text because the
    * three callers make different ones: `ContentBlock` an `<h3>` colored by its
@@ -55,7 +57,7 @@ export function BlockHeader({
         actions off the edge — Banner's fix, in the same place.
       */}
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        {icon && <Icon icon={icon} size="base" />}
+        {icon && <LeadingIcon icon={icon} />}
         {heading}
         {titleSlot}
       </div>

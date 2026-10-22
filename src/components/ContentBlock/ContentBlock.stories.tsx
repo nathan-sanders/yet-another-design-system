@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect } from 'storybook/test'
 import { Activity, ArrowUpRight, Ellipsis, Eye, Info, TrendingUp, Users } from 'lucide-react'
 
 import { ContentBlock, type ContentBlockEmphasis } from './ContentBlock'
@@ -188,6 +189,37 @@ export const HeaderAnatomy: Story = {
       </ContentBlock>
     </div>
   ),
+}
+
+/**
+ * The header's `icon` takes an element as well as a Lucide component, for a
+ * mark that is not a glyph — an application's own assistant, say. It sits in
+ * the same 16px box, and `Panel.Header` and `Drawer.Header` take it the same
+ * way, since all three draw the one shared header.
+ */
+export const ElementIcon: Story = {
+  render: () => (
+    <ContentBlock className="w-96">
+      <ContentBlock.Header
+        icon={
+          <svg viewBox="0 0 16 16" className="size-full" fill="currentColor">
+            <path d="M8 1l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
+          </svg>
+        }
+      >
+        Assistant
+      </ContentBlock.Header>
+      <ContentBlock.Content>
+        <Text color="subtle">The mark is the application's, so it comes in as an element.</Text>
+      </ContentBlock.Content>
+    </ContentBlock>
+  ),
+  play: async ({ canvasElement }) => {
+    const box = canvasElement.querySelector('svg')!.parentElement!
+    await expect(box).toHaveAttribute('aria-hidden', 'true')
+    const rect = box.getBoundingClientRect()
+    await expect([rect.width, rect.height]).toEqual([16, 16])
+  },
 }
 
 /**

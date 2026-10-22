@@ -1,10 +1,9 @@
 import { useId, type ComponentPropsWithRef, type MouseEventHandler, type ReactNode } from 'react'
-import type { LucideIcon } from 'lucide-react'
 import { X } from 'lucide-react'
 
 import { cn } from '../../lib/cn'
 import { Avatar, type AvatarProps } from '../Avatar'
-import { Icon } from '../Icon'
+import { Icon, LeadingIcon, type StartIcon } from '../Icon'
 import { TokenContext, useToken } from './context'
 import {
   token,
@@ -30,11 +29,12 @@ interface TokenBaseProps
    */
   radius?: TokenRadius
   /**
-   * Lucide icon before the label — Figma's Icon slot. Pass the component itself:
-   * `startIcon={Tag}`, not `<Tag />`. Rendered at 14px at both sizes, as Figma
-   * has it.
+   * The icon before the label — Figma's Icon slot. A Lucide component,
+   * `startIcon={Tag}`, or an element for a mark that is not one (a network's
+   * logo), in the same 14px box at both sizes, as Figma has it. Not `avatar`,
+   * which is sized and ringed for a face.
    */
-  startIcon?: LucideIcon
+  startIcon?: StartIcon
   /**
    * Figma's Avatar slot. Put a `<Token.Avatar>` in it, which takes its size from
    * the token: `avatar={<Token.Avatar name="Sarah Chen" />}`.
@@ -231,7 +231,7 @@ export function Token({
           ))}
 
         {avatar}
-        {startIcon && <Icon icon={startIcon} size="small" />}
+        {startIcon && <LeadingIcon icon={startIcon} size="small" />}
 
         <span id={labelId} className={tokenLabel({ hidden: labelHidden })}>
           {children}
