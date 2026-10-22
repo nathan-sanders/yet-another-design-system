@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ComponentPropsWithRef,
+  type MouseEvent,
   type ReactNode,
 } from 'react'
 
@@ -133,6 +134,15 @@ export interface TableColumn<T> {
   sortable?: boolean
   /** Opt one column out when the table is `resizable`. */
   resizable?: boolean
+  /**
+   * This column's cell holds the row's own link or button — the report's
+   * name, the creator's handle — and a pointer press anywhere else on the row
+   * presses it. The control stays the keyboard and screen-reader path, which
+   * is why this is not an `onRowClick`: a `<tr>` handler has no keyboard
+   * equivalent, and this one forwards to something that does. Rows take the
+   * pointer cursor and the hover fill.
+   */
+  rowTarget?: boolean
 }
 
 /* -------------------------------------------------------------------- root */
@@ -360,6 +370,7 @@ export function Table<T>({
     onSortChange?.(next)
   }
 
+  const rowClickable = columns.some((column) => column.rowTarget)
   const sorted = sortRows(data, sort, (item, key) => {
     const column = columns.find((candidate) => candidate.key === key)
     if (column?.sortValue) return column.sortValue(item)
@@ -501,7 +512,8 @@ export function Table<T>({
                   key={key}
                   aria-rowindex={rowCount === undefined ? undefined : rowIndex(rowIndexStart, index)}
                   selected={isSelected}
-                  hoverable={hasHover}
+                  hoverable={hasHover || rowClickable}
+                  clickable={rowClickable}
                   /*
                     The stripe comes from the row's index in the *data*, never
                     from `odd:`/`even:`. An expanded row's detail panel is a
@@ -520,6 +532,7 @@ export function Table<T>({
                         key={column.key}
                         align={alignOf(column)}
                         numeric={column.numeric}
+                        rowTarget={column.rowTarget}
                         spacer={sortsOn(sortable, column)}
                         selectionControl={
                           selectable && leading ? (
@@ -646,13 +659,55 @@ export interface TableRowProps extends ComponentPropsWithRef<'tr'> {
   striped?: boolean
   /** The hover fill. Which one depends on the table's `isStriped`, read from context. */
   hoverable?: boolean
+  /**
+   * A pointer press anywhere on the row presses the link or button in its
+   * `rowTarget` cell. The columns API sets this from `TableColumn.rowTarget`;
+   * in children mode mark the cell `rowTarget` and the row `clickable`.
+   */
+  clickable?: boolean
 }
 
-function TableRow({ selected = false, striped = false, hoverable = false, className, ...props }: TableRowProps) {
+/**
+ * The row's press, handed to its target control. A press on any control of
+ * the row's own is that control's, and a press that ends a text selection is
+ * not a press on the row — the two ways a forwarded click would surprise.
+ * `.click()` carries no modifier keys, so a Cmd-click on a row opens its link
+ * in place; the link itself still takes one.
+ */
+function forwardToRowTarget(event: MouseEvent<HTMLTableRowElement>) {
+  if (event.defaultPrevented) return
+  const target = event.target as Element
+  if (target.closest('a, button, input, select, textarea, label, [role="button"], [data-drag-ignore]')) return
+  if (window.getSelection()?.toString()) return
+  event.currentTarget
+    .querySelector<HTMLElement>('[data-row-target] a[href], [data-row-target] button:not(:disabled)')
+    ?.click()
+}
+
+function TableRow({
+  selected = false,
+  striped = false,
+  hoverable = false,
+  clickable = false,
+  className,
+  onClick,
+  ...props
+}: TableRowProps) {
   const { isStriped } = useTableContext()
   return (
     <TableRowContext.Provider value={{ selected }}>
-      <tr className={cn(row({ selected, striped, hoverable, zebra: isStriped }), className)} {...props} />
+      <tr
+        className={cn(row({ selected, striped, hoverable, zebra: isStriped }), clickable && 'cursor-pointer', className)}
+        onClick={
+          clickable
+            ? (event) => {
+                onClick?.(event)
+                forwardToRowTarget(event)
+              }
+            : onClick
+        }
+        {...props}
+      />
     </TableRowContext.Provider>
   )
 }
@@ -808,6 +863,8 @@ export interface TableCellProps
   selectionControl?: ReactNode
   /** Figma's `expand`. Pass the disclosure button; the cell draws the gap. */
   expandControl?: ReactNode
+  /** This cell holds the row's own link or button; see `TableColumn.rowTarget`. */
+  rowTarget?: boolean
 }
 
 function TableCell({
@@ -818,6 +875,7 @@ function TableCell({
   spacer = false,
   selectionControl,
   expandControl,
+  rowTarget = false,
   className,
   children,
   ...props
@@ -837,7 +895,7 @@ function TableCell({
   })
 
   return (
-    <td className={cn(styles.root(), className)} {...props}>
+    <td className={cn(styles.root(), className)} data-row-target={rowTarget || undefined} {...props}>
       <span className={styles.line()}>
         {selectionControl}
         {expandControl}

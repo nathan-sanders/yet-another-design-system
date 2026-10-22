@@ -1,10 +1,14 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
+import { Button } from '../Button'
 import { Table } from './Table'
 import { MIN_COLUMN_WIDTH, pixel, proportional } from './widths'
 import { Text } from '../Text'
+import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
 
 interface Row extends Record<string, unknown> {
   id: string
@@ -825,6 +829,84 @@ export const Empty: Story = {
     const cell = canvas.getByRole('cell')
     await expect(cell).toHaveTextContent('No team members yet.')
     await expect(cell).toHaveAttribute('colspan', '3')
+  },
+}
+
+/**
+ * `rowTarget` on a column: its cell holds the row's own control — here the
+ * name, a button — and a pointer press anywhere else on the row presses it.
+ * The button stays the keyboard and screen-reader path, which is why this is
+ * not an `onRowClick`. Rows take the pointer cursor and the hover fill. A
+ * press on another control in the row (Remove) is that control's.
+ */
+export const ClickableRows: Story = {
+  parameters: { controls: { disable: true } },
+  render: function ClickableRowsStory() {
+    const [opened, setOpened] = useState('nothing')
+    return (
+      <div className="flex flex-col gap-3">
+        <Table<Row>
+          label="Team"
+          idKey="id"
+          data={rows}
+          columns={[
+            {
+              key: 'name',
+              header: 'Name',
+              rowTarget: true,
+              renderCell: (item) => (
+                <button
+                  type="button"
+                  className={cn('rounded-xs text-left font-semibold', focusRing)}
+                  onClick={() => setOpened(item.name)}
+                >
+                  {item.name}
+                </button>
+              ),
+            },
+            { key: 'role', header: 'Role' },
+            { key: 'seats', header: 'Seats' },
+            {
+              key: 'actions',
+              header: <span className="sr-only">Actions</span>,
+              sortable: false,
+              renderCell: (item) => (
+                <Button appearance="ghost" size="small" onClick={() => setOpened(`removed ${item.name}`)}>
+                  Remove
+                </Button>
+              ),
+            },
+          ]}
+        />
+        <Text size="sm" color="subtle" data-testid="opened">
+          Opened: {opened}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const opened = canvas.getByTestId('opened')
+    const rowFor = (name: string) => canvas.getByRole('button', { name }).closest('tr')!
+
+    // A press on a plain cell goes to the row's own button.
+    await userEvent.click(within(rowFor('Bob Smith')).getByText('Designer'))
+    await expect(opened).toHaveTextContent('Opened: Bob Smith')
+
+    // A press on another control is that control's, and only that.
+    await userEvent.click(within(rowFor('Diana Prince')).getByRole('button', { name: 'Remove' }))
+    await expect(opened).toHaveTextContent('Opened: removed Diana Prince')
+
+    // The keyboard path is the button itself.
+    canvas.getByRole('button', { name: 'Charlie Brown' }).focus()
+    await userEvent.keyboard('{Enter}')
+    await expect(opened).toHaveTextContent('Opened: Charlie Brown')
+
+    // Rows say they are targets: the pointer, and the hover fill.
+    await expect(getComputedStyle(rowFor('Alice Johnson')).cursor).toBe('pointer')
+    await expect(hoverFill(rowFor('Alice Johnson'))).not.toBe('')
+    // The header row is not one.
+    await expect(getComputedStyle(canvasElement.querySelector('thead tr')!).cursor).not.toBe('pointer')
   },
 }
 
