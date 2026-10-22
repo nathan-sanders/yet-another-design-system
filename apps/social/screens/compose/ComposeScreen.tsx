@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft, CalendarClock, Lightbulb } from 'lucide-react'
 
@@ -21,6 +21,7 @@ import { profiles } from '../../data/posts'
 import { NETWORK_NAMES, type Network } from '../../data/types'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { useIdeas } from '../ideas/ideasState'
+import { useYakChat } from '../../yak/chat'
 import { firstOffer } from '../calendar/model'
 import { scheduleLabel } from '../calendar/scheduleCommit'
 import { momentOf, useSchedule, type ScheduleAt } from '../calendar/scheduleState'
@@ -60,6 +61,7 @@ import { prefillFromDraft, prefillFromIdea, prefillFromPost } from './prefill'
  */
 export function ComposeScreen() {
   const [params] = useSearchParams()
+  const location = useLocation()
   const source = useMemo(() => parseCompose(params), [params])
   const from = composeFrom(params)
   const { drafts, posts } = useSchedule()
@@ -74,13 +76,19 @@ export function ComposeScreen() {
     (source.kind === 'idea' && !idea)
   if (missing) return <Navigate to={from} replace />
 
-  const initial = draft
+  const base = draft
     ? prefillFromDraft(draft)
     : post
       ? prefillFromPost(post)
       : idea
         ? prefillFromIdea(idea)
         : emptyFields(source.kind === 'new' ? source.at : null)
+  // What Yak sends along when it opens the composer from a reply — not URL
+  // state, because the text is Yak's, not a view anyone would link to.
+  const prefill = (location.state as { prefill?: Partial<ComposeFields> } | null)?.prefill
+  const initial: ComposeFields = prefill
+    ? { ...base, ...prefill, captions: { ...base.captions, ...prefill.captions } }
+    : base
 
   return (
     <Composer
@@ -101,7 +109,8 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
   const toast = Toast.useToast()
   const schedule = useSchedule()
   const { ideas } = useIdeas()
-  const { fields, set, patch } = useComposeForm(initial)
+  const chat = useYakChat()
+  const { fields, set, patch, setFields } = useComposeForm(initial)
   const [tab, setTab] = useState<CaptionTab>('all')
   const [previewNetwork, setPreviewNetwork] = useState<Network | null>(null)
   const [submitted, setSubmitted] = useState(false)
@@ -109,6 +118,56 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
   const networks = Array.from(
     new Set(fields.profileIds.map(networkOf).filter((n): n is Network => n !== undefined)),
   )
+
+  // Yak beside the composer: tell the chat what the post is, and take what a
+  // reply applies — a network's caption, a preview switch — keeping the
+  // caption it replaces so an Undo (the entry going away) can put it back.
+  const networkKey = networks.join(',')
+  const { setComposeTarget } = chat
+  useEffect(() => {
+    setComposeTarget({
+      networks: networkKey ? (networkKey.split(',') as Network[]) : [],
+      caption: fields.caption,
+    })
+  }, [setComposeTarget, networkKey, fields.caption])
+  useEffect(() => () => setComposeTarget(null), [setComposeTarget])
+  const taken = useRef(
+    new Map<string, { kind: 'caption' | 'preview'; network: Network; before: string | undefined }>(),
+  )
+  useEffect(() => {
+    // Undos first: "Shorten more" is an undo and an apply in one tick, and the
+    // apply has to land on the caption as it was before either.
+    for (const [id, was] of taken.current) {
+      if (chat.applied.some((action) => action.id === id)) continue
+      taken.current.delete(id)
+      if (was.kind !== 'caption') continue
+      setFields((current) => {
+        const captions = { ...current.captions }
+        if (was.before === undefined) delete captions[was.network]
+        else captions[was.network] = was.before
+        return { ...current, captions }
+      })
+    }
+    for (const action of chat.applied) {
+      if (taken.current.has(action.id)) continue
+      if (action.kind === 'caption') {
+        setFields((current) => {
+          if (!taken.current.has(action.id)) {
+            taken.current.set(action.id, {
+              kind: 'caption',
+              network: action.network,
+              before: current.captions[action.network],
+            })
+          }
+          return { ...current, captions: { ...current.captions, [action.network]: action.text } }
+        })
+        setTab(action.network)
+      } else {
+        taken.current.set(action.id, { kind: 'preview', network: action.network, before: undefined })
+        setPreviewNetwork(action.network)
+      }
+    }
+  }, [chat.applied, setFields])
   const shownTab: CaptionTab = tab !== 'all' && !networks.includes(tab) ? 'all' : tab
   const tabNetwork = shownTab === 'all' ? null : shownTab
   const overridden = (Object.keys(fields.captions) as Network[]).filter((n) => fields.captions[n])

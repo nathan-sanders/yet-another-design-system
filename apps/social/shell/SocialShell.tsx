@@ -25,6 +25,8 @@ import { isOpen } from '../screens/inbox/model'
 import { NewReportDialog } from '../screens/reports/NewReportDialog'
 import { ScheduleDialog } from '../screens/calendar/ScheduleDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
+import { useIdeas } from '../screens/ideas/ideasState'
+import { useSchedule } from '../screens/calendar/scheduleState'
 import { YakChatContext, useYakChatState } from '../yak/chat'
 import { floatingYakFor } from '../yak/floating'
 import { useMarkActive } from '../yak/useMarkActive'
@@ -51,7 +53,20 @@ export function SocialShell() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [panel, setPanel] = useState<ShellPanel>(null)
-  const yakChat = useYakChatState()
+  // What Yak may read when it answers, through refs so a prompt asked at any
+  // moment sees the schedule and the ideas as they are then.
+  const { posts } = useSchedule()
+  const { ideas } = useIdeas()
+  const yakContext = useRef({ posts, ideas })
+  yakContext.current = { posts, ideas }
+  const getYakContext = useCallback((from: string) => {
+    const ideaId = from.match(/^\/plan\/ideas\/([^/?]+)/)?.[1]
+    return {
+      posts: yakContext.current.posts,
+      idea: ideaId ? yakContext.current.ideas[ideaId] : undefined,
+    }
+  }, [])
+  const yakChat = useYakChatState({ getContext: getYakContext })
   // On the full view, Yak *is* the page: the rail's button closes it, and the
   // panel stays shut however the shell's state says it was left.
   const onYakPage = location.pathname === '/yak'
@@ -300,6 +315,7 @@ export function SocialShell() {
                 inputRef={floatingYakInput}
                 placeholder={floatingYak.placeholder}
                 mode={floatingYak.mode}
+                opens={floatingYak.opens}
               />
             )}
           </AppShell.Page>

@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { Avatar } from '../../../src/components/Avatar'
 import { Combobox, type ComboboxValue } from '../../../src/components/Combobox'
 import { Field } from '../../../src/components/Field'
@@ -48,6 +50,8 @@ export function DetailsFields({
   onChange: (patch: { campaignId?: string; tagNames?: string[]; assigneeId?: string }) => void
   layout?: 'row' | 'column'
 }) {
+  // A stable array for the tokenizer: a fresh one each render would read as a change.
+  const chosenItems = useMemo(() => tagItems.filter((item) => chosen.includes(item.value)), [chosen])
   const campaign = (
     <Field label="Campaign" nativeLabel={false}>
       <Select
@@ -68,7 +72,7 @@ export function DetailsFields({
       <Combobox
         multiple
         items={tagItems}
-        value={tagItems.filter((item) => chosen.includes(item.value))}
+        value={chosenItems}
         onValueChange={(value: ComboboxValue) =>
           onChange({ tagNames: Array.isArray(value) ? value.map((v) => String(v.value)) : [] })
         }

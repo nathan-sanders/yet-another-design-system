@@ -1293,3 +1293,36 @@ place that used to say "not built".
 
 - A Threads preview (the column only draws Instagram's), the "Edit post" title state, and a
   Facebook / X options block — the options drawn are Instagram's whichever tab is open.
+
+## Yak beside the editor (2026-10-21)
+
+On the composer and an idea's page the floating Yak bar opens the **panel**, not Yak's full view,
+so the work stays in sight while Yak answers (`Plan - Composer / Full View - Yak Panel`,
+`40006021:32135`; the reply `40006040:31176`). The replies there are scripted.
+
+149. **`opens: 'panel'` on a page that is an editor.** `yak/floating.ts` says where a page's bar
+    opens; the composer and `/plan/ideas/:ideaId` say `panel`, and the bar calls `chat.start` (a
+    fresh chat with the typed text as its first turn) and opens the panel. The shell already keeps
+    the Yak panel across a path change, so leaving the composer by Back or Schedule leaves Yak open
+    beside the next page — by design, and worth knowing.
+150. **A turn settles its reply when it is asked** (`yak/replies.ts`, `Turn.reply`). Scripts are
+    keyed by page prefix and prompt; anything else gets the house line. `Conversation` draws what
+    it is handed: the script's thought row with its extra `ToolCall`s folded inside, one Ghost
+    bubble per paragraph, a `Card` for a caption Yak proposes with its buttons inside, and a
+    "Next, I can" row of Secondary chips that ask again. The log never changes its mind after the
+    fact, which a reply computed at render time from live state would.
+151. **Applying goes through the chat, not into the form.** The panel is the shell's and the
+    composer is a route, so the card cannot reach the form. The chat holds `applied` actions and a
+    `composeTarget` the composer registers; the composer watches `applied`, writes the network's
+    caption, and keeps what it replaced so an Undo — the entry going away — restores it. Undos are
+    processed before new entries, because "Shorten more" is both in one tick. The chat object is
+    memoized; an effect keyed on it looped the shell until it was.
+152. **The library has no suggestion-chip or proposal-card part for a chat.** Both are app pieces
+    here (`FollowUps` in `YakPanel.tsx`, `yak/CaptionCard.tsx`) built from Button and Card. A
+    second caller — the inbox's Yak drafts are the likely one — would be the signal for a
+    `ChatMessage.Suggestions`.
+
+### Figma owes
+
+- The proposal card inside a Yak turn as a component (it is a one-off in `40006040:31176`), and
+  the "Next, I can" row.
