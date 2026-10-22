@@ -104,7 +104,14 @@ export const SliceClick: Story = {
     const status = canvas.getByRole('status')
 
     await step('a click on a slice opens it', async () => {
-      await userEvent.click(canvasElement.querySelectorAll('.recharts-pie-sector')[1]!)
+      // Hover first and let the active shape render, then click the slice that
+      // is there now. A click that moves and presses at once is lost under
+      // load: Recharts re-renders the hovered sector between mousedown and
+      // mouseup, and the browser fires no click.
+      const slice = () => canvasElement.querySelectorAll('.recharts-pie-sector')[1]!
+      await userEvent.hover(slice())
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('In progress'))
+      await userEvent.click(slice())
       await waitFor(() => expect(status).toHaveTextContent('Opened In progress (row 1)'))
     })
 
