@@ -1,4 +1,14 @@
-import { CalendarX, CircleAlert, Inbox, Lightbulb, type LucideIcon } from 'lucide-react'
+import {
+  CalendarDays,
+  CalendarX,
+  CircleAlert,
+  Clock,
+  Inbox,
+  Lightbulb,
+  MessageSquareText,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react'
 
 import { addDays, formatTime, sameDay } from '../data/dates'
 import { customerFor, tickets } from '../data/inbox'
@@ -140,8 +150,56 @@ export function inboxInsights(): Insight[] {
   return insights
 }
 
+/** The composer's rows: about the post being written. The chips are scripted replies (`replies.ts`). */
+export function composeInsights(): Insight[] {
+  return [
+    {
+      icon: Clock,
+      text: 'Your Instagram reach peaks late morning on weekends; Saturday 11 am is open',
+      action: 'Suggest a time',
+    },
+    {
+      icon: MessageSquareText,
+      text: 'Threads cuts a caption at 500 characters, and reads better without the swipe cue',
+      action: 'Write the Threads version',
+    },
+    {
+      icon: Lightbulb,
+      text: 'Posts with a first comment get more saves than ones that open with a question',
+      action: 'Write the first comment',
+    },
+  ]
+}
+
+/** An idea page's rows: what Yak knows that bears on shaping it (`40006056:47329`). */
+export function ideaInsights(): Insight[] {
+  return [
+    {
+      icon: Sparkles,
+      text: 'Grilled corn ran last July and was your top Threads post that month. Worth a callback',
+      action: 'Draft a caption',
+    },
+    {
+      icon: Lightbulb,
+      text: 'Discover shows corn and grill mentions up 38% this week — it fits a carousel',
+      action: 'Suggest 3 angles',
+    },
+    {
+      icon: CalendarDays,
+      text: 'Summer Menu has two scheduled posts and no gap until Saturday',
+      action: 'Find a slot for it',
+    },
+  ]
+}
+
 /** The brief for whatever page is open: its own insights, or a workspace roundup. */
 export function pageBrief(pathname: string, posts: Post[]): PageBrief {
+  if (pathname.startsWith('/plan/compose')) {
+    return { page: 'Composer', title: 'This post', insights: composeInsights() }
+  }
+  if (/^\/plan\/ideas\/[^/]+/.test(pathname)) {
+    return { page: 'Idea', title: 'Shaping this idea', insights: ideaInsights() }
+  }
   if (pathname.startsWith('/plan/calendar')) {
     return {
       page: 'Calendar',
@@ -179,6 +237,20 @@ export interface PageWork {
 }
 
 export function pageWork(pathname: string): PageWork {
+  if (pathname.startsWith('/plan/compose')) {
+    return {
+      phrases: ['Reading the caption', 'Checking the channels', 'Drafting'],
+      steps: ['Read the caption and media', 'Checked the channels it goes to'],
+      summary: 'Read the post as it stands',
+    }
+  }
+  if (/^\/plan\/ideas\/[^/]+/.test(pathname)) {
+    return {
+      phrases: ['Reading the idea', 'Checking what ran before', 'Drafting'],
+      steps: ['Read the idea', 'Checked the campaign it belongs to'],
+      summary: 'Read the idea and what it could become',
+    }
+  }
   if (pathname.startsWith('/plan/calendar')) {
     return {
       phrases: ['Reading your calendar', 'Checking reach by day', 'Drafting'],

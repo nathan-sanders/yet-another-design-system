@@ -29,8 +29,10 @@ import { me } from '../data/people'
 import { greeting } from './greeting'
 import { history, startActions } from '../data/yak'
 import { useShell } from '../shell/ShellContext'
+import { CaptionCard } from './CaptionCard'
 import { useYakChat, type Turn } from './chat'
-import { allInsights, pageBrief } from './insights'
+import { pageBrief } from './insights'
+import { fallbackReply, type ReplyBubble } from './replies'
 import type { Post } from '../data/types'
 import { useSchedule } from '../screens/calendar/scheduleState'
 import type { SearchResults } from './search'
@@ -317,6 +319,8 @@ function ReplyActions() {
  */
 export function Conversation({ turns }: { turns: Turn[] }) {
   const { posts } = useSchedule()
+  const chat = useYakChat()
+  const { pathname } = useLocation()
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => {
     end.current?.scrollIntoView({ block: 'end' })
@@ -341,25 +345,46 @@ export function Conversation({ turns }: { turns: Turn[] }) {
           </ChatMessage>
           {turn.state === 'thinking' ? (
             <ThoughtProcess thinking icon={<Mark animate />} phrases={turn.work.phrases}>
-              <ToolCall status="done">{turn.work.steps[0]}</ToolCall>
-              <ToolCall status="running">{turn.work.steps[1]}</ToolCall>
+              <ToolCall status="done">{(turn.reply?.steps ?? turn.work.steps)[0]}</ToolCall>
+              <ToolCall status="running">{(turn.reply?.steps ?? turn.work.steps)[1]}</ToolCall>
             </ThoughtProcess>
           ) : (
             <>
-              <ThoughtProcess label={turn.work.summary}>
-                <ToolCall status="done">{turn.work.steps[0]}</ToolCall>
-                <ToolCall status="done">{turn.work.steps[1]}</ToolCall>
+              {/* The scripted reply's thought row, or the page's; its extra
+                  tool calls fold inside the same card, as Nathan drew it. */}
+              <ThoughtProcess label={turn.reply?.summary ?? turn.work.summary}>
+                <ToolCall status="done">{(turn.reply?.steps ?? turn.work.steps)[0]}</ToolCall>
+                <ToolCall status="done">{(turn.reply?.steps ?? turn.work.steps)[1]}</ToolCall>
+                {turn.reply?.tools?.map((tool) => (
+                  <ToolCall key={tool.label} status="done" detail={tool.detail}>
+                    {tool.label}
+                  </ToolCall>
+                ))}
               </ThoughtProcess>
               <ChatMessage
                 sender="Yak"
                 layout="fill"
                 metadata={<Stamp at={turn.repliedAt ?? turn.sentAt} actions={<ReplyActions />} />}
               >
-                <ChatMessage.Bubble appearance="ghost">
-                  {turn.results?.answer ?? reply(turn.prompt, posts)}
-                </ChatMessage.Bubble>
+                {bubblesOf(turn, posts).map((bubble, i) =>
+                  bubble.kind === 'text' ? (
+                    <ChatMessage.Bubble key={i} appearance="ghost">
+                      {bubble.text}
+                    </ChatMessage.Bubble>
+                  ) : (
+                    <ChatMessage.Bubble key={i} appearance="ghost">
+                      <CaptionCard turn={turn} bubble={bubble} />
+                    </ChatMessage.Bubble>
+                  ),
+                )}
               </ChatMessage>
               {turn.results ? <Results results={turn.results} /> : null}
+              {turn.reply?.followUps?.length ? (
+                <FollowUps
+                  prompts={turn.reply.followUps}
+                  onAsk={(prompt) => chat.ask(prompt, pathname)}
+                />
+              ) : null}
             </>
           )}
         </Fragment>
@@ -423,10 +448,30 @@ function Results({ results }: { results: SearchResults }) {
   )
 }
 
-function reply(prompt: string, posts: Post[]): string {
+/** A turn's paragraphs: the script's, a search's answer, or the house line. */
+function bubblesOf(turn: Turn, posts: Post[]): ReplyBubble[] {
+  if (turn.reply) return turn.reply.bubbles
+  return [{ kind: 'text', text: turn.results?.answer ?? fallbackReply(turn.prompt, posts) }]
+}
+
+/**
+ * "Next, I can": what Yak offers to do after a reply, as the Secondary chips
+ * the start screen's insights use (`40006043:31914`). Each one asks.
+ */
+function FollowUps({ prompts, onAsk }: { prompts: string[]; onAsk: (prompt: string) => void }) {
   return (
-    allInsights(posts).find((insight) => insight.action === prompt)?.answer ??
-    'Here’s a first pass. In the real product this is where I’d draft it into the right place — the calendar, a campaign or a report — for you to review.'
+    <div className="flex flex-col gap-2 px-3 pt-1">
+      <Text size="sm" weight="semibold" color="subtle">
+        Next, I can
+      </Text>
+      <div className="flex flex-wrap gap-2">
+        {prompts.map((prompt) => (
+          <Button key={prompt} appearance="secondary" size="small" onClick={() => onAsk(prompt)}>
+            {prompt}
+          </Button>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -23,7 +23,9 @@ export const floatingYakClearance = 'md:pb-24'
  * `Floating Yak` (`40005929:39292`): Yak's way in from any page, floating over
  * the bottom of the page column. A search or a question opens Yak's full view,
  * which minimizes to the panel; the panel button opens the panel straight away,
- * taking anything already typed with it. The shell decides where it shows
+ * taking anything already typed with it. On a page that is itself an editor
+ * (`opens: 'panel'`) a question opens the panel too, as a fresh chat, so the
+ * work stays in view beside the answer. The shell decides where it shows
  * (`yak/floating.ts`) and hides it while Yak is in its panel.
  *
  * The pill is the InputGroup's own box at Figma's 58 — 8 of padding and a
@@ -35,6 +37,7 @@ export const floatingYakClearance = 'md:pb-24'
 export function FloatingYak({
   placeholder,
   mode,
+  opens = 'full',
   inputRef,
 }: FloatingYakConfig & {
   /** The shell's, so `/` can put the caret here. */
@@ -52,7 +55,12 @@ export function FloatingYak({
     event.preventDefault()
     const prompt = text.trim()
     if (!prompt) return
-    if (mode === 'search') {
+    if (opens === 'panel') {
+      if (mode === 'search') chat.search(prompt, pathname)
+      else chat.start(prompt, pathname)
+      setText('')
+      shell.setPanel({ type: 'yak' })
+    } else if (mode === 'search') {
       search(prompt)
     } else {
       chat.ask(prompt, pathname)
