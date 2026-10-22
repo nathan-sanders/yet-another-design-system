@@ -18,6 +18,7 @@ import { Panel } from '../../../../src/components/Panel'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Tabs } from '../../../../src/components/Tabs'
 import { Token } from '../../../../src/components/Token'
+import { cn } from '../../../../src/lib/cn'
 import { NoteThread } from '../../components/InternalNote'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { formatTime } from '../../data/dates'
@@ -154,13 +155,26 @@ export function PostBody({ post }: { post: Post }) {
       {isPublished(post) ? (
         <PostStatsRow stats={{ ...statsFor(post), unread }} />
       ) : (
-        <div className="flex items-center justify-between gap-2">
+        // Edit on its own at the start; Preview and the tag count together at
+        // the end (`40005911:33236`).
+        <div className="flex items-center gap-1">
           <Button appearance="ghost" startIcon={Pencil} onClick={() => shell.notBuilt('Editing')}>
             Edit
           </Button>
+          <span className="flex-1" />
           <Button appearance="ghost" startIcon={Eye} onClick={() => shell.notBuilt('Preview')}>
             Preview
           </Button>
+          {post.tags ? (
+            <Button
+              appearance="ghost"
+              startIcon={Tag}
+              aria-label={`${post.tags} tags`}
+              onClick={() => shell.notBuilt('Tags')}
+            >
+              {post.tags}
+            </Button>
+          ) : null}
         </div>
       )}
     </div>
@@ -173,33 +187,47 @@ export function PostBody({ post }: { post: Post }) {
  * has gone out there is more to it: Comments first (the public thread, each
  * comment a ticket as in the inbox), Activity carrying on past publishing, and
  * Measure (what it earned).
+ *
+ * `pinned` is the panel's layout: the tabs pad themselves to the scroller's
+ * 16px gutter and the strip sticks to its top, so the way to Activity is
+ * still there halfway down a long thread.
  */
 export function PostDetailTabs({
   post,
   thread,
   tab,
   onTabChange,
+  pinned,
 }: {
   post: Post
   thread: PostComment[]
   tab: DetailTab
   onTabChange: (tab: DetailTab) => void
+  pinned?: boolean
 }) {
   const published = isPublished(post)
+  const panel = pinned ? 'py-4' : 'pt-4'
   return (
-    <Tabs value={currentTab(post, tab)} onValueChange={(value) => onTabChange(value as DetailTab)}>
-      <Tabs.List aria-label="Post detail sections">
+    <Tabs
+      value={currentTab(post, tab)}
+      onValueChange={(value) => onTabChange(value as DetailTab)}
+      className={cn(pinned && 'px-4 pt-2')}
+    >
+      <Tabs.List
+        aria-label="Post detail sections"
+        className={cn(pinned && 'sticky top-0 z-10 bg-surface-background-primary')}
+      >
         {published ? <Tabs.Tab value="comments">Comments</Tabs.Tab> : null}
         <Tabs.Tab value="notes">Notes</Tabs.Tab>
         <Tabs.Tab value="activity">Activity</Tabs.Tab>
         {published ? <Tabs.Tab value="measure">Measure</Tabs.Tab> : null}
       </Tabs.List>
       {published ? (
-        <Tabs.Panel value="comments" className="pt-4">
+        <Tabs.Panel value="comments" className={panel}>
           <CommentsTab key={post.id} post={post} thread={commentsFor(post)} />
         </Tabs.Panel>
       ) : null}
-      <Tabs.Panel value="notes" className="pt-4">
+      <Tabs.Panel value="notes" className={panel}>
         <section aria-label="Notes" className="flex flex-col gap-4">
           <NoteThread notes={thread} />
           {thread.length === 0 ? (
@@ -209,11 +237,11 @@ export function PostDetailTabs({
           ) : null}
         </section>
       </Tabs.Panel>
-      <Tabs.Panel value="activity" className="pt-4">
+      <Tabs.Panel value="activity" className={panel}>
         <ActivityTab events={withNotes(post, eventsFor(post), thread)} />
       </Tabs.Panel>
       {published ? (
-        <Tabs.Panel value="measure" className="pt-4">
+        <Tabs.Panel value="measure" className={panel}>
           <MeasureTab post={post} />
         </Tabs.Panel>
       ) : null}
@@ -229,8 +257,9 @@ export function NoteComposer({ onSubmit }: { onSubmit: (body: string) => void })
       aria-label="Leave a note for your team"
       placeholder="Leave a note for your team. @mention to notify"
       rows={2}
-      // The Yak composer's 16px corners (`YakComposer`).
-      className="rounded-xl"
+      // The Yak composer's 16px corners (`YakComposer`), lifted off the thread
+      // that scrolls under it on the medium shadow.
+      className="rounded-xl shadow-medium"
       actions={
         <>
           <Button
@@ -259,10 +288,11 @@ export function NoteComposer({ onSubmit }: { onSubmit: (body: string) => void })
 }
 
 /**
- * The post detail panel (`40005911:33082`): the post as it will go out, then
- * the tabs, and on Notes a composer to add to the team's thread. A `Panel`,
- * because the calendar stays live beside it — click another post and the
- * panel follows.
+ * The post detail panel (`40005911:33285`): the post as it will go out in a
+ * section of its own, ruled off from the tabs under it, and on Notes a
+ * composer to add to the team's thread. The Body scrolls edge to edge so the
+ * rule and the pinned tab strip run the panel's width. A `Panel`, because the
+ * calendar stays live beside it — click another post and the panel follows.
  */
 export function PostDetailPanel({
   postId,
@@ -318,19 +348,19 @@ export function PostDetailPanel({
       <Panel.Header icon={FileText} closeButton>
         Post detail
       </Panel.Header>
-      <Panel.Body className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3">
+      {/* `scroll-pt-12`: a note scrolled to from above stops under the pinned
+          tab strip (8 + 40), not behind it. */}
+      <Panel.Body className="scroll-pt-12 p-0">
+        <div className="flex flex-col gap-3 border-b border-surface-border p-4">
           <PostByline post={post} />
           <PostBody post={post} />
         </div>
-        {/* `contents`, so the Body's gap still spaces the tabs; it is only a
-            place to look for the note to scroll to. */}
-        <div ref={content} className="contents">
-          <PostDetailTabs post={post} thread={thread} tab={tab} onTabChange={setTab} />
+        <div ref={content}>
+          <PostDetailTabs post={post} thread={thread} tab={tab} onTabChange={setTab} pinned />
         </div>
       </Panel.Body>
       {currentTab(post, tab) === 'notes' ? (
-        <Panel.Footer>
+        <Panel.Footer className="pt-4">
           <NoteComposer onSubmit={add} />
         </Panel.Footer>
       ) : null}
