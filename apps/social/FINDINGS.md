@@ -1293,7 +1293,7 @@ place that used to say "not built".
     on the brand's avatar (`components/ChannelAvatar.tsx`); it is an absolutely positioned
     overlay in a canvas-colored ring. A `badge` slot on Avatar, like the status dot, would be the
     library's answer.
-148. **Open, and a design question rather than a gap (2026-10-22).** The file draws no create row (`↪ Combobox` has no `hasCreate`; that is Astryx's Tokenizer), and the system's own rule is that an answer off the list is Autocomplete. Waiting on Nathan. **Combobox `multiple` cannot create a value.** Tags are picked from `data/tags.ts`; a tag not
+148. **Closed by #347 (2026-10-22): Combobox `onCreate`.** Nathan's ruling: a created tag grows the list, so it is still a Combobox. The tag catalog is a small store (`useTagCatalog`, `createTag` in `data/tags.ts`) so a tag made in the composer is in the idea page's list too. **Combobox `multiple` cannot create a value.** Tags are picked from `data/tags.ts`; a tag not
     in the catalog cannot be typed in. Figma's Tokenizer has `hasCreate`.
 
 ### Figma owes

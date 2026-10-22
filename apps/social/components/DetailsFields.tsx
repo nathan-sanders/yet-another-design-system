@@ -6,7 +6,7 @@ import { Field } from '../../../src/components/Field'
 import { Select } from '../../../src/components/Select'
 import { campaigns } from '../data/ideas'
 import { people } from '../data/people'
-import { tagNames } from '../data/tags'
+import { createTag, useTagCatalog } from '../data/tags'
 
 const NONE = '__none__'
 
@@ -25,14 +25,14 @@ const personIcon = (id: string) => {
     <Avatar size="x-small" name={person.name} src={person.avatar} alt="" status={person.status} />
   ) : undefined
 }
-const tagItems = tagNames.map((name) => ({ value: name, label: name }))
 
 /**
  * Campaign, Tags and Assignee — the `Details` block a post and an idea share
  * (`40006009:29479`, `40006058:33896`). Campaign and Assignee are Selects over
  * the two short lists the app has; Tags is a tokenizer over the tag catalog
- * (`data/tags.ts`). A tag not in the catalog cannot be typed in: Combobox has
- * no create affordance (FINDINGS 149).
+ * (`data/tags.ts`). A tag the catalog does not have is created from the
+ * field (Combobox `onCreate`, FINDINGS 148) and joins the catalog for every
+ * Tags field after it.
  *
  * `layout="row"` puts Campaign and Tags side by side with Assignee under them,
  * as the file's two-column block; `column` stacks all three for a panel.
@@ -50,8 +50,12 @@ export function DetailsFields({
   onChange: (patch: { campaignId?: string; tagNames?: string[]; assigneeId?: string }) => void
   layout?: 'row' | 'column'
 }) {
+  const tagItems = useTagCatalog()
   // A stable array for the tokenizer: a fresh one each render would read as a change.
-  const chosenItems = useMemo(() => tagItems.filter((item) => chosen.includes(item.value)), [chosen])
+  const chosenItems = useMemo(
+    () => tagItems.filter((item) => chosen.includes(String(item.value))),
+    [tagItems, chosen],
+  )
   const campaign = (
     <Field label="Campaign" nativeLabel={false}>
       <Select
@@ -76,6 +80,7 @@ export function DetailsFields({
         onValueChange={(value: ComboboxValue) =>
           onChange({ tagNames: Array.isArray(value) ? value.map((v) => String(v.value)) : [] })
         }
+        onCreate={createTag}
         placeholder="Add tags…"
       />
     </Field>
