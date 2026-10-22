@@ -312,6 +312,43 @@ export const LabelHidden: Story = {
   },
 }
 
+/** A stand-in for an application's own mark: not a Lucide glyph, so it cannot be one. */
+function NetworkMark() {
+  return (
+    <svg viewBox="0 0 16 16" className="size-full" fill="currentColor">
+      <rect x="1" y="1" width="14" height="14" rx="4" />
+      <circle cx="8" cy="8" r="3" fill="var(--surface-background-primary)" />
+    </svg>
+  )
+}
+
+/**
+ * `startIcon` takes an element as well as a Lucide component: a network's
+ * logo, a product mark. It lands in the same 14px box a glyph does, at both
+ * sizes, hidden from assistive tech because the label already names the value.
+ * Not `avatar` — that slot is a 16px circle with a ring, sized for a face.
+ */
+export const ElementIcon: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex items-center gap-2">
+      <Token startIcon={<NetworkMark />}>Instagram</Token>
+      <Token size="small" startIcon={<NetworkMark />}>Instagram</Token>
+      <Token startIcon={Tag}>Featured</Token>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const boxes = canvasElement.querySelectorAll<HTMLElement>('svg')
+    // The element's box and the Lucide glyph are both 14px, at both sizes.
+    for (const svg of [...boxes].slice(0, 3)) {
+      const box = svg.getBoundingClientRect()
+      await expect([box.width, box.height]).toEqual([14, 14])
+    }
+    await expect(boxes[0]!.parentElement).toHaveAttribute('aria-hidden', 'true')
+    await expect(within(canvasElement).getAllByText('Instagram')).toHaveLength(2)
+  },
+}
+
 /**
  * Tokens standing in for a real screen, at the default size — the two groupings
  * Astryx documents: a row of active filters, and a list of chosen recipients.

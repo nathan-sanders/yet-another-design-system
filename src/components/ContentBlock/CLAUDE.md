@@ -117,6 +117,14 @@ that look like real bugs (a 32px header, a body with no top padding). A page rel
 and `npm run build` disagrees with what the browser shows. Restart the dev server before believing
 any measurement of a brand-new component.
 
+## The header's `icon` takes an element (2026-10-22)
+
+`BlockHeader`'s `icon` is `StartIcon`, a Lucide component or an element, drawn by `LeadingIcon` in
+the 16px box. `ContentBlock.Header`, `Panel.Header` and `Drawer.Header` all pass it through, so the
+three take it at once. It came from Yet Social's Yak panel, whose header showed no icon because the
+assistant's mark is the application's own SVG, not a Lucide glyph (FINDINGS 58). `ElementIcon`
+measures the 16px box and the `aria-hidden`.
+
 ## Best practices
 
 Mirrored from the **Best practices** block on `↪ Content Block` (`40004242:14778`) in Figma.

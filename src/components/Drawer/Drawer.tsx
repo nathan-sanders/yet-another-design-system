@@ -1,6 +1,5 @@
 import { useContext, useMemo } from 'react'
 import type { CSSProperties, ComponentPropsWithRef, ReactElement, ReactNode } from 'react'
-import type { LucideIcon } from 'lucide-react'
 import { X } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from '@base-ui/react/drawer'
 
@@ -8,6 +7,7 @@ import { cn } from '../../lib/cn'
 import { overlayLayer } from '../../lib/layers'
 import { usePhone } from '../../lib/viewport'
 import { Button } from '../Button'
+import type { StartIcon } from '../Icon'
 import { BlockHeader } from '../ContentBlock/BlockHeader'
 import { title } from '../ContentBlock/styles'
 import { DrawerContext, type DrawerContextValue } from './context'
@@ -227,7 +227,7 @@ export interface DrawerHeaderProps extends Omit<ComponentPropsWithRef<'div'>, 'c
   /** The title. Keep it short — "Filters", not a sentence. */
   children: ReactNode
   /** A 16px icon before the title. Pass the component: `icon={Filter}`. */
-  icon?: LucideIcon
+  icon?: StartIcon
   /** After the title, left-aligned with it — a Badge, usually. ContentBlock's slot. */
   titleSlot?: ReactNode
   /** Controls for the drawer, pushed to the right edge. Default-size ghost Buttons fit. */
