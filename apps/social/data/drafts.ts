@@ -2,6 +2,7 @@ import celerySalad from '../assets/photos/celery-salad.jpg'
 import greenSmoothies from '../assets/photos/green-smoothies.jpg'
 import mealPrepBowls from '../assets/photos/meal-prep-bowls.jpg'
 import wraps from '../assets/photos/wraps.jpg'
+import type { PostFormat } from './types'
 
 /**
  * A post saved as a draft: written, not scheduled, so it has no day or time and
@@ -20,6 +21,14 @@ export interface Draft {
   authorId: string
   /** When it was last saved, as the list prints it. */
   edited: string
+  /** The idea it was made from, when it was. */
+  ideaId?: string
+  campaignId?: string
+  tagNames?: string[]
+  assigneeId?: string
+  needsApproval?: boolean
+  format?: PostFormat
+  firstComment?: string
 }
 
 /** Most recently saved first, the order the panel lists them in. */

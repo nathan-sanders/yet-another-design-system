@@ -1252,3 +1252,44 @@ one in My inbox › Complete. No Yet Social frame draws a private message yet.
 ### Figma owes
 
 - A private-message conversation and its list card on ↪ Social Media Management.
+
+## Post composer (2026-10-21)
+
+The composer is a full view at `#/plan/compose` (`Plan - Composer / Full View`, `40006009:29479`),
+on the creator full view's shell: Back and the title in the top bar, Save draft, the date and
+Schedule at its end, the editor in the wide column and the post as its network shows it beside
+it. It opens on a draft, a scheduled post, an idea or a day (`screens/compose/paths.ts`), from
+the rail's New, a day's +, the day panel, Home's week strip, a draft card and a post's Edit — every
+place that used to say "not built".
+
+143. **Posts stay one channel each; the composer fans out.** Picking Instagram and Threads saves
+    two drafts or two posts sharing the caption and media, and the calendar shows two cards, as
+    it would for two posts written by hand. The network tabs over the caption write one network's
+    own caption (`captions[network]`) rather than forking the whole post, which is what lets Yak
+    write "the Threads version" into one tab. Editing a draft or a post locks the channel row to
+    the one it was written for.
+144. **The Schedule dialog grew a `pick` request.** The composer's date button opens the shell's
+    one dialog with `{ source: 'pick', onPick }` and takes the time back without committing
+    anything; `firstOffer` and `TIMES` moved to `model.ts` so it and the composer share them. A
+    new post is `addPost`, not `addDraft` then `scheduleDraft`: the provider's actions read the
+    drafts through a ref that refreshes on render, so a draft added this tick is not there to
+    schedule yet.
+145. **The caption's label is the block's header**, so the TextArea takes an `aria-label` and the
+    error sits under it as a `role="alert"` line rather than in a Field — a Field would have said
+    "Caption" twice.
+
+### Open: library changes worth making
+
+146. **`DateInput` has a third caller** (the composer, through the dialog). FINDINGS 100 said a
+    second field was the signal to promote it; it is overdue.
+147. **Avatar has no slot for a mark on its corner.** The channel row wants the network's glyph
+    on the brand's avatar (`components/ChannelAvatar.tsx`); it is an absolutely positioned
+    overlay in a canvas-colored ring. A `badge` slot on Avatar, like the status dot, would be the
+    library's answer.
+148. **Combobox `multiple` cannot create a value.** Tags are picked from `data/tags.ts`; a tag not
+    in the catalog cannot be typed in. Figma's Tokenizer has `hasCreate`.
+
+### Figma owes
+
+- A Threads preview (the column only draws Instagram's), the "Edit post" title state, and a
+  Facebook / X options block — the options drawn are Instagram's whichever tab is open.

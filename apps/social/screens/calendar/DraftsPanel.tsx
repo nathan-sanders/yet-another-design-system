@@ -1,4 +1,5 @@
 import { CalendarClock, Ellipsis, FilePenLine } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router'
 
 import { Button } from '../../../../src/components/Button'
 import { ClickableCard } from '../../../../src/components/Card'
@@ -10,7 +11,7 @@ import { NetworkIcon } from '../../components/NetworkIcon'
 import type { Draft } from '../../data/drafts'
 import { personFor } from '../../data/people'
 import { profiles } from '../../data/posts'
-import { useShell } from '../../shell/ShellContext'
+import { composePath } from '../compose/paths'
 import { draftDragId } from './drag'
 import { useCardDrag } from './dragHooks'
 import { useSchedule } from './scheduleState'
@@ -37,8 +38,9 @@ export function DraftsPanel({
   onClose: () => void
   onSchedule: (draft: Draft) => void
 }) {
-  const shell = useShell()
   const { drafts } = useSchedule()
+  const navigate = useNavigate()
+  const { pathname, search } = useLocation()
   return (
     <Panel
       aria-label="Drafts"
@@ -55,7 +57,7 @@ export function DraftsPanel({
             <DraftCard
               key={draft.id}
               draft={draft}
-              onOpen={() => shell.notBuilt('The post composer')}
+              onOpen={() => navigate(composePath({ draft: draft.id, from: pathname + search }))}
               onSchedule={() => onSchedule(draft)}
             />
           ))

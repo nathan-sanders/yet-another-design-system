@@ -13,6 +13,7 @@ import saladBowls from '../assets/photos/salad-bowls.jpg'
 import streetCorn from '../assets/photos/street-corn.jpg'
 import takeoutBox from '../assets/photos/takeout-box.jpg'
 import wraps from '../assets/photos/wraps.jpg'
+import veggieVault from '../assets/veggie-vault.png'
 import type { Post, Profile } from './types'
 
 /**
@@ -20,10 +21,13 @@ import type { Post, Profile } from './types'
  * Figma week shows posting alongside it.
  */
 export const profiles: Profile[] = [
-  { id: 'vv-instagram', network: 'instagram', name: 'veggie_vault' },
-  { id: 'vv-threads', network: 'threads', name: 'veggie_vault' },
-  { id: 'vv-facebook', network: 'facebook', name: 'Veggie Vault' },
-  { id: 'vv-x', network: 'x', name: 'veggievault' },
+  { id: 'vv-instagram', network: 'instagram', name: 'veggie_vault', avatar: veggieVault },
+  { id: 'vv-threads', network: 'threads', name: 'veggie_vault', avatar: veggieVault },
+  { id: 'vv-facebook', network: 'facebook', name: 'Veggie Vault', avatar: veggieVault },
+  { id: 'vv-bluesky', network: 'bluesky', name: 'veggievault.bsky.social', avatar: veggieVault },
+  { id: 'vv-x', network: 'x', name: 'veggievault', avatar: veggieVault },
+  { id: 'vv-tiktok', network: 'tiktok', name: 'veggie_vault', avatar: veggieVault },
+  { id: 'vv-reddit', network: 'reddit', name: 'u/veggievault', avatar: veggieVault },
   { id: 'fg-instagram', network: 'instagram', name: 'feelgood_eats' },
   { id: 'fg-threads', network: 'threads', name: 'feelgood_eats' },
 ]

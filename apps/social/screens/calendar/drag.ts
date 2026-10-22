@@ -44,6 +44,18 @@ const LAST_HOUR = 23
 
 const hhmm = (hour: number, minute: string) => `${String(hour).padStart(2, '0')}:${minute}`
 
+/**
+ * When something with no time of its own goes out on `date`: 9 am, or on today
+ * once 9 has gone, the next whole hour. Null once today's grid has run out. The
+ * month view's drop and the composer's "Add post on this day" share it.
+ */
+export function defaultTimeOn(date: Date, now: Date): string | null {
+  const nineGone = sameDay(date, now) && now.getHours() >= DEFAULT_HOUR
+  const hour = nineGone ? now.getHours() + 1 : DEFAULT_HOUR
+  if (hour > LAST_HOUR) return null
+  return hhmm(hour, '00')
+}
+
 function moment(date: Date, time: string): Date {
   const [h, m] = time.split(':').map(Number)
   const at = new Date(date.getFullYear(), date.getMonth(), date.getDate())
@@ -75,10 +87,9 @@ export function placeFor(
   } else if (data.source === 'post') {
     time = data.post.time
   } else {
-    const nineGone = sameDay(target.date, now) && now.getHours() >= DEFAULT_HOUR
-    const hour = nineGone ? now.getHours() + 1 : DEFAULT_HOUR
-    if (hour > LAST_HOUR) return null
-    time = hhmm(hour, '00')
+    const fallback = defaultTimeOn(target.date, now)
+    if (fallback === null) return null
+    time = fallback
   }
   if (moment(target.date, time) <= now) return null
   if (from && sameDay(from.date, target.date) && from.time === time) return null

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import {
   AtSign,
   CalendarClock,
@@ -27,6 +28,7 @@ import { commentsFor, eventsFor, statsFor } from '../../data/performance'
 import { profileFor } from '../../data/posts'
 import type { Post, PostComment, PostEvent } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { composePath } from '../compose/paths'
 import { useUnreadComments } from '../inbox/inboxState'
 import { canMove, isPublished, postDate, postMoment } from './model'
 import { useSchedule } from './scheduleState'
@@ -132,6 +134,9 @@ export function PostByline({
  */
 export function PostBody({ post }: { post: Post }) {
   const shell = useShell()
+  const navigate = useNavigate()
+  const { pathname, search } = useLocation()
+  const tagCount = post.tagNames?.length ?? post.tags
   // Read once opened in Comments by post, here as in that list's card.
   const unread = useUnreadComments(post)
   return (
@@ -145,9 +150,9 @@ export function PostBody({ post }: { post: Post }) {
         />
       ) : null}
       <div className="flex flex-wrap gap-1">
-        {post.tags ? (
-          <Token startIcon={Tag} aria-label={`${post.tags} tags`}>
-            {post.tags}
+        {tagCount ? (
+          <Token startIcon={Tag} aria-label={`${tagCount} tags`}>
+            {tagCount}
           </Token>
         ) : null}
         <Token avatar={<Token.Avatar name={me.name} src={me.avatar} />}>{me.name}</Token>
@@ -158,21 +163,25 @@ export function PostBody({ post }: { post: Post }) {
         // Edit on its own at the start; Preview and the tag count together at
         // the end (`40005911:33236`).
         <div className="flex items-center gap-1">
-          <Button appearance="ghost" startIcon={Pencil} onClick={() => shell.notBuilt('Editing')}>
+          <Button
+            appearance="ghost"
+            startIcon={Pencil}
+            onClick={() => navigate(composePath({ post: post.id, from: pathname + search }))}
+          >
             Edit
           </Button>
           <span className="flex-1" />
           <Button appearance="ghost" startIcon={Eye} onClick={() => shell.notBuilt('Preview')}>
             Preview
           </Button>
-          {post.tags ? (
+          {tagCount ? (
             <Button
               appearance="ghost"
               startIcon={Tag}
-              aria-label={`${post.tags} tags`}
+              aria-label={`${tagCount} tags`}
               onClick={() => shell.notBuilt('Tags')}
             >
-              {post.tags}
+              {tagCount}
             </Button>
           ) : null}
         </div>

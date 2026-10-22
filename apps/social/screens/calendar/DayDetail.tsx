@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router'
 import { CalendarDays, Plus, SquarePen, StickyNote } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
@@ -7,9 +8,9 @@ import { Panel } from '../../../../src/components/Panel'
 import { Heading, Text } from '../../../../src/components/Text'
 import { CalendarNote } from '../../components/CalendarNote'
 import { CalendarAgendaCard } from '../../components/PostCards'
-import { fromISODate, fullDate } from '../../data/dates'
+import { fromISODate, fullDate, toISODate } from '../../data/dates'
 import type { CalendarNote as Note } from '../../data/types'
-import { useShell } from '../../shell/ShellContext'
+import { composePath } from '../compose/paths'
 import { useCalendarNotes } from './calendarNotesState'
 import { isPast, layoutNotes, postHour, postsOn } from './model'
 import { NoteDialog, type NoteDialogRequest } from './NoteDialog'
@@ -40,7 +41,7 @@ export function DayDetailPanel({
   open: boolean
   onClose: () => void
 }) {
-  const shell = useShell()
+  const navigate = useNavigate()
   const { notes } = useCalendarNotes()
   const { posts } = useSchedule()
   const [noteRequest, setNoteRequest] = useState<NoteDialogRequest | null>(null)
@@ -92,7 +93,14 @@ export function DayDetailPanel({
                 <Menu.Group>
                   <Menu.Item
                     startIcon={SquarePen}
-                    onClick={() => shell.notBuilt('The post composer')}
+                    onClick={() =>
+                      navigate(
+                        composePath({
+                          date: day,
+                          from: `/plan/calendar?view=month&date=${toISODate(day)}`,
+                        }),
+                      )
+                    }
                   >
                     Add post
                   </Menu.Item>

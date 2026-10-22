@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { pointerWithin, type DragMoveEvent } from '@dnd-kit/core'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft, ArrowRight, Ellipsis, FilePenLine, Link, ListFilter } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
@@ -27,6 +27,7 @@ import { useSchedule } from './scheduleState'
 import { useCommitSchedule } from './scheduleCommit'
 import { MonthView } from './MonthView'
 import { NoteDialog, type NoteDialogRequest } from './NoteDialog'
+import { composePath } from '../compose/paths'
 import { today, type CalendarView } from './model'
 import { WeekView } from './WeekView'
 import { cn } from '../../../../src/lib/cn'
@@ -42,6 +43,10 @@ const STEP_LABEL: Record<CalendarView, string> = { day: 'day', week: 'week', mon
 export function CalendarScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
+  const navigate = useNavigate()
+  // A day's + Add post: the composer, on that day, and back here afterwards.
+  const addPost = (date: Date) =>
+    navigate(composePath({ date, from: `/plan/calendar?${params.toString()}` }))
 
   const view: CalendarView =
     params.get('view') === 'day' || params.get('view') === 'month'
@@ -226,7 +231,7 @@ export function CalendarScreen() {
                 anchor={anchor}
                 selectedPostId={selectedPostId}
                 onOpenPost={openPost}
-                onAddPost={() => shell.notBuilt('The post composer')}
+                onAddPost={addPost}
                 onAddNote={addNote}
                 onOpenNote={openNote}
               />
@@ -244,7 +249,7 @@ export function CalendarScreen() {
                 anchor={anchor}
                 selectedPostId={selectedPostId}
                 onOpenPost={openPost}
-                onAddPost={() => shell.notBuilt('The post composer')}
+                onAddPost={addPost}
                 onAddNote={addNote}
                 onOpenNote={openNote}
               />

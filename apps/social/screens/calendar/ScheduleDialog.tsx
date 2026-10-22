@@ -6,31 +6,10 @@ import { Dialog } from '../../../../src/components/Dialog'
 import { Field } from '../../../../src/components/Field'
 import { Select } from '../../../../src/components/Select'
 import { DateInput } from '../../components/DateInput'
-import { addDays, formatTime, sameDay, toISODate } from '../../data/dates'
-import { HOURS, postDate, today } from './model'
+import { formatTime, sameDay, toISODate } from '../../data/dates'
+import { TIMES, firstOffer, postDate, today } from './model'
 import { useCommitSchedule } from './scheduleCommit'
-import { useSchedule, type ScheduleAt, type ScheduleRequest } from './scheduleState'
-
-/** Every quarter hour the day and week grids draw, 6:00 am to 11:45 pm. */
-const TIMES = HOURS.flatMap((hour) =>
-  ['00', '15', '30', '45'].map((minute) => `${String(hour).padStart(2, '0')}:${minute}`),
-)
-
-function moment({ date, time }: ScheduleAt): Date {
-  const [h, m] = time.split(':').map(Number)
-  const at = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  at.setHours(h!, m!)
-  return at
-}
-
-/** A draft's first offer: the next whole hour today, or 9 tomorrow once today's grid has run out. */
-function firstOffer(): ScheduleAt {
-  const next = new Date().getHours() + 1
-  if (next <= HOURS[HOURS.length - 1]! && next >= HOURS[0]!) {
-    return { date: today, time: `${String(next).padStart(2, '0')}:00` }
-  }
-  return { date: addDays(today, 1), time: '09:00' }
-}
+import { momentOf, useSchedule, type ScheduleRequest } from './scheduleState'
 
 /**
  * The keyboard's way to do what a drag does: a date and a time for a post
@@ -58,7 +37,13 @@ export function ScheduleDialog() {
     >
       {shown ? (
         <ScheduleForm
-          key={shown.source === 'post' ? shown.post.id : shown.draft.id}
+          key={
+            shown.source === 'post'
+              ? shown.post.id
+              : shown.source === 'draft'
+                ? shown.draft.id
+                : 'pick'
+          }
           request={shown}
           onDone={close}
         />
@@ -74,12 +59,14 @@ function ScheduleForm({ request, onDone }: { request: ScheduleRequest; onDone: (
   const from =
     request.source === 'post'
       ? { date: postDate(request.post), time: request.post.time }
-      : firstOffer()
+      : request.source === 'pick'
+        ? request.initial
+        : firstOffer()
   const [date, setDate] = useState<Date | null>(from.date)
   const [time, setTime] = useState(from.time)
   const [submitted, setSubmitted] = useState(false)
 
-  const passed = date !== null && moment({ date, time }) <= new Date()
+  const passed = date !== null && momentOf({ date, time }) <= new Date()
   const error =
     date === null
       ? 'Pick a day.'
@@ -93,7 +80,9 @@ function ScheduleForm({ request, onDone }: { request: ScheduleRequest; onDone: (
     setSubmitted(true)
     if (!date || passed) return
     const at = { date, time }
-    if (!(sameDay(date, from.date) && time === from.time) || request.source === 'draft') {
+    if (request.source === 'pick') {
+      request.onPick(at)
+    } else if (!(sameDay(date, from.date) && time === from.time) || request.source === 'draft') {
       commit(request, at)
       // On the calendar, follow the post to the day it went to.
       if (onCalendar) {
@@ -110,7 +99,11 @@ function ScheduleForm({ request, onDone }: { request: ScheduleRequest; onDone: (
       <form onSubmit={save} noValidate className="flex min-h-0 flex-1 flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <Dialog.Title>
-            {request.source === 'post' ? 'Reschedule post' : 'Schedule draft'}
+            {request.source === 'post'
+              ? 'Reschedule post'
+              : request.source === 'pick'
+                ? request.title
+                : 'Schedule draft'}
           </Dialog.Title>
           <Dialog.Close />
         </div>
@@ -119,9 +112,9 @@ function ScheduleForm({ request, onDone }: { request: ScheduleRequest; onDone: (
             own stretches a short dialog to the viewport's height (finding 95). */}
         <Dialog.Body className="flex flex-initial flex-col gap-4">
           <Dialog.Description>
-            {request.source === 'post'
-              ? 'Pick when this post goes out.'
-              : 'Pick when this draft goes out. It leaves Drafts and goes on the calendar.'}
+            {request.source === 'draft'
+              ? 'Pick when this draft goes out. It leaves Drafts and goes on the calendar.'
+              : 'Pick when this post goes out.'}
           </Dialog.Description>
           <div className="grid grid-cols-2 gap-2">
             <Field
@@ -150,7 +143,9 @@ function ScheduleForm({ request, onDone }: { request: ScheduleRequest; onDone: (
 
         <div className="flex items-center justify-end gap-2 pt-4">
           <Dialog.Close render={<Button appearance="secondary">Cancel</Button>} />
-          <Button type="submit">{request.source === 'post' ? 'Reschedule' : 'Schedule'}</Button>
+          <Button type="submit">
+            {request.source === 'post' ? 'Reschedule' : request.source === 'pick' ? 'Done' : 'Schedule'}
+          </Button>
         </div>
       </form>
     </Dialog.Popup>

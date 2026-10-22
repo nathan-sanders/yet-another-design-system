@@ -9,6 +9,7 @@ import { CalendarNotesProvider } from './screens/calendar/CalendarNotesProvider'
 import { ScheduleProvider } from './screens/calendar/ScheduleProvider'
 import { PostNotesProvider } from './screens/calendar/PostNotesProvider'
 import { CommentsScreen } from './screens/comments/CommentsScreen'
+import { ComposeScreen } from './screens/compose/ComposeScreen'
 import { CreatorFullView } from './screens/creators/CreatorFullView'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
 import { HomeScreen } from './screens/home/HomeScreen'
@@ -38,6 +39,7 @@ const router = createHashRouter([
       { path: 'plan/ideas', element: <IdeasScreen /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },
       { path: 'plan/creators/:creatorId', element: <CreatorFullView /> },
+      { path: 'plan/compose', element: <ComposeScreen /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
       { path: 'engage/comments', element: <CommentsScreen /> },
