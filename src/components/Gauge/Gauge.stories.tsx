@@ -7,6 +7,7 @@ import { Gauge } from './Gauge'
 import { gaugeData } from '../Chart/sample-data'
 import { Badge } from '../Badge'
 import { onSurface } from '../Chart/story-surface'
+import { sentiment } from '../Chart'
 import { Text } from '../Text'
 
 const meta = {
@@ -119,5 +120,35 @@ export const SliceClick: Story = {
       await userEvent.click(within(canvasElement.querySelector('table')!).getByRole('button', { name: 'Committed' }))
       await expect(status).toHaveTextContent('Opened Committed (row 0)')
     })
+  },
+}
+
+const SENTIMENT = [
+  { tone: 'Positive', mentions: 612, color: sentiment.positive },
+  { tone: 'Neutral', mentions: 431, color: sentiment.neutral },
+  { tone: 'Negative', mentions: 188, color: sentiment.negative },
+]
+
+/**
+ * `colorKey` names the property holding a slice's own color, for categories
+ * that are a scale with colors of their own. Sentiment is the case: Positive
+ * is green because it is positive, not because it came first. The legend
+ * follows, because the slices and the swatches both read the series.
+ */
+export const Sentiment: Story = {
+  args: {
+    data: SENTIMENT,
+    nameKey: 'tone',
+    valueKey: 'mentions',
+    colorKey: 'color',
+    label: 'Brand sentiment this week',
+  },
+  play: async ({ canvasElement }) => {
+    // Each slice is painted with its row's token, in the data's order.
+    const fills = [...canvasElement.querySelectorAll('.recharts-pie-sector path')].map((p) => p.getAttribute('fill'))
+    await expect(fills).toEqual([sentiment.positive, sentiment.neutral, sentiment.negative])
+    // The legend's swatches follow the slices, since both read the series.
+    const swatches = [...canvasElement.querySelectorAll('svg rect[fill^="var(--data-viz-sentiment"]')]
+    await expect(swatches.map((r) => r.getAttribute('fill'))).toEqual([sentiment.positive, sentiment.neutral, sentiment.negative])
   },
 }
