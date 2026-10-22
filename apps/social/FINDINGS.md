@@ -365,7 +365,7 @@ and Remove live for the session (`ReportsProvider`, the inbox's pattern from fin
     (`draggable={false}`), so a one-shot capture listener on `window` cancels the click after a drag
     (`swallowNextClick`). That is the DragAndDrop record's "link cards" trap, met head on.
 
-48. **The whole report row opens the report.** Table has no `onRowClick` on purpose, because a click on
+48. **Closed by #344 (2026-10-22): the name column is Table's `rowTarget`; the wrapper is gone.** **The whole report row opens the report.** Table has no `onRowClick` on purpose, because a click on
     a `<tr>` has no keyboard equivalent. The list wraps the table in a click handler that follows the
     row's own name link, so the link stays the keyboard and screen-reader path. `hasHover` and a
     pointer cursor say the row is a target. The dashed Add widget zone is likewise one full-width
@@ -433,7 +433,7 @@ The date range is in the URL (`?range=30d`).
 
 ### Open: library changes worth making
 
-51. **`Gauge` and `Donut` take no per-slice color.** Every slice takes the categorical scale by
+51. **Closed by #342 (2026-10-22): Brand sentiment passes `colorKey`; `SENTIMENT_SCOPE` is gone.** **`Gauge` and `Donut` take no per-slice color.** Every slice takes the categorical scale by
     position, so Brand sentiment's Positive came out purple. The sentiment tokens exist
     (`Data Viz/Sentiment/*`, and `sentiment` in `palette.ts`), but no chart prop can reach them. The
     widget wraps the gauge in a scope that points `--data-viz-categorical-01…03` at the sentiment
@@ -495,7 +495,7 @@ the panel. On Discover and Creators, a search answers with results.
 
 ### Open: library changes worth making
 
-58. **The library has no Yak/Yet mark to import.** `Chat/story-mark.tsx` keeps it a story fixture
+58. **Partly closed by #341 (2026-10-22):** `Panel.Header`'s `icon` takes an element now, but the Yak panel keeps no icon because the file draws none. **The library has no Yak/Yet mark to import.** `Chat/story-mark.tsx` keeps it a story fixture
     on purpose, because the assistant's mark is the application's business. The app still reaches
     into it from three places now: the panel, the nav and the bar. `yak/YakMark.tsx` wraps it as a
     decorative icon. It is `aria-hidden`, because `Mark` is `role="img"` named "Yet" and would
@@ -746,10 +746,10 @@ Discover at 30 days. A list generates the latest 120 at most and says so: "Showi
     legend buttons above it, which open Positive, Neutral or Negative. Reports opens the whole
     widget from its header button. An `onPointClick` / `onSliceClick` across the chart family
     would let a click on one day of the trend open that day's mentions.
-77. **`Table` has no row click.** The Creators table's Author cell is a `<button>`, which is
+77. **Closed by #344 (2026-10-22): `rowTarget` on the Author column, in Creators, Discover and the report widgets; `clickableRows.ts` is deleted.** **`Table` has no row click.** The Creators table's Author cell is a `<button>`, which is
     the keyboard path, and a click anywhere else on the row forwards to it. This is the
     Reports list's pattern (entry 48) with `hasHover`, so the row shows the same hover.
-78. **`Card` has no `selected` state; only `ClickableCard` does.** A mention card can't be a
+78. **Closed by #343 (2026-10-22): `MentionCard` passes `selected`.** **`Card` has no `selected` state; only `ClickableCard` does.** A mention card can't be a
     `ClickableCard` (it's one `<button>`, and the card holds Like, Reply and a menu). So the
     card marks its open detail with `ClickableCard`'s selected tokens written by hand.
 
@@ -1293,7 +1293,7 @@ place that used to say "not built".
     on the brand's avatar (`components/ChannelAvatar.tsx`); it is an absolutely positioned
     overlay in a canvas-colored ring. A `badge` slot on Avatar, like the status dot, would be the
     library's answer.
-148. **Combobox `multiple` cannot create a value.** Tags are picked from `data/tags.ts`; a tag not
+148. **Open, and a design question rather than a gap (2026-10-22).** The file draws no create row (`↪ Combobox` has no `hasCreate`; that is Astryx's Tokenizer), and the system's own rule is that an answer off the list is Autocomplete. Waiting on Nathan. **Combobox `multiple` cannot create a value.** Tags are picked from `data/tags.ts`; a tag not
     in the catalog cannot be typed in. Figma's Tokenizer has `hasCreate`.
 
 ### Figma owes
@@ -1359,7 +1359,7 @@ rather than keeps.
     linked posts. The seeds put `d-6` (Harvest Glow, a reel) in Drafts and link `p-41` (Back in
     stalk, Threads, next week) and `p-50` (Soup season, published) to ideas, so all three
     derived columns have a card on load and Home's "Finish the Harvest Glow reel" is true.
-156. **The Token takes a network mark through its `avatar` slot.** `startIcon` wants a Lucide
+156. **Closed by #341 (2026-10-22): Token's `startIcon` takes an element.** The derived cards that needed it left with #329, so nothing in the app uses it yet. **The Token takes a network mark through its `avatar` slot.** `startIcon` wants a Lucide
     glyph, so the derived cards' channel Token puts `NetworkIcon` where an avatar would go. Open,
     with 149: a `startSlot` on Token would say what this is.
 
@@ -1420,4 +1420,14 @@ them. Nothing here is new behavior; four things look slightly different, all tow
     `Sortable Item`'s Lifted binds and `DragAndDrop.Source` uses.
 165. **New report's type step hugs its cards** instead of stretching to the viewport, now that
     `Dialog.Body` does not grow. It still scrolls when the cards are taller than the screen.
+
+## Library pieces adopted, round two (2026-10-22)
+
+166. **Rows are Table's now.** Five tables (Reports, Creators, Discover's creators, and the report
+    widgets' story and author lists) mark their name column `rowTarget` instead of wrapping the
+    table in a forwarding handler. The Creators table's name button gained its own `onClick`: it
+    used to rely on the wrapper catching the bubble. `MentionRows` keeps only its
+    `data-opens-mentions` marker, which tells the board block not to open the widget page as well.
+167. **A mention card's `aria-current` moved from its open button to the card**, where `Card`'s
+    `selected` puts it, so it is said once, on the thing that is current.
 

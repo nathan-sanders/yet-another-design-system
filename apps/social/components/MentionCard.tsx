@@ -86,15 +86,12 @@ export function MentionCard({
       role="article"
       aria-label={`@${author.handle}, ${age} ago`}
       onClick={openFromCard}
-      className={cn(
-        'cursor-pointer gap-2',
-        selected && 'border-surface-border-emphasized bg-surface-background-subtle',
-      )}
+      selected={selected}
+      className="cursor-pointer gap-2"
     >
       <button
         type="button"
         onClick={onOpen}
-        aria-current={selected ? 'true' : undefined}
         aria-label={`Open @${author.handle}'s post: ${mention.body}`}
         className={cn('flex flex-col gap-2 rounded-xs text-left', focusRing)}
       >

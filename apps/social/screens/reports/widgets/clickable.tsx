@@ -1,10 +1,9 @@
-import type { MouseEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import { ClickableCard } from '../../../../../src/components/Card'
 import { Metric, type MetricProps } from '../../../../../src/components/Metric'
 import { cn } from '../../../../../src/lib/cn'
 import { focusRing } from '../../../../../src/lib/focus'
-import { clickableRows } from '../../../components/clickableRows'
 
 // What makes a thing inside a report widget open its mentions, the way every
 // count on Discover does. One hover color for all of it, Discover's: Surface /
@@ -13,7 +12,8 @@ import { clickableRows } from '../../../components/clickableRows'
 
 /**
  * The button in a row's first cell: the keyboard and screen-reader path to
- * the row's mentions. A pointer can press anywhere on the row (`forwardRow`).
+ * the row's mentions. A pointer can press anywhere on the row, because its
+ * column is the table's `rowTarget`.
  */
 export function RowButton({
   label,
@@ -29,7 +29,6 @@ export function RowButton({
   return (
     <button
       type="button"
-      data-row-button
       aria-pressed={pressed}
       aria-label={label}
       onClick={onClick}
@@ -41,26 +40,12 @@ export function RowButton({
 }
 
 /**
- * A press anywhere on a row but its own controls goes to its `RowButton` —
- * Discover's Creators table, and the Reports list before it (FINDINGS 48).
- */
-function forwardRow(event: MouseEvent) {
-  const target = event.target as HTMLElement
-  const button = target.closest('tbody tr')?.querySelector<HTMLElement>('[data-row-button]')
-  if (!button || target.closest('a, button')) return
-  button.click()
-}
-
-/**
  * Around a table whose rows open mentions. `data-opens-mentions` tells the
- * board's widget not to open its detail page as well (`WidgetBlock`).
+ * board's widget not to open its detail page as well (`WidgetBlock`). The
+ * row press itself is Table's: the `RowButton` column is its `rowTarget`.
  */
 export function MentionRows({ children }: { children: ReactNode }) {
-  return (
-    <div data-opens-mentions onClick={forwardRow} className={clickableRows}>
-      {children}
-    </div>
-  )
+  return <div data-opens-mentions>{children}</div>
 }
 
 /**

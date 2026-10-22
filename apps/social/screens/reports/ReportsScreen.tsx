@@ -1,5 +1,4 @@
-import type { MouseEvent } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 import { Ellipsis } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
@@ -24,7 +23,6 @@ import { boardPath, editedLabel } from './model'
 import { ReportTypeShortcuts } from './ReportTypeShortcuts'
 import { useReports } from './reportsState'
 import { floatingYakClearance } from '../../components/FloatingYak'
-import { clickableRows } from '../../components/clickableRows'
 
 /** The face and name of whoever made a report — `_Measure Owner Cell` (`40005882:26335`). */
 function Owner({ id }: { id: string }) {
@@ -62,6 +60,9 @@ const columns: TableColumn<Report>[] = [
     header: 'Report',
     width: proportional(1, 240),
     sortable: false,
+    // The name link is the row's own control: a press anywhere on the row
+    // follows it, and it stays the keyboard path (FINDINGS 48).
+    rowTarget: true,
     renderCell: (report) => <ReportCell report={report} href={`#${boardPath(report.id)}`} />,
   },
   {
@@ -112,19 +113,7 @@ const columns: TableColumn<Report>[] = [
 export function ReportsScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
-  const navigate = useNavigate()
   const { reports } = useReports()
-
-  // The whole row opens the report, for a pointer. Table has no `onRowClick`
-  // on purpose — a click on a <tr> has no keyboard equivalent — so the row
-  // forwards to its own name link, which stays the keyboard and screen-reader
-  // path (FINDINGS 48).
-  const openRow = (event: MouseEvent) => {
-    const target = event.target as HTMLElement
-    if (target.closest('a, button')) return
-    const link = target.closest('tbody tr')?.querySelector<HTMLAnchorElement>('a[href^="#"]')
-    if (link) navigate(link.getAttribute('href')!.slice(1))
-  }
 
   const sort: TableSort | null =
     params.get('sort') === 'edited'
@@ -165,21 +154,18 @@ export function ReportsScreen() {
       {/* 40 between the shortcuts and the table, as the frame's Content Slot has it. */}
       <AppShell.Content className={cn('gap-10', floatingYakClearance)}>
         <ReportTypeShortcuts />
-        {/* A pointer convenience over the rows' own links; see `openRow`. */}
-        <div onClick={openRow} className={clickableRows}>
-          <Table
-            label="Reports"
-            columns={columns}
-            data={reports}
-            idKey="id"
-            density="spacious"
-            sortable
-            sort={sort}
-            onSortChange={onSortChange}
-            textOverflow="truncate"
-            hasHover
-          />
-        </div>
+        <Table
+          label="Reports"
+          columns={columns}
+          data={reports}
+          idKey="id"
+          density="spacious"
+          sortable
+          sort={sort}
+          onSortChange={onSortChange}
+          textOverflow="truncate"
+          hasHover
+        />
       </AppShell.Content>
     </>
   )

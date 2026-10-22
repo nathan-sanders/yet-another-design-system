@@ -1,4 +1,3 @@
-import type { MouseEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { Ellipsis, LayoutGrid, List, ListFilter, Radar } from 'lucide-react'
 
@@ -27,7 +26,6 @@ import { useShell } from '../../shell/ShellContext'
 import { formatCount } from '../reports/model'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
-import { clickableRows } from '../../components/clickableRows'
 
 type CreatorsView = 'grid' | 'list'
 
@@ -47,20 +45,22 @@ const DEFAULT_SORT: TableSort = { key: 'fit', direction: 'descending' }
 
 // The short columns are fixed so their headers and sort arrows never truncate
 // when the details panel takes 384px; the name and Top topic give way instead.
-const columns: TableColumn<Creator>[] = [
+const columnsFor = (openCreator: (id: string) => void): TableColumn<Creator>[] => [
   {
     key: 'name',
     header: 'Creator',
     sortable: false,
     width: proportional(),
+    // The name button is the row's own control: a press anywhere on the row
+    // presses it, and it stays the keyboard path (FINDINGS 77).
+    rowTarget: true,
     renderCell: (c) => (
       <span className="flex min-w-0 items-center gap-2">
         <Avatar size="large" name={c.name} src={c.avatar} alt="" />
         <span className="flex min-w-0 flex-col">
-          {/* The row's control: a click anywhere on the row forwards here (`openRow`). */}
           <button
             type="button"
-            data-creator={c.id}
+            onClick={() => openCreator(c.id)}
             className={cn(
               'truncate rounded-xs text-left font-semibold text-content-emphasized hover:underline',
               focusRing,
@@ -182,16 +182,6 @@ export function CreatorsScreen() {
   const openCreator = (id: string) =>
     shell.setPanel(openId === id ? null : { type: 'creator', creatorId: id })
 
-  // Table has no `onRowClick` on purpose (a <tr> has no keyboard equivalent),
-  // so the row forwards to the name button, which stays the keyboard path —
-  // the Reports table's pattern (FINDINGS 48).
-  const openRow = (event: MouseEvent) => {
-    const target = event.target as HTMLElement
-    const button = target.closest('tbody tr')?.querySelector<HTMLElement>('[data-creator]')
-    if (!button || (target.closest('a, button') && target.closest('a, button') !== button)) return
-    openCreator(button.dataset.creator!)
-  }
-
   return (
     <>
       <TopBar
@@ -276,11 +266,10 @@ export function CreatorsScreen() {
             ))}
           </ul>
         ) : (
-          // A pointer convenience over the name buttons; see `openRow`.
-          <div onClick={openRow} className={cn('shrink-0', clickableRows)}>
+          <div className="shrink-0">
             <Table
               label="Creators"
-              columns={columns}
+              columns={columnsFor(openCreator)}
               data={sorted}
               idKey="id"
               density="spacious"

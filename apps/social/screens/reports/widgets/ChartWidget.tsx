@@ -181,6 +181,8 @@ export function BreakdownTable({
     {
       key: 'series',
       header: 'Series',
+      // The RowButton is the row's own control; a press on the row presses it.
+      rowTarget: true,
       renderCell: (s) => {
         const index = widget.series.indexOf(s.series)
         const query = widgetSeriesMentionQuery(report, widget, range, s.series)
