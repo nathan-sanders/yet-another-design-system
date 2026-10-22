@@ -1,7 +1,7 @@
-import { useRef, type ComponentPropsWithRef, type ReactNode } from 'react'
+import { useRef, useState, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox'
 import type { ComboboxRootProps } from '@base-ui/react/combobox'
-import { Check, ChevronDown, Search } from 'lucide-react'
+import { Check, ChevronDown, Plus, Search } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
@@ -412,6 +412,18 @@ function isGrouped(
 }
 
 /**
+ * Marks the row `onCreate` appends. A symbol rather than a field on
+ * `ComboboxItemData`, so a caller's own data can never be mistaken for it.
+ */
+const CREATE = Symbol('combobox-create')
+
+type CreateRow = ComboboxItemData & { [CREATE]: true }
+
+function isCreateRow(value: unknown): value is CreateRow {
+  return value != null && typeof value === 'object' && CREATE in value
+}
+
+/**
  * Center the chosen row in the list, once, as the list opens.
  *
  * **Base UI already scrolls to it, and this corrects where.** Its list
@@ -652,6 +664,19 @@ export interface ComboboxProps
   /** Called when the chosen value changes. */
   onValueChange?: (value: ComboboxValue) => void
   /**
+   * Let the list grow. While the typed text matches no row, a "Create “…”" row
+   * sits at the end of the list; picking it calls this with the text. Return
+   * the new item and **add that same object to `items`** — it is chosen at
+   * once, and matching is by identity, so the copy in `items` is what shows it
+   * as chosen next time the list opens. Flat `items` only.
+   *
+   * For a list that grows, like tags: the value still comes from the list. An
+   * answer that may sit off the list is Autocomplete.
+   */
+  onCreate?: (label: string) => ComboboxItemData
+  /** The create row's text. Defaults to `Create “…”`. */
+  createLabel?: (text: string) => ReactNode
+  /**
    * How one row is drawn. Called with an item in both the flat and the grouped
    * case — the group wrapper is this component's business, not the caller's.
    * Anything else is rendered inside the list as-is, for a hand-built tree.
@@ -681,6 +706,9 @@ export function Combobox({
   value: valueProp,
   defaultValue,
   onValueChange,
+  onCreate,
+  createLabel = (text) => `Create “${text}”`,
+  onInputValueChange,
   children,
   className,
   'aria-label': ariaLabel,
@@ -697,6 +725,38 @@ export function Combobox({
   const renderItem = typeof children === 'function' ? children : defaultItem
   const custom = children != null && typeof children !== 'function'
 
+  // **The create row.** Only with flat `items`: a grouped list has no single
+  // end to put it at. The row is derived from the typed text, so it comes and
+  // goes as you type, and never when the text already names a row or a value.
+  const creatable = onCreate != null && !grouped
+  const [query, setQuery] = useState(String(props.defaultInputValue ?? ''))
+  const [innerValue, setInnerValue] = useState<ComboboxValue>(defaultValue ?? (multiple ? [] : null))
+  const currentValue = valueProp !== undefined ? valueProp : innerValue
+  const text = String(props.inputValue ?? query).trim()
+  const taken = (label: string) =>
+    [
+      ...((items ?? []) as readonly ComboboxItemData[]),
+      ...(Array.isArray(currentValue) ? currentValue : currentValue ? [currentValue] : []),
+    ].some((row) => row.label.toLocaleLowerCase() === label.toLocaleLowerCase())
+  const createRow: CreateRow | null =
+    creatable && text !== '' && !taken(text) ? { value: `create:${text}`, label: text, [CREATE]: true } : null
+  const listItems = createRow ? [...(items as readonly ComboboxItemData[]), createRow] : items
+
+  // Picking the create row swaps it for whatever `onCreate` made before the
+  // value goes anywhere, so a caller never sees the placeholder.
+  const changeValue = (next: ComboboxValue) => {
+    let resolved = next
+    if (creatable) {
+      const picked = Array.isArray(next) ? next.find(isCreateRow) : isCreateRow(next) ? next : undefined
+      if (picked) {
+        const made = onCreate(picked.label)
+        resolved = Array.isArray(next) ? next.map((row) => (row === picked ? made : row)) : made
+      }
+    }
+    if (valueProp === undefined) setInnerValue(resolved)
+    onValueChange?.(resolved)
+  }
+
   // **Spread only when set.** Inside a Field, Base UI computes `aria-labelledby`
   // from the field context, and writing the key with an `undefined` value
   // overrides that rather than deferring to it — which silently strips the name
@@ -708,18 +768,24 @@ export function Combobox({
 
   return (
     <ComboboxPrimitive.Root
-      items={items as RootProps['items']}
+      items={listItems as RootProps['items']}
       multiple={multiple}
-      value={valueProp as RootProps['value']}
-      defaultValue={defaultValue as RootProps['defaultValue']}
+      // A creatable combobox holds its own value, so the create row can be
+      // swapped for the real item; any other leaves Base UI to hold it.
+      value={(creatable ? currentValue : valueProp) as RootProps['value']}
+      defaultValue={(creatable ? undefined : defaultValue) as RootProps['defaultValue']}
       // Wrapped rather than cast: `multiple` is a runtime boolean, so Base UI's
       // own signature is the union of the one-value and many-values shapes, and
       // a cast in either direction would be a lie about one of them.
       onValueChange={
-        onValueChange
-          ? (next: ComboboxItemData | ComboboxItemData[] | null) => onValueChange(next)
+        creatable || onValueChange
+          ? (next: ComboboxItemData | ComboboxItemData[] | null) => changeValue(next)
           : undefined
       }
+      onInputValueChange={(next, details) => {
+        setQuery(next)
+        onInputValueChange?.(next, details)
+      }}
       {...props}
     >
       <ComboboxContext.Provider value={{ multiple, size, indicator }}>
@@ -865,7 +931,17 @@ export function Combobox({
                   // the `aria-required-children` family of bug that stopped Tabs
                   // putting a real Divider inside its `tablist`.
                   <div role="none" className="flex flex-col p-2">
-                    <ComboboxPrimitive.Collection>{renderItem}</ComboboxPrimitive.Collection>
+                    <ComboboxPrimitive.Collection>
+                      {(row: ComboboxItemData) =>
+                        isCreateRow(row) ? (
+                          <CreateItem key="create" row={row}>
+                            {createLabel(row.label)}
+                          </CreateItem>
+                        ) : (
+                          renderItem(row)
+                        )
+                      }
+                    </ComboboxPrimitive.Collection>
                   </div>
                 )}
               </ComboboxPrimitive.List>
@@ -876,6 +952,24 @@ export function Combobox({
     </ComboboxPrimitive.Root>
   )
 }
+
+/**
+ * The row that adds a value: a 16px plus where a row's icon goes, and the
+ * label. No indicator — it is not a value that can be chosen or not, it is
+ * the act of making one. Figma's Combobox Menu Item `Type=Create`.
+ */
+function CreateItem({ row, children }: { row: CreateRow; children: ReactNode }) {
+  return (
+    <ComboboxPrimitive.Item value={row} className={item()} data-create="">
+      <LeadingIcon icon={Plus} />
+      <span className={itemLabel()}>
+        <Text render={<span />} color="inherit">{children}</Text>
+      </span>
+    </ComboboxPrimitive.Item>
+  )
+}
+
+CreateItem.displayName = 'Combobox.CreateItem'
 
 /** The row a caller gets without writing one. */
 function defaultItem(data: ComboboxItemData) {

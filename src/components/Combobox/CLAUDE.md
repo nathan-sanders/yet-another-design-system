@@ -145,10 +145,27 @@ outside the truncation — Select's rule, the same reason. The tokenizer is unch
 **`overflow-clip` is not ported** — ninth time.
 **No new tokens and no `generate.py` run** — `input-*`, `surface-*`, `surface-border`,
 `feedback-danger-highlight` and `shadow-medium` all existed.
+**`onCreate`: a list that grows** (2026-10-22). Nathan's ruling, asked because the Best practices
+say an answer off the list is Autocomplete: creating a tag *grows the list*, so the value still
+comes from it, and this stays a Combobox. While the typed text names no row and no chosen value
+(case-insensitive), a "Create “…”" row sits at the end of the list, marked by a module `Symbol` so
+no caller's data can be mistaken for it. Picking it, by pointer or Enter, calls `onCreate(text)`;
+the caller returns the new item **and adds that same object to `items`**, because Base UI matches
+values by identity (`itemEquality.js`: `Object.is`), and the copy in `items` is what reads as chosen
+the next time the list opens. A creatable combobox holds its own value, controlled or not, so the
+create row is swapped for the real item before `onValueChange` sees it. Flat `items` only: a grouped
+list has no single end. The row draws a 16px `Plus` where a row's icon goes and no indicator,
+since it is the act of making a value rather than a value. `createLabel` overrides the copy.
+`CreateKeyboard` makes one tag by pointer and one by keyboard, checks the list grew and the new row
+reads as chosen, and that existing text in another case offers no create row.
+**Drawn into the file the same day:** Combobox Menu Item gains `Type=Create`, State Default and
+Hover, Selected=False only (`40006088:1047`, `40006088:1056`): the Single Select row with the Icon
+shown and swapped to the file's `plus` (`40002023:14923`), the label and sub-label rewired to the
+set's keys. Astryx's `hasCreate` was what FINDINGS 148 first pointed at; the file never had it.
 Left out: `Combobox.Clear`, `Backdrop`, `Arrow` and `Row`; virtualization; `Combobox.Label` (Field
 owns the label); a `Hug` property, which this set does not have though Select's does; and Astryx's
-`maxEntries`, `hasCreate`, `status`, `+N more` overflow, `endContent`, `isLabelHidden` and
-`disabledMessage`, none of which are in the file. Astryx's rule against coloring individual tokens
+`maxEntries`, `status`, `+N more` overflow, `endContent`, `isLabelHidden` and `disabledMessage`,
+none of which are in the file. Astryx's rule against coloring individual tokens
 is already Token's.
 
 ## Best practices
