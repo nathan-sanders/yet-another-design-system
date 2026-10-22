@@ -943,12 +943,19 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
 
 101. **A month day opens a day panel.** Clicking a month cell, or its date (the keyboard route, a
     real button with `aria-pressed`), opens `screens/calendar/DayDetail.tsx` as the shell panel
-    `{type: 'day', date}`: the day's notes, then its posts by time. Code-first; Figma has no day
+    `{type: 'day', date}`: the day's notes, then its posts by hour. Code-first; Figma has no day
     panel. Its header carries the week view's + menu (Add post, Add note) through `Panel.Header`'s
     `actions`, and a day that has gone by has no + but still opens, since what went out is worth
     reading. A post opens **stacked** on the day (a `PostDetailPanel` written inside the day's
     `Panel.Body`), so closing it lands back on the day. Clicking the open day again closes the
     panel. axe is clean with the day panel open and with a post stacked on it.
+
+    **2026-10-22:** the panel is now laid out as the day view is — `HourGrid` with one column and
+    `header={false}` (the panel header already says the date and carries the + menu), so a Notes
+    row then a row per hour, with the now line. A click on the Notes row's empty part starts a note
+    on the day, and one on an empty hour starts a post at that hour, as in the day view. Posts in
+    the panel do not drag: the panel is the shell's, outside the calendar's `DragAndDrop`. axe is
+    clean with it open.
 
 ## Measure › New report and report types (2026-10-19)
 

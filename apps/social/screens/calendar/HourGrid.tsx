@@ -16,6 +16,12 @@ import { HOURS, isPast, layoutNotes, pastDayPattern, postHour, postsOn, today } 
 
 const GUTTER = 'w-14 shrink-0' // 56px, the file's `Gutter`
 
+/**
+ * Where an hour's label sticks while its row scrolls by: 8px under the 40px
+ * day header, or 8px under the top of the scroll region when there is none.
+ */
+const LABEL_STICK = { header: 'top-12', bare: 'top-2' } as const
+
 interface HourGridProps {
   days: Date[]
   renderPost: (post: Post) => ReactNode
@@ -25,6 +31,11 @@ interface HourGridProps {
   onOpenNote: (note: Note) => void
   /** The day header's label: `Mon 7` in the week, the full date in a day. */
   dayLabel?: (date: Date) => string
+  /**
+   * The sticky row of days with their + menus. Off in the month view's day
+   * panel, whose own header already says the date and carries the same menu.
+   */
+  header?: boolean
 }
 
 /**
@@ -48,81 +59,86 @@ export function HourGrid({
   onAddNote,
   onOpenNote,
   dayLabel = weekLabel,
+  header = true,
 }: HourGridProps) {
   const { posts } = useSchedule()
   const byDay = days.map((day) => postsOn(posts, day))
   const todayIndex = days.findIndex((day) => sameDay(day, today))
   const now = useNow()
+  const stick = LABEL_STICK[header ? 'header' : 'bare']
 
   return (
     <div className="flex min-w-0 flex-col">
-      <div className="sticky top-0 z-10 flex border-b border-surface-border bg-surface-background-primary">
-        <div className={GUTTER} />
-        {days.map((day) => {
-          const isToday = sameDay(day, today)
-          const past = isPast(day)
-          return (
-            <div
-              key={day.toISOString()}
-              className={cn(
-                'relative flex h-10 min-w-28 flex-1 items-center gap-1 border-l md:min-w-0 border-surface-border py-2 pr-1 pl-3',
-                past && pastDayPattern,
-              )}
-            >
-              {isToday ? (
-                // Figma's `Highlight` (`40005911:32818`): a 2px rule in Surface/Border
-                // Emphasized across the full top edge of today's column, square ends.
-                <span
-                  aria-hidden
-                  className="absolute top-0 right-0 -left-px h-0.5 bg-surface-border-emphasized"
-                />
-              ) : null}
-              <Text
-                render={<span />}
-                size="sm"
-                weight={isToday ? 'semibold' : 'normal'}
-                color={isToday ? 'emphasized' : past ? 'subtle' : 'primary'}
-                truncate
-                className="min-w-0 flex-1"
+      {header ? (
+        <div className="sticky top-0 z-10 flex border-b border-surface-border bg-surface-background-primary">
+          <div className={GUTTER} />
+          {days.map((day) => {
+            const isToday = sameDay(day, today)
+            const past = isPast(day)
+            return (
+              <div
+                key={day.toISOString()}
+                className={cn(
+                  'relative flex h-10 min-w-28 flex-1 items-center gap-1 border-l md:min-w-0 border-surface-border py-2 pr-1 pl-3',
+                  past && pastDayPattern,
+                )}
               >
-                {dayLabel(day)}
-                {isToday ? <span className="sr-only"> (today)</span> : null}
-              </Text>
-              {past ? null : (
-                <Menu>
-                  <Menu.Trigger
-                    render={
-                      <Button
-                        appearance="ghost"
-                        startIcon={Plus}
-                        aria-label={`Add to ${fullDate.format(day)}`}
-                      />
-                    }
+                {isToday ? (
+                  // Figma's `Highlight` (`40005911:32818`): a 2px rule in Surface/Border
+                  // Emphasized across the full top edge of today's column, square ends.
+                  <span
+                    aria-hidden
+                    className="absolute top-0 right-0 -left-px h-0.5 bg-surface-border-emphasized"
                   />
-                  <Menu.Popup aria-label={`Add to ${fullDate.format(day)}`}>
-                    {/* The 8px round the rows is the Group's, not the Popup's. */}
-                    <Menu.Group>
-                      <Menu.Item startIcon={SquarePen} onClick={() => onAddPost(day)}>
-                        Add post
-                      </Menu.Item>
-                      <Menu.Item startIcon={StickyNote} onClick={() => onAddNote(day)}>
-                        Add note
-                      </Menu.Item>
-                    </Menu.Group>
-                  </Menu.Popup>
-                </Menu>
-              )}
-            </div>
-          )
-        })}
-      </div>
+                ) : null}
+                <Text
+                  render={<span />}
+                  size="sm"
+                  weight={isToday ? 'semibold' : 'normal'}
+                  color={isToday ? 'emphasized' : past ? 'subtle' : 'primary'}
+                  truncate
+                  className="min-w-0 flex-1"
+                >
+                  {dayLabel(day)}
+                  {isToday ? <span className="sr-only"> (today)</span> : null}
+                </Text>
+                {past ? null : (
+                  <Menu>
+                    <Menu.Trigger
+                      render={
+                        <Button
+                          appearance="ghost"
+                          startIcon={Plus}
+                          aria-label={`Add to ${fullDate.format(day)}`}
+                        />
+                      }
+                    />
+                    <Menu.Popup aria-label={`Add to ${fullDate.format(day)}`}>
+                      {/* The 8px round the rows is the Group's, not the Popup's. */}
+                      <Menu.Group>
+                        <Menu.Item startIcon={SquarePen} onClick={() => onAddPost(day)}>
+                          Add post
+                        </Menu.Item>
+                        <Menu.Item startIcon={StickyNote} onClick={() => onAddNote(day)}>
+                          Add note
+                        </Menu.Item>
+                      </Menu.Group>
+                    </Menu.Popup>
+                  </Menu>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      ) : null}
 
-      <NotesRow days={days} onAddNote={onAddNote} onOpenNote={onOpenNote} />
+      <NotesRow days={days} stick={stick} onAddNote={onAddNote} onOpenNote={onOpenNote} />
       {HOURS.map((hour) => (
         <Row
           key={hour}
           hour={hour}
           label={formatHour(hour)}
+          stick={stick}
           days={days}
           clock={now}
           onAddPost={onAddPost}
@@ -142,6 +158,7 @@ export function HourGrid({
 function Row({
   hour,
   label,
+  stick,
   days,
   clock,
   onAddPost,
@@ -150,6 +167,7 @@ function Row({
 }: {
   hour: number
   label: string
+  stick: string
   days: Date[]
   clock: Date
   onAddPost: (date: Date, time: string) => void
@@ -158,7 +176,7 @@ function Row({
 }) {
   return (
     <div className="relative flex min-h-14 border-b border-dashed border-surface-border last:border-b-0">
-      {/* The label sticks under the 40px day header while its row scrolls by,
+      {/* The label sticks under the day header (`stick`) while its row scrolls by,
           and the row's own bottom pushes it out — the row is its containing
           block. `items-start` keeps the span its own height; stretched, it
           would have nowhere to stick. */}
@@ -167,7 +185,7 @@ function Row({
           render={<span />}
           size="sm"
           color="subtle"
-          className="sticky top-12 mt-2 whitespace-nowrap"
+          className={cn('sticky mt-2 whitespace-nowrap', stick)}
         >
           {label}
         </Text>
@@ -255,10 +273,12 @@ function HourCell({
  */
 function NotesRow({
   days,
+  stick,
   onAddNote,
   onOpenNote,
 }: {
   days: Date[]
+  stick: string
   onAddNote: (date: Date) => void
   onOpenNote: (note: Note) => void
 }) {
@@ -273,7 +293,7 @@ function NotesRow({
           render={<span />}
           size="sm"
           color="subtle"
-          className="sticky top-12 mt-2 whitespace-nowrap"
+          className={cn('sticky mt-2 whitespace-nowrap', stick)}
         >
           Notes
         </Text>
