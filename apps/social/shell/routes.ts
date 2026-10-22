@@ -74,7 +74,6 @@ export const groups: RouteGroup[] = [
     routes: [
       { path: '/measure/discover', label: 'Discover', built: true, figma: '40005911-35187' },
       { path: '/measure/reports', label: 'Reports', built: true, figma: '40005911-34877' },
-      { path: '/measure/alerts', label: 'Alerts' },
     ],
   },
 ]
