@@ -17,6 +17,8 @@ export interface Profile {
   network: Network
   /** What the network shows: `veggie_vault`, or `Veggie Vault` on Facebook. */
   name: string
+  /** The account's picture, where the brand has one. */
+  avatar?: string
 }
 
 export interface Person {
