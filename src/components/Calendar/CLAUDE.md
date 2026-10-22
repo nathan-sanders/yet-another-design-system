@@ -1,7 +1,8 @@
-# Calendar / DatePicker
+# Calendar / DatePicker / DateInput
 
-Two public components out of one Figma page: `Calendar` is the month grid,
-`DatePicker` is the panel that wraps it with a presets rail and a footer.
+Three public components out of one Figma page: `Calendar` is the month grid,
+`DatePicker` is the panel that wraps it with a presets rail and a footer, and
+`DateInput` is the text field that opens that panel under itself.
 
 Source: **↪ Date Picker (In Progress)** (page `40004748:43526`).
 
@@ -14,6 +15,7 @@ Source: **↪ Date Picker (In Progress)** (page `40004748:43526`).
 | `_Month Header` — Default / Month Picker | `40004972:35010` | the `monthHeader` prop |
 | `_Calendar Presets` | `40004972:34989` | the presets rail + `DATE_RANGE_PRESETS` |
 | `_Footer` | `40004972:34980` | the range footer |
+| `Input` (`40004050:14183`) under a `Field`, opening `Date Picker` `Type=Single` | Yet Social's New note `40005957:64172` | `DateInput` |
 
 Five of the seven are underscored, which the root record reads as *drawing
 mechanism, not API*. That is the right reading here: `_Day Button`'s 33 variants
@@ -211,14 +213,65 @@ month-picker Selects lose their own arrow keys to `preventDefault`.
 
 ## Left out on purpose
 
-- **A trigger.** Nothing on the canvas opens the panel. Putting it in a
-  `Popover.Popup` is a line of a caller's code; a `DatePickerField` here would be
-  a component the file has never drawn.
+- **A button trigger.** Nothing on the canvas opens the panel from a button.
+  Putting it in a `Popover.Popup` is a line of a caller's code. The *field*
+  trigger was left out here too, and came back as `DateInput` — below.
 - **From Astryx's API**: `hasWeekNumbers`, `hasVariableRowCount`, `handleRef`,
   `minRangeSpan` / `maxRangeSpan`. The file draws none of them, and the bar is
   that the file draws it *and* something has been reinvented without it.
 - **Time.** This is dates. A time field is a different component and the file
   does not draw one.
+
+## DateInput: the field, promoted from an app
+
+**This entry used to say a date field was a caller's line.** Yet Social wrote
+that line (`apps/social/components/DateInput.tsx`, FINDINGS 100) for the
+calendar note dialog's Start and End, and its own comment said a second caller
+would be the signal to promote it. The Schedule dialog was the second, and the
+composer reaches it through that dialog (FINDINGS 146) — three fields on two
+screens, so the root record's bar was met on both halves: **the file draws it,
+and something had been reinvented without it.**
+
+**It has no Figma component of its own, and should not get one.** The file
+draws a date field as exactly what it is — an `Input` instance holding
+`10/19/2026`, placeholder "Select date", under a `Field` label (read off the
+New note dialog `40005957:64172`, both fields) — and the panel is `Date Picker`
+`Type=Single` unchanged. A `Date Input` set would be an Input drawn twice. What
+the code adds is behavior the canvas cannot draw, which is the `Dialog.Body`
+category again.
+
+What it does, and why each choice is the one it is:
+
+- **Not `Popover.Trigger`.** The trigger writes `aria-expanded`, which a
+  textbox may not carry, and toggles on every click — so the second click into
+  the field, the one that places the caret, would close the panel. The popup
+  is positioned with Base UI's `anchor` instead, and the field carries
+  `aria-haspopup="dialog"` and, while open, `aria-controls`.
+- **Anchored to Input's box, not the `<input>`.** The control sits inside the
+  box's 1px border, so the first version lined the panel up 1px in and 1px high.
+  Measured in `PickADay`: the card is 312 × 344, its left edge is the box's, and
+  it sits 4px under it.
+- **Focus stays in the field.** It opens on focus and on click with
+  `initialFocus={false}`, so typing works with the panel open. ArrowDown moves
+  into the grid on the roving day; picking a day — click or Enter — closes the
+  panel and hands focus back without reopening it (the `returning` ref).
+- **Escape closes the panel, not the dialog round it** (`stopPropagation` on
+  the field, and Base UI's `escape-key` reason from inside the grid). The
+  `InDialog` story is the guard: one Escape for the panel, a second for the
+  dialog.
+- **Typing commits on blur and Enter, through `parseDateInput`** — the same
+  reader as the DatePicker footer's fields, with the same rule: text it cannot
+  read, or a date `min`/`max`/`dateConstraints` refuse, reverts rather than
+  clearing. An empty field commits `null`.
+- **`value`/`defaultValue` are a `Date`, never a range.** A range is two
+  fields, each with its own `min` — the note dialog's shape, and the
+  `StartAndEnd` story. A one-field range would need the range footer, which is
+  DatePicker's already.
+
+The popup paints nothing of its own: the card is DatePicker's, so the popup
+carries only Popover's motion (`duration-fast`, `ease-standard`, scale from
+95%). It is the first caller of `Popover.RawPopup` inside the library, which is
+what the raw part is for: a panel whose surface is somebody else's.
 
 ## Added ahead of the file
 

@@ -78,10 +78,11 @@ export type {
 export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
-export { Calendar, DatePicker, DATE_RANGE_PRESETS } from './components/Calendar'
+export { Calendar, DateInput, DatePicker, DATE_RANGE_PRESETS } from './components/Calendar'
 export type {
   CalendarProps,
   CalendarValue,
+  DateInputProps,
   DatePickerProps,
   DatePreset,
   DateRange,
