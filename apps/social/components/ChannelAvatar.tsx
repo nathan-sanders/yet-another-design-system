@@ -10,8 +10,7 @@ import { NetworkIcon } from './NetworkIcon'
  * a badge at its corner, and a ring when the post goes out on it.
  *
  * A toggle button, so a screen reader hears "veggie_vault on Instagram,
- * pressed". The badge is an overlay in a canvas-colored ring — Avatar has no
- * slot for a mark of its own (FINDINGS 149).
+ * pressed". The network's mark is Avatar's `badge` (FINDINGS 147).
  */
 export function ChannelAvatar({
   profile,
@@ -32,8 +31,8 @@ export function ChannelAvatar({
       aria-label={`${profile.name} on ${NETWORK_NAMES[profile.network]}`}
       disabled={disabled}
       onClick={onToggle}
-      // Figma's `_Composer Channel`: a 36 avatar inside a 44 ring, the badge
-      // 20 at the corner with the 16 mark in it.
+      // Figma's `_Composer Channel`: a 36 avatar inside a 44 ring; the badge
+      // is the avatar's, 20 at its corner with the 16 mark in it.
       className={cn(
         'relative flex size-11 items-center justify-center rounded-full transition-opacity duration-fast ease-standard',
         focusRing,
@@ -41,13 +40,13 @@ export function ChannelAvatar({
         disabled && 'cursor-default hover:opacity-50',
       )}
     >
-      <Avatar size="base" name={profile.name} src={profile.avatar} alt="" />
-      <span
-        aria-hidden
-        className="absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full bg-surface-background-primary text-content-primary ring-1 ring-surface-border"
-      >
-        <NetworkIcon network={profile.network} />
-      </span>
+      <Avatar
+        size="base"
+        name={profile.name}
+        src={profile.avatar}
+        alt=""
+        badge={<NetworkIcon network={profile.network} />}
+      />
     </button>
   )
 }

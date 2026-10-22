@@ -33,7 +33,7 @@ interface PostCardProps {
 
 /** A draggable card's look: grab cursor, and faded while the copy under the pointer is carried. */
 function dragClasses(drag: CardDrag | undefined) {
-  return cn(drag?.onPointerDown && 'cursor-grab', drag?.dragging && 'opacity-40')
+  return cn(drag?.onPointerDown && 'cursor-grab', drag?.dragging && 'opacity-50')
 }
 
 /** Network, account, time — the header every variant shares. */

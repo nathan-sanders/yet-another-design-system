@@ -901,7 +901,7 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     gained that in #289: `startIcon` takes an element as well as a Lucide icon, and the chosen row's
     icon now shows in the trigger, for Select and single-select Combobox. The app passes
     `noteSwatch(color)` as a 14px dot.
-95. **`Dialog.Body` stretches a short dialog to the viewport.** It is `flex-1` so it can scroll, which
+95. **Closed by #338 (2026-10-22): the Body shrinks and never grows now, and the three `flex-initial` overrides are gone.** **`Dialog.Body` stretches a short dialog to the viewport.** It is `flex-1` so it can scroll, which
     also makes it grow: the note dialog came out 868px tall with 470px of form. `flex-initial` on
     the Body (shrink to scroll, never grow) fixed it here. That may be the right default for the
     library.
@@ -923,7 +923,7 @@ Notes live in the week's and day's Notes row and in each month week, and are mad
     open the day panel.) The cell click is a pointer
     shortcut with no tab stop; the + menu is the keyboard route. Past days offer neither. Clicking a
     note opens the same dialog with Delete.
-100. **The dialog follows the file now, and the date field is the app's.** `NoteDialog` was a
+100. **Closed by #336 (2026-10-22): `DateInput` is the library's, in `Calendar`; the app's copy is deleted.** **The dialog follows the file now, and the date field is the app's.** `NoteDialog` was a
     two-column form (radios on the left, an inline range `DatePicker` on the right). It is now Figma's
     single column at 600: Title, Description, Color, then Start date and End date at 280 each, 8 apart.
     Measured against the frame, every field lands on the frame's y. Each date is
@@ -1067,7 +1067,7 @@ Figma `Notifications - D · Activity cards` (`40005993:27777`) and its `_Notific
     Table's rows already hover that way (`src/components/Table/CLAUDE.md`). A
     ghost row with nested surfaces probably wants the overlay hover in the library, or a variant
     that has it.
-115. **Avatar has no badge slot.** The file lays a 20px Type badge (a white circle with a 14px
+115. **Closed by #337 (2026-10-22): `Avatar`'s `badge`.** A person sender is now `<Avatar badge={kind} />`; the Yak and network tiles are not avatars and keep their own disc, moved to the same 6px placement. **Avatar has no badge slot.** The file lays a 20px Type badge (a white circle with a 14px
     glyph) over the avatar's lower right, 22 in and 20 down. `Avatar` only knows `status`, a
     presence dot in the same corner, so the badge is positioned by hand in `SenderMark`, and the
     Show Icon tile used for Instagram, Yak and the brand account is hand-drawn beside it. A
@@ -1124,7 +1124,7 @@ so Sentiment's icon is `heart` on both sides. Numbered after #314's 121.
 
 ### Open: library changes worth making
 
-122. **DragAndDrop has no draggable *source*.** It has sortable containers and items, and
+122. **Closed by #339 (2026-10-22): `DragAndDrop.Source` / `useDragSource`**, which the catalog tiles now use. **DragAndDrop has no draggable *source*.** It has sortable containers and items, and
     nothing for a thing that is dragged *onto* a board without being one of its items: a
     palette, a toolbox, this catalog. The tiles use `useDraggable` from `@dnd-kit/core`
     directly, and spread only its `onPointerDown`. A `DragAndDrop.Source` would want the same
@@ -1184,7 +1184,7 @@ drag or scheduling frames. Numbered after #316's 129.
 
 ### Open: library changes worth making
 
-130. **The second draggable source.** FINDINGS 122 asked for a `DragAndDrop.Source` when a
+130. **Closed by #339 (2026-10-22):** `useCardDrag` is a thin wrapper over `useDragSource` now. **The second draggable source.** FINDINGS 122 asked for a `DragAndDrop.Source` when a
     second palette turned up, and this is it twice over: draft cards out of a panel, and
     post cards that are not `Sortable.Item`s because a calendar cell is not a list. Both
     make 122's two decisions again (`useCardDrag` in `screens/calendar/dragHooks.ts`):
@@ -1287,9 +1287,9 @@ place that used to say "not built".
 
 ### Open: library changes worth making
 
-146. **`DateInput` has a third caller** (the composer, through the dialog). FINDINGS 100 said a
+146. **Closed by #336 (2026-10-22).** **`DateInput` has a third caller** (the composer, through the dialog). FINDINGS 100 said a
     second field was the signal to promote it; it is overdue.
-147. **Avatar has no slot for a mark on its corner.** The channel row wants the network's glyph
+147. **Closed by #337 (2026-10-22): `ChannelAvatar` passes the network's mark as `badge`.** **Avatar has no slot for a mark on its corner.** The channel row wants the network's glyph
     on the brand's avatar (`components/ChannelAvatar.tsx`); it is an absolutely positioned
     overlay in a canvas-colored ring. A `badge` slot on Avatar, like the status dot, would be the
     library's answer.
@@ -1403,3 +1403,21 @@ drawn piece is the bar that takes the reply box's place on a closed case
 ### Figma owes
 
 - Frames for All assignments, Spam and Complete, and the spam version of the Case Closed row.
+
+## Library pieces adopted (2026-10-22)
+
+Four open entries became library changes the same day (#336–#339), and this switches the app to
+them. Nothing here is new behavior; four things look slightly different, all toward the file:
+
+162. **The composer's channel badge lost its border.** The app drew a 1px `Surface/Border` ring;
+    `_Composer Channel`'s 1px stroke is bound to the fill's own token, so the file draws none.
+    The badge also moved from the 44px ring's corner (24, 24) to the avatar's (26, 26), which is
+    where the file has it.
+163. **The notification Type badge sits 2px lower** than `_Notification Item` draws it. The file
+    has it 20 down and the composer's 22; the library takes one placement for both, 6px past the
+    circle on each axis. The Yak and network tiles follow it too, so every row matches.
+164. **A carried card or tile fades to 50%, not 40%** — the file's `opacity/opacity-50`, which
+    `Sortable Item`'s Lifted binds and `DragAndDrop.Source` uses.
+165. **New report's type step hugs its cards** instead of stretching to the viewport, now that
+    `Dialog.Body` does not grow. It still scrolls when the cards are taller than the screen.
+

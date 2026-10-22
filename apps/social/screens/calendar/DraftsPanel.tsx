@@ -100,7 +100,7 @@ function DraftCard({
         ref={drag.ref}
         onPointerDown={drag.onPointerDown}
         onClick={onOpen}
-        className={cn('w-full cursor-grab', drag.dragging && 'opacity-40')}
+        className={cn('w-full cursor-grab', drag.dragging && 'opacity-50')}
         aria-label={`Draft for ${profile.name}: ${draft.body}`}
       >
         <DraftFace draft={draft} />

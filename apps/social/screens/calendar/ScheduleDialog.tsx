@@ -2,10 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { useLocation, useSearchParams } from 'react-router'
 
 import { Button } from '../../../../src/components/Button'
+import { DateInput } from '../../../../src/components/Calendar'
 import { Dialog } from '../../../../src/components/Dialog'
 import { Field } from '../../../../src/components/Field'
 import { Select } from '../../../../src/components/Select'
-import { DateInput } from '../../components/DateInput'
 import { formatTime, sameDay, toISODate } from '../../data/dates'
 import { TIMES, firstOffer, postDate, today } from './model'
 import { useCommitSchedule } from './scheduleCommit'
@@ -107,10 +107,7 @@ function ScheduleForm({ request, onDone }: { request: ScheduleRequest; onDone: (
           </Dialog.Title>
           <Dialog.Close />
         </div>
-
-        {/* `flex-initial`: the Body is `flex-1` so it can scroll, which on its
-            own stretches a short dialog to the viewport's height (finding 95). */}
-        <Dialog.Body className="flex flex-initial flex-col gap-4">
+        <Dialog.Body className="flex flex-col gap-4">
           <Dialog.Description>
             {request.source === 'draft'
               ? 'Pick when this draft goes out. It leaves Drafts and goes on the calendar.'

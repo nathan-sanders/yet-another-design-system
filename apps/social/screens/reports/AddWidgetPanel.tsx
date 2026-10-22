@@ -1,8 +1,8 @@
-import { useState, type PointerEventHandler } from 'react'
-import { useDraggable } from '@dnd-kit/core'
+import { useState } from 'react'
 import { LayoutDashboard, Plus, Search } from 'lucide-react'
 
 import { ClickableCard } from '../../../../src/components/Card'
+import { useDragSource } from '../../../../src/components/DragAndDrop'
 import { Icon } from '../../../../src/components/Icon'
 import { InputGroup } from '../../../../src/components/Input'
 import { Panel } from '../../../../src/components/Panel'
@@ -114,22 +114,19 @@ export function AddWidgetPanel({
  * One widget in the catalog: a `ClickableCard` that adds on click and lifts on
  * a pointer drag.
  *
- * **Only the pointer listener is spread.** dnd-kit's keyboard listener would
- * make Enter and Space start a keyboard drag, and then the tile could not be
- * clicked from the keyboard at all. Click is the keyboard's and the screen
- * reader's way in, so the button stays a plain button, with none of dnd-kit's
- * drag attributes either — they would announce a drag the keyboard cannot do.
+ * The drag is the library's `useDragSource`: pointer only, and none of
+ * dnd-kit's drag attributes, so Enter and Space still click the tile and
+ * nothing announces a drag the keyboard cannot do.
  */
 function CatalogTile({ entry, onAdd }: { entry: CatalogEntry; onAdd: () => void }) {
   const data: CatalogDragData = { source: 'catalog', entry }
-  const { setNodeRef, listeners, isDragging } = useDraggable({ id: catalogDragId(entry), data })
+  const { sourceProps, isDragging } = useDragSource({ id: catalogDragId(entry), label: entry.title, data })
   return (
     <ClickableCard
-      ref={setNodeRef}
-      // dnd-kit types its listeners as `Function`.
-      onPointerDown={listeners?.onPointerDown as PointerEventHandler | undefined}
+      ref={sourceProps.ref}
+      onPointerDown={sourceProps.onPointerDown}
       onClick={onAdd}
-      className={cn('w-full cursor-grab', isDragging && 'opacity-40')}
+      className={cn('w-full cursor-grab', isDragging && 'opacity-50')}
     >
       <CatalogTileFace entry={entry} />
     </ClickableCard>

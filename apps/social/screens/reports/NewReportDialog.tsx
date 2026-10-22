@@ -195,9 +195,7 @@ function NewReportForm({
             </Radio.Group>
           </Dialog.Body>
         ) : (
-          // `flex-initial`: the Body is `flex-1` so it can scroll, which on its
-          // own stretches a short dialog to the viewport's height (finding 95).
-          <Dialog.Body className="flex flex-initial flex-col gap-4">
+          <Dialog.Body className="flex flex-col gap-4">
             <Field
               label="Name"
               invalid={submitted && nameMissing}

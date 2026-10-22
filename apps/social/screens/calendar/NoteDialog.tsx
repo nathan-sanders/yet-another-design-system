@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react'
 
 import { Button } from '../../../../src/components/Button'
+import { DateInput } from '../../../../src/components/Calendar'
 import { Dialog } from '../../../../src/components/Dialog'
 import { Field } from '../../../../src/components/Field'
 import { Input } from '../../../../src/components/Input'
 import { Select } from '../../../../src/components/Select'
 import { Toast } from '../../../../src/components/Toast'
 import { cn } from '../../../../src/lib/cn'
-import { DateInput } from '../../components/DateInput'
 import { NOTE_COLORS, noteSwatch } from '../../components/calendarNoteColors'
 import type { CalendarNote, NoteColor } from '../../data/types'
 import { useCalendarNotes } from './calendarNotesState'
@@ -108,10 +108,7 @@ function NoteForm({ request, onDone }: { request: NoteDialogRequest; onDone: () 
           <Dialog.Title>{editing ? 'Edit note' : 'New note'}</Dialog.Title>
           <Dialog.Close />
         </div>
-
-        {/* `flex-initial`: the Body is `flex-1` so it can scroll, which on its
-            own stretches a short dialog to the viewport's height (finding 95). */}
-        <Dialog.Body className="flex flex-initial flex-col gap-4">
+        <Dialog.Body className="flex flex-col gap-4">
           <Field
             label="Title"
             invalid={submitted && titleMissing}
