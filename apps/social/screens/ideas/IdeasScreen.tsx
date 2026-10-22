@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import type { DragEndEvent, DragOverEvent } from '@dnd-kit/core'
-import { CalendarClock, Ellipsis, ListFilter, Plus } from 'lucide-react'
+import { Ellipsis, ListFilter, Plus } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Badge } from '../../../../src/components/Badge'
@@ -17,22 +17,14 @@ import {
 } from '../../../../src/components/DragAndDrop'
 import { Menu } from '../../../../src/components/Menu'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
-import { Heading, Text } from '../../../../src/components/Text'
-import { Token } from '../../../../src/components/Token'
+import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { cn } from '../../../../src/lib/cn'
 import { floatingYakClearance } from '../../components/FloatingYak'
 import { IdeaCard } from '../../components/IdeaCard'
-import { NetworkIcon } from '../../components/NetworkIcon'
-import { profiles } from '../../data/posts'
 import type { IdeaGroup } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import { dayDate } from '../calendar/model'
-import { scheduleLabel } from '../calendar/scheduleCommit'
-import { useSchedule } from '../calendar/scheduleState'
-import { composePath } from '../compose/paths'
 import { UNASSIGNED, useIdeas } from './ideasState'
-import { derivedColumns, type DerivedColumns } from './lifecycle'
 import { ideaPath, newIdeaPath } from './paths'
 
 type IdeasView = 'board' | 'gallery'
@@ -41,11 +33,9 @@ type IdeasView = 'board' | 'gallery'
  * Plan › Ideas (`40005911:32981`): posts that have not been written yet, on a
  * board of groups. The columns are `ContentBlock`s on the subtle surface with
  * a `Sortable` inside each, the shape of DragAndDrop's Kanban story; cards
- * move between columns while they are carried and settle on drop. After the
- * groups come three columns the board reads rather than keeps — Drafting,
- * Scheduled and Published, from the drafts and posts that carry an `ideaId`
- * (`lifecycle.ts`, after `Plan - Ideas / Scheduled`, `40006053:83935`). An
- * idea leaves its group the moment the composer makes a post of it. Gallery
+ * move between columns while they are carried and settle on drop. The board
+ * holds ideas only: an idea leaves it the moment the composer makes a post of
+ * it, and from there the post lives in Drafts and on the calendar. Gallery
  * (`?view=gallery`) has no frame: it is the same cards in a grid, each with
  * its group as a Badge (FINDINGS 70).
  */
@@ -54,8 +44,6 @@ export function IdeasScreen() {
   const shell = useShell()
   const navigate = useNavigate()
   const { ideas, groups, board, setBoard, addGroup, clearGroup, removeGroup } = useIdeas()
-  const { drafts, posts } = useSchedule()
-  const derived = derivedColumns(ideas, drafts, posts, { now: new Date() })
   const view: IdeasView = params.get('view') === 'gallery' ? 'gallery' : 'board'
 
   // A column just added hands focus to its own add button, once React has drawn it.
@@ -182,54 +170,6 @@ export function IdeasScreen() {
                     onClick={() => setFocusTarget(newIdeaButtonId(addGroup()))}
                   />
                 </div>
-                <DerivedColumn
-                  name="Drafting"
-                  caption="Posts made from an idea, still in Drafts"
-                  count={derived.drafting.length}
-                >
-                  {derived.drafting.map(({ idea, draft }) => (
-                    <li key={draft.id} className="flex">
-                      <IdeaCard
-                        idea={idea}
-                        end={<ChannelToken profileId={draft.profileId} />}
-                        onClick={() => navigate(composePath({ draft: draft.id, from: '/plan/ideas' }))}
-                      />
-                    </li>
-                  ))}
-                </DerivedColumn>
-                <DerivedColumn
-                  name="Scheduled"
-                  caption="On the calendar, not out yet"
-                  count={derived.scheduled.length}
-                >
-                  {derived.scheduled.map(({ idea, post }) => (
-                    <li key={post.id} className="flex">
-                      <IdeaCard
-                        idea={idea}
-                        end={
-                          <>
-                            <ChannelToken profileId={post.profileId} />
-                            <Token startIcon={CalendarClock}>
-                              {scheduleLabel({ date: dayDate(post), time: post.time })}
-                            </Token>
-                          </>
-                        }
-                        onClick={() => shell.setPanel({ type: 'post', postId: post.id })}
-                      />
-                    </li>
-                  ))}
-                </DerivedColumn>
-                <DerivedColumn name="Published" caption="Out, and earning" count={derived.published.length}>
-                  {derived.published.map(({ idea, post }) => (
-                    <li key={post.id} className="flex">
-                      <IdeaCard
-                        idea={idea}
-                        end={<ChannelToken profileId={post.profileId} />}
-                        onClick={() => shell.setPanel({ type: 'post', postId: post.id })}
-                      />
-                    </li>
-                  ))}
-                </DerivedColumn>
               </div>
             </div>
           </DragAndDrop>
@@ -247,19 +187,6 @@ export function IdeasScreen() {
                 </li>
               )),
             )}
-            {galleryDerived(derived).map(({ key, idea, status, kind }) => (
-              <li key={key} className="flex">
-                <IdeaCard
-                  idea={idea}
-                  status={status}
-                  onClick={
-                    kind === 'post'
-                      ? () => shell.setPanel({ type: 'post', postId: key })
-                      : () => navigate(composePath({ draft: key, from: '/plan/ideas?view=gallery' }))
-                  }
-                />
-              </li>
-            ))}
           </ul>
         </AppShell.Content>
       )}
@@ -270,56 +197,6 @@ export function IdeasScreen() {
 /** A new group hands focus to its own add button, the first thing you would do next. */
 function newIdeaButtonId(groupId: string) {
   return `new-idea-in-${groupId}`
-}
-
-/** The derived cards, flattened for the gallery with their column as the status. */
-function galleryDerived(derived: DerivedColumns) {
-  return [
-    ...derived.drafting.map(({ idea, draft }) => ({ key: draft.id, idea, status: 'Drafting', kind: 'draft' as const })),
-    ...derived.scheduled.map(({ idea, post }) => ({ key: post.id, idea, status: 'Scheduled', kind: 'post' as const })),
-    ...derived.published.map(({ idea, post }) => ({ key: post.id, idea, status: 'Published', kind: 'post' as const })),
-  ]
-}
-
-/** The network a draft or post goes out on, as a Token with the mark in its avatar slot. */
-function ChannelToken({ profileId }: { profileId: string }) {
-  const profile = profiles.find((p) => p.id === profileId)
-  if (!profile) return null
-  // Token's `startIcon` wants a Lucide glyph; the network mark goes in the avatar slot (FINDINGS 148).
-  return <Token avatar={<NetworkIcon network={profile.network} />}>{profile.name}</Token>
-}
-
-/**
- * A column the board reads rather than keeps: no add, no menu, no drag. The
- * caption under the title says where its cards come from, so the read-only
- * column explains itself.
- */
-function DerivedColumn({
-  name,
-  caption,
-  count,
-  children,
-}: {
-  name: string
-  caption: string
-  count: number
-  children: ReactNode
-}) {
-  return (
-    <ContentBlock emphasis="subtle" headingLevel={2} className="h-auto max-w-80 min-w-64 flex-1 basis-0">
-      <ContentBlock.Header titleSlot={<Badge color="neutral">{count}</Badge>}>{name}</ContentBlock.Header>
-      <ContentBlock.Content className="flex-1 gap-2 px-2 pb-4">
-        <Text size="sm" color="subtle" className="px-2">
-          {caption}
-        </Text>
-        {count > 0 ? (
-          <ul role="list" aria-label={name} className="flex flex-col gap-2">
-            {children}
-          </ul>
-        ) : null}
-      </ContentBlock.Content>
-    </ContentBlock>
-  )
 }
 
 /**

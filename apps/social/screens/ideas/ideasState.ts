@@ -10,8 +10,8 @@ import type { Idea, IdeaGroup, PostComment } from '../../data/types'
  * visit to the calendar.
  *
  * The groups are the user's. An idea leaves them when it is made into a post
- * (`detachIdea`, which the composer calls) and the board's derived columns —
- * Drafting, Scheduled, Published — take over from there (`lifecycle.ts`).
+ * (`detachIdea`, which the composer calls); from there it is a post, in Drafts
+ * and on the calendar, and the board shows ideas only.
  */
 export interface IdeasState {
   ideas: Record<string, Idea>

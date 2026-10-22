@@ -87,8 +87,8 @@ export const initialGroups: IdeaGroup[] = [
 /**
  * Idea ids by group id, in board order. The ideas that have gone on to a post
  * (`back-in-stalk`, `harvest-glow`, `soup-season`) are not here: a draft or a
- * post in `data/drafts.ts` / `data/posts.ts` carries their `ideaId`, and the
- * board's derived columns show them (`screens/ideas/lifecycle.ts`).
+ * post in `data/drafts.ts` / `data/posts.ts` carries their `ideaId`, and they
+ * live in Drafts and on the calendar from there.
  */
 export const initialBoard: Containers<string> = {
   unassigned: ['place-to-plan', 'save-inspiration'],
