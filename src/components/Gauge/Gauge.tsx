@@ -54,6 +54,15 @@ export interface GaugeProps {
   data: readonly Record<string, unknown>[]
   nameKey: string
   valueKey: string
+  /**
+   * The property holding a slice's own color, for when the categories *are*
+   * a scale with colors of their own — sentiment's positive, neutral and
+   * negative (`sentiment` from `Chart`). Rows without it keep their
+   * categorical color by position, so a partial map never repaints the rest.
+   * The default is still the right answer almost always: two charts on one
+   * dashboard agree about a category's color because neither overrides it.
+   */
+  colorKey?: string
   /** What the chart shows, as a sentence. Becomes its accessible name. */
   label: string
   height?: number
@@ -156,6 +165,7 @@ export function Gauge({
   data,
   nameKey,
   valueKey,
+  colorKey,
   label,
   height = 200,
   center,
@@ -165,8 +175,16 @@ export function Gauge({
   className,
 }: GaugeProps) {
   const series = useMemo(
-    () => data.map((row) => ({ key: String(row[nameKey]), label: String(row[nameKey]) })),
-    [data, nameKey],
+    () =>
+      data.map((row) => {
+        const color = colorKey ? row[colorKey] : undefined
+        return {
+          key: String(row[nameKey]),
+          label: String(row[nameKey]),
+          ...(typeof color === 'string' ? { color } : {}),
+        }
+      }),
+    [data, nameKey, colorKey],
   )
 
   const activate = onSliceClick

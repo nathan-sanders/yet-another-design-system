@@ -62,6 +62,15 @@ is the exact thing the semantic layer was built to make unnecessary.
 - **Text never wears the series color** — `content-subtle` throughout, identity from the swatch
   beside it. Three of the twelve hues are illegible as text on the light canvas (yellow at 1.74:1 is
   the worst), and coloring text also removes the channel a low-color-vision reader relies on.
+- **A category that is itself a scale brings its own color, and only then.** `Donut` and `Gauge`
+  take `colorKey`, the property holding a slice's color (2026-10-22, from Yet Social's Brand
+  sentiment, FINDINGS 51). Sentiment is the case: Positive is green because it is positive, not
+  because it was first, and the app had been reassigning `--data-viz-categorical-01…03` on a wrapper
+  to get there. It goes through the series' existing `color`, so the legend, the tooltip and the
+  hidden table follow, and a row without one keeps its categorical color by position, so the
+  fixed-order rule above still holds for the rest. `Sentiment` stories in both check the slices and
+  the swatches read the three tokens. Not a way to restyle ordinary categories: two charts agree
+  about "sessions" because neither overrides it.
 - **The three short-contrast hues are known and parked.** The root `CLAUDE.md` records them as
   accepted. Do not "fix" them here; `accessibilityOverlay` and the outline marker shapes are the
   sanctioned mitigations.
