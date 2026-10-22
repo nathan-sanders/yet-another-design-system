@@ -41,7 +41,7 @@ export function ChannelAvatar({
         disabled && 'cursor-default hover:opacity-50',
       )}
     >
-      <Avatar size="base" name={profile.name} alt="" />
+      <Avatar size="base" name={profile.name} src={profile.avatar} alt="" />
       <span
         aria-hidden
         className="absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full bg-surface-background-primary text-content-primary ring-1 ring-surface-border"
