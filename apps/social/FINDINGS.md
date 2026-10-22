@@ -1326,3 +1326,37 @@ so the work stays in sight while Yak answers (`Plan - Composer / Full View - Yak
 
 - The proposal card inside a Yak turn as a component (it is a one-off in `40006040:31176`), and
   the "Next, I can" row.
+
+## Ideas: the idea page and where an idea goes (2026-10-21)
+
+An idea now has a page (`#/plan/ideas/:ideaId`, `Plan - Ideas / Idea / Full View`,
+`40006058:33896`) on the composer's shell, and `new` is the same page blank, so writing and
+editing are one screen. The board keeps the user's groups and gains three columns it reads
+rather than keeps.
+
+153. **An idea is intent; a post is the thing with a channel.** The page has a title, notes, a
+    photo, a campaign, tags and an assignee, and says "no channel yet" until Make a post opens
+    the composer prefilled (`prefillFromIdea`) with the link kept as `ideaId`. The composer is
+    the only bridge, and taking it is optional. Ideas never reach the calendar; the Drafts panel
+    stays drafts-only.
+154. **An idea that has moved on leaves the groups.** The groups stay the user's four plain
+    lists. When the composer saves a draft or schedules a post from an idea it calls
+    `detachIdea`, and the Schedule toast's Undo puts the card back where it was. Drafting,
+    Scheduled and Published are derived from the drafts and posts that carry an `ideaId`
+    (`screens/ideas/lifecycle.ts`, pure and tested, with `now` passed in so the split from
+    Scheduled to Published does not depend on `isPublished`'s load-time clock). Nothing about
+    group membership is derived, so deleting a draft does not resurrect a card; the idea page's
+    "Add back to board" does.
+155. **Idea notes live in `IdeasProvider`**, not a fourth provider, and the Activity tab reuses
+    the post detail's `ActivityTab` with events synthesized from the idea, its notes and its
+    linked posts. The seeds put `d-6` (Harvest Glow, a reel) in Drafts and link `p-41` (Back in
+    stalk, Threads, next week) and `p-50` (Soup season, published) to ideas, so all three
+    derived columns have a card on load and Home's "Finish the Harvest Glow reel" is true.
+156. **The Token takes a network mark through its `avatar` slot.** `startIcon` wants a Lucide
+    glyph, so the derived cards' channel Token puts `NetworkIcon` where an avatar would go. Open,
+    with 149: a `startSlot` on Token would say what this is.
+
+### Figma owes
+
+- The derived columns beside the user's groups (the file's `Plan - Ideas / Scheduled` board
+  draws lifecycle columns on their own), the gallery, and "Add back to board".

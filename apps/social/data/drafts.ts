@@ -1,4 +1,5 @@
 import celerySalad from '../assets/photos/celery-salad.jpg'
+import grainBowl from '../assets/photos/grain-bowl.jpg'
 import greenSmoothies from '../assets/photos/green-smoothies.jpg'
 import mealPrepBowls from '../assets/photos/meal-prep-bowls.jpg'
 import wraps from '../assets/photos/wraps.jpg'
@@ -33,6 +34,19 @@ export interface Draft {
 
 /** Most recently saved first, the order the panel lists them in. */
 export const drafts: Draft[] = [
+  {
+    id: 'd-6',
+    profileId: 'vv-instagram',
+    body: 'Harvest Glow in 60 seconds: bare plate to finished bowl, top-down, recipe card at the end.',
+    photo: grainBowl,
+    photoAlt: 'A grain bowl with roasted vegetables',
+    authorId: 'nathan',
+    edited: '1 hour ago',
+    ideaId: 'harvest-glow',
+    campaignId: 'seasonal-items',
+    tagNames: ['Recipe'],
+    format: 'reel',
+  },
   {
     id: 'd-1',
     profileId: 'vv-instagram',

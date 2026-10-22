@@ -18,6 +18,7 @@ import { yakPath } from '../../yak/paths'
 import { YakComposer } from '../../yak/YakPanel'
 import { YakMark } from '../../yak/YakMark'
 import { today } from '../calendar/model'
+import { ideaPath } from '../ideas/paths'
 import { WeekStrip } from './WeekStrip'
 import { welcome } from './welcome'
 
@@ -225,9 +226,9 @@ function useTasks() {
       id: 'draft',
       icon: FilePenLine,
       title: 'Finish the Harvest Glow reel',
-      meta: 'In progress on Ideas · Seasonal Items',
+      meta: 'Drafting from Ideas · Seasonal Items',
       action: 'Open',
-      onAction: () => navigate('/plan/ideas'),
+      onAction: () => navigate(ideaPath('harvest-glow', '/home')),
     },
   ]
 }

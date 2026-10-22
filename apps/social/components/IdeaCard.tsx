@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Megaphone } from 'lucide-react'
 
 import { Badge } from '../../../src/components/Badge'
@@ -20,12 +21,15 @@ import type { Idea } from '../data/types'
 export function IdeaCard({
   idea,
   status,
+  end,
   onClick,
   className,
 }: {
   idea: Idea
   /** The group it is in, as a Badge — for the gallery, where there are no columns to say so. */
   status?: string
+  /** More Tokens after the campaign: the channel and date a derived column adds. */
+  end?: ReactNode
   onClick?: () => void
   className?: string
 }) {
@@ -48,10 +52,11 @@ export function IdeaCard({
         <Text render={<span />} color="subtle" className="line-clamp-3">
           {idea.body}
         </Text>
-        {(campaign || status) && (
+        {(campaign || status || end) && (
           <span className="flex flex-wrap items-center gap-2">
             {status && <Badge color="neutral">{status}</Badge>}
             {campaign && <Token startIcon={Megaphone}>{campaign.name}</Token>}
+            {end}
           </span>
         )}
       </span>

@@ -54,6 +54,8 @@ export const posts: Post[] = [
     body: 'Soup season starts today. The roasted carrot and ginger is back.',
     photo: harvestBowl,
     photoAlt: 'A grain bowl on a wooden table',
+    ideaId: 'soup-season',
+    campaignId: 'seasonal-items',
   },
   {
     id: 'p-51',
@@ -443,7 +445,12 @@ export const posts: Post[] = [
     week: 1,
     day: 2,
     time: '12:00',
-    body: 'Midweek menu poll',
+    body: 'Back in stalk 🌽 The grilled corn trio is back on the menu through August.',
+    photo: streetCorn,
+    photoAlt: 'Grilled street corn with lime on a plate',
+    ideaId: 'back-in-stalk',
+    campaignId: 'summer-menu',
+    tagNames: ['Launch', 'Menu'],
   },
   {
     id: 'p-42',
