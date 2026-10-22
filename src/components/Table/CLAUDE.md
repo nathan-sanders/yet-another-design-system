@@ -306,8 +306,16 @@ Each of these is an absence with a reason, not an oversight.
   `Skeleton.Text` per cell — see its `InContext` story, which is a table of them. Give each a fixed
   width (`w-28`): a cell's content wrapper hugs, so a percentage width measures 0px there. There is
   still no `loading` prop on `Table`, for the same reason there is no `pagination` prop.
-- **`onRowClick`.** A click handler on a `<tr>` is a target with no keyboard equivalent. `hasHover`
-  is asked for directly instead. It can come back properly alongside sticky headers.
+- **`onRowClick`.** A click handler on a `<tr>` is a target with no keyboard equivalent, and that
+  ruling stands. What came instead (2026-10-22) is **`rowTarget`**: a column (or a `Table.Cell`)
+  says its cell holds the row's own link or button, and a pointer press anywhere else on the row
+  presses *that* — so the keyboard and screen-reader path is a real control, and the row is only a
+  bigger pointer target for it. Yet Social had written this five times (`clickableRows`, FINDINGS
+  48, 77). A press on any other control in the row is that control's, a press that ends a text
+  selection is not forwarded, and `.click()` carries no modifiers, so Cmd-click on the row is a
+  plain click (the link itself still takes one). Rows get `cursor-pointer` and the hover fill; in
+  children mode mark the cell `rowTarget` and the row `clickable`. The `ClickableRows` story drives
+  all three paths.
 - **`role="grid"` with cell-level keyboard navigation.** A different component — and the reason
   `aria-selected` is absent.
 - **A `footer` prop on the columns API.** `Table.Footer` ships as a composable part, because Astryx
