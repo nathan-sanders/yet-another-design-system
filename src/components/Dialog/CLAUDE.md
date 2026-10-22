@@ -90,7 +90,7 @@ which was one of the two reasons this component was owed. Figma's `Content` slot
 the code name of, and Astryx marks Body a required element.
 
 **The mechanism is two classes and one of them is easy to lose.** The popup is capped at
-`max-h-full` inside a `p-4` viewport; the Body is `min-h-0 flex-1 overflow-y-auto`. Drop the
+`max-h-full` inside a `p-4` viewport; the Body is `min-h-0 flex-initial overflow-y-auto`. Drop the
 `min-h-0` and nothing scrolls at all — a flex child's default `min-height: auto` refuses to shrink
 below its content, so the popup grows straight past its own cap. Measured on the `Scrollable` story
 at a 900-tall viewport: popup 868 (= 900 − the two 16px gutters), body 724 visible against 840 of
@@ -103,9 +103,15 @@ ring's sides and corners. The 4px of padding holds the ring and the negative mar
 nothing moves. Drawer and Panel already pad inside their scroll bodies (16px) and never had it.
 The `Form` story now puts its fields in a Body and asserts the 4px.
 
-**It is deliberately not required.** A `flex-1` region in a `max-h-full` column with nothing to
-overflow just makes a short dialog as tall as the viewport allows. Reach for it when the content is
-long, and not otherwise.
+**It shrinks and never grows** (2026-10-22, Yet Social FINDINGS 95). It was `flex-1`, and this
+paragraph used to say a short dialog should therefore leave the Body out, since a growing region in
+a `max-h-full` column stretched it to the viewport: the note dialog measured 868 tall around 470 of
+form. The advice did not hold. A form's fields want the Body's focus-ring room whether or not they
+overflow, so three of the app's four dialogs used it anyway and wrote `flex-initial` over it, and so
+did this component's own `Form` story. `flex-initial` (grow 0, shrink 1) is the default now: a
+short dialog hugs its content, a long one still shrinks to the cap and scrolls, because `min-h-0`
+is still there. The `Form` story asserts the hug, `Scrollable` asserts the scroll. A popup given a
+fixed height that wants the Body to fill it is the one case that adds `flex-1` back.
 
 ## The z-index goes on two elements, which is new
 

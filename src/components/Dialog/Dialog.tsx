@@ -220,9 +220,9 @@ export interface DialogBodyProps extends ComponentPropsWithRef<'div'> {
  * `Header` it is not invented — the file draws the frame, and Astryx marks Body
  * a required element.
  *
- * **It is not required here, and a short dialog should not use it.** A `flex-1`
- * region in a `max-h-full` column with nothing to overflow just makes the dialog
- * as tall as the viewport allows. Reach for it when the content is long.
+ * It shrinks to scroll and never grows, so a short dialog hugs its content and
+ * a long one scrolls inside the viewport: wrap the content either way. A popup
+ * with a fixed height that wants the Body to fill it adds `flex-1`.
  *
  * A plain `<div>` rather than a Base UI part, because Base UI has none — Dialog
  * ships `Root`, `Trigger`, `Portal`, `Backdrop`, `Viewport`, `Popup`, `Title`,
