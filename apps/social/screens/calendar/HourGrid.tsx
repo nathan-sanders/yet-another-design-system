@@ -10,7 +10,7 @@ import { CalendarNote } from '../../components/CalendarNote'
 import type { CalendarNote as Note, Post } from '../../data/types'
 import { useCalendarNotes } from './calendarNotesState'
 import { useSchedule } from './scheduleState'
-import { slotId } from './drag'
+import { slotId, slotTime } from './drag'
 import { dropRing, useDropTarget } from './dragHooks'
 import { HOURS, isPast, layoutNotes, pastDayPattern, postHour, postsOn, today } from './model'
 
@@ -19,7 +19,8 @@ const GUTTER = 'w-14 shrink-0' // 56px, the file's `Gutter`
 interface HourGridProps {
   days: Date[]
   renderPost: (post: Post) => ReactNode
-  onAddPost: (date: Date) => void
+  /** A new post on `date`, at `time` (`HH:MM`) when it came from an hour. */
+  onAddPost: (date: Date, time?: string) => void
   onAddNote: (date: Date) => void
   onOpenNote: (note: Note) => void
   /** The day header's label: `Mon 7` in the week, the full date in a day. */
@@ -123,6 +124,8 @@ export function HourGrid({
           hour={hour}
           label={formatHour(hour)}
           days={days}
+          clock={now}
+          onAddPost={onAddPost}
           now={
             todayIndex >= 0 && now.getHours() === hour
               ? { minute: now.getMinutes(), column: todayIndex }
@@ -140,12 +143,16 @@ function Row({
   hour,
   label,
   days,
+  clock,
+  onAddPost,
   now,
   children,
 }: {
   hour: number
   label: string
   days: Date[]
+  clock: Date
+  onAddPost: (date: Date, time: string) => void
   now?: { minute: number; column: number }
   children: (dayIndex: number) => ReactNode
 }) {
@@ -166,7 +173,13 @@ function Row({
         </Text>
       </div>
       {days.map((day, i) => (
-        <HourCell key={day.toISOString()} day={day} hour={hour}>
+        <HourCell
+          key={day.toISOString()}
+          day={day}
+          hour={hour}
+          time={slotTime(day, hour, clock)}
+          onAddPost={onAddPost}
+        >
           {children(i)}
         </HourCell>
       ))}
@@ -179,8 +192,27 @@ function Row({
  * One day's hour: where its posts stack, and where a post or a draft carried
  * over it would land. Rings only when a release here would really schedule —
  * see `AimContext`.
+ *
+ * A click on its empty part starts a post there, at `time` — the hour, or the
+ * next quarter in the one under way. As on the Notes row it is a pointer
+ * shortcut only: the day header's + menu is the keyboard route, and the
+ * composer's time picker takes it from there. The hover tint holds off while
+ * the pointer is over a card, which opens the post instead.
  */
-function HourCell({ day, hour, children }: { day: Date; hour: number; children: ReactNode }) {
+function HourCell({
+  day,
+  hour,
+  time,
+  onAddPost,
+  children,
+}: {
+  day: Date
+  hour: number
+  /** Null once the hour has gone: no new post here. */
+  time: string | null
+  onAddPost: (date: Date, time: string) => void
+  children: ReactNode
+}) {
   const id = slotId(day, hour)
   const { ref, aimed } = useDropTarget(
     id,
@@ -194,8 +226,16 @@ function HourCell({ day, hour, children }: { day: Date; hour: number; children: 
       className={cn(
         'flex min-w-28 flex-1 flex-col gap-1 border-l border-surface-border p-1 md:min-w-0',
         isPast(day) && pastDayPattern,
+        time && 'cursor-pointer hover:not-has-hover:bg-surface-background-subtle',
         aimed && dropRing,
       )}
+      onClick={
+        time
+          ? (event) => {
+              if (event.target === event.currentTarget) onAddPost(day, time)
+            }
+          : undefined
+      }
     >
       {children}
     </div>

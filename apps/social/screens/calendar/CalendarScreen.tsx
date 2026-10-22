@@ -44,9 +44,10 @@ export function CalendarScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   const navigate = useNavigate()
-  // A day's + Add post: the composer, on that day, and back here afterwards.
-  const addPost = (date: Date) =>
-    navigate(composePath({ date, from: `/plan/calendar?${params.toString()}` }))
+  // A day's + Add post, or a click on an empty hour: the composer, on that
+  // day (and at that time), and back here afterwards.
+  const addPost = (date: Date, time?: string) =>
+    navigate(composePath({ date, time, from: `/plan/calendar?${params.toString()}` }))
 
   const view: CalendarView =
     params.get('view') === 'day' || params.get('view') === 'month'

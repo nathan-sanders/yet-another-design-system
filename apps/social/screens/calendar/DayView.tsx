@@ -8,7 +8,7 @@ interface DayViewProps {
   anchor: Date
   selectedPostId?: string
   onOpenPost: (post: Post) => void
-  onAddPost: (date: Date) => void
+  onAddPost: (date: Date, time?: string) => void
   onAddNote: (date: Date) => void
   onOpenNote: (note: CalendarNote) => void
 }
