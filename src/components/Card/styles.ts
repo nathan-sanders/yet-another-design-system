@@ -75,6 +75,14 @@ const padding = {
   4: 'p-4',
 }
 
+/**
+ * "The one you are looking at": Surface/Background Subtle under Surface/Border
+ * Emphasized, the file's `State=Selected` on `Clickable Card` and
+ * `Selected=True` on `Card`. One constant so the two selected looks cannot
+ * drift apart.
+ */
+const selectedSurface = 'bg-surface-background-subtle border-surface-border-emphasized'
+
 export const card = tv({
   base: box,
 
@@ -126,12 +134,26 @@ export const card = tv({
     },
 
     padding,
+
+    /**
+     * The card whose detail is open, for a card that cannot be a
+     * `ClickableCard` because it holds its own controls (a mention with Like,
+     * Reply and a menu). The selected look only; the card stays a container.
+     * Meant for `default` emphasis, which is where the file draws it
+     * (`Selected=True` on the two Default variants): a well or an accent
+     * card has no reason to be one of a set you pick from.
+     */
+    selected: {
+      true: selectedSurface,
+      false: '',
+    },
   },
 
   defaultVariants: {
     emphasis: 'default',
     floating: false,
     padding: 3,
+    selected: false,
   },
 })
 
@@ -206,10 +228,7 @@ export const clickableCard = tv({
      * Border width is unchanged, so nothing reflows.
      */
     selected: {
-      true: [
-        'bg-surface-background-subtle border-surface-border-emphasized',
-        'hover:border-surface-border-emphasized',
-      ],
+      true: [selectedSurface, 'hover:border-surface-border-emphasized'],
       false: '',
     },
 

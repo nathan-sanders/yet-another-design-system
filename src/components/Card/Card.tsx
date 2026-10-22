@@ -51,6 +51,13 @@ export interface CardProps extends ComponentPropsWithRef<'div'> {
    * that has to reach the border: an image, a chart.
    */
   padding?: CardPadding
+  /**
+   * The card whose detail is open, in a list of cards that cannot be
+   * `ClickableCard`s because they hold their own controls. Draws the same
+   * selected surface as `ClickableCard` and sets `aria-current`, so "this is
+   * the open one" reaches a screen reader as well as the eye.
+   */
+  selected?: boolean
 }
 
 export function Card({
@@ -58,11 +65,16 @@ export function Card({
   emphasis = 'default',
   floating = false,
   padding = 3,
+  selected = false,
   className,
   ...props
 }: CardProps) {
   return (
-    <div className={cn(card({ emphasis, floating, padding }), className)} {...props}>
+    <div
+      className={cn(card({ emphasis, floating, padding, selected }), className)}
+      aria-current={selected ? true : undefined}
+      {...props}
+    >
       {children}
     </div>
   )
