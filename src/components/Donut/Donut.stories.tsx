@@ -140,7 +140,12 @@ export const SliceClick: Story = {
       })
       // Chrome is off, so the first slice drawn is Safari — Recharts calls it 0,
       // and the caller's data calls it 1.
-      await userEvent.click(sectors[0]!)
+      // Hover first and let the active shape render, then click the slice that
+      // is there now — see Gauge's SliceClick for why a bare click is lost.
+      const slice = () => canvasElement.querySelectorAll('.recharts-pie-sector')[0]!
+      await userEvent.hover(sectors[0]!)
+      await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Safari'))
+      await userEvent.click(slice())
       await waitFor(() => expect(status).toHaveTextContent('Opened Safari (row 1)'))
     })
 
