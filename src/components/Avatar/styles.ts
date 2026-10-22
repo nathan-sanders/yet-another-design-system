@@ -223,6 +223,31 @@ export const statusDot = tv({
  * dot's width and an eighth of its height, so it is the same shape at all three
  * sizes: 4×1, 6×1.5, 10×2.5.
  */
+/**
+ * The badge: a mark on the avatar's corner — the network a profile posts to,
+ * the kind of thing a notification is about. Yet Social's `_Composer Channel`
+ * (`40006005:29150`) and `_Notification Item` (`40005993:27689`) both draw it
+ * the same way: a 20px disc on Surface/Background Primary holding a 14–16px
+ * glyph, 22px in from the avatar's left, so it hangs 6px past the circle. The
+ * composer's 1px stroke is bound to the fill's own token, so it draws nothing
+ * (the border tracks the fill).
+ *
+ * **Base is the only size drawn**, so this is one size rather than a scale:
+ * the same 20px disc at every step. It reads at base and large; on x-small and
+ * small it outweighs the avatar, and on x-large it is a dot. Draw the other
+ * sizes before inventing their numbers.
+ *
+ * The notification frame sits its badge 20 down where the composer's is 22;
+ * that is one hand placement against another, and the badge takes the
+ * composer's, which is the same 6px past the circle on both axes.
+ */
+export const badge = tv({
+  base: [
+    'absolute -right-1.5 -bottom-1.5 flex size-5 items-center justify-center rounded-full',
+    'bg-surface-background-primary text-content-primary',
+  ],
+})
+
 export const statusBar = tv({
   base: 'block',
 

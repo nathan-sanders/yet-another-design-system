@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { AtSign, Heart, MessageCircle } from 'lucide-react'
+import { expect, within } from 'storybook/test'
 
 import { Avatar } from './Avatar'
 import samplePhoto from './sample-photo.png'
+import { Icon } from '../Icon'
 import { Text } from '../Text'
 
 const sizes = ['x-small', 'small', 'base', 'large', 'x-large'] as const
@@ -139,6 +142,55 @@ export const Status: Story = {
       </tbody>
     </table>
   ),
+}
+
+/**
+ * A mark on the corner: what a notification is about, or the network a
+ * profile posts to. A 20px disc on Surface/Background Primary, hanging 6px
+ * past the circle on both axes, as Yet Social's `_Notification Item` and
+ * `_Composer Channel` draw it.
+ *
+ * Drawn only at **base**, so it is one size: the same disc on a large avatar
+ * reads, and on the smaller two it would outweigh the face. It shares the
+ * dot's corner, so an avatar takes a `status` or a `badge`, not both.
+ *
+ * The badge is decorative; `badgeLabel` joins the avatar's name the way a
+ * status does, so the third one here is announced "Ada Lovelace, Liked".
+ */
+export const Badge: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex items-end gap-6">
+      <Avatar name="Nathan Sanders" src={samplePhoto} badge={<Icon icon={AtSign} size="small" />} />
+      <Avatar name="Maria Lopez" badge={<Icon icon={MessageCircle} size="small" />} />
+      <Avatar name="Ada Lovelace" badge={<Icon icon={Heart} size="small" />} badgeLabel="Liked" />
+      <Avatar size="large" name="Grace Hopper" badge={<Icon icon={AtSign} size="small" />} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const avatars = canvasElement.querySelectorAll<HTMLElement>('[role="img"]')
+    for (const avatar of avatars) {
+      const disc = avatar.querySelector<HTMLElement>('[data-badge]')!
+      const box = avatar.getBoundingClientRect()
+      const mark = disc.getBoundingClientRect()
+      // 20px, 6px past the circle to the right and below, at every size drawn.
+      await expect([mark.width, mark.height]).toEqual([20, 20])
+      await expect(mark.right - box.right).toBe(6)
+      await expect(mark.bottom - box.bottom).toBe(6)
+      await expect(disc).toHaveAttribute('aria-hidden', 'true')
+    }
+
+    // The disc's fill is Surface/Background Primary, compared through the same
+    // serializer rather than a parsed color.
+    const probe = document.createElement('div')
+    probe.style.background = 'var(--surface-background-primary)'
+    canvasElement.append(probe)
+    const fill = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    await expect(getComputedStyle(avatars[0]!.querySelector('[data-badge]')!).backgroundColor).toBe(fill)
+
+    await expect(within(canvasElement).getByRole('img', { name: 'Ada Lovelace, Liked' })).toBeInTheDocument()
+  },
 }
 
 /**

@@ -626,7 +626,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Badge](src/components/Badge/CLAUDE.md) | a status label | all 18 hues of the Decorative ramp, one size; `neutral` follows the swappable ramp |
 | [Breadcrumbs](src/components/Breadcrumbs/CLAUDE.md) | a trail to the current page | four separators, last child is current automatically |
 | [Divider](src/components/Divider/CLAUDE.md) | a line separating content | orientation × emphasis, optional label |
-| [Avatar](src/components/Avatar/CLAUDE.md) | a person, and a stack of them | photo, initials or `+N`; `AvatarGroup` overlaps, and `surface` says what the ring hides in |
+| [Avatar](src/components/Avatar/CLAUDE.md) | a person, and a stack of them | photo, initials or `+N`; `AvatarGroup` overlaps, and `surface` says what the ring hides in; a `badge` or a `status` on the corner, never both |
 | [Tooltip](src/components/Tooltip/CLAUDE.md) | a label for what you point at | first component on the motion tokens |
 | [SegmentedControl](src/components/SegmentedControl/CLAUDE.md) | one of a few, all visible | a compact strip sized beside a Button |
 | [NavItem](src/components/Nav/CLAUDE.md) | one row of a navigation bar | Figma's `Type` axis is a size; the 1px inside stroke is an `inset-ring`, not a border |
