@@ -1,5 +1,8 @@
 export { DragAndDrop } from './DragAndDrop'
 export type { DragAndDropProps, DragAndDropOverlayProps } from './DragAndDrop'
+export type { DragAndDropSourceProps } from './Source'
+export { useDragSource } from './useDragSource'
+export type { UseDragSourceOptions, DragSource, DragSourceData } from './useDragSource'
 export { Sortable } from './Sortable'
 export type { SortableProps, SortableItemProps } from './Sortable'
 export { DragHandle } from './DragHandle'

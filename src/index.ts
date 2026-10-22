@@ -484,7 +484,7 @@ export type {
   PanelSide,
 } from './components/Panel'
 
-export { DragAndDrop, Sortable, DragHandle, useSortableItem } from './components/DragAndDrop'
+export { DragAndDrop, Sortable, DragHandle, useDragSource, useSortableItem } from './components/DragAndDrop'
 export { moveItem, moveBetweenContainers, findContainer, reorder } from './components/DragAndDrop'
 export {
   distribute,
@@ -500,6 +500,10 @@ export {
 export type {
   DragAndDropProps,
   DragAndDropOverlayProps,
+  DragAndDropSourceProps,
+  UseDragSourceOptions,
+  DragSource,
+  DragSourceData,
   SortableProps,
   SortableItemProps,
   DragHandleProps,

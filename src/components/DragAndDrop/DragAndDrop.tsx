@@ -20,6 +20,7 @@ import { isKeyboardEvent } from '@dnd-kit/utilities'
 
 import { overlayLayerIndex } from '../../lib/layers'
 import { announcements, screenReaderInstructions } from './announcements'
+import { DragAndDropSource } from './Source'
 
 /**
  * DragAndDrop — the root every sortable sits under.
@@ -146,3 +147,4 @@ function DragAndDropOverlay({ children }: DragAndDropOverlayProps) {
 DragAndDropOverlay.displayName = 'DragAndDrop.Overlay'
 
 DragAndDrop.Overlay = DragAndDropOverlay
+DragAndDrop.Source = DragAndDropSource

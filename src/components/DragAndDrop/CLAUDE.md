@@ -1,8 +1,8 @@
 # DragAndDrop
 
 The drag foundation: a root (`DragAndDrop`), a container of items that can be reordered and moved
-between containers (`Sortable` / `Sortable.Item`), the grip you carry one by (`DragHandle`), and
-the arithmetic underneath (`move.ts`, `spans.ts`). Mirrors the `↪ Drag and Drop` page
+between containers (`Sortable` / `Sortable.Item`), the grip you carry one by (`DragHandle`), a thing
+dragged onto a board from outside it (`DragAndDrop.Source`), and the arithmetic underneath (`move.ts`, `spans.ts`). Mirrors the `↪ Drag and Drop` page
 (**`40005289:447`**), drawn on 2026-09-18 from the built code — the third record to go code → file
 after `BentoGrid` and `ThemeControl`, and like `AppShell` the file caught up within a day. Two
 sets on it: **`Drag Handle`** (`40005289:480`, State default | hover | focus) and **`Sortable
@@ -220,6 +220,49 @@ Alice is back where it was.* The instructions are the same voice: "Press Space t
 the arrow keys to move it. Press Space again to drop it, or Escape to put it back." The live region
 is dnd-kit's own `role="status" aria-live="assertive"`, rendered inline inside the root with its own
 visually-hidden styles, so it is inside `canvasElement` and a play function can read it.
+
+## Sources: dragged onto a board without being one of its items
+
+`DragAndDrop.Source` and the hook under it, `useDragSource`, added 2026-10-22 from Yet Social
+(`apps/social/FINDINGS.md` 122, 130). A **source** is a palette, a widget catalog, a draft in a side
+panel, a calendar card that is not in a list: something carried *onto* a board that is not a
+`Sortable.Item` there. The app wrote three of them with `useDraggable` directly — the report
+catalog's tiles, the Drafts panel's cards, the calendar's post cards — and made the same three
+decisions each time. They are made here once:
+
+- **Pointer only.** Only dnd-kit's `onPointerDown` is handed out. Its keyboard listener would make
+  Enter and Space start a keyboard drag, and a source is nearly always a button, which could then
+  not be clicked from the keyboard at all. **The keyboard's way to do what the drag does is the
+  source's own click**, which the caller writes: the catalog adds a widget at the foot of the board,
+  a draft opens the Schedule dialog. That is a different answer from `Sortable.Item`'s grip, on
+  purpose: an item has a place to move *between*, so arrows mean something; a source has only
+  "put it there", and a dialog or a default place says that better than stepping a phantom card
+  across a board.
+- **None of dnd-kit's drag attributes.** `aria-roledescription="draggable"` and the instructions'
+  `describedby` would announce a drag the keyboard cannot do. `PaletteKeyboard` asserts their absence.
+- **No transform; the overlay carries it.** A source is carried *out of* something that clips it,
+  so it stays put and fades (`dragSource`: `opacity-50`, `select-none`, `cursor-grab` at rest), and the
+  caller renders `DragAndDrop.Overlay` with a copy. For an item the overlay is opt-in; for a source
+  it is always the answer.
+
+`label` is required, as on `Sortable.Item`: the live region says "Line chart is over Report,
+position 2 of 2". The caller's `data` is merged under `type: 'source'` and `label`, so `onDragEnd`
+tells a source from an item by `active.data.current.type` and reads its own payload beside it.
+`data-drag-ignore` works inside a source as it does inside an item.
+
+**`render` takes Base UI's contract, and a `ClickableCard` needs the function form**,
+`render={({ children, ...props }) => <ClickableCard {...props} onClick={add}>{children}</ClickableCard>}`,
+because its `children` is required and the element form carries none (the `ContentBlock.Content`
+trap below, again).
+
+**Verified by pointer once, in real Chromium**, per the keyboard-only ruling: Playwright against a
+fresh Storybook, `Palette` story, drag "Line chart" onto "Revenue". Mid-drag the tile read
+`opacity: 0.5` and `data-dragging`, the overlay layer held the copy, the live region said the
+label; on release the list read Sessions, Line chart 1, Revenue and the overlay was gone.
+
+Left for a second caller: FINDINGS 123's *full container is invisible to collision detection*. A
+`Sortable` at `capacity` refuses a source as it refuses a foreign item, which is right for refusing
+and leaves "start a row under this one" to the caller's own rect test, as the report board does.
 
 ## The dashboard's arithmetic
 
