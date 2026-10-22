@@ -12,7 +12,7 @@ import { floatingYakClearance } from '../components/FloatingYak'
 /**
  * Where every nav item the mock does not cover yet lands. Two messages, because
  * they mean different things: a screen that is drawn in Figma and waiting to be
- * built, and an area nobody has designed yet (Campaigns, Alerts).
+ * built, and an area nobody has designed yet (Campaigns).
  */
 export function NotBuilt() {
   const { pathname } = useLocation()
