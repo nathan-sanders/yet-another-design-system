@@ -126,7 +126,7 @@ export const Anatomy: Story = {
  * title and the close button stay where you left them.
  *
  * The mechanism is two classes and worth knowing: the popup is capped at
- * `max-h-full` inside a `p-4` viewport, and the Body is `min-h-0 flex-1
+ * `max-h-full` inside a `p-4` viewport, and the Body is `min-h-0 flex-initial
  * overflow-y-auto`. Drop the `min-h-0` and nothing scrolls at all — a flex
  * child's default `min-height: auto` refuses to shrink below its content, so the
  * popup would grow straight past its own cap.
@@ -139,6 +139,17 @@ export const Anatomy: Story = {
  * by dragging is unreachable from a keyboard.
  */
 export const Scrollable: Story = {
+  // A long Body still shrinks to the popup's cap and scrolls, now that it no
+  // longer grows: the popup fills the viewport less its two 16px gutters.
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Read the terms' }))
+    const dialog = await waitFor(() => within(document.body).getByRole('dialog'))
+    await waitFor(() => expect(dialog.getAnimations()).toHaveLength(0))
+    const body = dialog.querySelector<HTMLElement>('.overflow-y-auto')!
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    expect(Math.round(dialog.getBoundingClientRect().height)).toBe(window.innerHeight - 32)
+    await userEvent.keyboard('{Escape}')
+  },
   render: () => (
     <Dialog>
       <Dialog.Trigger render={<Button appearance="secondary">Read the terms</Button>} />
@@ -205,8 +216,7 @@ export const Form: Story = {
           <Dialog.Description>
             Clicking outside will not close this one, so nothing you type gets lost.
           </Dialog.Description>
-          {/* `flex-initial` so a short form does not stretch to the viewport. */}
-          <Dialog.Body className="flex flex-initial flex-col gap-3">
+          <Dialog.Body className="flex flex-col gap-3">
             <Field label="Display name">
               <Input value={name} onChange={(event) => setName(event.target.value)} />
             </Field>
@@ -239,6 +249,10 @@ export const Form: Story = {
     expect(box.left - clip.left).toBeGreaterThanOrEqual(4)
     expect(clip.right - box.right).toBeGreaterThanOrEqual(4)
     expect(box.top - clip.top).toBeGreaterThanOrEqual(4)
+    // A short form hugs its content: the Body does not grow, so it is exactly
+    // as tall as what is in it and the popup stays well short of the viewport.
+    expect(clip.height).toBe(body.scrollHeight)
+    expect(dialog.getBoundingClientRect().height).toBeLessThan(window.innerHeight - 32)
     await userEvent.keyboard('{Escape}')
   },
 }

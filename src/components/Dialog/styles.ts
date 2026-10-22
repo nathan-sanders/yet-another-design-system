@@ -128,6 +128,14 @@ export const popup = tv({
  * refuses to shrink below its content, so without it the popup grows past its
  * own `max-h-full` and nothing scrolls at all.
  *
+ * **`flex-initial`, not `flex-1`: shrink to scroll, never grow.** It was
+ * `flex-1`, and a growing Body in a `max-h-full` column stretched every short
+ * dialog to the viewport — Yet Social's note dialog came out 868 tall around
+ * 470 of form, and three of its four dialogs overrode it (FINDINGS 95). A Body
+ * that only shrinks hugs a short form and still scrolls a long one, so it is
+ * safe to use everywhere. A popup given a fixed height that wants the Body to
+ * fill it adds `flex-1` back.
+ *
  * **`-m-1 p-1` is room for the focus ring.** A scroll container clips on both
  * axes — `overflow-y: auto` computes `overflow-x` to `auto` too — and the ring
  * paints 4px *outside* its control, so a full-width Input flush with the Body's
@@ -138,5 +146,5 @@ export const popup = tv({
  * real behavior and cannot go, so the ring has to fit inside it.
  */
 export const body = tv({
-  base: ['min-h-0 flex-1 overflow-y-auto -m-1 p-1'],
+  base: ['min-h-0 flex-initial overflow-y-auto -m-1 p-1'],
 })
