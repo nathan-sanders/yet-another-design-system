@@ -56,6 +56,20 @@ export function defaultTimeOn(date: Date, now: Date): string | null {
   return hhmm(hour, '00')
 }
 
+/**
+ * When a new post started from a click on an hour of the week or day grid goes
+ * out: on the hour, or, in the hour that is under way today, at the next
+ * quarter still ahead in it — 10:20 makes 10:30. Null where none is left: a day
+ * gone by, an hour gone by, or the last quarter of this one.
+ */
+export function slotTime(date: Date, hour: number, now: Date): string | null {
+  for (const minute of ['00', '15', '30', '45']) {
+    const time = hhmm(hour, minute)
+    if (moment(date, time) > now) return time
+  }
+  return null
+}
+
 function moment(date: Date, time: string): Date {
   const [h, m] = time.split(':').map(Number)
   const at = new Date(date.getFullYear(), date.getMonth(), date.getDate())

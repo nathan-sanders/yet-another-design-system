@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 
 import type { Draft } from '../../data/drafts'
 import type { Post } from '../../data/types'
-import { dayId, parseTarget, placeFor, slotId, targetOpen, type CalendarDragData } from './drag'
+import {
+  dayId,
+  parseTarget,
+  placeFor,
+  slotId,
+  slotTime,
+  targetOpen,
+  type CalendarDragData,
+} from './drag'
 
 // Tuesday 21 October 2026, 10:30 in the morning.
 const now = new Date(2026, 9, 21, 10, 30)
@@ -75,5 +83,23 @@ describe('targets', () => {
     expect(targetOpen({ kind: 'day', date: today }, now)).toBe(true)
     expect(targetOpen({ kind: 'slot', date: today, hour: 9 }, now)).toBe(false)
     expect(targetOpen({ kind: 'slot', date: today, hour: 10 }, now)).toBe(true)
+  })
+})
+
+describe('slotTime', () => {
+  it('starts a post on the hour clicked', () => {
+    expect(slotTime(tomorrow, 14, now)).toBe('14:00')
+    expect(slotTime(today, 11, now)).toBe('11:00')
+  })
+
+  it('starts one in the hour under way at its next quarter', () => {
+    expect(slotTime(today, 10, now)).toBe('10:45')
+    expect(slotTime(today, 10, new Date(2026, 9, 21, 10, 5))).toBe('10:15')
+  })
+
+  it('has nothing in an hour or a day gone by', () => {
+    expect(slotTime(today, 9, now)).toBeNull()
+    expect(slotTime(yesterday, 14, now)).toBeNull()
+    expect(slotTime(today, 10, new Date(2026, 9, 21, 10, 45))).toBeNull()
   })
 })
