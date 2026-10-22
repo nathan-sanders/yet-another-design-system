@@ -244,7 +244,6 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
               <div className="flex flex-wrap items-center gap-1">
                 <Button
                   appearance="ghost"
-                  size="small"
                   startIcon={Image}
                   onClick={() => shell.notBuilt('The Asset library')}
                 >
@@ -252,7 +251,6 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
                 </Button>
                 <Button
                   appearance="ghost"
-                  size="small"
                   startIcon={Link}
                   onClick={() => shell.notBuilt('Saving a link')}
                 >
