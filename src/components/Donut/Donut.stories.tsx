@@ -141,7 +141,7 @@ export const SliceClick: Story = {
       // Chrome is off, so the first slice drawn is Safari — Recharts calls it 0,
       // and the caller's data calls it 1.
       await userEvent.click(sectors[0]!)
-      await expect(status).toHaveTextContent('Opened Safari (row 1)')
+      await waitFor(() => expect(status).toHaveTextContent('Opened Safari (row 1)'))
     })
 
     await step('Enter on the focused chart opens the slice the tooltip is on', async () => {
@@ -150,12 +150,12 @@ export const SliceClick: Story = {
       await userEvent.keyboard('{ArrowRight}')
       await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Firefox'))
       await userEvent.keyboard('{Enter}')
-      await expect(status).toHaveTextContent('Opened Firefox (row 2)')
+      await waitFor(() => expect(status).toHaveTextContent('Opened Firefox (row 2)'))
     })
 
     await step('the hidden table has a button per slice', async () => {
       await userEvent.click(table.getByRole('button', { name: 'Edge' }))
-      await expect(status).toHaveTextContent('Opened Edge (row 3)')
+      await waitFor(() => expect(status).toHaveTextContent('Opened Edge (row 3)'))
     })
   },
 }

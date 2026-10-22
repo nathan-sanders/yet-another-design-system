@@ -337,6 +337,10 @@ export const WithIcons: Story = {
     const label = icon.nextElementSibling!
     expect(label.getBoundingClientRect().left - icon.getBoundingClientRect().right).toBe(8)
     expect(icon.classList.toString()).toContain('lucide-globe')
+    // Let the popup finish closing before the story's axe run: mid-exit, its
+    // focus guards and unnamed listbox are still in the page, and a loaded CI
+    // runner caught it there.
+    await waitFor(() => expect(within(document.body).queryByRole('listbox')).toBeNull())
   },
 }
 
