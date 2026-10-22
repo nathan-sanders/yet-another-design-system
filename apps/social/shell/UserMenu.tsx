@@ -14,7 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { Menu, type MenuPopupProps } from '../../../src/components/Menu'
+import { Menu } from '../../../src/components/Menu'
 import { useShell } from './ShellContext'
 
 export type MyStatus = 'available' | 'away'
@@ -46,22 +46,20 @@ const help: UserItem[] = [
 const out: UserItem[] = [{ label: 'Log out', icon: LogOut, what: 'Logging out' }]
 
 /**
- * What the rail's last item, "Hi, Nathan!", opens. The caller passes the
- * trigger and where the popup sits, because the rail and the phone sheet hold
- * the account row in different places; the status lives in the shell so both
+ * What the rail's last item, "Hi, Nathan!", opens, above the row and left
+ * edges level. The caller passes the trigger, because the rail and the phone
+ * sheet each draw their own row; the status lives in the shell so both
  * avatars agree.
  */
 export function UserMenu({
   trigger,
   status,
   onStatusChange,
-  side,
-  align,
 }: {
   trigger: ReactElement
   status: MyStatus
   onStatusChange: (status: MyStatus) => void
-} & Pick<MenuPopupProps, 'side' | 'align'>) {
+}) {
   const shell = useShell()
   const row = (item: UserItem) => (
     <Menu.Item key={item.label} startIcon={item.icon} onClick={() => shell.notBuilt(item.what)}>
@@ -72,7 +70,7 @@ export function UserMenu({
     <Menu>
       <Menu.Trigger render={trigger} />
       {/* w-71 = 284, Figma's width for this menu. */}
-      <Menu.Popup aria-label="Account" side={side} align={align} className="w-71">
+      <Menu.Popup aria-label="Account" side="top" align="start" className="w-71">
         <Menu.Group label="My status">
           <Menu.RadioGroup
             value={status}

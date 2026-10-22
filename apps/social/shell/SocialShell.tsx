@@ -218,14 +218,12 @@ export function SocialShell() {
     )
   }
 
-  // The last item opens the user menu (`40005964:74176`). In the rail it opens
-  // beside the row, bottom edges level; in the phone sheet, above it.
-  const account = (side: 'right' | 'top') => (
+  // The last item opens the user menu (`40005964:74176`), above the row in
+  // both the rail and the phone sheet.
+  const account = (
     <UserMenu
       status={myStatus}
       onStatusChange={setMyStatus}
-      side={side}
-      align={side === 'right' ? 'end' : 'start'}
       trigger={
         <NavItem
           start={
@@ -297,7 +295,7 @@ export function SocialShell() {
                 >
                   Notifications
                 </NavItem>
-                {account('right')}
+                {account}
               </>
             }
           >
@@ -416,7 +414,7 @@ export function SocialShell() {
               >
                 Notifications
               </NavItem>
-              {account('top')}
+              {account}
             </SideNav.Section>
           </MobileNav>
         </AppShell>
