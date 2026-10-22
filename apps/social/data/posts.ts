@@ -23,7 +23,10 @@ export const profiles: Profile[] = [
   { id: 'vv-instagram', network: 'instagram', name: 'veggie_vault' },
   { id: 'vv-threads', network: 'threads', name: 'veggie_vault' },
   { id: 'vv-facebook', network: 'facebook', name: 'Veggie Vault' },
+  { id: 'vv-bluesky', network: 'bluesky', name: 'veggievault.bsky.social' },
   { id: 'vv-x', network: 'x', name: 'veggievault' },
+  { id: 'vv-tiktok', network: 'tiktok', name: 'veggie_vault' },
+  { id: 'vv-reddit', network: 'reddit', name: 'u/veggievault' },
   { id: 'fg-instagram', network: 'instagram', name: 'feelgood_eats' },
   { id: 'fg-threads', network: 'threads', name: 'feelgood_eats' },
 ]
