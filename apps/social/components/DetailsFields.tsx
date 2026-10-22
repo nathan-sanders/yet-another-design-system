@@ -1,3 +1,4 @@
+import { Avatar } from '../../../src/components/Avatar'
 import { Combobox, type ComboboxValue } from '../../../src/components/Combobox'
 import { Field } from '../../../src/components/Field'
 import { Select } from '../../../src/components/Select'
@@ -15,6 +16,13 @@ const peopleItems = [
   { value: NONE, label: 'Unassigned' },
   ...people.map((p) => ({ value: p.id, label: p.name })),
 ]
+/** Each person's face with their presence on it, for the Assignee rows and trigger. */
+const personIcon = (id: string) => {
+  const person = people.find((p) => p.id === id)
+  return person ? (
+    <Avatar size="x-small" name={person.name} src={person.avatar} alt="" status={person.status} />
+  ) : undefined
+}
 const tagItems = tagNames.map((name) => ({ value: name, label: name }))
 
 /**
@@ -76,7 +84,7 @@ export function DetailsFields({
         onValueChange={(value) => onChange({ assigneeId: value === NONE ? undefined : (value as string) })}
       >
         {peopleItems.map((item) => (
-          <Select.Item key={item.value} value={item.value}>
+          <Select.Item key={item.value} value={item.value} startIcon={personIcon(item.value)}>
             {item.label}
           </Select.Item>
         ))}

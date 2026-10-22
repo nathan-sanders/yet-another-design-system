@@ -18,7 +18,8 @@ import { PostPreview } from '../../components/PostPreview'
 import { toISODate } from '../../data/dates'
 import { campaignFor } from '../../data/ideas'
 import { profiles } from '../../data/posts'
-import type { Network } from '../../data/types'
+import { NETWORK_NAMES, type Network } from '../../data/types'
+import { NetworkIcon } from '../../components/NetworkIcon'
 import { useIdeas } from '../ideas/ideasState'
 import { firstOffer } from '../calendar/model'
 import { scheduleLabel } from '../calendar/scheduleCommit'
@@ -309,19 +310,20 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
           )}
         >
           <div className="flex items-center justify-between gap-2">
-            <Heading level={2} size="sm" weight="semibold">
+            <Heading level={2} size="base" weight="semibold">
               Preview
             </Heading>
             {networks.length > 1 ? (
               <SegmentedControl
                 aria-label="Preview on"
-                size="small"
                 value={previewOn}
                 onValueChange={(value) => setPreviewNetwork(value as Network)}
               >
                 {networks.map((network) => (
-                  <SegmentedControl.Item key={network} value={network}>
-                    {profiles.find((p) => p.network === network)?.network === 'x' ? 'X' : network[0]!.toUpperCase() + network.slice(1)}
+                  // The mark alone, named for a screen reader: the segment's
+                  // `startIcon` wants a Lucide glyph, so the mark is the label.
+                  <SegmentedControl.Item key={network} value={network} aria-label={NETWORK_NAMES[network]}>
+                    <NetworkIcon network={network} />
                   </SegmentedControl.Item>
                 ))}
               </SegmentedControl>
