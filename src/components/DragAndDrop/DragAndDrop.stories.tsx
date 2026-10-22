@@ -934,6 +934,133 @@ export const WithOverlayKeyboard: Story = {
   },
 }
 
+// ---------------------------------------------------------------------------
+// A palette: sources dragged onto a list
+// ---------------------------------------------------------------------------
+
+const PALETTE = ['Line chart', 'Donut', 'Metric']
+
+const renderPalette: Story['render'] = function PaletteStory() {
+  const [items, setItems] = useState(['Sessions', 'Revenue'])
+  const [carried, setCarried] = useState<string | null>(null)
+  // Each tile can be added more than once, so a placed copy gets its own id.
+  const added = useRef(0)
+  const place = (kind: string, at: number) => {
+    added.current += 1
+    const name = `${kind} ${added.current}`
+    setItems((current) => [...current.slice(0, at), name, ...current.slice(at)])
+  }
+
+  return (
+    <DragAndDrop
+      onDragStart={({ active }: DragStartEvent) =>
+        setCarried(active.data.current?.type === 'source' ? (active.data.current.kind as string) : null)
+      }
+      onDragCancel={() => setCarried(null)}
+      onDragEnd={({ active, over }: DragEndEvent) => {
+        setCarried(null)
+        const data = active.data.current
+        if (data?.type === 'source') {
+          if (!over) return
+          // Over the list itself: the end. Over a row: that row's place.
+          const at = over.id === 'report' ? items.length : items.indexOf(String(over.id))
+          place(data.kind as string, at < 0 ? items.length : at)
+          return
+        }
+        if (!over || active.id === over.id) return
+        setItems((current) => reorder(current, current.indexOf(String(active.id)), current.indexOf(String(over.id))))
+      }}
+    >
+      <div className="flex items-start gap-6">
+        <div role="group" aria-label="Widgets" className="flex w-48 flex-col gap-2">
+          {PALETTE.map((kind) => (
+            <DragAndDrop.Source
+              key={kind}
+              id={`palette-${kind}`}
+              label={kind}
+              data={{ kind }}
+              // The function form: ClickableCard requires `children`, which an
+              // element form would not carry.
+              render={({ children, ...props }) => (
+                <ClickableCard {...props} onClick={() => place(kind, items.length)}>
+                  {children}
+                </ClickableCard>
+              )}
+            >
+              <Text render={<span />} weight="semibold">{kind}</Text>
+            </DragAndDrop.Source>
+          ))}
+        </div>
+        <Sortable
+          id="report"
+          label="Report"
+          items={items}
+          render={<ul aria-label="Report" />}
+          className="flex min-h-24 w-72 flex-col gap-2"
+        >
+          {items.map((name) => (
+            <Sortable.Item key={name} id={name} label={name} render={<li />}>
+              <PersonRow name={name} />
+            </Sortable.Item>
+          ))}
+        </Sortable>
+      </div>
+      <DragAndDrop.Overlay>
+        {carried ? (
+          <Card padding={3} className="w-48 shadow-medium">
+            <Text render={<span />} weight="semibold">{carried}</Text>
+          </Card>
+        ) : null}
+      </DragAndDrop.Overlay>
+    </DragAndDrop>
+  )
+}
+
+/**
+ * **`DragAndDrop.Source`**: a palette of widgets carried *onto* a list
+ * without being among its items. A tile is a plain `ClickableCard` — click
+ * it, or Enter or Space, and the widget goes at the end — and a pointer drag
+ * drops it where it lands, with `DragAndDrop.Overlay` carrying a copy while
+ * the tile stays put, faded. Pointer only, and no drag attributes: the
+ * keyboard's way in is the click.
+ */
+export const Palette: Story = { render: renderPalette }
+
+/**
+ * The palette, driven from the keyboard: a tile is a button and nothing
+ * more — no drag description, no role description — and Enter and Space each
+ * add its widget at the end without starting a drag.
+ */
+export const PaletteKeyboard: Story = {
+  render: renderPalette,
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const report = canvas.getByRole('list', { name: 'Report' })
+    const tile = canvas.getByRole('button', { name: 'Donut' })
+
+    await step('a tile announces a button, not a drag', async () => {
+      await expect(tile).not.toHaveAttribute('aria-roledescription')
+      await expect(tile).not.toHaveAttribute('aria-describedby')
+      await expect(tile.tagName).toBe('BUTTON')
+      await expect(getComputedStyle(tile).cursor).toBe('grab')
+    })
+
+    await step('Enter adds the widget at the end', async () => {
+      tile.focus()
+      await userEvent.keyboard('{Enter}')
+      await waitFor(() => expect(within(report).getAllByRole('listitem')).toHaveLength(3))
+      await expect(within(report).getAllByRole('listitem')[2]).toHaveTextContent('Donut 1')
+    })
+
+    await step('so does Space, and nothing was ever lifted', async () => {
+      await userEvent.keyboard(' ')
+      await waitFor(() => expect(within(report).getAllByRole('listitem')).toHaveLength(4))
+      await expect(within(report).getAllByRole('listitem')[3]).toHaveTextContent('Donut 2')
+      await expect(status(canvasElement)).not.toHaveTextContent(/Picked up|is over/)
+    })
+  },
+}
+
 /** What the overlay draws: the row, without a live grip. */
 function OverlayRow({ name }: { name: string }): ReactNode {
   return (

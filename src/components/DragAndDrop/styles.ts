@@ -37,6 +37,30 @@ export const sortableItem = tv({
 })
 
 /**
+ * The element `DragAndDrop.Source` renders. A source stays where it is while
+ * the overlay carries a copy, so it only fades — the file's `opacity/opacity-50`
+ * that `Sortable Item`'s Lifted state binds — with no shadow and no lift: the
+ * copy under the pointer is the one that is lifted.
+ */
+export const dragSource = tv({
+  base: 'cursor-grab',
+  variants: {
+    dragging: {
+      true: 'opacity-50 select-none',
+      false: '',
+    },
+    disabled: {
+      true: 'cursor-auto',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    dragging: false,
+    disabled: false,
+  },
+})
+
+/**
  * The element `Sortable` renders. Only an *empty* container is ever "over" in
  * practice — with items in it the item under the pointer wins the collision —
  * so this is the ring an empty column shows when a card is carried into it.
