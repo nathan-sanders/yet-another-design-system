@@ -22,6 +22,7 @@ something else owns, not for a row of them.
 **Content is derived, not a prop.** Figma's `Content` (Image | Initials | Overflow) follows from
 what you pass: `src` → photo, `name` → initials, `count` → `+N`, none → a `User` glyph. Same
 move as Button deriving icon-only from having no label.
+`badge`: a mark on the corner instead of a status — see below.
 `status`: online | offline | unavailable — each has a *shape* as well as a color (filled disc,
 ring, disc with a bar), so they survive red/green color blindness. The dot's size is chosen by
 the avatar (8 / 8 / 12 / 12 / 20), not exposed as a second knob.
@@ -43,6 +44,44 @@ Two things go past Figma, both gaps in the file rather than inventions: Figma gi
 Focus state, but `href`/`onClick` make one interactive; and there is no "no data" variant, so
 the `User` glyph is borrowed from the end of Astryx's fallback chain. Astryx's built-in tooltip
 is left out: an avatar that needs a name should be wrapped in `Tooltip`.
+
+## `badge` — a mark on the corner, promoted from Yet Social
+
+Yet Social hand-placed a mark over an avatar twice: the composer's channel row (the network on the
+brand's avatar, `_Composer Channel` `40006005:29150`) and the notification row (what the
+notification is about, `_Notification Item` `40005993:27689`). FINDINGS 115 and 147 both asked for
+the slot. Read off the two symbols, they are one drawing: a **20px disc on Surface/Background
+Primary**, holding a 14–16px glyph, **22px in from the avatar's left, so it hangs 6px past the
+circle**. The composer's disc has a 1px INSIDE stroke bound to the fill's own token, which draws
+nothing (the border tracks the fill, as on Card). The app's copy had drawn it in `Surface/Border`,
+which the file does not.
+
+- **One size, because one is drawn.** Both symbols sit on a base avatar, so the disc is 20px at
+  every step rather than an invented scale. It reads at base and large, outweighs the face on
+  x-small and small, and is a dot on x-large. Draw the other sizes before giving them numbers.
+- **6px on both axes.** The composer's badge is 22 down and the notification's 20, which is one hand
+  placement against another; the code takes the composer's, so the disc is the same 6px past the
+  circle on both axes. The notification row's badge lands 2px lower than its frame when the app
+  adopts this.
+- **The corner holds one mark.** `badge` and `status` both live bottom-right, so the type takes one
+  or the other (`AvatarCorner`). The composer's symbol does have an Online dot under its badge,
+  covered and invisible, which is the drawing that made this a rule rather than a stacking order.
+- **Decorative, named like a status.** The disc is `aria-hidden`; `badgeLabel` joins the avatar's
+  name ("Veggie Vault, Instagram") the way `statusLabel` does.
+- **It is a node, not an icon prop.** The network marks are SVGs of the app's, not Lucide glyphs,
+  so `badge` takes a `ReactNode` and the caller sizes its glyph (`<Icon size="small" />`, 14px, is
+  the notification's).
+
+**Drawn into the Avatar set the same day** (2026-10-22): a BOOLEAN `Badge#40006084:0` (default off)
+on the ten Image and Initials variants — Overflow has no corner mark, as it has no status — showing a
+`Badge` auto-layout disc (20 × 20, radius 10, fill bound to Surface/Background Primary) at
+`width − 14, height − 14`, holding an **exposed** `Icon/Size=Small` instance (`at-sign` by default), so
+the glyph swap surfaces on the Avatar the way Select's leading icon does. Base Image's disc is
+`40006084:522`. The set's description says to use it instead of `Show Status`; Figma cannot make two
+booleans exclusive, so the file states the rule the type enforces.
+
+Not an avatar's job: the notification row's Yak and network senders are icon tiles, not people,
+and a tile is not an Avatar (Best practices: no logos). Those keep the app's own overlay.
 
 ## `surface` — the ring has to be told what is behind it
 

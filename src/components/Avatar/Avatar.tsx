@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, MouseEventHandler, ReactElement } from 'react'
+import type { ComponentPropsWithRef, MouseEventHandler, ReactElement, ReactNode } from 'react'
 import { Avatar as AvatarPrimitive } from '@base-ui/react/avatar'
 import { User } from 'lucide-react'
 
@@ -8,6 +8,7 @@ import { useAvatarGroup } from './context'
 import {
   avatar,
   avatarSurface,
+  badge as badgeStyle,
   statusBar,
   statusDot,
   nearestAvatarSize,
@@ -45,10 +46,6 @@ interface AvatarBaseProps
   initials?: string
   /** Number of hidden avatars, rendered as `+N`. Figma's `Content=Overflow`. */
   count?: number
-  /** Corner dot. Maps to the Figma Avatar Status `Status` property. */
-  status?: AvatarStatus
-  /** What the dot is called out loud. Defaults to Online / Offline / Unavailable. */
-  statusLabel?: string
   /**
    * Which surface the avatar is drawn on. An AvatarGroup sets this for its
    * children.
@@ -93,7 +90,36 @@ interface AvatarButtonProps {
  */
 type AvatarAccessibleName = { name: string; alt?: string } | { alt: string; name?: string }
 
+/**
+ * The corner holds one mark: a presence dot or a badge. Both sit in the
+ * bottom-right, so the type allows one or the other rather than drawing one
+ * over the other.
+ */
+type AvatarCorner =
+  | {
+      /** Corner dot. Maps to the Figma Avatar Status `Status` property. */
+      status?: AvatarStatus
+      /** What the dot is called out loud. Defaults to Online / Offline / Unavailable. */
+      statusLabel?: string
+      badge?: never
+      badgeLabel?: never
+    }
+  | {
+      status?: never
+      statusLabel?: never
+      /**
+       * A mark on the corner — a network's logo, an Icon for what a
+       * notification is about — in a 20px disc on Surface/Background Primary.
+       * Decorative; say what it means with `badgeLabel`, or in text beside
+       * the avatar.
+       */
+      badge: ReactNode
+      /** Joined to the avatar's name, as a status is: "Veggie Vault, Instagram". */
+      badgeLabel?: string
+    }
+
 export type AvatarProps = AvatarBaseProps &
+  AvatarCorner &
   (
     | { href?: never; onClick?: never; target?: never; rel?: never }
     | ((AvatarLinkProps | AvatarButtonProps) & AvatarAccessibleName)
@@ -175,6 +201,8 @@ export function Avatar({
   count,
   status,
   statusLabel,
+  badge,
+  badgeLabel,
   surface,
   fallbackDelay,
   href,
@@ -209,7 +237,7 @@ export function Avatar({
   // people it stands for.
   const spokenName = alt ?? name ?? (count != null ? `${count} more` : undefined)
   const spokenStatus = status ? (statusLabel ?? STATUS_LABEL[status]) : undefined
-  const accessibleName = [spokenName, spokenStatus].filter(Boolean).join(', ') || undefined
+  const accessibleName = [spokenName, spokenStatus, badgeLabel].filter(Boolean).join(', ') || undefined
 
   const classes = cn(
     avatar({ size: resolvedSize, interactive, inGroup, surface: resolvedSurface }),
@@ -264,6 +292,11 @@ export function Avatar({
       </AvatarPrimitive.Fallback>
 
       {status && <StatusDot status={status} size={resolvedSize} surface={resolvedSurface} />}
+      {badge != null && (
+        <span className={badgeStyle()} aria-hidden="true" data-badge="">
+          {badge}
+        </span>
+      )}
     </AvatarPrimitive.Root>
   )
 }
