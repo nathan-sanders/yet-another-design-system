@@ -3,7 +3,6 @@ import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import { ArrowLeft, Image, Link } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
-import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
 import { Field } from '../../../../src/components/Field'
@@ -15,10 +14,8 @@ import { Toast } from '../../../../src/components/Toast'
 import { TopBar } from '../../../../src/components/TopBar'
 import { cn } from '../../../../src/lib/cn'
 import { DetailsFields } from '../../components/DetailsFields'
-import { floatingYakClearance } from '../../components/FloatingYak'
 import { NoteThread } from '../../components/InternalNote'
 import { MediaTiles } from '../../components/MediaTiles'
-import { me, personFor } from '../../data/people'
 import { profileFor, profiles } from '../../data/posts'
 import { NETWORK_NAMES, type Idea, type PostEvent } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
@@ -30,6 +27,19 @@ import { composePath } from '../compose/paths'
 import { useIdeas } from './ideasState'
 import { isLinked } from './lifecycle'
 import { ideaFrom, ideaPath, NEW_IDEA } from './paths'
+
+/**
+ * The notes column's foot lifts clear of the floating Yak bar only while the
+ * bar is under it. The bar is Figma's 700, centered on the page
+ * (`FloatingYak`), so its right edge is `page / 2 + 350`; the composer starts
+ * 16 inside the 384 column, at `page - 368`. They overlap below a 1436 page —
+ * the 1440 frame's 1192 page included, which is why Figma draws the composer
+ * lifted — and from there up the composer sits at the column's foot. Stacked
+ * (under 1024) the column is the end of the page's scroll, under the bar, so
+ * it lifts there too. `md:` because the bar is hidden on a phone; the 96 is
+ * `floatingYakClearance`'s.
+ */
+const besideYakBar = 'md:@max-[1436px]/page:pb-24'
 
 type IdeaFields = Pick<Idea, 'title' | 'body' | 'image' | 'campaignId' | 'tagNames' | 'assigneeId'>
 
@@ -61,6 +71,8 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
   const shell = useShell()
   const toast = Toast.useToast()
   const { createIdea, updateIdea, archiveIdea, attachIdea, notes, addIdeaNote, board } = useIdeas()
+  // The bar is gone while Yak is in the panel, and then nothing needs lifting.
+  const yakBar = shell.panel?.type !== 'yak' && shell.panel?.type !== 'yak-history'
   const { drafts, posts } = useSchedule()
   const [fields, setFields] = useState<IdeaFields>({
     title: idea?.title ?? '',
@@ -77,8 +89,8 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
   const titleMissing = fields.title.trim() === ''
   const linked = idea ? isLinked(idea.id, drafts, posts) : false
   const onBoard = idea ? Object.values(board).some((ids) => ids.includes(idea.id)) : false
-  const creator = idea?.createdBy ? personFor(idea.createdBy) : me
   const thread = idea ? (notes[idea.id] ?? []) : []
+  const showComposer = Boolean(idea) && tab === 'notes'
 
   /** Saves what is here; returns the id, or nothing when the title is missing. */
   const save = (): string | undefined => {
@@ -159,13 +171,20 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
         start={
           <div className="flex items-center gap-2">
             <Button appearance="ghost" startIcon={ArrowLeft} aria-label="Back" onClick={() => navigate(from)} />
-            <Heading level={1} size="base" weight="semibold">
+            <Heading level={1} size="base" weight="bold">
               {idea ? 'Idea' : 'New idea'}
             </Heading>
           </div>
         }
         end={
           <div className="flex items-center gap-2">
+            {/* Not drawn: an idea whose post was deleted is on no column, and
+              this is the one way back. It only shows in that state. */}
+            {idea && !onBoard && !linked && !idea.archived ? (
+              <Button appearance="ghost" onClick={() => attachIdea(idea.id)}>
+                Add back to board
+              </Button>
+            ) : null}
             <Button appearance="ghost" onClick={onArchive}>
               {idea ? 'Archive' : 'Discard'}
             </Button>
@@ -180,26 +199,16 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
         <section
           aria-label="Idea"
           className={cn(
-            'flex min-w-0 flex-1 flex-col gap-4 p-4 @min-[1024px]/page:overflow-y-auto',
-            floatingYakClearance,
+            'flex min-w-0 flex-1 flex-col gap-3 p-4 @min-[1024px]/page:overflow-y-auto',
+            // Side by side the bar always sits over this column; stacked, the
+            // notes come after it and take the clearance instead.
+            yakBar && 'md:@min-[1024px]/page:pb-24',
           )}
         >
-          <ContentBlock>
-            <ContentBlock.Header titleSlot={<Badge color="neutral">Idea</Badge>}>Idea</ContentBlock.Header>
-            <ContentBlock.Content className="flex flex-col gap-4">
-              <Text size="sm" color="subtle">
-                {idea
-                  ? `Added by ${creator.name} · ${idea.created ?? 'today'} · ${linked ? 'made into a post' : 'no channel yet'}`
-                  : `Added by ${me.name} · today · no channel yet`}
-                {idea && !onBoard && !linked && !idea.archived ? (
-                  <>
-                    {' · '}
-                    <Button appearance="ghost" size="small" onClick={() => attachIdea(idea.id)}>
-                      Add back to board
-                    </Button>
-                  </>
-                ) : null}
-              </Text>
+          {/* Figma's `Block / Idea` has no header, and fills the column: the
+            Notes box takes whatever height the other two blocks leave. */}
+          <ContentBlock className="h-auto min-h-fit flex-1">
+            <ContentBlock.Content className="flex-1 gap-4">
               <Field
                 label="Title"
                 invalid={submitted && titleMissing}
@@ -212,9 +221,12 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
                   autoFocus={!idea}
                 />
               </Field>
-              <Field label="Notes">
+              <Field label="Notes" className="flex-1">
                 <TextArea
                   rows={5}
+                  // `items-stretch` lets the textarea take the box's height,
+                  // which `flex-1` takes from the Field; `rows` is the floor.
+                  className="flex-1 items-stretch"
                   value={fields.body}
                   onValueChange={(value) => patch({ body: value })}
                   placeholder="What the post would be: the shot, the line, the moment."
@@ -222,9 +234,9 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
               </Field>
             </ContentBlock.Content>
           </ContentBlock>
-          <ContentBlock>
+          <ContentBlock className="h-auto shrink-0">
             <ContentBlock.Header>Media</ContentBlock.Header>
-            <ContentBlock.Content className="flex flex-col gap-3">
+            <ContentBlock.Content className="gap-4">
               <MediaTiles
                 media={fields.image ? [fields.image] : []}
                 onChange={(media) => patch({ image: media[media.length - 1] })}
@@ -249,7 +261,7 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
               </div>
             </ContentBlock.Content>
           </ContentBlock>
-          <ContentBlock>
+          <ContentBlock className="h-auto shrink-0">
             <ContentBlock.Header>Details</ContentBlock.Header>
             <ContentBlock.Content>
               <DetailsFields
@@ -272,7 +284,12 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
             value={tab}
             onValueChange={(value) => setTab(value as 'notes' | 'activity')}
             layout="hug"
-            className={cn('flex min-h-0 flex-1 flex-col gap-4 px-4 pb-4 @min-[1024px]/page:overflow-y-auto', floatingYakClearance)}
+            className={cn(
+              'flex min-h-0 flex-1 flex-col gap-4 p-4 pt-0 @min-[1024px]/page:overflow-y-auto',
+              // With no composer under it (Activity, or an unsaved idea) this
+              // is the column's foot, and lifts off the bar the same way.
+              !showComposer && yakBar && besideYakBar,
+            )}
           >
             <Tabs.List aria-label="Idea sections" className="sticky top-0 z-1 bg-surface-background-primary pt-4">
               <Tabs.Tab value="notes">Notes</Tabs.Tab>
@@ -297,8 +314,8 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
               )}
             </Tabs.Panel>
           </Tabs>
-          {idea && tab === 'notes' ? (
-            <div className={cn('shrink-0 p-4 pt-0', floatingYakClearance)}>
+          {idea && showComposer ? (
+            <div className={cn('shrink-0 p-4 pt-0', yakBar && besideYakBar)}>
               <NoteComposer onSubmit={(body) => addIdeaNote(idea.id, body)} />
             </div>
           ) : null}
