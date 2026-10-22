@@ -105,7 +105,7 @@ export const SliceClick: Story = {
 
     await step('a click on a slice opens it', async () => {
       await userEvent.click(canvasElement.querySelectorAll('.recharts-pie-sector')[1]!)
-      await expect(status).toHaveTextContent('Opened In progress (row 1)')
+      await waitFor(() => expect(status).toHaveTextContent('Opened In progress (row 1)'))
     })
 
     await step('End, then Enter, opens the last slice', async () => {
@@ -113,12 +113,12 @@ export const SliceClick: Story = {
       await userEvent.keyboard('{End}')
       await waitFor(() => expect(canvasElement.querySelector('.recharts-tooltip-wrapper')).toHaveTextContent('Remaining'))
       await userEvent.keyboard('{Enter}')
-      await expect(status).toHaveTextContent('Opened Remaining (row 2)')
+      await waitFor(() => expect(status).toHaveTextContent('Opened Remaining (row 2)'))
     })
 
     await step('the hidden table has a button per slice', async () => {
       await userEvent.click(within(canvasElement.querySelector('table')!).getByRole('button', { name: 'Committed' }))
-      await expect(status).toHaveTextContent('Opened Committed (row 0)')
+      await waitFor(() => expect(status).toHaveTextContent('Opened Committed (row 0)'))
     })
   },
 }

@@ -108,7 +108,10 @@ export const PickADay: Story = {
     await expect(input).toHaveAttribute('aria-controls', panel.id)
     // Settle the enter transition (it scales from 95%), then measure: the
     // file's Single card, left-aligned under the field's box, 4px below it.
+    // A transition not started yet has no animation to finish, so wait for the
+    // card to reach full size rather than trusting `finish()` alone.
     await Promise.all(panel.getAnimations({ subtree: true }).map((a) => a.finish()))
+    await waitFor(() => expect(panel.firstElementChild!.getBoundingClientRect().width).toBe(312))
     const box = input.parentElement!.getBoundingClientRect()
     const card = panel.firstElementChild!.getBoundingClientRect()
     await expect([card.width, card.height]).toEqual([312, 344])
