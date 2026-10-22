@@ -31,9 +31,14 @@ import type { BrandPost, ContactNote, Customer, Ticket } from './types'
  * the next five fill the collapsed rail, which draws twelve faces and no text.
  * Portraits are the file's own, pulled from the screens' image fills.
  *
- * Five are private messages (`private`), after Nathan's Sprout inbox screens:
- * Maria's and Skylar's from the file's list, Rayna's and Maya's added, and
- * Cooper's completed one. No Yet Social frame draws a private message yet.
+ * Seven are private messages (`private`), after Nathan's Sprout inbox screens:
+ * Maria's and Skylar's from the file's list, Rayna's and Maya's added,
+ * Cooper's and Ann's completed ones, and one spam DM. No Yet Social frame draws
+ * a private message yet.
+ *
+ * The tail is code-first, for the three filtered pages: two of Katie's
+ * completed tickets beside Nathan's (Complete), and four the system flagged
+ * (`spam`, which only Engage › Spam shows).
  */
 
 export const customers: Customer[] = [
@@ -83,6 +88,12 @@ export const customers: Customer[] = [
   { id: 'sam', handle: 'budgetbites_sam' },
   { id: 'zoe', handle: 'zero.waste.zoe' },
   { id: 'reese', handle: 'reese.lifts' },
+  // Accounts the system flagged as spam (Engage › Spam). No photos, as a
+  // throwaway account rarely has one.
+  { id: 'giftcards', handle: 'free.giftcards.drop' },
+  { id: 'cryptomax', handle: 'cryptomax_signals' },
+  { id: 'growfast', handle: 'grow.followers.fast' },
+  { id: 'dealz', handle: 'vv_dealz_official' },
 ]
 
 export function customerFor(id: string): Customer {
@@ -96,6 +107,12 @@ const numericDate = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
   year: '2-digit',
 })
+/** A completed ticket's moment: `daysAgo` days back, at a time of day. */
+const completedOn = (daysAgo: number, hours: number, minutes: number) => {
+  const day = addDays(today, -daysAgo)
+  day.setHours(hours, minutes, 0, 0)
+  return day.toISOString()
+}
 
 export const brandPosts: BrandPost[] = [
   {
@@ -367,6 +384,7 @@ export const tickets: Ticket[] = [
     status: 'in-progress',
     priority: 'low',
     sentiment: 'neutral',
+    assigneeId: 'katie',
     postId: 'smoothie-week',
     drafts: [
       'The PB Power bowl, with 24g! Add hemp seeds for another 6g, @cooper.eats.',
@@ -465,6 +483,7 @@ export const tickets: Ticket[] = [
     status: 'new',
     priority: 'medium',
     sentiment: 'neutral',
+    assigneeId: 'dana',
     drafts: [
       'Good question, u/carter_dokidis! Our bowls and lids are certified compostable in industrial facilities. Check whether your city collects them before you order.',
       'They are: bowls and lids are industrially compostable. Home bins vary, so it is worth checking with your city first.',
@@ -484,6 +503,8 @@ export const tickets: Ticket[] = [
     priority: 'low',
     sentiment: 'neutral',
     assigneeId: 'nathan',
+    completedBy: 'nathan',
+    completedAt: completedOn(1, 15, 12),
     note: `Assigned to Nathan Sanders from Customer Support inbox at 2:40 pm on ${numericDate.format(addDays(today, -1))}`,
     history: [
       {
@@ -520,6 +541,8 @@ export const tickets: Ticket[] = [
     priority: 'none',
     sentiment: 'positive',
     assigneeId: 'nathan',
+    completedBy: 'nathan',
+    completedAt: completedOn(2, 10, 14),
     note: `Assigned to Nathan Sanders from Customer Support inbox at 10:05 am on ${numericDate.format(addDays(today, -2))}`,
     history: [
       {
@@ -543,6 +566,111 @@ export const tickets: Ticket[] = [
         ago: '2d',
       },
     ],
+  },
+  // Katie's, and done: what the team's Complete shows beside yours.
+  {
+    number: '1274',
+    customerId: 'alena',
+    network: 'threads',
+    subject: 'Asks when the fall menu starts',
+    body: 'When does the fall menu start? I need the pumpkin bowl back in my life.',
+    ago: '1d',
+    status: 'complete',
+    priority: 'low',
+    sentiment: 'positive',
+    assigneeId: 'katie',
+    completedBy: 'katie',
+    completedAt: completedOn(1, 11, 40),
+    history: [
+      {
+        id: 'h1274-1',
+        authorId: 'vv-threads',
+        body: 'It’s back on Monday, @alena_kenter! The pumpkin bowl leads the menu 🎃',
+        sentBy: 'katie',
+        ago: '1d',
+      },
+    ],
+  },
+  {
+    number: '1272',
+    customerId: 'ann',
+    network: 'instagram',
+    private: true,
+    subject: 'Asks for a receipt copy',
+    body: 'Hi! Could you send me a copy of my receipt from Saturday? I need it for expenses.',
+    ago: '2d',
+    status: 'complete',
+    priority: 'low',
+    sentiment: 'neutral',
+    assigneeId: 'katie',
+    completedBy: 'katie',
+    completedAt: completedOn(2, 16, 5),
+    history: [
+      {
+        id: 'h1272-1',
+        authorId: 'vv-instagram',
+        body: 'Of course, Ann! It’s on its way to the email on your account. Let us know if it doesn’t arrive.',
+        sentBy: 'katie',
+        ago: '2d',
+      },
+      {
+        id: 'h1272-2',
+        authorId: 'ann',
+        body: 'Got it, thanks so much!',
+        ago: '2d',
+        sentiment: 'positive',
+      },
+    ],
+  },
+  // What the system read as spam: Engage › Spam, and nowhere else in the inbox.
+  {
+    number: '1296',
+    customerId: 'giftcards',
+    network: 'instagram',
+    spam: true,
+    subject: 'Gift card giveaway link',
+    body: '🎁 Congrats!! You’ve been selected for a FREE $500 gift card. Claim now at the link in our bio before it expires!!',
+    ago: '7m',
+    status: 'new',
+    priority: 'none',
+    sentiment: 'undefined',
+  },
+  {
+    number: '1297',
+    customerId: 'cryptomax',
+    network: 'x',
+    private: true,
+    spam: true,
+    subject: 'Crypto investment pitch',
+    body: 'Hello dear, I made 4x returns this month with a simple trading signal. DM me and I will show you how to start with only $100.',
+    ago: '35m',
+    status: 'new',
+    priority: 'none',
+    sentiment: 'undefined',
+  },
+  {
+    number: '1298',
+    customerId: 'growfast',
+    network: 'tiktok',
+    spam: true,
+    subject: 'Offers to sell followers',
+    body: 'Nice content!! Want 10K real followers? Promote it on our page 🔥🔥 DM us',
+    ago: '1h',
+    status: 'new',
+    priority: 'none',
+    sentiment: 'undefined',
+  },
+  {
+    number: '1299',
+    customerId: 'dealz',
+    network: 'facebook',
+    spam: true,
+    subject: 'Fake coupon page',
+    body: 'Veggie Vault is giving away 50% OFF coupons this week only. Get yours at vv-dealz dot shop!!',
+    ago: '3h',
+    status: 'new',
+    priority: 'none',
+    sentiment: 'undefined',
   },
 ]
 

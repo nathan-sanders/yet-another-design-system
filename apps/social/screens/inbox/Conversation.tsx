@@ -23,13 +23,14 @@ import { NetworkIcon } from '../../components/NetworkIcon'
 import { PrivateChat, SystemLine } from '../../components/PrivateChat'
 import { chatEntries } from '../../components/chatEntries'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
+import { StatusBar } from '../../components/StatusBar'
 import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor, customerFor } from '../../data/inbox'
 import { me, personFor } from '../../data/people'
 import { profiles } from '../../data/posts'
 import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import type { SentItem } from './model'
+import { completedById, completeToggle, type SentItem } from './model'
 
 /**
  * The bar over the open conversation (`Header`, `40005911:33667`): face,
@@ -39,10 +40,13 @@ import type { SentItem } from './model'
 export function ConversationHeader({
   ticket,
   onBack,
+  backLabel,
 }: {
   ticket: Ticket
   /** Phone only: back to the list, which is a screen of its own there. */
   onBack: () => void
+  /** The list's name, said by the back button. */
+  backLabel: string
 }) {
   const shell = useShell()
   const customer = customerFor(ticket.customerId)
@@ -55,7 +59,7 @@ export function ConversationHeader({
       <Button
         appearance="ghost"
         startIcon={ArrowLeft}
-        aria-label="All messages"
+        aria-label={backLabel}
         className="md:hidden"
         onClick={onBack}
       />
@@ -118,12 +122,19 @@ export function SentItems({ items, onMore }: { items: SentItem[]; onMore: () => 
   )
 }
 
-/** The Composer block: Reply / Internal note over the reply box. */
+/**
+ * The Composer block: Reply / Internal note over the reply box. A ticket that
+ * is complete, or spam, has no reply to write, so Reply shows the bar that
+ * says why (`StatusBar`, as `40006078:63232` draws it); an internal note can
+ * still be left on it.
+ */
 export function Composer({
   ticket,
+  onTicketChange,
   onSend,
 }: {
   ticket: Ticket
+  onTicketChange: (edit: TicketEdit) => void
   onSend: (body: string, mode: ReplyMode) => void
 }) {
   const shell = useShell()
@@ -138,19 +149,23 @@ export function Composer({
         <SegmentedControl.Item value="reply">Reply</SegmentedControl.Item>
         <SegmentedControl.Item value="note">Internal note</SegmentedControl.Item>
       </SegmentedControl>
-      <ReplyBox
-        // Remounted per ticket, so a draft or a half-typed reply never follows
-        // you to someone else's conversation.
-        key={ticket.number}
-        network={ticket.network}
-        handle={customerFor(ticket.customerId).handle}
-        private={ticket.private}
-        drafts={ticket.drafts}
-        mode={mode}
-        onSend={onSend}
-        onNotBuilt={shell.notBuilt}
-        className="w-full"
-      />
+      {mode === 'reply' && (ticket.status === 'complete' || ticket.spam) ? (
+        <StatusBar ticket={ticket} onTicketChange={onTicketChange} />
+      ) : (
+        <ReplyBox
+          // Remounted per ticket, so a draft or a half-typed reply never follows
+          // you to someone else's conversation.
+          key={ticket.number}
+          network={ticket.network}
+          handle={customerFor(ticket.customerId).handle}
+          private={ticket.private}
+          drafts={ticket.drafts}
+          mode={mode}
+          onSend={onSend}
+          onNotBuilt={shell.notBuilt}
+          className="w-full"
+        />
+      )}
     </div>
   )
 }
@@ -172,6 +187,7 @@ export function Conversation({
   onSend,
   onOpenThread,
   onBack,
+  backLabel,
 }: {
   ticket: Ticket
   /** A change from one of the ticket meta menus. */
@@ -180,6 +196,7 @@ export function Conversation({
   onSend: (body: string, mode: ReplyMode) => void
   onOpenThread: () => void
   onBack: () => void
+  backLabel: string
 }) {
   const shell = useShell()
 
@@ -191,7 +208,7 @@ export function Conversation({
       aria-label="Conversation"
       className="flex min-h-0 min-w-0 flex-1 flex-col max-md:overflow-y-auto"
     >
-      <ConversationHeader ticket={ticket} onBack={onBack} />
+      <ConversationHeader ticket={ticket} onBack={onBack} backLabel={backLabel} />
       <div className="flex shrink-0 items-center gap-2 py-2 pr-3 pl-4 max-md:flex-wrap">
         <TicketMeta
           ticket={ticket}
@@ -213,7 +230,8 @@ export function Conversation({
           appearance="ghost"
           startIcon={CircleCheck}
           aria-label="Complete"
-          onClick={() => shell.notBuilt('Completing')}
+          aria-pressed={ticket.status === 'complete'}
+          onClick={() => onTicketChange(completeToggle(ticket))}
         />
         <Button
           appearance="ghost"
@@ -235,7 +253,7 @@ export function Conversation({
         )}
       </div>
 
-      <Composer ticket={ticket} onSend={onSend} />
+      <Composer ticket={ticket} onTicketChange={onTicketChange} onSend={onSend} />
     </section>
   )
 }
@@ -268,9 +286,7 @@ function PrivateLog({ ticket, sent }: { ticket: Ticket; sent: SentItem[] }) {
         entries={entries}
         onMore={() => shell.notBuilt('Message actions')}
       />
-      {ticket.status === 'complete' && ticket.assigneeId ? (
-        <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
-      ) : null}
+      <CompletedLine ticket={ticket} />
       <SentItems
         items={sent.filter((item) => item.kind === 'note')}
         onMore={() => shell.notBuilt('Message actions')}
@@ -361,11 +377,15 @@ function PublicLog({
         </InboxComment>
       ))}
 
-      {ticket.status === 'complete' && ticket.assigneeId ? (
-        <SystemLine>Marked complete by {personFor(ticket.assigneeId).name}</SystemLine>
-      ) : null}
+      <CompletedLine ticket={ticket} />
 
       <SentItems items={sent} onMore={() => shell.notBuilt('Message actions')} />
     </>
   )
+}
+
+/** The log's last line on a completed ticket: who completed it. */
+function CompletedLine({ ticket }: { ticket: Ticket }) {
+  const by = completedById(ticket)
+  return by ? <SystemLine>Marked complete by {personFor(by).name}</SystemLine> : null
 }

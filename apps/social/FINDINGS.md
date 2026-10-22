@@ -1367,3 +1367,36 @@ rather than keeps.
 
 - The derived columns beside the user's groups (the file's `Plan - Ideas / Scheduled` board
   draws lifecycle columns on their own), the gallery, and "Add back to board".
+
+## Engage: all assignments, spam and complete (2026-10-22)
+
+The three Engage items that fell through to Not built are now the inbox screen again, filtered:
+`InboxScreen scope="assigned" | "spam" | "complete"`. None has a frame of its own. The one
+drawn piece is the bar that takes the reply box's place on a closed case
+(`40006078:63232`, the Reply Box's `Inputs Box / Type=Case Closed`).
+
+157. **Spam is a pile of its own, not a status.** `Ticket.spam` keeps a flagged ticket out of
+    every scope but Spam: All messages, My inbox, All assignments, Complete, the nav counts and
+    Yak's inbox numbers. It is a field rather than a fifth `TicketStatus` because spam is a
+    judgment about the message, and its status (New) still holds if someone says Not spam.
+    The edit sets it back to `false`, which reads the same as missing.
+158. **All assignments is open work; Complete is everyone's done.** Assignments lists every open
+    ticket anybody owns (a completed one moves to Complete), and Complete lists every completed
+    ticket whoever owns it. My inbox keeps its own Open | Complete for yours. The scope-to-filter
+    table is `scopeFilter` in `screens/inbox/model.ts`, pinned by `model.test.ts`. The static
+    `badge: 20` on All assignments is now a live count, like My inbox's and Spam's.
+159. **Complete works now.** The toolbar's and the public thread's Complete buttons were
+    `notBuilt` stubs; they toggle (`aria-pressed`) and record `completedBy` and `completedAt`,
+    which the bar and the log's "Marked complete by" line read. Reopen clears both.
+160. **`StatusBar` is the file's Case Closed row** (`components/StatusBar.tsx`): 48 tall, 8px
+    corners, 12 either side, on `surface-background-subtle`, with a 24px avatar, the name in
+    bold and a default secondary Button. The frame is drawn in Seeds' 13px type; it is the 14px
+    body here, as every other inbox line is. The Reply / Internal note toggle stays above it as
+    drawn, and Internal note still writes a note on a closed case. A spam ticket gets the same
+    row with "Marked as spam automatically" and Not spam, which no frame draws.
+161. **`Intl` puts a narrow no-break space before AM/PM**, so the file's "10:14 am" needs a
+    `\s` that knows U+202F (JavaScript's does) rather than a literal space.
+
+### Figma owes
+
+- Frames for All assignments, Spam and Complete, and the spam version of the Case Closed row.

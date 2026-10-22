@@ -116,7 +116,7 @@ const plural = (count: number, one: string, many = `${one}s`) =>
  * owner at all, and a question customers keep asking.
  */
 export function inboxInsights(): Insight[] {
-  const open = tickets.filter((t) => t.status !== 'complete')
+  const open = tickets.filter((t) => t.status !== 'complete' && !t.spam)
   const unowned = open.filter((t) => !t.assigneeId)
   const insights: Insight[] = []
 
@@ -209,7 +209,7 @@ export function pageBrief(pathname: string, posts: Post[]): PageBrief {
   }
   if (pathname.startsWith('/engage/')) {
     const page = allRoutes.find((route) => pathname.startsWith(route.path))?.label ?? 'Inbox'
-    const open = tickets.filter((t) => t.status !== 'complete').length
+    const open = tickets.filter((t) => t.status !== 'complete' && !t.spam).length
     return {
       page,
       title: `${plural(open, 'open message')}`,

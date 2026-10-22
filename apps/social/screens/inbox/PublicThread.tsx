@@ -20,13 +20,14 @@ import veggieVault from '../../assets/veggie-vault.png'
 import { InboxComment } from '../../components/InboxComment'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { ReplyBox, type ReplyMode } from '../../components/ReplyBox'
+import { StatusBar } from '../../components/StatusBar'
 import { AssigneeMenu, TicketMeta } from '../../components/TicketMeta'
 import { brandPostFor, customerFor } from '../../data/inbox'
 import { profiles } from '../../data/posts'
 import type { Ticket, TicketEdit } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { ConversationHeader, SentItems } from './Conversation'
-import type { SentItem } from './model'
+import { completeToggle, type SentItem } from './model'
 
 /**
  * Engage › All messages › Public Thread (`40005911:33732`): the whole public
@@ -42,6 +43,7 @@ export function PublicThread({
   onSend,
   onBackToConversation,
   onBack,
+  backLabel,
 }: {
   ticket: Ticket
   /** A change from one of the ticket meta menus. */
@@ -50,6 +52,7 @@ export function PublicThread({
   onSend: (body: string, mode: ReplyMode) => void
   onBackToConversation: () => void
   onBack: () => void
+  backLabel: string
 }) {
   const shell = useShell()
   const post = brandPostFor(ticket.postId!)
@@ -58,7 +61,7 @@ export function PublicThread({
 
   return (
     <section aria-label="Public thread" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <ConversationHeader ticket={ticket} onBack={onBack} />
+      <ConversationHeader ticket={ticket} onBack={onBack} backLabel={backLabel} />
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <div className="py-1 pr-3 pl-2">
           <Button appearance="ghost" startIcon={ArrowLeft} onClick={onBackToConversation}>
@@ -130,19 +133,28 @@ export function PublicThread({
                   <Button appearance="ghost" startIcon={Tag} onClick={() => shell.notBuilt('Tagging')}>
                     Tag
                   </Button>
-                  <Button appearance="ghost" startIcon={CircleCheck} onClick={() => shell.notBuilt('Completing')}>
+                  <Button
+                    appearance="ghost"
+                    startIcon={CircleCheck}
+                    aria-pressed={ticket.status === 'complete'}
+                    onClick={() => onTicketChange(completeToggle(ticket))}
+                  >
                     Complete
                   </Button>
                 </div>
                 <div className="pl-8">
-                  <ReplyBox
-                    key={ticket.number}
-                    network={ticket.network}
-                    handle={customerFor(ticket.customerId).handle}
-                    drafts={ticket.drafts}
-                    onSend={onSend}
-                    onNotBuilt={shell.notBuilt}
-                  />
+                  {ticket.status === 'complete' || ticket.spam ? (
+                    <StatusBar ticket={ticket} onTicketChange={onTicketChange} />
+                  ) : (
+                    <ReplyBox
+                      key={ticket.number}
+                      network={ticket.network}
+                      handle={customerFor(ticket.customerId).handle}
+                      drafts={ticket.drafts}
+                      onSend={onSend}
+                      onNotBuilt={shell.notBuilt}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col gap-4 pl-8">
                   {comment.replies?.map((reply) => (
