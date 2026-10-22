@@ -1,5 +1,7 @@
 import { createContext, useContext, type PointerEventHandler } from 'react'
-import { useDraggable, useDroppable } from '@dnd-kit/core'
+import { useDroppable } from '@dnd-kit/core'
+
+import { useDragSource } from '../../../../src/components/DragAndDrop'
 
 import { postDate } from './model'
 import { targetOpen, type CalendarDragData, type DropTarget } from './drag'
@@ -30,21 +32,14 @@ export interface CardDrag {
 }
 
 /**
- * Lifts a card on a pointer drag. **Only the pointer listener is handed out**,
- * as on the report's catalog tiles (`AddWidgetPanel.tsx`): the card stays a
- * plain button that opens on click, Enter or Space, and the keyboard's way to
- * move one is the Schedule dialog, not a drag.
+ * Lifts a card on a pointer drag: the library's `useDragSource`, which hands
+ * out only the pointer listener and none of dnd-kit's drag attributes. The
+ * card stays a plain button that opens on click, Enter or Space, and the
+ * keyboard's way to move one is the Schedule dialog, not a drag.
  */
 export function useCardDrag(id: string, data: CalendarDragData, enabled = true): CardDrag {
-  const { setNodeRef, listeners, isDragging } = useDraggable({ id, data, disabled: !enabled })
-  return {
-    ref: setNodeRef,
-    // dnd-kit types its listeners as `Function`.
-    onPointerDown: enabled
-      ? (listeners?.onPointerDown as PointerEventHandler | undefined)
-      : undefined,
-    dragging: isDragging,
-  }
+  const { sourceProps, isDragging } = useDragSource({ id, label: data.label, data, disabled: !enabled })
+  return { ref: sourceProps.ref, onPointerDown: sourceProps.onPointerDown, dragging: isDragging }
 }
 
 /** Where the post being carried is now, for `placeFor` to tell a move from no move. */

@@ -146,23 +146,17 @@ export function NotificationItem({
 /** The Avatar with its Type badge, or the file's Show Icon tile in its place. */
 function SenderMark({ notification }: { notification: AppNotification }) {
   const { sender } = notification
+  const kind = <Icon icon={KIND_ICON[notification.kind]} size="small" />
+  if (sender.type === 'person') {
+    return <Avatar name={sender.avatarName ?? sender.name} src={sender.avatar} size="base" badge={kind} />
+  }
   return (
-    <span className="relative size-9 shrink-0">
-      {sender.type === 'person' ? (
-        <Avatar name={sender.avatarName ?? sender.name} src={sender.avatar} size="base" />
-      ) : (
-        <span className="flex size-9 items-center justify-center rounded-full bg-surface-background-subtle text-content-primary">
-          {sender.type === 'yak' ? (
-            <YakMark className="size-4" />
-          ) : (
-            <NetworkIcon network={sender.network} />
-          )}
-        </span>
-      )}
-      {/* Avatar has no badge slot (FINDINGS 115), so the Type badge is laid
-          over it here, where the file puts it: 20px, 22 in and 20 down. */}
-      <span className="absolute top-5 left-5.5 flex size-5 items-center justify-center rounded-full bg-surface-background-primary text-content-primary">
-        <Icon icon={KIND_ICON[notification.kind]} size="small" />
+    <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-background-subtle text-content-primary">
+      {sender.type === 'yak' ? <YakMark className="size-4" /> : <NetworkIcon network={sender.network} />}
+      {/* A tile is not an Avatar (no logos in one), so it draws the Type badge
+          itself, where Avatar's `badge` puts it: 20px, 6px past the corner. */}
+      <span className="absolute -right-1.5 -bottom-1.5 flex size-5 items-center justify-center rounded-full bg-surface-background-primary">
+        {kind}
       </span>
     </span>
   )
