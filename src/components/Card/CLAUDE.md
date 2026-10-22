@@ -198,6 +198,20 @@ classes new to the repo — here `border-surface-background-primary`,
 `hover:border-surface-background-subtle` — are simply absent and a correct component measures wrong. A
 reload does not fix it. Restart before believing any measurement.
 
+## `Card` can be `selected` too (2026-10-22)
+
+For the card whose detail is open when the card cannot be a `ClickableCard`, because it holds its
+own controls: Yet Social's mention cards have Like, Reply and a menu, so they were plain Cards
+wearing `ClickableCard`'s selected classes written out by hand (FINDINGS 78). `selected` draws the
+same surface, now one `selectedSurface` constant in `styles.ts` that both recipes read, and sets
+`aria-current`, as `ClickableCard` does. Meant for `default` emphasis.
+
+**Drawn into the file the same day:** the `Card` set gained `Selected=False|True`, with `True` only
+on the two Default variants (`40006086:2073` Floating=False, `40006086:2077` Floating=True), bound
+to Surface/Background Subtle and Surface/Border Emphasized like `Clickable Card`'s `State=Selected`.
+The clones' Content slots were rewired to `Content#40004250:25` and read back. The `Selected` story
+compares the fill and edge to the tokens and checks `aria-current`.
+
 ## Best practices
 
 Mirrored from the **Best practices** block on `↪ Card` (`40004242:14759`) in Figma.

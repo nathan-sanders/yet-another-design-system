@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Ellipsis, TrendingDown, TrendingUp } from 'lucide-react'
+import { Ellipsis, Heart, MessageCircle, TrendingDown, TrendingUp } from 'lucide-react'
+import { expect, within } from 'storybook/test'
 
 import { Card } from './Card'
 import type { CardEmphasis } from './styles'
@@ -18,6 +19,7 @@ const meta = {
     emphasis: { control: 'select', options: emphases },
     floating: { control: 'boolean' },
     padding: { control: 'select', options: paddings },
+    selected: { control: 'boolean' },
   },
   args: {
     emphasis: 'default',
@@ -240,3 +242,47 @@ export const InsideContentBlock: Story = {
     </div>
   ),
 }
+
+/**
+ * `selected` marks the card whose detail is open, for a card that cannot be a
+ * `ClickableCard` because it holds controls of its own — a mention with Like
+ * and Reply. Same surface as `ClickableCard`'s selected (Surface/Background
+ * Subtle under Surface/Border Emphasized), and `aria-current` on the card.
+ * Figma: `Selected=True` on the two Default variants.
+ */
+export const Selected: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-96 flex-col gap-3">
+      {['Maria Lopez', 'Skylar Chen', 'Rayna Patel'].map((name, i) => (
+        <Card key={name} selected={i === 1} aria-label={`Mention from ${name}`}>
+          <Text weight="semibold">{name}</Text>
+          <Text color="subtle">Is the corn back for good this summer?</Text>
+          <div className="flex gap-2">
+            <Button appearance="ghost" startIcon={Heart} aria-label={`Like ${name}'s mention`} />
+            <Button appearance="ghost" startIcon={MessageCircle}>Reply</Button>
+          </div>
+        </Card>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const open = canvas.getByLabelText('Mention from Skylar Chen')
+    await expect(open).toHaveAttribute('aria-current', 'true')
+    await expect(canvas.getByLabelText('Mention from Maria Lopez')).not.toHaveAttribute('aria-current')
+
+    // The surface is the selected tokens, compared through the same serializer.
+    const probe = document.createElement('div')
+    probe.style.background = 'var(--surface-background-subtle)'
+    probe.style.borderColor = 'var(--surface-border-emphasized)'
+    canvasElement.append(probe)
+    const want = getComputedStyle(probe)
+    const fill = want.backgroundColor
+    const edge = want.borderTopColor
+    probe.remove()
+    await expect(getComputedStyle(open).backgroundColor).toBe(fill)
+    await expect(getComputedStyle(open).borderTopColor).toBe(edge)
+  },
+}
+
