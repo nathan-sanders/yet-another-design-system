@@ -147,7 +147,9 @@ export const Scrollable: Story = {
     await waitFor(() => expect(dialog.getAnimations()).toHaveLength(0))
     const body = dialog.querySelector<HTMLElement>('.overflow-y-auto')!
     expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
-    expect(Math.round(dialog.getBoundingClientRect().height)).toBe(window.innerHeight - 32)
+    // `offsetHeight` is the layout box, which the enter transition's
+    // `scale` never touches — a rect read mid-transition is 95% of it.
+    expect(dialog.offsetHeight).toBe(window.innerHeight - 32)
     await userEvent.keyboard('{Escape}')
   },
   render: () => (
@@ -252,7 +254,7 @@ export const Form: Story = {
     // A short form hugs its content: the Body does not grow, so it is exactly
     // as tall as what is in it and the popup stays well short of the viewport.
     expect(clip.height).toBe(body.scrollHeight)
-    expect(dialog.getBoundingClientRect().height).toBeLessThan(window.innerHeight - 32)
+    expect(dialog.offsetHeight).toBeLessThan(window.innerHeight - 32)
     await userEvent.keyboard('{Escape}')
   },
 }
