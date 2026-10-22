@@ -33,7 +33,7 @@ export const apps: ShowcaseApp[] = [
       'Comments by post: every published post, with its comments, notes, activity and numbers',
       'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
       'New report: eight report types, from NewsWhip-style media monitoring to a blank board',
-      'Ideas: a board of idea cards you drag between groups, or a gallery',
+      'Ideas: a board of idea cards you drag between groups, with Drafting, Scheduled and Published read from the calendar beside them; an idea page for writing and editing, and Make a post into the composer',
       'Creators: a grid or list of creators, sorted by audience, brand fit or name',
       'Discover: trends, creators, visual trends, sentiment and top posts',
       'Yak assistant: a panel beside every page, a full-page view, and history',

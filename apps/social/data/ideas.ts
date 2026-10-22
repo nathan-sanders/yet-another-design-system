@@ -2,7 +2,7 @@ import grainBowl from '../assets/photos/grain-bowl.jpg'
 import saladBowls from '../assets/photos/salad-bowls.jpg'
 import streetCorn from '../assets/photos/street-corn.jpg'
 import type { Containers } from '../../../src/components/DragAndDrop'
-import type { Campaign, Idea, IdeaGroup } from './types'
+import type { Campaign, Idea, IdeaGroup, PostComment } from './types'
 
 /**
  * Plan › Ideas (`40005911:32981`). The cards, columns and order are the
@@ -28,17 +28,23 @@ export const initialIdeas: Record<string, Idea> = {
     id: 'protein-plates-teaser',
     title: 'IG Story: Protein Plates teaser 🥗',
     body: 'Close-up of the trio with steam rising, one ingredient revealed per frame.',
+    createdBy: 'katie',
+    created: 'Jun 28',
   },
   'place-to-plan': {
     id: 'place-to-plan',
     title: 'This is a place to plan ✍️ your content',
     body: 'Save ideas before turning them into posts. Brainstorm, plan ahead, and keep the team in sync on what is coming next.',
+    createdBy: 'nathan',
+    created: 'Jun 12',
   },
   'save-inspiration': {
     id: 'save-inspiration',
     title: 'Save inspiration from anywhere 🤩',
     body: 'Use the browser extension to save ideas from the web. Highlight text or right-click an image to send it straight here.',
     image: saladBowls,
+    createdBy: 'nathan',
+    created: 'Jun 12',
   },
   'back-in-stalk': {
     id: 'back-in-stalk',
@@ -46,6 +52,10 @@ export const initialIdeas: Record<string, Idea> = {
     body: 'Stop scrolling… our cult fave is back for summer. Announce it with a carousel of the grill.',
     image: streetCorn,
     campaignId: 'summer-menu',
+    tagNames: ['Launch', 'Menu'],
+    assigneeId: 'katie',
+    createdBy: 'nathan',
+    created: 'Jul 2',
   },
   'harvest-glow': {
     id: 'harvest-glow',
@@ -53,6 +63,17 @@ export const initialIdeas: Record<string, Idea> = {
     body: 'Build the bowl from bare plate to finished, top-down, with the recipe card at the end.',
     image: grainBowl,
     campaignId: 'seasonal-items',
+    tagNames: ['Recipe'],
+    createdBy: 'dana',
+    created: 'Jun 30',
+  },
+  'soup-season': {
+    id: 'soup-season',
+    title: 'Soup season is back',
+    body: 'The roasted carrot and ginger returns. One steaming bowl, one line, the first cold morning.',
+    campaignId: 'seasonal-items',
+    createdBy: 'katie',
+    created: 'Sep 18',
   },
 }
 
@@ -63,10 +84,30 @@ export const initialGroups: IdeaGroup[] = [
   { id: 'done', name: 'Done' },
 ]
 
-/** Idea ids by group id, in board order. */
+/**
+ * Idea ids by group id, in board order. The ideas that have gone on to a post
+ * (`back-in-stalk`, `harvest-glow`, `soup-season`) are not here: a draft or a
+ * post in `data/drafts.ts` / `data/posts.ts` carries their `ideaId`, and the
+ * board's derived columns show them (`screens/ideas/lifecycle.ts`).
+ */
 export const initialBoard: Containers<string> = {
-  unassigned: ['protein-plates-teaser', 'place-to-plan', 'save-inspiration'],
-  todo: ['back-in-stalk'],
-  'in-progress': ['harvest-glow'],
+  unassigned: ['place-to-plan', 'save-inspiration'],
+  todo: ['protein-plates-teaser'],
+  'in-progress': [],
   done: [],
+}
+
+/** The team's notes on an idea, as the idea page's Notes tab opens on them. */
+export const initialIdeaNotes: Record<string, PostComment[]> = {
+  'back-in-stalk': [
+    {
+      id: 'in-1',
+      authorId: 'nathan',
+      body: 'Grill shots are in the asset library from last summer. Reuse the char close-up?',
+      ago: '16d',
+    },
+  ],
+  'harvest-glow': [
+    { id: 'in-2', authorId: 'dana', body: 'I can shoot the build on Thursday if the light holds.', ago: '3d' },
+  ],
 }

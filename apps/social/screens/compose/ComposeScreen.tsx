@@ -107,7 +107,7 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
   const location = useLocation()
   const toast = Toast.useToast()
   const schedule = useSchedule()
-  const { ideas } = useIdeas()
+  const { ideas, detachIdea } = useIdeas()
   const chat = useYakChat()
   const { fields, set, patch, setFields } = useComposeForm(initial)
   const [tab, setTab] = useState<CaptionTab>('all')
@@ -221,6 +221,8 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
       toast.add({ title: 'Post updated' })
     } else {
       for (const profileId of fields.profileIds) schedule.addDraft(toDraftInput(fields, profileId))
+      // The idea has moved on: it leaves its group, and Drafting takes it.
+      if (fields.ideaId) detachIdea(fields.ideaId)
       const n = fields.profileIds.length
       toast.add({ title: n > 1 ? `Saved to Drafts · ${n} channels` : 'Saved to Drafts' })
     }
@@ -248,6 +250,7 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
         if (editing?.kind === 'draft') schedule.removeDraft(editing.id)
         return schedule.addPost(toPostInput(fields, profileId), at).undo
       })
+      if (fields.ideaId && !editing) undos.push(detachIdea(fields.ideaId))
       toast.add({
         title: `${fields.needsApproval ? 'Sent for review · ' : 'Scheduled for '}${label}`,
         action: { label: 'Undo', onClick: () => undos.forEach((undo) => undo()) },

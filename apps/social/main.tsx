@@ -13,6 +13,7 @@ import { ComposeScreen } from './screens/compose/ComposeScreen'
 import { CreatorFullView } from './screens/creators/CreatorFullView'
 import { CreatorsScreen } from './screens/creators/CreatorsScreen'
 import { HomeScreen } from './screens/home/HomeScreen'
+import { IdeaFullView } from './screens/ideas/IdeaFullView'
 import { IdeasProvider } from './screens/ideas/IdeasProvider'
 import { NotificationsProvider } from './screens/notifications/NotificationsProvider'
 import { IdeasScreen } from './screens/ideas/IdeasScreen'
@@ -37,6 +38,7 @@ const router = createHashRouter([
       { path: 'home', element: <HomeScreen /> },
       { path: 'plan/calendar', element: <CalendarScreen /> },
       { path: 'plan/ideas', element: <IdeasScreen /> },
+      { path: 'plan/ideas/:ideaId', element: <IdeaFullView /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },
       { path: 'plan/creators/:creatorId', element: <CreatorFullView /> },
       { path: 'plan/compose', element: <ComposeScreen /> },

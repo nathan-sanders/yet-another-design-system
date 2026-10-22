@@ -16,6 +16,7 @@ import { Menu } from '../../../src/components/Menu'
 import { Tooltip } from '../../../src/components/Tooltip'
 import type { ReportType } from '../data/types'
 import { composePath } from '../screens/compose/paths'
+import { newIdeaPath } from '../screens/ideas/paths'
 import { openNewReport } from '../screens/reports/newReport'
 import { useShell } from './ShellContext'
 
@@ -51,6 +52,7 @@ const create: NewItem[] = [
     description: 'Capture a content idea',
     icon: Lightbulb,
     what: 'Capturing ideas',
+    to: (pathname) => newIdeaPath(pathname),
   },
   {
     label: 'Report',
