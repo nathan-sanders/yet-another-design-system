@@ -1382,6 +1382,7 @@ drawn piece is the bar that takes the reply box's place on a closed case
     The edit sets it back to `false`, which reads the same as missing. A spam ticket is not
     worked, so its status Token is disabled (Token's own `disabled`, Figma's `State=Disabled`,
     on a disabled `Menu.Trigger`): it shows New, faded, and opens nothing until Not spam.
+    The Complete buttons are disabled on it for the same reason.
 158. **All assignments is open work; Complete is everyone's done.** Assignments lists every open
     ticket anybody owns (a completed one moves to Complete), and Complete lists every completed
     ticket whoever owns it. My inbox keeps its own Open | Complete for yours. The scope-to-filter

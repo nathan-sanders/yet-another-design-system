@@ -231,6 +231,8 @@ export function Conversation({
           startIcon={CircleCheck}
           aria-label="Complete"
           aria-pressed={ticket.status === 'complete'}
+          // Spam is not worked, so it is not completed either: Not spam first.
+          disabled={Boolean(ticket.spam)}
           onClick={() => onTicketChange(completeToggle(ticket))}
         />
         <Button

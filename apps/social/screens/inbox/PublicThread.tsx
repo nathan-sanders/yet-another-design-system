@@ -137,6 +137,8 @@ export function PublicThread({
                     appearance="ghost"
                     startIcon={CircleCheck}
                     aria-pressed={ticket.status === 'complete'}
+                    // Spam is not worked, so it is not completed either.
+                    disabled={Boolean(ticket.spam)}
                     onClick={() => onTicketChange(completeToggle(ticket))}
                   >
                     Complete
