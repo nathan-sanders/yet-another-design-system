@@ -1379,7 +1379,9 @@ drawn piece is the bar that takes the reply box's place on a closed case
     every scope but Spam: All messages, My inbox, All assignments, Complete, the nav counts and
     Yak's inbox numbers. It is a field rather than a fifth `TicketStatus` because spam is a
     judgment about the message, and its status (New) still holds if someone says Not spam.
-    The edit sets it back to `false`, which reads the same as missing.
+    The edit sets it back to `false`, which reads the same as missing. A spam ticket is not
+    worked, so its status Token is disabled (Token's own `disabled`, Figma's `State=Disabled`,
+    on a disabled `Menu.Trigger`): it shows New, faded, and opens nothing until Not spam.
 158. **All assignments is open work; Complete is everyone's done.** Assignments lists every open
     ticket anybody owns (a completed one moves to Complete), and Complete lists every completed
     ticket whoever owns it. My inbox keeps its own Open | Complete for yours. The scope-to-filter
