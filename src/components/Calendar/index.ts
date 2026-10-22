@@ -4,6 +4,9 @@ export type { CalendarProps, CalendarValue } from './Calendar'
 export { DatePicker } from './DatePicker'
 export type { DatePickerProps } from './DatePicker'
 
+export { DateInput } from './DateInput'
+export type { DateInputProps } from './DateInput'
+
 export { DATE_RANGE_PRESETS } from './presets'
 export type { DatePreset } from './presets'
 
