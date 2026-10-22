@@ -51,7 +51,7 @@ function InstagramPreview({ profile, caption, media, format, at }: PostPreviewPr
     <Card padding={3} className="flex flex-col gap-2" aria-label="Instagram preview">
       {/* Account row: 24 avatar, the handle at base/semibold, the menu mark; 8 off the right and 4 under. */}
       <div className="flex items-center gap-2 pr-2 pb-1">
-        <Avatar size="small" name={profile.name} alt="" />
+        <Avatar size="small" name={profile.name} src={profile.avatar} alt="" />
         <Text render={<span />} weight="semibold" color="emphasized" className="flex-1">
           {profile.name}
         </Text>
@@ -102,7 +102,7 @@ function ThreadsPreview({ profile, caption, media, at }: PostPreviewProps) {
   const [first] = media
   return (
     <Card padding={3} className="flex gap-3" aria-label="Threads preview">
-      <Avatar size="base" name={profile.name} alt="" className="shrink-0" />
+      <Avatar size="base" name={profile.name} src={profile.avatar} alt="" className="shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-center gap-2">
           <Text render={<span />} size="sm" weight="semibold" color="emphasized" className="flex-1">
