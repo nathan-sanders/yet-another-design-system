@@ -135,7 +135,12 @@ export type TicketPriority = 'none' | 'low' | 'medium' | 'high' | 'critical'
 export type TicketSentiment = 'positive' | 'neutral' | 'negative' | 'undefined'
 
 /** What the detail view's menus can change on a ticket. */
-export type TicketEdit = Partial<Pick<Ticket, 'status' | 'assigneeId' | 'priority' | 'sentiment'>>
+export type TicketEdit = Partial<
+  Pick<
+    Ticket,
+    'status' | 'assigneeId' | 'priority' | 'sentiment' | 'spam' | 'completedBy' | 'completedAt'
+  >
+>
 
 /** A comment on a brand post, or the brand's reply under one. */
 export interface ThreadComment {
@@ -238,6 +243,16 @@ export interface Ticket {
    * Opening the ticket clears it (`markTicketSeen`).
    */
   unseen?: 'message' | 'reply'
+  /**
+   * The system read it as spam, so it sits in Engage › Spam and nowhere else
+   * in the inbox until someone says it is not. An edit can set it back to
+   * `false`, which reads the same as missing.
+   */
+  spam?: boolean
+  /** Who marked a `complete` ticket complete. A person id. */
+  completedBy?: string
+  /** When it was marked complete, as an ISO string. */
+  completedAt?: string
 }
 
 /** The team's private note on a customer, in the contact panel. */

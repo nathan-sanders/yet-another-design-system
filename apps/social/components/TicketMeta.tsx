@@ -195,6 +195,7 @@ function PickerMenu({
   value,
   onValueChange,
   trigger,
+  disabled = false,
   children,
 }: {
   /** What the menu sets — "Status" — for the popup's name. */
@@ -203,12 +204,14 @@ function PickerMenu({
   onValueChange: (value: string) => void
   /** The element that opens it. Base UI merges the trigger's props onto it. */
   trigger: ReactElement
+  /** The value cannot be changed here: the trigger shows it and does not open. */
+  disabled?: boolean
   /** The `Choice`s. */
   children: ReactNode
 }) {
   return (
-    <Menu>
-      <Menu.Trigger render={trigger} />
+    <Menu disabled={disabled}>
+      <Menu.Trigger render={trigger} disabled={disabled} />
       <Menu.Popup aria-label={label}>
         {/* Menu.Group carries Figma's 8px around the rows; the popup has none
             of its own. The library's radio story nests it the same way. */}
@@ -231,22 +234,30 @@ function PickerMenu({
 function TokenTrigger({
   startIcon,
   avatar,
+  disabled = false,
   children,
   ...props
 }: {
   startIcon?: LucideIcon
   avatar?: ReactNode
+  /** Figma's `State=Disabled`: faded, no hover, and the button will not press. */
+  disabled?: boolean
   children: ReactNode
 }) {
   return (
     <button
       type="button"
-      className={cn('flex cursor-pointer rounded-md', focusRing)}
+      disabled={disabled}
+      className={cn(
+        'flex rounded-md',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        focusRing,
+      )}
       // Base UI's trigger props (handlers, ARIA, ref) arrive here via `render`.
       {...props}
     >
       {/* `interactive` for Token's hover shadow; the button does the rest. */}
-      <Token interactive startIcon={startIcon} avatar={avatar}>
+      <Token interactive={!disabled} disabled={disabled} startIcon={startIcon} avatar={avatar}>
         {children}
       </Token>
     </button>
@@ -397,12 +408,20 @@ export function TicketMeta({
   return (
     <div className={cn('flex flex-wrap gap-1', className)}>
       {number}
+      {/* A spam ticket is not worked, so it has no status to move along:
+          the token shows New, faded, until someone says Not spam. */}
       <PickerMenu
         label="Status"
         value={status.value}
         onValueChange={(value) => onChange({ status: value as TicketStatus })}
+        disabled={Boolean(ticket.spam)}
         trigger={
-          <TokenTrigger avatar={<Glyph option={status} size="small" />}>{statusLabel}</TokenTrigger>
+          <TokenTrigger
+            avatar={<Glyph option={status} size="small" />}
+            disabled={Boolean(ticket.spam)}
+          >
+            {statusLabel}
+          </TokenTrigger>
         }
       >
         {STATUS.map((o) => (

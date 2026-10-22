@@ -29,7 +29,7 @@ export const apps: ShowcaseApp[] = [
       'Calendar: week, day and month',
       'Post detail',
       'Post composer: channels, a caption per network, media, options, details and a live preview, from an idea, a draft, a day or a post',
-      'Inbox: all messages, my inbox, public thread and contact detail',
+      'Inbox: all messages, my inbox, all assignments, complete and spam, with public thread and contact detail',
       'Comments by post: every published post, with its comments, notes, activity and numbers',
       'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
       'New report: eight report types, from NewsWhip-style media monitoring to a blank board',

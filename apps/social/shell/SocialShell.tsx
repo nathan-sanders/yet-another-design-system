@@ -21,7 +21,7 @@ import { MentionsPanel } from '../screens/mentions/MentionsPanel'
 import { NotificationsPanel } from '../screens/notifications/NotificationsPanel'
 import { useNotifications } from '../screens/notifications/notificationsState'
 import { useInbox } from '../screens/inbox/inboxState'
-import { isOpen } from '../screens/inbox/model'
+import { scopeCount } from '../screens/inbox/model'
 import { NewReportDialog } from '../screens/reports/NewReportDialog'
 import { ScheduleDialog } from '../screens/calendar/ScheduleDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
@@ -159,11 +159,18 @@ export function SocialShell() {
     () => ({ panel, setPanel, notBuilt, screenPanelHost }),
     [panel, notBuilt, screenPanelHost],
   )
-  // My inbox's count is live: assign a ticket to yourself anywhere and it goes
-  // up, complete one and it goes down. It counts what My inbox's Open shows.
-  const myInboxCount = useInbox().tickets.filter((t) => t.assigneeId === me.id && isOpen(t)).length
+  // My inbox's, All assignments' and Spam's counts are live: assign a ticket
+  // anywhere and they go up, complete one and they go down. Each counts what
+  // its page lists first (My inbox's Open). Complete has none: done is not a
+  // number to act on.
+  const { tickets } = useInbox()
+  const liveCounts: Record<string, number> = {
+    '/engage/my-inbox': scopeCount(tickets, 'mine'),
+    '/engage/assignments': scopeCount(tickets, 'assigned'),
+    '/engage/spam': scopeCount(tickets, 'spam'),
+  }
   const badgeFor = (route: AppRoute) => {
-    const count = route.path === '/engage/my-inbox' ? myInboxCount : route.badge
+    const count = liveCounts[route.path] ?? route.badge
     return count ? <Badge>{count}</Badge> : undefined
   }
   const yakOpen = panel?.type === 'yak' && !onYakPage
