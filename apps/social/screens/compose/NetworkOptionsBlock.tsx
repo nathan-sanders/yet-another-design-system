@@ -3,6 +3,7 @@ import { Link, MapPin, MessageSquare, Pencil, Plus, Tag, type LucideIcon } from 
 
 import { Button } from '../../../../src/components/Button'
 import { ContentBlock } from '../../../../src/components/ContentBlock'
+import { Divider } from '../../../../src/components/Divider'
 import { Input } from '../../../../src/components/Input'
 import { Text } from '../../../../src/components/Text'
 import { NETWORK_NAMES, type Network } from '../../data/types'
@@ -17,10 +18,12 @@ function Row({
   label: string
   children: ReactNode
 }) {
+  // `_Composer Option Row`: 40 tall, 8 above and below, the label semibold
+  // beside its 16 mark, the value or the action at the end.
   return (
-    <div className="flex min-h-10 items-center gap-2 border-b border-surface-border py-1 last:border-b-0">
+    <div className="flex min-h-10 items-center gap-2 py-2">
       <Icon aria-hidden className="size-4 shrink-0 text-content-primary" />
-      <Text render={<span />} className="shrink-0">
+      <Text render={<span />} weight="semibold" color="emphasized" className="shrink-0">
         {label}
       </Text>
       <span className="flex-1" />
@@ -30,12 +33,12 @@ function Row({
 }
 
 /**
- * What a network adds on top of the caption (`40006009:29479`, the
- * `Instagram options` block): the first comment, with its text and a pencil
- * to change it, then Location, Tag products and Link in bio, each with an
- * Add that is not built. The block is named for the network whose tab is
- * open; the options are Instagram's whichever it is — the others have no
- * frame yet (FINDINGS 150).
+ * What a network adds on top of the caption (`Block / Instagram options`,
+ * `40006019:30966`): the first comment, with its text and an Edit to change
+ * it, then Location, Tag products and Link in bio, each with an Add that is
+ * not built, a Divider between the rows. The block is named for the network
+ * whose tab is open; the options are Instagram's whichever it is — the
+ * others have no frame yet (FINDINGS 150).
  */
 export function NetworkOptionsBlock({
   network,
@@ -52,7 +55,8 @@ export function NetworkOptionsBlock({
   return (
     <ContentBlock>
       <ContentBlock.Header>{`${name} options`}</ContentBlock.Header>
-      <ContentBlock.Content className="flex flex-col">
+      {/* The slot's own padding is 0/16/8/16 in the file: the rows carry the vertical room. */}
+      <ContentBlock.Content className="flex flex-col gap-1 pt-0 pb-2">
         <Row icon={MessageSquare} label="First comment">
           {editing ? (
             <Input
@@ -72,13 +76,9 @@ export function NetworkOptionsBlock({
               <Text render={<span />} size="sm" color="subtle" truncate className="min-w-0">
                 {firstComment}
               </Text>
-              <Button
-                appearance="ghost"
-                size="small"
-                startIcon={Pencil}
-                aria-label="Edit the first comment"
-                onClick={() => setEditing(true)}
-              />
+              <Button appearance="ghost" size="small" startIcon={Pencil} onClick={() => setEditing(true)}>
+                Edit
+              </Button>
             </>
           ) : (
             <Button appearance="secondary" size="small" startIcon={Plus} onClick={() => setEditing(true)}>
@@ -86,6 +86,7 @@ export function NetworkOptionsBlock({
             </Button>
           )}
         </Row>
+        <Divider />
         <Row icon={MapPin} label="Location">
           <Button
             appearance="secondary"
@@ -96,6 +97,7 @@ export function NetworkOptionsBlock({
             Add
           </Button>
         </Row>
+        <Divider />
         <Row icon={Tag} label="Tag products">
           <Button
             appearance="secondary"
@@ -106,6 +108,7 @@ export function NetworkOptionsBlock({
             Add
           </Button>
         </Row>
+        <Divider />
         <Row icon={Link} label="Link in bio">
           <Button
             appearance="secondary"

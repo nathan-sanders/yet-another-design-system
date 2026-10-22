@@ -36,7 +36,7 @@ export function ChannelRow({
   const shown = locked ? BRAND_PROFILES.filter((p) => profileIds.includes(p.id)) : BRAND_PROFILES
   return (
     <div className="flex flex-col gap-3">
-      <div role="group" aria-label="Channels" className="flex flex-wrap items-center gap-3">
+      <div role="group" aria-label="Channels" className="flex flex-wrap items-center gap-2">
         {shown.map((profile) => (
           <ChannelAvatar
             key={profile.id}

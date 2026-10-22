@@ -27,9 +27,9 @@ const LIMITS: Partial<Record<Network, number>> = {
 /**
  * The format strip, then the `Caption · Instagram` block (`40006009:29479`):
  * the caption itself with the network's counter, the media strip, and the
- * row of small ghost actions under it — emoji, hashtag, Alt text, Tag people,
- * Edit, Asset library, Integrations. Only the first two blocks do anything
- * yet; the actions say so.
+ * row of ghost actions under it at the default size — emoji, hashtag, Alt
+ * text, Tag people, Edit, Asset library, Integrations. Only the first two
+ * blocks do anything yet; the actions say so.
  */
 export function CaptionBlock({
   network,
@@ -69,7 +69,7 @@ export function CaptionBlock({
           ))}
         </SegmentedControl>
         <Button
-          appearance="ghost"
+          appearance="secondary"
           startIcon={LayoutTemplate}
           onClick={() => shell.notBuilt('Templates')}
         >
@@ -102,21 +102,18 @@ export function CaptionBlock({
           <div className="flex flex-wrap items-center gap-1">
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Smile}
               aria-label="Emoji"
               onClick={() => shell.notBuilt('Emoji')}
             />
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Hash}
               aria-label="Hashtags"
               onClick={() => shell.notBuilt('Hashtags')}
             />
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Pencil}
               onClick={() => shell.notBuilt('Alt text')}
             >
@@ -124,7 +121,6 @@ export function CaptionBlock({
             </Button>
             <Button
               appearance="ghost"
-              size="small"
               startIcon={AtSign}
               onClick={() => shell.notBuilt('Tagging people')}
             >
@@ -132,7 +128,6 @@ export function CaptionBlock({
             </Button>
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Crop}
               onClick={() => shell.notBuilt('Editing a photo')}
             >
@@ -140,7 +135,6 @@ export function CaptionBlock({
             </Button>
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Image}
               onClick={() => shell.notBuilt('The Asset library')}
             >
@@ -148,7 +142,6 @@ export function CaptionBlock({
             </Button>
             <Button
               appearance="ghost"
-              size="small"
               startIcon={Plug}
               onClick={() => shell.notBuilt('Integrations')}
             >

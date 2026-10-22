@@ -1,4 +1,4 @@
-import { Ellipsis, Heart, MessageCircle, Repeat2, Send } from 'lucide-react'
+import { Bookmark, Ellipsis, Heart, MessageCircle, Repeat2, Send } from 'lucide-react'
 
 import { Avatar } from '../../../src/components/Avatar'
 import { Card } from '../../../src/components/Card'
@@ -27,12 +27,19 @@ export function PostPreview({ network, ...props }: PostPreviewProps & { network:
   return network === 'threads' ? <ThreadsPreview {...props} /> : <InstagramPreview {...props} />
 }
 
-function Actions({ icons }: { icons: typeof Heart[] }) {
+/** The network's action row: 20px marks 24 apart, 4 above and below, and the save mark at the far end. */
+function Actions({ icons, end: End }: { icons: typeof Heart[]; end?: typeof Heart }) {
   return (
-    <div aria-hidden className="flex items-center gap-3 text-content-primary">
+    <div aria-hidden className="flex items-center gap-6 py-1 text-content-primary">
       {icons.map((Icon, i) => (
         <Icon key={i} className="size-5" strokeWidth={1.75} />
       ))}
+      {End ? (
+        <>
+          <span className="flex-1" />
+          <End className="size-5" strokeWidth={1.75} />
+        </>
+      ) : null}
     </div>
   )
 }
@@ -42,17 +49,18 @@ function InstagramPreview({ profile, caption, media, format, at }: PostPreviewPr
   const dots = format === 'carousel' ? Math.max(media.length, 2) : media.length > 1 ? media.length : 0
   return (
     <Card padding={3} className="flex flex-col gap-2" aria-label="Instagram preview">
-      <div className="flex items-center gap-2">
+      {/* Account row: 24 avatar, the handle at base/semibold, the menu mark; 8 off the right and 4 under. */}
+      <div className="flex items-center gap-2 pr-2 pb-1">
         <Avatar size="small" name={profile.name} alt="" />
-        <Text render={<span />} size="sm" weight="semibold" color="emphasized" className="flex-1">
+        <Text render={<span />} weight="semibold" color="emphasized" className="flex-1">
           {profile.name}
         </Text>
         <Ellipsis aria-hidden className="size-4 text-content-primary" />
       </div>
       {first ? (
-        <img src={first} alt="" className="aspect-square w-full rounded-sm object-cover" />
+        <img src={first} alt="" className="h-64 w-full rounded-sm object-cover" />
       ) : (
-        <div className="flex aspect-square w-full items-center justify-center rounded-sm bg-surface-background-subtle">
+        <div className="flex h-64 w-full items-center justify-center rounded-sm bg-surface-background-subtle">
           <Text size="sm" color="subtle">
             Add a photo
           </Text>
@@ -72,7 +80,7 @@ function InstagramPreview({ profile, caption, media, format, at }: PostPreviewPr
           ))}
         </div>
       ) : null}
-      <Actions icons={[Heart, MessageCircle, Send]} />
+      <Actions icons={[Heart, MessageCircle, Send]} end={Bookmark} />
       <Text size="sm" weight="semibold" color="emphasized">
         Liked by feelgoodfoods and 1,204 others
       </Text>

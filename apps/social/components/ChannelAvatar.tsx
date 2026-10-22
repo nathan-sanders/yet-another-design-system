@@ -32,21 +32,21 @@ export function ChannelAvatar({
       aria-label={`${profile.name} on ${NETWORK_NAMES[profile.network]}`}
       disabled={disabled}
       onClick={onToggle}
+      // Figma's `_Composer Channel`: a 36 avatar inside a 44 ring, the badge
+      // 20 at the corner with the 16 mark in it.
       className={cn(
-        'relative rounded-full transition-opacity duration-fast ease-standard',
+        'relative flex size-11 items-center justify-center rounded-full transition-opacity duration-fast ease-standard',
         focusRing,
-        selected
-          ? 'ring-2 ring-content-emphasized ring-offset-2 ring-offset-surface-background-primary'
-          : 'opacity-50 hover:opacity-80',
+        selected ? 'inset-ring-2 inset-ring-content-emphasized' : 'opacity-50 hover:opacity-80',
         disabled && 'cursor-default hover:opacity-50',
       )}
     >
-      <Avatar size="large" name={profile.name} alt="" />
+      <Avatar size="base" name={profile.name} alt="" />
       <span
         aria-hidden
-        className="absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full bg-surface-background-primary text-content-primary ring-1 ring-surface-border"
+        className="absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full bg-surface-background-primary text-content-primary ring-1 ring-surface-border"
       >
-        <NetworkIcon network={profile.network} size="small" />
+        <NetworkIcon network={profile.network} />
       </span>
     </button>
   )
