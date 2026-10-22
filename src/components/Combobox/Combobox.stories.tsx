@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Globe, Lock, Users } from 'lucide-react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
-import { Combobox } from './Combobox'
+import { Combobox, type ComboboxItemData } from './Combobox'
 import { countries } from './countries'
 import { Field } from '../Field'
 import { Text } from '../Text'
@@ -429,3 +430,92 @@ export const WithIcons: Story = {
     expect(icon.nextElementSibling!.getBoundingClientRect().left - icon.getBoundingClientRect().right).toBe(8)
   },
 }
+
+const TAGS: ComboboxItemData[] = [
+  { value: 'summer-menu', label: 'Summer Menu' },
+  { value: 'smoothies', label: 'Smoothies' },
+  { value: 'local-farms', label: 'Local farms' },
+]
+
+const renderCreate: Story['render'] = function CreateStory() {
+  // The list is the caller's, and it grows: `onCreate` makes the item and puts
+  // the same object in `items`, which is what shows it as chosen next time.
+  const [tags, setTags] = useState(TAGS)
+  const [chosen, setChosen] = useState<ComboboxItemData[]>([TAGS[0]!])
+  return (
+    <Field label="Tags" className="w-96">
+      <Combobox
+        multiple
+        items={tags}
+        value={chosen}
+        onValueChange={(next) => setChosen(next as ComboboxItemData[])}
+        onCreate={(label) => {
+          const tag = { value: label.toLowerCase().replace(/\s+/g, '-'), label }
+          setTags((current) => [...current, tag])
+          return tag
+        }}
+        placeholder="Add tags…"
+      />
+    </Field>
+  )
+}
+
+/**
+ * **`onCreate`: a list that grows.** Type a tag that is not there and a
+ * "Create “…”" row sits at the end of the list; pick it and the tag is made,
+ * chosen, and in the list from then on. The value still comes from the list —
+ * the list just got longer — which is what keeps this a Combobox rather than
+ * an Autocomplete. Figma: Combobox Menu Item `Type=Create`.
+ */
+export const Create: Story = {
+  parameters: { controls: { disable: true } },
+  render: renderCreate,
+}
+
+/**
+ * The same field, driven: a new tag by pointer, another by keyboard, and no
+ * create row for text that already names a tag, in any case.
+ */
+export const CreateKeyboard: Story = {
+  parameters: { controls: { disable: true } },
+  render: renderCreate,
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const page = within(document.body)
+    const caret = canvas.getByRole('combobox', { name: 'Tags' })
+    const chips = () => canvas.getAllByRole('button', { name: /^Remove / }).map((b) => b.getAttribute('aria-label'))
+
+    await step('text no tag has offers a create row, and nothing else', async () => {
+      await userEvent.click(caret)
+      await userEvent.type(caret, 'Patio')
+      const row = await waitFor(() => page.getByRole('option', { name: 'Create “Patio”' }))
+      await expect(row.querySelector('svg.lucide-plus')).not.toBeNull()
+      await expect(page.getAllByRole('option')).toHaveLength(1)
+      await expect(page.queryByText('No results found.')).toBeNull()
+    })
+
+    await step('picking it makes the tag, chooses it, and grows the list', async () => {
+      await userEvent.click(page.getByRole('option', { name: 'Create “Patio”' }))
+      await waitFor(() => expect(chips()).toEqual(['Remove Summer Menu', 'Remove Patio']))
+      await userEvent.click(caret)
+      const patio = await waitFor(() => page.getByRole('option', { name: 'Patio' }))
+      await expect(patio).toHaveAttribute('aria-selected', 'true')
+      await userEvent.keyboard('{Escape}')
+    })
+
+    await step('text that names a tag, in any case, offers no create row', async () => {
+      await userEvent.type(caret, 'smoothies')
+      await waitFor(() => expect(page.getByRole('option', { name: 'Smoothies' })).toBeInTheDocument())
+      await expect(page.queryByRole('option', { name: /^Create/ })).toBeNull()
+      await userEvent.clear(caret)
+    })
+
+    await step('the keyboard creates too', async () => {
+      await userEvent.type(caret, 'Grill')
+      await waitFor(() => page.getByRole('option', { name: 'Create “Grill”' }))
+      await userEvent.keyboard('{ArrowDown}{Enter}')
+      await waitFor(() => expect(chips()).toEqual(['Remove Summer Menu', 'Remove Patio', 'Remove Grill']))
+    })
+  },
+}
+
