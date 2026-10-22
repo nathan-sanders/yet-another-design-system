@@ -62,6 +62,7 @@ const storyColumns = ({ open, isOpen }: RowMentions<Story>): TableColumn<Story>[
   {
     key: 'title',
     header: 'Story',
+    rowTarget: true,
     renderCell: (s) => (
       <RowButton label={`${s.title}, view mentions`} pressed={isOpen(s)} onClick={() => open(s)}>
         <TwoLineCell title={s.title} source={s.source} meta={`${s.outlet} · ${s.sourceLabel}`} />
@@ -135,6 +136,7 @@ const voiceColumns = ({ open, isOpen }: RowMentions<Voice>): TableColumn<Voice>[
   {
     key: 'name',
     header: 'Author',
+    rowTarget: true,
     renderCell: (v) => (
       <RowButton label={`${v.name}, view mentions`} pressed={isOpen(v)} onClick={() => open(v)}>
         <Avatar name={v.name} alt="" />

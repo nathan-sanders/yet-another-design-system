@@ -1,4 +1,4 @@
-import { type CSSProperties, type MouseEvent, type ReactNode } from 'react'
+import { type CSSProperties, type ReactNode } from 'react'
 import {
   Ellipsis,
   Flame,
@@ -61,7 +61,6 @@ import {
   visualQuery,
   visualsQuery,
 } from './mentions'
-import { clickableRows } from '../../components/clickableRows'
 
 /** Every widget's header `⋯`, which the mock does not fill. */
 function WidgetActions({ title }: { title: string }) {
@@ -231,12 +230,13 @@ const creatorColumns = (
   {
     key: 'name',
     header: 'Author',
+    // The row's own control: a press anywhere on the row presses it (FINDINGS 77).
+    rowTarget: true,
     renderCell: (c) => (
       <button
         type="button"
         aria-pressed={isOpen(c)}
         aria-label={`${c.name}, view mentions`}
-        data-creator={c.id}
         onClick={() => open(c)}
         className={cn('flex w-full min-w-0 items-center gap-3 rounded-xs text-left', focusRing)}
       >
@@ -274,35 +274,20 @@ export function CreatorsWidget({ range }: { range: DiscoverRange }) {
   const mentions = useMentions()
   const query = (c: Creator) => creatorQuery(c, range, 'Creators your audience follows')
 
-  // Table has no `onRowClick` on purpose (a <tr> has no keyboard equivalent),
-  // so a click on the row forwards to its name button, which stays the
-  // keyboard path — the Reports table's pattern (FINDINGS 48). A press on a
-  // header's sort button is its own.
-  const openRow = (event: MouseEvent) => {
-    const target = event.target as HTMLElement
-    const button = target.closest('tbody tr')?.querySelector<HTMLElement>('[data-creator]')
-    if (!button || target.closest('button') === button) return
-    if (target.closest('a, button')) return
-    button.click()
-  }
-
   return (
     <Widget title="Creators your audience follows" messages={creatorsQuery(range)}>
-      {/* A pointer convenience over the rows' own buttons; see `openRow`. */}
-      <div onClick={openRow} className={clickableRows}>
-        <Table
-          label="Creators your audience follows"
-          columns={creatorColumns(
-            (c) => mentions.toggle(query(c)),
-            (c) => mentions.isOpen(query(c).key),
-          )}
-          data={creators}
-          idKey="id"
-          sortable
-          textOverflow="truncate"
-          hasHover
-        />
-      </div>
+      <Table
+        label="Creators your audience follows"
+        columns={creatorColumns(
+          (c) => mentions.toggle(query(c)),
+          (c) => mentions.isOpen(query(c).key),
+        )}
+        data={creators}
+        idKey="id"
+        sortable
+        textOverflow="truncate"
+        hasHover
+      />
     </Widget>
   )
 }
@@ -477,15 +462,6 @@ export function OpportunitiesWidget({ range }: { range: DiscoverRange }) {
 // ---------------------------------------------------------------------------
 
 /**
- * Gauge colors its slices from the categorical scale and takes no color of its
- * own (FINDINGS 51), so this scope points the first three categories at the
- * sentiment tokens: Positive is green, Neutral gray, Negative red, in the arc
- * and in its legend alike.
- */
-const SENTIMENT_SCOPE =
-  '[--data-viz-categorical-01:var(--data-viz-sentiment-positive)] [--data-viz-categorical-02:var(--data-viz-sentiment-neutral)] [--data-viz-categorical-03:var(--data-viz-sentiment-negative)]'
-
-/**
  * One theme and its mentions, over a bar scaled to the widget's busiest theme
  * across both columns, so criticism reads smaller than praise when it is —
  * `_Discover Theme Row` (`40005896:28371`).
@@ -617,13 +593,19 @@ export function SentimentBody({ range }: { range: DiscoverRange }) {
   )
   return (
     <div className="flex flex-col gap-6">
-      <div className={cn(SENTIMENT_SCOPE, 'flex flex-col gap-3')}>
+      <div className="flex flex-col gap-3">
         <SentimentLegend range={range} />
         <Gauge
           // In SENTIMENTS' order, so a slice's index is its sentiment.
-          data={SENTIMENTS.map((s) => ({ name: s.label, value: sentimentSplit[s.value] }))}
+          // Each slice wears its sentiment's token, in the arc and the legend.
+          data={SENTIMENTS.map((s) => ({
+            name: s.label,
+            value: sentimentSplit[s.value],
+            color: s.color,
+          }))}
           nameKey="name"
           valueKey="value"
+          colorKey="color"
           label="Share of mentions by sentiment, last 7 days"
           legend={false}
           height={170}
