@@ -162,14 +162,15 @@ function AssetDetails({
           onClick={onEnlarge}
           aria-label={`View ${asset.name} larger`}
           className={cn(
-            'group relative block h-49 w-full shrink-0 cursor-zoom-in overflow-hidden rounded-sm bg-surface-background-subtle',
+            // A square stage; the file sits in it at its own shape, letterboxed.
+            'group relative block aspect-square w-full shrink-0 cursor-zoom-in overflow-hidden rounded-sm bg-surface-background-subtle',
             focusRing,
           )}
         >
           {asset.preview === 'video' ? (
-            <video src={asset.src} muted playsInline preload="metadata" aria-hidden className="size-full object-cover" />
+            <video src={asset.src} muted playsInline preload="metadata" aria-hidden className="size-full object-contain" />
           ) : (
-            <img src={asset.src} alt="" className="size-full object-cover" />
+            <img src={asset.src} alt="" className="size-full object-contain" />
           )}
           {asset.kind === 'video' ? (
             <span
