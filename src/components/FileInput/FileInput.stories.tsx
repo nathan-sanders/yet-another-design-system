@@ -4,6 +4,8 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Field } from '../Field'
 import { FileInput, type FileInputProps } from './FileInput'
+import { useFileDrop } from './useFileDrop'
+import type { FileRejection } from './files'
 import { Text } from '../Text'
 
 /** A file of a given size, without reading anything from disk. */
@@ -17,9 +19,15 @@ function makeFile(name: string, bytes: number, type: string) {
  * properties, a real one has none (they live on the prototype), and the
  * handler receives an empty drag with no `Files` in its types.
  */
-function drag(target: Element, type: 'dragenter' | 'drop', files: File[]) {
+function drag(
+  target: Element,
+  type: 'dragenter' | 'dragleave' | 'drop',
+  files: File[],
+  text?: string,
+) {
   const dataTransfer = new DataTransfer()
   for (const f of files) dataTransfer.items.add(f)
+  if (text) dataTransfer.setData('text/uri-list', text)
   target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer }))
 }
 
@@ -271,4 +279,66 @@ export const States: Story = {
       </Field>
     </div>
   ),
+}
+
+/**
+ * `useFileDrop` is the dropzone's drag half on its own, for a region that is
+ * not a form control — an asset grid, a thread. The hook draws nothing; this
+ * region paints `data-dragging` with the dropzone's own pair.
+ *
+ * The play function enters the region and then a child, leaves the region —
+ * still dragging, because the count is one — drags a link across (ignored:
+ * no files), and drops a photo and a PDF on an images-only zone: one kept,
+ * one reported.
+ */
+export const AnyRegion: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [kept, setKept] = useState<File[]>([])
+    const [refused, setRefused] = useState<FileRejection[]>([])
+    const { dragging, dropProps } = useFileDrop({
+      accept: 'image/*',
+      onDrop: (accepted, rejected) => {
+        setKept(accepted)
+        setRefused(rejected)
+      },
+    })
+    return (
+      <section
+        aria-label="Shared photos"
+        data-dragging={dragging || undefined}
+        className="flex w-96 flex-col gap-2 rounded-md border border-dashed border-surface-border-emphasized p-4 data-dragging:border-input-selected data-dragging:bg-action-ghost-background-hover"
+        {...dropProps}
+      >
+        <Text weight="semibold">Drop photos anywhere in here</Text>
+        <Text size="sm" className="text-content-subtle" data-testid="child">
+          {kept.length ? `Kept ${kept.map((f) => f.name).join(', ')}` : 'Nothing yet'}
+        </Text>
+        {refused.map((r) => (
+          <Text key={r.file.name} size="sm" className="text-content-danger">
+            {r.message}
+          </Text>
+        ))}
+      </section>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const region = canvas.getByRole('region', { name: 'Shared photos' })
+    const child = canvas.getByTestId('child')
+
+    drag(region, 'dragenter', photos)
+    drag(child, 'dragenter', photos)
+    drag(region, 'dragleave', photos)
+    await waitFor(() => expect(region).toHaveAttribute('data-dragging'))
+    drag(child, 'dragleave', photos)
+    await waitFor(() => expect(region).not.toHaveAttribute('data-dragging'))
+
+    drag(region, 'dragenter', [], 'https://example.com/a.jpg')
+    await expect(region).not.toHaveAttribute('data-dragging')
+
+    drag(region, 'drop', [photos[0], resume])
+    await waitFor(() => expect(canvas.getByText(`Kept ${photos[0].name}`)).toBeVisible())
+    await expect(canvas.getByText(`${resume.name} isn't an accepted file type.`)).toBeVisible()
+  },
 }

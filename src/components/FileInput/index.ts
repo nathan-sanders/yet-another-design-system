@@ -1,4 +1,6 @@
 export { FileInput } from './FileInput'
 export { formatFileSize } from './files'
+export { useFileDrop } from './useFileDrop'
 export type { FileInputProps, FileInputMode } from './FileInput'
 export type { FileRejection } from './files'
+export type { UseFileDrop, UseFileDropOptions } from './useFileDrop'

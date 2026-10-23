@@ -85,6 +85,30 @@ against both tokens with a probe. Dropping onto `input` mode is not supported, m
 `sameFiles`), pinned by `files.test.ts`, so the component file exports only a component for Fast
 Refresh.
 
+## A drop zone that is not a form control: `useFileDrop`
+
+The dropzone's drag half is a hook of its own, `useFileDrop` (`useFileDrop.ts`), exported beside the
+component. A page region that takes files from the desktop (an asset grid, a thread) has no
+input to hold them and no Field to report to, so it needs the drag handling without the control.
+Yet Social's asset library was the first caller, and FileInput itself is the second: its dropzone
+is now `useFileDrop` with the component's own rules, and nothing about it changed.
+
+- **It screens with the picker's rules**, `accept` / `maxSize` / `maxFiles` / `multiple` through
+  `screen()`, and calls `onDrop(accepted, rejected)` on every drop, even when nothing survived.
+  `multiple` defaults to `true` here: a region the size of a grid takes what it is given.
+- **Only drags carrying `Files` count, on every handler.** A link or an image dragged inside the
+  page is a native drag with `text/uri-list` and no files, and it passes through. The old inline
+  `dragleave` had no guard; it now has one, so a non-file drag can never decrement the count.
+- **dnd-kit drags never reach it.** They are pointer events, not drag events.
+- **It draws nothing.** Paint `data-dragging` with the dropzone's pair, `border-input-selected` and
+  `bg-action-ghost-background-hover`. Don't use an overlay token for a drop highlight: those
+  lighten in dark (Dialog's backdrop note).
+- **It is pointer only.** A drop zone needs a keyboard route beside it, and a file picker is that
+  route: FileInput has one built in, and a region needs a button that opens one.
+
+`AnyRegion` is its story. Its play enters, nests, leaves, ignores a link drag, and drops a photo
+and a PDF on an images-only region.
+
 ## Left out
 
 Astryx's `isLoading` / `changeAction` (the upload belongs to the caller), `status` /
