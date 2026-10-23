@@ -1431,3 +1431,71 @@ them. Nothing here is new behavior; four things look slightly different, all tow
 167. **A mention card's `aria-current` moved from its open button to the card**, where `Card`'s
     `selected` puts it, so it is said once, on the thing that is current.
 
+
+## Slice — Asset library, with drag-and-drop upload (2026-10-22)
+
+Plan › Asset library, built from `Plan - Asset Library` (`40006104:39766`) and its details frame
+(`40006105:40365`): a Library tree (All assets, Favorites, Unused, Rights expiring) above a
+Folders tree, a grid or a table, and Asset details in a screen-owned Panel. Dropping files on the
+grid uploads them to the open folder, or to the library's root from a view.
+
+### Fixed in the library
+
+169. **Fixed (#350): `useFileDrop`.** FileInput's drop handling was private, so a grid-sized drop
+    zone had nothing to reuse. The hook is exported beside FileInput, and FileInput's dropzone uses
+    it. This screen spreads it on the whole grid side, toolbar included.
+
+### Open
+
+170. **FileInput's `screen()` isn't public.** Import › Upload from computer has to apply the same
+    rules a drop does (the picker's filter can be overridden with "All files"), so
+    `AssetsScreen.tsx` deep-imports `FileInput/files`. Export it from the barrel, or have
+    `useFileDrop` hand back a `screenFiles` for a picker that isn't a FileInput.
+171. **`Button` has no `render`**, so Asset details' Download can't be an `<a download>` and
+    clicks a throwaway link instead. Download is the one icon button here that is really a link.
+
+### Kept in the app
+
+172. **A folder shows its subfolders' files too**, so Summer Menu 2026 is the whole campaign. An
+    upload still lands in exactly the open folder. Figma counts the views and not the folders, and
+    so does the tree.
+173. **A drop in Favorites, Unused or Rights expiring opens All assets.** A new file goes to the
+    root, which those views would hide, so the screen switches to where it can be seen landing.
+    The overlay says "Drop to upload to Asset library" in any view.
+174. **"Used in" is real.** It counts the calendar's posts whose photo is the file, live from
+    `useSchedule`, so moving or scheduling a post changes it. Each row opens that post's details.
+175. **Use asset opens the composer with the file as its media**, through the composer's existing
+    `location.state.prefill`. No composer change was needed. The composer's own Asset library
+    button still reads `data/library.ts`, so an upload doesn't reach it yet.
+176. **Below 768 the folder column folds into a Folder select**, with subfolders indented by em
+    spaces (ASCII spaces collapse). The top bar shows the folder's name instead of the trail,
+    and the Grid/List switch and end actions go: the start slot is half the bar there.
+
+### Figma owes
+
+168. **The drop states are code-first.** The file draws neither the drag-over state nor an
+    uploading card. In code, the drag-over state is a 2px dashed `Input/Selected` border on the
+    `Action/Ghost/Background Hover` wash (FileInput's dropzone pair, no overlay token), with
+    "Drop to upload to {folder}" on a `Surface/Background Primary` card with Medium shadow,
+    because the 10% wash alone can't carry text over photos. The uploading card puts a
+    `ProgressBar` where the status badge goes and "Uploading…" in the meta.
+- A phone frame, and the list view (Name, Type, Folder, Used in, Added, Size), both code-first.
+
+177. **The panel's preview opens a lightbox** (`AssetLightbox.tsx`). It's the library's Dialog at
+    1040 wide, with the file contained at its own aspect ratio on a `surface-background-subtle`
+    stage: an image (a GIF animates, being one), or a video with its controls, playing. Previous,
+    Next and the arrow keys step through the grid in its order, and the panel follows. Arrows are
+    left to a focused video. Code-first: Figma owes a lightbox frame.
+178. **Seeded videos play now.** They were poster photos with a duration badge and nothing to play,
+    so `assets/videos/` has four short clips (about 300 kB each), each a slow pan over its poster,
+    encoded with Playwright's bundled ffmpeg. `videoSrc` holds them, and the durations are the
+    clips' real lengths. The seed's pixel sizes now follow each photo's real shape (most are 2:3
+    portrait), since the lightbox shows it. The photos themselves are 316 × 476, so a lightbox
+    scales them up and they look soft. Real files would not.
+
+### Measured, and fine
+
+- axe on the live screen, with the panel open, mid-upload, and with the lightbox open: no
+  violations. Escape closes the lightbox and returns focus to the preview.
+- A drag across a card into the grid and back keeps the overlay up (enter, enter, leave). A PDF
+  in the same drop as two photos is refused in its own toast, and the photos still land.

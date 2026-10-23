@@ -4,6 +4,8 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
+import { AssetsProvider } from './screens/assets/AssetsProvider'
+import { AssetsScreen } from './screens/assets/AssetsScreen'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
 import { CalendarNotesProvider } from './screens/calendar/CalendarNotesProvider'
 import { ScheduleProvider } from './screens/calendar/ScheduleProvider'
@@ -42,6 +44,7 @@ const router = createHashRouter([
       { path: 'plan/creators', element: <CreatorsScreen /> },
       { path: 'plan/creators/:creatorId', element: <CreatorFullView /> },
       { path: 'plan/compose', element: <ComposeScreen /> },
+      { path: 'plan/assets', element: <AssetsScreen /> },
       { path: 'engage/my-inbox', element: <InboxScreen scope="mine" /> },
       { path: 'engage/all', element: <InboxScreen /> },
       { path: 'engage/assignments', element: <InboxScreen scope="assigned" /> },
@@ -68,7 +71,9 @@ createRoot(document.getElementById('root')!).render(
               <CalendarNotesProvider>
                 <ScheduleProvider>
                   <NotificationsProvider>
-                    <RouterProvider router={router} />
+                    <AssetsProvider>
+                      <RouterProvider router={router} />
+                    </AssetsProvider>
                   </NotificationsProvider>
                 </ScheduleProvider>
               </CalendarNotesProvider>

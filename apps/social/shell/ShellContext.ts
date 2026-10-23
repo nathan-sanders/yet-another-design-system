@@ -39,6 +39,12 @@ export type ShellPanel =
   | { type: 'notifications' }
   /** The calendar's saved drafts (`screens/calendar/DraftsPanel.tsx`). */
   | { type: 'drafts' }
+  /**
+   * A file in the asset library. The library renders it and portals it into
+   * `screenPanelHost`, so it reads that screen's uploads
+   * (`screens/assets/AssetDetailPanel.tsx`).
+   */
+  | { type: 'asset'; assetId: string }
   | null
 
 export interface ShellState {

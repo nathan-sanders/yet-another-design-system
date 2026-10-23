@@ -38,6 +38,11 @@ const PAGES: { prefix: string; config: FloatingYakConfig }[] = [
     prefix: '/plan/ideas',
     config: { placeholder: 'Ask Yak for post ideas…', mode: 'ask' },
   },
+  // Code-first, like the others (FINDINGS 60): Figma's frame has this placeholder.
+  {
+    prefix: '/plan/assets',
+    config: { placeholder: 'Find an asset, like “overhead shots of bowls”', mode: 'ask' },
+  },
   {
     prefix: '/plan/creators',
     config: { placeholder: 'Find the best creators for your brand…', mode: 'search' },
