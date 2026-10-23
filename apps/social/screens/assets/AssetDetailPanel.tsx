@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import {
   Clock,
@@ -7,7 +7,9 @@ import {
   Folder,
   Fullscreen,
   Link,
+  Maximize2,
   Megaphone,
+  Play,
   Sparkles,
   Star,
   Upload,
@@ -36,6 +38,7 @@ import { useShell } from '../../shell/ShellContext'
 import { isPublished, postDate } from '../calendar/model'
 import { useSchedule } from '../calendar/scheduleState'
 import { composePath } from '../compose/paths'
+import { AssetLightbox } from './AssetLightbox'
 import { useAssets } from './assetsState'
 import { daysLeft, folderPath, formatDuration, KIND_NAMES, rightsState, type UseCounts } from './model'
 
@@ -43,7 +46,8 @@ const fullDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeri
 
 /**
  * Asset details (`40006105:40392`): the file, its usage rights, tags, where it
- * lives and came from, and the posts that use it. Download, copy link and
+ * lives and came from, and the posts that use it. The preview opens the file
+ * larger, in `AssetLightbox`. Download, copy link and
  * favorite in the footer, with Edit and Use asset; Use asset opens the
  * composer with the file as its media.
  *
@@ -54,6 +58,7 @@ export function AssetDetailPanel({
   open,
   assetId,
   uses,
+  order,
   onClose,
   onOpenFolder,
 }: {
@@ -61,12 +66,16 @@ export function AssetDetailPanel({
   /** The last one opened, so the panel keeps its content while it slides out. */
   assetId: string | undefined
   uses: UseCounts
+  /** The grid's ids in its order: the lightbox's Previous and Next. */
+  order: readonly string[]
   onClose: () => void
   onOpenFolder: (folderId: string) => void
 }) {
   const { assets } = useAssets()
   const asset = assets.find((a) => a.id === assetId)
   const shell = useShell()
+  // Held here rather than in the details, so stepping to the next file keeps it open.
+  const [lightbox, setLightbox] = useState(false)
 
   return (
     <Panel
@@ -90,19 +99,51 @@ export function AssetDetailPanel({
       >
         Asset details
       </Panel.Header>
-      {asset ? <AssetDetails asset={asset} uses={uses.get(asset.id) ?? 0} onOpenFolder={onOpenFolder} /> : null}
+      {asset ? (
+        <AssetDetails
+          asset={asset}
+          uses={uses.get(asset.id) ?? 0}
+          onOpenFolder={onOpenFolder}
+          onEnlarge={() => setLightbox(true)}
+        />
+      ) : null}
+      {asset ? (
+        <AssetLightbox
+          open={open && lightbox}
+          onOpenChange={setLightbox}
+          asset={asset}
+          facts={factsFor(asset)}
+          order={order}
+          onNavigate={(id) => shell.setPanel({ type: 'asset', assetId: id })}
+        />
+      ) : null}
     </Panel>
   )
+}
+
+/** "Image · 1600 × 2400 · 3.2 MB", or that it is still on its way. */
+function factsFor(asset: Asset): string {
+  if (asset.upload) return 'Uploading…'
+  return [
+    KIND_NAMES[asset.kind],
+    asset.width && asset.height ? `${asset.width} × ${asset.height}` : undefined,
+    asset.durationSec !== undefined ? formatDuration(asset.durationSec) : undefined,
+    formatFileSize(asset.sizeBytes),
+  ]
+    .filter(Boolean)
+    .join(' · ')
 }
 
 function AssetDetails({
   asset,
   uses,
   onOpenFolder,
+  onEnlarge,
 }: {
   asset: Asset
   uses: number
   onOpenFolder: (folderId: string) => void
+  onEnlarge: () => void
 }) {
   const shell = useShell()
   const toast = Toast.useToast()
@@ -111,37 +152,48 @@ function AssetDetails({
   const { toggleFavorite } = useAssets()
   const now = new Date()
 
-  const facts = [
-    KIND_NAMES[asset.kind],
-    asset.width && asset.height ? `${asset.width} × ${asset.height}` : undefined,
-    asset.durationSec !== undefined ? formatDuration(asset.durationSec) : undefined,
-    formatFileSize(asset.sizeBytes),
-  ].filter(Boolean)
-
   return (
     <>
       <Panel.Body className="flex flex-col gap-4">
-        {asset.preview === 'video' ? (
-          <video
-            src={asset.src}
-            controls
-            playsInline
-            aria-label={asset.name}
-            className="h-49 w-full shrink-0 rounded-sm bg-surface-background-subtle object-cover"
-          />
-        ) : (
-          <img
-            src={asset.src}
-            alt={asset.alt}
-            className="h-49 w-full shrink-0 rounded-sm bg-surface-background-subtle object-cover"
-          />
-        )}
+        {/* The preview is the way in to the lightbox. Its corner glyph says
+            so to the eye; the button's name says it to everyone else. */}
+        <button
+          type="button"
+          onClick={onEnlarge}
+          aria-label={`View ${asset.name} larger`}
+          className={cn(
+            'group relative block h-49 w-full shrink-0 cursor-zoom-in overflow-hidden rounded-sm bg-surface-background-subtle',
+            focusRing,
+          )}
+        >
+          {asset.preview === 'video' ? (
+            <video src={asset.src} muted playsInline preload="metadata" aria-hidden className="size-full object-cover" />
+          ) : (
+            <img src={asset.src} alt="" className="size-full object-cover" />
+          )}
+          {asset.kind === 'video' ? (
+            <span
+              aria-hidden
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <span className="flex size-12 items-center justify-center rounded-full bg-surface-background-primary text-content-primary shadow-medium">
+                <Icon icon={Play} size="large" />
+              </span>
+            </span>
+          ) : null}
+          <span
+            aria-hidden
+            className="absolute top-2 right-2 flex size-8 items-center justify-center rounded-md bg-surface-background-primary text-content-primary opacity-0 shadow-low transition-opacity duration-fast ease-standard group-hover:opacity-100 group-focus-visible:opacity-100"
+          >
+            <Icon icon={Maximize2} />
+          </span>
+        </button>
         <div className="flex flex-col">
           <Text weight="semibold" color="emphasized" className="break-all">
             {asset.name}
           </Text>
           <Text size="sm" color="subtle">
-            {asset.upload ? 'Uploading…' : facts.join(' · ')}
+            {factsFor(asset)}
           </Text>
         </div>
         {asset.rights ? <RightsCard asset={asset} now={now} /> : null}

@@ -1481,8 +1481,21 @@ grid uploads them to the open folder, or to the library's root from a view.
     `ProgressBar` where the status badge goes and "Uploading…" in the meta.
 - A phone frame, and the list view (Name, Type, Folder, Used in, Added, Size), both code-first.
 
+177. **The panel's preview opens a lightbox** (`AssetLightbox.tsx`). It's the library's Dialog at
+    1040 wide, with the file contained at its own aspect ratio on a `surface-background-subtle`
+    stage: an image (a GIF animates, being one), or a video with its controls, playing. Previous,
+    Next and the arrow keys step through the grid in its order, and the panel follows. Arrows are
+    left to a focused video. Code-first: Figma owes a lightbox frame.
+178. **Seeded videos play now.** They were poster photos with a duration badge and nothing to play,
+    so `assets/videos/` has four short clips (about 300 kB each), each a slow pan over its poster,
+    encoded with Playwright's bundled ffmpeg. `videoSrc` holds them, and the durations are the
+    clips' real lengths. The seed's pixel sizes now follow each photo's real shape (most are 2:3
+    portrait), since the lightbox shows it. The photos themselves are 316 × 476, so a lightbox
+    scales them up and they look soft. Real files would not.
+
 ### Measured, and fine
 
-- axe on the live screen, with the panel open and again mid-upload: no violations.
+- axe on the live screen, with the panel open, mid-upload, and with the lightbox open: no
+  violations. Escape closes the lightbox and returns focus to the preview.
 - A drag across a card into the grid and back keeps the overlay up (enter, enter, leave). A PDF
   in the same drop as two photos is refused in its own toast, and the photos still land.

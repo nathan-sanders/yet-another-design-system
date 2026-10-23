@@ -379,6 +379,7 @@ export function AssetsScreen() {
               open={openId !== undefined}
               assetId={lastOpenId}
               uses={uses}
+              order={shown.map((a) => a.id)}
               onClose={() => shell.setPanel(null)}
               onOpenFolder={(folderId) => update('in', folderId)}
             />,

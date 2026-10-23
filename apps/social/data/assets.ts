@@ -15,6 +15,10 @@ import saladBowls from '../assets/photos/salad-bowls.jpg'
 import streetCorn from '../assets/photos/street-corn.jpg'
 import takeoutBox from '../assets/photos/takeout-box.jpg'
 import wraps from '../assets/photos/wraps.jpg'
+import greenSmoothiesClip from '../assets/videos/green-smoothies.webm'
+import harvestBowlClip from '../assets/videos/harvest-bowl.webm'
+import marketVegClip from '../assets/videos/market-veg.webm'
+import wrapsClip from '../assets/videos/wraps.webm'
 import veggieVault from '../assets/veggie-vault.png'
 import { addDays, startOfDay } from './dates'
 
@@ -58,8 +62,13 @@ export interface Asset {
   id: string
   name: string
   kind: AssetKind
-  /** The file. A seeded video is its poster frame; an uploaded one is the video. */
+  /** The file, or for a seeded video its poster frame (`videoSrc` is the video). */
   src: string
+  /**
+   * A seeded video's playable file, for the lightbox. The clips are short pans
+   * over the poster photo, made for the mock; an uploaded video is `src`.
+   */
+  videoSrc?: string
   /** How `src` draws: an uploaded video is a `<video>`, everything else an image. */
   preview: 'image' | 'video'
   alt: string
@@ -115,8 +124,8 @@ const seeds: Seed[] = [
     addedBy: 'katie',
     addedAt: daysAgo(3),
     sizeBytes: 3_200_000,
-    width: 2400,
-    height: 1600,
+    width: 1600,
+    height: 2400,
     tags: ['street corn', 'grill', 'summer menu', 'close-up'],
     favorite: true,
     rights: {
@@ -136,8 +145,8 @@ const seeds: Seed[] = [
     addedBy: 'nathan',
     addedAt: daysAgo(1),
     sizeBytes: 4_100_000,
-    width: 3000,
-    height: 2000,
+    width: 1600,
+    height: 2400,
     tags: ['bowls', 'overhead', 'summer menu'],
     favorite: true,
   },
@@ -146,6 +155,7 @@ const seeds: Seed[] = [
     name: 'harvest-bowl-pour.mp4',
     kind: 'video',
     src: harvestBowl,
+    videoSrc: harvestBowlClip,
     alt: 'A harvest bowl with squash and greens',
     folderId: 'final-cuts',
     source: 'upload',
@@ -153,8 +163,8 @@ const seeds: Seed[] = [
     addedAt: daysAgo(2),
     sizeBytes: 48_000_000,
     width: 1080,
-    height: 1920,
-    durationSec: 24,
+    height: 1620,
+    durationSec: 8,
     tags: ['bowls', 'reel'],
   },
   {
@@ -168,8 +178,8 @@ const seeds: Seed[] = [
     addedBy: 'dana',
     addedAt: daysAgo(4),
     sizeBytes: 2_800_000,
-    width: 2400,
-    height: 1600,
+    width: 1600,
+    height: 2400,
     tags: ['kitchen', 'behind the scenes'],
   },
   {
@@ -183,8 +193,8 @@ const seeds: Seed[] = [
     addedBy: 'katie',
     addedAt: daysAgo(5),
     sizeBytes: 1_400_000,
-    width: 1080,
-    height: 1350,
+    width: 1600,
+    height: 2400,
     tags: ['smoothies', 'smoothie week'],
   },
   {
@@ -198,8 +208,8 @@ const seeds: Seed[] = [
     addedBy: 'priya',
     addedAt: daysAgo(12),
     sizeBytes: 2_200_000,
-    width: 2000,
-    height: 2000,
+    width: 1600,
+    height: 2400,
     tags: ['greens', 'creator'],
     rights: {
       creatorId: 'priya',
@@ -218,8 +228,8 @@ const seeds: Seed[] = [
     addedBy: 'nathan',
     addedAt: daysAgo(6),
     sizeBytes: 3_600_000,
-    width: 2400,
-    height: 1600,
+    width: 1600,
+    height: 2400,
     tags: ['salad', 'summer menu'],
   },
   {
@@ -227,15 +237,16 @@ const seeds: Seed[] = [
     name: 'market-veg-timelapse.mov',
     kind: 'video',
     src: freshVegetables,
+    videoSrc: marketVegClip,
     alt: 'Fresh vegetables on a counter',
     folderId: 'raw-footage',
     source: 'upload',
     addedBy: 'dana',
     addedAt: daysAgo(8),
     sizeBytes: 160_000_000,
-    width: 3840,
-    height: 2160,
-    durationSec: 58,
+    width: 1080,
+    height: 1620,
+    durationSec: 10,
     tags: ['market', 'b-roll'],
   },
   {
@@ -250,7 +261,7 @@ const seeds: Seed[] = [
     addedAt: daysAgo(9),
     sizeBytes: 5_000_000,
     width: 2400,
-    height: 2400,
+    height: 1600,
     tags: ['bowls', 'menu board'],
   },
   {
@@ -264,8 +275,8 @@ const seeds: Seed[] = [
     addedBy: 'nathan',
     addedAt: daysAgo(15),
     sizeBytes: 3_900_000,
-    width: 2400,
-    height: 1600,
+    width: 1600,
+    height: 2400,
     tags: ['store', 'Brooklyn'],
   },
   {
@@ -273,6 +284,7 @@ const seeds: Seed[] = [
     name: 'maya-okafor-wrap.mp4',
     kind: 'video',
     src: wraps,
+    videoSrc: wrapsClip,
     alt: 'Two wraps cut in half on a board',
     folderId: 'creator-content',
     source: 'upload',
@@ -280,8 +292,8 @@ const seeds: Seed[] = [
     addedAt: daysAgo(40),
     sizeBytes: 36_000_000,
     width: 1080,
-    height: 1920,
-    durationSec: 31,
+    height: 1620,
+    durationSec: 8,
     tags: ['wraps', 'creator'],
     rights: {
       creatorId: 'maya',
@@ -300,8 +312,8 @@ const seeds: Seed[] = [
     addedBy: 'dana',
     addedAt: daysAgo(10),
     sizeBytes: 2_600_000,
-    width: 2400,
-    height: 1600,
+    width: 1600,
+    height: 2400,
     tags: ['salad'],
   },
   {
@@ -309,6 +321,7 @@ const seeds: Seed[] = [
     name: 'green-smoothie-pour.mp4',
     kind: 'video',
     src: greenSmoothies,
+    videoSrc: greenSmoothiesClip,
     alt: 'Green smoothies in tall glasses',
     folderId: 'smoothie-week',
     source: 'upload',
@@ -316,8 +329,8 @@ const seeds: Seed[] = [
     addedAt: daysAgo(7),
     sizeBytes: 22_000_000,
     width: 1080,
-    height: 1920,
-    durationSec: 15,
+    height: 1620,
+    durationSec: 6,
     tags: ['smoothies', 'reel'],
   },
   {
@@ -331,8 +344,8 @@ const seeds: Seed[] = [
     addedBy: 'nathan',
     addedAt: daysAgo(11),
     sizeBytes: 2_900_000,
-    width: 2000,
-    height: 2000,
+    width: 2400,
+    height: 1600,
     tags: ['dessert', 'smoothie week'],
   },
   {
@@ -346,8 +359,8 @@ const seeds: Seed[] = [
     addedBy: 'dana',
     addedAt: daysAgo(0),
     sizeBytes: 3_100_000,
-    width: 2400,
-    height: 1600,
+    width: 2000,
+    height: 2000,
     tags: ['bowls'],
   },
   {
@@ -361,8 +374,8 @@ const seeds: Seed[] = [
     addedBy: 'katie',
     addedAt: daysAgo(13),
     sizeBytes: 3_400_000,
-    width: 2400,
-    height: 1600,
+    width: 2000,
+    height: 2000,
     tags: ['plates', 'summer menu'],
   },
   {
@@ -376,8 +389,8 @@ const seeds: Seed[] = [
     addedBy: 'nathan',
     addedAt: daysAgo(20),
     sizeBytes: 2_400_000,
-    width: 2000,
-    height: 1500,
+    width: 1600,
+    height: 2400,
     tags: ['takeout'],
   },
   {
