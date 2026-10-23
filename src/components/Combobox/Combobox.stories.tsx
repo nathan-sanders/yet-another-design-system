@@ -516,6 +516,11 @@ export const CreateKeyboard: Story = {
       await userEvent.keyboard('{ArrowDown}{Enter}')
       await waitFor(() => expect(chips()).toEqual(['Remove Summer Menu', 'Remove Patio', 'Remove Grill']))
     })
+
+    await step('the open list carries the field’s name', async () => {
+      // The tokenizer's popup is `presentation`, so the listbox names itself.
+      await expect(page.getByRole('listbox')).toHaveAccessibleName('Tags')
+    })
   },
 }
 
