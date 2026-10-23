@@ -200,8 +200,13 @@ function AssetDetails({
   )
 }
 
+/** A card's title: text-base/semibold on Content/Subtle, as all four are in the frame. */
 function CardLabel({ children }: { children: string }) {
-  return <Text color="subtle">{children}</Text>
+  return (
+    <Text weight="semibold" color="subtle">
+      {children}
+    </Text>
+  )
 }
 
 function RightsCard({ asset, now }: { asset: Asset; now: Date }) {
