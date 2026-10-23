@@ -212,7 +212,7 @@ export function ContactDetailPanel({
             onOpen={notes.length ? () => shell.notBuilt('All notes') : undefined}
           />
           {notes.length ? (
-            <NoteThread notes={notes} label={`Notes on ${customer.handle}`} />
+            <NoteThread notes={notes} label={`Notes on ${customer.handle}`} actions={false} />
           ) : (
             <Text size="sm" color="subtle">
               No notes yet. Internal notes on a conversation land here.
