@@ -1,4 +1,4 @@
-import { useRef, useState, type ComponentPropsWithRef, type ReactNode } from 'react'
+import { useCallback, useRef, useState, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox'
 import type { ComboboxRootProps } from '@base-ui/react/combobox'
 import { Check, ChevronDown, Plus, Search } from 'lucide-react'
@@ -446,6 +446,25 @@ function isCreateRow(value: unknown): value is CreateRow {
  * `relative`: it becomes the rows' offset parent. The first selected row wins,
  * so it is the first token in the multi-select shape.
  */
+/**
+ * Names the tokenizer's listbox after its field. Its popup is `presentation`,
+ * so nothing above the list names it, and axe's `aria-input-field-name` fails
+ * whenever a check lands while it is open. The name is whatever the `<input>`
+ * carries when the list mounts: its own `aria-label`, or the `aria-labelledby`
+ * Base UI points at a Field's label, which no public API hands over. The
+ * single-select listbox needs none of this; it sits in the named dialog.
+ */
+function nameFromInput(list: HTMLDivElement | null, field: HTMLElement | null) {
+  const input = field?.querySelector('input[role="combobox"]')
+  if (list != null && input != null) {
+    for (const attr of ['aria-label', 'aria-labelledby']) {
+      const value = input.getAttribute(attr)
+      if (value) list.setAttribute(attr, value)
+    }
+  }
+  return list
+}
+
 function centerSelected(list: HTMLDivElement | null) {
   if (list == null) {
     return
@@ -721,6 +740,11 @@ export function Combobox({
   // the whole field and makes `--anchor-width` the field's width, which is what
   // Figma draws. The trigger shape needs none of this; it *is* the anchor.
   const fieldRef = useRef<HTMLDivElement>(null)
+  // Stable, or React would re-run the centering on every render.
+  const listRef = useCallback(
+    (list: HTMLDivElement | null) => centerSelected(nameFromInput(list, fieldRef.current)),
+    [],
+  )
   const grouped = isGrouped(items)
   const renderItem = typeof children === 'function' ? children : defaultItem
   const custom = children != null && typeof children !== 'function'
@@ -916,7 +940,10 @@ export function Combobox({
 
               {/* `relative` makes the list the rows' offset parent, which is
                   what `centerSelected` measures against. */}
-              <ComboboxPrimitive.List ref={centerSelected} className={cn(list(), 'relative')}>
+              <ComboboxPrimitive.List
+                ref={multiple ? listRef : centerSelected}
+                className={cn(list(), 'relative')}
+              >
                 {custom ? (
                   children
                 ) : grouped ? (
