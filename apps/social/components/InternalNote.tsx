@@ -24,10 +24,13 @@ import { useShell } from '../shell/ShellContext'
 export function NoteThread({
   notes,
   label = 'Team notes',
+  actions = true,
   className,
 }: {
   notes: PostComment[]
   label?: string
+  /** Reply and Like under each note. Off where the notes are only read back, as in contact detail. */
+  actions?: boolean
   className?: string
 }) {
   return (
@@ -37,7 +40,7 @@ export function NoteThread({
       <ul className="flex flex-col gap-4">
         {notes.map((note) => (
           <li key={note.id}>
-            <InternalNote note={note} threaded={Boolean(note.replies?.length)} />
+            <InternalNote note={note} threaded={Boolean(note.replies?.length)} actions={actions} />
             {note.replies?.length ? (
               // 12px in is the center of the 24px face above, where the line
               // starts; each reply's face sits a further 20px in, under the name.
@@ -54,7 +57,7 @@ export function NoteThread({
                         'after:absolute after:top-0 after:bottom-0 after:left-0 after:border-l after:border-surface-border',
                     )}
                   >
-                    <InternalNote note={reply} />
+                    <InternalNote note={reply} actions={actions} />
                   </li>
                 ))}
               </ul>
@@ -66,8 +69,19 @@ export function NoteThread({
   )
 }
 
-/** One note. `threaded` runs a line down from the face to its replies. */
-export function InternalNote({ note, threaded }: { note: PostComment; threaded?: boolean }) {
+/**
+ * One note. `threaded` runs a line down from the face to its replies;
+ * `actions={false}` leaves off Reply and Like.
+ */
+export function InternalNote({
+  note,
+  threaded,
+  actions = true,
+}: {
+  note: PostComment
+  threaded?: boolean
+  actions?: boolean
+}) {
   const shell = useShell()
   const author = personFor(note.authorId)
   const [liked, setLiked] = useState(false)
@@ -115,20 +129,22 @@ export function InternalNote({ note, threaded }: { note: PostComment; threaded?:
           />
         </div>
         <StickyNote>{note.body}</StickyNote>
-        <div className="flex items-center gap-1">
-          <Button appearance="ghost" startIcon={Reply} onClick={() => shell.notBuilt('Replies')}>
-            {replies ? `${replies} ${replies === 1 ? 'Reply' : 'Replies'}` : 'Reply'}
-          </Button>
-          <Button
-            appearance="ghost"
-            startIcon={Heart}
-            aria-pressed={liked}
-            className={cn(liked && '[&_svg]:fill-current')}
-            onClick={() => setLiked((l) => !l)}
-          >
-            Like
-          </Button>
-        </div>
+        {actions ? (
+          <div className="flex items-center gap-1">
+            <Button appearance="ghost" startIcon={Reply} onClick={() => shell.notBuilt('Replies')}>
+              {replies ? `${replies} ${replies === 1 ? 'Reply' : 'Replies'}` : 'Reply'}
+            </Button>
+            <Button
+              appearance="ghost"
+              startIcon={Heart}
+              aria-pressed={liked}
+              className={cn(liked && '[&_svg]:fill-current')}
+              onClick={() => setLiked((l) => !l)}
+            >
+              Like
+            </Button>
+          </div>
+        ) : null}
       </div>
     </article>
   )

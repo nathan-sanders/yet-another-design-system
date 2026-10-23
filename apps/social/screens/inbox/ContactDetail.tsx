@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import {
   ArrowRight,
   CircleUserRound,
@@ -15,17 +15,23 @@ import {
 import { Avatar } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
-import { Card } from '../../../../src/components/Card'
+import {
+  Combobox,
+  type ComboboxItemData,
+  type ComboboxValue,
+} from '../../../../src/components/Combobox'
 import { Divider } from '../../../../src/components/Divider'
 import { Icon } from '../../../../src/components/Icon'
-import { Input } from '../../../../src/components/Input'
 import { Panel } from '../../../../src/components/Panel'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
+import { cn } from '../../../../src/lib/cn'
+import { focusRing } from '../../../../src/lib/focus'
 import { InboxMessageCard } from '../../components/InboxMessageCard'
+import { NoteThread } from '../../components/InternalNote'
 import { NetworkIcon } from '../../components/NetworkIcon'
 import { contactNotes, customerFor, pastCounts, pastTickets, tickets } from '../../data/inbox'
-import { personFor } from '../../data/people'
+import { createContactTag, useContactTagCatalog } from '../../data/tags'
 import { useShell } from '../../shell/ShellContext'
 
 /**
@@ -33,6 +39,12 @@ import { useShell } from '../../shell/ShellContext'
  * "see all" arrow. Figma draws these as plain rows (`Past conversations`,
  * `Notes`, `About` …) at 14/24 semibold; they are `h3`s here under the panel's
  * `h2`, so a screen reader can walk the sections.
+ *
+ * With `onOpen` the whole row is the button, not just the arrow: an `h3`
+ * holding a `<button>`, as an accordion trigger is, so the heading survives
+ * (a heading inside a button would be flattened into its name). The row bleeds
+ * 8px each side so its hover wash has room round the icon and the arrow while
+ * both stay on the panel's edges.
  */
 function SectionHeader({
   icon,
@@ -47,18 +59,39 @@ function SectionHeader({
   end?: ReactNode
   onOpen?: () => void
 }) {
-  return (
-    <div className="flex min-h-8 items-center gap-2">
+  const row = (
+    <>
       <Icon icon={icon} size="base" className="text-content-primary" />
-      <Heading level={3} size="base" weight="semibold" className="min-w-0 flex-1">
-        {title}
-      </Heading>
+      <span className="min-w-0 flex-1">{title}</span>
       {count !== undefined ? <Badge>{count}</Badge> : null}
       {end}
-      {onOpen ? (
-        <Button appearance="ghost" startIcon={ArrowRight} aria-label={`Open ${title}`} onClick={onOpen} />
-      ) : null}
-    </div>
+    </>
+  )
+  if (!onOpen) {
+    return (
+      <Heading level={3} size="base" weight="semibold" className="flex min-h-8 items-center gap-2">
+        {row}
+      </Heading>
+    )
+  }
+  return (
+    <Heading level={3} size="base" weight="semibold" className="-mx-2 flex">
+      <button
+        type="button"
+        onClick={onOpen}
+        className={cn(
+          'flex min-h-8 w-full min-w-0 items-center gap-2 rounded-md px-2 text-left',
+          'transition-colors duration-fast ease-standard hover:bg-action-ghost-background-hover',
+          focusRing,
+        )}
+      >
+        {row}
+        {/* Where the ghost arrow button sat, so the row keeps its shape. */}
+        <span className="flex size-8 shrink-0 items-center justify-center text-action-ghost-foreground">
+          <Icon icon={ArrowRight} />
+        </span>
+      </button>
+    </Heading>
   )
 }
 
@@ -81,7 +114,7 @@ export function ContactDetailPanel({
   const shell = useShell()
   // Tags edited here live for the session, per customer.
   const [tagEdits, setTagEdits] = useState<Record<string, string[]>>({})
-  const [draftTag, setDraftTag] = useState('')
+  const tagCatalog = useContactTagCatalog()
 
   if (!customerId) return null
   const customer = customerFor(customerId)
@@ -89,14 +122,12 @@ export function ContactDetailPanel({
   const setTags = (next: string[]) => setTagEdits((all) => ({ ...all, [customerId]: next }))
   const past = pastTickets.filter((t) => t.customerId === customerId)
   const pastCount = pastCounts[customerId] ?? past.length
-  const notes = contactNotes.filter((n) => n.customerId === customerId)
+  // Each note in the slip every other team note wears; the date stands in
+  // for the age the slip prints.
+  const notes = contactNotes
+    .filter((n) => n.customerId === customerId)
+    .map(({ id, authorId, body, date }) => ({ id, authorId, body, ago: date }))
   const network = tickets.find((t) => t.customerId === customerId)?.network
-
-  const addTag = () => {
-    const tag = draftTag.trim()
-    if (tag && !tags.includes(tag)) setTags([...tags, tag])
-    setDraftTag('')
-  }
 
   return (
     <Panel
@@ -143,36 +174,7 @@ export function ContactDetailPanel({
               Contact tags
             </Heading>
           </div>
-          <Input
-            aria-label="Add a tag"
-            placeholder="Add tags…"
-            value={draftTag}
-            onChange={(event) => setDraftTag(event.currentTarget.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                addTag()
-              }
-            }}
-          />
-          {tags.length ? (
-            <div className="flex flex-wrap gap-1">
-              {tags.map((tag) => (
-                <Token
-                  key={tag}
-                  startIcon={Tag}
-                  onRemove={() => setTags(tags.filter((t) => t !== tag))}
-                  removeLabel={`Remove ${tag}`}
-                >
-                  {tag}
-                </Token>
-              ))}
-            </div>
-          ) : (
-            <Text size="sm" color="subtle">
-              No tags yet. Type one and press Enter.
-            </Text>
-          )}
+          <ContactTags tags={tags} catalog={tagCatalog} onChange={setTags} />
         </section>
 
         <Divider />
@@ -210,14 +212,7 @@ export function ContactDetailPanel({
             onOpen={notes.length ? () => shell.notBuilt('All notes') : undefined}
           />
           {notes.length ? (
-            notes.map((note) => (
-              <Card key={note.id} emphasis="subtle" className="gap-1">
-                <Text>{note.body}</Text>
-                <Text size="sm" color="subtle">
-                  {personFor(note.authorId).name} · {note.date}
-                </Text>
-              </Card>
-            ))
+            <NoteThread notes={notes} label={`Notes on ${customer.handle}`} actions={false} />
           ) : (
             <Text size="sm" color="subtle">
               No notes yet. Internal notes on a conversation land here.
@@ -243,5 +238,40 @@ export function ContactDetailPanel({
         />
       </Panel.Body>
     </Panel>
+  )
+}
+
+/**
+ * The contact's tags as Asset details has them (`40006105:40392`): chips
+ * inside a multiple Combobox over the team's contact tags, where a name that
+ * is not in the list is created and joins it. The catalog is shared, so a tag
+ * made on one contact is offered on the next.
+ */
+function ContactTags({
+  tags,
+  catalog,
+  onChange,
+}: {
+  tags: string[]
+  catalog: ComboboxItemData[]
+  onChange: (tags: string[]) => void
+}) {
+  // A stable array: Combobox matches chosen rows by identity.
+  const chosen = useMemo(
+    () => catalog.filter((t) => tags.includes(String(t.value))),
+    [catalog, tags],
+  )
+  return (
+    <Combobox
+      multiple
+      aria-labelledby="contact-tags"
+      items={catalog}
+      value={chosen}
+      onValueChange={(value: ComboboxValue) =>
+        onChange(Array.isArray(value) ? value.map((v) => String(v.value)) : [])
+      }
+      onCreate={createContactTag}
+      placeholder="Add tags…"
+    />
   )
 }

@@ -18,32 +18,56 @@ export const tagNames = [
   'Event',
 ]
 
+/** The labels the team puts on a contact in Engage's contact detail. */
+export const contactTagNames = [
+  'Regular',
+  'VIP',
+  'Lentil fan',
+  'Chicago',
+  'Complaint',
+  'Creator',
+  'Wholesale',
+  'First order',
+]
+
 /*
-  The catalog grows: a tag typed into the Tags field that is not here is
+  A catalog grows: a tag typed into a Tags field that is not in it is
   created there (Combobox `onCreate`) and joins the list for every field
   after it. One array of item objects, replaced on each addition, because
   Combobox matches a chosen tag to its row by identity — a fresh
   `{ value, label }` per render would never read as chosen.
 */
-let catalog: ComboboxItemData[] = tagNames.map((name) => ({ value: name, label: name }))
-const listeners = new Set<() => void>()
+function tagCatalog(names: string[]) {
+  let catalog: ComboboxItemData[] = names.map((name) => ({ value: name, label: name }))
+  const listeners = new Set<() => void>()
 
-function subscribe(listener: () => void) {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
+  function subscribe(listener: () => void) {
+    listeners.add(listener)
+    return () => listeners.delete(listener)
+  }
+
+  return {
+    /** Every tag, as Combobox rows. Re-renders when one is created. */
+    useCatalog: (): ComboboxItemData[] => useSyncExternalStore(subscribe, () => catalog),
+    /** Add a tag, or find the one that already has this name; returns its row. */
+    create: (label: string): ComboboxItemData => {
+      const existing = catalog.find((tag) => tag.label.toLowerCase() === label.toLowerCase())
+      if (existing) return existing
+      const tag = { value: label, label }
+      catalog = [...catalog, tag]
+      listeners.forEach((listener) => listener())
+      return tag
+    },
+  }
 }
 
-/** Every tag, as Combobox rows. Re-renders when one is created. */
-export function useTagCatalog(): ComboboxItemData[] {
-  return useSyncExternalStore(subscribe, () => catalog)
-}
+const postTags = tagCatalog(tagNames)
+const contactTags = tagCatalog(contactTagNames)
 
-/** Add a tag, or find the one that already has this name; returns its row. */
-export function createTag(label: string): ComboboxItemData {
-  const existing = catalog.find((tag) => tag.label.toLowerCase() === label.toLowerCase())
-  if (existing) return existing
-  const tag = { value: label, label }
-  catalog = [...catalog, tag]
-  listeners.forEach((listener) => listener())
-  return tag
-}
+/** Every post and idea tag. */
+export const useTagCatalog = postTags.useCatalog
+export const createTag = postTags.create
+
+/** Every contact tag — a list of its own: "VIP" is not a post's tag. */
+export const useContactTagCatalog = contactTags.useCatalog
+export const createContactTag = contactTags.create
