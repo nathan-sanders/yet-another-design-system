@@ -3,7 +3,6 @@ import {
   useRef,
   useState,
   type ComponentPropsWithRef,
-  type DragEvent,
   type MouseEvent,
 } from 'react'
 import { Input as InputPrimitive } from '@base-ui/react/input'
@@ -14,6 +13,7 @@ import { Button } from '../Button'
 import { Icon } from '../Icon'
 import { box } from '../Input/styles'
 import { formatFileSize, sameFiles, screen, type FileRejection } from './files'
+import { useFileDrop } from './useFileDrop'
 import { dropzone, fileList, fileName, fileRow, fileSize, value as valueText } from './styles'
 import { Text } from '../Text'
 
@@ -146,10 +146,6 @@ export function FileInput({
   const [innerFiles, setInnerFiles] = useState<File[]>([])
   const files = value ?? innerFiles
 
-  const [dragging, setDragging] = useState(false)
-  // dragenter and dragleave fire for every child the pointer crosses, so a
-  // boolean flickers. Counting them is the standard answer.
-  const dragDepth = useRef(0)
 
   /**
    * Make the native input hold exactly `next`, and tell everyone listening.
@@ -175,6 +171,11 @@ export function FileInput({
 
   function commit(candidates: File[]) {
     const { accepted, rejected } = screen(candidates, { accept, maxSize, maxFiles, multiple })
+    apply(accepted, rejected)
+  }
+
+  /** Take an already-screened choice — the picker's, a removal's or a drop's. */
+  function apply(accepted: File[], rejected: FileRejection[]) {
     writeInput(accepted)
     if (value === undefined) setInnerFiles(accepted)
     if (!sameFiles(accepted, files)) onValueChange?.(accepted)
@@ -211,32 +212,16 @@ export function FileInput({
       ? `Drag ${multiple ? 'files' : 'a file'} here or click to browse`
       : `Choose ${plural}`)
 
-  const dropHandlers = isDropzone && !disabled
-    ? {
-        onDragEnter(event: DragEvent) {
-          if (!event.dataTransfer.types.includes('Files')) return
-          event.preventDefault()
-          dragDepth.current++
-          setDragging(true)
-        },
-        onDragOver(event: DragEvent) {
-          if (!event.dataTransfer.types.includes('Files')) return
-          // Without this the browser opens the dropped file in the tab.
-          event.preventDefault()
-          event.dataTransfer.dropEffect = 'copy'
-        },
-        onDragLeave() {
-          dragDepth.current = Math.max(0, dragDepth.current - 1)
-          if (dragDepth.current === 0) setDragging(false)
-        },
-        onDrop(event: DragEvent) {
-          event.preventDefault()
-          dragDepth.current = 0
-          setDragging(false)
-          commit(Array.from(event.dataTransfer.files))
-        },
-      }
-    : {}
+  // The drop half is `useFileDrop`, shared with any zone that is not a form
+  // control; it screens with the same rules the picker does.
+  const { dragging, dropProps: dropHandlers } = useFileDrop({
+    disabled: !isDropzone || disabled,
+    accept,
+    maxSize,
+    maxFiles,
+    multiple,
+    onDrop: apply,
+  })
 
   const control = (
     <InputPrimitive
