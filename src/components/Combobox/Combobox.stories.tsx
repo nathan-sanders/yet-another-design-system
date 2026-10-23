@@ -424,6 +424,9 @@ export const WithIcons: Story = {
     await userEvent.click(option)
 
     await waitFor(() => expect(trigger).toHaveTextContent('Anyone with the link'))
+    // Let the popup finish closing before the story's axe run: mid-exit, its
+    // focus guards are still in the page, and a loaded CI runner caught it there.
+    await waitFor(() => expect(within(document.body).queryByRole('listbox')).toBeNull())
     const icon = trigger.querySelector('svg')!
     expect(icon.classList.toString()).toContain('lucide-globe')
     expect(icon.getBoundingClientRect().width).toBe(16)
@@ -518,8 +521,13 @@ export const CreateKeyboard: Story = {
     })
 
     await step('the open list carries the field’s name', async () => {
-      // The tokenizer's popup is `presentation`, so the listbox names itself.
-      await expect(page.getByRole('listbox')).toHaveAccessibleName('Tags')
+      // Whether the list is still open after Enter is a race, so open it. The
+      // tokenizer's popup is `presentation`, so the listbox names itself.
+      await userEvent.click(caret)
+      await waitFor(() => expect(page.getByRole('listbox')).toHaveAccessibleName('Tags'))
+      // Closed, and done closing, before the story's axe run.
+      await userEvent.keyboard('{Escape}')
+      await waitFor(() => expect(page.queryByRole('listbox')).toBeNull())
     })
   },
 }
