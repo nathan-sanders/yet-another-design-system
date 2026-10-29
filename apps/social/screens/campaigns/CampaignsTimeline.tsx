@@ -31,21 +31,21 @@ export function CampaignsTimeline({
   anchor = today,
 }: {
   campaigns: Campaign[]
-  /** The day the weeks are drawn around: today, or today a few years away. */
+  /** The day the weeks are drawn around: today, or a few windows away. */
   anchor?: Date
 }) {
   const range = timelineRange(anchor)
   const thisWeek = startOfMondayWeek(today)
   const todayAt = todayPosition(range)
   const todayInRange = todayAt > 0 && todayAt < 1
-  // Everything before today: the hatch stops where today begins, so a past
-  // year is hatched end to end and a year ahead not at all.
+  // Everything before today: the hatch stops where today begins, so a window
+  // behind is hatched end to end and one ahead not at all.
   const pastWidth = Math.min(Math.max(todayAt - 0.5 / range.days, 0), 1)
 
   // When the weeks don't fit, open on today rather than on four weeks ago:
-  // today a third of the way in, so what is coming has the room. A year
-  // behind opens at its end and a year ahead at its start, the edge nearest
-  // today, where the "starts …" and "ended …" tokens sit.
+  // today a third of the way in, so what is coming has the room. A window
+  // behind opens at its end and one ahead at its start, the edge nearest
+  // today.
   const scroller = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const el = scroller.current

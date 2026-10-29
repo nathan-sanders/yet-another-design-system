@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { addDays } from '../../data/dates'
 import type { Campaign } from '../../data/types'
 import {
   compactCount,
@@ -7,10 +8,11 @@ import {
   edgeDateLabel,
   placeBar,
   postsLabel,
-  shiftYears,
+  stepWindow,
   startOfMondayWeek,
   timelineRange,
   todayPosition,
+  windowYear,
 } from './model'
 
 // Wednesday 28 October 2026: the day the file's today line sits on.
@@ -46,38 +48,44 @@ describe('timelineRange', () => {
   })
 })
 
-describe('year navigation', () => {
-  const nextYear = timelineRange(shiftYears(today, 1))
+describe('window navigation', () => {
+  const next = timelineRange(stepWindow(today, 1))
+  const previous = timelineRange(stepWindow(today, -1))
 
-  it('draws the same weeks a year on, still starting Monday', () => {
-    expect(nextYear.start).toEqual(new Date(2027, 8, 27))
-    expect(nextYear.start.getDay()).toBe(1)
+  it('steps a whole window, so the next twelve weeks follow on with none skipped', () => {
+    expect(next.start).toEqual(new Date(2026, 11, 21))
+    expect(addDays(range.start, range.days)).toEqual(next.start)
+    expect(addDays(previous.start, previous.days)).toEqual(range.start)
+    expect(next.start.getDay()).toBe(1)
+  })
+
+  it('names the year holding most of the window', () => {
+    expect(windowYear(range)).toBe(2026)
+    // Dec 21 – Mar 14: the middle is in February.
+    expect(windowYear(next)).toBe(2027)
+    expect(windowYear(previous)).toBe(2026)
   })
 
   it('puts today off the range, so no line is drawn', () => {
-    expect(todayPosition(nextYear, today)).toBeLessThan(0)
-    expect(todayPosition(timelineRange(shiftYears(today, -1)), today)).toBeGreaterThan(1)
+    expect(todayPosition(next, today)).toBeLessThan(0)
+    expect(todayPosition(previous, today)).toBeGreaterThan(1)
   })
 
-  it('keeps an open-ended campaign running across the next year', () => {
-    expect(placeBar(campaign(-57, null), nextYear, today)).toMatchObject({
+  it('keeps an open-ended campaign running into the next window', () => {
+    expect(placeBar(campaign(-57, null), next, today)).toMatchObject({
       kind: 'bar',
       left: 0,
       width: 1,
     })
-    expect(placeBar(campaign(-23, -2), nextYear, today).kind).toBe('before')
+    expect(placeBar(campaign(-23, -2), next, today).kind).toBe('before')
+    // Austin (Jan 12 – 25) lands in the next window, as a bar.
+    expect(placeBar(campaign(76, 89), next, today).kind).toBe('bar')
   })
 
   it('adds the year to an edge date only once it is far from the weeks drawn', () => {
     expect(edgeDateLabel(new Date(2027, 0, 12), range)).toBe('Jan 12')
-    expect(edgeDateLabel(new Date(2027, 0, 12), timelineRange(shiftYears(today, -1)))).toBe(
-      'Jan 12, 2027',
-    )
-    expect(edgeDateLabel(new Date(2026, 9, 26), nextYear)).toBe('Oct 26, 2026')
-  })
-
-  it('rolls a leap day to Mar 1', () => {
-    expect(shiftYears(new Date(2028, 1, 29), 1)).toEqual(new Date(2029, 2, 1))
+    const ahead = timelineRange(stepWindow(today, 4))
+    expect(edgeDateLabel(new Date(2026, 9, 26), ahead)).toBe('Oct 26, 2026')
   })
 })
 

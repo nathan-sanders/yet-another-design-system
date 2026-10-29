@@ -1527,14 +1527,16 @@ opens a "designed, not built yet" page that links `Campaign page · Overview` `4
     code-first: the file draws only the 1156 width. On a phone a scrolled bar's name scrolls off
     with it. Sticky names would fix that, and it's left for when the page is designed for phones.
 
-184. **The year navigation steps the same twelve weeks a whole year** (Nathan's call), in `?year=`.
-    The year between the arrows is the year on screen. Pressing it comes back to today, as the
-    layer name "Button / Today" suggests, so off this year its name is "2027, back to 2026".
-    A stepped year draws no today line, and a past year is hatched end to end. Once a date on an
-    edge Token is more than six months from the weeks drawn, it gets its year ("starts Jan 13,
-    2027 →"); the default view keeps the file's "starts Jan 13 →". On a phone an off-range year
-    opens scrolled to the edge nearest today, where those tokens sit, and Filter hides, as the
-    calendar's does, to give the arrows room.
+184. **The year navigation pages twelve weeks at a time**, one window, so every week of a year can
+    be seen. A whole-year step was tried first and dropped the same day, because it skipped the
+    40 weeks between. The window's anchor is in `?date=`, as the calendar keeps its own. The year
+    between the arrows is the year holding most of the window, so Dec 21 – Mar 14 says 2027.
+    Pressing it comes back to today, as the layer name "Button / Today" suggests, so away from
+    today its name is "2027, back to today". A window with no today has no line, and a window
+    in the past is hatched end to end. Once a date on an edge Token is more than six months from
+    the weeks drawn, it gets its year; the default view keeps the file's "starts Jan 13 →". On a
+    phone a window away from today opens scrolled to the edge nearest it, and Filter hides, as
+    the calendar's does, to give the arrows room.
 
 ### Measured, and fine
 

@@ -50,21 +50,24 @@ export function startOfMondayWeek(date: Date): Date {
   return addDays(day, -((day.getDay() + 6) % 7))
 }
 
+/** Weeks on screen at once. */
+const WEEKS_SHOWN = WEEKS_BEFORE + 1 + WEEKS_AFTER
+
 /**
- * The year navigation's step: the same day, `years` on. A Feb 29 with no
- * counterpart rolls to Mar 1, which only moves the window a day.
+ * The navigation's step: the anchor moved a whole window, so a press shows
+ * the next twelve weeks with none skipped and none repeated.
  */
-export function shiftYears(date: Date, years: number): Date {
-  return new Date(date.getFullYear() + years, date.getMonth(), date.getDate())
+export function stepWindow(anchor: Date, steps: number): Date {
+  return addDays(anchor, steps * WEEKS_SHOWN * 7)
 }
 
 /**
- * The twelve weeks drawn around `anchor`: today, or today a whole number of
- * years away when the year navigation has stepped.
+ * The twelve weeks drawn around `anchor`, whose week is the fifth column:
+ * today, or today a whole number of windows away.
  */
 export function timelineRange(anchor: Date = realToday): TimelineRange {
   const start = addDays(startOfMondayWeek(anchor), -WEEKS_BEFORE * 7)
-  const count = WEEKS_BEFORE + 1 + WEEKS_AFTER
+  const count = WEEKS_SHOWN
   return {
     start,
     days: count * 7,
@@ -110,8 +113,16 @@ export function placeBar(
 }
 
 /**
+ * The year between the arrows: the year of the window's middle day, so a
+ * window across New Year says whichever year holds most of it.
+ */
+export function windowYear(range: TimelineRange): number {
+  return addDays(range.start, Math.floor(range.days / 2)).getFullYear()
+}
+
+/**
  * The today line: the middle of today's day, as a fraction of the range.
- * Outside 0–1 when the year navigation has stepped away from today.
+ * Outside 0–1 when the navigation has stepped away from today.
  */
 export function todayPosition(range: TimelineRange, today: Date = realToday): number {
   return (daysBetween(range.start, today) + 0.5) / range.days
@@ -119,9 +130,9 @@ export function todayPosition(range: TimelineRange, today: Date = realToday): nu
 
 /**
  * A date on an edge Token ("starts Jan 13 →"). Near the range the month and
- * day are enough, as the file writes it; once the year navigation has
- * stepped, a date can be a year or more away, so past six months it says the
- * year too.
+ * day are enough, as the file writes it; once the navigation has stepped a
+ * few windows, a date can be a year or more away, so past six months it says
+ * the year too.
  */
 export function edgeDateLabel(date: Date, range: TimelineRange): string {
   const end = addDays(range.start, range.days - 1)

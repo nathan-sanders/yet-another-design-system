@@ -9,11 +9,12 @@ import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { floatingYakClearance } from '../../components/FloatingYak'
 import { campaigns } from '../../data/campaigns'
+import { fromISODate, sameDay, toISODate } from '../../data/dates'
 import { useShell } from '../../shell/ShellContext'
 import { today } from '../calendar/model'
 import { CampaignsTable } from './CampaignsTable'
 import { CampaignsTimeline } from './CampaignsTimeline'
-import { shiftYears, type CampaignsView } from './model'
+import { stepWindow, timelineRange, windowYear, type CampaignsView } from './model'
 
 /**
  * Plan › Campaigns: every campaign as a table (`40006170:39473`) or across
@@ -21,10 +22,11 @@ import { shiftYears, type CampaignsView } from './model'
  * table's sort are in the URL (`?view=timeline`, `?sort=dates&dir=desc`), so
  * each has a link.
  *
- * The timeline's year navigation (`Year Navigation` in `40006178:41785`)
- * steps the same twelve weeks a whole year at a time, in `?year=`; the year
+ * The timeline's `Year Navigation` (`40006178:41785`) pages twelve weeks at
+ * a time — one window, so every week of the year can be seen — with the
+ * window's anchor in `?date=`, as the calendar keeps its own. The year
  * between the arrows is the one on screen, and pressing it comes back to
- * today, the calendar's Today button in the file's own layer name.
+ * today: the calendar's Today button, in the file's own layer name.
  *
  * **New campaign stays in the top bar**, the one exception to the rule that
  * the rail's New is a page's only create button (#313): Nathan drew it there
@@ -35,9 +37,10 @@ export function CampaignsScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   const view: CampaignsView = params.get('view') === 'timeline' ? 'timeline' : 'table'
-  const thisYear = today.getFullYear()
-  const yearParam = Number(params.get('year'))
-  const year = Number.isInteger(yearParam) && yearParam > 0 ? yearParam : thisYear
+  const anchor = fromISODate(params.get('date')) ?? today
+  const range = timelineRange(anchor)
+  const year = windowYear(range)
+  const onToday = sameDay(range.start, timelineRange(today).start)
 
   const sort: TableSort | null =
     params.get('sort') === 'dates'
@@ -50,10 +53,10 @@ export function CampaignsScreen() {
     setParams(next, { replace: true })
   }
 
-  const goToYear = (next: number) =>
+  const goTo = (next: Date) =>
     update((p) => {
-      if (next === thisYear) p.delete('year')
-      else p.set('year', String(next))
+      if (sameDay(next, today)) p.delete('date')
+      else p.set('date', toISODate(next))
     })
 
   const onSortChange = (next: TableSort | null) =>
@@ -95,21 +98,21 @@ export function CampaignsScreen() {
                 <Button
                   appearance="ghost"
                   startIcon={ArrowLeft}
-                  aria-label="Previous year"
-                  onClick={() => goToYear(year - 1)}
+                  aria-label="Previous 12 weeks"
+                  onClick={() => goTo(stepWindow(anchor, -1))}
                 />
                 <Button
                   appearance="ghost"
-                  aria-label={year === thisYear ? String(year) : `${year}, back to ${thisYear}`}
-                  onClick={() => goToYear(thisYear)}
+                  aria-label={onToday ? String(year) : `${year}, back to today`}
+                  onClick={() => goTo(today)}
                 >
                   {year}
                 </Button>
                 <Button
                   appearance="ghost"
                   startIcon={ArrowRight}
-                  aria-label="Next year"
-                  onClick={() => goToYear(year + 1)}
+                  aria-label="Next 12 weeks"
+                  onClick={() => goTo(stepWindow(anchor, 1))}
                 />
               </div>
             )}
@@ -118,7 +121,7 @@ export function CampaignsScreen() {
         end={
           <div className="flex items-center gap-2">
             {/* Below 768 the phone bar's + is New, and there is no room for both;
-                Filter goes too, as the calendar's does, to leave the year
+                Filter goes too, as the calendar's does, to leave the
                 navigation room. */}
             <Button
               appearance="ghost"
@@ -145,7 +148,7 @@ export function CampaignsScreen() {
       />
       <AppShell.Content className={floatingYakClearance}>
         {view === 'timeline' ? (
-          <CampaignsTimeline campaigns={campaigns} anchor={shiftYears(today, year - thisYear)} />
+          <CampaignsTimeline campaigns={campaigns} anchor={anchor} />
         ) : (
           <CampaignsTable campaigns={campaigns} sort={sort} onSortChange={onSortChange} />
         )}
