@@ -3,22 +3,16 @@ import { createPortal } from 'react-dom'
 import { useSearchParams } from 'react-router'
 import {
   Box,
-  ChevronDown,
   Clock,
   Ellipsis,
   Folder,
   FolderOpen,
   FolderPlus,
-  HardDrive,
   Images,
-  Layers,
   LayoutGrid,
-  Library,
   Link,
   List,
   ListFilter,
-  Palette,
-  Plug,
   Plus,
   Star,
   Upload,
@@ -33,7 +27,6 @@ import { useFileDrop } from '../../../../src/components/FileInput'
 // path needs the same rules a drop gets (FINDINGS 170).
 import { screen } from '../../../../src/components/FileInput/files'
 import { Icon } from '../../../../src/components/Icon'
-import { Menu } from '../../../../src/components/Menu'
 import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Select } from '../../../../src/components/Select'
 import { pixel, proportional, Table, type TableColumn } from '../../../../src/components/Table'
@@ -52,6 +45,7 @@ import { formatFileSize } from '../../../../src/components/FileInput'
 import { useShell } from '../../shell/ShellContext'
 import { useSchedule } from '../calendar/scheduleState'
 import { AssetDetailPanel } from './AssetDetailPanel'
+import { ImportMenu } from './ImportMenu'
 import { useAssets } from './assetsState'
 import {
   ACCEPT,
@@ -426,73 +420,6 @@ function EmptyState({ where, filtered }: { where: string; filtered: boolean }) {
         Drop files here, or use Import to add some.
       </Text>
     </div>
-  )
-}
-
-/**
- * Figma's Import menu (`40006104:93167`). Upload from computer opens the file
- * picker; the connectors are the mock's, so they say so.
- */
-function ImportMenu({
-  onUpload,
-  onConnector,
-}: {
-  onUpload: () => void
-  onConnector: (what: string) => void
-}) {
-  return (
-    <Menu>
-      <Menu.Trigger
-        render={
-          <Button appearance="secondary" startIcon={Upload} endIcon={ChevronDown}>
-            {/* Icon-only beside an open panel, as the details frame draws it. */}
-            <span className="@max-[900px]/page:sr-only">Import</span>
-          </Button>
-        }
-      />
-      <Menu.Popup align="end" aria-label="Import">
-        <Menu.Group>
-          <Menu.Item startIcon={Upload} onClick={onUpload}>
-            Upload from computer
-          </Menu.Item>
-          <Menu.Item startIcon={Link} onClick={() => onConnector('Importing from a link')}>
-            Paste a link
-          </Menu.Item>
-        </Menu.Group>
-        <Menu.Separator />
-        <Menu.Group>
-          <Menu.Item startIcon={Palette} description="Connected" onClick={() => onConnector('Canva')}>
-            Canva
-          </Menu.Item>
-          <Menu.Item
-            startIcon={HardDrive}
-            description="Connected"
-            onClick={() => onConnector('Google Drive')}
-          >
-            Google Drive
-          </Menu.Item>
-          <Menu.Item startIcon={Box} description="Not connected" onClick={() => onConnector('Dropbox')}>
-            Dropbox
-          </Menu.Item>
-          <Menu.Item
-            startIcon={Layers}
-            description="Not connected"
-            onClick={() => onConnector('Adobe Experience Manager')}
-          >
-            Adobe Experience Manager
-          </Menu.Item>
-          <Menu.Item startIcon={Library} description="Not connected" onClick={() => onConnector('Bynder')}>
-            Bynder
-          </Menu.Item>
-        </Menu.Group>
-        <Menu.Separator />
-        <Menu.Group>
-          <Menu.Item startIcon={Plug} onClick={() => onConnector('Integrations')}>
-            Manage integrations
-          </Menu.Item>
-        </Menu.Group>
-      </Menu.Popup>
-    </Menu>
   )
 }
 
