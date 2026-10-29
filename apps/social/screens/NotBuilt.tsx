@@ -12,11 +12,15 @@ import { floatingYakClearance } from '../components/FloatingYak'
 /**
  * Where every nav item the mock does not cover yet lands. Two messages, because
  * they mean different things: a screen that is drawn in Figma and waiting to be
- * built, and an area nobody has designed yet (Campaigns).
+ * built, and an area nobody has designed yet (Link in bio).
+ *
+ * A page that is not a nav item — a campaign's own page — passes its `title`
+ * and its Figma frame instead of being looked up by path.
  */
-export function NotBuilt() {
+export function NotBuilt({ title: ownTitle, figma: ownFigma }: { title?: string; figma?: string }) {
   const { pathname } = useLocation()
-  const route = allRoutes.find((r) => r.path === pathname)
+  const navRoute = allRoutes.find((r) => r.path === pathname)
+  const route = ownTitle ? { label: ownTitle, figma: ownFigma } : navRoute
   const title = route?.label ?? 'Not found'
 
   return (

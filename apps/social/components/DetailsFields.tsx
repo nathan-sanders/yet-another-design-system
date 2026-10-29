@@ -4,7 +4,7 @@ import { Avatar } from '../../../src/components/Avatar'
 import { Combobox, type ComboboxValue } from '../../../src/components/Combobox'
 import { Field } from '../../../src/components/Field'
 import { Select } from '../../../src/components/Select'
-import { campaigns } from '../data/ideas'
+import { campaigns } from '../data/campaigns'
 import { people } from '../data/people'
 import { createTag, useTagCatalog } from '../data/tags'
 

@@ -15,6 +15,7 @@ import {
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { cn } from '../../../../src/lib/cn'
+import { OwnerCell } from '../../components/OwnerCell'
 import { ReportCell } from '../../components/ReportCell'
 import { personFor } from '../../data/people'
 import type { Report } from '../../data/types'
@@ -23,17 +24,6 @@ import { boardPath, editedLabel } from './model'
 import { ReportTypeShortcuts } from './ReportTypeShortcuts'
 import { useReports } from './reportsState'
 import { floatingYakClearance } from '../../components/FloatingYak'
-
-/** The face and name of whoever made a report — `_Measure Owner Cell` (`40005882:26335`). */
-function Owner({ id }: { id: string }) {
-  const person = id === 'yet' ? { name: 'Yet', avatar: undefined } : personFor(id)
-  return (
-    <span className="flex min-w-0 items-center gap-2">
-      <Avatar name={person.name} src={person.avatar} alt="" size="small" />
-      <span className="truncate">{person.name}</span>
-    </span>
-  )
-}
 
 function SharedWith({ report }: { report: Report }) {
   if (report.sharedWith === 'all') return 'All'
@@ -85,7 +75,7 @@ const columns: TableColumn<Report>[] = [
     header: 'Created by',
     width: pixel(200),
     sortable: false,
-    renderCell: (report) => <Owner id={report.createdBy} />,
+    renderCell: (report) => <OwnerCell id={report.createdBy} />,
   },
   {
     key: 'sharedWith',

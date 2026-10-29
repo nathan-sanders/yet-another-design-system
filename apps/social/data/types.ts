@@ -438,10 +438,33 @@ export interface Spike {
   tone: 'red' | 'green' | 'yellow' | 'neutral'
 }
 
-/** A campaign an idea can belong to. Campaigns has no screen yet, so this is all it is. */
+export type CampaignStatus = 'planning' | 'live' | 'wrapping-up'
+
+/**
+ * A coordinated push: Plan › Campaigns (`40006170:39473`). Ideas, drafts,
+ * posts and asset folders point at one by `campaignId`.
+ *
+ * `start` and `end` are days from today, counted the way Figma draws them
+ * around its own today, so the whole set slides with the real date like the
+ * calendar does (`screens/campaigns/model.ts`). Both days are included.
+ */
 export interface Campaign {
   id: string
   name: string
+  color: NoteColor
+  status: CampaignStatus
+  start: number
+  /** `null` runs with no end date. */
+  end: number | null
+  channels: Network[]
+  /** A person id. */
+  ownerId: string
+  /** Posts on the calendar so far. */
+  scheduled: number
+  /** Posts the campaign means to run. */
+  planned: number
+  /** Only once something has gone out: the total and its trend, oldest first. */
+  engagements?: { total: number; series: number[] }
 }
 
 /** One card on Plan › Ideas: a post that has not been written yet. */

@@ -42,7 +42,7 @@ export const groups: RouteGroup[] = [
     icon: CalendarDays,
     routes: [
       { path: '/plan/calendar', label: 'Calendar', built: true, figma: '40005911-32756' },
-      { path: '/plan/campaigns', label: 'Campaigns' },
+      { path: '/plan/campaigns', label: 'Campaigns', built: true, figma: '40006170-39473' },
       { path: '/plan/ideas', label: 'Ideas', built: true, figma: '40005911-32981' },
       { path: '/plan/creators', label: 'Creators', built: true, figma: '40005911-35697' },
       { path: '/plan/assets', label: 'Asset library', built: true, figma: '40006104-39766' },

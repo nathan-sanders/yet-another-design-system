@@ -2,7 +2,7 @@ import grainBowl from '../assets/photos/grain-bowl.jpg'
 import saladBowls from '../assets/photos/salad-bowls.jpg'
 import streetCorn from '../assets/photos/street-corn.jpg'
 import type { Containers } from '../../../src/components/DragAndDrop'
-import type { Campaign, Idea, IdeaGroup, PostComment } from './types'
+import type { Idea, IdeaGroup, PostComment } from './types'
 
 /**
  * Plan › Ideas (`40005911:32981`). The cards, columns and order are the
@@ -12,15 +12,6 @@ import type { Campaign, Idea, IdeaGroup, PostComment } from './types'
 /** An idea card's DOM id, so a screen can move focus onto a card it just added. */
 export function ideaCardId(id: string): string {
   return `idea-card-${id}`
-}
-
-export const campaigns: Campaign[] = [
-  { id: 'summer-menu', name: 'Summer Menu' },
-  { id: 'seasonal-items', name: 'Seasonal Items' },
-]
-
-export function campaignFor(id: string | undefined): Campaign | undefined {
-  return campaigns.find((c) => c.id === id)
 }
 
 export const initialIdeas: Record<string, Idea> = {
@@ -108,6 +99,11 @@ export const initialIdeaNotes: Record<string, PostComment[]> = {
     },
   ],
   'harvest-glow': [
-    { id: 'in-2', authorId: 'dana', body: 'I can shoot the build on Thursday if the light holds.', ago: '3d' },
+    {
+      id: 'in-2',
+      authorId: 'dana',
+      body: 'I can shoot the build on Thursday if the light holds.',
+      ago: '3d',
+    },
   ],
 }
