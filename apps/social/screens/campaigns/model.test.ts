@@ -2,10 +2,16 @@ import { describe, expect, it } from 'vitest'
 
 import { campaigns as seed } from '../../data/campaigns'
 import { addDays } from '../../data/dates'
+import { drafts } from '../../data/drafts'
+import { initialIdeas } from '../../data/ideas'
 import { posts } from '../../data/posts'
 import type { Campaign } from '../../data/types'
 import { today as realToday } from '../calendar/model'
 import {
+  campaignPencilled,
+  campaignWeeks,
+  currentWeekIndex,
+  weekLabel,
   campaignPosts,
   compactCount,
   dateSpanLabel,
@@ -170,9 +176,10 @@ describe('the campaign page', () => {
   const summer = seed.find((c) => c.id === 'summer-menu')!
   const now = realToday
   const planned = campaignPosts(summer, posts, now)
+  const pencilled = campaignPencilled(summer, drafts, Object.values(initialIdeas))
 
   it('counts the file’s Progress: 7 published, 9 scheduled, 2 of 3 creators, 1 gap', () => {
-    expect(progressFor(summer, planned, realToday)).toEqual({
+    expect(progressFor(summer, planned, realToday, pencilled)).toEqual({
       planned: 18,
       scheduled: 9,
       published: 7,
@@ -182,21 +189,27 @@ describe('the campaign page', () => {
     })
   })
 
-  it('finds the one gap: TikTok, two days out, between two of its own posts', () => {
-    const gaps = gapsFor(summer, planned, realToday)
+  it('finds the one gap: TikTok, two days out, between its draft and its next post', () => {
+    const gaps = gapsFor(summer, [...planned, ...pencilled], realToday)
     expect(gaps).toHaveLength(1)
     expect(gaps[0]!.network).toBe('tiktok')
     expect(gaps[0]!.date).toEqual(addDays(realToday, 2))
   })
 
+  it('has no gap without the draft: then TikTok is two quiet days, a rhythm', () => {
+    expect(gapsFor(summer, planned, realToday)).toEqual([])
+  })
+
   it('calls two quiet days a rhythm, not a gap', () => {
     // Facebook posts tomorrow and nothing after: no gap, however empty it looks.
-    expect(gapsFor(summer, planned, realToday).some((g) => g.network === 'facebook')).toBe(false)
+    expect(
+      gapsFor(summer, [...planned, ...pencilled], realToday).some((g) => g.network === 'facebook'),
+    ).toBe(false)
   })
 
   it('lists Next up one day at a time: a post, a creator draft, the gap', () => {
     const names: Record<string, string> = { alena: 'Alena Kenter' }
-    const rows = nextUpFor(summer, planned, (id) => names[id] ?? id, realToday)
+    const rows = nextUpFor(summer, planned, (id) => names[id] ?? id, realToday, pencilled)
     expect(rows.map((r) => r.kind)).toEqual(['post', 'deliverable', 'gap'])
     expect(rows[1]!.title).toBe('Alena Kenter’s TikTok draft')
     expect(rows[2]!.title).toBe('Nothing scheduled on TikTok')
@@ -204,7 +217,7 @@ describe('the campaign page', () => {
   })
 
   it('writes the summary from the numbers, with the insight in the middle', () => {
-    const lines = summaryFor(summer, planned, realToday)
+    const lines = summaryFor(summer, planned, realToday, pencilled)
     expect(lines[0]).toMatch(
       /^Day 10 of 14 and on pace: 168K reach against a 250K target, and engagements are already past goal\.$/,
     )
@@ -215,6 +228,15 @@ describe('the campaign page', () => {
   it('says a campaign that has not started when it starts', () => {
     const austin = seed.find((c) => c.id === 'austin-store-opening')!
     expect(summaryFor(austin, [], realToday)[0]).toMatch(/^Starts \w+ \d+, in 76 days\./)
+  })
+
+  it('draws the run as the Sunday weeks it touches', () => {
+    // Oct 19 (Mon) – Nov 1 (Sun) around the file's Wednesday: three weeks.
+    const weeks = campaignWeeks(campaign(-9, 4), today)
+    expect(weeks.map((w) => w.getDate())).toEqual([18, 25, 1])
+    expect(currentWeekIndex(weeks, today)).toBe(1)
+    expect(weekLabel(weeks[1]!)).toBe('Oct 25 – 31')
+    expect(weekLabel(weeks[2]!)).toBe('Nov 1 – 7')
   })
 
   it('writes one month once in a date span', () => {

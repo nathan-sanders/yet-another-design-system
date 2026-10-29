@@ -18,6 +18,7 @@ import { floatingYakClearance } from '../../components/FloatingYak'
 import { FIGMA_FILE } from '../../shell/routes'
 import { useShell } from '../../shell/ShellContext'
 import { CampaignOverview } from './CampaignOverview'
+import { CampaignPlan } from './CampaignPlan'
 import { useCampaigns } from './campaignsState'
 import { CancelCampaignDialog } from './CancelCampaignDialog'
 import {
@@ -30,8 +31,7 @@ import {
 } from './paths'
 
 /** The tabs still to come, and the frame each is drawn in. */
-const DRAWN: Record<Exclude<CampaignTab, 'overview'>, string> = {
-  plan: '40006158-66912',
+const DRAWN: Record<Exclude<CampaignTab, 'overview' | 'plan'>, string> = {
   ideas: '40006187-42177',
   creators: '40006187-42949',
   assets: '40006187-43721',
@@ -144,6 +144,9 @@ export function CampaignPage() {
           </div>
           <Tabs.Panel value="overview">
             <CampaignOverview campaign={campaign} onShowPlan={() => show('plan')} />
+          </Tabs.Panel>
+          <Tabs.Panel value="plan">
+            <CampaignPlan campaign={campaign} />
           </Tabs.Panel>
           {(Object.keys(DRAWN) as (keyof typeof DRAWN)[]).map((key) => (
             <Tabs.Panel key={key} value={key}>

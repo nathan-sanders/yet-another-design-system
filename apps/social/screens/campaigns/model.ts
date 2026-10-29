@@ -1,14 +1,16 @@
-import { addDays, formatTime, monthDay, sameDay, startOfDay } from '../../data/dates'
-import { profileFor } from '../../data/posts'
+import { addDays, formatTime, monthDay, sameDay, startOfDay, startOfWeek } from '../../data/dates'
+import type { Draft } from '../../data/drafts'
+import { profileFor, profiles } from '../../data/posts'
 import {
   NETWORK_NAMES,
   type Campaign,
   type CampaignCreator,
+  type Idea,
   type Network,
   type Post,
   type PostFormat,
 } from '../../data/types'
-import { daysBetween, postDate, postMoment, today as realToday } from '../calendar/model'
+import { dayDate, daysBetween, postDate, postMoment, today as realToday } from '../calendar/model'
 
 const weekdayLong = new Intl.DateTimeFormat('en-US', { weekday: 'long' })
 
@@ -210,6 +212,33 @@ export function campaignPosts(
     .sort((a, b) => postMoment(a.post).getTime() - postMoment(b.post).getTime())
 }
 
+/** A draft or an idea pencilled onto a day of the plan: not scheduled, but not nothing. */
+export type PencilledEntry =
+  | { kind: 'draft'; draft: Draft; network: Network; date: Date }
+  | { kind: 'idea'; idea: Idea; network: Network; date: Date }
+
+/** The campaign's pencilled drafts and ideas — the plan's dashed cards. */
+export function campaignPencilled(
+  campaign: Campaign,
+  drafts: readonly Draft[],
+  ideas: readonly Idea[],
+): PencilledEntry[] {
+  const entries: PencilledEntry[] = []
+  for (const draft of drafts) {
+    if (draft.campaignId !== campaign.id || !draft.day) continue
+    const network = profiles.find((p) => p.id === draft.profileId)?.network
+    if (network) entries.push({ kind: 'draft', draft, network, date: dayDate(draft.day) })
+  }
+  for (const idea of ideas) {
+    if (idea.campaignId !== campaign.id || !idea.slot || idea.archived) continue
+    entries.push({ kind: 'idea', idea, network: idea.slot.network, date: dayDate(idea.slot) })
+  }
+  return entries
+}
+
+/** Anything on a channel's day: a post, or a draft or idea pencilled there. */
+type OnPlan = { network: Network; date: Date }
+
 /** A channel with nothing on a day it would be expected to post. */
 export interface PlanGap {
   date: Date
@@ -223,16 +252,17 @@ export const GAP_WINDOW_DAYS = 7
  * Days a channel skips between two of its own posts, from today for the next
  * seven days and inside the run. A one-day hole in a channel that posted the
  * day before and posts the day after is a gap; two quiet days in a row are a
- * rhythm, not a hole, so they are left alone. That is the file's one "Gap" —
- * TikTok on Thursday, between Wednesday's draft and Friday's post — and not
- * the other empty cells around it.
+ * rhythm, not a hole, so they are left alone. A pencilled draft or idea counts
+ * as something there. That is the file's one "Gap" — TikTok on Thursday,
+ * between Wednesday's draft and Friday's post — and not the other empty cells
+ * around it.
  *
  * "This week" is the next seven days rather than the calendar week, so the
  * number doesn't drop to nothing every Saturday as the week runs out.
  */
 export function gapsFor(
   campaign: Campaign,
-  planned: readonly PlannedPost[],
+  planned: readonly OnPlan[],
   today: Date = realToday,
 ): PlanGap[] {
   const last = campaign.end === null ? GAP_WINDOW_DAYS - 1 : campaign.end
@@ -277,6 +307,7 @@ export function progressFor(
   campaign: Campaign,
   planned: readonly PlannedPost[],
   today: Date = realToday,
+  pencilled: readonly PencilledEntry[] = [],
 ): CampaignProgress {
   const creators = activeCreators(campaign)
   return {
@@ -285,7 +316,7 @@ export function progressFor(
     published: planned.filter((p) => p.published).length,
     creatorsOnBoard: creators.filter(isOnBoard).length,
     creators: creators.length,
-    gaps: gapsFor(campaign, planned, today).length,
+    gaps: gapsFor(campaign, [...planned, ...pencilled], today).length,
   }
 }
 
@@ -319,10 +350,11 @@ export function nextUpFor(
   planned: readonly PlannedPost[],
   creatorName: (id: string) => string,
   today: Date = realToday,
+  pencilled: readonly PencilledEntry[] = [],
   rows = 3,
 ): NextUpItem[] {
   if (campaign.status === 'cancelled') return []
-  const gaps = gapsFor(campaign, planned, today)
+  const gaps = gapsFor(campaign, [...planned, ...pencilled], today)
   const last = campaign.end ?? Math.max(campaign.start, 0) + GAP_WINDOW_DAYS - 1
   const items: NextUpItem[] = []
   for (let offset = Math.max(0, campaign.start); offset <= last && items.length < rows; offset++) {
@@ -338,7 +370,9 @@ export function nextUpFor(
       })
       continue
     }
-    const due = activeCreators(campaign).find((c) => isOnBoard(c) && c.due === offset)
+    const due = activeCreators(campaign).find(
+      (c) => isOnBoard(c) && c.work?.some((w) => w.status === 'due' && w.day === offset),
+    )
     if (due) {
       items.push({
         kind: 'deliverable',
@@ -375,8 +409,9 @@ export function summaryFor(
   campaign: Campaign,
   planned: readonly PlannedPost[],
   today: Date = realToday,
+  pencilled: readonly PencilledEntry[] = [],
 ): string[] {
-  const progress = progressFor(campaign, planned, today)
+  const progress = progressFor(campaign, planned, today, pencilled)
   const length = campaignLength(campaign)
   const day = campaignDay(campaign)
   const lines: string[] = []
@@ -420,7 +455,7 @@ export function summaryFor(
 
   if (campaign.insight && campaign.status !== 'cancelled') lines.push(campaign.insight)
 
-  const gaps = gapsFor(campaign, planned, today)
+  const gaps = gapsFor(campaign, [...planned, ...pencilled], today)
   const first = gaps[0]
   if (first && campaign.status !== 'cancelled') {
     const when = `${NETWORK_NAMES[first.network]} on ${weekdayLong.format(first.date)}`
@@ -436,4 +471,38 @@ export function summaryFor(
 /** Plain words a Yak "Ask" opens with, so the chat knows which campaign. */
 export function askAbout(campaign: Campaign): string {
   return `How is ${campaign.name} doing, and what should I do next?`
+}
+
+/**
+ * The calendar weeks the run touches, Sunday first, as the Plan tab draws them
+ * (`40006158:66912`). A campaign with no end shows its first week through the
+ * one after this one.
+ */
+export function campaignWeeks(campaign: Campaign, today: Date = realToday): Date[] {
+  const first = startOfWeek(campaignDate(campaign.start, today))
+  const lastDay = campaign.end === null ? addDays(today, 7) : campaignDate(campaign.end, today)
+  const weeks: Date[] = []
+  for (let week = first; week <= lastDay; week = addDays(week, 7)) weeks.push(week)
+  return weeks
+}
+
+/** The week the Plan tab opens on: today's, or the nearest end of the run. */
+export function currentWeekIndex(weeks: readonly Date[], today: Date = realToday): number {
+  const found = weeks.findIndex((w) => sameDay(w, startOfWeek(today)))
+  if (found !== -1) return found
+  return weeks.length > 0 && today < weeks[0]! ? 0 : weeks.length - 1
+}
+
+/** "Oct 25 – 31", or "Oct 25 – Nov 1" across a month. */
+export function weekLabel(week: Date): string {
+  const end = addDays(week, 6)
+  return `${monthDay.format(week)} – ${
+    end.getMonth() === week.getMonth() ? end.getDate() : monthDay.format(end)
+  }`
+}
+
+/** Whether a day is inside the run. */
+export function inRun(campaign: Campaign, date: Date, today: Date = realToday): boolean {
+  const offset = daysBetween(today, date)
+  return offset >= campaign.start && (campaign.end === null || offset <= campaign.end)
 }

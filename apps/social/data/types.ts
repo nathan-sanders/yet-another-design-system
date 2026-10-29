@@ -474,9 +474,24 @@ export interface CampaignCreator {
   deliverables: number
   /** US dollars. */
   fee: number
-  /** The deliverable's due day, counted like the campaign's `start`. */
-  due: number
   status: CampaignCreatorStatus
+  /** What they've posted for the campaign, and what's still due: the Plan tab's creator rows. */
+  work?: CreatorWork[]
+}
+
+/**
+ * One piece of a creator's work: a post that's gone out on their account, or
+ * a deliverable they owe. `day` counts like the campaign's `start`.
+ */
+export interface CreatorWork {
+  id: string
+  title: string
+  day: number
+  status: 'posted' | 'due'
+  /** 24-hour `HH:MM`, once it's posted. */
+  time?: string
+  photo?: string
+  photoAlt?: string
 }
 
 /**
@@ -534,6 +549,11 @@ export interface Idea {
   createdBy?: string
   /** When, as the page prints it: `Jul 2`. */
   created?: string
+  /**
+   * Pencilled in on a campaign's plan: a day and the channel it would go out
+   * on, before anyone writes it (`40006158:66912`). Not a schedule.
+   */
+  slot?: CalendarDay & { network: Network }
 }
 
 /** A column on the Ideas board. Figma calls them groups ("New group"). */

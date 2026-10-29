@@ -467,7 +467,8 @@ export const posts: Post[] = [
   // the Figma week: the campaign page is drawn around a Monday and the
   // timeline around a Wednesday, so no one placement satisfies both (FINDINGS
   // 185). Seven have gone out and nine are scheduled, the file's counts, and
-  // TikTok has one empty day between two of its own posts: the page's one gap.
+  // TikTok has one empty day between tomorrow's draft (`d-7`) and its next
+  // post: the page's one gap.
   // The ninth scheduled one is `p-41`, the Threads corn post from an idea.
   {
     id: 'p-70',
@@ -593,15 +594,14 @@ export const posts: Post[] = [
   },
   {
     id: 'p-80',
-    profileId: 'vv-tiktok',
+    profileId: 'vv-facebook',
     week: 0,
-    day: 2,
-    time: '18:00',
-    body: 'Grain bowl, one take',
-    photo: grainBowl,
-    photoAlt: 'A grain bowl with roasted vegetables',
+    day: 3,
+    time: '12:00',
+    body: 'Which bowl first? Tell us in the comments.',
+    photo: saladBowls,
+    photoAlt: 'Three salad bowls on a table',
     campaignId: 'summer-menu',
-    format: 'reel',
   },
   {
     id: 'p-81',

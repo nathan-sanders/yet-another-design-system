@@ -22,8 +22,10 @@ import { YakMark } from '../../yak/YakMark'
 import { assetsIn } from '../assets/model'
 import { useAssets } from '../assets/assetsState'
 import { useSchedule } from '../calendar/scheduleState'
+import { useIdeas } from '../ideas/ideasState'
 import {
   askAbout,
+  campaignPencilled,
   campaignPosts,
   compactCount,
   NEXT_UP_TOKEN,
@@ -55,17 +57,25 @@ export function CampaignOverview({
   onShowPlan: () => void
 }) {
   const shell = useShell()
-  const { posts } = useSchedule()
+  const { posts, drafts } = useSchedule()
+  const { ideas } = useIdeas()
   const { assets } = useAssets()
   const planned = campaignPosts(campaign, posts)
-  const progress = progressFor(campaign, planned)
+  const pencilled = campaignPencilled(campaign, drafts, Object.values(ideas))
+  const progress = progressFor(campaign, planned, undefined, pencilled)
   const folder = folders.find((f) => f.campaignId === campaign.id)
   const assetsReady = folder
     ? assetsIn({ folderId: folder.id }, assets, folders, new Map(), new Date()).filter(
         (a) => !a.upload,
       ).length
     : 0
-  const next = nextUpFor(campaign, planned, (id) => creatorById(id)?.name ?? id)
+  const next = nextUpFor(
+    campaign,
+    planned,
+    (id) => creatorById(id)?.name ?? id,
+    undefined,
+    pencilled,
+  )
 
   const open = (item: NextUpItem) => {
     if (item.kind === 'post') shell.setPanel({ type: 'post', postId: item.postId })
@@ -76,7 +86,7 @@ export function CampaignOverview({
 
   return (
     <div className="flex flex-col gap-3">
-      <YakSummary campaign={campaign} lines={summaryFor(campaign, planned)} />
+      <YakSummary campaign={campaign} lines={summaryFor(campaign, planned, undefined, pencilled)} />
 
       <Block title="Progress">
         <MetricGrid columns={3}>
