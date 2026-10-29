@@ -25,6 +25,7 @@ export function IdeaCard({
   end,
   onClick,
   className,
+  showCampaign = true,
 }: {
   idea: Idea
   /** The group it is in, as a Badge — for the gallery, where there are no columns to say so. */
@@ -33,8 +34,10 @@ export function IdeaCard({
   end?: ReactNode
   onClick?: () => void
   className?: string
+  /** Off on a campaign's own Ideas tab, where every card is that campaign's. */
+  showCampaign?: boolean
 }) {
-  const campaign = campaignFor(idea.campaignId)
+  const campaign = showCampaign ? campaignFor(idea.campaignId) : undefined
 
   return (
     <ClickableCard id={ideaCardId(idea.id)} onClick={onClick} className={cn('w-full', className)}>
@@ -50,9 +53,11 @@ export function IdeaCard({
         <Text render={<span />} weight="semibold" color="emphasized">
           {idea.title}
         </Text>
-        <Text render={<span />} color="subtle" className="line-clamp-3">
-          {idea.body}
-        </Text>
+        {idea.body && (
+          <Text render={<span />} color="subtle" className="line-clamp-3">
+            {idea.body}
+          </Text>
+        )}
         {(campaign || status || end) && (
           <span className="flex flex-wrap items-center gap-2">
             {status && <Badge color="neutral">{status}</Badge>}

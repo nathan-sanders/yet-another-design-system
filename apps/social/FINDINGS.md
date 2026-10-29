@@ -1635,3 +1635,27 @@ Idea, Deliverable, Gap).
 - Week steps stop at the run's first and last week; `?week=` and `?plan=run` hold the view.
 - axe in light and dark (through the app's toggle, with the theme transition finished): no
   violations.
+
+## Slice — the campaign page: Ideas (2026-10-29)
+
+Figma: `Campaign page · Ideas` `40006187:42177`.
+
+### Found
+
+199. **The campaign's board follows an idea past the Ideas board.** Unassigned and In Progress are
+    the Ideas board's own columns, holding this campaign's ideas. Drafting, Scheduled and
+    Published are the campaign's drafts and posts, because an idea leaves the Ideas board once it
+    becomes a draft. A draft or a post wears the idea it came from (title, notes, photo) when it
+    has one, and its channel and time as Tokens. Nothing drags here. Moving between the board's
+    columns is the Ideas board's job, and the last three move when the work does.
+200. **Only Unassigned adds.** The file puts + on In Progress too, but a new idea lands in
+    Unassigned, so a + there would put the card somewhere other than where it was asked for. The
+    file's New group column isn't here: the campaign's columns are fixed.
+201. **`IdeaCard` can leave out its campaign Token** (`showCampaign={false}`), as the file's cards
+    do here, where every card is the campaign's. A card with no notes no longer draws an empty
+    line.
+
+### Measured, and fine
+
+- Columns 267 wide, 12 apart, as tall as the longest; the count reads the cards on the board.
+- axe on Board and Gallery: no violations.
