@@ -17,6 +17,7 @@ import { CAMPAIGN_COLOR_CLASSES } from '../../components/campaignColors'
 import { floatingYakClearance } from '../../components/FloatingYak'
 import { FIGMA_FILE } from '../../shell/routes'
 import { useShell } from '../../shell/ShellContext'
+import { CampaignCreators } from './CampaignCreators'
 import { CampaignIdeas } from './CampaignIdeas'
 import { CampaignOverview } from './CampaignOverview'
 import { CampaignPlan } from './CampaignPlan'
@@ -32,8 +33,7 @@ import {
 } from './paths'
 
 /** The tabs still to come, and the frame each is drawn in. */
-const DRAWN: Record<Exclude<CampaignTab, 'overview' | 'plan' | 'ideas'>, string> = {
-  creators: '40006187-42949',
+const DRAWN: Record<Exclude<CampaignTab, 'overview' | 'plan' | 'ideas' | 'creators'>, string> = {
   assets: '40006187-43721',
   measure: '40006187-44493',
 }
@@ -150,6 +150,9 @@ export function CampaignPage() {
           </Tabs.Panel>
           <Tabs.Panel value="ideas">
             <CampaignIdeas campaign={campaign} />
+          </Tabs.Panel>
+          <Tabs.Panel value="creators">
+            <CampaignCreators campaign={campaign} />
           </Tabs.Panel>
           {(Object.keys(DRAWN) as (keyof typeof DRAWN)[]).map((key) => (
             <Tabs.Panel key={key} value={key}>

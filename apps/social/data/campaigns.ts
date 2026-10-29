@@ -93,6 +93,7 @@ export const campaigns: Campaign[] = [
       engagements: 12_000,
       linkClicks: { actual: 1_100, target: 1_800 },
     },
+    budget: 10_000,
     // The Creators tab (`40006187:42949`). Due days sit inside the run, which ends on day 4.
     creators: [
       {
@@ -131,6 +132,8 @@ export const campaigns: Campaign[] = [
         deliverables: 1,
         fee: 2_500,
         status: 'invited',
+        // Not on the plan until he says yes; the date is the offer's.
+        work: [{ id: 'w-davis-1', title: 'Blind taste test', day: 4, status: 'due' }],
       },
     ],
     insight:

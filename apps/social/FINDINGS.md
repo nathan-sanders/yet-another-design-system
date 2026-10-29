@@ -1659,3 +1659,30 @@ Figma: `Campaign page · Ideas` `40006187:42177`.
 
 - Columns 267 wide, 12 apart, as tall as the longest; the count reads the cards on the board.
 - axe on Board and Gallery: no violations.
+
+## Slice — the campaign page: Creators (2026-10-29)
+
+Figma: `Campaign page · Creators` `40006187:42949`.
+
+### Found
+
+202. **The budget bar is drawn here, not by `HorizontalBar`.** The file builds it from
+    `Chart Key / Metric` and one `Horizontal Bar / Bar` row. The library's HorizontalBar is a whole
+    Recharts chart with a category axis, which is too much for one bar. `components/BudgetBar.tsx`
+    uses `ChartSwatch`, the Mono A08/A06/A04 tokens and the chart family's 1px gap. The bar's
+    segments are paid, allocated but unpaid, and unallocated, so they add up to the total. The
+    file's widths (250/400/472) aren't proportional to its own figures. Open: if a second
+    single-bar breakdown appears, `HorizontalBar` could take a no-axis form.
+203. **Status is a menu on its Token, and it's live.** It writes to the campaign, so Overview's
+    "2 of 3" and the Plan tab's creator rows follow. It uses the button-wrapped Token from FINDINGS
+    24. Invite selected is a toast for the selected rows, and Add creator goes to Plan › Creators,
+    where creators are found. Paid is the fees of creators whose work is live, which is the file's
+    $2,500.
+204. **Davis has a due date before he's said yes.** The file shows one ("Sat, Oct 31") on an
+    invited creator. It's the offer's date: he gets no row on the plan and nothing in Next up until
+    he's confirmed.
+
+### Measured, and fine
+
+- Budget block 118, table head 32, rows 78, the file's column widths (creator flexes from 240).
+- Changing a status moves Overview's count. axe on the tab: no violations.

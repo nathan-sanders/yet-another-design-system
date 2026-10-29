@@ -528,6 +528,8 @@ export interface Campaign {
   /** Engagements' actual is `engagements.total`, so the two can't disagree. */
   targets?: { reach?: CampaignTarget; engagements?: number; linkClicks?: CampaignTarget }
   creators?: CampaignCreator[]
+  /** The creator budget in US dollars; the fees on the roster when unset. */
+  budget?: number
   /** Yak's read of what is working: the summary's middle line. */
   insight?: string
 }
