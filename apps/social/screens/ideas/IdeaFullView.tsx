@@ -172,12 +172,7 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
       <TopBar
         start={
           <div className="flex items-center gap-2">
-            <Button
-              appearance="ghost"
-              startIcon={ArrowLeft}
-              aria-label="Back"
-              onClick={() => navigate(from)}
-            />
+            <Button appearance="ghost" startIcon={ArrowLeft} aria-label="Back" onClick={() => navigate(from)} />
             <Heading level={1} size="base" weight="bold">
               {idea ? 'Idea' : 'New idea'}
             </Heading>
@@ -296,10 +291,7 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
               !showComposer && yakBar && besideYakBar,
             )}
           >
-            <Tabs.List
-              aria-label="Idea sections"
-              className="sticky top-0 z-1 bg-surface-background-primary pt-4"
-            >
+            <Tabs.List aria-label="Idea sections" className="sticky top-0 z-1 bg-surface-background-primary pt-4">
               <Tabs.Tab value="notes">Notes</Tabs.Tab>
               <Tabs.Tab value="activity">Activity</Tabs.Tab>
             </Tabs.List>
@@ -308,9 +300,7 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
                 <NoteThread notes={thread} />
               ) : (
                 <Text size="sm" color="subtle">
-                  {idea
-                    ? 'No notes yet. Leave the first one below.'
-                    : 'Save the idea to leave notes.'}
+                  {idea ? 'No notes yet. Leave the first one below.' : 'Save the idea to leave notes.'}
                 </Text>
               )}
             </Tabs.Panel>
