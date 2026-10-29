@@ -28,6 +28,10 @@ const PAGES: { prefix: string; config: FloatingYakConfig }[] = [
     prefix: '/plan/compose',
     config: { placeholder: 'Have Yak draft with you…', mode: 'ask', opens: 'panel' },
   },
+  {
+    prefix: '/plan/campaigns',
+    config: { placeholder: 'Ask Yak to plan or check on a campaign…', mode: 'ask' },
+  },
   // Before `/plan/ideas`: a segment starting with `:` matches anything, so
   // this takes an idea's page and `new`, and the board falls through.
   {

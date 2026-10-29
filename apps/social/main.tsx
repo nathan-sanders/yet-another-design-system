@@ -7,6 +7,8 @@ import { Toast } from '../../src/components/Toast'
 import { AssetsProvider } from './screens/assets/AssetsProvider'
 import { AssetsScreen } from './screens/assets/AssetsScreen'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
+import { CampaignPageStub } from './screens/campaigns/CampaignPageStub'
+import { CampaignsScreen } from './screens/campaigns/CampaignsScreen'
 import { CalendarNotesProvider } from './screens/calendar/CalendarNotesProvider'
 import { ScheduleProvider } from './screens/calendar/ScheduleProvider'
 import { PostNotesProvider } from './screens/calendar/PostNotesProvider'
@@ -39,6 +41,8 @@ const router = createHashRouter([
       { index: true, element: <Navigate to="/home" replace /> },
       { path: 'home', element: <HomeScreen /> },
       { path: 'plan/calendar', element: <CalendarScreen /> },
+      { path: 'plan/campaigns', element: <CampaignsScreen /> },
+      { path: 'plan/campaigns/:campaignId', element: <CampaignPageStub /> },
       { path: 'plan/ideas', element: <IdeasScreen /> },
       { path: 'plan/ideas/:ideaId', element: <IdeaFullView /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },

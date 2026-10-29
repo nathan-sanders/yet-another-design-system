@@ -6,7 +6,8 @@ import { ClickableCard } from '../../../src/components/Card'
 import { Text } from '../../../src/components/Text'
 import { Token } from '../../../src/components/Token'
 import { cn } from '../../../src/lib/cn'
-import { campaignFor, ideaCardId } from '../data/ideas'
+import { campaignFor } from '../data/campaigns'
+import { ideaCardId } from '../data/ideas'
 import type { Idea } from '../data/types'
 
 /**

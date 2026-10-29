@@ -1499,3 +1499,40 @@ grid uploads them to the open folder, or to the library's root from a view.
   violations. Escape closes the lightbox and returns focus to the preview.
 - A drag across a card into the grid and back keeps the overlay up (enter, enter, leave). A PDF
   in the same drop as two photos is refused in its own toast, and the photos still land.
+
+## Slice — Plan › Campaigns, Table and Timeline (2026-10-29)
+
+Figma: `Campaigns list · Table` `40006170:39473` and `Campaigns list · Timeline` `40006178:41785`.
+The Filtered frame and the campaign page's frames are not built; Filter says so, and a row or bar
+opens a "designed, not built yet" page that links `Campaign page · Overview` `40006129:38303`.
+
+### Found
+
+179. **"Wrapping up" overflows its cell in the file.** The Status column is 130 with 16 padding
+    each side, and the small Token is 110, so Figma draws it 12px past the cell. With the table's
+    `textOverflow="truncate"` it read "Wrappin…". Status is 150 here and Engagements, whose
+    content is at most 113 + 32, gives the 20 back.
+180. **New campaign stays in the top bar.** It's the one exception to the rule that the rail's New is
+    a page's only create button (#313); Nathan decided it this time. Below 768 it hides, because the
+    phone bar's + is New and the bar has no room for both. The title goes `sr-only` there, as
+    the calendar's does.
+181. **The timeline's today is a Wednesday** (the file's line sits mid-Oct 28), not the calendar's
+    Monday, so campaign days are offsets from that Wednesday and slide with the real date. The
+    weeks start Monday, as the file's do (the app's `startOfWeek` is Sunday), so the model has its
+    own `startOfMondayWeek`.
+182. **`_Measure Owner Cell` is an X-Small avatar.** Reports drew it at `small` (24); the shared
+    `components/OwnerCell.tsx` draws it at 20 for both screens, as the file binds it.
+183. **The timeline scrolls rather than squashes.** Below 64px a week stops being readable, so under
+    768 of timeline the frame scrolls sideways and opens with today a third of the way in. It's
+    code-first: the file draws only the 1156 width. On a phone a scrolled bar's name scrolls off
+    with it. Sticky names would fix that, and it's left for when the page is designed for phones.
+
+### Measured, and fine
+
+- Table: head 32, rows 56, swatch 16 with its 1px highlight ring, Status Token 20 tall, Spark
+  68 × 24, owner avatar 20. Dates sorts both ways through `?sort=dates&dir=`.
+- Timeline: header 40, rows 44, bars 28 tall and 8 from the row top, 8px corners squared on a
+  clipped side (Creator Kitchen both, Holiday Gift Cards its end), frame 12px corners. Positions
+  match the file's to the pixel once the one-day slide (real Thursday vs the file's Wednesday) is
+  taken out; `model.test.ts` pins Fall Harvest Bowls and the today line against the file's x.
+- axe on both views, light and dark (through the app's own toggle): no violations.
