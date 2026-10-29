@@ -1,3 +1,4 @@
+import saladBowl from '../assets/photos/salad-bowl.jpg'
 import type { Campaign } from './types'
 
 /**
@@ -28,9 +29,9 @@ export const campaigns: Campaign[] = [
         creatorId: 'alena',
         network: 'tiktok',
         role: 'Host',
+        work: [{ id: 'w-ck-1', title: 'Episode 5: the lentil stack', day: 5, status: 'due' }],
         deliverables: 4,
         fee: 4_000,
-        due: 5,
         status: 'live',
       },
       {
@@ -39,7 +40,6 @@ export const campaigns: Campaign[] = [
         role: 'Guest cook',
         deliverables: 1,
         fee: 1_500,
-        due: 12,
         status: 'confirmed',
       },
     ],
@@ -101,8 +101,19 @@ export const campaigns: Campaign[] = [
         role: 'Lead creator',
         deliverables: 2,
         fee: 2_500,
-        due: 1,
         status: 'live',
+        work: [
+          {
+            id: 'w-alena-1',
+            title: 'Trying every Summer Menu bowl',
+            day: -4,
+            status: 'posted',
+            time: '16:00',
+            photo: saladBowl,
+            photoAlt: 'A salad bowl from above',
+          },
+          { id: 'w-alena-2', title: 'Second TikTok: bowl ranking', day: 1, status: 'due' },
+        ],
       },
       {
         creatorId: 'jonah',
@@ -110,8 +121,8 @@ export const campaigns: Campaign[] = [
         role: 'Recipe creator',
         deliverables: 2,
         fee: 2_500,
-        due: 3,
         status: 'confirmed',
+        work: [{ id: 'w-jonah-1', title: 'Wrap-and-go Reel', day: 3, status: 'due' }],
       },
       {
         creatorId: 'davis',
@@ -119,7 +130,6 @@ export const campaigns: Campaign[] = [
         role: 'Taste tester',
         deliverables: 1,
         fee: 2_500,
-        due: 4,
         status: 'invited',
       },
     ],

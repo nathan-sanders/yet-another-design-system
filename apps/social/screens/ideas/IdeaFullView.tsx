@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { ArrowLeft, Image, Link } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
@@ -74,11 +74,13 @@ function IdeaEditor({ idea, from }: { idea: Idea | undefined; from: string }) {
   // The bar is gone while Yak is in the panel, and then nothing needs lifting.
   const yakBar = shell.panel?.type !== 'yak' && shell.panel?.type !== 'yak-history'
   const { drafts, posts } = useSchedule()
+  // A campaign's Add › Idea opens a new idea with the campaign already set.
+  const prefill = (useLocation().state as { prefill?: Partial<IdeaFields> } | null)?.prefill
   const [fields, setFields] = useState<IdeaFields>({
     title: idea?.title ?? '',
     body: idea?.body ?? '',
     image: idea?.image,
-    campaignId: idea?.campaignId,
+    campaignId: idea?.campaignId ?? prefill?.campaignId,
     tagNames: idea?.tagNames ?? [],
     assigneeId: idea?.assigneeId,
   })

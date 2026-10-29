@@ -48,6 +48,25 @@ export const initialIdeas: Record<string, Idea> = {
     createdBy: 'nathan',
     created: 'Jul 2',
   },
+  // Summer Menu's two, pencilled onto its plan (`40006158:66912`).
+  'bowl-off': {
+    id: 'bowl-off',
+    title: 'Bowl-off with a regular',
+    body: 'A regular picks two bowls blind and we film the verdict. One take, no script.',
+    campaignId: 'summer-menu',
+    slot: { network: 'instagram', week: 0, day: 5 },
+    createdBy: 'nathan',
+    created: 'Oct 20',
+  },
+  'customer-photos': {
+    id: 'customer-photos',
+    title: 'Customer photo round-up',
+    body: 'Five customer shots of the new bowls, each with a thank-you. Ask in DMs before reposting.',
+    campaignId: 'summer-menu',
+    slot: { network: 'facebook', week: 0, day: 4 },
+    createdBy: 'katie',
+    created: 'Oct 22',
+  },
   'harvest-glow': {
     id: 'harvest-glow',
     title: 'Reel: Harvest Glow in 60 seconds',
@@ -82,7 +101,7 @@ export const initialGroups: IdeaGroup[] = [
  * live in Drafts and on the calendar from there.
  */
 export const initialBoard: Containers<string> = {
-  unassigned: ['place-to-plan', 'save-inspiration'],
+  unassigned: ['place-to-plan', 'save-inspiration', 'bowl-off', 'customer-photos'],
   todo: ['protein-plates-teaser'],
   'in-progress': [],
   done: [],

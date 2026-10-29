@@ -1597,3 +1597,41 @@ frame. Every campaign has the page, not only Summer Menu.
   `Content/Subtle`, focus lands on Keep campaign.
 - Back from a page opened off the timeline returns to `?view=timeline`.
 - axe on Summer Menu in light and dark, and with the Cancel dialog open: no violations.
+
+## Slice — the campaign page: Plan (2026-10-29)
+
+Figma: `Campaign page · Plan` `40006158:66912` and `_Plan Cell` `40006136:38900` (Post, Draft,
+Idea, Deliverable, Gap).
+
+### Found
+
+192. **The plan scrolls rather than squashes.** Seven 142px days and a 160 channel column need about
+    960, so below that the grid scrolls sideways inside its frame, as the timeline does (183).
+193. **The weeks are Sunday weeks, so Summer Menu is "week 2 of 3".** The file says "of 2", but a
+    Monday-to-Sunday run in Sunday weeks touches three. Whole run is named in the file and not
+    drawn. Here it stacks the weeks, each with its own day row.
+194. **Nothing drags on the plan yet.** The calendar's drag targets are a day or a slot, with no
+    channel, so moving a card between rows needs a new target kind. A post opens its panel, a draft
+    the composer, an idea its page, and a creator's card the creator.
+195. **Drafts and ideas can be pencilled onto a day** (`Draft.day`, `Idea.slot` with a network).
+    The file puts them on the plan, and the data had no way to. They are still unscheduled: the
+    calendar doesn't show them, and a gap counts them as something there. That is what makes
+    TikTok's gap the file's, between Wednesday's draft and Friday's post. Summer Menu's two ideas
+    are now on the Ideas board too.
+196. **A campaign's creators carry their work** (`CampaignCreator.work`: posted, or due), which
+    replaced the single `due` day. Only creators who said yes get a row, as the file's "Creators ·
+    2 confirmed" has it.
+197. **A published post on the plan is the calendar's card**, so it shows views, likes and comments
+    where the file shows comments alone. One card everywhere beats a fourth variant.
+198. **An empty day's + shows on hover or focus, except a gap's.** The file draws one + (the gap),
+    and a + in every empty cell would bury it. Add opens the composer on that channel and day with
+    the campaign set. The Add menu's Idea opens a new idea with the campaign set, which the idea
+    page now reads from the link's state.
+
+### Measured, and fine
+
+- Toolbar 32, day row 40, creators group 37, cells 4 padding with 4 between cards, today's 2px
+  `Surface/Border Emphasized` rule, past days hatched.
+- Week steps stop at the run's first and last week; `?week=` and `?plan=run` hold the view.
+- axe in light and dark (through the app's toggle, with the theme transition finished): no
+  violations.
