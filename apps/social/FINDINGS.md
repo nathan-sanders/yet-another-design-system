@@ -1549,3 +1549,51 @@ opens a "designed, not built yet" page that links `Campaign page · Overview` `4
   match the file's to the pixel once the one-day slide (real Thursday vs the file's Wednesday) is
   taken out; `model.test.ts` pins Fall Harvest Bowls and the today line against the file's x.
 - axe on both views, light and dark (through the app's own toggle): no violations.
+
+## Slice — the campaign page: header, Overview, Cancel (2026-10-29)
+
+Figma: `Campaign page · Overview` `40006129:38303`, `_Campaign Header` `40006130:38525`, and
+`Campaign page · Cancel campaign dialog` `40006180:41085`. The other five tabs (Plan
+`40006158:66912`, Ideas, Creators, Assets `40006187:42177`/`42949`/`43721`, Measure
+`40006187:44493`) are drawn and arrive in their own slices; until then each says so and links its
+frame. Every campaign has the page, not only Summer Menu.
+
+### Found
+
+185. **The campaign page and the timeline have different todays.** The page frames are drawn around
+    Monday Oct 26 (the Plan tab's highlighted column; "Day 8 of 14"), the timeline around Wednesday
+    Oct 28. Summer Menu's run is the timeline's (days −9 to 4), so the page reads "Day 10 of 14",
+    and its posts are written against that run rather than the Figma week: the page's numbers
+    (7 published, 9 scheduled, 2 of 3 creators, 1 gap) come out of the schedule, not out of the
+    text. The weekday in "nothing is scheduled for TikTok on …" moves with the real date.
+186. **Cancel is code-first past the dialog.** The file draws the question and not the campaign
+    after it, so `cancelled` is a new status (CircleX, "Cancelled") on the list, the timeline and
+    the page. Confirming sends the scheduled posts to Drafts with the campaign still on them
+    (`returnToDrafts`), ends the run today, and withdraws offers no creator accepted. "Yak drafts
+    the note" is the file's promise and isn't built. Each dialog line is counted, and a line with
+    nothing to say is left out. The lines hold still while the dialog closes, or confirming would
+    shrink the list on its way out.
+187. **The file's Metric Cards on this page are Default cards; `MetricCard` is always Subtle.** On a
+    white Content Block a subtle tile reads as a well, so the page composes `Card` + `Metric` itself.
+    Fine for now; if a second screen does the same, MetricCard wants an `emphasis` prop.
+188. **Open: Tabs has no overflow.** Six tabs are 99px wider than a 390 phone, and the library's
+    `TabMenu` is still to build (the Tabs record says a strip that must scroll should be a Select).
+    The page lets the strip scroll sideways inside a bleed, so the focus ring isn't clipped.
+189. **"Gaps this week" counts the next seven days,** not the calendar week, or it would drop to
+    nothing every Saturday. A gap is a single empty day between two days a channel posts. Two
+    quiet days in a row are a rhythm. That rule gives the file's one gap, TikTok on Thursday, and
+    not the other empty cells around it.
+190. **Next up is one row a day, three days.** A gap comes first, then a creator's draft due, then
+    the earliest scheduled post. That is the file's Tuesday post, Wednesday draft, Thursday gap.
+191. **`ReportTopBar` moved to `components/BackTopBar.tsx`** with `Viewing`, now that a second screen
+    needs Back plus breadcrumbs. Reports keep a thin `ReportTopBar` that fills in its defaults.
+
+### Measured, and fine
+
+- Blocks against the file: Yak summary 146, Progress 250, Targets 164, Metric Card 86, target card
+  98, header row 32, tabs 40, content padding 16, block gap 12. Next up is 260 to the file's 258,
+  and Brief 403 to 402: the rules between rows are 1px here and zero-height lines in Figma.
+- Cancel dialog: 600 wide, 350 tall to the file's 348, the lead and the bullets 8 apart in
+  `Content/Subtle`, focus lands on Keep campaign.
+- Back from a page opened off the timeline returns to `?view=timeline`.
+- axe on Summer Menu in light and dark, and with the Cancel dialog open: no violations.

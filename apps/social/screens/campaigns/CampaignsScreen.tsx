@@ -8,10 +8,10 @@ import type { TableSort } from '../../../../src/components/Table'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { floatingYakClearance } from '../../components/FloatingYak'
-import { campaigns } from '../../data/campaigns'
 import { fromISODate, sameDay, toISODate } from '../../data/dates'
 import { useShell } from '../../shell/ShellContext'
 import { today } from '../calendar/model'
+import { useCampaigns } from './campaignsState'
 import { CampaignsTable } from './CampaignsTable'
 import { CampaignsTimeline } from './CampaignsTimeline'
 import { stepWindow, timelineRange, windowYear, type CampaignsView } from './model'
@@ -36,6 +36,7 @@ import { stepWindow, timelineRange, windowYear, type CampaignsView } from './mod
 export function CampaignsScreen() {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
+  const { campaigns } = useCampaigns()
   const view: CampaignsView = params.get('view') === 'timeline' ? 'timeline' : 'table'
   const anchor = fromISODate(params.get('date')) ?? today
   const range = timelineRange(anchor)

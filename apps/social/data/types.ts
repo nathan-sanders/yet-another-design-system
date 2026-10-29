@@ -438,7 +438,46 @@ export interface Spike {
   tone: 'red' | 'green' | 'yellow' | 'neutral'
 }
 
-export type CampaignStatus = 'planning' | 'live' | 'wrapping-up'
+/** `cancelled` is code-first: the Cancel dialog is drawn, the status after it is not. */
+export type CampaignStatus = 'planning' | 'live' | 'wrapping-up' | 'cancelled'
+
+/** What the campaign page's Brief block lists (`40006129:38303`). */
+export interface CampaignBrief {
+  goal: string
+  audience: string
+  keyMessage: string
+  hashtags: string[]
+  /** Products and topics, the file's "Tags" row. */
+  tags: string[]
+  do: string[]
+  dont: string[]
+}
+
+/** A number the campaign is aiming at, and where it is now. */
+export interface CampaignTarget {
+  actual: number
+  target: number
+}
+
+/**
+ * Where a creator stands with this campaign. `withdrawn` is what cancelling
+ * does to an offer that was never accepted.
+ */
+export type CampaignCreatorStatus = 'invited' | 'confirmed' | 'live' | 'withdrawn'
+
+/** A creator on the campaign's Creators tab (`40006187:42949`). */
+export interface CampaignCreator {
+  creatorId: string
+  /** Where they post the deliverables, which need not be their biggest channel. */
+  network: Network
+  role: string
+  deliverables: number
+  /** US dollars. */
+  fee: number
+  /** The deliverable's due day, counted like the campaign's `start`. */
+  due: number
+  status: CampaignCreatorStatus
+}
 
 /**
  * A coordinated push: Plan › Campaigns (`40006170:39473`). Ideas, drafts,
@@ -465,6 +504,17 @@ export interface Campaign {
   planned: number
   /** Only once something has gone out: the total and its trend, oldest first. */
   engagements?: { total: number; series: number[] }
+  /**
+   * The rest is the campaign page's (`40006129:38303`), and only Summer Menu,
+   * the campaign the file draws, has all of it. The others leave most of it
+   * out, and the page says what is missing rather than inventing it.
+   */
+  brief?: CampaignBrief
+  /** Engagements' actual is `engagements.total`, so the two can't disagree. */
+  targets?: { reach?: CampaignTarget; engagements?: number; linkClicks?: CampaignTarget }
+  creators?: CampaignCreator[]
+  /** Yak's read of what is working: the summary's middle line. */
+  insight?: string
 }
 
 /** One card on Plan › Ideas: a post that has not been written yet. */

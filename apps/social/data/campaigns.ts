@@ -20,6 +20,29 @@ export const campaigns: Campaign[] = [
     scheduled: 4,
     planned: 6,
     engagements: { total: 8_900, series: [120, 260, 410, 900, 1_600, 2_100, 2_250, 2_300] },
+    // Code-first, like every campaign but Summer Menu: enough to show a page
+    // that has some of its blocks and says which it doesn't.
+    targets: { engagements: 12_000 },
+    creators: [
+      {
+        creatorId: 'alena',
+        network: 'tiktok',
+        role: 'Host',
+        deliverables: 4,
+        fee: 4_000,
+        due: 5,
+        status: 'live',
+      },
+      {
+        creatorId: 'davis',
+        network: 'instagram',
+        role: 'Guest cook',
+        deliverables: 1,
+        fee: 1_500,
+        due: 12,
+        status: 'confirmed',
+      },
+    ],
   },
   {
     id: 'fall-harvest-bowls',
@@ -46,6 +69,62 @@ export const campaigns: Campaign[] = [
     scheduled: 9,
     planned: 18,
     engagements: { total: 12_600, series: [300, 700, 1_500, 2_900, 3_800, 4_100, 4_300, 4_400] },
+    // The campaign page (`40006129:38303`), word for word.
+    brief: {
+      goal: 'Launch the summer menu and get regulars to try the three new bowls in the first two weeks.',
+      audience:
+        'Lunch regulars aged 25–40 in our delivery zones — plant-curious, not strictly vegan.',
+      keyMessage: 'Summer in a bowl: bright, filling and ready in ten minutes.',
+      hashtags: ['#SummerMenu', '#VeggieVault', '#BowlSeason'],
+      tags: ['Mango Chili Grain Bowl', 'Citrus Crunch Salad', 'Pineapple Sunrise Smoothie'],
+      do: [
+        'Show the bowl being made, start to finish',
+        'Tag @veggievault and use #SummerMenu',
+        'Mention the ten-minute ready time',
+      ],
+      dont: [
+        'Call any bowl “healthy” or make nutrition claims',
+        'Show competitor packaging',
+        'Use trending audio without clearing it',
+      ],
+    },
+    targets: {
+      reach: { actual: 168_000, target: 250_000 },
+      engagements: 12_000,
+      linkClicks: { actual: 1_100, target: 1_800 },
+    },
+    // The Creators tab (`40006187:42949`). Due days sit inside the run, which ends on day 4.
+    creators: [
+      {
+        creatorId: 'alena',
+        network: 'tiktok',
+        role: 'Lead creator',
+        deliverables: 2,
+        fee: 2_500,
+        due: 1,
+        status: 'live',
+      },
+      {
+        creatorId: 'jonah',
+        network: 'instagram',
+        role: 'Recipe creator',
+        deliverables: 2,
+        fee: 2_500,
+        due: 3,
+        status: 'confirmed',
+      },
+      {
+        creatorId: 'davis',
+        network: 'instagram',
+        role: 'Taste tester',
+        deliverables: 1,
+        fee: 2_500,
+        due: 4,
+        status: 'invited',
+      },
+    ],
+    insight:
+      'Instagram Reels are doing the work — the Mango Chili Grain Bowl reel drove 41% of engagements so far.',
   },
   {
     id: 'protein-plates-launch',
@@ -58,6 +137,15 @@ export const campaigns: Campaign[] = [
     ownerId: 'nathan',
     scheduled: 4,
     planned: 12,
+    brief: {
+      goal: 'Put the three protein plates in front of the gym crowd before January.',
+      audience: 'Weekday lunch customers who train — the 6 am and noon classes near both stores.',
+      keyMessage: '30 grams of protein, no shake required.',
+      hashtags: ['#ProteinPlates', '#VeggieVault'],
+      tags: ['Tofu Power Plate', 'Lentil Stack', 'Tempeh Crunch'],
+      do: ['Show the plate next to a workout, not instead of one', 'Say the protein number'],
+      dont: ['Compare to meat by name', 'Use before-and-after bodies'],
+    },
   },
   {
     id: 'seasonal-items',
@@ -97,6 +185,11 @@ export const campaigns: Campaign[] = [
   },
 ]
 
+/**
+ * The seed, by id. Screens read the live list from `useCampaigns()`, where a
+ * campaign can be cancelled; this is for the places that only need the seed —
+ * a name on an idea card, the composer's Campaign field.
+ */
 export function campaignFor(id: string | undefined): Campaign | undefined {
   return campaigns.find((c) => c.id === id)
 }

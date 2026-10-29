@@ -29,6 +29,7 @@ export const apps: ShowcaseApp[] = [
       'Calendar: week, day and month',
       'Post detail',
       'Campaigns: every campaign as a table or as bars across twelve weeks, with status, channels, owner and progress',
+      'A campaign’s page: Yak’s summary, progress and targets counted from the schedule, what’s next, the brief, and a Cancel that sends its posts back to Drafts',
       'Post composer: channels, a caption per network, media, options, details and a live preview, from an idea, a draft, a day or a post',
       'Inbox: all messages, my inbox, all assignments, complete and spam, with public thread and contact detail',
       'Comments by post: every published post, with its comments, notes, activity and numbers',

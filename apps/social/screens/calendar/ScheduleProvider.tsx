@@ -92,10 +92,35 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     return { postId, undo: () => setPosts((all) => all.filter((each) => each.id !== postId)) }
   }, [])
 
+  const returnToDrafts = useCallback((postIds: readonly string[]) => {
+    const ids = new Set(postIds)
+    const leaving = current.current.posts.filter((post) => ids.has(post.id))
+    if (leaving.length === 0) return
+    const back: Draft[] = leaving.map((post) => ({
+      id: `d-${post.id}`,
+      profileId: post.profileId,
+      body: post.body,
+      photo: post.photo,
+      photoAlt: post.photoAlt,
+      authorId: me.id,
+      edited: 'just now',
+      ideaId: post.ideaId,
+      campaignId: post.campaignId,
+      tagNames: post.tagNames,
+      assigneeId: post.assigneeId,
+      format: post.format,
+      firstComment: post.firstComment,
+    }))
+    setPosts((all) => all.filter((post) => !ids.has(post.id)))
+    setDrafts((all) => [...back, ...all])
+  }, [])
+
   const updatePost = useCallback(
     (id: string, { at, ...patch }: Partial<Omit<Post, 'id'>> & { at?: ScheduleAt }) => {
       const placed = at ? { ...toCalendarDay(at.date), time: at.time } : {}
-      setPosts((all) => all.map((post) => (post.id === id ? { ...post, ...patch, ...placed } : post)))
+      setPosts((all) =>
+        all.map((post) => (post.id === id ? { ...post, ...patch, ...placed } : post)),
+      )
     },
     [],
   )
@@ -110,11 +135,24 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
       updateDraft,
       removeDraft,
       addPost,
+      returnToDrafts,
       updatePost,
       scheduling,
       requestSchedule,
     }),
-    [posts, drafts, movePost, scheduleDraft, addDraft, updateDraft, removeDraft, addPost, updatePost, scheduling],
+    [
+      posts,
+      drafts,
+      movePost,
+      scheduleDraft,
+      addDraft,
+      updateDraft,
+      removeDraft,
+      addPost,
+      returnToDrafts,
+      updatePost,
+      scheduling,
+    ],
   )
 
   return <ScheduleContext.Provider value={value}>{children}</ScheduleContext.Provider>

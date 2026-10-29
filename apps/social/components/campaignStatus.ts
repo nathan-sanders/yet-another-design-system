@@ -1,4 +1,4 @@
-import { CircleDashed, CircleDot, Hourglass, type LucideIcon } from 'lucide-react'
+import { CircleDashed, CircleDot, CircleX, Hourglass, type LucideIcon } from 'lucide-react'
 
 import type { CampaignStatus } from '../data/types'
 
@@ -10,4 +10,6 @@ export const CAMPAIGN_STATUS: Record<CampaignStatus, { label: string; icon: Luci
   planning: { label: 'Planning', icon: CircleDashed },
   live: { label: 'Live', icon: CircleDot },
   'wrapping-up': { label: 'Wrapping up', icon: Hourglass },
+  // Code-first: the file draws the Cancel dialog, not the campaign after it (FINDINGS 186).
+  cancelled: { label: 'Cancelled', icon: CircleX },
 }

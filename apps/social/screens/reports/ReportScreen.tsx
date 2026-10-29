@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 import {
   pointerWithin,
   type CollisionDetection,
@@ -9,7 +9,6 @@ import {
 } from '@dnd-kit/core'
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import {
-  ArrowLeft,
   Calendars,
   Construction,
   Ellipsis,
@@ -20,7 +19,6 @@ import {
 } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
-import { Avatar } from '../../../../src/components/Avatar'
 import { Button } from '../../../../src/components/Button'
 import { Card } from '../../../../src/components/Card'
 import {
@@ -43,8 +41,6 @@ import { Icon } from '../../../../src/components/Icon'
 import { Link } from '../../../../src/components/Link'
 import { ResizeHandle } from '../../../../src/components/Resize'
 import { Heading, Text } from '../../../../src/components/Text'
-import { TopBar } from '../../../../src/components/TopBar'
-import { me } from '../../data/people'
 import { rangeFor, type ReportRange } from '../../data/reports'
 import type { Report } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
@@ -55,6 +51,7 @@ import { useReports, type WidgetPlace } from './reportsState'
 import { WidgetBlock } from './WidgetBlock'
 import { isCatalogDrag, type CatalogEntry } from './widgetCatalog'
 import { cn } from '../../../../src/lib/cn'
+import { BackTopBar, Viewing, type BackTopBarProps } from '../../components/BackTopBar'
 import { floatingYakClearance } from '../../components/FloatingYak'
 
 /**
@@ -492,53 +489,13 @@ function swallowNextClick() {
   setTimeout(() => window.removeEventListener('click', cancel, { capture: true }), 0)
 }
 
-/** Your own face, Figma's `Currently Viewing` (`40005911:33672`), the footprint of an icon-only Button. */
-export function Viewing() {
-  return (
-    <span className="flex h-8 shrink-0 items-center px-3">
-      <Avatar name={me.name} src={me.avatar} size="x-small" alt={`${me.name} is viewing`} />
-    </span>
-  )
-}
-
-/**
- * The report's Top Bar: Back to the list, then whatever the page puts at its
- * start. One child in `start`, because TopBar stretches each (FINDINGS 6).
- *
- * Back is a `Button` that navigates — Button has no `href`, on purpose
- * (FINDINGS 7) — because the file draws an icon-only button here and a `Link`
- * cannot be one. It goes to the list, not back in history, so it works on a
- * link opened cold.
- */
+/** The report's Top Bar: `BackTopBar` going back to the list of reports. */
 export function ReportTopBar({
-  start,
-  end,
   backTo = reportsPath,
   backLabel = 'Back to reports',
-}: {
-  start: ReactNode
-  end?: ReactNode
-  backTo?: string
-  backLabel?: string
-}) {
-  const navigate = useNavigate()
-  return (
-    <TopBar
-      start={
-        <div className="flex min-w-0 items-center gap-2">
-          <Button
-            appearance="ghost"
-            startIcon={ArrowLeft}
-            aria-label={backLabel}
-            className="shrink-0"
-            onClick={() => navigate(backTo)}
-          />
-          <div className="min-w-0">{start}</div>
-        </div>
-      }
-      end={end}
-    />
-  )
+  ...props
+}: Omit<BackTopBarProps, 'backTo' | 'backLabel'> & { backTo?: string; backLabel?: string }) {
+  return <BackTopBar backTo={backTo} backLabel={backLabel} {...props} />
 }
 
 /** Yet's built-in reports are listed in the file and have no board drawn. */

@@ -1,3 +1,5 @@
+import { campaignFor } from '../data/campaigns'
+
 /**
  * What the floating Yak bar says, and does, on each page.
  *
@@ -28,6 +30,7 @@ const PAGES: { prefix: string; config: FloatingYakConfig }[] = [
     prefix: '/plan/compose',
     config: { placeholder: 'Have Yak draft with you…', mode: 'ask', opens: 'panel' },
   },
+  // A campaign's page names it (`40006129:38303`): see `floatingYakFor`.
   {
     prefix: '/plan/campaigns',
     config: { placeholder: 'Ask Yak to plan or check on a campaign…', mode: 'ask' },
@@ -86,6 +89,12 @@ export function floatingYakFor(pathname: string): FloatingYakConfig | null {
   // Home has the composer in the page, so a second box at the bottom would repeat it.
   if (pathname === '/home' || pathname.startsWith('/engage') || pathname.startsWith('/yak')) {
     return null
+  }
+  // The file's "Ask Yak about Summer Menu…": the seed's name, since a cancel
+  // doesn't rename anything.
+  if (matches('/plan/campaigns/:campaignId', pathname)) {
+    const campaign = campaignFor(pathname.split('/')[3])
+    if (campaign) return { placeholder: `Ask Yak about ${campaign.name}…`, mode: 'ask' }
   }
   return PAGES.find((page) => matches(page.prefix, pathname))?.config ?? FALLBACK
 }

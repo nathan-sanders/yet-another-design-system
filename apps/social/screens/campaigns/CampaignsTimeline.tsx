@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, type CSSProperties } from 'react'
+import { useLocation } from 'react-router'
 
 import { Divider } from '../../../../src/components/Divider'
 import { Token } from '../../../../src/components/Token'
@@ -34,6 +35,8 @@ export function CampaignsTimeline({
   /** The day the weeks are drawn around: today, or a few windows away. */
   anchor?: Date
 }) {
+  const { pathname, search } = useLocation()
+  const from = pathname + search
   const range = timelineRange(anchor)
   const thisWeek = startOfMondayWeek(today)
   const todayAt = todayPosition(range)
@@ -136,7 +139,7 @@ export function CampaignsTimeline({
           <ul aria-label="Campaigns" className="relative">
             {campaigns.map((campaign) => {
               const place = placeBar(campaign, range)
-              const href = `#${campaignPath(campaign.id)}`
+              const href = `#${campaignPath(campaign.id, 'overview', from)}`
               return (
                 <li key={campaign.id} className="relative h-11">
                   {place.kind === 'bar' ? (
