@@ -1686,3 +1686,27 @@ Figma: `Campaign page · Creators` `40006187:42949`.
 
 - Budget block 118, table head 32, rows 78, the file's column widths (creator flexes from 240).
 - Changing a status moves Overview's count. axe on the tab: no violations.
+
+## Slice — the campaign page: Assets (2026-10-29)
+
+Figma: `Campaign page · Assets` `40006187:43721`.
+
+### Found
+
+205. **The campaign's assets are its folder in the Asset library**, subfolders included
+    (`assetsIn`, FINDINGS 172), as the library's own cards, Type and Sort by, and details panel.
+    The folder grew to the file's 14: the six it was missing are seeded with the file's names and
+    reused pictures and clips. A creator's file gets the file's purple "From creator" in front of
+    the library's Unused. Rights ending or expired still win, so Priya's corn still says when its
+    rights end.
+206. **`ImportMenu` moved out of `AssetsScreen`** (`screens/assets/ImportMenu.tsx`), now that a
+    second screen opens it. Upload from computer lands in the campaign's folder. Dropping files on
+    the tab isn't built; the library's grid is where a drop goes.
+207. **"In 1 draft" isn't counted.** The file's build-along clip reads "In 1 draft", but the
+    library counts only posts whose photo a file is. Drafts carry photos too, so it could count
+    them. Left for the library screen to decide first.
+
+### Measured, and fine
+
+- 14 assets, four to a row at 1440, the toolbar's two small Selects and Import; a card opens the
+  details panel. axe on the tab: no violations.
