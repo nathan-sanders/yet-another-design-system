@@ -350,6 +350,11 @@ export interface Report {
   type?: ReportType
   /** Where its numbers come from, as set when it was made. */
   sources?: WidgetSources
+  /**
+   * A campaign's own report: its Measure tab (`40006187:44493`). Not listed on
+   * Measure › Reports; it lives on the campaign's page.
+   */
+  campaignId?: string
 }
 
 /** The panel's Visualization options (`_Pulse Viz Option`, `40005872:24935`). */
@@ -375,6 +380,14 @@ export type WidgetKind =
   | 'trending'
   /** The brand's own best published posts. */
   | 'posts'
+  /** A campaign's numbers against its targets (`Results vs targets`). */
+  | 'targets'
+  /** A campaign's hashtags and products, and how often they're named. */
+  | 'hashtags'
+  /** A campaign's published posts, best first, with their sentiment. */
+  | 'campaign-posts'
+  /** A campaign's creators, with what they've posted and its reach. */
+  | 'creator-posts'
 
 export type WidgetMeasure = 'mentions' | 'engagements' | 'reach'
 
@@ -479,6 +492,18 @@ export interface CampaignCreator {
   work?: CreatorWork[]
 }
 
+/** A hashtag or a product named in posts and comments (`40006187:44493`). */
+export interface CampaignMention {
+  label: string
+  kind: 'hashtag' | 'product'
+  /** Posts and comments that name it. */
+  count: number
+  /** The line under it: "1,480 mentions · 62% from customers". */
+  detail: string
+  /** Change this week, in percent; absent for something new. */
+  change?: number
+}
+
 /**
  * One piece of a creator's work: a post that's gone out on their account, or
  * a deliverable they owe. `day` counts like the campaign's `start`.
@@ -492,6 +517,8 @@ export interface CreatorWork {
   time?: string
   photo?: string
   photoAlt?: string
+  /** How many saw it, once it's posted. */
+  reach?: number
 }
 
 /**
@@ -530,6 +557,8 @@ export interface Campaign {
   creators?: CampaignCreator[]
   /** The creator budget in US dollars; the fees on the roster when unset. */
   budget?: number
+  /** Its hashtags and products as Measure counts them: the Hashtag mentions widget. */
+  mentions?: CampaignMention[]
   /** Yak's read of what is working: the summary's middle line. */
   insight?: string
 }

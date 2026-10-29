@@ -1,6 +1,12 @@
 import type { DiscoverRange } from '../../../data/discover'
 import { RANGES, type ReportRange } from '../../../data/reports'
 import type { GroupBy, Report, Widget } from '../../../data/types'
+import {
+  CampaignPostsWidget,
+  CreatorPostsWidget,
+  HashtagsWidget,
+  TargetsWidget,
+} from '../../campaigns/MeasureWidgets'
 import { topPosts } from '../../discover/topPosts'
 import { SentimentBody, TopPostsGrid, TrendingList } from '../../discover/widgets'
 import { ChartWidget } from './ChartWidget'
@@ -59,6 +65,15 @@ export function WidgetBody({
       return <TrendingList range={discoverRange(range)} />
     case 'posts':
       return <TopPostsGrid posts={topPosts(RANGES.find((r) => r.value === range)!.days)} />
+    // A campaign's own (`screens/campaigns/MeasureWidgets.tsx`).
+    case 'targets':
+      return <TargetsWidget report={report} columns={columns} />
+    case 'hashtags':
+      return <HashtagsWidget report={report} />
+    case 'campaign-posts':
+      return <CampaignPostsWidget report={report} />
+    case 'creator-posts':
+      return <CreatorPostsWidget report={report} />
     case 'chart':
       return (
         <ChartWidget

@@ -8,6 +8,7 @@ import { InputGroup } from '../../../../src/components/Input'
 import { Panel } from '../../../../src/components/Panel'
 import { Heading, Text } from '../../../../src/components/Text'
 import { cn } from '../../../../src/lib/cn'
+import type { Report } from '../../data/types'
 import {
   CATALOG_GROUPS,
   catalogDragId,
@@ -33,7 +34,10 @@ export function AddWidgetPanel({
   onClose,
   onAdd,
   announcement,
+  report,
 }: {
+  /** Whose board it adds to: a campaign's report offers the campaign's widgets too. */
+  report?: Report
   open: boolean
   onClose: () => void
   onAdd: (entry: CatalogEntry) => void
@@ -41,7 +45,7 @@ export function AddWidgetPanel({
   announcement: string
 }) {
   const [query, setQuery] = useState('')
-  const found = searchCatalog(query)
+  const found = searchCatalog(query, report)
 
   return (
     <Panel

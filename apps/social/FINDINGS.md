@@ -1710,3 +1710,36 @@ Figma: `Campaign page · Assets` `40006187:43721`.
 
 - 14 assets, four to a row at 1440, the toolbar's two small Selects and Import; a card opens the
   details panel. axe on the tab: no violations.
+
+## Slice — the campaign page: Measure (2026-10-29)
+
+Figma: `Campaign page · Measure` `40006187:44493`.
+
+### Found
+
+208. **Every campaign has a report of its own, and it's the Measure tab.** `campaignReport` makes it
+    (`campaign-<id>`, `campaignId` set), the provider finds it by id, and Measure › Reports doesn't
+    list it. Its widgets open their own pages as any report's do, and Back and the breadcrumb go to
+    the campaign's Measure tab. A link to the report itself redirects there.
+209. **The board left its page.** `ReportBoard` is the range row and the rows of widgets. The
+    report page puts it under its Top Bar, and the tab puts it under the campaign's tabs. Drag,
+    row resize, Add widget and the catalog all come with it. The file has Filter where a report
+    has Compare, so the tab passes its own (`rangeExtra`). Filtering isn't designed, so it says so.
+210. **Four widget kinds only a campaign has:** Results vs targets, Hashtag mentions, Top posts (the
+    campaign's published posts, with sentiment from each post's seeded share of positive replies)
+    and Creator posts. They read the campaign and the schedule live, so they agree with Overview,
+    the Plan tab and the Creators tab. The Add widget panel offers them in a Campaign group, on a
+    campaign's report only.
+211. **The two charts are Measure's generated series, like every other report's.** Reach by channel
+    is not scaled to the 168K the targets say, and the range is the board's (30D), not the run.
+    Tying the generator to a campaign's totals would be its own piece of work. Creators are a
+    series of their own in Engagements by channel, as the file has it. Top posts holds the brand's
+    posts. The file also puts Alena's post there, but here creators have their own widget.
+
+### Measured, and fine
+
+- Rows as the file: targets; reach; engagements beside hashtags; top posts; creator posts. Top
+  posts sort, and a row opens the post. Creator posts give Alena 1 and 31.2K.
+- Add widget lists Campaign first; a widget's page goes back to `?tab=measure`.
+- axe on the tab and with the catalog open: no violations. Drags can't run in the hidden pane, and
+  this is the reports board's code unchanged.

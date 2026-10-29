@@ -10,7 +10,12 @@ import {
   withSpareRow,
   type Board,
 } from '../../../../src/components/DragAndDrop'
-import { boardFixture, reportFor as fixtureFor, reports as fixtures } from '../../data/reports'
+import {
+  boardFixture,
+  campaignReports,
+  reportFor as fixtureFor,
+  reports as fixtures,
+} from '../../data/reports'
 import type { Report, Widget } from '../../data/types'
 import {
   ReportsContext,
@@ -67,7 +72,10 @@ const issuedIds = new Set<string>()
 /** A report's board as the fixtures draw it, before anybody touches it. */
 function initial(reportId: string): ReportBoard | undefined {
   if (!initialBoards.has(reportId)) {
-    const report = madeReports.get(reportId) ?? fixtureFor(reportId)
+    const report =
+      madeReports.get(reportId) ??
+      fixtureFor(reportId) ??
+      campaignReports.find((r) => r.id === reportId)
     const fixture = report && boardFixture(report)
     initialBoards.set(
       reportId,
@@ -85,8 +93,11 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   const [created, setCreated] = useState<Report[]>(loadCreated)
 
   const reports = useMemo(() => [...created, ...fixtures], [created])
+  // A campaign's report is found by id, for its Measure tab and its widgets'
+  // pages, but isn't one of the reports the list shows.
   const reportFor = useCallback(
-    (reportId: string | undefined) => reports.find((r) => r.id === reportId),
+    (reportId: string | undefined) =>
+      reports.find((r) => r.id === reportId) ?? campaignReports.find((r) => r.id === reportId),
     [reports],
   )
   const createReport = useCallback((report: Report) => {
