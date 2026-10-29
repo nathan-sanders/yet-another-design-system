@@ -1,9 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
+import { campaigns as seed } from '../../data/campaigns'
 import { addDays } from '../../data/dates'
+import { posts } from '../../data/posts'
 import type { Campaign } from '../../data/types'
+import { today as realToday } from '../calendar/model'
 import {
+  campaignPosts,
   compactCount,
+  dateSpanLabel,
+  gapsFor,
+  nextUpFor,
+  progressFor,
+  summaryFor,
   dateRangeLabel,
   edgeDateLabel,
   placeBar,
@@ -151,5 +160,66 @@ describe('labels', () => {
   it('puts the today line in the middle of today', () => {
     // The file draws it at x 419 of 1156.
     expect(todayPosition(range, today) * 1156).toBeCloseTo(419.7, 0)
+  })
+})
+
+describe('the campaign page', () => {
+  // The real seed, against the real today: the posts slide with the date, so
+  // the page's numbers are the same whatever day the mock is opened on. `now`
+  // is the start of today, so today's posts are all still scheduled.
+  const summer = seed.find((c) => c.id === 'summer-menu')!
+  const now = realToday
+  const planned = campaignPosts(summer, posts, now)
+
+  it('counts the file’s Progress: 7 published, 9 scheduled, 2 of 3 creators, 1 gap', () => {
+    expect(progressFor(summer, planned, realToday)).toEqual({
+      planned: 18,
+      scheduled: 9,
+      published: 7,
+      creatorsOnBoard: 2,
+      creators: 3,
+      gaps: 1,
+    })
+  })
+
+  it('finds the one gap: TikTok, two days out, between two of its own posts', () => {
+    const gaps = gapsFor(summer, planned, realToday)
+    expect(gaps).toHaveLength(1)
+    expect(gaps[0]!.network).toBe('tiktok')
+    expect(gaps[0]!.date).toEqual(addDays(realToday, 2))
+  })
+
+  it('calls two quiet days a rhythm, not a gap', () => {
+    // Facebook posts tomorrow and nothing after: no gap, however empty it looks.
+    expect(gapsFor(summer, planned, realToday).some((g) => g.network === 'facebook')).toBe(false)
+  })
+
+  it('lists Next up one day at a time: a post, a creator draft, the gap', () => {
+    const names: Record<string, string> = { alena: 'Alena Kenter' }
+    const rows = nextUpFor(summer, planned, (id) => names[id] ?? id, realToday)
+    expect(rows.map((r) => r.kind)).toEqual(['post', 'deliverable', 'gap'])
+    expect(rows[1]!.title).toBe('Alena Kenter’s TikTok draft')
+    expect(rows[2]!.title).toBe('Nothing scheduled on TikTok')
+    expect(rows[0]!.meta).toBe('TikTok Reel · 7:00 pm')
+  })
+
+  it('writes the summary from the numbers, with the insight in the middle', () => {
+    const lines = summaryFor(summer, planned, realToday)
+    expect(lines[0]).toMatch(
+      /^Day 10 of 14 and on pace: 168K reach against a 250K target, and engagements are already past goal\.$/,
+    )
+    expect(lines[1]).toBe(summer.insight)
+    expect(lines[2]).toMatch(/^One gap this week: nothing is scheduled for TikTok on \w+day\.$/)
+  })
+
+  it('says a campaign that has not started when it starts', () => {
+    const austin = seed.find((c) => c.id === 'austin-store-opening')!
+    expect(summaryFor(austin, [], realToday)[0]).toMatch(/^Starts \w+ \d+, in 76 days\./)
+  })
+
+  it('writes one month once in a date span', () => {
+    expect(dateSpanLabel(campaign(-9, 4), today)).toBe('Oct 19 – Nov 1')
+    expect(dateSpanLabel(campaign(-23, -2), today)).toBe('Oct 5 – 26')
+    expect(dateSpanLabel(campaign(-57, null), today)).toBe('From Sep 1')
   })
 })

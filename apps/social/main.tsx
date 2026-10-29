@@ -7,7 +7,8 @@ import { Toast } from '../../src/components/Toast'
 import { AssetsProvider } from './screens/assets/AssetsProvider'
 import { AssetsScreen } from './screens/assets/AssetsScreen'
 import { CalendarScreen } from './screens/calendar/CalendarScreen'
-import { CampaignPageStub } from './screens/campaigns/CampaignPageStub'
+import { CampaignPage } from './screens/campaigns/CampaignPage'
+import { CampaignsProvider } from './screens/campaigns/CampaignsProvider'
 import { CampaignsScreen } from './screens/campaigns/CampaignsScreen'
 import { CalendarNotesProvider } from './screens/calendar/CalendarNotesProvider'
 import { ScheduleProvider } from './screens/calendar/ScheduleProvider'
@@ -42,7 +43,7 @@ const router = createHashRouter([
       { path: 'home', element: <HomeScreen /> },
       { path: 'plan/calendar', element: <CalendarScreen /> },
       { path: 'plan/campaigns', element: <CampaignsScreen /> },
-      { path: 'plan/campaigns/:campaignId', element: <CampaignPageStub /> },
+      { path: 'plan/campaigns/:campaignId', element: <CampaignPage /> },
       { path: 'plan/ideas', element: <IdeasScreen /> },
       { path: 'plan/ideas/:ideaId', element: <IdeaFullView /> },
       { path: 'plan/creators', element: <CreatorsScreen /> },
@@ -74,11 +75,13 @@ createRoot(document.getElementById('root')!).render(
             <PostNotesProvider>
               <CalendarNotesProvider>
                 <ScheduleProvider>
-                  <NotificationsProvider>
-                    <AssetsProvider>
-                      <RouterProvider router={router} />
-                    </AssetsProvider>
-                  </NotificationsProvider>
+                  <CampaignsProvider>
+                    <NotificationsProvider>
+                      <AssetsProvider>
+                        <RouterProvider router={router} />
+                      </AssetsProvider>
+                    </NotificationsProvider>
+                  </CampaignsProvider>
                 </ScheduleProvider>
               </CalendarNotesProvider>
             </PostNotesProvider>

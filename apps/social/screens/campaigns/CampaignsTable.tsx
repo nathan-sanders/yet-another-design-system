@@ -1,3 +1,6 @@
+import { useMemo } from 'react'
+import { useLocation } from 'react-router'
+
 import { Spark } from '../../../../src/components/Spark'
 import {
   Table,
@@ -17,7 +20,8 @@ import { campaignPath } from './paths'
 
 const NONE = <span aria-label="None">—</span>
 
-const columns: TableColumn<Campaign>[] = [
+/** `from` is the list as it stands, so the page's Back returns to this sort. */
+const columnsFor = (from: string): TableColumn<Campaign>[] => [
   {
     key: 'name',
     header: 'Campaign',
@@ -25,7 +29,10 @@ const columns: TableColumn<Campaign>[] = [
     sortable: false,
     rowTarget: true,
     renderCell: (campaign) => (
-      <CampaignNameCell campaign={campaign} href={`#${campaignPath(campaign.id)}`} />
+      <CampaignNameCell
+        campaign={campaign}
+        href={`#${campaignPath(campaign.id, 'overview', from)}`}
+      />
     ),
   },
   {
@@ -120,6 +127,8 @@ export function CampaignsTable({
   sort: TableSort | null
   onSortChange: (next: TableSort | null) => void
 }) {
+  const { pathname, search } = useLocation()
+  const columns = useMemo(() => columnsFor(pathname + search), [pathname, search])
   return (
     <Table
       label="Campaigns"

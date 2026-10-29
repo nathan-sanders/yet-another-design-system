@@ -62,6 +62,12 @@ export interface ScheduleState {
    * so a draft added this tick is not there to schedule yet.
    */
   addPost: (input: PostInput, at: ScheduleAt) => { postId: string; undo: () => void }
+  /**
+   * Takes scheduled posts off the calendar and back to Drafts, keeping what
+   * they were — the campaign, the idea, the copy. Cancelling a campaign does
+   * this to everything it had still to go out.
+   */
+  returnToDrafts: (postIds: readonly string[]) => void
   /** Edits a scheduled post in place; `at` moves it as well. */
   updatePost: (id: string, patch: Partial<Omit<Post, 'id'>> & { at?: ScheduleAt }) => void
   /**
