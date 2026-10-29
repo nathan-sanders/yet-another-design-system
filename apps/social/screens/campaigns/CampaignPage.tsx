@@ -1,25 +1,23 @@
 import { useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
-import { Ellipsis, Link as LinkIcon, PencilRuler } from 'lucide-react'
+import { Ellipsis, Link as LinkIcon } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Breadcrumbs } from '../../../../src/components/Breadcrumbs'
 import { Button } from '../../../../src/components/Button'
-import { Icon } from '../../../../src/components/Icon'
-import { Link } from '../../../../src/components/Link'
 import { Menu } from '../../../../src/components/Menu'
 import { Tabs } from '../../../../src/components/Tabs'
-import { Heading, Text } from '../../../../src/components/Text'
+import { Heading } from '../../../../src/components/Text'
 import { cn } from '../../../../src/lib/cn'
 import { BackTopBar, Viewing } from '../../components/BackTopBar'
 import { CampaignHeader } from '../../components/CampaignHeader'
 import { CAMPAIGN_COLOR_CLASSES } from '../../components/campaignColors'
 import { floatingYakClearance } from '../../components/FloatingYak'
-import { FIGMA_FILE } from '../../shell/routes'
 import { useShell } from '../../shell/ShellContext'
 import { CampaignAssets } from './CampaignAssets'
 import { CampaignCreators } from './CampaignCreators'
 import { CampaignIdeas } from './CampaignIdeas'
+import { CampaignMeasure } from './CampaignMeasure'
 import { CampaignOverview } from './CampaignOverview'
 import { CampaignPlan } from './CampaignPlan'
 import { useCampaigns } from './campaignsState'
@@ -32,14 +30,6 @@ import {
   campaignTab,
   type CampaignTab,
 } from './paths'
-
-/** The tabs still to come, and the frame each is drawn in. */
-const DRAWN: Record<
-  Exclude<CampaignTab, 'overview' | 'plan' | 'ideas' | 'creators' | 'assets'>,
-  string
-> = {
-  measure: '40006187-44493',
-}
 
 /**
  * A campaign's page (`40006129:38303` and its siblings): Back to the list it
@@ -160,37 +150,12 @@ export function CampaignPage() {
           <Tabs.Panel value="assets">
             <CampaignAssets campaign={campaign} />
           </Tabs.Panel>
-          {(Object.keys(DRAWN) as (keyof typeof DRAWN)[]).map((key) => (
-            <Tabs.Panel key={key} value={key}>
-              <TabNotBuilt
-                label={CAMPAIGN_TABS.find((t) => t.value === key)!.label}
-                figma={DRAWN[key]}
-              />
-            </Tabs.Panel>
-          ))}
+          <Tabs.Panel value="measure">
+            <CampaignMeasure campaign={campaign} />
+          </Tabs.Panel>
         </Tabs>
       </AppShell.Content>
       <CancelCampaignDialog campaign={campaign} open={cancelling} onOpenChange={setCancelling} />
     </>
-  )
-}
-
-/** `NotBuilt`'s message, inside a tab: the tab is drawn and comes in a later slice. */
-function TabNotBuilt({ label, figma }: { label: string; figma: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-      <span className="flex size-12 items-center justify-center rounded-lg bg-surface-background-subtle text-content-subtle">
-        <Icon icon={PencilRuler} size="x-large" />
-      </span>
-      <Heading level={2} size="lg" weight="semibold">
-        Designed, not built yet
-      </Heading>
-      <Text color="subtle" className="max-w-sm">
-        The {label} tab is drawn in Figma and comes in a later slice of this app.
-      </Text>
-      <Link href={`${FIGMA_FILE}?node-id=${figma}`} external>
-        See the design
-      </Link>
-    </div>
   )
 }

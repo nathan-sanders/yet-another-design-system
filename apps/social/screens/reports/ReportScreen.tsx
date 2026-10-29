@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { useParams, useSearchParams } from 'react-router'
+import { Navigate, useParams, useSearchParams } from 'react-router'
 import {
   pointerWithin,
   type CollisionDetection,
@@ -52,6 +52,7 @@ import { WidgetBlock } from './WidgetBlock'
 import { isCatalogDrag, type CatalogEntry } from './widgetCatalog'
 import { cn } from '../../../../src/lib/cn'
 import { BackTopBar, Viewing, type BackTopBarProps } from '../../components/BackTopBar'
+import { campaignPath } from '../campaigns/paths'
 import { floatingYakClearance } from '../../components/FloatingYak'
 
 /**
@@ -68,11 +69,69 @@ export function ReportScreen() {
   const { reportFor } = useReports()
   const report = reportFor(reportId)
   if (!report) return <Missing />
+  // A campaign's report lives on its Measure tab.
+  if (report.campaignId) {
+    return <Navigate to={campaignPath(report.campaignId, 'measure')} replace />
+  }
   if (report.kind === 'builtin') return <BuiltIn report={report} />
   return <Board report={report} />
 }
 
 function Board({ report }: { report: Report }) {
+  const shell = useShell()
+  return (
+    <>
+      <ReportTopBar
+        start={
+          <Heading level={1} size="base" weight="semibold" truncate>
+            {report.name}
+          </Heading>
+        }
+        end={
+          <div className="flex items-center gap-2 max-md:hidden">
+            <Button
+              appearance="ghost"
+              startIcon={ListFilter}
+              onClick={() => shell.notBuilt('Filters')}
+            >
+              Filters
+            </Button>
+            <Button
+              appearance="ghost"
+              startIcon={LinkIcon}
+              aria-label="Share"
+              onClick={() => shell.notBuilt('Sharing')}
+            />
+            <Button
+              appearance="ghost"
+              startIcon={Ellipsis}
+              aria-label="More"
+              onClick={() => shell.notBuilt('More actions')}
+            />
+            <Viewing />
+          </div>
+        }
+      />
+      <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
+        <ReportBoard report={report} />
+      </AppShell.Content>
+    </>
+  )
+}
+
+/**
+ * A report's board without its page: the range row, then the rows of widgets
+ * you drag, resize and add to. The report's own page puts it under its Top
+ * Bar; a campaign's Measure tab puts it under the campaign's tabs.
+ */
+export function ReportBoard({
+  report,
+  rangeExtra,
+}: {
+  report: Report
+  /** What sits after the range: Compare, unless the page says otherwise. */
+  rangeExtra?: ReactNode
+}) {
   const [params, setParams] = useSearchParams()
   const shell = useShell()
   const { boardFor, setBoard, widgetFor, insertWidget } = useReports()
@@ -125,42 +184,11 @@ function Board({ report }: { report: Report }) {
 
   return (
     <>
-      <ReportTopBar
-        start={
-          <Heading level={1} size="base" weight="semibold" truncate>
-            {report.name}
-          </Heading>
-        }
-        end={
-          <div className="flex items-center gap-2 max-md:hidden">
-            <Button
-              appearance="ghost"
-              startIcon={ListFilter}
-              onClick={() => shell.notBuilt('Filters')}
-            >
-              Filters
-            </Button>
-            <Button
-              appearance="ghost"
-              startIcon={LinkIcon}
-              aria-label="Share"
-              onClick={() => shell.notBuilt('Sharing')}
-            />
-            <Button
-              appearance="ghost"
-              startIcon={Ellipsis}
-              aria-label="More"
-              onClick={() => shell.notBuilt('More actions')}
-            />
-            <Viewing />
-          </div>
-        }
-      />
-      <AppShell.Content className={cn('gap-3', floatingYakClearance)}>
-        {/* `shrink-0`: a row that scrolls sideways has no minimum height, so the
-            page column would squash it to nothing on a phone. */}
-        <div className="flex shrink-0 items-center gap-2 overflow-x-auto max-md:-mx-4 max-md:px-4">
-          <RangeControl value={range} onChange={setRange} />
+      {/* `shrink-0`: a row that scrolls sideways has no minimum height, so the
+          page column would squash it to nothing on a phone. */}
+      <div className="flex shrink-0 items-center gap-2 overflow-x-auto max-md:-mx-4 max-md:px-4">
+        <RangeControl value={range} onChange={setRange} />
+        {rangeExtra ?? (
           <Button
             appearance="secondary"
             startIcon={Calendars}
@@ -170,208 +198,209 @@ function Board({ report }: { report: Report }) {
           >
             Compare
           </Button>
-          {/* Add widget sits at the end of the range row, not in the top bar:
-              the rail's New is the page's one primary action. */}
-          <Button
-            appearance="secondary"
-            startIcon={Plus}
-            className="ml-auto shrink-0"
-            aria-expanded={addOpen}
-            onClick={toggleAdd}
-          >
-            Add widget
-          </Button>
+        )}
+        {/* Add widget sits at the end of the range row, not in the top bar:
+            the rail's New is the page's one primary action. */}
+        <Button
+          appearance="secondary"
+          startIcon={Plus}
+          className="ml-auto shrink-0"
+          aria-expanded={addOpen}
+          onClick={toggleAdd}
+        >
+          Add widget
+        </Button>
+      </div>
+
+      {empty ? (
+        // A Blank report, or one with every widget removed.
+        <div className="flex flex-col items-center gap-1 rounded-lg bg-surface-background-primary px-4 py-10 text-center">
+          <Icon icon={LayoutDashboard} className="mb-2 text-content-subtle" aria-hidden />
+          <Heading level={2} size="base" weight="semibold">
+            This report has no widgets yet
+          </Heading>
+          <Text color="subtle">
+            Add a widget to chart {report.topics.join(', ') || report.name}, then change it to
+            whatever you need.
+          </Text>
+        </div>
+      ) : null}
+
+      <DragAndDrop
+        collisionDetection={catalogCollision(spareRowCollision(spare))}
+        onDragStart={({ active }) => {
+          if (isCatalogDrag(active.data.current)) setCarried(active.data.current.entry)
+          else snapshot.current = board
+        }}
+        onDragMove={(event) => {
+          if (isCatalogDrag(event.active.data.current)) aim(placeFor(board, spare, event))
+        }}
+        onDragOver={({ active, over }) => {
+          // A catalog tile changes nothing until it is let go: the board
+          // reflowing under the pointer is what made FINDINGS 41 oscillate.
+          if (isCatalogDrag(active.data.current)) return
+          // `dragOver` refuses the spare row, which takes a widget only on
+          // release; `DragAndDrop/CLAUDE.md` says why (FINDINGS 41).
+          if (over) setBoard(report.id, (b) => dragOver(b, active.id, over.id))
+        }}
+        onDragEnd={(event) => {
+          const { active, over } = event
+          if (isCatalogDrag(active.data.current)) {
+            // Worked out again from the release, not read from `target`,
+            // which is a render behind the last move.
+            const place = placeFor(board, spare, event)
+            if (place) add(active.data.current.entry, place)
+            setCarried(null)
+            setTarget(null)
+            return
+          }
+          setBoard(report.id, (b) => dragEnd(b, active.id, over ? over.id : null))
+          swallowNextClick()
+        }}
+        onDragCancel={({ active }) => {
+          if (isCatalogDrag(active.data.current)) {
+            setCarried(null)
+            setTarget(null)
+            return
+          }
+          setBoard(report.id, () => snapshot.current)
+        }}
+      >
+        {/* On a desktop the strip under each row is the gap between rows. */}
+        <div ref={rowHeights.container} className="flex flex-col max-md:gap-3">
+          {board.order.map((row, index) => {
+            const items = board.containers[row]!
+            const spans = rowSpans(board, row) as ColumnSpan[]
+            const isSpare = row === spare
+            const name = isSpare ? 'New row' : `Row ${index + 1}`
+            // A row is as tall as its widgets until somebody sizes it; then
+            // it holds that height and the charts in it follow.
+            const fixed = board.heights[row]
+            // Where a carried catalog tile would land: in this row, or in a
+            // new row under it (a full row), or the spare.
+            const dropInto =
+              target !== null &&
+              ((typeof target === 'object' && 'row' in target && target.row === row) ||
+                (target === 'end' && isSpare))
+            const dropUnder =
+              target !== null &&
+              typeof target === 'object' &&
+              'afterRow' in target &&
+              target.afterRow === row
+            return (
+              <div
+                key={row}
+                className="relative flex flex-col"
+                style={fixed ? ({ '--row-height': `${fixed}px` } as CSSProperties) : undefined}
+              >
+                <Sortable
+                  data-row={row}
+                  id={row}
+                  label={name}
+                  items={items}
+                  capacity={MAX_BLOCKS_PER_ROW}
+                  strategy={horizontalListSortingStrategy}
+                  // The spare row holds a button, not widgets, so it is a group
+                  // until something is carried into it (axe: a list owns items).
+                  role={isSpare ? 'group' : 'list'}
+                  aria-label={name}
+                  // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
+                  className={cn(
+                    'grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1',
+                    dropInto && !isSpare && dropTarget,
+                  )}
+                >
+                  {isSpare ? (
+                    // The file's dashed Add widget zone, and the drop target
+                    // that gives a carried widget a row of its own. The whole
+                    // zone is the button.
+                    <Button
+                      appearance="ghost"
+                      startIcon={Plus}
+                      aria-expanded={addOpen}
+                      onClick={toggleAdd}
+                      className={cn(
+                        'col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized',
+                        dropInto && 'bg-action-ghost-background-hover',
+                      )}
+                    >
+                      Add widget
+                    </Button>
+                  ) : (
+                    items.map((id, position) => {
+                      const widget = widgetFor(report.id, id) ?? current.widgets[id]!
+                      return (
+                        <WidgetBlock
+                          key={id}
+                          report={report}
+                          widget={widget}
+                          span={spans[position]!}
+                          max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
+                          range={range}
+                          rowHeight={fixed}
+                          highlight={id === justAdded}
+                          onResize={(block, span) =>
+                            setBoard(report.id, (b) => resizeBlock(b, block, span))
+                          }
+                        />
+                      )
+                    })
+                  )}
+                </Sortable>
+                {dropUnder ? (
+                  // A full row takes no more: the tile would start a row under it.
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 -bottom-2.5 h-1 rounded-full bg-focus-focus-outer-border max-md:-bottom-2"
+                  />
+                ) : null}
+                {isSpare ? null : (
+                  // The strip under a row sets its height, from the height it
+                  // has now — measured, until it has been sized by hand.
+                  <ResizeHandle
+                    label={`Resize ${name} height`}
+                    orientation="horizontal"
+                    value={fixed ?? rowHeights.measured[row] ?? DEFAULT_ROW_HEIGHT}
+                    min={MIN_ROW_HEIGHT}
+                    max={MAX_ROW_HEIGHT}
+                    step={8}
+                    largeStep={40}
+                    valueText={(value) => `${value} pixels`}
+                    onResize={(value) => setBoard(report.id, (b) => resizeRow(b, row, value))}
+                    className="max-md:hidden"
+                  />
+                )}
+              </div>
+            )
+          })}
         </div>
 
-        {empty ? (
-          // A Blank report, or one with every widget removed.
-          <div className="flex flex-col items-center gap-1 rounded-lg bg-surface-background-primary px-4 py-10 text-center">
-            <Icon icon={LayoutDashboard} className="mb-2 text-content-subtle" aria-hidden />
-            <Heading level={2} size="base" weight="semibold">
-              This report has no widgets yet
-            </Heading>
-            <Text color="subtle">
-              Add a widget to chart {report.topics.join(', ') || report.name}, then change it to
-              whatever you need.
-            </Text>
-          </div>
+        {/* Rendered here so its tiles are inside this drag context, and
+            portalled after the Page, where the shell's panels go. */}
+        {shell.screenPanelHost
+          ? createPortal(
+              <AddWidgetPanel
+                open={addOpen}
+                onClose={() => shell.setPanel(null)}
+                onAdd={(entry) => add(entry, 'end')}
+                report={report}
+                announcement={announcement}
+              />,
+              shell.screenPanelHost,
+            )
+          : null}
+        {/* The panel's body scrolls and would clip a tile carried out of it.
+            Mounted only for a catalog drag: an overlay present during a
+            widget's own drag is what dnd-kit measures and aims with, even
+            empty, and the board's drags are built on the widget itself. */}
+        {carried ? (
+          <DragAndDrop.Overlay>
+            <Card className="w-44 cursor-grabbing shadow-high">
+              <CatalogTileFace entry={carried} />
+            </Card>
+          </DragAndDrop.Overlay>
         ) : null}
-
-        <DragAndDrop
-          collisionDetection={catalogCollision(spareRowCollision(spare))}
-          onDragStart={({ active }) => {
-            if (isCatalogDrag(active.data.current)) setCarried(active.data.current.entry)
-            else snapshot.current = board
-          }}
-          onDragMove={(event) => {
-            if (isCatalogDrag(event.active.data.current)) aim(placeFor(board, spare, event))
-          }}
-          onDragOver={({ active, over }) => {
-            // A catalog tile changes nothing until it is let go: the board
-            // reflowing under the pointer is what made FINDINGS 41 oscillate.
-            if (isCatalogDrag(active.data.current)) return
-            // `dragOver` refuses the spare row, which takes a widget only on
-            // release; `DragAndDrop/CLAUDE.md` says why (FINDINGS 41).
-            if (over) setBoard(report.id, (b) => dragOver(b, active.id, over.id))
-          }}
-          onDragEnd={(event) => {
-            const { active, over } = event
-            if (isCatalogDrag(active.data.current)) {
-              // Worked out again from the release, not read from `target`,
-              // which is a render behind the last move.
-              const place = placeFor(board, spare, event)
-              if (place) add(active.data.current.entry, place)
-              setCarried(null)
-              setTarget(null)
-              return
-            }
-            setBoard(report.id, (b) => dragEnd(b, active.id, over ? over.id : null))
-            swallowNextClick()
-          }}
-          onDragCancel={({ active }) => {
-            if (isCatalogDrag(active.data.current)) {
-              setCarried(null)
-              setTarget(null)
-              return
-            }
-            setBoard(report.id, () => snapshot.current)
-          }}
-        >
-          {/* On a desktop the strip under each row is the gap between rows. */}
-          <div ref={rowHeights.container} className="flex flex-col max-md:gap-3">
-            {board.order.map((row, index) => {
-              const items = board.containers[row]!
-              const spans = rowSpans(board, row) as ColumnSpan[]
-              const isSpare = row === spare
-              const name = isSpare ? 'New row' : `Row ${index + 1}`
-              // A row is as tall as its widgets until somebody sizes it; then
-              // it holds that height and the charts in it follow.
-              const fixed = board.heights[row]
-              // Where a carried catalog tile would land: in this row, or in a
-              // new row under it (a full row), or the spare.
-              const dropInto =
-                target !== null &&
-                ((typeof target === 'object' && 'row' in target && target.row === row) ||
-                  (target === 'end' && isSpare))
-              const dropUnder =
-                target !== null &&
-                typeof target === 'object' &&
-                'afterRow' in target &&
-                target.afterRow === row
-              return (
-                <div
-                  key={row}
-                  className="relative flex flex-col"
-                  style={fixed ? ({ '--row-height': `${fixed}px` } as CSSProperties) : undefined}
-                >
-                  <Sortable
-                    data-row={row}
-                    id={row}
-                    label={name}
-                    items={items}
-                    capacity={MAX_BLOCKS_PER_ROW}
-                    strategy={horizontalListSortingStrategy}
-                    // The spare row holds a button, not widgets, so it is a group
-                    // until something is carried into it (axe: a list owns items).
-                    role={isSpare ? 'group' : 'list'}
-                    aria-label={name}
-                    // A floor, so a row emptied mid-drag keeps a rect its widget can come back to.
-                    className={cn(
-                      'grid min-h-16 min-w-0 grid-cols-12 gap-3 rounded-lg max-md:grid-cols-1',
-                      dropInto && !isSpare && dropTarget,
-                    )}
-                  >
-                    {isSpare ? (
-                      // The file's dashed Add widget zone, and the drop target
-                      // that gives a carried widget a row of its own. The whole
-                      // zone is the button.
-                      <Button
-                        appearance="ghost"
-                        startIcon={Plus}
-                        aria-expanded={addOpen}
-                        onClick={toggleAdd}
-                        className={cn(
-                          'col-span-full h-12 w-full rounded-lg border-dashed border-surface-border-emphasized hover:border-surface-border-emphasized',
-                          dropInto && 'bg-action-ghost-background-hover',
-                        )}
-                      >
-                        Add widget
-                      </Button>
-                    ) : (
-                      items.map((id, position) => {
-                        const widget = widgetFor(report.id, id) ?? current.widgets[id]!
-                        return (
-                          <WidgetBlock
-                            key={id}
-                            report={report}
-                            widget={widget}
-                            span={spans[position]!}
-                            max={position < items.length - 1 ? maxSpan(spans, position) : undefined}
-                            range={range}
-                            rowHeight={fixed}
-                            highlight={id === justAdded}
-                            onResize={(block, span) =>
-                              setBoard(report.id, (b) => resizeBlock(b, block, span))
-                            }
-                          />
-                        )
-                      })
-                    )}
-                  </Sortable>
-                  {dropUnder ? (
-                    // A full row takes no more: the tile would start a row under it.
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-x-0 -bottom-2.5 h-1 rounded-full bg-focus-focus-outer-border max-md:-bottom-2"
-                    />
-                  ) : null}
-                  {isSpare ? null : (
-                    // The strip under a row sets its height, from the height it
-                    // has now — measured, until it has been sized by hand.
-                    <ResizeHandle
-                      label={`Resize ${name} height`}
-                      orientation="horizontal"
-                      value={fixed ?? rowHeights.measured[row] ?? DEFAULT_ROW_HEIGHT}
-                      min={MIN_ROW_HEIGHT}
-                      max={MAX_ROW_HEIGHT}
-                      step={8}
-                      largeStep={40}
-                      valueText={(value) => `${value} pixels`}
-                      onResize={(value) => setBoard(report.id, (b) => resizeRow(b, row, value))}
-                      className="max-md:hidden"
-                    />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Rendered here so its tiles are inside this drag context, and
-              portalled after the Page, where the shell's panels go. */}
-          {shell.screenPanelHost
-            ? createPortal(
-                <AddWidgetPanel
-                  open={addOpen}
-                  onClose={() => shell.setPanel(null)}
-                  onAdd={(entry) => add(entry, 'end')}
-                  announcement={announcement}
-                />,
-                shell.screenPanelHost,
-              )
-            : null}
-          {/* The panel's body scrolls and would clip a tile carried out of it.
-              Mounted only for a catalog drag: an overlay present during a
-              widget's own drag is what dnd-kit measures and aims with, even
-              empty, and the board's drags are built on the widget itself. */}
-          {carried ? (
-            <DragAndDrop.Overlay>
-              <Card className="w-44 cursor-grabbing shadow-high">
-                <CatalogTileFace entry={carried} />
-              </Card>
-            </DragAndDrop.Overlay>
-          ) : null}
-        </DragAndDrop>
-      </AppShell.Content>
+      </DragAndDrop>
     </>
   )
 }

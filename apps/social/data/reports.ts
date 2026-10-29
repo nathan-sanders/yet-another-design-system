@@ -1,16 +1,19 @@
+import { campaigns } from './campaigns'
 import { addDays, startOfDay, toISODate } from './dates'
 import { seeded } from './performance'
-import type {
-  FeedItem,
-  GroupBy,
-  Report,
-  ReportType,
-  Spike,
-  Story,
-  Voice,
-  Widget,
-  WidgetMeasure,
-  WidgetSources,
+import {
+  NETWORK_NAMES,
+  type Campaign,
+  type FeedItem,
+  type GroupBy,
+  type Report,
+  type ReportType,
+  type Spike,
+  type Story,
+  type Voice,
+  type Widget,
+  type WidgetMeasure,
+  type WidgetSources,
 } from './types'
 
 // Measure › Reports: the list (`40005911:34877`), and the boards behind it.
@@ -780,9 +783,81 @@ function template(type: ReportType, report: Report): BoardFixture {
   }
 }
 
+// ---------------------------------------------------------------------------
+// A campaign's Measure tab (`40006187:44493`)
+// ---------------------------------------------------------------------------
+
+/** The id of a campaign's own report. */
+export const campaignReportId = (campaignId: string) => `campaign-${campaignId}`
+
+/**
+ * Every campaign has a report of its own, its Measure tab. Its topics are the
+ * campaign's hashtags, or its name, so the generic widgets added to it chart
+ * the campaign. It isn't one of Measure › Reports' list.
+ */
+export function campaignReport(campaign: Campaign): Report {
+  return {
+    id: campaignReportId(campaign.id),
+    name: campaign.name,
+    kind: 'custom',
+    createdBy: campaign.ownerId,
+    sharedWith: 'all',
+    topics: campaign.brief?.hashtags ?? [campaign.name],
+    campaignId: campaign.id,
+  }
+}
+
+export const campaignReports: Report[] = campaigns.map(campaignReport)
+
+/** The channels a campaign's charts break down by, as series names. */
+function channelSeries(campaign: Campaign | undefined): string[] {
+  return (campaign?.channels ?? ['instagram']).map((n) => NETWORK_NAMES[n])
+}
+
+/**
+ * The file's board: results against targets, reach by channel, engagements by
+ * channel (creators counted as a channel of their own) beside the hashtags,
+ * then the top posts and the creators' posts.
+ */
+function campaignBoard(report: Report): BoardFixture {
+  const campaign = campaigns.find((c) => c.id === report.campaignId)
+  const channels = channelSeries(campaign)
+  const withCreators = campaign?.creators?.length
+    ? [...channels.slice(0, -1), 'Creators', ...channels.slice(-1)]
+    : channels
+  return laidOut(
+    [
+      widget({ id: 'targets', kind: 'targets', title: 'Results vs targets', viz: 'metric' }),
+      widget({
+        id: 'reach',
+        kind: 'chart',
+        title: 'Reach by channel',
+        viz: 'line',
+        measure: 'reach',
+        series: channels,
+        compare: false,
+      }),
+      widget({
+        id: 'engagements',
+        kind: 'chart',
+        title: 'Engagements by channel',
+        viz: 'bar',
+        measure: 'engagements',
+        series: withCreators,
+        compare: false,
+      }),
+      widget({ id: 'hashtags', kind: 'hashtags', title: 'Hashtag mentions', viz: 'table' }),
+      widget({ id: 'top-posts', kind: 'campaign-posts', title: 'Top posts', viz: 'table' }),
+      widget({ id: 'creators', kind: 'creator-posts', title: 'Creator posts', viz: 'table' }),
+    ],
+    [['targets'], ['reach'], ['engagements', 'hashtags'], ['top-posts'], ['creators']],
+  )
+}
+
 /** The board a report opens on, or nothing for a built-in report, which has no design. */
 export function boardFixture(report: Report): BoardFixture | undefined {
   if (report.kind === 'builtin') return undefined
+  if (report.campaignId) return campaignBoard(report)
   if (report.type) return template(report.type, report)
   return report.id === 'brand-pulse' ? brandPulse() : generated(report)
 }

@@ -110,6 +110,7 @@ export const campaigns: Campaign[] = [
             day: -4,
             status: 'posted',
             time: '16:00',
+            reach: 31_200,
             photo: saladBowl,
             photoAlt: 'A salad bowl from above',
           },
@@ -134,6 +135,36 @@ export const campaigns: Campaign[] = [
         status: 'invited',
         // Not on the plan until he says yes; the date is the offer's.
         work: [{ id: 'w-davis-1', title: 'Blind taste test', day: 4, status: 'due' }],
+      },
+    ],
+    // Measure's Hashtag mentions (`40006187:44493`).
+    mentions: [
+      {
+        label: '#SummerMenu',
+        kind: 'hashtag',
+        count: 1_480,
+        detail: '1,480 mentions · 62% from customers',
+        change: 18,
+      },
+      {
+        label: '#VeggieVault',
+        kind: 'hashtag',
+        count: 640,
+        detail: '640 mentions since launch',
+        change: 6,
+      },
+      {
+        label: '#BowlSeason',
+        kind: 'hashtag',
+        count: 290,
+        detail: '290 mentions · mostly TikTok',
+        change: 41,
+      },
+      {
+        label: 'Mango Chili Grain Bowl',
+        kind: 'product',
+        count: 210,
+        detail: 'Named in 210 posts and comments',
       },
     ],
     insight:

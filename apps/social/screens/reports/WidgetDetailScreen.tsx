@@ -14,6 +14,7 @@ import { useShell } from '../../shell/ShellContext'
 import { GROUP_BY_LABEL, boardPath, isTimeViz, peakDay, peakHour } from './model'
 import { RangeControl } from './RangeControl'
 import { Viewing } from '../../components/BackTopBar'
+import { campaignPath } from '../campaigns/paths'
 import { Placeholder, ReportTopBar } from './ReportScreen'
 import { useReports } from './reportsState'
 import { ViewMessagesButton } from '../../components/ViewMessagesButton'
@@ -120,7 +121,10 @@ export function WidgetDetailScreen() {
   }
 
   const timeChart = widget.kind === 'chart' && isTimeViz(widget.viz)
-  const boardHref = `${boardPath(report.id)}${params.get('range') ? `?range=${range}` : ''}`
+  // A campaign's widget goes back to the campaign's Measure tab, where its board is.
+  const boardHref = report.campaignId
+    ? `${campaignPath(report.campaignId, 'measure')}${params.get('range') ? `&range=${range}` : ''}`
+    : `${boardPath(report.id)}${params.get('range') ? `?range=${range}` : ''}`
 
   // The detail's range, so the list behind it is the one this page is showing.
   const messages = widgetMentionQuery(report, widget, range)

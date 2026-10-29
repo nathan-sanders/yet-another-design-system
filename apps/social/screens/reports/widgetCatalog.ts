@@ -5,12 +5,14 @@ import {
   ChartNoAxesColumn,
   ChartPie,
   Gauge,
+  Hash,
   Heart,
   LayoutGrid,
   Newspaper,
   Rss,
   Send,
   Table2,
+  Target,
   TrendingUp,
   Users,
   Zap,
@@ -20,7 +22,7 @@ import {
 import { widget } from '../../data/reports'
 import type { Report, Widget } from '../../data/types'
 
-export type CatalogGroup = 'Charts' | 'Monitoring' | 'Lists'
+export type CatalogGroup = 'Charts' | 'Monitoring' | 'Lists' | 'Campaign'
 
 /** One widget the Add widget panel offers. `make` builds it for the report it is added to. */
 export interface CatalogEntry {
@@ -32,6 +34,8 @@ export interface CatalogEntry {
   keywords: string
   icon: LucideIcon
   make: (report: Report, id: string) => Widget
+  /** Only a campaign's report offers it: it reads the campaign. */
+  campaignOnly?: boolean
 }
 
 /** A chart's series: the report's topics, or the report itself when it tracks none. */
@@ -283,9 +287,50 @@ export const CATALOG: CatalogEntry[] = [
         sources: sourcesOf(report),
       }),
   },
+  // A campaign's own (`40006187:44493`), offered only on its Measure tab.
+  {
+    id: 'targets',
+    keywords: 'goals kpi metric results',
+    group: 'Campaign',
+    title: 'Results vs targets',
+    description: 'Each number against the campaign’s target',
+    icon: Target,
+    campaignOnly: true,
+    make: (_, id) => widget({ id, kind: 'targets', title: 'Results vs targets', viz: 'metric' }),
+  },
+  {
+    id: 'hashtags',
+    keywords: 'list tags products',
+    group: 'Campaign',
+    title: 'Hashtag mentions',
+    description: 'The campaign’s hashtags and products, and how they’re moving',
+    icon: Hash,
+    campaignOnly: true,
+    make: (_, id) => widget({ id, kind: 'hashtags', title: 'Hashtag mentions', viz: 'table' }),
+  },
+  {
+    id: 'campaign-posts',
+    keywords: 'table published sentiment',
+    group: 'Campaign',
+    title: 'Top posts',
+    description: 'The campaign’s published posts, most engaged first',
+    icon: Send,
+    campaignOnly: true,
+    make: (_, id) => widget({ id, kind: 'campaign-posts', title: 'Top posts', viz: 'table' }),
+  },
+  {
+    id: 'creator-posts',
+    keywords: 'table creators influencers',
+    group: 'Campaign',
+    title: 'Creator posts',
+    description: 'What each creator has posted, and its reach',
+    icon: Users,
+    campaignOnly: true,
+    make: (_, id) => widget({ id, kind: 'creator-posts', title: 'Creator posts', viz: 'table' }),
+  },
 ]
 
-export const CATALOG_GROUPS: CatalogGroup[] = ['Charts', 'Monitoring', 'Lists']
+export const CATALOG_GROUPS: CatalogGroup[] = ['Campaign', 'Charts', 'Monitoring', 'Lists']
 
 /** The id a catalog tile carries while it is dragged, so the board can tell it from a widget. */
 export const catalogDragId = (entry: CatalogEntry) => `catalog:${entry.id}`
@@ -301,10 +346,11 @@ export function isCatalogDrag(data: unknown): data is CatalogDragData {
 }
 
 /** Entries whose title, description, group or keywords have `query` in them. */
-export function searchCatalog(query: string): CatalogEntry[] {
+export function searchCatalog(query: string, report?: Report): CatalogEntry[] {
+  const offered = CATALOG.filter((entry) => !entry.campaignOnly || report?.campaignId)
   const q = query.trim().toLowerCase()
-  if (!q) return CATALOG
-  return CATALOG.filter((entry) =>
+  if (!q) return offered
+  return offered.filter((entry) =>
     [entry.title, entry.description, entry.group, entry.keywords].some((text) =>
       text.toLowerCase().includes(q),
     ),
