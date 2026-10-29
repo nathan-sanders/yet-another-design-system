@@ -1527,8 +1527,19 @@ opens a "designed, not built yet" page that links `Campaign page · Overview` `4
     code-first: the file draws only the 1156 width. On a phone a scrolled bar's name scrolls off
     with it. Sticky names would fix that, and it's left for when the page is designed for phones.
 
+184. **The year navigation steps the same twelve weeks a whole year** (Nathan's call), in `?year=`.
+    The year between the arrows is the year on screen. Pressing it comes back to today, as the
+    layer name "Button / Today" suggests, so off this year its name is "2027, back to 2026".
+    A stepped year draws no today line, and a past year is hatched end to end. Once a date on an
+    edge Token is more than six months from the weeks drawn, it gets its year ("starts Jan 13,
+    2027 →"); the default view keeps the file's "starts Jan 13 →". On a phone an off-range year
+    opens scrolled to the edge nearest today, where those tokens sit, and Filter hides, as the
+    calendar's does, to give the arrows room.
+
 ### Measured, and fine
 
+- Year navigation: 42 / 62 / 42, 8 after the view switch, as `Year Navigation` has it. At 390 the
+  bar holds the switch, the arrows and More with no overlap.
 - Table: head 32, rows 56, swatch 16 with its 1px highlight ring, Status Token 20 tall, Spark
   68 × 24, owner avatar 20. Dates sorts both ways through `?sort=dates&dir=`.
 - Timeline: header 40, rows 44, bars 28 tall and 8 from the row top, 8px corners squared on a

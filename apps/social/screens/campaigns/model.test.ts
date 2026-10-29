@@ -4,8 +4,10 @@ import type { Campaign } from '../../data/types'
 import {
   compactCount,
   dateRangeLabel,
+  edgeDateLabel,
   placeBar,
   postsLabel,
+  shiftYears,
   startOfMondayWeek,
   timelineRange,
   todayPosition,
@@ -41,6 +43,41 @@ describe('timelineRange', () => {
   it('starts the week on Monday, even from a Sunday', () => {
     expect(startOfMondayWeek(new Date(2026, 10, 1))).toEqual(new Date(2026, 9, 26))
     expect(startOfMondayWeek(new Date(2026, 9, 26))).toEqual(new Date(2026, 9, 26))
+  })
+})
+
+describe('year navigation', () => {
+  const nextYear = timelineRange(shiftYears(today, 1))
+
+  it('draws the same weeks a year on, still starting Monday', () => {
+    expect(nextYear.start).toEqual(new Date(2027, 8, 27))
+    expect(nextYear.start.getDay()).toBe(1)
+  })
+
+  it('puts today off the range, so no line is drawn', () => {
+    expect(todayPosition(nextYear, today)).toBeLessThan(0)
+    expect(todayPosition(timelineRange(shiftYears(today, -1)), today)).toBeGreaterThan(1)
+  })
+
+  it('keeps an open-ended campaign running across the next year', () => {
+    expect(placeBar(campaign(-57, null), nextYear, today)).toMatchObject({
+      kind: 'bar',
+      left: 0,
+      width: 1,
+    })
+    expect(placeBar(campaign(-23, -2), nextYear, today).kind).toBe('before')
+  })
+
+  it('adds the year to an edge date only once it is far from the weeks drawn', () => {
+    expect(edgeDateLabel(new Date(2027, 0, 12), range)).toBe('Jan 12')
+    expect(edgeDateLabel(new Date(2027, 0, 12), timelineRange(shiftYears(today, -1)))).toBe(
+      'Jan 12, 2027',
+    )
+    expect(edgeDateLabel(new Date(2026, 9, 26), nextYear)).toBe('Oct 26, 2026')
+  })
+
+  it('rolls a leap day to Mar 1', () => {
+    expect(shiftYears(new Date(2028, 1, 29), 1)).toEqual(new Date(2029, 2, 1))
   })
 })
 

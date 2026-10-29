@@ -8,7 +8,7 @@ import { CampaignBar } from '../../components/CampaignBar'
 import { monthDay, sameDay } from '../../data/dates'
 import type { Campaign } from '../../data/types'
 import { pastDayPattern, today } from '../calendar/model'
-import { placeBar, startOfMondayWeek, timelineRange, todayPosition } from './model'
+import { edgeDateLabel, placeBar, startOfMondayWeek, timelineRange, todayPosition } from './model'
 import { campaignPath } from './paths'
 
 /**
@@ -26,21 +26,36 @@ import { campaignPath } from './paths'
  * the file's "Austin store opening · starts Jan 12 →" — so every campaign has a
  * row and a way in.
  */
-export function CampaignsTimeline({ campaigns }: { campaigns: Campaign[] }) {
-  const range = timelineRange()
+export function CampaignsTimeline({
+  campaigns,
+  anchor = today,
+}: {
+  campaigns: Campaign[]
+  /** The day the weeks are drawn around: today, or today a few years away. */
+  anchor?: Date
+}) {
+  const range = timelineRange(anchor)
   const thisWeek = startOfMondayWeek(today)
   const todayAt = todayPosition(range)
-  // Everything before today: the hatch stops where today begins.
-  const pastWidth = todayAt - 0.5 / range.days
+  const todayInRange = todayAt > 0 && todayAt < 1
+  // Everything before today: the hatch stops where today begins, so a past
+  // year is hatched end to end and a year ahead not at all.
+  const pastWidth = Math.min(Math.max(todayAt - 0.5 / range.days, 0), 1)
 
   // When the weeks don't fit, open on today rather than on four weeks ago:
-  // today a third of the way in, so what is coming has the room.
+  // today a third of the way in, so what is coming has the room. A year
+  // behind opens at its end and a year ahead at its start, the edge nearest
+  // today, where the "starts …" and "ended …" tokens sit.
   const scroller = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const el = scroller.current
     if (!el || el.scrollWidth <= el.clientWidth) return
-    el.scrollLeft = todayAt * el.scrollWidth - el.clientWidth / 3
-  }, [todayAt])
+    el.scrollLeft = todayInRange
+      ? todayAt * el.scrollWidth - el.clientWidth / 3
+      : todayAt >= 1
+        ? el.scrollWidth
+        : 0
+  }, [todayAt, todayInRange])
 
   return (
     <div
@@ -109,12 +124,14 @@ export function CampaignsTimeline({ campaigns }: { campaigns: Campaign[] }) {
           </div>
 
           {/* Under the bars, as the file layers it; a bar crossing today stays whole. */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-y-0 left-(--today-left) w-0.5 -translate-x-1/2 bg-content-emphasized"
-          >
-            <span className="absolute -top-1 left-1/2 size-2 -translate-x-1/2 rounded-full bg-content-emphasized" />
-          </div>
+          {todayInRange && (
+            <div
+              aria-hidden="true"
+              className="absolute inset-y-0 left-(--today-left) w-0.5 -translate-x-1/2 bg-content-emphasized"
+            >
+              <span className="absolute -top-1 left-1/2 size-2 -translate-x-1/2 rounded-full bg-content-emphasized" />
+            </div>
+          )}
 
           <ul aria-label="Campaigns" className="relative">
             {campaigns.map((campaign) => {
@@ -141,8 +158,8 @@ export function CampaignsTimeline({ campaigns }: { campaigns: Campaign[] }) {
                       )}
                     >
                       {place.kind === 'after'
-                        ? `${campaign.name} · starts ${monthDay.format(place.start)} →`
-                        : `← ${campaign.name} · ended ${monthDay.format(place.end)}`}
+                        ? `${campaign.name} · starts ${edgeDateLabel(place.start, range)} →`
+                        : `← ${campaign.name} · ended ${edgeDateLabel(place.end, range)}`}
                     </Token>
                   )}
                   <Divider
