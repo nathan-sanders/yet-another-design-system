@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import type { Draft } from '../../data/drafts'
 import { profiles } from '../../data/posts'
+import { defaultPostType } from '../../data/postTypes'
 import type { Network, PostFormat } from '../../data/types'
 import type { DraftInput, PostInput, ScheduleAt } from '../calendar/scheduleState'
 
@@ -10,11 +11,14 @@ import type { DraftInput, PostInput, ScheduleAt } from '../calendar/scheduleStat
  * channels: posts stay one channel each in the data, so saving fans out to one
  * draft or post per chosen profile, all sharing the caption and media. A
  * network can carry its own caption (`captions`), which is what lets Yak write
- * "the Threads version" into one tab while Instagram keeps the original.
+ * "the Threads version" into one tab while Instagram keeps the original. The
+ * post type is always per network (`formats`), because the networks do not
+ * share a list of types: a Reel on Instagram is a Video on TikTok.
  */
 export interface ComposeFields {
   profileIds: string[]
-  format: PostFormat
+  /** Each network's post type; a network not in here is on its first. */
+  formats: Partial<Record<Network, PostFormat>>
   /** The caption for every channel without one of its own. */
   caption: string
   /** Per-network captions, overriding `caption`. */
@@ -43,7 +47,7 @@ export type CaptionTab = 'all' | Network
 export function emptyFields(at: ScheduleAt | null = null): ComposeFields {
   return {
     profileIds: [DEFAULT_PROFILE],
-    format: 'post',
+    formats: {},
     caption: '',
     captions: {},
     media: [],
@@ -61,6 +65,11 @@ export function networkOf(profileId: string): Network | undefined {
 /** The caption a channel goes out with: its own, or the shared one. */
 export function captionFor(fields: ComposeFields, network: Network | undefined): string {
   return (network && fields.captions[network]) || fields.caption
+}
+
+/** The type a channel goes out as: the one picked on its tab, or its network's first. */
+export function formatFor(fields: ComposeFields, network: Network): PostFormat {
+  return fields.formats[network] ?? defaultPostType(network)
 }
 
 /** The composer's state: the fields, a setter for any one of them, and a patch. */
@@ -87,7 +96,7 @@ function common(fields: ComposeFields, profileId: string) {
     tagNames: fields.tagNames.length ? fields.tagNames : undefined,
     assigneeId: fields.assigneeId,
     needsApproval: fields.needsApproval || undefined,
-    format: fields.format,
+    format: network ? formatFor(fields, network) : undefined,
     firstComment: fields.firstComment.trim() || undefined,
   }
 }

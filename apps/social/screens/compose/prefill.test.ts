@@ -28,11 +28,11 @@ describe('prefillFromIdea', () => {
     expect(fields.at).toBeNull()
   })
 
-  it('reads the format off the notes when the title does not say', () => {
-    expect(prefillFromIdea(idea).format).toBe('carousel')
-    expect(prefillFromIdea({ ...idea, title: 'Reel: Harvest Glow', body: 'Top down.' }).format).toBe(
-      'reel',
-    )
+  it('reads the type off the notes when the title does not say, onto Instagram', () => {
+    expect(prefillFromIdea(idea).formats).toEqual({ instagram: 'carousel' })
+    expect(
+      prefillFromIdea({ ...idea, title: 'Reel: Harvest Glow', body: 'Top down.' }).formats,
+    ).toEqual({ instagram: 'reel' })
   })
 
   it('starts with nothing where the idea has nothing', () => {
@@ -40,7 +40,7 @@ describe('prefillFromIdea', () => {
     expect(bare.caption).toBe('A thought')
     expect(bare.media).toEqual([])
     expect(bare.tagNames).toEqual([])
-    expect(bare.format).toBe('post')
+    expect(bare.formats).toEqual({ instagram: 'post' })
   })
 })
 
@@ -68,5 +68,30 @@ describe('prefillFromDraft', () => {
     expect(fields.caption).toBe('Hot take')
     expect(fields.needsApproval).toBe(true)
     expect(fields.captions).toEqual({})
+    expect(fields.formats).toEqual({})
+  })
+
+  it('keeps the type on the draft’s own network', () => {
+    const draft: Draft = {
+      id: 'd-2',
+      profileId: 'vv-tiktok',
+      body: 'Wrap and go',
+      authorId: 'katie',
+      edited: 'now',
+      format: 'video',
+    }
+    expect(prefillFromDraft(draft).formats).toEqual({ tiktok: 'video' })
+  })
+
+  it('drops a type the draft’s network does not have', () => {
+    const draft: Draft = {
+      id: 'd-3',
+      profileId: 'vv-x',
+      body: 'Hot take',
+      authorId: 'katie',
+      edited: 'now',
+      format: 'reel',
+    }
+    expect(prefillFromDraft(draft).formats).toEqual({})
   })
 })

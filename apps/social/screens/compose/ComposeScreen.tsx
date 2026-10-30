@@ -30,6 +30,7 @@ import { ChannelRow } from './ChannelRow'
 import {
   captionFor,
   emptyFields,
+  formatFor,
   networkOf,
   toDraftInput,
   toDraftPatch,
@@ -332,8 +333,10 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
           />
           <CaptionBlock
             network={tabNetwork}
-            format={fields.format}
-            onFormatChange={(format) => set('format', format)}
+            format={tabNetwork ? formatFor(fields, tabNetwork) : null}
+            onFormatChange={(format) => {
+              if (tabNetwork) set('formats', { ...fields.formats, [tabNetwork]: format })
+            }}
             caption={captionShown}
             onCaptionChange={setCaption}
             media={fields.media}
@@ -396,7 +399,7 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
             profile={previewProfile}
             caption={captionFor(fields, previewOn)}
             media={fields.media}
-            format={fields.format}
+            format={formatFor(fields, previewOn)}
             at={fields.at}
           />
         </aside>
