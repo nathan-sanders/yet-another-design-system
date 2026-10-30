@@ -118,13 +118,20 @@ export const controlRowInner = 'flex w-full items-center gap-3'
  * The label column. Inside a card it takes the leftover width so a long
  * description wraps rather than widening the card; outside one the row hugs
  * its content, as Figma draws it.
+ *
+ * Hugging is the column's natural width, not a refusal to shrink. It was
+ * `shrink-0`, which is the same thing while the text fits and an overflow
+ * once it does not: Yet Social's composer at 375 ran a Switch's description
+ * 28px past its column. Flex shrinking only engages when the content cannot
+ * fit, so a short label still sits at its own width and a long sentence wraps
+ * inside a narrow parent.
  */
 export const controlLabelColumn = tv({
   base: 'flex flex-col items-start',
   variants: {
     fill: {
       true: 'min-w-px flex-1',
-      false: 'shrink-0',
+      false: 'min-w-0',
     },
   },
   defaultVariants: { fill: false },

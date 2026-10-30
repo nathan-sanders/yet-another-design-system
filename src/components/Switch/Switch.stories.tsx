@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, within } from 'storybook/test'
 
 import { Switch } from './Switch'
 import { Heading, Text } from '../Text'
@@ -122,6 +123,40 @@ export const WithDescription: Story = {
 }
 
 /**
+ * A long description in a narrow column — Yet Social's composer at 375, where
+ * the sentence used to run 28px past the column. The label column keeps its
+ * natural width while it fits, so a short label still hugs as Figma draws it,
+ * and shrinks only when it would not, so the sentence wraps instead.
+ */
+export const NarrowContainer: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div data-testid="column" className="flex w-60 flex-col gap-4">
+      <Switch {...args} label="Short" />
+      <Switch
+        {...args}
+        label="Needs approval"
+        description="Goes out for review instead of straight to the calendar."
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const column = canvas.getByTestId('column').getBoundingClientRect()
+
+    const short = canvas.getByText('Short').parentElement!.getBoundingClientRect()
+    await expect(short.right).toBeLessThan(column.right - 1)
+
+    const long = canvas.getByText('Needs approval').parentElement!.getBoundingClientRect()
+    await expect(long.right).toBeLessThanOrEqual(column.right + 0.5)
+
+    const description = canvas.getByText(/^Goes out for review/)
+    const lineHeight = parseFloat(getComputedStyle(description).lineHeight)
+    await expect(description.getBoundingClientRect().height).toBeGreaterThanOrEqual(lineHeight * 2)
+  },
+}
+
+/**
  * Figma's `In Container` — the card form, for a switch that is its own setting
  * rather than one line of a list. The label goes semibold and
  * Content/Emphasized to match the bigger target, and the whole card highlights
@@ -187,7 +222,9 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <Heading level={2} size="lg">Privacy</Heading>
+      <Heading level={2} size="lg">
+        Privacy
+      </Heading>
       <Switch
         {...args}
         label="Public profile"
