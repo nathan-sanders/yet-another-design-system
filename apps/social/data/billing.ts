@@ -27,14 +27,11 @@ export const yakCredits = {
 export interface PaymentCard {
   brand: 'Visa'
   last4: string
-  /** `MM/YYYY`. */
+  /** `MM/YY`, as the card prints it. */
   expires: string
 }
 
-/** Expires the February after next, so it is never already expired. */
-export function defaultCard(today: Date): PaymentCard {
-  return { brand: 'Visa', last4: '6135', expires: `02/${today.getFullYear() + 1}` }
-}
+export const card: PaymentCard = { brand: 'Visa', last4: '1234', expires: '01/28' }
 
 export type InvoiceStatus = 'paid'
 
