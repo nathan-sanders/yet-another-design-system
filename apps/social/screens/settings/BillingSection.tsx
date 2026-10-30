@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Download, Users } from 'lucide-react'
 
 import { Badge } from '../../../../src/components/Badge'
@@ -16,6 +15,7 @@ import {
   type Invoice,
 } from '../../data/billing'
 import { useShell } from '../../shell/ShellContext'
+import { SettingsBlock, SettingsHeader } from './SettingsBlock'
 
 const longDate = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -35,11 +35,12 @@ const count = new Intl.NumberFormat('en-US')
 /**
  * Settings › Billing: the plan, Yak's monthly credits, the card on file and
  * the invoices, in that order, after the Claude desktop app's Billing page.
- * Code-first, no Figma frame. Each block is a title and its detail on the
- * left with the one action it offers on the right; nothing here is wired to
- * a real payment flow, so the actions say they aren't built.
+ * Code-first, no Figma frame. Each block is a `SettingsBlock`: a title and
+ * its detail on the left, the one action it offers on the right. Nothing here
+ * is wired to a real payment flow, so the actions say they aren't built.
+ * `seatsUsed` is the Team page's count, so an invite sent there shows here.
  */
-export function BillingSection() {
+export function BillingSection({ seatsUsed }: { seatsUsed: number }) {
   const { notBuilt } = useShell()
   const today = new Date()
   const renews = longDate.format(nextRenewal(today))
@@ -97,14 +98,12 @@ export function BillingSection() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-1">
-        <Heading level={3} size="lg" weight="semibold">
-          Billing
-        </Heading>
-        <Text color="subtle">Your plan, payment method and invoices for this workspace.</Text>
-      </div>
+      <SettingsHeader
+        title="Billing"
+        description="Your plan, payment method and invoices for this workspace."
+      />
 
-      <BillingBlock
+      <SettingsBlock
         title={`${plan.name} plan`}
         lead={
           <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-surface-background-subtle text-content-subtle">
@@ -121,11 +120,11 @@ export function BillingSection() {
           {plan.seats} seats and {plan.channels} channels, {money.format(plan.price)} a month.
         </Text>
         <Text color="subtle">
-          {plan.seatsUsed} of {plan.seats} seats in use. Renews automatically on {renews}.
+          {seatsUsed} of {plan.seats} seats in use. Renews automatically on {renews}.
         </Text>
-      </BillingBlock>
+      </SettingsBlock>
 
-      <BillingBlock
+      <SettingsBlock
         title="Yak credits"
         badge={<Badge color="blue">New</Badge>}
         action={
@@ -154,10 +153,10 @@ export function BillingSection() {
         <Text size="sm" color="subtle">
           Resets on {renews}.
         </Text>
-      </BillingBlock>
+      </SettingsBlock>
 
       <div className="flex flex-col gap-6">
-        <BillingBlock
+        <SettingsBlock
           title="Payment"
           action={
             <Button appearance="secondary" onClick={() => notBuilt('Adding payment methods')}>
@@ -168,8 +167,8 @@ export function BillingSection() {
           <Text color="subtle">
             Your default payment method is charged for plan renewals and Yak credit top-ups.
           </Text>
-        </BillingBlock>
-        <BillingBlock
+        </SettingsBlock>
+        <SettingsBlock
           title={
             <span className="flex items-center gap-3">
               <CardMark />
@@ -188,7 +187,7 @@ export function BillingSection() {
           }
         >
           <Text color="subtle">Expires {card.expires}</Text>
-        </BillingBlock>
+        </SettingsBlock>
       </div>
 
       {/* A div, not a named section: the Table's scroll region is already the
@@ -200,45 +199,6 @@ export function BillingSection() {
         <Table label="Invoices" columns={columns} data={invoices} idKey="id" sortable={false} />
       </div>
     </div>
-  )
-}
-
-/**
- * One block of the page: a title row (with an optional badge) and its detail
- * on the left, its action on the right. Below the dialog's `@xl` the action
- * drops under the detail rather than squeezing it.
- */
-function BillingBlock({
-  title,
-  titleWeight = 'semibold',
-  lead,
-  badge,
-  action,
-  children,
-}: {
-  title: ReactNode
-  titleWeight?: 'normal' | 'semibold'
-  lead?: ReactNode
-  badge?: ReactNode
-  action: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <section className="flex flex-col items-start gap-4 @xl/settings:flex-row @xl/settings:justify-between @xl/settings:gap-8">
-      <div className="flex min-w-0 flex-1 items-start gap-4">
-        {lead}
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Heading level={4} size="base" weight={titleWeight}>
-              {title}
-            </Heading>
-            {badge}
-          </div>
-          {children}
-        </div>
-      </div>
-      <div className="shrink-0">{action}</div>
-    </section>
   )
 }
 

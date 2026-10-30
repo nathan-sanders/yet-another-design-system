@@ -10,8 +10,8 @@ export const BILLING_DAY = 19
 export const plan = {
   name: 'Team',
   price: 99,
+  /** Members and pending invites each hold one (`data/team.ts`). */
   seats: 5,
-  seatsUsed: 4,
   channels: 15,
 }
 

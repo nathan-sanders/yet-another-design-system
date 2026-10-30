@@ -1,14 +1,19 @@
-import { useState } from 'react'
-import { Construction } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Dialog } from '../../../../src/components/Dialog'
-import { Icon } from '../../../../src/components/Icon'
 import { NavItem, SideNav } from '../../../../src/components/Nav'
 import { Select } from '../../../../src/components/Select'
-import { Heading, Text } from '../../../../src/components/Text'
+import type { Theme } from '../../../../src/components/ThemeControl'
+import { defaultPreferences } from '../../data/preferences'
+import { initialTeam } from '../../data/team'
 import { BillingSection } from './BillingSection'
 import { ChangelogSection } from './ChangelogSection'
+import { ChannelsSection } from './ChannelsSection'
+import { GeneralSection } from './GeneralSection'
+import { IntegrationsSection } from './IntegrationsSection'
+import { NotificationsSection } from './NotificationsSection'
 import { settingsGroups, useSettingsParam, type SettingsSection } from './sections'
+import { TeamSection } from './TeamSection'
 
 /**
  * Settings, as a modal over the page you were on: a title row, the sections
@@ -19,13 +24,44 @@ import { settingsGroups, useSettingsParam, type SettingsSection } from './sectio
  * The rail is `NavItem`s in `SideNav.Section`s, the app's own nav rows, with
  * `aria-current` on the open section. Below the dialog's `md` the rail would
  * take half a phone, so it becomes a Select above the section.
+ *
+ * Preferences and the team are held here rather than in their sections, so a
+ * switch flipped on Notifications or an invite sent on Team is still there
+ * after a visit to another section, and after closing and reopening. The
+ * theme is the shell's, so General's switch is the same one as the rail's.
  */
-export function SettingsDialog() {
+export function SettingsDialog({
+  theme,
+  onThemeChange,
+}: {
+  theme: Theme
+  onThemeChange: (theme: Theme) => void
+}) {
   const { section: open, show, close } = useSettingsParam()
+  const [preferences, setPreferences] = useState(defaultPreferences)
+  const [team, setTeam] = useState(initialTeam)
   // The dialog keeps showing the last section while it fades out.
   const [last, setLast] = useState(open)
   if (open && open !== last) setLast(open)
   const section = open ?? last
+
+  // A link inside a section (Team's "Go to Billing") unmounts itself, so
+  // focus goes to the new section's heading instead of falling to <body>.
+  const body = useRef<HTMLDivElement>(null)
+  // The URL catches up a render later, so this waits for the section to be the one asked for.
+  const [focusOn, setFocusOn] = useState<SettingsSection['id'] | null>(null)
+  const goTo = useCallback(
+    (id: SettingsSection['id']) => {
+      show(id)
+      setFocusOn(id)
+    },
+    [show],
+  )
+  useEffect(() => {
+    if (!focusOn || section?.id !== focusOn) return
+    body.current?.querySelector<HTMLElement>('h3')?.focus()
+    setFocusOn(null)
+  }, [focusOn, section?.id])
 
   return (
     <Dialog open={open !== undefined} onOpenChange={(next) => !next && close()}>
@@ -71,36 +107,43 @@ export function SettingsDialog() {
                 )}
               </Select>
             </div>
-            <Dialog.Body className="@container/settings m-0 flex-1 px-6 py-6 md:px-8">
-              {section.id === 'changelog' ? (
-                <ChangelogSection />
+            {/* Keyed so each section opens at its top, not at the last one's scroll. */}
+            <Dialog.Body
+              key={section.id}
+              ref={body}
+              className="@container/settings m-0 flex-1 px-6 py-6 md:px-8"
+            >
+              {section.id === 'general' ? (
+                <GeneralSection
+                  preferences={preferences}
+                  onPreferencesChange={setPreferences}
+                  theme={theme}
+                  onThemeChange={onThemeChange}
+                />
+              ) : section.id === 'notifications' ? (
+                <NotificationsSection
+                  preferences={preferences}
+                  onPreferencesChange={setPreferences}
+                />
+              ) : section.id === 'channels' ? (
+                <ChannelsSection />
+              ) : section.id === 'team' ? (
+                <TeamSection
+                  team={team}
+                  onTeamChange={setTeam}
+                  onShowBilling={() => goTo('billing')}
+                />
               ) : section.id === 'billing' ? (
-                <BillingSection />
+                <BillingSection seatsUsed={team.length} />
+              ) : section.id === 'integrations' ? (
+                <IntegrationsSection />
               ) : (
-                <NotDesignedSection section={section} />
+                <ChangelogSection />
               )}
             </Dialog.Body>
           </div>
         ) : null}
       </Dialog.Popup>
     </Dialog>
-  )
-}
-
-/** `NotBuilt`'s "Not designed yet", at a section's size rather than a page's. */
-function NotDesignedSection({ section }: { section: SettingsSection }) {
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
-      <span className="flex size-12 items-center justify-center rounded-lg bg-surface-background-subtle text-content-subtle">
-        <Icon icon={Construction} size="x-large" />
-      </span>
-      <Heading level={3} size="lg" weight="semibold">
-        {section.label}
-      </Heading>
-      <Text color="subtle" className="max-w-sm">
-        {section.label} has a place in Settings and no design yet. Billing and the changelog are the
-        pages built here so far.
-      </Text>
-    </div>
   )
 }

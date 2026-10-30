@@ -31,13 +31,13 @@ interface UserItem {
 
 /** Figma's user `Menu` (`40005964:74176`): status, then account, help, and out. */
 const account: UserItem[] = [
-  { label: 'Settings', icon: Settings, what: 'Settings', settings: 'changelog' },
+  { label: 'Settings', icon: Settings, what: 'Settings', settings: 'general' },
   { label: 'Billing', icon: CreditCard, what: 'Billing', settings: 'billing' },
   { label: 'Upgrade plan', icon: CircleArrowUp, what: 'Upgrading plans' },
   { label: 'Integrations', icon: Plug, what: 'Integrations', settings: 'integrations' },
   { label: 'Shared links', icon: Link, what: 'Shared links' },
-  { label: 'Connect new channel', icon: Globe, what: 'Connecting channels' },
-  { label: 'Invite team member', icon: CircleUser, what: 'Inviting teammates' },
+  { label: 'Connect new channel', icon: Globe, what: 'Connecting channels', settings: 'channels' },
+  { label: 'Invite team member', icon: CircleUser, what: 'Inviting teammates', settings: 'team' },
 ]
 
 const help: UserItem[] = [
