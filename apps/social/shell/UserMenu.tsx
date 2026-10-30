@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 
 import { Menu } from '../../../src/components/Menu'
+import { useSettingsParam, type SettingsSectionId } from '../screens/settings/sections'
 import { useShell } from './ShellContext'
 
 export type MyStatus = 'available' | 'away'
@@ -24,14 +25,16 @@ interface UserItem {
   icon: LucideIcon
   /** What the not-built toast calls it. */
   what: string
+  /** The Settings section it opens, for a row that has one. */
+  settings?: SettingsSectionId
 }
 
 /** Figma's user `Menu` (`40005964:74176`): status, then account, help, and out. */
 const account: UserItem[] = [
-  { label: 'Settings', icon: Settings, what: 'Settings' },
-  { label: 'Billing', icon: CreditCard, what: 'Billing' },
+  { label: 'Settings', icon: Settings, what: 'Settings', settings: 'changelog' },
+  { label: 'Billing', icon: CreditCard, what: 'Billing', settings: 'billing' },
   { label: 'Upgrade plan', icon: CircleArrowUp, what: 'Upgrading plans' },
-  { label: 'Integrations', icon: Plug, what: 'Integrations' },
+  { label: 'Integrations', icon: Plug, what: 'Integrations', settings: 'integrations' },
   { label: 'Shared links', icon: Link, what: 'Shared links' },
   { label: 'Connect new channel', icon: Globe, what: 'Connecting channels' },
   { label: 'Invite team member', icon: CircleUser, what: 'Inviting teammates' },
@@ -39,7 +42,7 @@ const account: UserItem[] = [
 
 const help: UserItem[] = [
   { label: 'Get help', icon: CircleQuestionMark, what: 'Help' },
-  { label: 'View changelog', icon: Scroll, what: 'The changelog' },
+  { label: 'View changelog', icon: Scroll, what: 'The changelog', settings: 'changelog' },
   { label: 'Send feedback', icon: Bug, what: 'Sending feedback' },
 ]
 
@@ -61,8 +64,13 @@ export function UserMenu({
   onStatusChange: (status: MyStatus) => void
 }) {
   const shell = useShell()
+  const settings = useSettingsParam()
   const row = (item: UserItem) => (
-    <Menu.Item key={item.label} startIcon={item.icon} onClick={() => shell.notBuilt(item.what)}>
+    <Menu.Item
+      key={item.label}
+      startIcon={item.icon}
+      onClick={() => (item.settings ? settings.open(item.settings) : shell.notBuilt(item.what))}
+    >
       {item.label}
     </Menu.Item>
   )

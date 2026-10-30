@@ -24,6 +24,7 @@ import { useInbox } from '../screens/inbox/inboxState'
 import { scopeCount } from '../screens/inbox/model'
 import { NewReportDialog } from '../screens/reports/NewReportDialog'
 import { ScheduleDialog } from '../screens/calendar/ScheduleDialog'
+import { SettingsDialog } from '../screens/settings/SettingsDialog'
 import { WidgetEditPanel } from '../screens/reports/WidgetEditPanel'
 import { useIdeas } from '../screens/ideas/ideasState'
 import { useSchedule } from '../screens/calendar/scheduleState'
@@ -390,6 +391,7 @@ export function SocialShell() {
           <NotificationsPanel open={notificationsOpen} onClose={() => setPanel(null)} />
           <NewReportDialog />
           <ScheduleDialog />
+          <SettingsDialog />
 
           <MobileNav
             aria-label="Main"
