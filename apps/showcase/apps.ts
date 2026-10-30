@@ -42,6 +42,7 @@ export const apps: ShowcaseApp[] = [
       'Yak assistant: a panel beside every page, a full-page view, and history',
       'Floating Yak: ask or search from the bottom of any page, answered in Yak full page — or in the panel beside the composer and an idea, where Yak writes into the post',
       'Notifications: an activity feed from the bell, each row going to the post, ticket or report it is about',
+      'Settings: a modal from the account menu, with a changelog of every release so far',
     ],
     components: [
       'AppShell',
