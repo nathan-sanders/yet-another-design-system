@@ -31,7 +31,11 @@ export interface PaymentCard {
   expires: string
 }
 
-export const card: PaymentCard = { brand: 'Visa', last4: '1234', expires: '01/28' }
+/** Expires in January two years after this one, so it is never close to running out. */
+export function cardFor(today: Date): PaymentCard {
+  const year = String(today.getFullYear() + 2).slice(-2)
+  return { brand: 'Visa', last4: '1234', expires: `01/${year}` }
+}
 
 export type InvoiceStatus = 'paid'
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { invoicesFor, lastRenewal, nextRenewal } from './billing'
+import { cardFor, invoicesFor, lastRenewal, nextRenewal } from './billing'
 import { toISODate } from './dates'
 
 describe('renewals', () => {
@@ -38,5 +38,12 @@ describe('invoicesFor', () => {
       '2026-07-19',
       '2026-06-19',
     ])
+  })
+})
+
+describe('cardFor', () => {
+  it('expires in January two years ahead', () => {
+    expect(cardFor(new Date(2026, 9, 30)).expires).toBe('01/28')
+    expect(cardFor(new Date(2027, 0, 1)).expires).toBe('01/29')
   })
 })

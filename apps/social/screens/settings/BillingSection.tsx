@@ -7,7 +7,14 @@ import { Icon } from '../../../../src/components/Icon'
 import { ProgressBar } from '../../../../src/components/ProgressBar'
 import { pixel, proportional, Table, type TableColumn } from '../../../../src/components/Table'
 import { Heading, Text } from '../../../../src/components/Text'
-import { card, invoicesFor, nextRenewal, plan, yakCredits, type Invoice } from '../../data/billing'
+import {
+  cardFor,
+  invoicesFor,
+  nextRenewal,
+  plan,
+  yakCredits,
+  type Invoice,
+} from '../../data/billing'
 import { useShell } from '../../shell/ShellContext'
 
 const longDate = new Intl.DateTimeFormat('en-US', {
@@ -36,6 +43,7 @@ export function BillingSection() {
   const { notBuilt } = useShell()
   const today = new Date()
   const renews = longDate.format(nextRenewal(today))
+  const card = cardFor(today)
   const invoices = invoicesFor(today)
 
   const columns: TableColumn<Invoice>[] = [
