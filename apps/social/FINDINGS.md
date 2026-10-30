@@ -1743,3 +1743,29 @@ Figma: `Campaign page · Measure` `40006187:44493`.
 - Add widget lists Campaign first; a widget's page goes back to `?tab=measure`.
 - axe on the tab and with the catalog open: no violations. Drags can't run in the hidden pane, and
   this is the reports board's code unchanged.
+
+## Slice — the campaign page: whole rows open their panel (2026-10-29)
+
+### Found
+
+212. **A row target outside a Table has no library piece.** The Creators tab's table takes the
+    Creators page's `rowTarget` on the name, so a press anywhere on the row opens the creator, and
+    the checkbox and status menu keep their own presses. Next up is a list, not a Table, so its
+    title button covers the row itself: a clear `::after` above the content takes the press, and a
+    `::before` under it is the hover and open wash. The `::after` needs `z-10`, because the Token
+    is positioned and painted above it. The calendar's post cards (a second list) would use the
+    same pattern, so a `rowTarget` for list rows may belong in the library.
+213. **Next up rarely shows a post.** It shows one row a day, and a gap or a creator's draft
+    outranks a post (`nextUpFor`). With this week's data every row is one of those, so a post row
+    only shows on a day with nothing else due. Those rows open Post detail. Draft rows open the
+    creator, and gap rows open the Plan tab. Pressing an open row again closes its panel, as a
+    calendar post does.
+
+### Measured, and fine
+
+- Next up: a press on the date, title or Token opens the row's panel and marks it `aria-pressed`.
+  To check a post row, `rows` was raised to 8 for a run: Pineapple Sunrise opened Post detail and
+  closed on a second press.
+- Creators: pressing the Role cell opened Jonah's panel. The checkbox selected its row without
+  opening anything, and the status Token opened its menu.
+- axe on both tabs with a panel open: no violations.

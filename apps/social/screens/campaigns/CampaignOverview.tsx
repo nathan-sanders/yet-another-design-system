@@ -77,8 +77,16 @@ export function CampaignOverview({
     pencilled,
   )
 
+  // A row is open while its panel is; pressing it again closes the panel, as a
+  // calendar post does.
+  const isOpen = (item: NextUpItem) =>
+    (item.kind === 'post' && shell.panel?.type === 'post' && shell.panel.postId === item.postId) ||
+    (item.kind === 'deliverable' &&
+      shell.panel?.type === 'creator' &&
+      shell.panel.creatorId === item.creatorId)
   const open = (item: NextUpItem) => {
-    if (item.kind === 'post') shell.setPanel({ type: 'post', postId: item.postId })
+    if (isOpen(item)) shell.setPanel(null)
+    else if (item.kind === 'post') shell.setPanel({ type: 'post', postId: item.postId })
     else if (item.kind === 'deliverable')
       shell.setPanel({ type: 'creator', creatorId: item.creatorId })
     else onShowPlan()
@@ -120,9 +128,12 @@ export function CampaignOverview({
         ) : (
           <ul className="flex flex-col divide-y divide-surface-border">
             {next.map((item) => (
+              // The title's button covers the whole row: a clear ::after over the
+              // content takes a press anywhere on it, and the keyboard path stays
+              // one button. Its ::before is the wash, 8px past the text, under it.
               <li
                 key={`${item.kind}-${item.date.getTime()}`}
-                className="flex items-center gap-3 py-2.5"
+                className="relative isolate flex items-center gap-3 py-2.5"
               >
                 <Text size="sm" color="subtle" className="w-19 shrink-0">
                   {nextUpDate.format(item.date)}
@@ -130,9 +141,14 @@ export function CampaignOverview({
                 <span className="flex min-w-0 flex-1 flex-col items-start">
                   <button
                     type="button"
+                    aria-pressed={item.kind === 'gap' ? undefined : isOpen(item)}
                     onClick={() => open(item)}
                     className={cn(
-                      'max-w-full truncate rounded-xs text-left text-base text-content-primary hover:underline',
+                      'max-w-full cursor-pointer truncate rounded-xs text-left text-base text-content-primary hover:underline',
+                      'after:absolute after:inset-y-0 after:-inset-x-2 after:z-10',
+                      'before:absolute before:inset-y-0 before:-inset-x-2 before:-z-10 before:rounded-md hover:before:bg-surface-background-subtle',
+                      isOpen(item) &&
+                        'before:bg-surface-overlay-subtle hover:before:bg-surface-overlay-subtle',
                       focusRing,
                     )}
                   >
