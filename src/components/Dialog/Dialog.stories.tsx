@@ -31,6 +31,20 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
+ * Waits until the popup has finished scaling in from 95%. An empty
+ * `getAnimations()` alone is not that: on the frame the popup is inserted it
+ * still carries `data-starting-style` and no transition exists yet, so the
+ * list is empty before the scale-in has begun, and a rect read then is 0.95 of
+ * the real one (`3.8` for a 4px gap, one CI run in a few). `scale` is `none`
+ * only once the starting style is gone and the transition has landed.
+ */
+const settled = (popup: HTMLElement) =>
+  waitFor(() => {
+    expect(getComputedStyle(popup).scale).toBe('none')
+    expect(popup.getAnimations()).toHaveLength(0)
+  })
+
+/**
  * The ordinary shape: a header row, a body, and a row of actions. Click the
  * trigger to open it; Escape, a click on the scrim, or either button closes it,
  * and focus returns to the trigger on the way out.
@@ -144,7 +158,7 @@ export const Scrollable: Story = {
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('button', { name: 'Read the terms' }))
     const dialog = await waitFor(() => within(document.body).getByRole('dialog'))
-    await waitFor(() => expect(dialog.getAnimations()).toHaveLength(0))
+    await settled(dialog)
     const body = dialog.querySelector<HTMLElement>('.overflow-y-auto')!
     expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
     // `offsetHeight` is the layout box, which the enter transition's
@@ -245,7 +259,7 @@ export const Form: Story = {
     // The bordered box the ring is drawn round.
     expect(getComputedStyle(body).overflowY).toBe('auto')
     // Measured once the popup has finished scaling in from 95%.
-    await waitFor(() => expect(dialog.getAnimations()).toHaveLength(0))
+    await settled(dialog)
     const box = input.closest('div')!.getBoundingClientRect()
     const clip = body.getBoundingClientRect()
     expect(box.left - clip.left).toBeGreaterThanOrEqual(4)
