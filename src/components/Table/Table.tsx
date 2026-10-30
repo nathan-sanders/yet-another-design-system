@@ -777,7 +777,12 @@ function TableHead({
 }: TableHeadProps) {
   const table = useTableContext()
   const columnDivider = divider ?? hasColumnDivider(table.dividers)
-  const styles = head({ density: table.density, align, columnDivider, rowDivider: hasRowDivider(table.dividers) })
+  const styles = head({
+    density: table.density,
+    align,
+    columnDivider,
+    rowDivider: hasRowDivider(table.dividers),
+  })
   const labelId = useId()
 
   return (
