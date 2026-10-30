@@ -51,6 +51,7 @@ export const releases: Release[] = [
       {
         kind: 'new',
         text: 'Settings › General, Notifications, Channels, Team and Integrations. Switch the theme, choose what notifies you, see which channel needs reconnecting, and invite people up to your plan’s seats.',
+        pr: 367,
       },
       {
         kind: 'new',
