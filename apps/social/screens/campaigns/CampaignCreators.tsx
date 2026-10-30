@@ -78,7 +78,10 @@ export function CampaignCreators({ campaign }: { campaign: Campaign }) {
   const paid = rows.filter((r) => r.entry.status === 'live').reduce((s, r) => s + r.entry.fee, 0)
   const total = campaign.budget ?? allocated
 
-  const open = (id: string) => shell.setPanel({ type: 'creator', creatorId: id })
+  // Pressing the open creator again closes the panel, as on the Creators page.
+  const openId = shell.panel?.type === 'creator' ? shell.panel.creatorId : undefined
+  const open = (id: string) =>
+    shell.setPanel(openId === id ? null : { type: 'creator', creatorId: id })
 
   const columns: TableColumn<Row>[] = [
     {
@@ -87,6 +90,9 @@ export function CampaignCreators({ campaign }: { campaign: Campaign }) {
       // The file's widths: 320 for the creator, the rest fixed (`40006187:42949`).
       width: proportional(1, 240),
       sortable: false,
+      // The name button is the row's own control: a press anywhere on the row
+      // presses it, the checkbox and status menu keep theirs (FINDINGS 77).
+      rowTarget: true,
       renderCell: (r) => (
         <span className="flex min-w-0 items-center gap-2">
           <Avatar name={r.creator.name} src={r.creator.avatar} alt="" />
@@ -218,7 +224,12 @@ export function CampaignCreators({ campaign }: { campaign: Campaign }) {
       ) : gallery ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3">
           {rows.map((r) => (
-            <CreatorCard key={r.id} creator={r.creator} onClick={() => open(r.id)} />
+            <CreatorCard
+              key={r.id}
+              creator={r.creator}
+              selected={r.id === openId}
+              onClick={() => open(r.id)}
+            />
           ))}
         </div>
       ) : (
