@@ -28,10 +28,6 @@ export interface SettingsSection {
 
 export const settingsGroups: { label: string; sections: SettingsSection[] }[] = [
   {
-    label: 'What’s new',
-    sections: [{ id: 'changelog', label: 'Changelog', icon: Scroll }],
-  },
-  {
     label: 'Preferences',
     sections: [
       { id: 'general', label: 'General', icon: SlidersHorizontal },
@@ -46,6 +42,10 @@ export const settingsGroups: { label: string; sections: SettingsSection[] }[] = 
       { id: 'billing', label: 'Billing', icon: CreditCard },
       { id: 'integrations', label: 'Integrations', icon: Plug },
     ],
+  },
+  {
+    label: 'What’s new',
+    sections: [{ id: 'changelog', label: 'Changelog', icon: Scroll }],
   },
 ]
 
