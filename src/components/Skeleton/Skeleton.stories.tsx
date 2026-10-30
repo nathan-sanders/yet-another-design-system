@@ -236,7 +236,7 @@ export const InContext: Story = {
         tabIndex={0}
         role="region"
         aria-label="Members"
-        className="overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
+        className="isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
       >
         <table className="w-full table-fixed border-separate border-spacing-0 font-sans">
           <caption className="sr-only">Members</caption>

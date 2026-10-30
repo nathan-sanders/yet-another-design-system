@@ -53,6 +53,11 @@ export const releases: Release[] = [
         text: 'A long description beside a checkbox, radio or switch wraps instead of running off the edge.',
         pr: 363,
       },
+      {
+        kind: 'improved',
+        text: 'Column names stay at the top of a table while you scroll it, starting with your Reports list.',
+        pr: 365,
+      },
     ],
   },
   {

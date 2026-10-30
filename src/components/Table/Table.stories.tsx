@@ -231,10 +231,18 @@ export const Dividers: Story = {
     await expect(rule('None', '::after')).toBe(false)
     await expect(rule('None', '::before')).toBe(false)
 
-    // The header owns no rule. The line under it belongs to the row below.
-    const grid = canvas.getByRole('table', { name: 'Grid' })
-    const columnHeader = within(grid).getAllByRole('columnheader')[0]
-    await expect(getComputedStyle(columnHeader, '::after').content).toBe('none')
+    // The line under the header belongs to the row below. The header carries
+    // a copy laid exactly over it, for when it sticks and that row scrolls
+    // away (see StickyHeader) — so it has one where rows have rules, and none
+    // where they do not.
+    const headRule = (label: string) => {
+      const table = canvas.getByRole('table', { name: label })
+      return getComputedStyle(within(table).getAllByRole('columnheader')[0], '::after').content !== 'none'
+    }
+    await expect(headRule('Rows')).toBe(true)
+    await expect(headRule('Grid')).toBe(true)
+    await expect(headRule('Columns')).toBe(false)
+    await expect(headRule('None')).toBe(false)
   },
 }
 
@@ -820,6 +828,90 @@ export const Windowed: Story = {
   },
 }
 
+/**
+ * The header stays at the top of the frame while the rows scroll under it.
+ *
+ * There is no prop. The frame is `overflow-x-auto`, which makes it a scroll
+ * container on both axes, so it is what the header sticks to — and it scrolls
+ * whenever a parent bounds its height. Here that parent is a 256px flex column:
+ * a scroll container's automatic minimum height is zero, so the frame shrinks
+ * to fit and scrolls inside, which is how Yet Social's Reports list came to
+ * scroll in the first place. A frame nothing bounds never scrolls vertically,
+ * and its header never moves.
+ *
+ * At rest it is pixel-identical to a table without it: the header's fill is the
+ * frame's own, and its rule sits exactly on the first row's.
+ */
+export const StickyHeader: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Sticky header',
+    selectable: true,
+    rowLabel: (item) => item.name,
+    data: Array.from({ length: 4 }, (_, round) =>
+      rows.map((item) => ({ ...item, id: `${item.id}-${round}`, name: `${item.name} ${round + 1}` })),
+    ).flat(),
+  },
+  render: (args) => (
+    <div className="flex h-64 flex-col">
+      <Table {...args} />
+    </div>
+  ),
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const frame = canvas.getByRole('region', { name: 'Sticky header' })
+    const head = canvasElement.querySelector('thead')!
+    const firstRow = canvasElement.querySelector('tbody tr')!
+    const frameTop = () => frame.getBoundingClientRect().top + frame.clientTop
+
+    await step('the frame is the thing that scrolls', async () => {
+      await expect(frame.scrollHeight).toBeGreaterThan(frame.clientHeight)
+    })
+
+    await step('at rest the header rule is the first row\'s rule, not a second one', async () => {
+      // The head's rule hangs 1px below it, onto the pixel row the first body
+      // row's top rule already paints. Two rules a pixel apart would read 2px.
+      const th = head.querySelector('th')!
+      await expect(getComputedStyle(th, '::after').bottom).toBe('-1px')
+      await expect(head.getBoundingClientRect().bottom).toBe(firstRow.getBoundingClientRect().top)
+      // And its fill is the frame's, so nothing changed under it either.
+      await expect(getComputedStyle(th).backgroundColor).toBe(getComputedStyle(frame).backgroundColor)
+    })
+
+    await step('scrolled, the header holds at the top of the frame and paints over the rows', async () => {
+      frame.scrollTop = 160
+      // Chromium settles a sticky offset in the frame after a scripted scroll,
+      // not in the layout a rect read forces.
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+      await expect(frame.scrollTop).toBe(160)
+      // The cells stick, not the <thead>: its box scrolls away with the rows
+      // while the <th>s inside it hold, so measure a cell.
+      const th = head.querySelector('th')!
+      await expect(th.getBoundingClientRect().top).toBe(frameTop())
+      await expect(firstRow.getBoundingClientRect().top).toBeLessThan(frameTop())
+      // What a pointer at the header's middle lands on: the header, not the
+      // row that has scrolled beneath it.
+      const box = th.getBoundingClientRect()
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)!
+      await expect(head.contains(hit)).toBe(true)
+    })
+
+    await step('a selected first row keeps its emphasized rule under the head\'s', async () => {
+      frame.scrollTop = 0
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+      await userEvent.click(canvas.getByRole('checkbox', { name: 'Select Alice Johnson 1' }))
+      const th = head.querySelector('th')!
+      const td = firstRow.querySelector('td')!
+      await expect(getComputedStyle(th, '::after').backgroundColor).toBe(
+        getComputedStyle(td, '::after').backgroundColor,
+      )
+      await expect(getComputedStyle(th, '::after').backgroundColor).toBe(
+        computed('var(--surface-border-emphasized)'),
+      )
+    })
+  },
+}
+
 /** A table with nothing in it. The message spans every column. */
 export const Empty: Story = {
   parameters: { controls: { disable: true } },
@@ -932,7 +1024,7 @@ export const Composable: Story = {
       tabIndex={0}
       role="region"
       aria-label="Composed"
-      className="overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
+      className="isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
     >
       <table className="w-full table-fixed border-separate border-spacing-0 font-sans">
         <caption className="sr-only">Composed</caption>

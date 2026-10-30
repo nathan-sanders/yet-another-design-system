@@ -39,7 +39,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
  *    transparent border is the answer when the stroke *must* be a border; it is
  *    not needed when the file already drew the stroke as an overlay.
  *
- * It also keeps a sticky header cheap to add later: `border-collapse: collapse`
+ * It is also what made the sticky header cheap: `border-collapse: collapse`
  * famously drops collapsed borders off a sticky `<th>`.
  */
 
@@ -50,9 +50,16 @@ import { tv, type VariantProps } from 'tailwind-variants'
  * both `surface-background-subtle`, which is the *same stone* as
  * `surface-canvas` in both themes, so a table sitting on the canvas would have
  * an invisible hover state.
+ *
+ * `isolate` is for the sticky header. The head sits at `z-20` to clear the
+ * `z-10` parts a cell can hold (`Token.Remove`, `ProgressBar`'s track, a
+ * carried drag item), and without a stacking context of its own that `z-20`
+ * would be the *page's* — a table scrolled under an app's sticky top bar would
+ * paint its header over the bar. Isolated, the number only orders the table's
+ * own contents.
  */
 export const scrollRegion = [
-  'overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary',
+  'isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary',
 ].join(' ')
 
 /**
@@ -314,8 +321,19 @@ export const head = tv({
         the room — where `min-height` is not reliably honored at all. The head
         rendered 28px under `min-h-8`: a 20px line-height plus its 4px of
         padding, with the constraint quietly ignored.
+
+        `sticky top-0`, always and with no prop. The frame is `overflow-x-auto`,
+        which makes it a scroll container on *both* axes, so it is the box the
+        header sticks to — and it is the box that scrolls whenever a parent
+        bounds its height (a flex column lets a scroll container shrink, which
+        is how Yet Social's Reports list came to scroll inside its own frame).
+        A frame that never scrolls vertically never moves the header, so there
+        is no table for which "off" is the right answer. Sticky is positioned,
+        so it still anchors the resize grip and the column rule as `relative`
+        did. The fill is the frame's own, opaque, so rows pass under it rather
+        than through it; at rest it paints exactly what was showing before.
       */
-      'relative h-8 bg-transparent py-1 align-middle',
+      'sticky top-0 z-20 h-8 bg-surface-background-primary py-1 align-middle',
       'font-sans text-sm font-normal text-content-subtle',
     ],
     line: 'flex min-w-0 items-center',
@@ -353,8 +371,32 @@ export const head = tv({
       true: { root: columnDividerClass },
       false: {},
     },
+    /**
+     * The line under the header, for when rows scroll under it.
+     *
+     * At rest that line is the first body row's own top rule, and the head
+     * still draws none of its own *there*. But a sticky head leaves the first
+     * row behind, and a header sitting straight on half a row reads as a row
+     * cut off. So the head carries the rule too, at `-bottom-px` — exactly over
+     * the first row's, so at rest the two are one pixel row and the table looks
+     * as it always has. Only where rows have rules: with `dividers="none"` or
+     * `"columns"` the table drew no line here, and scrolling should not add one.
+     *
+     * A selected first row's rule is emphasized, and the head (on top) would
+     * cover it with the ordinary stroke; the `has-` arm hands the head the
+     * emphasized stroke for exactly that case.
+     */
+    rowDivider: {
+      true: {
+        root: [
+          'after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-surface-border after:content-[""]',
+          'in-[table:has(>tbody>tr:first-child[data-selected])]:after:bg-surface-border-emphasized',
+        ],
+      },
+      false: {},
+    },
   },
-  defaultVariants: { density: 'balanced', align: 'left', columnDivider: false },
+  defaultVariants: { density: 'balanced', align: 'left', columnDivider: false, rowDivider: true },
 })
 
 export type TableCellVariants = VariantProps<typeof cell>

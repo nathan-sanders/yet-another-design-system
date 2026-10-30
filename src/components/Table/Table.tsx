@@ -698,6 +698,9 @@ function TableRow({
     <TableRowContext.Provider value={{ selected }}>
       <tr
         className={cn(row({ selected, striped, hoverable, zebra: isStriped }), clickable && 'cursor-pointer', className)}
+        // For the sticky head's rule, which sits over the first row's and has to
+        // match it. Not `aria-selected`: that is only valid on a `grid` row.
+        data-selected={selected || undefined}
         onClick={
           clickable
             ? (event) => {
@@ -774,7 +777,12 @@ function TableHead({
 }: TableHeadProps) {
   const table = useTableContext()
   const columnDivider = divider ?? hasColumnDivider(table.dividers)
-  const styles = head({ density: table.density, align, columnDivider })
+  const styles = head({
+    density: table.density,
+    align,
+    columnDivider,
+    rowDivider: hasRowDivider(table.dividers),
+  })
   const labelId = useId()
 
   return (
