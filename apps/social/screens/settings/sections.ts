@@ -14,7 +14,7 @@ import {
 /**
  * Settings is a modal over whatever page you were on, the way the Claude
  * desktop app does it, and which section it shows lives in `?settings=` so
- * every section has a link. The changelog is the only one built; the rest
+ * every section has a link. Billing and the changelog are built; the rest
  * hold their place in the nav and say so.
  */
 export type SettingsSectionId =

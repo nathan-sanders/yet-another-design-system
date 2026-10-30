@@ -6,6 +6,7 @@ import { Icon } from '../../../../src/components/Icon'
 import { NavItem, SideNav } from '../../../../src/components/Nav'
 import { Select } from '../../../../src/components/Select'
 import { Heading, Text } from '../../../../src/components/Text'
+import { BillingSection } from './BillingSection'
 import { ChangelogSection } from './ChangelogSection'
 import { settingsGroups, useSettingsParam, type SettingsSection } from './sections'
 
@@ -73,6 +74,8 @@ export function SettingsDialog() {
             <Dialog.Body className="@container/settings m-0 flex-1 px-6 py-6 md:px-8">
               {section.id === 'changelog' ? (
                 <ChangelogSection />
+              ) : section.id === 'billing' ? (
+                <BillingSection />
               ) : (
                 <NotDesignedSection section={section} />
               )}
@@ -95,8 +98,8 @@ function NotDesignedSection({ section }: { section: SettingsSection }) {
         {section.label}
       </Heading>
       <Text color="subtle" className="max-w-sm">
-        {section.label} has a place in Settings and no design yet. The changelog is the first page
-        built here.
+        {section.label} has a place in Settings and no design yet. Billing and the changelog are the
+        pages built here so far.
       </Text>
     </div>
   )
