@@ -1761,6 +1761,12 @@ Figma: `Campaign page · Measure` `40006187:44493`.
     creator, and gap rows open the Plan tab. Pressing an open row again closes its panel, as a
     calendar post does.
 
+214. **The campaign's crumb is semibold by override.** The top bar's current crumb is
+    `text-base/semibold` in the file (`40006187:42953`), but the Breadcrumb Item's Current Page
+    variant is `text-base/normal`, and so is the library's. The page passes `font-semibold` to that
+    one Item. If other pages want the same, Current Page should change in the component and the
+    library together.
+
 ### Measured, and fine
 
 - Next up: a press on the date, title or Token opens the row's panel and marks it `aria-pressed`.

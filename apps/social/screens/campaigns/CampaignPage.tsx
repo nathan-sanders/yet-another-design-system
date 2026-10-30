@@ -72,7 +72,9 @@ export function CampaignPage() {
             </Heading>
             <Breadcrumbs>
               <Breadcrumbs.Item href={`#${from}`}>Campaigns</Breadcrumbs.Item>
-              <Breadcrumbs.Item>
+              {/* Semibold is this instance's override; the library's Current Page
+                  is normal, as the component is (FINDINGS 214). */}
+              <Breadcrumbs.Item className="font-semibold">
                 {/* The file's 16px `circle` icon, filled and stroked in the campaign's
                     hue: the list's swatch at the icon's size. */}
                 <span aria-hidden="true" className="flex size-4 items-center justify-center">
