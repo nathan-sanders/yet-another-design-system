@@ -1807,3 +1807,18 @@ Video, Link, Poll). The Figma composer frames still draw the old four, by Nathan
 - At 1280 X's strip and Templates share one row and nothing scrolls. At 375 Facebook's strip still
   fits beside Templates.
 - The campaign page's Top posts read "TikTok Video", "Instagram Reel", "Instagram Story".
+
+## Slice — sticky table headers (2026-10-30)
+
+### Found
+
+217. **The Reports list scrolled its column labels away.** The list's `Table` sits in
+    `AppShell.Content`'s flex column, where a scroll container's automatic minimum height is zero,
+    so the frame shrank to 407px around 1140px of rows and scrolled inside itself — header and all.
+    **Closed by #365 (2026-10-30): every `Table` header is sticky to its frame, with no prop, so
+    this list and every other table in the app hold their labels while they scroll.**
+
+### Measured, and fine
+
+- At 1280×800 the Reports header holds at y=287 (the frame's top inside its border) after
+  scrolling 400px, and a pointer at its middle lands on the header, not the row beneath.
