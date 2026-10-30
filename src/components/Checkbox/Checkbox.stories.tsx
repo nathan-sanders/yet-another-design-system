@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, within } from 'storybook/test'
 
 import { Field } from '../Field'
 import { Checkbox } from './Checkbox'
@@ -109,6 +110,42 @@ export const WithDescription: Story = {
       />
     </div>
   ),
+}
+
+/**
+ * A long description in a narrow column. The label column keeps its natural
+ * width while it fits, so a short label still hugs as Figma draws it, and
+ * shrinks only when it would not, so the sentence wraps instead of running
+ * past the column.
+ */
+export const NarrowContainer: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div data-testid="column" className="flex w-60 flex-col gap-4">
+      <Checkbox {...args} label="Short" />
+      <Checkbox
+        {...args}
+        label="Share anonymous usage data"
+        description="Helps us work out which features are worth keeping."
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const column = canvas.getByTestId('column').getBoundingClientRect()
+
+    const short = canvas.getByText('Short').parentElement!.getBoundingClientRect()
+    await expect(short.right).toBeLessThan(column.right - 1)
+
+    const long = canvas
+      .getByText('Share anonymous usage data')
+      .parentElement!.getBoundingClientRect()
+    await expect(long.right).toBeLessThanOrEqual(column.right + 0.5)
+
+    const description = canvas.getByText(/^Helps us work out/)
+    const lineHeight = parseFloat(getComputedStyle(description).lineHeight)
+    await expect(description.getBoundingClientRect().height).toBeGreaterThanOrEqual(lineHeight * 2)
+  },
 }
 
 /**
@@ -261,7 +298,9 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex max-w-96 flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <Heading level={2} size="lg">Notifications</Heading>
+      <Heading level={2} size="lg">
+        Notifications
+      </Heading>
       <Checkbox
         {...args}
         label="Mentions"

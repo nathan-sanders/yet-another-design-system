@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, within } from 'storybook/test'
 
 import { Field } from '../Field'
 import { Radio } from './Radio'
@@ -128,6 +129,41 @@ export const WithDescription: Story = {
       />
     </Radio.Group>
   ),
+}
+
+/**
+ * A long description in a narrow column. The label column keeps its natural
+ * width while it fits, so a short label still hugs as Figma draws it, and
+ * shrinks only when it would not, so the sentence wraps instead of running
+ * past the column.
+ */
+export const NarrowContainer: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <Radio.Group data-testid="column" aria-label="Plan" defaultValue="short" className="w-60">
+      <Radio {...args} value="short" label="Short" />
+      <Radio
+        {...args}
+        value="team"
+        label="Team"
+        description="Up to ten editors, shared libraries, roles and an audit log."
+      />
+    </Radio.Group>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const column = canvas.getByTestId('column').getBoundingClientRect()
+
+    const short = canvas.getByText('Short').parentElement!.getBoundingClientRect()
+    await expect(short.right).toBeLessThan(column.right - 1)
+
+    const long = canvas.getByText('Team').parentElement!.getBoundingClientRect()
+    await expect(long.right).toBeLessThanOrEqual(column.right + 0.5)
+
+    const description = canvas.getByText(/^Up to ten editors/)
+    const lineHeight = parseFloat(getComputedStyle(description).lineHeight)
+    await expect(description.getBoundingClientRect().height).toBeGreaterThanOrEqual(lineHeight * 2)
+  },
 }
 
 /**
@@ -267,7 +303,9 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: (args) => (
     <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-background-primary p-6">
-      <Heading level={2} size="lg">Who can comment</Heading>
+      <Heading level={2} size="lg">
+        Who can comment
+      </Heading>
       <Radio.Group aria-label="Who can comment" defaultValue="editors">
         <Radio {...args} value="anyone" label="Anyone with the link" />
         <Radio {...args} value="editors" label="Editors only" />

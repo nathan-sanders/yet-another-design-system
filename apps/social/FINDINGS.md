@@ -1795,6 +1795,8 @@ Video, Link, Poll). The Figma composer frames still draw the old four, by Nathan
     runs 28px past its column at 375: `controlLabelColumn` is `shrink-0` when `fill` is false, which
     is right for a short label and wrong for a sentence. Present before this slice; library fix
     owed.
+    **Closed by #363 (2026-10-30): the column is `min-w-0`, so it hugs until it can't fit; measured
+    at 375, it ends flush with the row and the sentence wraps to two lines.**
 
 ### Measured, and fine
 
