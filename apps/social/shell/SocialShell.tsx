@@ -391,7 +391,7 @@ export function SocialShell() {
           <NotificationsPanel open={notificationsOpen} onClose={() => setPanel(null)} />
           <NewReportDialog />
           <ScheduleDialog />
-          <SettingsDialog />
+          <SettingsDialog theme={theme} onThemeChange={setTheme} />
 
           <MobileNav
             aria-label="Main"

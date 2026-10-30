@@ -14,8 +14,7 @@ import {
 /**
  * Settings is a modal over whatever page you were on, the way the Claude
  * desktop app does it, and which section it shows lives in `?settings=` so
- * every section has a link. Billing and the changelog are built; the rest
- * hold their place in the nav and say so.
+ * every section has a link. Every section is built, code-first.
  */
 export type SettingsSectionId =
   'changelog' | 'general' | 'notifications' | 'channels' | 'team' | 'billing' | 'integrations'
@@ -51,8 +50,8 @@ export const settingsGroups: { label: string; sections: SettingsSection[] }[] = 
 
 export const settingsSections = settingsGroups.flatMap((group) => group.sections)
 
-/** Where Settings opens when nothing names a section: the one that is built. */
-export const defaultSettingsSection: SettingsSectionId = 'changelog'
+/** Where Settings opens when nothing names a section: the first one, as Claude's does. */
+export const defaultSettingsSection: SettingsSectionId = 'general'
 
 export const SETTINGS_PARAM = 'settings'
 

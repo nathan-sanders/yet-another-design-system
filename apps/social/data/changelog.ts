@@ -40,12 +40,17 @@ export const releases: Release[] = [
     date: '2026-10-30',
     title: 'Settings, and post types for every network',
     summary:
-      'Settings opens from your account menu, starting with this changelog. The composer now knows what each network can post.',
+      'Settings opens from your account menu, with every page built. The composer now knows what each network can post.',
     changes: [
       { kind: 'new', text: 'Settings, with the changelog as its first page.' },
       {
         kind: 'new',
         text: 'Settings › Billing: your plan, Yak credits this cycle, the card on file and past invoices.',
+        pr: 366,
+      },
+      {
+        kind: 'new',
+        text: 'Settings › General, Notifications, Channels, Team and Integrations. Switch the theme, choose what notifies you, see which channel needs reconnecting, and invite people up to your plan’s seats.',
       },
       {
         kind: 'new',
