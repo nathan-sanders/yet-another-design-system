@@ -64,8 +64,8 @@ over a table set `border-separate border-spacing-0`. Four reasons, in weight ord
    transparent border is the answer when the stroke *must* be a border; it is not needed when the
    file already drew the stroke as an overlay.
 
-It also keeps a sticky header cheap to add later — `border-collapse: collapse` famously drops
-collapsed borders off a sticky `<th>`.
+It is also what made the sticky header cheap — `border-collapse: collapse` famously drops
+collapsed borders off a sticky `<th>`. See below.
 
 ## Density moves both axes
 
@@ -85,10 +85,49 @@ all. Under `min-h-8` the header rendered **28px**: a 20px line-height plus its 4
 the constraint quietly ignored, and nothing to see unless you measured it. `Density`'s play function
 now asserts the header's height and both side paddings alongside the row heights.
 
-**The header draws no rule of its own.** `rowBorder` is on the body cell at `top-0`, so the line
-under the header belongs to the first row and the last row has nothing under it — the container's
-border closes the table. That is why `Table Head` has no `rowBorder` boolean, and the absence is the
-specification.
+**The line under the header belongs to the first row.** `rowBorder` is on the body cell at `top-0`,
+so the line under the header is the first row's and the last row has nothing under it — the
+container's border closes the table. That is why `Table Head` has no `rowBorder` boolean in the file.
+The head now carries a *copy* of that rule laid exactly over it, for when it sticks and the first row
+scrolls away — the next section — so at rest there is still one line, and it is still the row's.
+
+## The header sticks, and there is no prop for it
+
+Asked for on 2026-10-30 off Yet Social's Reports list, whose rows scrolled inside the frame and took
+the column labels with them. Every `<th>` is `sticky top-0`, always.
+
+**Why no prop.** The frame is `overflow-x-auto`, and a box that clips one axis is a scroll container
+on both, so the frame is always the box the header sticks to. It scrolls vertically exactly when a
+parent bounds its height — usually without anyone meaning to: in a flex column a scroll container's
+automatic minimum height is zero, so it shrinks to fit and scrolls inside, which is what happened on
+Reports (a 407px frame holding 1140px of rows). A frame nothing bounds never scrolls vertically, and
+its header never moves. So there is no table for which "off" is the right answer, and a flag nobody
+would ever turn off is noise. **To get the behavior on purpose, bound the frame**: put the `Table` in
+a flex column with a definite height (`StickyHeader` uses `flex h-64 flex-col`). A `max-h` on a block
+wrapper does nothing — the frame is the scroller, not the wrapper.
+
+**At rest it changes nothing**, and the story asserts that rather than claiming it. The head's fill
+went from `bg-transparent` to `surface-background-primary`, the frame's own, so rows pass under it
+instead of showing through. And its rule hangs at `-bottom-px`, onto the pixel row the first body
+row's top rule already paints — two rules a pixel apart would read as a 2px line. The head draws it
+only where rows have rules (`rows`, `grid`); with `none` or `columns` the table drew no line there,
+and scrolling does not add one.
+
+**A selected first row** has an emphasized rule, and the head is on top of it. So `Table.Row` writes
+`data-selected` (not `aria-selected`, which is only valid in a `grid`), and the head's rule reads
+`in-[table:has(>tbody>tr:first-child[data-selected])]` and takes the emphasized stroke too.
+
+**Layering.** The head is `z-20`, above the `z-10` parts a cell can hold — `Token.Remove`,
+`ProgressBar`'s track, a carried drag item — and the frame is `isolate`, so that `z-20` orders the
+table's own contents and nothing else. Without it the number is the page's, and a table scrolled under
+an app's sticky top bar would paint its header over the bar. **Children mode's frame is the caller's**,
+so it has to carry `isolate` too; the `Composable` story's does. `sticky` is positioned, so it still
+anchors the resize grip and the column rule, as `relative` did.
+
+**Measuring it has two traps.** The `<th>`s stick and the `<thead>` does not — its box scrolls away
+with the rows while the cells inside it hold, so a test that reads the `<thead>`'s rect sees a header
+that "scrolled". And Chromium settles a sticky offset in the frame after a scripted `scrollTop`, not
+in the layout a rect read forces: wait two `requestAnimationFrame`s before measuring.
 
 ## The three row fills, and the one that was backwards
 
@@ -290,8 +329,6 @@ a broken token. The three distinct fills and their order are the properties that
 
 Each of these is an absence with a reason, not an oversight.
 
-- **Sticky header.** Genuinely wanted by real tables, drawn nowhere. Deferring stays cheap *because*
-  of the `border-separate` plus overlay choice.
 - **Multi-column sort**, and Astryx's sort-priority number. The file's control has three states and
   no priority badge. `sort` is typed `TableSort | null`; multi-sort would be a **new prop**, because
   widening this one to an array later is a breaking change and should not be papered over.
