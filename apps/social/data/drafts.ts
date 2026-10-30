@@ -52,7 +52,7 @@ export const drafts: Draft[] = [
     // Tomorrow, the day before TikTok's gap (`40006158:66912`'s Wednesday).
     day: { week: 0, day: 2 },
     tagNames: ['Recipe', 'Menu'],
-    format: 'reel',
+    format: 'video',
   },
   {
     id: 'd-6',

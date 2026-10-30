@@ -213,7 +213,7 @@ describe('the campaign page', () => {
     expect(rows.map((r) => r.kind)).toEqual(['post', 'deliverable', 'gap'])
     expect(rows[1]!.title).toBe('Alena Kenter’s TikTok draft')
     expect(rows[2]!.title).toBe('Nothing scheduled on TikTok')
-    expect(rows[0]!.meta).toBe('TikTok Reel · 7:00 pm')
+    expect(rows[0]!.meta).toBe('TikTok Video · 7:00 pm')
   })
 
   it('writes the summary from the numbers, with the insight in the middle', () => {

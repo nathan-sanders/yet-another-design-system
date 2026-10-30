@@ -1775,3 +1775,33 @@ Figma: `Campaign page · Measure` `40006187:44493`.
 - Creators: pressing the Role cell opened Jonah's panel. The checkbox selected its row without
   opening anything, and the status Token opened its menu.
 - axe on both tabs with a panel open: no violations.
+
+## Slice — the composer's post types, per network (2026-10-29)
+
+The format strip offered Instagram's four types (Post, Carousel, Reel, Story) on every network, and a
+post kept one `format` for all its channels. It now follows Nathan's *Post Types by Social Network*
+doc: `data/postTypes.ts` lists each network's types, the strip shows only on a network's tab, and each
+channel saves its own type. Reddit is not in the doc and takes its own submit tabs (Text, Image,
+Video, Link, Poll). The Figma composer frames still draw the old four, by Nathan's choice (code only).
+
+### Found
+
+215. **A strip of seven segments doesn't fit a phone.** X's types measure 421px against a 325px
+    column at 375. `SegmentedControl` has no overflow story of its own, so the composer puts it in
+    an `overflow-x-auto` box padded by the focus ring's 4px (`-my-1 -ml-1 p-1`) and lets Templates
+    wrap under it. With the old `justify-end` row the strip overflowed off the *left* edge, where it
+    could not be scrolled to.
+216. **A Switch's description outside a card doesn't wrap.** The composer's Needs approval switch
+    runs 28px past its column at 375: `controlLabelColumn` is `shrink-0` when `fill` is false, which
+    is right for a short label and wrong for a sentence. Present before this slice; library fix
+    owed.
+
+### Measured, and fine
+
+- All seven tabs show their network's list with the first type selected. All channels shows no
+  strip.
+- Instagram set to Trial reel and X to Thread, saved across all seven channels: every draft
+  reopened on the type picked on its tab.
+- At 1280 X's strip and Templates share one row and nothing scrolls. At 375 Facebook's strip still
+  fits beside Templates.
+- The campaign page's Top posts read "TikTok Video", "Instagram Reel", "Instagram Story".

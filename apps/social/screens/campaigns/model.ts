@@ -1,6 +1,7 @@
 import { addDays, formatTime, monthDay, sameDay, startOfDay, startOfWeek } from '../../data/dates'
 import type { Draft } from '../../data/drafts'
 import { profileFor, profiles } from '../../data/posts'
+import { postTypeLabel } from '../../data/postTypes'
 import {
   NETWORK_NAMES,
   type Campaign,
@@ -8,7 +9,6 @@ import {
   type Idea,
   type Network,
   type Post,
-  type PostFormat,
 } from '../../data/types'
 import { dayDate, daysBetween, postDate, postMoment, today as realToday } from '../calendar/model'
 
@@ -320,13 +320,6 @@ export function progressFor(
   }
 }
 
-const FORMAT_NAMES: Record<PostFormat, string> = {
-  post: 'Post',
-  carousel: 'Carousel',
-  reel: 'Reel',
-  story: 'Story',
-}
-
 /** One row of Next up. */
 export type NextUpItem =
   | { kind: 'post'; date: Date; title: string; meta: string; postId: string }
@@ -389,7 +382,7 @@ export function nextUpFor(
         kind: 'post',
         date,
         title: post.post.body,
-        meta: `${NETWORK_NAMES[post.network]} ${FORMAT_NAMES[post.post.format ?? 'post']} · ${formatTime(post.post.time)}`,
+        meta: `${NETWORK_NAMES[post.network]} ${postTypeLabel(post.network, post.post.format)} · ${formatTime(post.post.time)}`,
         postId: post.post.id,
       })
     }

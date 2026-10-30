@@ -14,6 +14,7 @@ import { creatorById } from '../../data/creators'
 import { monthDay } from '../../data/dates'
 import { engagementsOf, statsFor } from '../../data/performance'
 import { profileFor } from '../../data/posts'
+import { postTypeLabel } from '../../data/postTypes'
 import type { Campaign, Report } from '../../data/types'
 import { NETWORK_NAMES } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
@@ -162,8 +163,6 @@ function sentimentOf(positive: number): Sentiment {
   return positive >= 76 ? 'Neutral' : 'Negative'
 }
 
-const FORMAT_NAMES = { post: 'Post', carousel: 'Carousel', reel: 'Reel', story: 'Story' }
-
 interface PostRow {
   id: string
   planned: PlannedPost
@@ -216,7 +215,8 @@ export function CampaignPostsWidget({ report }: { report: Report }) {
               <NetworkIcon network={profile.network} size="small" />
               <Text render={<span />} size="sm" color="subtle" truncate>
                 {profile.network === 'facebook' ? profile.name : `@${profile.name}`} ·{' '}
-                {NETWORK_NAMES[profile.network]} {FORMAT_NAMES[r.planned.post.format ?? 'post']}
+                {NETWORK_NAMES[profile.network]}{' '}
+                {postTypeLabel(profile.network, r.planned.post.format)}
               </Text>
             </span>
           </span>

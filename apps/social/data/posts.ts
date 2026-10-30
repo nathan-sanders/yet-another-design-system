@@ -492,7 +492,7 @@ export const posts: Post[] = [
     photo: grainBowl,
     photoAlt: 'A grain bowl with roasted vegetables',
     campaignId: 'summer-menu',
-    format: 'reel',
+    format: 'video',
   },
   {
     id: 'p-72',
@@ -551,7 +551,7 @@ export const posts: Post[] = [
     photo: takeoutBox,
     photoAlt: 'A bowl in a takeout box',
     campaignId: 'summer-menu',
-    format: 'reel',
+    format: 'video',
   },
   // Scheduled: today on.
   {
@@ -564,7 +564,7 @@ export const posts: Post[] = [
     photo: streetCorn,
     photoAlt: 'Grilled street corn with lime on a plate',
     campaignId: 'summer-menu',
-    format: 'reel',
+    format: 'video',
     tags: 2,
   },
   {
@@ -638,7 +638,7 @@ export const posts: Post[] = [
     photo: chefChopping,
     photoAlt: 'A chef chopping herbs',
     campaignId: 'summer-menu',
-    format: 'reel',
+    format: 'video',
     tags: 2,
   },
   {
@@ -651,6 +651,6 @@ export const posts: Post[] = [
     photo: pineappleSmoothies,
     photoAlt: 'Pineapple smoothies in glasses',
     campaignId: 'summer-menu',
-    format: 'reel',
+    format: 'video',
   },
 ]

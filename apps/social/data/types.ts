@@ -71,8 +71,26 @@ export interface Post {
   firstComment?: string
 }
 
-/** What shape a post takes on its network: the composer's format segment. */
-export type PostFormat = 'post' | 'carousel' | 'reel' | 'story'
+/**
+ * What shape a post takes on its network: the composer's format segment.
+ * Every network's types in one union; which ones a network has, and what it
+ * calls them, is `POST_TYPES` in `postTypes.ts`.
+ */
+export type PostFormat =
+  | 'post'
+  | 'carousel'
+  | 'reel'
+  | 'trial-reel'
+  | 'story'
+  | 'video'
+  | 'text'
+  | 'image'
+  | 'gif'
+  | 'link'
+  | 'poll'
+  | 'thread'
+  | 'link-card'
+  | 'inbox-draft'
 
 /**
  * The ten colors Figma's `Calendar Note` set (`40005949:63968`) offers. The file

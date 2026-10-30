@@ -6,15 +6,9 @@ import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { TextArea } from '../../../../src/components/TextArea'
 import { Text } from '../../../../src/components/Text'
 import { MediaTiles } from '../../components/MediaTiles'
+import { POST_TYPES } from '../../data/postTypes'
 import { NETWORK_NAMES, type Network, type PostFormat } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-
-const FORMATS: { value: PostFormat; label: string }[] = [
-  { value: 'post', label: 'Post' },
-  { value: 'carousel', label: 'Carousel' },
-  { value: 'reel', label: 'Reel' },
-  { value: 'story', label: 'Story' },
-]
 
 /** What each network lets a caption run to. */
 const LIMITS: Partial<Record<Network, number>> = {
@@ -25,7 +19,10 @@ const LIMITS: Partial<Record<Network, number>> = {
 }
 
 /**
- * The format strip, then the `Caption · Instagram` block (`40006009:29479`):
+ * The format strip, then the `Caption · Instagram` block (`40006009:29479`).
+ * The strip is the open network's own post types (`POST_TYPES`), so it shows
+ * only on a network's tab; All channels has no type to pick, and Templates
+ * keeps its place at the end of the row. Then the block:
  * the caption itself with the network's counter, the media strip, and the
  * row of ghost actions under it at the default size — emoji, hashtag, Alt
  * text, Tag people, Edit, Asset library, Integrations. Only the first two
@@ -43,7 +40,8 @@ export function CaptionBlock({
 }: {
   /** The network whose caption this is, or none for the shared one. */
   network: Network | null
-  format: PostFormat
+  /** The open network's type. Unused on All channels. */
+  format: PostFormat | null
   onFormatChange: (format: PostFormat) => void
   caption: string
   onCaptionChange: (caption: string) => void
@@ -56,18 +54,25 @@ export function CaptionBlock({
   const limit = network ? LIMITS[network] : undefined
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <SegmentedControl
-          aria-label="Format"
-          value={format}
-          onValueChange={(value) => onFormatChange(value as PostFormat)}
-        >
-          {FORMATS.map((option) => (
-            <SegmentedControl.Item key={option.value} value={option.value}>
-              {option.label}
-            </SegmentedControl.Item>
-          ))}
-        </SegmentedControl>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {network ? (
+          // X's seven types are wider than a phone's column: the strip scrolls
+          // sideways in its own box, padded by the focus ring's 4px so the
+          // ring is not cut off, and Templates wraps under it.
+          <div className="-my-1 mr-auto -ml-1 max-w-[calc(100%+0.5rem)] min-w-0 overflow-x-auto p-1">
+            <SegmentedControl
+              aria-label={`${NETWORK_NAMES[network]} post type`}
+              value={format ?? undefined}
+              onValueChange={(value) => onFormatChange(value as PostFormat)}
+            >
+              {POST_TYPES[network].map((option) => (
+                <SegmentedControl.Item key={option.value} value={option.value}>
+                  {option.label}
+                </SegmentedControl.Item>
+              ))}
+            </SegmentedControl>
+          </div>
+        ) : null}
         <Button
           appearance="secondary"
           startIcon={LayoutTemplate}
