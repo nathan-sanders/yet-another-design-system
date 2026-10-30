@@ -45,6 +45,10 @@ export const releases: Release[] = [
       { kind: 'new', text: 'Settings, with the changelog as its first page.' },
       {
         kind: 'new',
+        text: 'Settings › Billing: your plan, Yak credits this cycle, the card on file and past invoices.',
+      },
+      {
+        kind: 'new',
         text: 'The composer offers only the post types each network publishes, and each channel keeps its own: a Reel on Instagram is a Video on TikTok.',
         pr: 362,
       },
