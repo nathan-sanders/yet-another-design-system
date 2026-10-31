@@ -2,7 +2,6 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import {
   AudioLines,
-  ChevronDown,
   Copy,
   Fullscreen,
   History,
@@ -167,21 +166,12 @@ export function YakComposer({
         />
       }
       endActions={
-        <>
-          <Button
-            appearance="ghost"
-            endIcon={ChevronDown}
-            onClick={() => shell.notBuilt('Choosing a model')}
-          >
-            Opus 5.5
-          </Button>
-          <Button
-            appearance="ghost"
-            startIcon={AudioLines}
-            aria-label="Voice input"
-            onClick={() => shell.notBuilt('Voice input')}
-          />
-        </>
+        <Button
+          appearance="ghost"
+          startIcon={AudioLines}
+          aria-label="Voice input"
+          onClick={() => shell.notBuilt('Voice input')}
+        />
       }
     />
   )
