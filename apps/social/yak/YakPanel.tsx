@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import {
+  AudioLines,
   ChevronDown,
   Copy,
   Fullscreen,
   History,
-  Mic,
   Plus,
   RefreshCw,
   Search,
@@ -177,9 +177,9 @@ export function YakComposer({
           </Button>
           <Button
             appearance="ghost"
-            startIcon={Mic}
-            aria-label="Dictate"
-            onClick={() => shell.notBuilt('Dictation')}
+            startIcon={AudioLines}
+            aria-label="Voice input"
+            onClick={() => shell.notBuilt('Voice input')}
           />
         </>
       }
