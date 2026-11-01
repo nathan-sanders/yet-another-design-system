@@ -9,7 +9,8 @@ import { BRAND_PROFILES, type CaptionTab } from './composeForm'
  * picks which caption is being written (`40006009:29479`, the avatar row and
  * `All channels / Instagram / Threads`). A network gets a tab once an
  * account on it is picked; a tab wears a dot when that network has a caption
- * of its own.
+ * of its own. A draft or post being edited is one channel that cannot change,
+ * so it gets that network's tab alone: there is no shared caption to write.
  */
 export function ChannelRow({
   profileIds,
@@ -55,18 +56,18 @@ export function ChannelRow({
       {networks.length ? (
         <Tabs value={tab} onValueChange={(value) => onTabChange(value as CaptionTab)} layout="hug">
           <Tabs.List aria-label="Caption for" divider>
-            <Tabs.Tab value="all">All channels</Tabs.Tab>
+            {locked ? null : <Tabs.Tab value="all">All channels</Tabs.Tab>}
             {networks.map((network) => (
               <Tabs.Tab
                 key={network}
                 value={network}
                 aria-label={
-                  overridden.includes(network)
+                  !locked && overridden.includes(network)
                     ? `${NETWORK_NAMES[network]}, has its own caption`
                     : undefined
                 }
                 endSlot={
-                  overridden.includes(network) ? (
+                  !locked && overridden.includes(network) ? (
                     <span aria-hidden className="size-1.5 rounded-full bg-content-emphasized" />
                   ) : undefined
                 }

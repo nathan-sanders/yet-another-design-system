@@ -169,8 +169,12 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
       }
     }
   }, [chat.applied, setFields])
-  const shownTab: CaptionTab = tab !== 'all' && !networks.includes(tab) ? 'all' : tab
+  // A draft or post being edited is one channel with no All channels tab
+  // (ChannelRow), so it shows its network's.
+  const shownTab: CaptionTab =
+    tab !== 'all' && networks.includes(tab) ? tab : editing ? (networks[0] ?? 'all') : 'all'
   const tabNetwork = shownTab === 'all' ? null : shownTab
+  const typesOf = tabNetwork ?? networks[0] ?? null
   const overridden = (Object.keys(fields.captions) as Network[]).filter((n) => fields.captions[n])
   const previewOn = previewNetwork && networks.includes(previewNetwork) ? previewNetwork : (networks[0] ?? 'instagram')
   const previewProfile = profiles.find((p) => p.network === previewOn && fields.profileIds.includes(p.id)) ?? profiles[0]!
@@ -333,7 +337,8 @@ function Composer({ initial, from, editing }: { initial: ComposeFields; from: st
           />
           <CaptionBlock
             network={tabNetwork}
-            format={tabNetwork ? formatFor(fields, tabNetwork) : null}
+            typesOf={typesOf}
+            format={typesOf ? formatFor(fields, typesOf) : null}
             onFormatChange={(format) => {
               if (tabNetwork) set('formats', { ...fields.formats, [tabNetwork]: format })
             }}

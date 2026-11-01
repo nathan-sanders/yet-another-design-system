@@ -37,6 +37,24 @@ export const changeKinds: Record<
 
 export const releases: Release[] = [
   {
+    date: '2026-11-01',
+    title: 'Editing a post stays on its network',
+    summary:
+      'A draft or scheduled post opens on its own network, and All channels shows where the post type lives.',
+    changes: [
+      {
+        kind: 'improved',
+        text: 'A draft or scheduled post opens on its network’s tab alone, with that network’s options.',
+        pr: 371,
+      },
+      {
+        kind: 'improved',
+        text: 'All channels shows the post type greyed out: pick it on each network’s tab.',
+        pr: 371,
+      },
+    ],
+  },
+  {
     date: '2026-10-30',
     title: 'Settings, and post types for every network',
     summary:

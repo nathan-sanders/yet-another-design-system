@@ -20,9 +20,10 @@ const LIMITS: Partial<Record<Network, number>> = {
 
 /**
  * The format strip, then the `Caption · Instagram` block (`40006009:29479`).
- * The strip is the open network's own post types (`POST_TYPES`), so it shows
- * only on a network's tab; All channels has no type to pick, and Templates
- * keeps its place at the end of the row. Then the block:
+ * The strip is the open network's own post types (`POST_TYPES`). All channels
+ * has no type to pick, so there it shows the first channel's strip disabled:
+ * the control stays where it will be, and says the type is set per network.
+ * Templates keeps its place at the end of the row. Then the block:
  * the caption itself with the network's counter, the media strip, and the
  * row of ghost actions under it at the default size — emoji, hashtag, Alt
  * text, Tag people, Edit, Asset library, Integrations. Only the first two
@@ -30,6 +31,7 @@ const LIMITS: Partial<Record<Network, number>> = {
  */
 export function CaptionBlock({
   network,
+  typesOf,
   format,
   onFormatChange,
   caption,
@@ -40,7 +42,12 @@ export function CaptionBlock({
 }: {
   /** The network whose caption this is, or none for the shared one. */
   network: Network | null
-  /** The open network's type. Unused on All channels. */
+  /**
+   * Whose post types the strip lists: the open network, or on All channels
+   * the first channel's, greyed out. None when no channel is picked.
+   */
+  typesOf: Network | null
+  /** The type `typesOf` goes out as. */
   format: PostFormat | null
   onFormatChange: (format: PostFormat) => void
   caption: string
@@ -55,17 +62,22 @@ export function CaptionBlock({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-end gap-2">
-        {network ? (
+        {typesOf ? (
           // X's seven types are wider than a phone's column: the strip scrolls
           // sideways in its own box, padded by the focus ring's 4px so the
           // ring is not cut off, and Templates wraps under it.
           <div className="-my-1 mr-auto -ml-1 max-w-[calc(100%+0.5rem)] min-w-0 overflow-x-auto p-1">
             <SegmentedControl
-              aria-label={`${NETWORK_NAMES[network]} post type`}
+              aria-label={
+                network
+                  ? `${NETWORK_NAMES[network]} post type`
+                  : "Post type, set on each network's tab"
+              }
               value={format ?? undefined}
               onValueChange={(value) => onFormatChange(value as PostFormat)}
+              disabled={!network}
             >
-              {POST_TYPES[network].map((option) => (
+              {POST_TYPES[typesOf].map((option) => (
                 <SegmentedControl.Item key={option.value} value={option.value}>
                   {option.label}
                 </SegmentedControl.Item>
