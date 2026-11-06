@@ -189,13 +189,13 @@ list's card and the Unassigned filter.
     - **Sentiment:** an Undefined value, with the `CircleHelp` icon.
     - **Status icons:** `CircleDot` and `CirclePause` for the new statuses.
     - **Menu layout:** the menus themselves, with a radio row and the option's icon, face or mark.
-28. **Priority is a number, 0 to 4.** No priority, Low, Medium, High and Critical, each a digit in
-    a 16 × 14 box at a 4px radius (`rounded-xs`). The model is Nathan's `Token - Priority` set on
-    the page (`40005917:33421`…`33425`), whose instances come from the Sprout UI Theme library.
-    The colors are YADS's own Decorative Neutral, Green, Yellow, Orange and Red, Badge's pair. They
-    are stronger tints than Sprout's, and they follow the theme. The mark is `aria-hidden`
-    because the label beside it already says the priority. The `_Ticket Meta` symbol still draws
-    the signal glyph.
+28. **Priority is a number, 0 to 4.** No priority, Low, Medium, High and Critical, each a bold
+    digit in a 16px square at `rounded-sm`. The model is Nathan's `Priority Icon` set
+    (`40006396:58194`), which replaced his earlier `Token - Priority` (a 16 × 14 box at
+    `rounded-xs`, `40005917:33421`…`33425`). The set draws Low to Critical, so No priority (0) is
+    code-only. The colors are YADS's own Decorative Neutral, Green, Yellow, Orange and Red, Badge's
+    pair, and they follow the theme. The mark is `aria-hidden` because the label beside it already
+    says the priority. The `_Ticket Meta` symbol draws the same set now.
 29. **There is no assignee token on an unassigned ticket.** The toolbar's Assign button
     (`Assign to`, first of Assign, Tag, Complete, More) opens the same menu the assignee token
     does, and so does the thread's Assign. Unassigning from the token removes it, and focus moves
