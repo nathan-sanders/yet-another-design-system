@@ -405,6 +405,13 @@ export type {
 export { Spark } from './components/Spark'
 export type { SparkProps, SparkType } from './components/Spark'
 
+export { StackedBar } from './components/StackedBar'
+export type {
+  StackedBarProps,
+  StackedBarSegment,
+  StackedBarSize,
+} from './components/StackedBar'
+
 export { Slider } from './components/Slider'
 export type { SliderProps, SliderMark } from './components/Slider'
 
