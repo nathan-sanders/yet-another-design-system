@@ -1672,7 +1672,9 @@ Figma: `Campaign page · Creators` `40006187:42949`.
     uses `ChartSwatch`, the Mono A08/A06/A04 tokens and the chart family's 1px gap. The bar's
     segments are paid, allocated but unpaid, and unallocated, so they add up to the total. The
     file's widths (250/400/472) aren't proportional to its own figures. Open: if a second
-    single-bar breakdown appears, `HorizontalBar` could take a no-axis form.
+    single-bar breakdown appears, `HorizontalBar` could take a no-axis form. **Closed
+    2026-11-06:** Yet Project made it a second use, so the library gained `StackedBar` (#372), and
+    `BudgetBar` is built on it. Its segments went from 6px to the chart family's 4px radius.
 203. **Status is a menu on its Token, and it's live.** It writes to the campaign, so Overview's
     "2 of 3" and the Plan tab's creator rows follow. It uses the button-wrapped Token from FINDINGS
     24. Invite selected is a toast for the selected rows, and Add creator goes to Plan › Creators,
