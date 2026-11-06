@@ -37,6 +37,18 @@ export const changeKinds: Record<
 
 export const releases: Release[] = [
   {
+    date: '2026-11-06',
+    title: 'Clearer priority marks',
+    summary: 'Ticket priority marks are a little larger and bolder, so the level is easier to read.',
+    changes: [
+      {
+        kind: 'improved',
+        text: 'Priority marks are a square tile with a bold number, on tickets and in the priority menu.',
+        pr: 374,
+      },
+    ],
+  },
+  {
     date: '2026-11-01',
     title: 'Editing a post stays on its network',
     summary:

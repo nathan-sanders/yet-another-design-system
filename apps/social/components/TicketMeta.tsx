@@ -118,9 +118,10 @@ interface PriorityOption {
 
 /**
  * The priority scale, 0 to 4. Each level is a number in a tinted box rather
- * than a glyph — after the `Token - Priority` set Nathan dropped on the page
- * (`40005917:33421`…`33425`), which draws a 16 × 14 box at a 4px radius on a
- * Decorative hue. The classes are written out whole so Tailwind can see them.
+ * than a glyph — the `Priority Icon` set (`40006396:58194`), a 16px square at
+ * `rounded-sm` on a Decorative hue, with a bold digit. The set draws Low to
+ * Critical; No priority (0) stays neutral and is code-only. The classes are
+ * written out whole so Tailwind can see them.
  */
 const PRIORITY: PriorityOption[] = [
   {
@@ -171,8 +172,8 @@ function PriorityMark({ priority }: { priority: TicketPriority }) {
     <span
       aria-hidden
       className={cn(
-        'inline-flex h-3.5 w-4 shrink-0 items-center justify-center rounded-xs',
-        'text-sm leading-none font-semibold tabular-nums',
+        'inline-flex size-4 shrink-0 items-center justify-center rounded-sm',
+        'text-sm leading-none font-bold tabular-nums',
         option.tone,
       )}
     >
