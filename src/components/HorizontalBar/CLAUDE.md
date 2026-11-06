@@ -1,5 +1,7 @@
 # HorizontalBar
 
+**One bar with no axis is [StackedBar](../StackedBar/CLAUDE.md), not this.** This component is for comparing rows.
+
 A magnitude per named category, as rows. **Read [Chart/CLAUDE.md](../Chart/CLAUDE.md) and
 [VerticalBar/CLAUDE.md](../VerticalBar/CLAUDE.md) first** — this is that chart on its side, and
 only what changes when it turns is written here.

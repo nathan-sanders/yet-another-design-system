@@ -673,6 +673,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [VerticalBar](src/components/VerticalBar/CLAUDE.md) | how much, per category | Figma's three bar types are one boolean; rounded stacked segments Recharts cannot draw |
 | [HorizontalBar](src/components/HorizontalBar/CLAUDE.md) | how much, per named category, when the label needs the room | VerticalBar on its side; the gap moves to the right edge, every row is labeled, and the height follows the rows |
 | [Spark](src/components/Spark/CLAUDE.md) | a shape the size of a word | the one chart that is not a `ChartContainer`; labeled or decorative, enforced by the type |
+| [StackedBar](src/components/StackedBar/CLAUDE.md) | the parts of one whole, in a row or a table cell | a flex row, not a chart: no axes, no Recharts, no hidden table; labeled or decorative like Spark; a value of zero repaints nothing |
 | [Donut](src/components/Donut/CLAUDE.md) | parts of one whole | a slice is a series with one value; hover is a halo that does not resize the slice |
 | [Gauge](src/components/Gauge/CLAUDE.md) | how far along | a donut folded in half, which turns the hole into a shelf; the radius has to be computed |
 | [Radar](src/components/Radar/CLAUDE.md) | several series across a few dimensions | translucent because no paint order can work; the grid's outer ring is a second element |
