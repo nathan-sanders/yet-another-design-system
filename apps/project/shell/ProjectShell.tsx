@@ -40,7 +40,11 @@ export function ProjectShell() {
       toast.add({ title: `${what} isn't built yet`, description: 'This is a mock app.' }),
     [toast],
   )
-  const shell = useMemo<ShellState>(() => ({ notBuilt }), [notBuilt])
+  const [screenPanelHost, setScreenPanelHost] = useState<HTMLElement | null>(null)
+  const shell = useMemo<ShellState>(
+    () => ({ notBuilt, screenPanelHost }),
+    [notBuilt, screenPanelHost],
+  )
 
   const placeholder = floatingYakPlaceholder(location.pathname)
   const floatingYakInput = useRef<HTMLInputElement>(null)
@@ -189,6 +193,10 @@ export function ProjectShell() {
             />
           ) : null}
         </AppShell.Page>
+
+        {/* A screen's own panel portals in here (`ShellState.screenPanelHost`).
+            `contents`, so the panel is still a child of the shell's row. */}
+        <div ref={setScreenPanelHost} className="contents" />
 
         <MobileNav
           aria-label="Main"

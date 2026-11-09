@@ -12,27 +12,40 @@ import {
 import { Button } from '../../../../src/components/Button'
 import { Icon } from '../../../../src/components/Icon'
 import { pixel, Table, type TableColumn, type TableGroup } from '../../../../src/components/Table'
+import { cn } from '../../../../src/lib/cn'
+import { focusRing } from '../../../../src/lib/focus'
 import { AssigneeToken, DueToken, PriorityToken, StatusToken } from '../../components/TaskTokens'
+import { subtaskCount } from '../../components/taskMeta'
 import { day, shortDate } from '../../data/dates'
 import type { Project, Task } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { NotBuiltMessage } from '../NotBuiltMessage'
+import { taskPath } from './paths'
 import { useTasks, type TaskEdit } from './tasksState'
 
 /**
  * `_Task Name Cell` (`40006261:1498`): the task's name, and its subtasks done
  * of total behind a `list-tree` glyph when it has any. Tables with a Status
  * column hide the cell's status icon (`Show Status Icon` off), so it has none.
+ *
+ * The name is the row's link, to the task's panel: a press anywhere on the
+ * row that is not on one of its tokens opens it.
  */
 function TaskNameCell({ task }: { task: Task }) {
+  const count = subtaskCount(task)
   return (
     <span className="flex min-w-0 items-center gap-2">
-      <span className="min-w-0 flex-1 truncate">{task.title}</span>
-      {task.subtasks ? (
+      <a
+        href={`#${taskPath(task)}`}
+        className={cn('min-w-0 flex-1 truncate rounded-sm text-content-primary', focusRing)}
+      >
+        {task.title}
+      </a>
+      {count ? (
         <span className="flex shrink-0 items-center gap-1 text-sm text-content-subtle">
           <Icon icon={ListTree} size="small" />
           <span className="sr-only">Subtasks: </span>
-          {task.subtasks.done}/{task.subtasks.total}
+          {count.done}/{count.total}
         </span>
       ) : null}
     </span>
@@ -59,6 +72,7 @@ function columnsFor(
       key: 'task',
       header: 'Task',
       layout: 'fill',
+      rowTarget: true,
       renderCell: (task) => <TaskNameCell task={task} />,
     },
     {
@@ -109,17 +123,30 @@ function byPhase(list: Task[]): TableGroup[] {
  * their tokens; the toolbar's views, filter, grouping and sort are drawn
  * (`Project - List / Filtered, unsaved view`, `40006277:12040`) and not built.
  */
-export function ListView({ project }: { project: Project }) {
+export function ListView({
+  project,
+  selectedTaskId,
+  panelOpen = false,
+}: {
+  project: Project
+  /** The task whose panel is open, drawn as the selected row. */
+  selectedTaskId?: string
+  /**
+   * The task panel takes 384 of the page, so the table drops Priority, as
+   * the file's `Task - Panel over List` does; Table's minimum width follows.
+   */
+  panelOpen?: boolean
+}) {
   const shell = useShell()
   const { tasks, updateTask } = useTasks()
   const projectTasks = useMemo(
     () => tasks.filter((task) => task.projectId === project.id),
     [tasks, project.id],
   )
-  const columns = useMemo(
-    () => columnsFor(project, (task, edit) => updateTask(task.id, edit), shell.notBuilt),
-    [project, updateTask, shell.notBuilt],
-  )
+  const columns = useMemo(() => {
+    const all = columnsFor(project, (task, edit) => updateTask(task.id, edit), shell.notBuilt)
+    return panelOpen ? all.filter((column) => column.key !== 'priority') : all
+  }, [project, updateTask, shell.notBuilt, panelOpen])
 
   return (
     <div className="flex flex-col gap-3">
@@ -159,6 +186,7 @@ export function ListView({ project }: { project: Project }) {
             idKey="id"
             groupBy={(task) => task.phase}
             groups={byPhase(projectTasks)}
+            selectedKeys={selectedTaskId ? [selectedTaskId] : []}
           />
         </div>
       ) : (

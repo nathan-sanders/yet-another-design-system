@@ -1,4 +1,6 @@
-import { Navigate, useNavigate, useParams } from 'react-router'
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import {
   ArrowLeft,
   Calendar,
@@ -29,7 +31,9 @@ import { useShell } from '../../shell/ShellContext'
 import { NotBuiltMessage } from '../NotBuiltMessage'
 import { NotBuilt } from '../NotBuilt'
 import { ListView } from './ListView'
-import { DEFAULT_TAB, projectPath, tabsFor, type ProjectTab } from './paths'
+import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
+import { TaskPanel } from './TaskPanel'
+import { useTasks } from './tasksState'
 
 /** The health button's glyph: the warning for trouble, a check when it is fine. */
 const HEALTH_ICON: Record<ProjectHealth, LucideIcon> = {
@@ -67,6 +71,18 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
   const tabs = tabsFor(project.sprints)
   const health = HEALTH[project.health]
   const owner = personFor(project.ownerId)
+
+  // The open task is in the URL (`?task=AUS-24`); the panel keeps showing the
+  // last one while it slides closed.
+  const [params] = useSearchParams()
+  const { tasks } = useTasks()
+  const requested = params.get(TASK_PARAM)
+  const openTask = tasks.find(
+    (task) => task.projectId === project.id && requested !== null && taskKey(task) === requested,
+  )
+  const [shownTaskId, setShownTaskId] = useState(openTask?.id)
+  if (openTask && openTask.id !== shownTaskId) setShownTaskId(openTask.id)
+  const closeTask = () => navigate(projectPath(project.id, tab))
 
   const toast = Toast.useToast()
   const copyLink = () => {
@@ -180,7 +196,11 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
             {tabs.map((t) => (
               <Tabs.Panel key={t.id} value={t.id}>
                 {t.id === 'list' ? (
-                  <ListView project={project} />
+                  <ListView
+                    project={project}
+                    selectedTaskId={openTask?.id}
+                    panelOpen={Boolean(openTask)}
+                  />
                 ) : (
                   <NotBuiltMessage
                     icon={PencilRuler}
@@ -194,6 +214,12 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
           </Tabs>
         </div>
       </AppShell.Content>
+      {shell.screenPanelHost
+        ? createPortal(
+            <TaskPanel taskId={shownTaskId} open={Boolean(openTask)} onClose={closeTask} />,
+            shell.screenPanelHost,
+          )
+        : null}
     </>
   )
 }

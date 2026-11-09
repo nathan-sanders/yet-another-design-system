@@ -1,4 +1,25 @@
-import type { Task } from './types'
+import { day } from './dates'
+import type { Subtask, Task } from './types'
+
+/**
+ * Hire 14 crew members' checklist: one line a hire, nine made. The role
+ * counts are the description's.
+ */
+function crew(): Subtask[] {
+  const roles: [string, number, number][] = [
+    ['shift lead', 2, 2],
+    ['line cook', 5, 5],
+    ['prep cook', 3, 2],
+    ['cashier', 4, 0],
+  ]
+  return roles.flatMap(([role, count, done]) =>
+    Array.from({ length: count }, (_, i) => ({
+      id: `aus-16-${role.replace(' ', '-')}-${i + 1}`,
+      title: `Hire ${role} (${i + 1} of ${count})`,
+      done: i < done,
+    })),
+  )
+}
 
 /**
  * Austin store opening's tasks, as `Project - List` (`40006268:6554`) draws
@@ -20,7 +41,33 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'high',
     due: '2026-11-10',
-    subtasks: { done: 2, total: 3 },
+    description:
+      'The city’s final sign-off on the build-out’s electrical. It slipped from Nov 7 to Nov 10, and the health permit can’t be scheduled until it passes.',
+    estimate: '4h',
+    subtasks: [
+      { id: 'aus-38', title: 'Send the panel schedule to the city', done: true },
+      { id: 'aus-39', title: 'Walk the site with the electrician', done: true },
+      { id: 'aus-40', title: 'Meet the inspector on site', done: false },
+    ],
+    linked: { doc: 'Austin opening plan' },
+    comments: [
+      {
+        id: 'c-21-1',
+        authorId: 'dana',
+        age: '3h',
+        body: 'Do we have a window for the 10th? I want the health inspector lined up behind it.',
+      },
+    ],
+    activity: [
+      {
+        id: 'e-21-2',
+        actor: 'marcus',
+        text: 'Marcus moved the due date',
+        at: day('2026-11-04'),
+        change: { from: 'Nov 7', to: 'Nov 10' },
+      },
+      { id: 'e-21-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-20') },
+    ],
   },
   {
     id: 'aus-24',
@@ -32,6 +79,68 @@ export const tasks: Task[] = [
     status: 'blocked',
     priority: 'high',
     due: '2026-11-18',
+    description:
+      'City health department sign-off for the Austin kitchen. They won’t schedule until electrical passes, and the review takes five business days.',
+    estimate: '6h',
+    subtasks: [
+      { id: 'aus-24-1', title: 'Submit floor plan', done: true },
+      { id: 'aus-24-2', title: 'Book inspector', done: false },
+      { id: 'aus-24-3', title: 'Post permit on site', done: false },
+    ],
+    dependsOn: [{ taskId: 'aus-21' }],
+    linked: { doc: 'Austin opening plan', request: 'Permit check for Austin' },
+    comments: [
+      {
+        id: 'c-24-1',
+        authorId: 'marcus',
+        age: '2h',
+        body: 'City confirmed the 10th. If it passes I’ll send the certificate over the same day.',
+        likes: 2,
+        replies: [
+          {
+            id: 'c-24-2',
+            authorId: 'dana',
+            age: '1h',
+            body: 'Thanks. I’ll book the inspector as soon as it lands.',
+          },
+        ],
+      },
+    ],
+    activity: [
+      {
+        id: 'e-24-6',
+        actor: 'dana',
+        text: 'Dana changed the status',
+        at: day('2026-11-04'),
+        change: { from: 'In progress', to: 'Blocked' },
+      },
+      {
+        id: 'e-24-5',
+        actor: 'rule',
+        text: 'Rule: told Dana this task is blocked',
+        at: day('2026-11-04'),
+      },
+      {
+        id: 'e-24-4',
+        actor: 'marcus',
+        text: 'Marcus added a dependency on Final electrical inspection',
+        at: day('2026-11-04'),
+      },
+      {
+        id: 'e-24-3',
+        actor: 'dana',
+        text: 'Dana moved the due date',
+        at: day('2026-11-03'),
+        change: { from: 'Nov 16', to: 'Nov 18' },
+      },
+      {
+        id: 'e-24-2',
+        actor: 'yak',
+        text: 'Yak flagged that this task has no slack',
+        at: day('2026-11-02'),
+      },
+      { id: 'e-24-1', actor: 'dana', text: 'Dana created this task', at: day('2026-10-26') },
+    ],
   },
   {
     id: 'aus-22',
@@ -43,6 +152,19 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'medium',
     due: '2026-11-20',
+    description:
+      'The hood over the cook line, ducted to the roof. The fire marshal signs it off before the health inspector comes.',
+    estimate: '16h',
+    activity: [
+      {
+        id: 'e-22-2',
+        actor: 'marcus',
+        text: 'Marcus changed the status',
+        at: day('2026-11-02'),
+        change: { from: 'To do', to: 'In progress' },
+      },
+      { id: 'e-22-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-20') },
+    ],
   },
   {
     id: 'aus-20',
@@ -54,6 +176,18 @@ export const tasks: Task[] = [
     status: 'done',
     priority: 'medium',
     due: '2026-10-28',
+    description: 'Kitchen layout, equipment list and food safety plan, for the city’s plan review.',
+    estimate: '3h',
+    activity: [
+      {
+        id: 'e-20-2',
+        actor: 'dana',
+        text: 'Dana changed the status',
+        at: day('2026-10-28'),
+        change: { from: 'In review', to: 'Done' },
+      },
+      { id: 'e-20-1', actor: 'dana', text: 'Dana created this task', at: day('2026-10-14') },
+    ],
   },
   {
     id: 'aus-16',
@@ -65,7 +199,20 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'high',
     due: '2026-11-20',
-    subtasks: { done: 9, total: 14 },
+    description:
+      'Fourteen hourly crew for the opening rota: two shift leads, five line cooks, three prep cooks and four cashiers.',
+    estimate: '30h',
+    subtasks: crew(),
+    linked: { request: 'Austin crew hiring' },
+    activity: [
+      {
+        id: 'e-16-2',
+        actor: 'sofia',
+        text: 'Sofia checked off Hire prep cook (2 of 3)',
+        at: day('2026-11-04'),
+      },
+      { id: 'e-16-1', actor: 'sofia', text: 'Sofia created this task', at: day('2026-10-19') },
+    ],
   },
   {
     id: 'aus-17',
@@ -77,6 +224,18 @@ export const tasks: Task[] = [
     status: 'done',
     priority: 'high',
     due: '2026-10-30',
+    description: 'A general manager in place before crew hiring and training start.',
+    estimate: '12h',
+    activity: [
+      {
+        id: 'e-17-2',
+        actor: 'sofia',
+        text: 'Sofia changed the status',
+        at: day('2026-10-30'),
+        change: { from: 'In progress', to: 'Done' },
+      },
+      { id: 'e-17-1', actor: 'sofia', text: 'Sofia created this task', at: day('2026-10-05') },
+    ],
   },
   {
     id: 'aus-19',
@@ -88,6 +247,13 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'medium',
     due: '2026-12-14',
+    description:
+      'A week of paid training in the finished kitchen, starting Dec 7. It needs the equipment in and working first.',
+    estimate: '40h',
+    dependsOn: [{ taskId: 'aus-26' }],
+    activity: [
+      { id: 'e-19-1', actor: 'sofia', text: 'Sofia created this task', at: day('2026-10-19') },
+    ],
   },
   {
     id: 'aus-27',
@@ -99,7 +265,23 @@ export const tasks: Task[] = [
     status: 'in-review',
     priority: 'medium',
     due: '2026-11-09',
-    subtasks: { done: 1, total: 3 },
+    description: 'Produce, dry goods and packaging suppliers for Austin, priced against Dallas.',
+    estimate: '5h',
+    subtasks: [
+      { id: 'aus-27-1', title: 'Shortlist produce growers', done: true },
+      { id: 'aus-27-2', title: 'Price the dry goods', done: false },
+      { id: 'aus-27-3', title: 'Confirm delivery windows', done: false },
+    ],
+    activity: [
+      {
+        id: 'e-27-2',
+        actor: 'priya',
+        text: 'Priya changed the status',
+        at: day('2026-11-03'),
+        change: { from: 'In progress', to: 'In review' },
+      },
+      { id: 'e-27-1', actor: 'priya', text: 'Priya created this task', at: day('2026-10-21') },
+    ],
   },
   {
     id: 'aus-26',
@@ -111,6 +293,13 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'high',
     due: '2026-12-01',
+    description:
+      'Ovens, fridges and the line, delivered and installed. Nothing ships until the health permit is in hand.',
+    estimate: '12h',
+    dependsOn: [{ taskId: 'aus-24', lagDays: 5 }],
+    activity: [
+      { id: 'e-26-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-20') },
+    ],
   },
   {
     id: 'aus-28',
@@ -122,6 +311,12 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'medium',
     due: '2027-01-06',
+    description: 'The first standing order from the new growers, the week before opening.',
+    estimate: '2h',
+    dependsOn: [{ taskId: 'aus-27' }],
+    activity: [
+      { id: 'e-28-1', actor: 'priya', text: 'Priya created this task', at: day('2026-10-21') },
+    ],
   },
   {
     id: 'aus-33',
@@ -133,6 +328,19 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'medium',
     due: '2026-12-18',
+    description:
+      'Austin food press, neighborhood newsletters and a few local creators for the opening week.',
+    estimate: '8h',
+    activity: [
+      {
+        id: 'e-33-2',
+        actor: 'katie',
+        text: 'Katie changed the status',
+        at: day('2026-11-02'),
+        change: { from: 'To do', to: 'In progress' },
+      },
+      { id: 'e-33-1', actor: 'katie', text: 'Katie created this task', at: day('2026-10-22') },
+    ],
   },
   {
     id: 'aus-35',
@@ -144,6 +352,11 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'high',
     due: '2027-01-12',
+    description: 'Signage, social and the opening-day offer, in the Protein Plates look.',
+    estimate: '20h',
+    activity: [
+      { id: 'e-35-1', actor: 'maya', text: 'Maya created this task', at: day('2026-10-22') },
+    ],
   },
 ]
 

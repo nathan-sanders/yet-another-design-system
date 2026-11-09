@@ -78,3 +78,40 @@ lands on a "Designed, not built yet" page that links its frame.
 12. **The browser pane drops menu picks.** Clicking a status in its open menu closed the menu with
     no change in the pane, and a second click did not reopen it; the keyboard path worked, and in
     real Chromium (Playwright) every pointer pick worked. Verify menus there.
+
+## Slice 2 — the task panel (2026-11-08)
+
+From `Task - Panel over List` (`40006275:8516`), with the Activity tab from `Task - Activity
+log` (`40006307:38076`). Press any row of a project's List and the task opens in a `Panel`
+beside it, at `#/projects/austin/list?task=AUS-24`, so every task has a link and Back closes
+it. Status, assignee and priority change from their tokens and the List follows; subtasks
+tick; a dependency or the blocked banner's Open swaps the panel to that task; a comment posts;
+every edit is written into Activity as yours. The full view, the due date picker, Phase,
+Project and Estimate, replies, mentions and the activity filter are drawn and not built.
+
+### Kept in the app, worth knowing
+
+14. **The panel is always mounted.** `Panel` moves focus in when `open` goes from false to true,
+    and leaves it alone when it mounts already open, because that is a panel that was there on
+    load. Rendering it only once a task was chosen made every row press look like a page load,
+    and focus stayed on the table. `TaskPanel` keeps the `Panel` mounted and empty until asked,
+    as Yet Social's drafts panel does; a link opened cold still leaves focus on the page.
+15. **With the panel open the List drops Priority.** The file's own frame does, and the
+    remaining columns keep the file's widths, and `Table` works out its own minimum from them, so
+    the table fits beside 384 of panel at 1440 without scrolling sideways.
+16. **The selected row is `Table`'s selected state, not the frame's drawing.** The frame paints
+    the open row by hand, `Surface/Background Subtle` with a `Surface/Border` stroke (which is
+    why it measures 41). The library's selected row is the overlay wash with its rule stepped up
+    to emphasized, which is what keeps "open" apart from "hovered". The frame should use the
+    Table Row's Selected state rather than a local fill.
+17. **Subtask counts come from the checklist.** The List's `list-tree` meta is now counted from
+    each task's subtasks rather than written beside them, so ticking one in the panel moves both.
+    That gives Health permit approval a `1/3` in the List, which the frame's List never shows
+    although its panel lists three; the count is the honest one. Hire 14 crew members' checklist
+    is one line a hire, by role, nine made.
+18. **Edits made here are dated the mock's today.** Activity buckets lines into Today, Yesterday
+    and Earlier around this week's Thursday (entry 5). An edit stamped with the real clock landed
+    under Earlier on any day but Thursday, so `TasksProvider` dates it `today`.
+19. **`Card` is a column.** Its base is `flex-col gap-2` on purpose (its record explains), so the
+    one-line blocked banner — Badge, the waiting-on text, Open — says `flex-row` to sit in a row,
+    as the file's horizontal wrapper does.
