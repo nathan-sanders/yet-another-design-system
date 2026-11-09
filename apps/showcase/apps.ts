@@ -66,4 +66,30 @@ export const apps: ShowcaseApp[] = [
       'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System?node-id=40005911-31806',
     image: 'social.png',
   },
+  {
+    slug: 'project',
+    name: 'Yet Project',
+    pitch:
+      'Project management for a cross-functional team: projects, their tasks and the plan above them. Yak, Yet Social’s assistant, joins it next.',
+    built: [
+      'Home: a daily brief with what needs you, your projects and the week ahead',
+      'All projects: every project grouped by health, with progress, owner and the next milestone',
+      'A project’s List: every task grouped by phase, with assignee, status and priority you change from their tokens',
+    ],
+    components: [
+      'AppShell',
+      'SideNav',
+      'Table',
+      'Token',
+      'Menu',
+      'Tabs',
+      'Breadcrumbs',
+      'ProgressBar',
+      'ContentBlock',
+      'ChatComposer',
+    ],
+    figma:
+      'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System?node-id=40006256-61847',
+    image: 'project.png',
+  },
 ]
