@@ -15,14 +15,6 @@ lands on a "Designed, not built yet" page that links its frame.
 
 ### Open: library changes worth making
 
-1. **`Table` has no group rows.** Both tables in this slice are grouped — All projects by
-   health, a project's List by phase — under a `Group /` row: a chevron, the name in sm
-   semibold, a neutral count Badge and a subtle note, on `Surface/Background Subtle` with a 1px
-   top rule, and the chevron folds the group. The file draws that row as a local frame, not a
-   library part. `components/GroupedTable.tsx` composes `Table`'s children-mode parts around one
-   `<tbody>` per group, whose first row is a `<th scope="rowgroup" colSpan>` holding the fold
-   button. Two grouped tables in one slice, and the file groups most of its task tables, so this
-   is a candidate for `Table` itself: a `groupBy` on the columns API, or a `Table.GroupRow` part.
 2. **A clickable Token cannot be a menu trigger.** Rendering `Menu.Trigger` onto a Token does not
    work — Token's `onClick` makes a hidden button of its own, so there are two tab stops and
    Enter does nothing. `TaskTokens.tsx` copies Yet Social's `TokenTrigger` (its FINDINGS 24): a
@@ -34,13 +26,30 @@ lands on a "Designed, not built yet" page that links its frame.
    `ghost`, and both hover *to* the subtle fill, so a subtle card would not change under the
    pointer. The app uses `ghost` with the subtle fill and hovers to `surface-overlay-subtle`,
    the translucent wash Table's striped rows hover to, which adds ink to whatever it covers.
-4. **`Table.Cell` wraps its children in a span that hugs them.** A cell cannot hold a row that
-   spreads to its edges: `_Task Name Cell`'s subtask count sat right after the name instead of
-   at the cell's right padding, and All projects' progress bar measured **0px** wide, because a
-   `flex-1` bar inside a hugging span has nothing to grow into. `Table`'s own record already
-   notes it for skeletons ("a cell's content wrapper hugs"). The app's `GroupedColumn.spread` stretches that
-   span from outside with `*:*:flex-1` on the cell, which reaches into the library's markup.
-   The library wants a way to say it: a `fill` on `Table.Cell` and on `TableColumn`.
+13. **The library's table frame has no focus ring.** *Open.* `GroupedTable` put `focusRing` on its
+    scroll region; `Table`'s own frame takes focus (`tabIndex={0}`, for keyboard scrolling) and
+    draws nothing when it has it, and `className` reaches the `<table>`, not the frame, so the app
+    cannot add one. Moving onto `Table` lost the ring here, and every Yet Social table has the same
+    gap. Fix in `Table`: `focusRing` on `scrollRegion`.
+
+### Fixed in the library
+
+1. **`Table` has no group rows.** *Fixed in #376.* Both tables in this slice are grouped — All
+   projects by health, a project's List by phase — under a `Group /` row: a chevron, the name in
+   sm semibold, a neutral count Badge and a subtle note, on `Surface/Background Subtle` with a 1px
+   top rule, and the chevron folds the group. The file draws that row as a local frame, not a
+   library part. The app composed `Table`'s children-mode parts into a `GroupedTable` of its own.
+   `Table` now has `groupBy` and `groups` on the columns API, rendering through a new
+   `Table.GroupRow` part: one `<tbody>` per group under a `<th scope="rowgroup">` that is the fold
+   button. `GroupedTable` is gone and both screens are a plain `<Table>`; the heading rows measure
+   36 and the rows 40, as drawn.
+4. **`Table.Cell` wraps its children in a span that hugs them.** *Fixed in #376.* A cell could
+   not hold a row that spreads to its edges: `_Task Name Cell`'s subtask count sat right after the
+   name instead of at the cell's right padding, and All projects' progress bar measured **0px**
+   wide, because a `flex-1` bar inside a hugging span has nothing to grow into. The app stretched
+   that span from outside with `*:*:flex-1`. `layout: 'fill'` on a column (or `Table.Cell`) now
+   gives the content the cell's width; the bar measures 131–134 (the file's 133) and the count
+   sits on the cell's padding.
 
 ### Kept in the app, worth knowing
 
