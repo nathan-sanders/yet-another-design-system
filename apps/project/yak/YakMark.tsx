@@ -1,0 +1,28 @@
+import { Mark } from '../../../src/components/Chat/story-mark'
+import { cn } from '../../../src/lib/cn'
+
+/**
+ * Yak's scribble as an icon: the nav item, Home's greeting, the floating
+ * bar. Copied from Yet Social, whose Yak this app shares by design.
+ * Decorative — every place it sits already says "Yak" in text or in a
+ * label — so it is hidden from the accessibility tree; `Mark` on its own is
+ * `role="img"` named "Yet", which would rename the nav item "Yet Yak".
+ *
+ * Drawn at the Icon component's stroke: 1.5px at any size, held by
+ * `non-scaling-stroke`, so at 16px it weighs what the lucide glyphs beside it
+ * do instead of thinning to 1px (Yet Social's FINDINGS 58).
+ *
+ * `animate` runs `Mark`'s thinking scribble: the nav item and the floating
+ * bar play it while pointed at or keyboard-focused (`useMarkActive`), and
+ * while Yak is answering. It rests under reduced motion on its own.
+ */
+export function YakMark({ className, animate }: { className?: string; animate?: boolean }) {
+  return (
+    <span aria-hidden className={cn('inline-flex shrink-0', className)}>
+      <Mark
+        animate={animate}
+        className="size-full [stroke-width:var(--icon-stroke-weight)] [&_*]:[vector-effect:non-scaling-stroke]"
+      />
+    </span>
+  )
+}

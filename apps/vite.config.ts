@@ -30,6 +30,7 @@ export default defineConfig({
       input: {
         showcase: fileURLToPath(new URL('./index.html', import.meta.url)),
         social: fileURLToPath(new URL('./social/index.html', import.meta.url)),
+        project: fileURLToPath(new URL('./project/index.html', import.meta.url)),
       },
     },
   },

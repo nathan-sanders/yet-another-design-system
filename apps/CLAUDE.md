@@ -2,7 +2,8 @@
 
 Real, routed products built only from the library, for two jobs: **show the range of the system**
 to anyone with a link, and **stress-test it** — every app screen is a place a component meets a
-use it was not written for. Started 2026-10-17 with Yet Social.
+use it was not written for. Started 2026-10-17 with Yet Social; Yet Project, a project manager
+from the Figma page ↪ Yet Project, followed on 2026-11-08.
 
 ## Layout
 
