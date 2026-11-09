@@ -40,6 +40,50 @@ export interface Task {
   status: TaskStatus
   priority: TaskPriority
   due: string
-  /** Subtasks done of total, as the task name's `list-tree` meta reads. */
-  subtasks?: { done: number; total: number }
+  /** What the task is, under its title in the panel. */
+  description?: string
+  /** Hours, as the panel's Estimate token reads: "6h". */
+  estimate?: string
+  /** Its checklist. The List's `list-tree` meta counts them, done of total. */
+  subtasks?: Subtask[]
+  /**
+   * The tasks this one waits on. Written once, on the waiting side; the other
+   * side's "Blocks" row is found by looking the other way.
+   */
+  dependsOn?: { taskId: string; lagDays?: number }[]
+  /** The panel's Linked section: a doc and an intake request, by name. */
+  linked?: { doc?: string; request?: string }
+  comments?: TaskComment[]
+  /** Newest first, as the Activity tab lists them. */
+  activity?: TaskEvent[]
+}
+
+export interface Subtask {
+  id: string
+  title: string
+  done: boolean
+}
+
+/** `_Inbox Comment`: a face, a name, an age and the words, and replies one step in. */
+export interface TaskComment {
+  id: string
+  authorId: string
+  /** "2h", as drawn; one written here reads "Just now". */
+  age: string
+  body: string
+  likes?: number
+  replies?: TaskComment[]
+}
+
+/**
+ * One line of the Activity tab (`Task - Activity log`, `40006307:38076`). A
+ * person's line carries their face; a rule's a `zap`, Yak's its mark. A change
+ * of value shows its before and after as two tokens.
+ */
+export interface TaskEvent {
+  id: string
+  actor: string | 'rule' | 'yak'
+  text: string
+  at: Date
+  change?: { from: string; to: string }
 }

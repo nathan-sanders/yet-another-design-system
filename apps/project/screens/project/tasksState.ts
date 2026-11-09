@@ -7,7 +7,10 @@ export type TaskEdit = Partial<Pick<Task, 'status' | 'priority' | 'assigneeId'>>
 
 export interface TasksState {
   tasks: Task[]
+  /** Changes a field, and writes the change into the task's Activity as yours. */
   updateTask: (id: string, edit: TaskEdit) => void
+  toggleSubtask: (taskId: string, subtaskId: string) => void
+  addComment: (taskId: string, body: string) => void
 }
 
 export const TasksContext = createContext<TasksState | null>(null)

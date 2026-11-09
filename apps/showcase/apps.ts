@@ -75,6 +75,7 @@ export const apps: ShowcaseApp[] = [
       'Home: a daily brief with what needs you, your projects and the week ahead',
       'All projects: every project grouped by health, with progress, owner and the next milestone',
       'A project’s List: every task grouped by phase, with assignee, status and priority you change from their tokens',
+      'A task’s panel: open any row for its properties, subtasks to tick, dependencies to follow, comments and activity',
     ],
     components: [
       'AppShell',
@@ -87,6 +88,8 @@ export const apps: ShowcaseApp[] = [
       'ProgressBar',
       'ContentBlock',
       'ChatComposer',
+      'Panel',
+      'Card',
     ],
     figma:
       'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System?node-id=40006256-61847',

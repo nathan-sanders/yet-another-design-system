@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import type { ProjectColor, ProjectHealth, TaskPriority, TaskStatus } from '../data/types'
+import type { ProjectColor, ProjectHealth, Task, TaskPriority, TaskStatus } from '../data/types'
 
 /**
  * A task's status, in the order the menu lists it. The glyphs are the file's
@@ -99,4 +99,10 @@ export const PROJECT_DOT: Record<ProjectColor, string> = {
   blue: 'bg-decorative-blue-background inset-ring-decorative-blue-highlight',
   yellow: 'bg-decorative-yellow-background inset-ring-decorative-yellow-highlight',
   sky: 'bg-decorative-sky-background inset-ring-decorative-sky-highlight',
+}
+
+/** Subtasks done of total, as the List's meta and the panel's Subtasks head count them. */
+export function subtaskCount(task: Task): { done: number; total: number } | null {
+  if (!task.subtasks?.length) return null
+  return { done: task.subtasks.filter((sub) => sub.done).length, total: task.subtasks.length }
 }
