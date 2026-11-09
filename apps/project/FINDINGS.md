@@ -26,11 +26,6 @@ lands on a "Designed, not built yet" page that links its frame.
    `ghost`, and both hover *to* the subtle fill, so a subtle card would not change under the
    pointer. The app uses `ghost` with the subtle fill and hovers to `surface-overlay-subtle`,
    the translucent wash Table's striped rows hover to, which adds ink to whatever it covers.
-13. **The library's table frame has no focus ring.** *Open.* `GroupedTable` put `focusRing` on its
-    scroll region; `Table`'s own frame takes focus (`tabIndex={0}`, for keyboard scrolling) and
-    draws nothing when it has it, and `className` reaches the `<table>`, not the frame, so the app
-    cannot add one. Moving onto `Table` lost the ring here, and every Yet Social table has the same
-    gap. Fix in `Table`: `focusRing` on `scrollRegion`.
 
 ### Fixed in the library
 
@@ -50,6 +45,13 @@ lands on a "Designed, not built yet" page that links its frame.
    that span from outside with `*:*:flex-1`. `layout: 'fill'` on a column (or `Table.Cell`) now
    gives the content the cell's width; the bar measures 131–134 (the file's 133) and the count
    sits on the cell's padding.
+13. **The library's table frame has no focus ring.** *Fixed in #379.* `GroupedTable` put
+    `focusRing` on its scroll region; `Table`'s own frame takes focus (`tabIndex={0}`, for
+    keyboard scrolling) and drew nothing when it had it, and `className` reaches the `<table>`,
+    not the frame, so the app could not add one. Moving onto `Table` lost the ring here, and every
+    Yet Social table had the same gap. `scrollRegion` now carries `focusRing`: a real Tab onto All
+    projects' frame paints the 2px gap and the ring, Tab on to a control inside moves it rather
+    than adding a second, and no ancestor in either app clips it.
 
 ### Kept in the app, worth knowing
 
