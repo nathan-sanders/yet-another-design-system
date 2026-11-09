@@ -348,6 +348,23 @@ export const Sorting: Story = {
     const canvas = within(canvasElement)
     const firstCell = () => canvas.getAllByRole('cell')[0]
 
+    await step('the frame rings when Tab lands on it, and hands the ring on', async () => {
+      // A real Tab, not `.focus()`: a scripted focus never matches
+      // `:focus-visible`, so the ring would measure as absent on a working frame.
+      const frame = canvas.getByRole('region', { name: 'Sorting' })
+      await userEvent.tab()
+      await expect(frame).toHaveFocus()
+      await expect(getComputedStyle(frame).boxShadow).toContain(
+        computed('var(--focus-focus-outer-border)'),
+      )
+      // The next stop is the first sort button inside the frame. Only the
+      // focused element matches `:focus-visible`, so the frame's ring goes as
+      // the button's arrives — one ring at a time.
+      await userEvent.tab()
+      await expect(canvas.getByRole('button', { name: 'Sort by Name' })).toHaveFocus()
+      await expect(getComputedStyle(frame).boxShadow).toBe('none')
+    })
+
     await step('a column that opted out has no control and no aria-sort', async () => {
       const role = canvas.getByRole('columnheader', { name: 'Role' })
       await expect(role).not.toHaveAttribute('aria-sort')
@@ -1019,13 +1036,16 @@ export const ClickableRows: Story = {
 export const Composable: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    // The frame is the caller's in children mode, and so is the label on it.
+    // The frame is the caller's in children mode, and so are its label and its ring.
     // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
     <div
       tabIndex={0}
       role="region"
       aria-label="Composed"
-      className="isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
+      className={cn(
+        'isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary',
+        focusRing,
+      )}
     >
       <table className="w-full table-fixed border-separate border-spacing-0 font-sans">
         <caption className="sr-only">Composed</caption>
@@ -1254,7 +1274,10 @@ export const GroupedComposable: Story = {
         tabIndex={0}
         role="region"
         aria-label="Composed groups"
-        className="isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
+        className={cn(
+          'isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary',
+          focusRing,
+        )}
       >
         <table className="w-full table-fixed border-separate border-spacing-0 font-sans">
           <caption className="sr-only">Composed groups</caption>

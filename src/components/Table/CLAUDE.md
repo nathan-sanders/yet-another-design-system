@@ -231,6 +231,18 @@ can only reach by dragging is unreachable from a keyboard, and axe fails the sto
 a **required prop** so that lands as a red squiggle rather than a red CI run. Two tables in one story
 need two different labels, or `landmark-unique` fires.
 
+**And it rings when it has focus.** `scrollRegion` carries `focusRing`. For a while it did not: the
+frame was a tab stop that drew nothing on arrival, and because `className` reaches the `<table>`,
+not the frame, no caller could add one. Yet Project found it (its FINDINGS 13) when moving onto
+`Table` took away the ring its own `GroupedTable` frame had drawn; every Yet Social table had the
+same gap. It never doubles up with a control inside — `:focus-visible` matches only the element
+holding focus, so Tab onto a sort button moves the ring rather than adding a second — and the
+frame's own `overflow-x-auto` cannot clip it, because an element's overflow clips its contents, not
+its own box-shadow. An *ancestor* that clips flush against the frame still can, which is the
+root record's `overflow-clip` rule again. `Sorting` drives both Tabs and compares the shadow against
+the token. In children mode the frame is the caller's, so the ring is too: `Composable`'s and
+`GroupedComposable`'s frames carry `focusRing`.
+
 **Expansion.** The chevron lives in the row's first cell, which is what the file's `expand` boolean
 means — and it means no extra empty `<th>`. A row expands because `renderExpanded` returned a node
 for it, derived rather than a second flag that could disagree with the panel's own existence. The

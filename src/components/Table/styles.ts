@@ -1,4 +1,5 @@
 import { tv, type VariantProps } from 'tailwind-variants'
+import { focusRing } from '../../lib/focus'
 
 /**
  * The recipes behind `Table` and every one of its parts.
@@ -57,9 +58,18 @@ import { tv, type VariantProps } from 'tailwind-variants'
  * would be the *page's* — a table scrolled under an app's sticky top bar would
  * paint its header over the bar. Isolated, the number only orders the table's
  * own contents.
+ *
+ * `focusRing` because the frame is a tab stop — `tabIndex={0}`, so the arrow
+ * keys scroll it — and a tab stop that draws nothing on arrival leaves a
+ * keyboard user with no idea where they are. It has to live here: a caller's
+ * `className` reaches the `<table>`, not the frame, so no app can add it. It
+ * never doubles up with a control's ring inside: `:focus-visible` matches
+ * only the element that holds focus, so tabbing on to a sort button moves the
+ * ring off the frame rather than adding a second one.
  */
 export const scrollRegion = [
   'isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary',
+  ...focusRing,
 ].join(' ')
 
 /**
