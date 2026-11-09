@@ -11,7 +11,7 @@ import {
 
 import { Button } from '../../../../src/components/Button'
 import { Icon } from '../../../../src/components/Icon'
-import { GroupedTable, type GroupedColumn, type TableGroup } from '../../components/GroupedTable'
+import { pixel, Table, type TableColumn, type TableGroup } from '../../../../src/components/Table'
 import { AssigneeToken, DueToken, PriorityToken, StatusToken } from '../../components/TaskTokens'
 import { day, shortDate } from '../../data/dates'
 import type { Project, Task } from '../../data/types'
@@ -43,42 +43,47 @@ function columnsFor(
   project: Project,
   onChange: (task: Task, edit: TaskEdit) => void,
   notBuilt: (what: string) => void,
-): GroupedColumn<Task>[] {
+): TableColumn<Task>[] {
   return [
     {
       key: 'number',
       header: 'Number',
-      width: 88,
-      render: (task) => (
+      width: pixel(88),
+      renderCell: (task) => (
         <span className="text-content-subtle">
           {project.key}-{task.number}
         </span>
       ),
     },
-    { key: 'task', header: 'Task', spread: true, render: (task) => <TaskNameCell task={task} /> },
+    {
+      key: 'task',
+      header: 'Task',
+      layout: 'fill',
+      renderCell: (task) => <TaskNameCell task={task} />,
+    },
     {
       key: 'assignee',
       header: 'Assignee',
-      width: 170,
-      render: (task) => <AssigneeToken task={task} onChange={(edit) => onChange(task, edit)} />,
+      width: pixel(170),
+      renderCell: (task) => <AssigneeToken task={task} onChange={(edit) => onChange(task, edit)} />,
     },
     {
       key: 'status',
       header: 'Status',
-      width: 130,
-      render: (task) => <StatusToken task={task} onChange={(edit) => onChange(task, edit)} />,
+      width: pixel(130),
+      renderCell: (task) => <StatusToken task={task} onChange={(edit) => onChange(task, edit)} />,
     },
     {
       key: 'priority',
       header: 'Priority',
-      width: 110,
-      render: (task) => <PriorityToken task={task} onChange={(edit) => onChange(task, edit)} />,
+      width: pixel(110),
+      renderCell: (task) => <PriorityToken task={task} onChange={(edit) => onChange(task, edit)} />,
     },
     {
       key: 'due',
       header: 'Due',
-      width: 96,
-      render: (task) => (
+      width: pixel(96),
+      renderCell: (task) => (
         <DueToken
           label={shortDate.format(day(task.due))}
           onClick={() => notBuilt('The due date picker')}
@@ -89,12 +94,12 @@ function columnsFor(
 }
 
 /** One group a phase, in the order the phases first appear, with how many are done. */
-function byPhase(list: Task[]): TableGroup<Task>[] {
+function byPhase(list: Task[]): TableGroup[] {
   const phases = [...new Set(list.map((task) => task.phase))]
   return phases.map((phase) => {
     const items = list.filter((task) => task.phase === phase)
     const done = items.filter((task) => task.status === 'done').length
-    return { id: phase, label: phase, items, note: `${done} of ${items.length} done` }
+    return { key: phase, label: phase, note: `${done} of ${items.length} done` }
   })
 }
 
@@ -146,11 +151,16 @@ export function ListView({ project }: { project: Project }) {
         </Button>
       </div>
       {projectTasks.length > 0 ? (
-        <GroupedTable
-          label={`${project.name} tasks`}
-          columns={columns}
-          groups={byPhase(projectTasks)}
-        />
+        <div className="shrink-0">
+          <Table
+            label={`${project.name} tasks`}
+            columns={columns}
+            data={projectTasks}
+            idKey="id"
+            groupBy={(task) => task.phase}
+            groups={byPhase(projectTasks)}
+          />
+        </div>
       ) : (
         <NotBuiltMessage
           icon={FolderOpen}

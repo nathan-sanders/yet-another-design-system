@@ -2,10 +2,10 @@ import { Ellipsis, ListFilter } from 'lucide-react'
 
 import { AppShell } from '../../../../src/components/AppShell'
 import { Button } from '../../../../src/components/Button'
+import { pixel, Table, type TableColumn, type TableGroup } from '../../../../src/components/Table'
 import { Heading } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { floatingYakClearance } from '../../yak/floating'
-import { GroupedTable, type GroupedColumn, type TableGroup } from '../../components/GroupedTable'
 import {
   HealthBadge,
   OwnerCell,
@@ -18,38 +18,40 @@ import type { Project } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { projectPath } from '../project/paths'
 
-const columns: GroupedColumn<Project>[] = [
+const columns: TableColumn<Project>[] = [
   {
     key: 'name',
     header: 'Project',
     rowTarget: true,
-    render: (project) => <ProjectNameCell project={project} href={`#${projectPath(project.id)}`} />,
+    renderCell: (project) => (
+      <ProjectNameCell project={project} href={`#${projectPath(project.id)}`} />
+    ),
   },
   {
     key: 'health',
     header: 'Health',
-    width: 120,
-    render: (project) => <HealthBadge project={project} />,
+    width: pixel(120),
+    renderCell: (project) => <HealthBadge project={project} />,
   },
   {
     key: 'progress',
     header: 'Progress',
-    width: 190,
+    width: pixel(190),
     // The bar takes the room the percent leaves, which a hugging cell has none of.
-    spread: true,
-    render: (project) => <ProjectProgress project={project} />,
+    layout: 'fill',
+    renderCell: (project) => <ProjectProgress project={project} />,
   },
   {
     key: 'owner',
     header: 'Owner',
-    width: 170,
-    render: (project) => <OwnerCell id={project.ownerId} />,
+    width: pixel(170),
+    renderCell: (project) => <OwnerCell id={project.ownerId} />,
   },
   {
     key: 'milestone',
     header: 'Next milestone',
-    width: 190,
-    render: (project) => (
+    width: pixel(190),
+    renderCell: (project) => (
       <span className="block truncate">
         {project.milestone.name} · {shortDate.format(day(project.milestone.date))}
       </span>
@@ -58,8 +60,8 @@ const columns: GroupedColumn<Project>[] = [
   {
     key: 'due',
     header: 'Due',
-    width: 96,
-    render: (project) => (
+    width: pixel(96),
+    renderCell: (project) => (
       <span className="text-content-subtle">{shortDate.format(day(project.due))}</span>
     ),
   },
@@ -67,24 +69,23 @@ const columns: GroupedColumn<Project>[] = [
 
 /**
  * Health decides the group, in the file's order: what needs attention first,
- * with the line Yak wrote when it flagged them.
+ * with the line Yak wrote when it flagged them. At risk and off track share
+ * the first group; a group with no projects is left out by `Table`.
  */
-function groupsOf(list: Project[]): TableGroup<Project>[] {
-  const groups: TableGroup<Project>[] = [
-    {
-      id: 'attention',
-      label: 'Needs attention',
-      note: 'Yak flagged these from this week’s updates',
-      items: list.filter((p) => p.health === 'at-risk' || p.health === 'off-track'),
-    },
-    { id: 'on-track', label: 'On track', items: list.filter((p) => p.health === 'on-track') },
-    {
-      id: 'not-started',
-      label: 'Not started',
-      items: list.filter((p) => p.health === 'not-started'),
-    },
-  ]
-  return groups.filter((group) => group.items.length > 0)
+const groups: TableGroup[] = [
+  {
+    key: 'attention',
+    label: 'Needs attention',
+    note: 'Yak flagged these from this week’s updates',
+  },
+  { key: 'on-track', label: 'On track' },
+  { key: 'not-started', label: 'Not started' },
+]
+
+function groupOf(project: Project): string {
+  return project.health === 'at-risk' || project.health === 'off-track'
+    ? 'attention'
+    : project.health
 }
 
 /**
@@ -119,12 +120,16 @@ export function ProjectsScreen() {
         }
       />
       <AppShell.Content className={floatingYakClearance}>
-        <GroupedTable
-          label="Projects"
-          columns={columns}
-          groups={groupsOf(projects)}
-          clickableRows
-        />
+        <div className="shrink-0">
+          <Table
+            label="Projects"
+            columns={columns}
+            data={projects}
+            idKey="id"
+            groupBy={groupOf}
+            groups={groups}
+          />
+        </div>
       </AppShell.Content>
     </>
   )
