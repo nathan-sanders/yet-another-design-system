@@ -10,13 +10,17 @@ import {
 } from 'react'
 
 import { cn } from '../../lib/cn'
+import { focusRing } from '../../lib/focus'
+import { Badge } from '../Badge'
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import { Icon } from '../Icon'
 import { ResizeHandle } from './ResizeHandle'
 import { TableContext, TableRowContext, useTableContext, useTableRowContext } from './context'
 import { resolveNumeric } from './numeric'
 import {
   cell,
+  groupRow,
   hasColumnDivider,
   hasRowDivider,
   head,
@@ -24,6 +28,7 @@ import {
   scrollRegion,
   tableRoot,
   type TableAlign,
+  type TableCellLayout,
   type TableDensity,
   type TableDividers,
   type TableTextOverflow,
@@ -31,6 +36,7 @@ import {
 } from './styles'
 import {
   ariaSort,
+  groupRows,
   nextSort,
   rowCountAttribute,
   rowIndex,
@@ -40,6 +46,7 @@ import {
   toggleAll,
   toggleKey,
   type SortValue,
+  type TableGroup,
   type TableSort,
   type TableSortDirection,
 } from './rows'
@@ -117,6 +124,12 @@ export interface TableColumn<T> {
    * label. `numeric` answers "are these digits?"; `align` answers "which edge?"
    */
   numeric?: boolean
+  /**
+   * `fill` lets the cell's content take the cell's width, for a bar beside its
+   * percent or a name with a count at the far edge. Defaults to `hug`, which
+   * is right for a value. See `Table.Cell`'s `layout`.
+   */
+  layout?: TableCellLayout
   /** Replaces `row[key]`. Whatever it returns becomes the cell's children. */
   renderCell?: (item: T, index: number) => ReactNode
   /**
@@ -250,6 +263,28 @@ export interface TableProps<T>
   /** Where the first rendered row sits in the whole data set. 1-based. */
   rowIndexStart?: number
 
+  /**
+   * Which group a row belongs to. Setting it splits the body into one
+   * `<tbody>` per group, each under a heading row with a fold chevron, the
+   * group's name, a count and an optional note — the file's `Group /` row.
+   *
+   * Rows keep the table's sort *inside* their group; the groups keep the
+   * order `groups` gives them. A grouped table writes no `aria-rowindex`,
+   * because heading rows would have to be counted too and a windowed grouped
+   * table is a shape nothing has asked for yet.
+   */
+  groupBy?: (item: T) => string
+  /**
+   * The groups' order, names and notes. A key `groupBy` returns that is not
+   * listed here still shows its rows, under the key as its name; a group with
+   * no rows is left out. See `groupRows` in `rows.ts`.
+   */
+  groups?: readonly TableGroup[]
+  /** Controlled fold state: the keys of the groups that are folded. */
+  collapsedGroups?: readonly string[]
+  defaultCollapsedGroups?: readonly string[]
+  onCollapsedGroupsChange?: (keys: string[]) => void
+
   /** Put a drag handle on every column's right edge. */
   resizable?: boolean
   /** Reports every change, from the pointer and from the keyboard alike. */
@@ -282,8 +317,13 @@ export function Table<T>({
   expandedKeys: expandedProp,
   defaultExpandedKeys = [],
   onExpandedChange,
-  rowCount,
+  rowCount: rowCountProp,
   rowIndexStart = 1,
+  groupBy,
+  groups,
+  collapsedGroups: collapsedProp,
+  defaultCollapsedGroups = [],
+  onCollapsedGroupsChange,
   resizable = false,
   onColumnResize,
   className,
@@ -396,6 +436,19 @@ export function Table<T>({
     onExpandedChange?.(next)
   }
 
+  const [uncontrolledCollapsed, setUncontrolledCollapsed] =
+    useState<readonly string[]>(defaultCollapsedGroups)
+  const collapsed = collapsedProp ?? uncontrolledCollapsed
+
+  function commitCollapsed(next: string[]) {
+    if (collapsedProp === undefined) setUncontrolledCollapsed(next)
+    onCollapsedGroupsChange?.(next)
+  }
+
+  /* Heading rows would have to be counted for `aria-rowindex` to be right, so
+     a grouped table writes neither attribute rather than writing them wrong. */
+  const rowCount = groupBy ? undefined : rowCountProp
+
   /*
     A generated prefix, so two tables on one page cannot mint the same id for
     their detail panels and leave one row's `aria-controls` pointing at the
@@ -407,6 +460,96 @@ export function Table<T>({
      file's `expand` and `checkbox` booleans on `Table Cell` mean. It also means
      no extra empty `<th>` for axe's `empty-table-header` to find. */
   const leadingColumn = columns[0]?.key
+
+  /* Each row's place in the sorted data, so a grouped row's callbacks are
+     handed the same index an ungrouped one would be. */
+  const indexOf = new Map(sorted.map((item, index) => [item, index]))
+
+  /** One data row, and its detail panel while it is open. `stripe` is its parity in its own run of rows. */
+  function renderRow(item: T, index: number, stripe: number) {
+    const key = String(item[idKey])
+    const isSelected = selected.includes(key)
+    const detail = renderExpanded?.(item, index) ?? null
+    const isExpanded = expanded.includes(key)
+    const detailId = `${detailPrefix}-${key}`
+    const name = rowLabel?.(item, index) ?? `row ${index + 1}`
+
+    return [
+      <TableRow
+        key={key}
+        aria-rowindex={rowCount === undefined ? undefined : rowIndex(rowIndexStart, index)}
+        selected={isSelected}
+        hoverable={hasHover || rowClickable}
+        clickable={rowClickable}
+        /*
+        The stripe comes from the row's index in the *data* — in its
+        group, when grouped — never from `odd:`/`even:`. An expanded row's detail panel is a
+        `<tr>` sibling, so `:nth-child` parity flips the moment
+        anything expands and the whole zebra shifts under the user.
+      */
+        striped={isStriped && stripe % 2 === 1}
+      >
+        {columns.map((column) => {
+          const content = column.renderCell
+            ? column.renderCell(item, index)
+            : (item[column.key as keyof T] as ReactNode)
+          const leading = column.key === leadingColumn
+          return (
+            <TableCell
+              key={column.key}
+              align={alignOf(column)}
+              numeric={column.numeric}
+              layout={column.layout}
+              rowTarget={column.rowTarget}
+              spacer={sortsOn(sortable, column)}
+              selectionControl={
+                selectable && leading ? (
+                  <Checkbox
+                    label={<span className="sr-only">{`Select ${name}`}</span>}
+                    checked={isSelected}
+                    onCheckedChange={(checked) =>
+                      commitSelection(toggleKey(selected, key, checked === true))
+                    }
+                  />
+                ) : undefined
+              }
+              expandControl={
+                detail && leading ? (
+                  <Button
+                    appearance="ghost"
+                    size="small"
+                    startIcon={ChevronRight}
+                    /* Button `small` draws a 14px icon; the file wants
+                     16. The className overrides the size utility,
+                     which is what `cn`'s tailwind-merge is for. */
+                    className={cn('[&_svg]:size-4', isExpanded && 'rotate-90')}
+                    aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${name}`}
+                    aria-expanded={isExpanded}
+                    aria-controls={detailId}
+                    onClick={() => commitExpanded(toggleKey(expanded, key, !isExpanded))}
+                  />
+                ) : undefined
+              }
+            >
+              {content}
+            </TableCell>
+          )
+        })}
+      </TableRow>,
+      /*
+      Rendered only when open. `hidden` on a `<tr>` fights
+      `display: table-row`, and leaves a row that is invisible but
+      still in the accessibility tree.
+    */
+      detail && isExpanded ? (
+        <TableRow key={`${key}-detail`}>
+          <TableCell id={detailId} colSpan={columns.length}>
+            {detail}
+          </TableCell>
+        </TableRow>
+      ) : null,
+    ]
+  }
 
   return (
     <div
@@ -491,101 +634,40 @@ export function Table<T>({
             </TableRow>
           </TableHeader>
 
-          <TableBody>
-            {data.length === 0 ? (
+          {data.length === 0 ? (
+            <TableBody>
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-content-subtle">
                   {emptyState}
                 </TableCell>
               </TableRow>
-            ) : (
-              sorted.map((item, index) => {
-                const key = String(item[idKey])
-                const isSelected = selected.includes(key)
-                const detail = renderExpanded?.(item, index) ?? null
-                const isExpanded = expanded.includes(key)
-                const detailId = `${detailPrefix}-${key}`
-                const name = rowLabel?.(item, index) ?? `row ${index + 1}`
-
-                return [
-                <TableRow
-                  key={key}
-                  aria-rowindex={rowCount === undefined ? undefined : rowIndex(rowIndexStart, index)}
-                  selected={isSelected}
-                  hoverable={hasHover || rowClickable}
-                  clickable={rowClickable}
-                  /*
-                    The stripe comes from the row's index in the *data*, never
-                    from `odd:`/`even:`. An expanded row's detail panel is a
-                    `<tr>` sibling, so `:nth-child` parity flips the moment
-                    anything expands and the whole zebra shifts under the user.
-                  */
-                  striped={isStriped && index % 2 === 1}
-                >
-                  {columns.map((column) => {
-                    const content = column.renderCell
-                      ? column.renderCell(item, index)
-                      : (item[column.key as keyof T] as ReactNode)
-                    const leading = column.key === leadingColumn
-                    return (
-                      <TableCell
-                        key={column.key}
-                        align={alignOf(column)}
-                        numeric={column.numeric}
-                        rowTarget={column.rowTarget}
-                        spacer={sortsOn(sortable, column)}
-                        selectionControl={
-                          selectable && leading ? (
-                            <Checkbox
-                              label={<span className="sr-only">{`Select ${name}`}</span>}
-                              checked={isSelected}
-                              onCheckedChange={(checked) =>
-                                commitSelection(toggleKey(selected, key, checked === true))
-                              }
-                            />
-                          ) : undefined
-                        }
-                        expandControl={
-                          detail && leading ? (
-                            <Button
-                              appearance="ghost"
-                              size="small"
-                              startIcon={ChevronRight}
-                              /* Button `small` draws a 14px icon; the file wants
-                                 16. The className overrides the size utility,
-                                 which is what `cn`'s tailwind-merge is for. */
-                              className={cn('[&_svg]:size-4', isExpanded && 'rotate-90')}
-                              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${name}`}
-                              aria-expanded={isExpanded}
-                              aria-controls={detailId}
-                              onClick={() =>
-                                commitExpanded(toggleKey(expanded, key, !isExpanded))
-                              }
-                            />
-                          ) : undefined
-                        }
-                      >
-                        {content}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>,
-                /*
-                  Rendered only when open. `hidden` on a `<tr>` fights
-                  `display: table-row`, and leaves a row that is invisible but
-                  still in the accessibility tree.
-                */
-                detail && isExpanded ? (
-                  <TableRow key={`${key}-detail`}>
-                    <TableCell id={detailId} colSpan={columns.length}>
-                      {detail}
-                    </TableCell>
-                  </TableRow>
-                ) : null,
-                ]
-              })
-            )}
-          </TableBody>
+            </TableBody>
+          ) : groupBy ? (
+            groupRows(sorted, groupBy, groups).map(({ group, items }, groupIndex) => {
+              const isOpen = !collapsed.includes(group.key)
+              const bodyId = `${detailPrefix}-group-${groupIndex}`
+              return (
+                <TableBody key={group.key} id={bodyId}>
+                  <TableGroupRow
+                    colSpan={columns.length}
+                    label={group.label}
+                    count={items.length}
+                    note={group.note}
+                    open={isOpen}
+                    controls={bodyId}
+                    onOpenChange={(open) => commitCollapsed(toggleKey(collapsed, group.key, !open))}
+                  />
+                  {isOpen
+                    ? items.map((item, stripe) =>
+                        renderRow(item, indexOf.get(item) ?? stripe, stripe),
+                      )
+                    : null}
+                </TableBody>
+              )
+            })
+          ) : (
+            <TableBody>{sorted.map((item, index) => renderRow(item, index, index))}</TableBody>
+          )}
         </table>
       </TableContext.Provider>
     </div>
@@ -851,6 +933,14 @@ export interface TableCellProps
   align?: TableAlign
   /** Force mono. A cell whose child is a real number needs no flag. */
   numeric?: boolean
+  /**
+   * `hug` (the default) wraps the content at its own size; `fill` gives it
+   * the cell's width, from the controls to the padding. Reach for `fill` when
+   * the content spreads — a `ProgressBar` beside its percent, a name with a
+   * count at the far edge — because inside a hugging wrapper a `flex-1` child
+   * has nothing to grow into and measures 0px.
+   */
+  layout?: TableCellLayout
   /** Figma's `rowBorder`. Defaults from the table. */
   divider?: boolean
   /** Figma's `gridDivider`. Defaults from the table. */
@@ -878,6 +968,7 @@ export interface TableCellProps
 function TableCell({
   align = 'left',
   numeric,
+  layout = 'hug',
   divider,
   columnDivider,
   spacer = false,
@@ -896,6 +987,7 @@ function TableCell({
     align,
     verticalAlign: table.verticalAlign,
     textOverflow: table.textOverflow,
+    layout,
     numeric: resolveNumeric(numeric, children),
     rowDivider: divider ?? hasRowDivider(table.dividers),
     columnDivider: columnDivider ?? hasColumnDivider(table.dividers),
@@ -919,6 +1011,87 @@ function TableCell({
   )
 }
 
+/* --------------------------------------------------------------- group row */
+
+export interface TableGroupRowProps extends Omit<ComponentPropsWithRef<'tr'>, 'children'> {
+  /** How many columns the heading spans — every one of them. */
+  colSpan: number
+  /** The group's name, in sm semibold. */
+  label: ReactNode
+  /** The rows in the group, in a neutral `Badge`. Omit it to draw none. */
+  count?: number
+  /** Subtle text after the count — "1 of 4 done". Truncates. */
+  note?: ReactNode
+  /** Whether the group's rows are showing. */
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  /** The id of the `<tbody>` this row heads, for the fold button's `aria-controls`. */
+  controls?: string
+}
+
+/**
+ * The file's `Group /` row: a fold chevron, the group's name, a count and a
+ * note, on `Surface/Background Subtle` under a 1px rule, 36px tall. Drawn in
+ * Yet Project's All projects (`40006264:1069`) and `Project - List`
+ * (`40006268:6554`) as a local frame, and built here because both of the
+ * app's tables needed it and the file groups most of its task tables.
+ *
+ * **It goes first in its own `Table.Body`.** One `<tbody>` per group is what
+ * `scope="rowgroup"` means: the `<th>` heads the row group it sits in, so a
+ * screen reader can say which group a cell belongs to. The whole heading is
+ * one button, so the hit target is the row and its name is the heading's
+ * text — "Permits, 4 items, 1 of 4 done".
+ *
+ * **Folded rows are not rendered**, the same as an expanded row's detail
+ * panel. Presentation only, like every part: the columns API's `groupBy`
+ * holds the fold state; in children mode it is yours, and so is leaving the
+ * rows out.
+ */
+function TableGroupRow({
+  colSpan,
+  label,
+  count,
+  note,
+  open,
+  onOpenChange,
+  controls,
+  className,
+  ...props
+}: TableGroupRowProps) {
+  const styles = groupRow()
+  return (
+    <tr className={className} {...props}>
+      <th scope="rowgroup" colSpan={colSpan} className={styles.root()}>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={controls}
+          onClick={() => onOpenChange(!open)}
+          className={cn(styles.toggle(), focusRing)}
+        >
+          {/* The row expand's chevron and its quarter turn, so the two disclosures in a table agree. */}
+          <Icon icon={ChevronRight} className={cn('shrink-0', open && 'rotate-90')} />
+          <span className={styles.label()}>{label}</span>
+          {count === undefined ? null : (
+            <Badge className="shrink-0">
+              {/* Commas so the heading's name reads as a phrase, not "Permits4". */}
+              <span className="sr-only">, </span>
+              {count}
+              <span className="sr-only">{count === 1 ? ' item' : ' items'}</span>
+            </Badge>
+          )}
+          {note ? (
+            <span className={styles.note()}>
+              <span className="sr-only">, </span>
+              {note}
+            </span>
+          ) : null}
+        </button>
+      </th>
+    </tr>
+  )
+}
+
 /* --------------------------------------------------------------- namespace */
 
 Table.displayName = 'Table'
@@ -929,6 +1102,7 @@ TableFooter.displayName = 'Table.Footer'
 TableRow.displayName = 'Table.Row'
 TableHead.displayName = 'Table.Head'
 TableCell.displayName = 'Table.Cell'
+TableGroupRow.displayName = 'Table.GroupRow'
 
 Table.Header = TableHeader
 Table.Body = TableBody
@@ -936,3 +1110,4 @@ Table.Footer = TableFooter
 Table.Row = TableRow
 Table.Head = TableHead
 Table.Cell = TableCell
+Table.GroupRow = TableGroupRow

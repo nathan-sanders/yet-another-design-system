@@ -295,11 +295,83 @@ left.
 Children mode gets no `<colgroup>` and no resizing — the caller owns the widths, and so owns what
 changes them.
 
+## A cell hugs, unless it is told to fill
+
+A cell wraps its children in a `text` span (the reason is above in `styles.ts`: `truncate` needs
+inline content, and the mono rule should style the value, not the controls beside it). That span is
+a flex item at its content's size, which is right for a value — a right-aligned figure sits against
+the spacer — and wrong for anything that spreads. Yet Project found it twice in one slice (its
+FINDINGS 4): All projects' `flex-1` ProgressBar measured **0px**, because it had nothing to grow
+into, and `_Task Name Cell`'s subtask count sat straight after the name instead of at the cell's
+right padding. The app stretched the span from outside with `*:*:flex-1` on the cell, which reached
+into this component's markup.
+
+So `layout="fill"` on `Table.Cell` and on `TableColumn` makes the span `flex-1`: it runs from the
+cell's controls to its padding (or to the sort spacer), and a child that is a block or a flex row
+spreads across it. `hug` stays the default. The words are Tabs', SegmentedControl's and Carousel's,
+because it is their question — and Carousel's rule applies: the caller declares it, because a
+wrapper cannot read a child's intent about its own size. `FillCells` measures both claims (the bar
+has exactly the width its percent leaves, the meta's right edge sits on the cell's right padding),
+and it fails with `hug` — the bar reads 0.
+
+`fill` is also the answer for a percentage-width child, such as a `Skeleton.Text`, which measures 0
+inside a hugging span.
+
+## Groups
+
+Asked for by Yet Project (FINDINGS 1): both tables in its first slice are grouped — All projects
+by health (`40006264:1069`), a project's List by phase (`40006268:6554`) — and the file groups most
+of its task tables. It draws the heading as a local `Group /` frame: a 16px chevron at 16px from the
+edge, the name in `text-sm` semibold, a neutral count `Badge`, a subtle note, all 8px apart, on
+`Surface/Background Subtle` with a 1px rule at its top, **36px** tall. That is what is built.
+
+**Both a part and a prop**, because both APIs need it and the columns API has to render through the
+part. `Table.GroupRow` is the heading row, presentation only like every other part: the caller says
+`open`, handles `onOpenChange`, passes `colSpan`, and leaves folded rows out. On the columns API,
+`groupBy` (which group a row is in) and `groups` (their order, names and notes) do all of it, with
+`collapsedGroups` / `defaultCollapsedGroups` / `onCollapsedGroupsChange` beside the expansion and
+selection pairs. Grouping needs to know every row at once — the count, which rows fold — which is the
+same reason sorting and selection live on the columns API.
+
+**The markup is one `<tbody>` per group, headed by a `<th scope="rowgroup" colSpan>`.** That is what
+`rowgroup` means: the header heads the row group it sits in, so a screen reader can say which group a
+cell is in. The whole heading is one `<button aria-expanded>`, so the hit target is the row and the
+heading's name is its text — "Platform, 2 items, 35 seats between them", with sr-only commas and the
+word "items" so the count is not read as part of the name. `aria-controls` points at the group's own
+`<tbody>`.
+
+**36 is the button's `h-9`.** A cell's `height` is only a minimum, so the `<th>` carries none and takes
+what the button needs; `Grouped` and `GroupedComposable` both assert it. The side padding is the file's
+16 at every density, because the file draws the row once.
+
+**The top rule is drawn whatever `dividers` says.** It is what separates one group from the next, and a
+table with no row rules still has groups. Under the first group it lands on the pixel row the sticky
+head's own rule paints, so the two read as one line. The line between a heading and its first row is
+that row's own top rule, as everywhere else.
+
+**Decisions the arithmetic makes, in `groupRows` (`rows.ts`):**
+
+- The table sorts first and groups second, so rows keep the sort *inside* their group and groups keep
+  the declared order. "Needs attention" first is a judgement, not an alphabet.
+- A declared group with no rows is left out. A heading over nothing is noise, and both of Yet Project's
+  tables filtered them by hand.
+- A row whose key `groups` does not name is still shown, under a group named by its key, appended in
+  the order first met. Dropping rows the data holds is a table that quietly lies about its contents.
+- The stripe's parity restarts in each group, so every group's first row is unstriped.
+- A row's callbacks (`renderCell`, `rowLabel`, `renderExpanded`) get its index in the sorted data, the
+  same number an ungrouped table would hand them.
+- **A grouped table writes no `aria-rowcount` or `aria-rowindex`.** The heading rows would have to be
+  counted for the numbers to be right, and a windowed grouped table is a shape nothing has asked for.
+  Writing neither is better than writing them wrong.
+
+Folded rows are **not rendered**, for the reason the detail panel is not: `hidden` on a `<tr>` fights
+`display: table-row`.
+
 ## Two APIs, one implementation
 
 `<Table columns data />` is the one to reach for: it owns sorting, selection, expansion and resizing,
 because all four need to know about every row at once. `Table.Header / Body / Row / Head / Cell /
-Footer` are the escape hatch.
+GroupRow / Footer` are the escape hatch.
 
 **The columns API renders through those same parts.** That is the thing to preserve: two renderers
 would drift, and the drift would show up as a composed table that looks subtly unlike a generated
@@ -341,7 +413,8 @@ Each of these is an absence with a reason, not an oversight.
   rather than a home for a Select. See `Pagination/CLAUDE.md`, and the `WithTable` story there.
 - **Loading and skeleton rows.** `Skeleton` now exists as a sibling, and the join is one
   `Skeleton.Text` per cell — see its `InContext` story, which is a table of them. Give each a fixed
-  width (`w-28`): a cell's content wrapper hugs, so a percentage width measures 0px there. There is
+  width (`w-28`), or put it in a `layout="fill"` cell: a cell's content wrapper hugs by default, so a
+  percentage width measures 0px there. There is
   still no `loading` prop on `Table`, for the same reason there is no `pagination` prop.
 - **`onRowClick`.** A click handler on a `<tr>` is a target with no keyboard equivalent, and that
   ruling stands. What came instead (2026-10-22) is **`rowTarget`**: a column (or a `Table.Cell`)
@@ -355,6 +428,9 @@ Each of these is an absence with a reason, not an oversight.
   all three paths.
 - **`role="grid"` with cell-level keyboard navigation.** A different component — and the reason
   `aria-selected` is absent.
+- **A checkbox on a group's heading**, to select the whole group. The file draws none, and select-all
+  in the header still spans every row across every group.
+- **Groups inside groups.** One level is what the file draws.
 - **A `footer` prop on the columns API.** `Table.Footer` ships as a composable part, because Astryx
   has a Footer section and a totals row is a real thing. But a total is data the caller already has,
   and there is no drawing to derive one from.

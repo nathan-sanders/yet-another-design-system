@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   ariaSort,
+  groupRows,
   nextSort,
   rowCountAttribute,
   rowIndex,
@@ -180,5 +181,39 @@ describe('toggleAll', () => {
 
   it('clears when everything is already selected', () => {
     expect(toggleAll(['a', 'b'], ['a', 'b'])).toEqual([])
+  })
+})
+
+describe('groupRows', () => {
+  const items = [
+    { id: 'a', phase: 'build' },
+    { id: 'b', phase: 'hire' },
+    { id: 'c', phase: 'build' },
+    { id: 'd', phase: 'launch' },
+  ]
+  const byPhase = (item: (typeof items)[number]) => item.phase
+
+  it("keeps the declared group order and the rows' own order inside each group", () => {
+    const groups = groupRows(items, byPhase, [
+      { key: 'hire', label: 'Hiring' },
+      { key: 'build', label: 'Build-out' },
+      { key: 'launch', label: 'Launch' },
+    ])
+    expect(groups.map((g) => g.group.label)).toEqual(['Hiring', 'Build-out', 'Launch'])
+    expect(groups[1].items.map((item) => item.id)).toEqual(['a', 'c'])
+  })
+
+  it('leaves out a declared group with no rows', () => {
+    const groups = groupRows(items, byPhase, [
+      { key: 'empty', label: 'Nothing here' },
+      { key: 'build', label: 'Build-out' },
+    ])
+    expect(groups.map((g) => g.group.key)).not.toContain('empty')
+  })
+
+  it('still shows rows whose group is not declared, labelled by their key', () => {
+    const groups = groupRows(items, byPhase, [{ key: 'build', label: 'Build-out' }])
+    expect(groups.map((g) => g.group.label)).toEqual(['Build-out', 'hire', 'launch'])
+    expect(groups.flatMap((g) => g.items)).toHaveLength(items.length)
   })
 })

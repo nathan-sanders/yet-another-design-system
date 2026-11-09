@@ -8,9 +8,10 @@ export type {
   TableRowProps,
   TableHeadProps,
   TableCellProps,
+  TableGroupRowProps,
 } from './Table'
 
-export type { TableSort, TableSortDirection } from './rows'
+export type { TableGroup, TableSort, TableSortDirection } from './rows'
 
 export { pixel, proportional, MIN_COLUMN_WIDTH } from './widths'
 export type { TableColumnWidth } from './widths'
@@ -18,6 +19,7 @@ export type { TableColumnWidth } from './widths'
 export type {
   TableDensity,
   TableAlign,
+  TableCellLayout,
   TableDividers,
   TableTextOverflow,
   TableVerticalAlign,

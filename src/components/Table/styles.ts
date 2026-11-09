@@ -245,6 +245,24 @@ export const cell = tv({
     },
 
     /**
+     * Whether the content wrapper hugs its children or takes the cell's width.
+     *
+     * `hug` is the default and right for a value: the span is a flex item at
+     * its content's size, so a right-aligned figure sits against the spacer.
+     * But a hugging span gives a child nothing to grow into, so a `flex-1`
+     * ProgressBar inside it measured **0px**, and a name with a count pushed to
+     * the far edge had no far edge (Yet Project's FINDINGS 4). `fill` makes the
+     * span `flex-1`: it runs from the controls to the cell's padding (or the
+     * spacer), and a child that is a block or a flex row spreads across it.
+     *
+     * Tabs', SegmentedControl's and Carousel's words, for the same question.
+     */
+    layout: {
+      hug: {},
+      fill: { text: 'flex-1' },
+    },
+
+    /**
      * `Metric`'s idiom, and always as a pair: mono so a column of figures has
      * one glyph width, `tabular-nums` so every digit gets the width of a `0`
      * and the decimal points line up down the column.
@@ -293,6 +311,7 @@ export const cell = tv({
     align: 'left',
     verticalAlign: 'middle',
     textOverflow: 'wrap',
+    layout: 'hug',
     numeric: false,
     rowDivider: true,
     columnDivider: false,
@@ -399,6 +418,35 @@ export const head = tv({
   defaultVariants: { density: 'balanced', align: 'left', columnDivider: false, rowDivider: true },
 })
 
+/**
+ * A group's heading row — the file's `Group /` frame, drawn in Yet Project's
+ * All projects (`40006264:1069`) and `Project - List` (`40006268:6554`).
+ *
+ * `root` is a `<th scope="rowgroup">` spanning every column; `toggle` is the
+ * fold button that fills it. 36px is the button's `h-9`, not the cell's: a
+ * cell's `height` is only a minimum, so the `<th>` takes what the button needs.
+ * The 16px side padding is the file's, at every density, because the file
+ * draws the row once and the chevron hangs at 16 above balanced rows' 12.
+ *
+ * The rule at the top is the same `surface/border` 1px the rows draw, and it
+ * is drawn **whatever `dividers` says**: it is what separates one group from
+ * the next, and a table with no row rules still has groups. Under the first
+ * group it lands on the pixel row the sticky head's own rule paints, so the two
+ * read as one line, as a first body row's does.
+ */
+export const groupRow = tv({
+  slots: {
+    root: [
+      'relative bg-surface-background-subtle p-0 text-left align-middle font-sans text-sm font-normal',
+      'after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-surface-border after:content-[""]',
+    ],
+    toggle:
+      'flex h-9 w-full min-w-0 cursor-pointer items-center gap-2 px-4 text-left text-content-primary',
+    label: 'shrink-0 font-semibold',
+    note: 'min-w-0 truncate text-content-subtle',
+  },
+})
+
 export type TableCellVariants = VariantProps<typeof cell>
 export type TableRowVariants = VariantProps<typeof row>
 
@@ -408,6 +456,8 @@ export type TableDensity = NonNullable<TableCellVariants['density']>
 export type TableAlign = NonNullable<TableCellVariants['align']>
 export type TableVerticalAlign = NonNullable<TableCellVariants['verticalAlign']>
 export type TableTextOverflow = NonNullable<TableCellVariants['textOverflow']>
+/** Whether a cell's content hugs it or takes the cell's width. */
+export type TableCellLayout = NonNullable<TableCellVariants['layout']>
 
 /**
  * Which rules the table draws.

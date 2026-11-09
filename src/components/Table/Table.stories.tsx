@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
 import { Button } from '../Button'
+import { ProgressBar } from '../ProgressBar'
 import { Table } from './Table'
 import { MIN_COLUMN_WIDTH, pixel, proportional } from './widths'
 import { Text } from '../Text'
@@ -1057,6 +1058,250 @@ export const Composable: Story = {
     // derivation, not something the columns API sprinkles on from outside.
     const total = canvas.getByText('188').closest('td')!
     await expect(getComputedStyle(total.querySelector('span > span')!).fontFamily).toMatch(/Geist Mono/)
+  },
+}
+
+/** A row's share of the largest team, as a whole percent, for the bars below. */
+const share = (item: Row) => Math.round((item.seats / 128) * 100)
+
+/**
+ * `layout="fill"` — the cell's content takes the cell's width instead of
+ * hugging itself.
+ *
+ * A cell wraps its children in a span, and by default that span is only as
+ * wide as what is in it. That is right for a value and wrong for anything that
+ * spreads: a `flex-1` ProgressBar beside its percent had nothing to grow into
+ * and measured **0px**, and a count meant for the far edge sat straight after
+ * the name (Yet Project's FINDINGS 4). With `fill`, the span runs from the
+ * cell's controls to its padding, so a child that is a flex row spreads across
+ * it.
+ *
+ * The play function measures both claims: the bar has the width the percent
+ * leaves it, and the count's right edge sits on the cell's right padding.
+ */
+export const FillCells: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Fill cells',
+    columns: [
+      {
+        key: 'name',
+        header: 'Name',
+        layout: 'fill',
+        renderCell: (item) => (
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="min-w-0 flex-1 truncate">{item.name}</span>
+            <span className="shrink-0 text-sm text-content-subtle" data-meta>
+              {item.region}
+            </span>
+          </span>
+        ),
+      },
+      {
+        key: 'seats',
+        header: 'Share of seats',
+        width: pixel(220),
+        layout: 'fill',
+        renderCell: (item) => (
+          <span className="flex min-w-0 items-center gap-2">
+            <ProgressBar
+              value={share(item)}
+              label={`${item.name} share`}
+              labelHidden
+              className="min-w-0 flex-1"
+            />
+            <span aria-hidden className="shrink-0 text-sm text-content-subtle">
+              {share(item)}%
+            </span>
+          </span>
+        ),
+      },
+    ],
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('the bar takes the room the percent leaves', async () => {
+      const bar = canvas.getByRole('progressbar', { name: 'Alice Johnson share' })
+      const td = bar.closest('td')!
+      const style = getComputedStyle(td)
+      const content =
+        td.getBoundingClientRect().width -
+        parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight)
+      const percent = bar.nextElementSibling!.getBoundingClientRect().width
+      // 220 less 12 + 12 of padding is 196; less "23%" and the 8px gap.
+      await expect(bar.getBoundingClientRect().width).toBeCloseTo(content - percent - 8, 0)
+      await expect(bar.getBoundingClientRect().width).toBeGreaterThan(100)
+    })
+
+    await step("the meta sits on the cell's right padding", async () => {
+      for (const meta of canvasElement.querySelectorAll('[data-meta]')) {
+        const td = meta.closest('td')!
+        const edge =
+          td.getBoundingClientRect().right - parseFloat(getComputedStyle(td).paddingRight)
+        await expect(meta.getBoundingClientRect().right).toBeCloseTo(edge, 0)
+      }
+    })
+  },
+}
+
+interface Group {
+  key: string
+  label: string
+  note?: string
+}
+
+/** Declared in the order they should read, which is not the alphabet's. */
+const regionGroups: Group[] = [
+  { key: 'Platform', label: 'Platform', note: '35 seats between them' },
+  { key: 'Infrastructure', label: 'Infrastructure' },
+  { key: 'Product', label: 'Product' },
+]
+
+/**
+ * Rows in groups: `groupBy` says which group a row is in, `groups` gives the
+ * groups their order, names and notes. Each group is its own `<tbody>`, headed
+ * by the file's `Group /` row — a fold chevron, the name in sm semibold, a
+ * neutral count and a subtle note, on `Surface/Background Subtle` under a 1px
+ * rule, 36px tall (Yet Project's `Project - List`, `40006268:6554`).
+ *
+ * The heading is a `<th scope="rowgroup">` spanning every column, and the whole
+ * of it is the fold button. Folded rows are not rendered at all, like an
+ * expanded row's panel when it closes. Sorting still works, inside each group.
+ */
+export const Grouped: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    label: 'Grouped',
+    sortable: true,
+    columns: [...columns, { key: 'region', header: 'Region' }],
+    groupBy: (item) => item.region,
+    groups: regionGroups,
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const table = canvasElement.querySelector('table')!
+
+    await step('one body per group, in the declared order, each headed by its group', async () => {
+      const bodies = table.querySelectorAll('tbody')
+      await expect(bodies).toHaveLength(3)
+      const heads = [...bodies].map((body) => body.querySelector('tr:first-child > th')!)
+      await expect(heads.map((th) => th.getAttribute('scope'))).toEqual([
+        'rowgroup',
+        'rowgroup',
+        'rowgroup',
+      ])
+      await expect(heads.map((th) => (th as HTMLTableCellElement).colSpan)).toEqual([4, 4, 4])
+      await expect(heads[0]).toHaveTextContent(/^Platform, 2 items, 35 seats between them$/)
+    })
+
+    await step("the heading row is the file's 36px, subtle fill, 1px rule on top", async () => {
+      const th = table.querySelector('th[scope="rowgroup"]')!
+      await expect(th.getBoundingClientRect().height).toBe(36)
+      await expect(getComputedStyle(th).backgroundColor).toBe(
+        computed('var(--surface-background-subtle)'),
+      )
+      const rule = getComputedStyle(th, '::after')
+      await expect(rule.height).toBe('1px')
+      await expect(rule.top).toBe('0px')
+      await expect(rule.backgroundColor).toBe(computed('var(--surface-border)'))
+    })
+
+    await step('the chevron folds the group, and its rows leave the table', async () => {
+      const toggle = canvas.getByRole('button', { name: /^Platform/ })
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect(document.getElementById(toggle.getAttribute('aria-controls')!)).toContainElement(
+        toggle,
+      )
+      await userEvent.click(toggle)
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await expect(canvas.queryByText('Alice Johnson')).toBeNull()
+      await expect(canvas.queryByText('Charlie Brown')).toBeNull()
+      await expect(canvas.getByText('Bob Smith')).toBeVisible()
+
+      await userEvent.click(toggle)
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect(canvas.getByText('Alice Johnson')).toBeVisible()
+    })
+
+    await step('sorting reorders rows inside their group, not across groups', async () => {
+      const platform = table.querySelectorAll('tbody')[0]
+      const names = () =>
+        [...platform.querySelectorAll('td:first-child')].map((td) => td.textContent)
+      await expect(names()).toEqual(['Alice Johnson', 'Charlie Brown'])
+      await userEvent.click(canvas.getByRole('button', { name: /Sort by Seats/ }))
+      await expect(names()).toEqual(['Charlie Brown', 'Alice Johnson'])
+      await expect(table.querySelectorAll('tbody')[0].querySelector('th')).toHaveTextContent(
+        /^Platform/,
+      )
+    })
+  },
+}
+
+/**
+ * `Table.GroupRow` in children mode. It is presentation only, like every part:
+ * the caller holds the fold state and leaves the folded rows out, and says how
+ * many columns the heading spans.
+ */
+export const GroupedComposable: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [folded, setFolded] = useState<readonly string[]>([])
+    return (
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Composed groups"
+        className="isolate overflow-x-auto rounded-lg border border-surface-border bg-surface-background-primary"
+      >
+        <table className="w-full table-fixed border-separate border-spacing-0 font-sans">
+          <caption className="sr-only">Composed groups</caption>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head>Name</Table.Head>
+              <Table.Head align="right">Seats</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          {regionGroups.map((group) => {
+            const items = rows.filter((item) => item.region === group.key)
+            const open = !folded.includes(group.key)
+            return (
+              <Table.Body key={group.key}>
+                <Table.GroupRow
+                  colSpan={2}
+                  label={group.label}
+                  count={items.length}
+                  open={open}
+                  onOpenChange={(next) =>
+                    setFolded((current) =>
+                      next ? current.filter((key) => key !== group.key) : [...current, group.key],
+                    )
+                  }
+                />
+                {open
+                  ? items.map((item) => (
+                      <Table.Row key={item.id}>
+                        <Table.Cell>{item.name}</Table.Cell>
+                        <Table.Cell align="right">{item.seats}</Table.Cell>
+                      </Table.Row>
+                    ))
+                  : null}
+              </Table.Body>
+            )
+          })}
+        </table>
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggle = canvas.getByRole('button', { name: /^Infrastructure/ })
+    await expect(toggle.closest('th')!.getBoundingClientRect().height).toBe(36)
+    await userEvent.click(toggle)
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(canvas.queryByText('Diana Prince')).toBeNull()
   },
 }
 
