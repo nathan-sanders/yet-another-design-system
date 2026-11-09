@@ -175,3 +175,43 @@ export function toggleKey(keys: readonly string[], key: string, selected: boolea
 export function toggleAll(keys: readonly string[], allKeys: readonly string[]): string[] {
   return keys.length >= allKeys.length ? [] : [...allKeys]
 }
+
+/** A group the columns API draws a heading row for. See `TableProps.groups`. */
+export interface TableGroup {
+  /** What `groupBy` returns for this group's rows. The fold state's key. */
+  key: string
+  /** The group's name, in sm semibold. */
+  label: string
+  /** Subtle text after the count — "1 of 4 done". */
+  note?: string
+}
+
+/**
+ * Split rows that are already sorted into their groups, keeping the sort.
+ *
+ * The groups come in the order `groups` declares them, which is the caller's
+ * to decide — "Needs attention" first is a judgement, not an alphabet. A key
+ * `groups` does not name still gets its rows shown, in a group labelled with
+ * the key itself and appended in the order first met, because dropping rows
+ * the data holds would be a table that quietly lies about its contents. A
+ * declared group with no rows is left out: a heading over nothing is noise,
+ * and both of Yet Project's tables filtered them away by hand.
+ */
+export function groupRows<T>(
+  items: readonly T[],
+  groupBy: (item: T) => string,
+  groups: readonly TableGroup[] = [],
+): Array<{ group: TableGroup; items: T[] }> {
+  const buckets = new Map<string, T[]>()
+  for (const group of groups) buckets.set(group.key, [])
+  for (const item of items) {
+    const key = groupBy(item)
+    const bucket = buckets.get(key)
+    if (bucket) bucket.push(item)
+    else buckets.set(key, [item])
+  }
+  const declared = new Map(groups.map((group) => [group.key, group]))
+  return [...buckets]
+    .filter(([, bucket]) => bucket.length > 0)
+    .map(([key, bucket]) => ({ group: declared.get(key) ?? { key, label: key }, items: bucket }))
+}
