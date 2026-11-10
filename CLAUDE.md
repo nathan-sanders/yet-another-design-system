@@ -658,7 +658,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Select](src/components/Select/CLAUDE.md) | one value from a long list | needs `items` on Root to render a label |
 | [NumberInput](src/components/NumberInput/CLAUDE.md) | an exact number, nudged by one | Input's box borrowed; the ring is scoped to the caret because the steppers are inside it |
 | [OTPInput](src/components/OTPInput/CLAUDE.md) | a code somebody was just sent | square slots at the field's own height; Base UI throws away `aria-label` on the first one |
-| [Token](src/components/Token/CLAUDE.md) | one chosen value as a pill | 20 / 24 tall, so a field full of them never grows |
+| [Token](src/components/Token/CLAUDE.md) | one chosen value as a pill | 20 / 24 tall, so a field full of them never grows; `Token.Action` lets a menu's trigger be the pill itself |
 | [Combobox](src/components/Combobox/CLAUDE.md) | a long list, filtered by typing | a trigger with a searchable popup, or a tokenizer; `onCreate` lets the list grow, which keeps it a Combobox rather than an Autocomplete |
 | [ContentBlock](src/components/ContentBlock/CLAUDE.md) | a card that owns one region of a page | header slots, three emphases, the part a bento view is made of |
 | [BentoGrid](src/components/BentoGrid/CLAUDE.md) | the mosaic those blocks sit in | columns, spans, and one breakpoint doing all the collapsing |

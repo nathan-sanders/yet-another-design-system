@@ -17,11 +17,18 @@ import type { TokenRadius, TokenSize } from './styles'
  * hands it to `Combobox.ChipRemove` — and it still must not have to be told
  * twice what the token it sits in already knows.
  *
+ * The label's id and `disabled` are for `Token.Action`, which a Base UI
+ * trigger renders through its own `render` prop — so it is never written by
+ * Token either, and still has to take its name from the label and stop when the
+ * token is disabled.
+ *
  * Deliberately not exported from the package.
  */
 export interface TokenContextValue {
   size: TokenSize
   radius: TokenRadius
+  labelId: string
+  disabled: boolean
 }
 
 export const TokenContext = createContext<TokenContextValue | null>(null)

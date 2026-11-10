@@ -3,7 +3,7 @@
 One discrete piece of data as a small pill — a tag, an active filter, a chosen recipient.
 Mirrors Figma node `40004003:3431` (Token, `Usage` View Only | Interactive × `State` Default |
 Hover | Focus | Disabled × `Size` Default | Small, 12 variants).
-API: `<Token>` + `Token.Remove` + `Token.Avatar`.
+API: `<Token>` + `Token.Remove` + `Token.Avatar` + `Token.Action`.
 **Not a Base UI component — the first built for one that does not exist yet.** Base UI ships no
 Token; what it ships is `Combobox.Chips` / `Chip` / `ChipRemove`, which are behavior with no
 look. So this is the look, shaped to be driven by them later:
@@ -108,6 +108,46 @@ A Lucide component or an element, through `LeadingIcon` at `size="small"`: the s
 sizes, `aria-hidden`. Yet Social's channel tokens had been putting a network's logo in `avatar`
 (FINDINGS 156), which is a 16px ringed circle sized for a face; a logo is an icon, and now goes where
 icons go. Figma already allows it, since the Icon slot is an instance swap. `ElementIcon` measures it.
+
+## A token that opens a menu: `action` and `Token.Action` (2026-11-09)
+
+A value is often changed where it is shown — a task's status in a table cell, a ticket's priority —
+so the token has to be the menu's trigger. Rendering the trigger *onto* a Token
+(`<Menu.Trigger render={<Token />} />`) half works and is wrong: Token's `onClick` makes the
+full-pill button itself, so Base UI's props landed on the span, Enter did nothing, the token had two
+tab stops and no ring showed. Yet Social (its FINDINGS 24) and Yet Project (its FINDINGS 2) each
+wrote the same answer, a real `<button>` from the trigger wearing a view-only `Token interactive` —
+two apps, which is the bar for the library.
+
+**The button is exported, the way `Token.Remove` is for `Combobox.ChipRemove`.** `Token.Action` is
+the overlay as a part, and `action` is where it goes:
+
+    <Menu>
+      <Token startIcon={CircleSlash} action={<Menu.Trigger render={<Token.Action />} />}>
+        Blocked
+      </Token>
+      <Menu.Popup>…</Menu.Popup>
+    </Menu>
+
+Base UI merges its handlers, ARIA (`aria-haspopup`, `aria-expanded`) and ref onto the one button that
+is there. What the token already knows comes off context, because the token never renders the
+part itself: the name (`aria-labelledby` the label), the radius, and `disabled`, which wins over a
+`false` from the trigger. `action` counts toward Figma's `Usage=Interactive`, so the hover shadow
+comes with it. Nothing else changed: the button is the same `tokenOverlay` box, so it covers the
+pill border included, and the ring is still `focusRingWithin` on the root.
+
+**`action` is a plain optional prop, not a branch of the `href` / `onClick` union.** Making it
+exclusive in the type broke every story that spreads `args` into a token with an `onClick`. An
+`onClick` or `href` makes the button itself and wins; the record and the JSDoc say so.
+
+**No open state.** Base UI marks the button `data-popup-open`, and nothing paints it: `Button` shows
+no open state when its menu is open either, and Figma's Token set draws none.
+
+**Not Base UI-specific.** Any trigger that can `render` a `<button>` drives it — Popover's, Dialog's.
+`MenuTrigger` is the story and the test: one focusable element in the pill, its box the pill's,
+named "Blocked", `aria-haspopup="menu"`, Tab then Enter opens the menu, a pick renames it "Done",
+focus comes back, and the disabled one is `disabled`. No Figma change: the file's Interactive token
+is the drawing.
 
 ## Best practices
 
