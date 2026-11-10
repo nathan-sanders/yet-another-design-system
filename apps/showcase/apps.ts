@@ -6,14 +6,8 @@ export interface ShowcaseApp {
   /** Folder name, which is also the path the app is served from. */
   slug: string
   name: string
-  /** One line: what the product is. */
-  pitch: string
-  /** What is built so far, so a visitor knows what to click. */
-  built: string[]
-  /** The library components this app leans on hardest. */
-  components: string[]
-  /** The Figma page the screens come from. */
-  figma: string
+  /** A sentence or two: what the product is. */
+  description: string
   /** A screenshot in `showcase/`, or none until one is taken. */
   image?: string
 }
@@ -22,77 +16,15 @@ export const apps: ShowcaseApp[] = [
   {
     slug: 'social',
     name: 'Yet Social',
-    pitch:
-      'A social media management tool: schedule posts, run campaigns, answer customers and report on all of it, with Yak, an assistant, beside every screen.',
-    built: [
-      'Home: a daily brief that opens on Yak, with what needs you, the last few days and the week ahead',
-      'Calendar: week, day and month',
-      'Post detail',
-      'Campaigns: every campaign as a table or as bars across twelve weeks, with status, channels, owner and progress',
-      'A campaign’s page: Yak’s summary, progress and targets counted from the schedule, what’s next, the brief, and a Cancel that sends its posts back to Drafts',
-      'Post composer: channels, a caption per network, media, options, details and a live preview, from an idea, a draft, a day or a post',
-      'Inbox: all messages, my inbox, all assignments, complete and spam, with public thread and contact detail',
-      'Comments by post: every published post, with its comments, notes, activity and numbers',
-      'Reports: the list, a board you rearrange and resize, widget detail and its Edit panel',
-      'New report: eight report types, from NewsWhip-style media monitoring to a blank board',
-      'Ideas: a board of idea cards you drag between groups, with Drafting, Scheduled and Published read from the calendar beside them; an idea page for writing and editing, and Make a post into the composer',
-      'Creators: a grid or list of creators, sorted by audience, brand fit or name',
-      'Asset library: files in nested folders, as a grid or a list, with usage rights and the posts each one is in; drop files on the grid to upload them to the open folder',
-      'Discover: trends, creators, visual trends, sentiment and top posts',
-      'Yak assistant: a panel beside every page, a full-page view, and history',
-      'Floating Yak: ask or search from the bottom of any page, answered in Yak full page — or in the panel beside the composer and an idea, where Yak writes into the post',
-      'Notifications: an activity feed from the bell, each row going to the post, ticket or report it is about',
-      'Settings: a modal from the account menu, with a changelog of every release so far',
-    ],
-    components: [
-      'AppShell',
-      'SideNav',
-      'MobileNav',
-      'TopBar',
-      'Panel',
-      'TreeList',
-      'ChatComposer',
-      'InputGroup',
-      'ClickableCard',
-      'SegmentedControl',
-      'Token',
-      'Avatar',
-      'DragAndDrop',
-      'LineSeries',
-      'Table',
-      'Gauge',
-    ],
-    figma:
-      'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System?node-id=40005911-31806',
+    description:
+      'Social media management: schedule posts, run campaigns, answer customers and report on all of it, with Yak, an assistant, beside every screen.',
     image: 'social.png',
   },
   {
     slug: 'project',
     name: 'Yet Project',
-    pitch:
-      'Project management for a cross-functional team: projects, their tasks and the plan above them. Yak, Yet Social’s assistant, joins it next.',
-    built: [
-      'Home: a daily brief with what needs you, your projects and the week ahead',
-      'All projects: every project grouped by health, with progress, owner and the next milestone',
-      'A project’s List: every task grouped by phase, with assignee, status and priority you change from their tokens',
-      'A task’s panel: open any row for its properties, subtasks to tick, dependencies to follow, comments and activity',
-    ],
-    components: [
-      'AppShell',
-      'SideNav',
-      'Table',
-      'Token',
-      'Menu',
-      'Tabs',
-      'Breadcrumbs',
-      'ProgressBar',
-      'ContentBlock',
-      'ChatComposer',
-      'Panel',
-      'Card',
-    ],
-    figma:
-      'https://www.figma.com/design/8bRBn0lf6TfPyFWR2XttDP/Yet-Another-Design-System?node-id=40006256-61847',
+    description:
+      'Project management for a cross-functional team: projects, the tasks inside them and the plan above them.',
     image: 'project.png',
   },
 ]

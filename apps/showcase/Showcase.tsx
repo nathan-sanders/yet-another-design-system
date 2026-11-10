@@ -1,23 +1,28 @@
-import { Badge } from '../../src/components/Badge'
-import { Card } from '../../src/components/Card'
+import { ArrowRight } from 'lucide-react'
+
+import { Icon } from '../../src/components/Icon'
 import { Link } from '../../src/components/Link'
 import { ThemeControl } from '../../src/components/ThemeControl'
 import { Heading, Text } from '../../src/components/Text'
+import { cn } from '../../src/lib/cn'
+import { focusRing } from '../../src/lib/focus'
 import { useDocumentTheme } from '../shared/theme'
 import { apps } from './apps'
 
 const STORYBOOK = 'https://nathan-sanders.github.io/yet-another-design-system/'
 
 /**
- * The front door: what the apps are for, and a card per app. Plain links rather
- * than a router — each app is its own page with its own router inside it.
+ * The front door: what the apps are for, and a row per app — the screenshot on
+ * the left, and on the right the app's name, a line about it and a way in.
+ * Plain links rather than a router — each app is its own page with its own
+ * router inside it.
  */
 export function Showcase() {
   const [theme, setTheme] = useDocumentTheme()
 
   return (
     <div className="min-h-dvh bg-surface-canvas">
-      <main className="mx-auto flex max-w-5xl flex-col gap-12 px-4 py-12 md:px-8 md:py-20">
+      <main className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 md:px-8 md:py-20">
         <header className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">
             <Text size="sm" weight="semibold" color="subtle">
@@ -37,67 +42,68 @@ export function Showcase() {
           </div>
         </header>
 
-        <section aria-labelledby="apps-heading" className="flex flex-col gap-4">
+        <section aria-labelledby="apps-heading" className="flex flex-col gap-8">
           <Heading level={2} size="xl" weight="semibold" id="apps-heading">
             Apps
           </Heading>
-          <ul className="grid gap-5">
+          <ul className="flex flex-col gap-16">
             {apps.map((app) => (
-              <li key={app.slug}>
-                <Card padding={4} className="grid gap-5 md:grid-cols-[3fr_2fr]">
-                  {app.image ? (
-                    <a
-                      href={`./${app.slug}/`}
-                      className="block overflow-hidden rounded-md border border-surface-border"
-                      tabIndex={-1}
-                      aria-hidden
-                    >
-                      <img
-                        src={new URL(`./${app.image}`, import.meta.url).href}
-                        alt=""
-                        className="block w-full"
-                      />
-                    </a>
-                  ) : null}
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                      <Heading level={3} size="2xl" weight="bold">
-                        {app.name}
-                      </Heading>
-                      <Text color="subtle">{app.pitch}</Text>
+              <li
+                key={app.slug}
+                className="grid items-center gap-8 md:grid-cols-[3fr_2fr] md:gap-12"
+              >
+                {app.image ? (
+                  <a
+                    href={`./${app.slug}/`}
+                    className="block overflow-hidden rounded-xl border border-surface-border"
+                    tabIndex={-1}
+                    aria-hidden
+                  >
+                    <img
+                      src={new URL(`./${app.image}`, import.meta.url).href}
+                      alt=""
+                      className="block w-full"
+                    />
+                  </a>
+                ) : null}
+                <div className="flex flex-col items-start gap-8">
+                  <dl className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-1">
+                      <Text render={<dt />} mono color="subtle">
+                        App
+                      </Text>
+                      <dd>
+                        <Heading level={3} size="2xl" weight="normal">
+                          {app.name}
+                        </Heading>
+                      </dd>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <Text size="sm" weight="semibold">
-                        Built so far
+                      <Text render={<dt />} mono color="subtle">
+                        Description
                       </Text>
-                      <ul className="list-disc pl-5">
-                        {app.built.map((item) => (
-                          <li key={item}>
-                            <Text render={<span />}>{item}</Text>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Text size="sm" weight="semibold">
-                        Leans on
+                      <Text render={<dd />} size="xl">
+                        {app.description}
                       </Text>
-                      <ul className="flex flex-wrap gap-1">
-                        {app.components.map((name) => (
-                          <li key={name}>
-                            <Badge>{name}</Badge>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
-                    <div className="mt-auto flex flex-wrap items-center gap-4">
-                      <Link href={`./${app.slug}/`}>Open {app.name}</Link>
-                      <Link href={app.figma} external>
-                        Designs in Figma
-                      </Link>
-                    </div>
-                  </div>
-                </Card>
+                  </dl>
+                  {/* Button-shaped by hand: `Button` is always a <button> and
+                      never navigates, so a call to action that opens a page has
+                      no library look yet (Yet Social FINDINGS 7). These are the
+                      secondary Button's tokens at its `large` size. */}
+                  <a
+                    href={`./${app.slug}/`}
+                    className={cn(
+                      'inline-flex h-10 items-center gap-2 rounded-md border px-4 text-base font-semibold',
+                      'border-action-secondary-border bg-action-secondary-background text-action-secondary-foreground',
+                      'transition-colors hover:border-action-secondary-border-hover hover:bg-action-secondary-background-hover',
+                      focusRing,
+                    )}
+                  >
+                    View {app.name}
+                    <Icon icon={ArrowRight} size="base" />
+                  </a>
+                </div>
               </li>
             ))}
           </ul>

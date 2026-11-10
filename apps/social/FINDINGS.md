@@ -48,9 +48,11 @@ None right now.
    or each would have taken a third of the bar. Worth a sentence in the TopBar record, or a
    toolbar shape if a second app does the same.
 7. **A navigating call to action has no button look.** `Button` is always a `<button>`, on
-   purpose ("Do not use a button to navigate"), so the showcase's "Open Yet Social" is a `Link`.
-   That is correct. Whether a primary call to action that navigates needs a heavier look than
-   an underlined link is a design question, not a bug.
+   purpose ("Do not use a button to navigate"), so the showcase's "Open Yet Social" was a `Link`.
+   The design question is answered: the showcase's 2026-11-09 redesign wants a button-shaped
+   "View Yet Social", so the app hand-styles an `<a>` with the secondary Button's tokens at its
+   `large` size (`showcase/Showcase.tsx`). Open: a link form of Button in the library, so that
+   copy can go.
 8. **The month chip is not a `ClickableCard`.** `_Calendar Post Chip` is a 24px row on
    `rounded-sm`, and the card's radius and 12px padding come with it even at `padding={0}`. It is
    a `button` carrying the card's surface, border, hover and `selected` tokens, plus `focusRing`.

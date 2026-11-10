@@ -9,8 +9,9 @@ from the Figma page ↪ Yet Project, followed on 2026-11-08.
 
 - `apps/vite.config.ts` — its own Vite project, multi-page. `index.html` is the showcase; each
   app is a folder with its own `index.html`, listed in `build.rollupOptions.input`.
-- `apps/showcase/` — the front door. `apps.ts` holds one entry per app (pitch, what is built, the
-  components it leans on, its Figma page, a screenshot).
+- `apps/showcase/` — the front door. `apps.ts` holds one entry per app (name, a one- or two-sentence
+  description, a screenshot), listed as a screenshot beside an App / Description pair and a
+  View button.
 - `apps/shared/` — `setup.ts` (fonts and stylesheet, imported first by every app), `app.css`
   (the token layer plus `@source '../../src'`), `theme.ts` (the document's light/dark switch).
 - `apps/<app>/` — `main.tsx` (router), `shell/`, `screens/`, `components/` (app-level pieces —
