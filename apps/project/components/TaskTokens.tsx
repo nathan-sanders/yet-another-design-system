@@ -1,10 +1,9 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Avatar } from '../../../src/components/Avatar'
 import { Icon, type StartIcon } from '../../../src/components/Icon'
 import { Menu } from '../../../src/components/Menu'
 import { Token } from '../../../src/components/Token'
 import { cn } from '../../../src/lib/cn'
-import { focusRing } from '../../../src/lib/focus'
 import { people, personFor } from '../data/people'
 import type { Task, TaskPriority } from '../data/types'
 import type { TaskEdit } from '../screens/project/tasksState'
@@ -44,51 +43,41 @@ function Spoken({ children }: { children: string }) {
 }
 
 /**
- * A view-only Token inside a real `<button>`, as a menu trigger. Rendering
- * the trigger onto a Token does not work — Token's `onClick` makes a hidden
- * button of its own — so Yet Social wrapped it the same way (its FINDINGS
- * 24; this app's FINDINGS 2).
+ * A token that opens a menu of its values. The menu's trigger renders the
+ * token's own full-pill button (`Token.Action`), so there is one tab stop and
+ * Enter opens it — FINDINGS 2, fixed in the library. In a block of its own, as
+ * `DueToken` is: an `inline-flex` token on the cell's text line takes a
+ * descender's worth of room and makes the row 41.
  */
-function TokenTrigger({
-  startIcon,
-  avatar,
-  children,
-  ...props
-}: {
-  startIcon?: StartIcon
-  avatar?: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      className={cn('flex max-w-full cursor-pointer rounded-md', focusRing)}
-      // Base UI's trigger props (handlers, ARIA, ref) arrive here via `render`.
-      {...props}
-    >
-      <Token interactive startIcon={startIcon} avatar={avatar}>
-        {children}
-      </Token>
-    </button>
-  )
-}
-
 function PickerMenu({
   label,
   value,
   onValueChange,
-  trigger,
+  startIcon,
+  avatar,
+  token,
   children,
 }: {
   label: string
   value: string
   onValueChange: (value: string) => void
-  trigger: ReactElement
+  startIcon?: StartIcon
+  avatar?: ReactNode
+  /** The token's label. */
+  token: ReactNode
   children: ReactNode
 }) {
   return (
     <Menu>
-      <Menu.Trigger render={trigger} />
+      <span className="flex max-w-full">
+        <Token
+          startIcon={startIcon}
+          avatar={avatar}
+          action={<Menu.Trigger render={<Token.Action />} />}
+        >
+          {token}
+        </Token>
+      </span>
       <Menu.Popup aria-label={label}>
         <Menu.Group>
           <Menu.RadioGroup value={value} onValueChange={(next) => onValueChange(next as string)}>
@@ -125,11 +114,12 @@ export function StatusToken({
       label="Status"
       value={task.status}
       onValueChange={(value) => onChange({ status: value as Task['status'] })}
-      trigger={
-        <TokenTrigger startIcon={status.icon}>
+      startIcon={status.icon}
+      token={
+        <>
           <Spoken>Status:</Spoken>
           {status.label}
-        </TokenTrigger>
+        </>
       }
     >
       {STATUS.map((option) => (
@@ -158,11 +148,12 @@ export function PriorityToken({
       label="Priority"
       value={task.priority}
       onValueChange={(value) => onChange({ priority: value as TaskPriority })}
-      trigger={
-        <TokenTrigger startIcon={<PriorityMark priority={task.priority} />}>
+      startIcon={<PriorityMark priority={task.priority} />}
+      token={
+        <>
           <Spoken>Priority:</Spoken>
           {priority.label}
-        </TokenTrigger>
+        </>
       }
     >
       {/* Highest first, as a priority menu reads; No priority last. */}
@@ -192,11 +183,12 @@ export function AssigneeToken({
       label="Assignee"
       value={task.assigneeId}
       onValueChange={(value) => onChange({ assigneeId: value })}
-      trigger={
-        <TokenTrigger avatar={<Token.Avatar name={assignee.name} src={assignee.avatar} alt="" />}>
+      avatar={<Token.Avatar name={assignee.name} src={assignee.avatar} alt="" />}
+      token={
+        <>
           <Spoken>Assigned to</Spoken>
           {assignee.name}
-        </TokenTrigger>
+        </>
       }
     >
       {people.map((person) => (

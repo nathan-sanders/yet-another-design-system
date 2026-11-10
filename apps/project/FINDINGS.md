@@ -15,12 +15,7 @@ lands on a "Designed, not built yet" page that links its frame.
 
 ### Open: library changes worth making
 
-2. **A clickable Token cannot be a menu trigger.** Rendering `Menu.Trigger` onto a Token does not
-   work — Token's `onClick` makes a hidden button of its own, so there are two tab stops and
-   Enter does nothing. `TaskTokens.tsx` copies Yet Social's `TokenTrigger` (its FINDINGS 24): a
-   real `<button>` wearing a view-only `Token interactive`. That is the second app to write it,
-   which is the bar for moving it into the library — `Token` taking `render`, or a
-   `Token.Trigger`.
+None open.
 
 ### Fixed in the library
 
@@ -33,6 +28,13 @@ lands on a "Designed, not built yet" page that links its frame.
    `Table.GroupRow` part: one `<tbody>` per group under a `<th scope="rowgroup">` that is the fold
    button. `GroupedTable` is gone and both screens are a plain `<Table>`; the heading rows measure
    36 and the rows 40, as drawn.
+2. **A clickable Token cannot be a menu trigger.** *Fixed in #383.* Rendering `Menu.Trigger`
+   onto a Token did not work — Token's `onClick` makes a hidden button of its own, so there were
+   two tab stops and Enter did nothing. `TaskTokens.tsx` copied Yet Social's `TokenTrigger`, a real
+   `<button>` wearing a view-only `Token interactive`: the second app to write it, which was the
+   bar. Token's full-pill button is now a part, `Token.Action`, handed to its `action` prop, and
+   the wrapper is gone. The tokens sit in a block `<span className="flex">`, as the due date's
+   does, so rows stay 40.
 4. **`Table.Cell` wraps its children in a span that hugs them.** *Fixed in #376.* A cell could
    not hold a row that spreads to its edges: `_Task Name Cell`'s subtask count sat right after the
    name instead of at the cell's right padding, and All projects' progress bar measured **0px**
