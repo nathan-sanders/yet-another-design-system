@@ -21,11 +21,6 @@ lands on a "Designed, not built yet" page that links its frame.
    real `<button>` wearing a view-only `Token interactive`. That is the second app to write it,
    which is the bar for moving it into the library — `Token` taking `render`, or a
    `Token.Trigger`.
-3. **`ClickableCard` has no subtle emphasis.** Home's "Your projects" cards are wells on
-   `Surface/Background Subtle` that open the project. `ClickableCard` offers `default` and
-   `ghost`, and both hover *to* the subtle fill, so a subtle card would not change under the
-   pointer. The app uses `ghost` with the subtle fill and hovers to `surface-overlay-subtle`,
-   the translucent wash Table's striped rows hover to, which adds ink to whatever it covers.
 
 ### Fixed in the library
 
@@ -54,6 +49,12 @@ lands on a "Designed, not built yet" page that links its frame.
     than adding a second, and no ancestor in either app clips it.
 
 ### Kept in the app, worth knowing
+
+3. **`ClickableCard` has no subtle emphasis.** *Closed, not needed.* Home's "Your projects"
+   cards are drawn as wells on `Surface/Background Subtle`, and `ClickableCard` offers only
+   `default` and `ghost`, so the app first faked a subtle card on `ghost`. Nathan's call
+   (2026-11-09): use the default card. The subtle well was the file's drawing, not something the
+   library is missing, so the cards are `ClickableCard` at its default and nothing is overridden.
 
 5. **"Today" is always a Thursday.** Every frame is drawn on Thu Nov 5, 2026, and the page's
    dates are cross-checked against it (the permit on Nov 18 plus a 5-day lag, six buffer days
