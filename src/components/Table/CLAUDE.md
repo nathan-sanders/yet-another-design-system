@@ -437,7 +437,11 @@ Each of these is an absence with a reason, not an oversight.
   selection is not forwarded, and `.click()` carries no modifiers, so Cmd-click on the row is a
   plain click (the link itself still takes one). Rows get `cursor-pointer` and the hover fill; in
   children mode mark the cell `rowTarget` and the row `clickable`. The `ClickableRows` story drives
-  all three paths.
+  all three paths. **A press inside a popup a row's control opened is the popup's too** (2026-11-09):
+  a menu is portalled to `<body>`, but React bubbles its click through the row, and a menu row is a
+  `div` the controls list does not match — so picking a status from a token's menu in Yet Project's
+  List also opened the task. The handler now ignores any press whose target the row does not contain
+  in the DOM; `ClickableRows` picks from a ⋯ menu and fails without it.
 - **`role="grid"` with cell-level keyboard navigation.** A different component — and the reason
   `aria-selected` is absent.
 - **A checkbox on a group's heading**, to select the whole group. The file draws none, and select-all
