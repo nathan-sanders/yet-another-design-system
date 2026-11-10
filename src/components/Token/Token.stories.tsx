@@ -1,9 +1,20 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Circle, CircleDot, Smile, Tag, User } from 'lucide-react'
-import { expect, within } from 'storybook/test'
+import {
+  Circle,
+  CircleCheckBig,
+  CircleDot,
+  CircleSlash,
+  Smile,
+  Tag,
+  User,
+  type LucideIcon,
+} from 'lucide-react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
 import { Icon } from '../Icon'
+import { Menu } from '../Menu'
 import { Token } from './Token'
 import { Text } from '../Text'
 
@@ -387,4 +398,102 @@ export const InContext: Story = {
       </div>
     </div>
   ),
+}
+
+const statuses: { value: string; label: string; icon: LucideIcon }[] = [
+  { value: 'todo', label: 'To do', icon: Circle },
+  { value: 'in-progress', label: 'In progress', icon: CircleDot },
+  { value: 'blocked', label: 'Blocked', icon: CircleSlash },
+  { value: 'done', label: 'Done', icon: CircleCheckBig },
+]
+
+/** A status you change from its token: the menu's trigger is the token itself. */
+function StatusPicker({ disabled = false }: { disabled?: boolean }) {
+  const [value, setValue] = useState('blocked')
+  const status = statuses.find((s) => s.value === value)!
+  return (
+    <Menu disabled={disabled}>
+      <Token
+        startIcon={status.icon}
+        disabled={disabled}
+        action={<Menu.Trigger render={<Token.Action />} />}
+      >
+        {status.label}
+      </Token>
+      <Menu.Popup aria-label="Status">
+        <Menu.Group>
+          <Menu.RadioGroup value={value} onValueChange={(next) => setValue(next as string)}>
+            {statuses.map((option) => (
+              <Menu.RadioItem key={option.value} value={option.value} closeOnClick>
+                <span className="flex items-center gap-2">
+                  <Icon icon={option.icon} size="small" />
+                  {option.label}
+                </span>
+              </Menu.RadioItem>
+            ))}
+          </Menu.RadioGroup>
+        </Menu.Group>
+      </Menu.Popup>
+    </Menu>
+  )
+}
+
+/**
+ * **A token that opens a menu.** The value is changed where it is shown — a
+ * task's status in a table cell, a ticket's priority — so the token is the
+ * menu's trigger.
+ *
+ * Hand the trigger to `action`, rendering `Token.Action`:
+ * `action={<Menu.Trigger render={<Token.Action />} />}`. `Token.Action` is the
+ * token's own invisible full-pill button, so Base UI's handlers, ARIA and ref
+ * land on the one control that is there: one tab stop, the token's ring, Enter
+ * and Space open the menu, and the button is named by the label. It is the
+ * `Token.Remove` / `Combobox.ChipRemove` arrangement again — the token draws,
+ * the primitive drives.
+ *
+ * Do not render the trigger *onto* the token (`render={<Token />}`): Token's
+ * `onClick` makes that button itself, so the trigger's props land on the span
+ * and Enter does nothing. Both mock apps had to wrap a view-only token in a
+ * `<button>` of their own before this existed.
+ *
+ * The second token is disabled: faded, and the button will not press.
+ */
+export const MenuTrigger: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex items-center gap-3">
+      <StatusPicker />
+      <StatusPicker disabled />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const [trigger, disabledTrigger] = canvas.getAllByRole('button')
+    // Named by the label, and the menu's ARIA is on it.
+    expect(trigger).toHaveAccessibleName('Blocked')
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu')
+    expect(disabledTrigger).toBeDisabled()
+    // One tab stop per token: nothing else inside the pill takes focus.
+    const pill = trigger.parentElement!
+    expect(pill.querySelectorAll('button, a, [tabindex]')).toHaveLength(1)
+    // It covers the pill, border included, so the whole token is the target.
+    const pillBox = pill.getBoundingClientRect()
+    const buttonBox = trigger.getBoundingClientRect()
+    expect(buttonBox.width).toBe(pillBox.width)
+    expect(buttonBox.height).toBe(pillBox.height)
+
+    // The keyboard path: Tab to it, Enter opens the menu.
+    await userEvent.tab()
+    expect(trigger).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    const done = await waitFor(() =>
+      within(document.body).getByRole('menuitemradio', { name: 'Done' }),
+    )
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await userEvent.click(done)
+
+    await waitFor(() => expect(trigger).toHaveAccessibleName('Done'))
+    await waitFor(() => expect(within(document.body).queryByRole('menu')).toBeNull())
+    expect(trigger).toHaveFocus()
+  },
 }

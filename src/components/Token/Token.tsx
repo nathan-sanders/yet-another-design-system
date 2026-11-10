@@ -73,6 +73,15 @@ interface TokenBaseProps
    * sentiment in a message list. Needs a glyph to show.
    */
   labelHidden?: boolean
+  /**
+   * Makes the whole token the trigger of something else — a menu, a popover.
+   * Pass the trigger rendering `Token.Action`:
+   * `action={<Menu.Trigger render={<Token.Action />} />}`. The trigger's
+   * handlers and ARIA land on the token's own full-pill button, so there is
+   * one tab stop and the ring is the token's. An `onClick` or `href` makes that
+   * button itself and wins over this.
+   */
+  action?: ReactNode
   /** Extra classes for the outermost element — the pill. */
   className?: string
 }
@@ -129,6 +138,36 @@ function TokenRemove({ className, ...props }: ComponentPropsWithRef<'button'>) {
 TokenRemove.displayName = 'Token.Remove'
 
 /**
+ * The invisible button that makes the whole pill clickable, as a part — for a
+ * trigger that has to own it.
+ *
+ * Rendering a menu's trigger *onto* a Token does not work: Token's `onClick`
+ * makes this button itself, so Base UI's props landed on the span, Enter did
+ * nothing, and the token had two tab stops. Yet Social and Yet Project both
+ * worked round it by wrapping a view-only Token in a `<button>` of their own.
+ * So the button is exported, exactly as `Token.Remove` is for
+ * `Combobox.ChipRemove`: `<Menu.Trigger render={<Token.Action />} />`, handed
+ * to the token's `action` prop. Base UI merges its handlers, ARIA and ref onto
+ * it; the name (the label, by `aria-labelledby`), the radius and `disabled`
+ * come off the token through context.
+ */
+function TokenAction({ className, disabled, ...props }: ComponentPropsWithRef<'button'>) {
+  const context = useToken()
+
+  return (
+    <button
+      type="button"
+      aria-labelledby={context?.labelId}
+      {...props}
+      disabled={disabled || context?.disabled}
+      className={cn(tokenOverlay({ radius: context?.radius ?? 'md' }), className)}
+    />
+  )
+}
+
+TokenAction.displayName = 'Token.Action'
+
+/**
  * An Avatar sized by the token it sits in — 16px at the default size, 12px at
  * small.
  *
@@ -164,7 +203,7 @@ TokenAvatar.displayName = 'Token.Avatar'
  * that they can usually take back. If it is colored and static it is a Badge.
  *
  * **Figma's `Usage` axis is not a prop.** A token is interactive because it has
- * an `onRemove`, an `onClick` or an `href` — the same derivation Avatar uses for
+ * an `onRemove`, an `onClick`, an `href` or an `action` — the same derivation Avatar uses for
  * `Content` and Button for its icon-only form. `State` is not a prop either:
  * hover and focus are CSS states, and only `disabled` needs telling, because a
  * `<span>` has no attribute to read it off.
@@ -195,12 +234,13 @@ export function Token({
   target,
   rel,
   onClick,
+  action,
   className,
   ...props
 }: TokenProps) {
   const labelId = useId()
   const clickable = Boolean(href) || Boolean(onClick)
-  const interactive = clickable || Boolean(onRemove) || interactiveProp
+  const interactive = clickable || Boolean(action) || Boolean(onRemove) || interactiveProp
 
   // "Remove Design" rather than a bare "Remove", when the label is something we
   // can read. Astryx names its own remove button the same way.
@@ -208,7 +248,7 @@ export function Token({
     removeLabel ?? (typeof children === 'string' ? `Remove ${children}` : 'Remove')
 
   return (
-    <TokenContext.Provider value={{ size, radius }}>
+    <TokenContext.Provider value={{ size, radius, labelId, disabled }}>
       <span className={cn(token({ size, radius, interactive, disabled }), className)} {...props}>
         {clickable &&
           (href ? (
@@ -229,6 +269,7 @@ export function Token({
               className={tokenOverlay({ radius })}
             />
           ))}
+        {!clickable && action}
 
         {avatar}
         {startIcon && <LeadingIcon icon={startIcon} size="small" />}
@@ -249,4 +290,5 @@ export function Token({
 
 Token.displayName = 'Token'
 Token.Remove = TokenRemove
+Token.Action = TokenAction
 Token.Avatar = TokenAvatar
