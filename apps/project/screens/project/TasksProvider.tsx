@@ -3,9 +3,15 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { priorityFor, statusFor } from '../../components/taskMeta'
 import { today } from '../../data/dates'
 import { me, personFor } from '../../data/people'
-import { tasks as initialTasks } from '../../data/tasks'
+import { boardOrder, tasks as initialTasks } from '../../data/tasks'
 import type { Task, TaskEvent } from '../../data/types'
-import { TasksContext, type TaskEdit, type TasksState } from './tasksState'
+import { TasksContext, type TaskEdit, type TaskMove, type TasksState } from './tasksState'
+
+/** The Board's drawn order, then every task the frame does not show, in the data's order. */
+const initialOrder = [
+  ...boardOrder,
+  ...initialTasks.map((task) => task.id).filter((id) => !boardOrder.includes(id)),
+]
 
 let nextId = 0
 const newId = (prefix: string) => `${prefix}-new-${++nextId}`
@@ -67,6 +73,30 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       })),
     [change],
   )
+  const [order, setOrder] = useState(initialOrder)
+  const moveTask = useCallback(
+    (id: string, { status, order: next, headsUp }: TaskMove) => {
+      setOrder(next)
+      if (!status && !headsUp) return
+      change(id, (task) => {
+        const events = status ? eventsFor(task, { status }) : []
+        if (headsUp) {
+          events.unshift({
+            id: newId('e'),
+            actor: me.id,
+            text: `You moved this before ${headsUp.blocker} was done, and ${personFor(headsUp.personId).name} got a heads-up`,
+            at: today,
+          })
+        }
+        return {
+          ...task,
+          status: status ?? task.status,
+          activity: [...events, ...(task.activity ?? [])],
+        }
+      })
+    },
+    [change],
+  )
   const toggleSubtask = useCallback(
     (taskId: string, subtaskId: string) =>
       change(taskId, (task) => ({
@@ -90,8 +120,8 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   )
 
   const value = useMemo<TasksState>(
-    () => ({ tasks, updateTask, toggleSubtask, addComment }),
-    [tasks, updateTask, toggleSubtask, addComment],
+    () => ({ tasks, order, updateTask, moveTask, toggleSubtask, addComment }),
+    [tasks, order, updateTask, moveTask, toggleSubtask, addComment],
   )
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>
 }

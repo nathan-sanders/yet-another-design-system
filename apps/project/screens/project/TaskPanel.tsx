@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import {
   ArrowRight,
   AtSign,
@@ -42,14 +42,14 @@ import { Token } from '../../../../src/components/Token'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
 import { AssigneeToken, DueToken, PriorityToken, StatusToken } from '../../components/TaskTokens'
-import { statusFor, subtaskCount } from '../../components/taskMeta'
+import { blockerOf, statusFor, subtaskCount } from '../../components/taskMeta'
 import { addDays, day, sameDay, shortDate, today } from '../../data/dates'
 import { personFor } from '../../data/people'
 import { projectFor } from '../../data/projects'
 import type { Task, TaskComment, TaskEvent, TaskPriority } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { YakMark } from '../../yak/YakMark'
-import { taskKey, taskPath } from './paths'
+import { taskKey, taskPath, type ProjectTab } from './paths'
 import { useTasks } from './tasksState'
 
 /*
@@ -244,6 +244,7 @@ interface DependencyRow {
  * is when equipment can arrive, "5d lag · Nov 23".
  */
 function Dependencies({ task, tasks }: { task: Task; tasks: Task[] }) {
+  const tab = useParams().tab as ProjectTab
   const rows: DependencyRow[] = [
     ...(task.dependsOn ?? []).flatMap((dep) => {
       const blocker = tasks.find((t) => t.id === dep.taskId)
@@ -272,7 +273,7 @@ function Dependencies({ task, tasks }: { task: Task; tasks: Task[] }) {
               <span className="w-24 shrink-0 text-content-subtle">{row.kind}</span>
               {/* Opens that task in this panel, in place. */}
               <a
-                href={`#${taskPath(row.task)}`}
+                href={`#${taskPath(row.task, tab)}`}
                 className={cn(
                   'flex min-w-0 flex-1 items-center gap-2 rounded-sm text-content-primary hover:underline',
                   focusRing,
@@ -571,10 +572,9 @@ function TaskDetail({ task, tasks }: { task: Task; tasks: Task[] }) {
   const navigate = useNavigate()
   const shell = useShell()
   const [tab, setTab] = useState<DetailTab>('comments')
-  const blocker =
-    task.status === 'blocked'
-      ? tasks.find((t) => task.dependsOn?.some((dep) => dep.taskId === t.id))
-      : undefined
+  // The view the panel is open over, so a dependency opens over it too.
+  const view = useParams().tab as ProjectTab
+  const blocker = blockerOf(task, tasks)
 
   return (
     <>
@@ -615,7 +615,7 @@ function TaskDetail({ task, tasks }: { task: Task; tasks: Task[] }) {
                 appearance="secondary"
                 size="small"
                 aria-label={`Open ${blocker.title}`}
-                onClick={() => navigate(taskPath(blocker))}
+                onClick={() => navigate(taskPath(blocker, view))}
               >
                 Open
               </Button>

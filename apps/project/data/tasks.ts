@@ -190,6 +190,31 @@ export const tasks: Task[] = [
     ],
   },
   {
+    // Drawn on the Board (`40006268:8728`), in Done, and not in the List
+    // frame; AUS-11 is a placeholder number like the rest.
+    id: 'aus-11',
+    projectId: 'austin',
+    number: 11,
+    title: 'Sign the lease',
+    phase: 'Permits & build-out',
+    assigneeId: 'dana',
+    status: 'done',
+    priority: 'high',
+    due: '2026-10-12',
+    description: 'Ten-year lease on the Austin unit, with the build-out allowance in writing.',
+    estimate: '4h',
+    activity: [
+      {
+        id: 'e-11-2',
+        actor: 'dana',
+        text: 'Dana changed the status',
+        at: day('2026-10-12'),
+        change: { from: 'In review', to: 'Done' },
+      },
+      { id: 'e-11-1', actor: 'dana', text: 'Dana created this task', at: day('2026-09-28') },
+    ],
+  },
+  {
     id: 'aus-16',
     projectId: 'austin',
     number: 16,
@@ -319,6 +344,33 @@ export const tasks: Task[] = [
     ],
   },
   {
+    // Drawn on the Board (`40006268:8728`) in In review, due the file's
+    // Thursday, and not in the List frame. Home's "Approve the Austin signage
+    // proof" is Nathan's side of the same review.
+    id: 'aus-31',
+    projectId: 'austin',
+    number: 31,
+    title: 'Signage proof',
+    phase: 'Marketing & launch',
+    assigneeId: 'katie',
+    status: 'in-review',
+    priority: 'high',
+    due: '2026-11-05',
+    description:
+      'The storefront sign and window vinyl, from the printer’s proof, for Nathan’s sign-off.',
+    estimate: '2h',
+    activity: [
+      {
+        id: 'e-31-2',
+        actor: 'katie',
+        text: 'Katie changed the status',
+        at: day('2026-11-04'),
+        change: { from: 'In progress', to: 'In review' },
+      },
+      { id: 'e-31-1', actor: 'katie', text: 'Katie created this task', at: day('2026-10-26') },
+    ],
+  },
+  {
     id: 'aus-33',
     projectId: 'austin',
     number: 33,
@@ -358,6 +410,30 @@ export const tasks: Task[] = [
       { id: 'e-35-1', actor: 'maya', text: 'Maya created this task', at: day('2026-10-22') },
     ],
   },
+]
+
+/**
+ * The order cards sit in on the Board, top to bottom in each column, as
+ * `Project - Board` (`40006268:8728`) draws them. The List keeps its own
+ * order; this one is the Board's to change by dragging. Install hood and
+ * ventilation is not on that frame, and goes under the permit, where
+ * `Project - Board / Swimlanes and limits` (`40006292:23183`) puts it.
+ */
+export const boardOrder: string[] = [
+  'aus-26',
+  'aus-19',
+  'aus-35',
+  'aus-28',
+  'aus-21',
+  'aus-24',
+  'aus-22',
+  'aus-16',
+  'aus-33',
+  'aus-27',
+  'aus-31',
+  'aus-17',
+  'aus-20',
+  'aus-11',
 ]
 
 /**
