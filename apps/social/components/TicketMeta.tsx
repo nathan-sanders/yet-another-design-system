@@ -19,7 +19,6 @@ import { Icon } from '../../../src/components/Icon'
 import { Menu } from '../../../src/components/Menu'
 import { Token } from '../../../src/components/Token'
 import { cn } from '../../../src/lib/cn'
-import { focusRing } from '../../../src/lib/focus'
 import { people, personFor } from '../data/people'
 import type {
   Ticket,
@@ -188,14 +187,28 @@ function Spoken({ children }: { children: string }) {
 }
 
 /**
- * A menu of the values one ticket field can take, opened by whatever
- * `trigger` is — a meta token, or the toolbar's Assign button.
+ * What a meta token shows as a menu's trigger: its leading face or glyph and
+ * its label.
+ */
+interface TriggerToken {
+  avatar: ReactNode
+  label: ReactNode
+}
+
+/**
+ * A menu of the values one ticket field can take, opened by a meta `token`
+ * or by a `trigger` element — the toolbar's Assign button.
+ *
+ * A token is the menu's trigger through `Token.Action` (FINDINGS 24, fixed):
+ * the trigger renders the token's own full-pill button, so there is one tab
+ * stop and Enter opens the menu.
  */
 function PickerMenu({
   label,
   value,
   onValueChange,
   trigger,
+  token,
   disabled = false,
   children,
 }: {
@@ -203,8 +216,10 @@ function PickerMenu({
   label: string
   value: string
   onValueChange: (value: string) => void
-  /** The element that opens it. Base UI merges the trigger's props onto it. */
-  trigger: ReactElement
+  /** An element that opens it — a Button. Base UI merges the trigger's props onto it. */
+  trigger?: ReactElement
+  /** Or a meta token that opens it. */
+  token?: TriggerToken
   /** The value cannot be changed here: the trigger shows it and does not open. */
   disabled?: boolean
   /** The `Choice`s. */
@@ -212,7 +227,17 @@ function PickerMenu({
 }) {
   return (
     <Menu disabled={disabled}>
-      <Menu.Trigger render={trigger} disabled={disabled} />
+      {token ? (
+        <Token
+          avatar={token.avatar}
+          disabled={disabled}
+          action={<Menu.Trigger render={<Token.Action />} disabled={disabled} />}
+        >
+          {token.label}
+        </Token>
+      ) : (
+        <Menu.Trigger render={trigger} disabled={disabled} />
+      )}
       <Menu.Popup aria-label={label}>
         {/* Menu.Group carries Figma's 8px around the rows; the popup has none
             of its own. The library's radio story nests it the same way. */}
@@ -223,45 +248,6 @@ function PickerMenu({
         </Menu.Group>
       </Menu.Popup>
     </Menu>
-  )
-}
-
-/**
- * A meta token as a menu trigger: a real `<button>` wearing a view-only Token.
- * Rendering the trigger *onto* a Token does not work — Token takes `onClick`
- * for an invisible `<button>` of its own, so Enter did nothing and the token
- * had two tab stops. FINDINGS 24.
- */
-function TokenTrigger({
-  startIcon,
-  avatar,
-  disabled = false,
-  children,
-  ...props
-}: {
-  startIcon?: LucideIcon
-  avatar?: ReactNode
-  /** Figma's `State=Disabled`: faded, no hover, and the button will not press. */
-  disabled?: boolean
-  children: ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      className={cn(
-        'flex rounded-md',
-        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-        focusRing,
-      )}
-      // Base UI's trigger props (handlers, ARIA, ref) arrive here via `render`.
-      {...props}
-    >
-      {/* `interactive` for Token's hover shadow; the button does the rest. */}
-      <Token interactive={!disabled} disabled={disabled} startIcon={startIcon} avatar={avatar}>
-        {children}
-      </Token>
-    </button>
   )
 }
 
@@ -290,10 +276,12 @@ export function AssigneeMenu({
   ticket,
   onChange,
   trigger,
+  token,
 }: {
   ticket: Ticket
   onChange: (edit: TicketEdit) => void
-  trigger: ReactElement
+  trigger?: ReactElement
+  token?: TriggerToken
 }) {
   return (
     <PickerMenu
@@ -301,6 +289,7 @@ export function AssigneeMenu({
       value={ticket.assigneeId ?? UNASSIGNED}
       onValueChange={(value) => onChange({ assigneeId: value === UNASSIGNED ? undefined : value })}
       trigger={trigger}
+      token={token}
     >
       <Choice value={UNASSIGNED} start={<Icon icon={UserRound} size="base" />}>
         Unassigned
@@ -416,14 +405,7 @@ export function TicketMeta({
         value={status.value}
         onValueChange={(value) => onChange({ status: value as TicketStatus })}
         disabled={Boolean(ticket.spam)}
-        trigger={
-          <TokenTrigger
-            avatar={<Glyph option={status} size="small" />}
-            disabled={Boolean(ticket.spam)}
-          >
-            {statusLabel}
-          </TokenTrigger>
-        }
+        token={{ avatar: <Glyph option={status} size="small" />, label: statusLabel }}
       >
         {STATUS.map((o) => (
           <Choice key={o.value} value={o.value} start={<Glyph option={o} size="base" />}>
@@ -435,14 +417,14 @@ export function TicketMeta({
         <AssigneeMenu
           ticket={ticket}
           onChange={onChange}
-          trigger={<TokenTrigger avatar={assigneeAvatar}>{assigneeLabel}</TokenTrigger>}
+          token={{ avatar: assigneeAvatar, label: assigneeLabel }}
         />
       ) : null}
       <PickerMenu
         label="Priority"
         value={priority.value}
         onValueChange={(value) => onChange({ priority: value as TicketPriority })}
-        trigger={<TokenTrigger avatar={priorityMark}>{priorityLabel}</TokenTrigger>}
+        token={{ avatar: priorityMark, label: priorityLabel }}
       >
         {PRIORITY.map((o) => (
           <Choice key={o.value} value={o.value} start={<PriorityMark priority={o.value} />}>
@@ -454,11 +436,7 @@ export function TicketMeta({
         label="Sentiment"
         value={sentiment.value}
         onValueChange={(value) => onChange({ sentiment: value as TicketSentiment })}
-        trigger={
-          <TokenTrigger avatar={<Glyph option={sentiment} size="small" />}>
-            {sentimentLabel}
-          </TokenTrigger>
-        }
+        token={{ avatar: <Glyph option={sentiment} size="small" />, label: sentimentLabel }}
       >
         {SENTIMENT.map((o) => (
           <Choice key={o.value} value={o.value} start={<Glyph option={o} size="base" />}>

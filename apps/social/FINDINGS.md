@@ -163,14 +163,15 @@ list's card and the Unassigned filter.
 
 ### Open: library changes worth making
 
-24. **A `Token` cannot be a menu trigger.** Rendering `Menu.Trigger` onto a Token
-    (`render={<Token />}`, `nativeButton={false}`) half works. Token takes `onClick` for an
-    invisible `<button>` of its own, so Base UI's handler lands there. A click opens the menu,
-    Enter on the focused token does nothing, the token has two tab stops, and no ring shows. The
-    app wraps a view-only Token in the trigger's own `<button>` (`MenuToken` in
-    `components/TicketMeta.tsx`). That is correct, but every caller has to know to do it. Either
-    Token forwards a trigger's props to its overlay, or its record says "wrap it", the way
-    Combobox's chips are documented.
+24. **Fixed (#383): a `Token` cannot be a menu trigger.** Rendering `Menu.Trigger` onto a Token
+    (`render={<Token />}`, `nativeButton={false}`) half worked: Token takes `onClick` for an
+    invisible `<button>` of its own, so Base UI's handler landed there, Enter on the focused token
+    did nothing, the token had two tab stops and no ring showed. The app wrapped a view-only Token
+    in the trigger's own `<button>` (`TokenTrigger` in `components/TicketMeta.tsx`), and Yet
+    Project wrote the same wrapper. Token's full-pill button is now a part, `Token.Action`, handed
+    to its `action` prop — `action={<Menu.Trigger render={<Token.Action />} />}` — and the
+    wrapper is gone: `PickerMenu` and `AssigneeMenu` take a `token` to draw, or a `trigger`
+    element for the toolbar's Assign button.
 
 ### Kept in the app, worth knowing
 
