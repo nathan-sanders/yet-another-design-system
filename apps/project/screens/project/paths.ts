@@ -4,12 +4,12 @@ import type { Task } from '../../data/types'
 /**
  * A project's tabs, in the file's order (`Yet Project / Project shell`,
  * `40006263:1152`). A project that runs in sprints swaps Rules for Sprints.
- * `figma` is the frame each is drawn on; only List is built so far.
+ * `figma` is the frame each is drawn on; List and Board are built so far.
  */
 export const PROJECT_TABS = [
   { id: 'overview', label: 'Overview', figma: '40006268-5150' },
   { id: 'list', label: 'List', figma: '40006268-6554', built: true },
-  { id: 'board', label: 'Board', figma: '40006268-8728' },
+  { id: 'board', label: 'Board', figma: '40006268-8728', built: true },
   { id: 'timeline', label: 'Timeline', figma: '40006272-7631' },
   { id: 'calendar', label: 'Calendar', figma: '40006272-9258' },
   { id: 'docs', label: 'Docs', figma: '40006309-36927' },
@@ -43,9 +43,9 @@ export function taskKey(task: Task): string {
 
 /**
  * A task's panel, open over its project's List (`Task - Panel over List`,
- * `40006275:8516`). The panel is view state, so it is in the URL: a task has
- * a link, and Back closes it.
+ * `40006275:8516`) or whichever view it was opened from. The panel is view
+ * state, so it is in the URL: a task has a link, and Back closes it.
  */
-export function taskPath(task: Task): string {
-  return `${projectPath(task.projectId, 'list')}?${TASK_PARAM}=${taskKey(task)}`
+export function taskPath(task: Task, tab: ProjectTab = 'list'): string {
+  return `${projectPath(task.projectId, tab)}?${TASK_PARAM}=${taskKey(task)}`
 }

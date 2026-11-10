@@ -30,6 +30,7 @@ import type { Project, ProjectHealth } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
 import { NotBuiltMessage } from '../NotBuiltMessage'
 import { NotBuilt } from '../NotBuilt'
+import { BoardView } from './BoardView'
 import { ListView } from './ListView'
 import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
 import { TaskPanel } from './TaskPanel'
@@ -139,7 +140,10 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
         }
       />
       <AppShell.Content className={floatingYakClearance}>
-        <div className="flex flex-col gap-3">
+        {/* Every level down to the view is `flex-1`, so the Board can fill
+            what is left of the page and scroll inside it; the List's own
+            height still pushes the page past it and the page scrolls. */}
+        <div className="flex flex-1 flex-col gap-3">
           {/* `_Project Header` (`40006263:1518`): health, dates and owner on the
               left, Post update on the right, all Secondary at the default size. */}
           <div className="flex flex-wrap items-center gap-2">
@@ -180,7 +184,7 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
           <Tabs
             value={tab}
             onValueChange={(value) => navigate(projectPath(project.id, value as ProjectTab))}
-            className="flex flex-col gap-3"
+            className="flex flex-1 flex-col gap-3"
           >
             {/* Seven tabs are wider than a phone and Tabs has no overflow menu
                 (Yet Social's FINDINGS 188), so below that the strip scrolls. */}
@@ -194,13 +198,15 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
               </Tabs.List>
             </div>
             {tabs.map((t) => (
-              <Tabs.Panel key={t.id} value={t.id}>
+              <Tabs.Panel key={t.id} value={t.id} className="flex flex-1 flex-col">
                 {t.id === 'list' ? (
                   <ListView
                     project={project}
                     selectedTaskId={openTask?.id}
                     panelOpen={Boolean(openTask)}
                   />
+                ) : t.id === 'board' ? (
+                  <BoardView project={project} selectedTaskId={openTask?.id} />
                 ) : (
                   <NotBuiltMessage
                     icon={PencilRuler}

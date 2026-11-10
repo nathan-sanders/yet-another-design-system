@@ -1,15 +1,6 @@
 import { useMemo } from 'react'
-import {
-  ArrowUpDown,
-  ChevronDown,
-  FolderOpen,
-  List,
-  ListFilter,
-  ListTree,
-  Rows3,
-} from 'lucide-react'
+import { FolderOpen, ListTree } from 'lucide-react'
 
-import { Button } from '../../../../src/components/Button'
 import { Icon } from '../../../../src/components/Icon'
 import { pixel, Table, type TableColumn, type TableGroup } from '../../../../src/components/Table'
 import { cn } from '../../../../src/lib/cn'
@@ -22,6 +13,7 @@ import { useShell } from '../../shell/ShellContext'
 import { NotBuiltMessage } from '../NotBuiltMessage'
 import { taskPath } from './paths'
 import { useTasks, type TaskEdit } from './tasksState'
+import { ViewToolbar } from './ViewToolbar'
 
 /**
  * `_Task Name Cell` (`40006261:1498`): the task's name, and its subtasks done
@@ -120,8 +112,7 @@ function byPhase(list: Task[]): TableGroup[] {
 /**
  * A project's List tab (`Project - List`, `40006268:6554`): the toolbar, then
  * every task grouped by phase. Assignee, status and priority change from
- * their tokens; the toolbar's views, filter, grouping and sort are drawn
- * (`Project - List / Filtered, unsaved view`, `40006277:12040`) and not built.
+ * their tokens; the toolbar is `ViewToolbar`, drawn and not yet built.
  */
 export function ListView({
   project,
@@ -150,33 +141,7 @@ export function ListView({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-1">
-        <Button
-          appearance="ghost"
-          startIcon={List}
-          endIcon={ChevronDown}
-          onClick={() => shell.notBuilt('Saved views')}
-        >
-          All tasks
-        </Button>
-        <Button
-          appearance="ghost"
-          startIcon={ListFilter}
-          onClick={() => shell.notBuilt('Filtering')}
-        >
-          Filter
-        </Button>
-        <Button appearance="ghost" startIcon={Rows3} onClick={() => shell.notBuilt('Grouping')}>
-          Group: Phase
-        </Button>
-        <Button
-          appearance="ghost"
-          startIcon={ArrowUpDown}
-          onClick={() => shell.notBuilt('Sorting')}
-        >
-          Sort
-        </Button>
-      </div>
+      <ViewToolbar group="Phase" />
       {projectTasks.length > 0 ? (
         <div className="shrink-0">
           <Table

@@ -120,3 +120,70 @@ Project and Estimate, replies, mentions and the activity filter are drawn and no
 19. **`Card` is a column.** Its base is `flex-col gap-2` on purpose (its record explains), so the
     one-line blocked banner — Badge, the waiting-on text, Open — says `flex-row` to sit in a row,
     as the file's horizontal wrapper does.
+
+## Slice 3 — the Board (2026-11-09)
+
+From `Project - Board` (`40006268:8728`) and `Project - Board / Dragging a blocked task`
+(`40006292:21137`). Four columns, To do to Done, each a Subtle `ContentBlock` holding the task
+cards; a card opens its task's panel over the Board (`#/projects/austin/board?task=AUS-24`), and
+a card dragged to another column, by pointer or by its grip and the arrow keys, takes that
+column's status, which the List and the panel follow. A blocked card carried out of In progress
+turns the slot it would land in into the file's "Still blocked" notice; dropped there it moves
+anyway, its Activity says so, and a toast says who got the heads-up. The column's add button,
+swimlanes and limits (`40006292:23183`) and card quick actions and quick add (`40006292:24934`)
+are drawn and not built.
+
+### Open: library changes worth making
+
+21. **`DragAndDrop.Overlay` measures the copy's first child, so tilting that child breaks the
+    keyboard.** The file draws the carried card turned 2°. With `-rotate-2` on the overlay's
+    child, the measured box grew to 266×119 from the card's 263×110, and dnd-kit's keyboard
+    coordinates then counted the card *below* as "to the right": ArrowRight from Equipment
+    delivery moved it down To do instead of into In progress. The pointer path was fine, which is
+    why only a keyboard test showed it. The tilt is one element further in now and the arrows
+    cross columns. Worth a line in the record, or an Overlay that owns the tilt on an inner
+    element if a second board draws it.
+22. **With an overlay, the ring on the card under the pointer doubles the slot.** `Sortable.Item`
+    rings the item the carried one is over (`over && !dragging`), which is the only landing cue
+    when the item itself is carried. Under `DragAndDrop.Overlay` the item left behind already
+    sits in its landing slot, so the ring marked a second, wrong target — Signage proof, ringed
+    beside the notice slot under it. The frame rings only the slot, so the Board sets
+    `data-over:ring-0` on its items. The library could drop that ring whenever an overlay is
+    carrying the item.
+
+### Kept in the app, worth knowing
+
+20. **The Board has no Blocked column.** Blocked is one of the List's five statuses, and the
+    Board draws four columns. Health permit approval sits in In progress with a red Blocked badge,
+    so blocked is read as work that started and stopped: `columnOf` files a blocked task under In
+    progress, and dropping it back in In progress keeps it blocked. `blockerOf` names what it waits
+    on, its first dependency that is not done, and the panel's banner now uses the same helper.
+    A To do task with an unfinished dependency is not blocked and gets no notice.
+23. **The carried card is a copy, and its slot stays in the board.** The frame draws the lifted
+    card under the pointer *and* the notice where it would land, which one moving element cannot
+    do, so the Board uses `DragAndDrop.Overlay`: a tilted copy rides the pointer (`aria-hidden`
+    and `inert`, so it is a picture, not a second button), and the real card stays as the slot,
+    faded with no shadow. The frame also leaves a faded copy in In progress; with the card already
+    showing in its slot, that would be a third, so it is not drawn.
+24. **Two tasks came from the Board.** Signage proof (AUS-31, Katie, In review, due the file's
+    Thursday) and Sign the lease (AUS-11, Dana, Done) are drawn on the Board and not on the List
+    frame, so they are new in the data and the List has two more rows. Faces matched by image
+    hash to Local PR's and the permit's. Install hood and ventilation is in the data and not on
+    the Board frame; it goes under the permit, where the swimlanes frame puts it.
+25. **The counts are the task's own.** Cards count subtasks from the checklist (entry 17) and
+    comments from the thread, replies included, so a card agrees with the panel it opens. That
+    makes them smaller than drawn: Final electrical inspection shows 1 comment where the file says
+    4, Health permit approval 2 for 3, and Equipment delivery and Signage proof none for 2 each;
+    Grand opening campaign's 0/6 is not shown because it has no checklist yet.
+26. **The Board keeps its own order.** `boardOrder` in `data/tasks.ts` is the frame's top to
+    bottom, and a drop rewrites it in `TasksProvider`. The List still lists by phase in the data's
+    order, so reordering cards does not reorder rows.
+27. **Columns share the row and stop at 256.** Four columns are 281 wide at 1440, as drawn. Past
+    `min-w-64` the board scrolls sideways inside itself, which is what happens when a task's
+    panel opens beside it (1076 of board in 798 of room) and on a phone. The board is the
+    scroller both ways, as Yet Social's Ideas board is, so it fills what is left of the page
+    under the header and tabs; that took `flex-1` on every level from `AppShell.Content` down.
+28. **A card's name is its title.** The card is one `<button>`, and reading all of it made a name
+    like "SupplyPriority: High3Equipment delivery". It is named by the title and described by the
+    rest, with the words a glyph stands for written out for a screen reader: "Supply, Priority:
+    High", "Marcus Bell, Due Dec 8, Subtasks: 2/3, Comments: 1".

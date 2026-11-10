@@ -18,16 +18,24 @@ import { PRIORITY, STATUS, priorityFor, statusFor } from './taskMeta'
 
 /**
  * The priority's digit in its tinted box (`Priority Icon`, `40006396:58194`):
- * 14px with a 12px bold digit inside a token, the size the table draws it.
+ * 14px with a 12px bold digit inside a token, the size the table draws it,
+ * and 16px on its own, as a Board card's top row draws it (Icon `Size=Base`).
  * Decoration: the label beside it says the priority.
  */
-export function PriorityMark({ priority }: { priority: TaskPriority }) {
+export function PriorityMark({
+  priority,
+  size = 'small',
+}: {
+  priority: TaskPriority
+  size?: 'small' | 'base'
+}) {
   const option = priorityFor(priority)
   return (
     <span
       aria-hidden
       className={cn(
-        'inline-flex size-3.5 shrink-0 items-center justify-center rounded-sm',
+        'inline-flex shrink-0 items-center justify-center rounded-sm',
+        size === 'base' ? 'size-4' : 'size-3.5',
         'text-sm leading-none font-bold tabular-nums',
         option.tone,
       )}
