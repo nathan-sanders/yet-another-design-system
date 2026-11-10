@@ -166,20 +166,15 @@ export function HomeScreen() {
 
 /**
  * One of "Your projects": its name and dot, health and progress, and the next
- * milestone, on the subtle well the file draws (12 padding, 8 between rows).
+ * milestone, on ClickableCard's default card (12 padding, 8 between rows).
  * The whole card opens the project.
  *
- * ClickableCard has no subtle emphasis (FINDINGS 3), so this is its ghost
- * card on the subtle fill, hovering to the translucent overlay so the pointer
- * still adds ink to a well that already sits at the usual hover fill.
+ * The file draws these as subtle wells; Nathan's call is the default card
+ * (FINDINGS 3), so the library needs no subtle emphasis for it.
  */
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <ClickableCard
-      emphasis="ghost"
-      href={`#${projectPath(project.id)}`}
-      className="min-w-0 border-surface-background-subtle bg-surface-background-subtle hover:border-transparent hover:bg-surface-overlay-subtle"
-    >
+    <ClickableCard href={`#${projectPath(project.id)}`} className="min-w-0">
       <span className="flex min-w-0 items-center gap-2">
         <ProjectDot project={project} />
         <span className="truncate">{project.name}</span>
