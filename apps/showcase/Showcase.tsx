@@ -73,7 +73,7 @@ export function Showcase() {
                         App
                       </Text>
                       <dd>
-                        <Heading level={3} size="2xl" weight="normal">
+                        <Heading level={3} size="2xl" weight="bold">
                           {app.name}
                         </Heading>
                       </dd>
