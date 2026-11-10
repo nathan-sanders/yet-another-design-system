@@ -759,6 +759,10 @@ export interface TableRowProps extends ComponentPropsWithRef<'tr'> {
 function forwardToRowTarget(event: MouseEvent<HTMLTableRowElement>) {
   if (event.defaultPrevented) return
   const target = event.target as Element
+  // A press inside a popup a control in the row opened — a menu, a picker —
+  // reaches here because React bubbles a portal's events through its owner,
+  // though the popup is in <body>. It is the popup's press, not the row's.
+  if (!event.currentTarget.contains(target)) return
   if (target.closest('a, button, input, select, textarea, label, [role="button"], [data-drag-ignore]')) return
   if (window.getSelection()?.toString()) return
   event.currentTarget

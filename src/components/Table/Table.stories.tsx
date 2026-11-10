@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { Ellipsis } from 'lucide-react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Badge } from '../Badge'
 import { Button } from '../Button'
+import { Menu } from '../Menu'
 import { ProgressBar } from '../ProgressBar'
 import { Table } from './Table'
 import { MIN_COLUMN_WIDTH, pixel, proportional } from './widths'
@@ -947,7 +949,9 @@ export const Empty: Story = {
  * name, a button — and a pointer press anywhere else on the row presses it.
  * The button stays the keyboard and screen-reader path, which is why this is
  * not an `onRowClick`. Rows take the pointer cursor and the hover fill. A
- * press on another control in the row (Remove) is that control's.
+ * press on another control in the row (Remove) is that control's — and so is
+ * a press inside a popup that control opened (the ⋯ menu), although the popup
+ * is portalled to `<body>`: React still bubbles its click through the row.
  */
 export const ClickableRows: Story = {
   parameters: { controls: { disable: true } },
@@ -981,9 +985,30 @@ export const ClickableRows: Story = {
               header: <span className="sr-only">Actions</span>,
               sortable: false,
               renderCell: (item) => (
-                <Button appearance="ghost" size="small" onClick={() => setOpened(`removed ${item.name}`)}>
-                  Remove
-                </Button>
+                <span className="flex items-center gap-1">
+                  <Button appearance="ghost" size="small" onClick={() => setOpened(`removed ${item.name}`)}>
+                    Remove
+                  </Button>
+                  <Menu>
+                    <Menu.Trigger
+                      render={
+                        <Button
+                          appearance="ghost"
+                          size="small"
+                          startIcon={Ellipsis}
+                          aria-label={`More for ${item.name}`}
+                        />
+                      }
+                    />
+                    <Menu.Popup aria-label={`More for ${item.name}`}>
+                      <Menu.Group>
+                        <Menu.Item onClick={() => setOpened(`duplicated ${item.name}`)}>
+                          Duplicate
+                        </Menu.Item>
+                      </Menu.Group>
+                    </Menu.Popup>
+                  </Menu>
+                </span>
               ),
             },
           ]}
@@ -1006,6 +1031,17 @@ export const ClickableRows: Story = {
     // A press on another control is that control's, and only that.
     await userEvent.click(within(rowFor('Diana Prince')).getByRole('button', { name: 'Remove' }))
     await expect(opened).toHaveTextContent('Opened: removed Diana Prince')
+
+    // A press inside a popup a row's control opened is the popup's. The menu
+    // is portalled to <body>, but React bubbles its click through the row, and
+    // without the containment check the row's own button fired as well.
+    await userEvent.click(canvas.getByRole('button', { name: 'More for Diana Prince' }))
+    const duplicate = await waitFor(() =>
+      within(document.body).getByRole('menuitem', { name: 'Duplicate' }),
+    )
+    await userEvent.click(duplicate)
+    await expect(opened).toHaveTextContent('Opened: duplicated Diana Prince')
+    await waitFor(() => expect(within(document.body).queryByRole('menu')).toBeNull())
 
     // The keyboard path is the button itself.
     canvas.getByRole('button', { name: 'Charlie Brown' }).focus()
