@@ -259,7 +259,8 @@ app's own. What both share is already the library's (`ChatMessage`, `ThoughtProc
     proposal moves: the permit's Nov 18 plus five, as the task panel already prints it. Apply
     change sets it to nine ("9d lag · Nov 27" on the permit's Blocks row), writes "Yak moved the
     start, with your OK" into the task's Activity with the two dates, and toasts Marcus's
-    heads-up. Applied shows a green Applied badge and Undo, which puts the lag back; Not now
+    heads-up. Since slice 6 the whole task moves with it, start and due, so its bar on the
+    Timeline keeps its length (entry 45). Applied shows a green Applied badge and Undo, which puts the lag back; Not now
     leaves "Left as planned" and a Ghost Apply change. The file draws only the open state.
 36. **The proposal card is the bubbles' width, not inside a bubble.** The frame puts the Subtle
     Card straight into the Bubble Group, 350 wide; Yet Social's caption card sits inside a ghost
@@ -277,4 +278,64 @@ app's own. What both share is already the library's (`ChatMessage`, `ThoughtProc
     The frame leaves Properties and Activity out there; they are kept, below the fold.
 40. **The tool call counts what is there.** The frame's "Read 15 tasks and 3 dependencies" is
     Austin's own count when the reply is asked: 14 tasks and 4 dependencies today.
+
+## Slice 6 — a project's Timeline (2026-11-13)
+
+From `Project - Timeline` (`40006272:7631`). The toolbar (Today, earlier and later, Weeks /
+Months / Quarters, Filter, Baseline), then the chart: the milestones along the top, a band per
+phase that folds, a bar per open task from its start to its due date, the lines to what each
+waits on, the past hatched and today a line. A task's name opens its panel over the Timeline; so
+does its bar, for a pointer. Every bar measured the frame's geometry: Final electrical inspection
+103 wide from the first week's Monday, Health permit 91, Hire 14 crew 217, Equipment delivery 240
+in, baselines 34 and 103, rows 36, bars 3px in. axe is clean, light and dark. The zoom is in the
+URL (`?zoom=months`). Filter, dragging a bar (`Timeline - Reschedule ripple`, `40006293:23982`),
+the critical path (`40006293:25366`) and the no-date tray (`40006293:26712`) are not built.
+
+### Open: library changes worth making
+
+None open. There is no timeline in the library; this one and Yet Social's campaign timeline are
+two app-built charts on the same idea (weeks across, a hatched past, a today line). They share
+the hatch and the today line's look and nothing else yet: Yet Social's is a fixed window of
+campaign bars, this one a scrolling chart with rows, groups and dependency lines. Worth a library
+`Timeline` when a third one appears, which is the bar Checkbox's styles waited for.
+
+### Kept in the app, worth knowing
+
+41. **Tasks have a start now.** The Timeline is the first view that needs one: `Task.start`, in
+    the file's calendar, read off the frame's bars at 80 a week. Every due date already matched
+    its bar's end. Done tasks have none and are not on the Timeline, which is the file's choice:
+    it draws only open work. The arithmetic is `screens/project/timeline.ts`, node-tested against
+    the frame's widths.
+42. **Two baselines, and the slip is counted, not written.** Final electrical inspection was
+    planned Nov 2 to Nov 4 and Health permit approval Nov 5 to Nov 13 (`Task.baseline`). With
+    Baseline on, each shows its plan as a 3px line under the bar and its slip as "{n}d late":
+    6 for the inspection, as drawn, and 5 for the permit, which the frame does not label. Baseline
+    is on by default, as drawn, and off it hides both.
+43. **Signage install is new, and the crew waits on the hiring.** The frame has Signage install
+    (AUS-32, Marcus, Dec 1 to Dec 4) under Permits, so it is in the data and on the List too. It
+    draws a line from Hire 14 crew members to Crew training week that the data did not have, so
+    training now waits on both the hiring and the equipment. Signage proof, added from the Board
+    after this frame was drawn, is on the Timeline under Marketing.
+44. **Every dependency is drawn, black, or red out of a blocked task.** The frame draws three
+    lines; the data has five, and the Timeline draws them all so it agrees with the task panel —
+    Finalize the supplier list to First produce delivery is a long one. Red is the frame's
+    permit-to-equipment line, read as "this is what the blocked task holds up". A lag rides its
+    line as a view-only Token where the line crosses a phase band, as "blocks · 5d lag" does.
+45. **Yak's proposal moves the bar.** Applying it widens Equipment delivery's lag and moves its
+    start and due date by the same four days (`setLag` in `TasksProvider`), so the bar slides
+    right and keeps its length, and the List's due date follows.
+46. **Months and Quarters are code-first.** The file draws Weeks only. Months is about 120 a month
+    (4 a day) and Quarters about 200 a quarter, each labeled with its year on the first column and
+    on January. The chart scrolls sideways; Today puts today's column second, and the arrows move
+    half the visible width.
+47. **A name too long for its bar sits beside it, and the late flag after that.** Under 88 wide a
+    bar drops its face and its name goes after it in subtle text, or before it at the chart's end,
+    as First produce delivery's does in the file. Milestones put their name after the diamond, or
+    before it when the next one is too close (Soft open, beside the opening). Crew hired is on
+    the Overview and not here, as drawn: its day is two after the permit's.
+48. **The today line is over the bars.** The frame layers it last, over Final electrical
+    inspection's bar and through the header; Yet Social's campaign timeline puts it under. The
+    Task column is sticky and covers it when the chart scrolls.
+49. **The "No date" button is hidden.** Every open task in the data has dates, so the count is 0
+    and the button would open an empty tray; it shows when a task without a start exists.
 

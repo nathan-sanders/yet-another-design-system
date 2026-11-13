@@ -41,6 +41,8 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'high',
     due: '2026-11-10',
+    start: '2026-11-02',
+    baseline: { start: '2026-11-02', due: '2026-11-04' },
     description:
       'The city’s final sign-off on the build-out’s electrical. It slipped from {2026-11-04} to {2026-11-10}, and the health permit can’t be scheduled until it passes.',
     estimate: '4h',
@@ -79,6 +81,8 @@ export const tasks: Task[] = [
     status: 'blocked',
     priority: 'high',
     due: '2026-11-18',
+    start: '2026-11-11',
+    baseline: { start: '2026-11-05', due: '2026-11-13' },
     description:
       'City health department sign-off for the Austin kitchen. They won’t schedule until electrical passes, and the review takes five business days.',
     estimate: '6h',
@@ -152,6 +156,7 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'medium',
     due: '2026-11-20',
+    start: '2026-11-09',
     description:
       'The hood over the cook line, ducted to the roof. The fire marshal signs it off before the health inspector comes.',
     estimate: '16h',
@@ -164,6 +169,25 @@ export const tasks: Task[] = [
         change: { from: 'To do', to: 'In progress' },
       },
       { id: 'e-22-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-20') },
+    ],
+  },
+  {
+    // Drawn on the Timeline (`40006272:7631`) and on no other frame: the
+    // sign the proof is for, up the week before the soft-open push.
+    id: 'aus-32',
+    projectId: 'austin',
+    number: 32,
+    title: 'Signage install',
+    phase: 'Permits & build-out',
+    assigneeId: 'marcus',
+    status: 'todo',
+    priority: 'medium',
+    due: '2026-12-04',
+    start: '2026-12-01',
+    description: 'The storefront sign and window vinyl, up and lit, once the proof is signed off.',
+    estimate: '6h',
+    activity: [
+      { id: 'e-32-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-26') },
     ],
   },
   {
@@ -224,6 +248,7 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'high',
     due: '2026-11-20',
+    start: '2026-11-02',
     description:
       'Fourteen hourly crew for the opening rota: two shift leads, five line cooks, three prep cooks and four cashiers.',
     estimate: '30h',
@@ -272,10 +297,11 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'medium',
     due: '2026-12-14',
+    start: '2026-12-07',
     description:
       'A week of paid training in the finished kitchen, starting {2026-12-07}. It needs the equipment in and working first.',
     estimate: '40h',
-    dependsOn: [{ taskId: 'aus-26' }],
+    dependsOn: [{ taskId: 'aus-16' }, { taskId: 'aus-26' }],
     activity: [
       { id: 'e-19-1', actor: 'sofia', text: 'Sofia created this task', at: day('2026-10-19') },
     ],
@@ -290,6 +316,7 @@ export const tasks: Task[] = [
     status: 'in-review',
     priority: 'medium',
     due: '2026-11-09',
+    start: '2026-11-03',
     description: 'Produce, dry goods and packaging suppliers for Austin, priced against Dallas.',
     estimate: '5h',
     subtasks: [
@@ -318,6 +345,7 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'high',
     due: '2026-12-01',
+    start: '2026-11-23',
     description:
       'Ovens, fridges and the line, delivered and installed. Nothing ships until the health permit is in hand.',
     estimate: '12h',
@@ -336,6 +364,7 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'medium',
     due: '2027-01-06',
+    start: '2027-01-04',
     description: 'The first standing order from the new growers, the week before opening.',
     estimate: '2h',
     dependsOn: [{ taskId: 'aus-27' }],
@@ -356,6 +385,7 @@ export const tasks: Task[] = [
     status: 'in-review',
     priority: 'high',
     due: '2026-11-05',
+    start: '2026-11-02',
     description:
       'The storefront sign and window vinyl, from the printer’s proof, for Nathan’s sign-off.',
     estimate: '2h',
@@ -380,6 +410,7 @@ export const tasks: Task[] = [
     status: 'in-progress',
     priority: 'medium',
     due: '2026-12-18',
+    start: '2026-11-16',
     description:
       'Austin food press, neighborhood newsletters and a few local creators for the opening week.',
     estimate: '8h',
@@ -404,6 +435,7 @@ export const tasks: Task[] = [
     status: 'todo',
     priority: 'high',
     due: '2027-01-12',
+    start: '2026-12-14',
     description: 'Signage, social and the opening-day offer, in the Protein Plates look.',
     estimate: '20h',
     activity: [

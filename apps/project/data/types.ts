@@ -41,6 +41,13 @@ export interface Task {
   priority: TaskPriority
   due: string
   /**
+   * When work starts, in the file's calendar, for the Timeline's bar. A task
+   * that waits on another with a lag starts that many days after it is due.
+   */
+  start?: string
+  /** The plan as it stood on the project's baseline day, when it has slipped since. */
+  baseline?: { start: string; due: string }
+  /**
    * What the task is, under its title in the panel. A date in it is written
    * `{2026-11-10}`, so `datedText` moves it with the schedule.
    */
@@ -112,7 +119,8 @@ export interface ProjectOverview {
     /** "Since last update": what moved, each as a view-only Token. */
     changes: { kind: 'date' | 'people' | 'progress'; text: string }[]
   }
-  milestones: { name: string; date: string; health: ProjectHealth }[]
+  /** `timeline` is the short name the Timeline's milestone row gives it; without one it is not drawn there. */
+  milestones: { name: string; date: string; health: ProjectHealth; timeline?: string }[]
   team: string[]
   budget: { spent: number; total: number }
   goal: string

@@ -39,6 +39,14 @@ export function day(iso: string): Date {
   return addDays(new Date(year, month - 1, date), SHIFT)
 }
 
+/** A date as the file writes it, moved by whole days and written back the same way. */
+export function shiftIso(iso: string, days: number): string {
+  const [year, month, date] = iso.split('-').map(Number)
+  const next = addDays(new Date(year, month - 1, date), days)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`
+}
+
 export function sameDay(a: Date, b: Date): boolean {
   return startOfDay(a).getTime() === startOfDay(b).getTime()
 }

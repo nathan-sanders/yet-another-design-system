@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 
 import { priorityFor, statusFor } from '../../components/taskMeta'
-import { addDays, day, shortDate, today } from '../../data/dates'
+import { addDays, day, shiftIso, shortDate, today } from '../../data/dates'
 import { me, personFor } from '../../data/people'
 import { boardOrder, tasks as initialTasks } from '../../data/tasks'
 import type { Task, TaskEvent } from '../../data/types'
@@ -137,8 +137,12 @@ export function TasksProvider({ children }: { children: ReactNode }) {
             at: today,
             change: { from: startOn(dep.lagDays ?? 0), to: startOn(lagDays) },
           }
+          // The whole task moves with its start, so it keeps its length.
+          const delta = lagDays - (dep.lagDays ?? 0)
           return {
             ...task,
+            start: task.start ? shiftIso(task.start, delta) : task.start,
+            due: shiftIso(task.due, delta),
             dependsOn: task.dependsOn?.map((d) => (d.taskId === onTaskId ? { ...d, lagDays } : d)),
             activity: [event, ...(task.activity ?? [])],
           }

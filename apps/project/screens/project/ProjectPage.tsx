@@ -35,6 +35,7 @@ import { ListView } from './ListView'
 import { OverviewView } from './OverviewView'
 import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
 import { TaskPanel } from './TaskPanel'
+import { TimelineView } from './TimelineView'
 import { useTasks } from './tasksState'
 
 /** The health button's glyph: the warning for trouble, a check when it is fine. */
@@ -218,6 +219,8 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
                   />
                 ) : t.id === 'board' ? (
                   <BoardView project={project} selectedTaskId={openTask?.id} />
+                ) : t.id === 'timeline' ? (
+                  <TimelineView project={project} />
                 ) : (
                   <NotBuiltMessage
                     icon={PencilRuler}

@@ -30,7 +30,7 @@ export interface TasksState {
   addComment: (taskId: string, body: string) => void
   /**
    * Widens or narrows the lag a task keeps behind one of its dependencies,
-   * which moves when it can start. Yak's proposals do it, so its Activity
+   * which moves its start, and its due date with it, by the difference. Yak's proposals do it, so its Activity
    * says Yak did, with your OK.
    */
   setLag: (taskId: string, onTaskId: string, lagDays: number) => void
