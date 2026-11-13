@@ -60,7 +60,7 @@ export function HomeScreen() {
     <>
       <TopBar
         start={
-          <Heading level={1} size="base" weight="semibold">
+          <Heading level={1} size="base" weight="bold">
             Home
           </Heading>
         }
@@ -186,9 +186,9 @@ function ProjectCard({ project }: { project: Project }) {
 
 /**
  * "Needs you", as the file writes it. Each row goes somewhere real where it
- * can: the blocked permit opens Austin's list. The signage proof, the weekly
- * update and Priya's question are drawn (`Task - Proof review`, `Project -
- * Post update`, `Inbox - Reply in place`) and not built.
+ * can: the signage proof and Priya's question open their inbox messages,
+ * the blocked permit opens Austin's list. The weekly update is drawn
+ * (`Project - Post update`) and not built.
  */
 function useNeedsYou() {
   const navigate = useNavigate()
@@ -200,7 +200,7 @@ function useNeedsYou() {
       title: 'Approve the Austin signage proof',
       meta: 'Requested by Katie Powell · due today',
       action: 'Review',
-      onAction: () => shell.notBuilt('Proof review'),
+      onAction: () => navigate('/inbox/primary?item=signage-approval'),
     },
     {
       id: 'permit',
@@ -224,7 +224,7 @@ function useNeedsYou() {
       title: 'Priya asked about the Austin supplier list',
       meta: 'Finalize Austin supplier list · 2h ago',
       action: 'Reply',
-      onAction: () => shell.notBuilt('Replying from Home'),
+      onAction: () => navigate('/inbox/primary?item=second-vendor'),
     },
   ]
 }

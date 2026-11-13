@@ -1,4 +1,5 @@
 import { day } from './dates'
+import { inboxComments } from './inbox'
 import type { Subtask, Task } from './types'
 
 /**
@@ -31,7 +32,7 @@ function crew(): Subtask[] {
  * Only Austin has a whole plan. The other projects have only Nathan's own
  * tasks, the ones My work lists (`myTasks`, below).
  */
-export const tasks: Task[] = [
+const planned: Task[] = [
   {
     id: 'aus-21',
     projectId: 'austin',
@@ -447,6 +448,16 @@ export const tasks: Task[] = [
   },
   ...myTasks(),
 ]
+
+/**
+ * Every task, with the comments the inbox quotes (`data/inbox.ts`) put at
+ * the start of each thread: they were written before the ones already here.
+ */
+export const tasks: Task[] = planned.map((task) =>
+  inboxComments[task.id]
+    ? { ...task, comments: [...inboxComments[task.id], ...(task.comments ?? [])] }
+    : task,
+)
 
 /**
  * The order cards sit in on the Board, top to bottom in each column, as

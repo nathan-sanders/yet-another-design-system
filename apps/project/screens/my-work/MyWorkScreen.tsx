@@ -63,7 +63,7 @@ function MyWork({ view }: { view: MyWorkView }) {
       <TopBar
         start={
           <div className="flex min-w-0 items-center gap-2">
-            <Heading level={1} size="base" weight="semibold" className="shrink-0">
+            <Heading level={1} size="base" weight="bold" className="shrink-0">
               My work
             </Heading>
             <SegmentedControl

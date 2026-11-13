@@ -13,6 +13,8 @@ import { useDocumentTheme } from '../../shared/theme'
 import { FloatingYak } from '../components/FloatingYak'
 import { floatingYakPlaceholder } from '../yak/floating'
 import { me } from '../data/people'
+import { useInbox } from '../screens/inbox/inboxState'
+import { countFor } from '../screens/inbox/model'
 import { useTasks } from '../screens/project/tasksState'
 import { YakChatContext, useYakChatState } from '../yak/chat'
 import { useMarkActive } from '../yak/useMarkActive'
@@ -91,6 +93,11 @@ export function ProjectShell() {
   const railYak = useMarkActive()
   const mobileYak = useMarkActive()
 
+  // Inbox's badge is Primary's new messages, read live, so it drops as you clear.
+  const { messages } = useInbox()
+  const inboxCount = countFor(messages, 'primary')
+  const badgeFor = (route: AppRoute) => (route.path === '/inbox' ? inboxCount : route.badge)
+
   const item = (route: AppRoute, exact = false) => (
     <NavItem
       key={route.path}
@@ -101,7 +108,7 @@ export function ProjectShell() {
           ? location.pathname === route.path
           : location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)
       }
-      end={route.badge ? <Badge>{route.badge}</Badge> : undefined}
+      end={badgeFor(route) ? <Badge>{badgeFor(route)}</Badge> : undefined}
     >
       {route.label}
     </NavItem>

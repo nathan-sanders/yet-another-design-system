@@ -272,8 +272,8 @@ function Dependencies({ task, tasks }: { task: Task; tasks: Task[] }) {
   )
 }
 
-/** `_Inbox Comment`: a 24px face, then the name and age over the words. */
-function Comment({ comment }: { comment: TaskComment }) {
+/** `_Inbox Comment`: a 24px face, then the name and age over the words. The inbox's too. */
+export function Comment({ comment }: { comment: TaskComment }) {
   const author = personFor(comment.authorId)
   return (
     <div className="flex gap-2">

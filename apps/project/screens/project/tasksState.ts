@@ -34,6 +34,13 @@ export interface TasksState {
    * says Yak did, with your OK.
    */
   setLag: (taskId: string, onTaskId: string, lagDays: number) => void
+  /**
+   * Signs off the review waiting on you and hands it to the next person, as
+   * the inbox's Approve does; the task's Activity says so.
+   */
+  approveReview: (taskId: string, nextId: string) => void
+  /** Puts a task back exactly as it was: an Undo. */
+  restoreTask: (task: Task) => void
 }
 
 export const TasksContext = createContext<TasksState | null>(null)
