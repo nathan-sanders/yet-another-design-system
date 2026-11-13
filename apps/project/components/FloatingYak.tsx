@@ -4,14 +4,16 @@ import { AudioLines, PanelRight, Plus } from 'lucide-react'
 import { Button } from '../../../src/components/Button'
 import { InputGroup } from '../../../src/components/Input'
 import { useShell } from '../shell/ShellContext'
+import { useYakChat } from '../yak/chat'
 import { useMarkActive } from '../yak/useMarkActive'
 import { YakMark } from '../yak/YakMark'
 
 /**
  * `Floating Yak`, as Yet Social draws it and every Yet Project frame repeats
  * it: Yak's way in from any page, a 700 pill over the bottom of the page
- * column. Yak itself is not built in this app yet, so a question, the
- * attach and voice buttons and the panel button all say so.
+ * column. A question opens Yak's panel on a fresh chat; the panel button
+ * opens it as it was, asking whatever is typed there. Attach and voice are
+ * not built and say so.
  *
  * The pill is the InputGroup's own box at the file's 58, `rounded-full`
  * because InputGroup has no radius of its own to offer (Yet Social's
@@ -26,13 +28,23 @@ export function FloatingYak({
   inputRef: RefObject<HTMLInputElement | null>
 }) {
   const shell = useShell()
+  const chat = useYakChat()
   const [text, setText] = useState('')
   const mark = useMarkActive()
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    if (!text.trim()) return
-    shell.notBuilt('Yak')
+    const prompt = text.trim()
+    if (!prompt) return
+    chat.start(prompt)
+    setText('')
+    shell.openYak()
+  }
+
+  const openPanel = () => {
+    const prompt = text.trim()
+    if (prompt) chat.ask(prompt)
+    shell.openYak()
   }
 
   return (
@@ -70,7 +82,7 @@ export function FloatingYak({
             appearance="ghost"
             startIcon={PanelRight}
             aria-label="Open Yak in the panel"
-            onClick={() => shell.notBuilt('The Yak panel')}
+            onClick={openPanel}
           />
         </InputGroup.Addon>
       </InputGroup>

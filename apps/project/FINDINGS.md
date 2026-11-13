@@ -77,8 +77,8 @@ None open.
 10. **The row height came out 41.** The clickable due Token is `inline-flex`, and on the text
     line `Table.Cell` wraps it in, it took a descender's worth of room. It sits in a block
     `<span className="flex">` now, and every row measures the file's 40.
-11. **Yak is in the rail and the floating bar, and not built.** Nathan chose Yak exactly as in
-    Yet Social. It is the next big piece; for now each way in says it is not built yet.
+11. **Yak is in the rail and the floating bar.** Nathan chose Yak exactly as in Yet Social. It
+    said it was not built until slice 5 built its panel (entry 34).
 12. **The browser pane drops menu picks.** Clicking a status in its open menu closed the menu with
     no change in the pane, and a second click did not reopen it; the keyboard path worked, and in
     real Chromium (Playwright) every pointer pick worked. Verify menus there.
@@ -191,9 +191,9 @@ are drawn and not built.
 
 From `Project - Overview` (`40006268:5150`). A project now opens on it: Yak's summary, the latest
 update and the milestones in an 806 column, the properties and the activity in a 340 one beside
-it, below each other under `xl`. Every block measured the frame's height (170, 218, 246, 238;
-36-tall milestone rows; 40/20 activity rows) except Properties (entry 30). Regenerate and Ask
-are Yak's and say so; the update's ⋯ leads to Post update and the update history, drawn and not
+it, below each other when the page is narrower than 1024 (entry 39). Every block measured the frame's height (170, 218, 246, 238;
+36-tall milestone rows; 40/20 activity rows) except Properties (entry 30). Regenerate is
+Yak's and says so, and Ask opens Yak's panel since slice 5; the update's ⋯ leads to Post update and the update history, drawn and not
 built; the milestones' ⋯ opens the Timeline tab.
 
 ### Open: library changes worth making
@@ -228,4 +228,53 @@ None open.
 33. **Overview is the default tab.** `#/projects/austin`, the rail and the project cards now land
     on `#/projects/austin/overview`; Home's "Health permit is blocked" still opens the List,
     where the task is.
+
+## Slice 5 — Yak (2026-11-13)
+
+From `Project - Overview + Yak` (`40006277:14114`). Yak opens in a `Panel` after the page: from
+the rail (or `/` where there is no floating bar), the phone bar, the floating bar, Home's
+composer and suggestions, and the Overview's Ask. One chat, held by the shell
+(`yak/chat.ts`), so every way in reaches the same conversation. "What's blocking Austin?" is
+answered as the frame draws it, and its proposal really moves Equipment delivery; any other
+question gets an honest house line. The panel measured the frame piece by piece: the question
+350×68, the reply 350×400, the follow-ups 350×116, the composer 350×96, 24 between them. axe is
+clean with it open, light and dark. History and Expand (Yet Social's history panel and full
+view) are not built here and say so.
+
+### Open: library changes worth making
+
+None open. The Yak panel is now written twice, here and in Yet Social, but it is the apps'
+assistant rather than a library component: its scripts, its history and its proposals are each
+app's own. What both share is already the library's (`ChatMessage`, `ThoughtProcess`,
+`ToolCall`, `ChatComposer`, `Panel`).
+
+### Kept in the app, worth knowing
+
+34. **Yak is Yet Social's, cut down.** `yak/chat.ts` is Yet Social's `useYakChatState` without
+    the search, the composer target or per-page work: a reply needs only the tasks, read the
+    moment it is asked, and is settled then, so the log never changes its mind. The turn layout,
+    the reply actions, the composer (rounder, `rounded-xl`) and "Next, I can" are Yet Social's.
+35. **The proposal is applied for real, as a wider lag.** Equipment delivery has no start date,
+    only a due date and a 5-day lag behind the permit, and that lag is the "Nov 23" the file's
+    proposal moves: the permit's Nov 18 plus five, as the task panel already prints it. Apply
+    change sets it to nine ("9d lag · Nov 27" on the permit's Blocks row), writes "Yak moved the
+    start, with your OK" into the task's Activity with the two dates, and toasts Marcus's
+    heads-up. Applied shows a green Applied badge and Undo, which puts the lag back; Not now
+    leaves "Left as planned" and a Ghost Apply change. The file draws only the open state.
+36. **The proposal card is the bubbles' width, not inside a bubble.** The frame puts the Subtle
+    Card straight into the Bubble Group, 350 wide; Yet Social's caption card sits inside a ghost
+    bubble, 12px in on each side. Here it is a direct child of the `ChatMessage`.
+37. **One panel at a time.** Opening Yak clears a task's `?task=`, and opening a task closes Yak,
+    as Yet Social's single panel slot does. The floating bar hides while Yak is open, because it
+    is Yak's way in.
+38. **No model picker, and no start screen to copy.** The frame's composer has an "Opus 5.5"
+    picker that Yet Social took out of Yak's composers in #370; it is out of the panel and of
+    Home's composer here too. Yet Project's file draws no Yak start screen, so a fresh chat shows
+    the greeting and Home's three questions as "Try asking" chips, code-first.
+39. **Overview lays out by the page, not the window.** With Yak open the page is 800 wide, and the
+    frame gives Overview's main column all of it (766). The columns sit side by side from
+    `@5xl/page` (1024) instead of `xl`, so with Yak open the side column goes under the main one.
+    The frame leaves Properties and Activity out there; they are kept, below the fold.
+40. **The tool call counts what is there.** The frame's "Read 15 tasks and 3 dependencies" is
+    Austin's own count when the reply is asked: 14 tasks and 4 dependencies today.
 

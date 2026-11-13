@@ -28,6 +28,12 @@ export interface TasksState {
   moveTask: (id: string, move: TaskMove) => void
   toggleSubtask: (taskId: string, subtaskId: string) => void
   addComment: (taskId: string, body: string) => void
+  /**
+   * Widens or narrows the lag a task keeps behind one of its dependencies,
+   * which moves when it can start. Yak's proposals do it, so its Activity
+   * says Yak did, with your OK.
+   */
+  setLag: (taskId: string, onTaskId: string, lagDays: number) => void
 }
 
 export const TasksContext = createContext<TasksState | null>(null)

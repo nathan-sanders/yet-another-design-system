@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
 export interface ShellState {
-  /** Toast for what the mock does not do yet — Yak, the due-date picker, a task's full view. */
+  /** Toast for what the mock does not do yet — the due-date picker, a task’s full view. */
   notBuilt: (what: string) => void
   /**
    * Where a screen's own `Panel` portals to: a `contents` box after the
@@ -10,6 +10,15 @@ export interface ShellState {
    * closes when you leave it.
    */
   screenPanelHost: HTMLElement | null
+  /** Whether Yak's panel is open beside the page. */
+  yakOpen: boolean
+  /**
+   * Open Yak's panel. Only one panel at a time: an open task's panel closes,
+   * and opening a task closes Yak. Ask through `useYakChat` first to open it
+   * on a question.
+   */
+  openYak: () => void
+  closeYak: () => void
 }
 
 export const ShellContext = createContext<ShellState | null>(null)

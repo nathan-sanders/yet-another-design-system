@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router'
 import {
   AudioLines,
-  ChevronDown,
   Ellipsis,
   MessageCircle,
   Plus,
@@ -23,6 +22,7 @@ import { day, fullDate, shortDate, today } from '../../data/dates'
 import { projectFor } from '../../data/projects'
 import type { Project } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { useYakChat } from '../../yak/chat'
 import { YakMark } from '../../yak/YakMark'
 import { projectPath } from '../project/paths'
 import { WeekStrip } from './WeekStrip'
@@ -43,13 +43,18 @@ function greeting(): string {
  * 700 column — a greeting and the day, Yak's composer with three
  * suggestions, then what needs you, your projects, and the week.
  *
- * Yak is not built in this app yet, so the composer and the suggestions say
- * so; Home has no floating bar, because the composer is the bar.
+ * The composer and the suggestions open Yak's panel on a fresh chat. Home
+ * has no floating bar, because the composer is the bar.
  */
 export function HomeScreen() {
   const navigate = useNavigate()
   const shell = useShell()
   const tasks = useNeedsYou()
+  const chat = useYakChat()
+  const askYak = (prompt: string) => {
+    chat.start(prompt)
+    shell.openYak()
+  }
 
   return (
     <>
@@ -83,7 +88,7 @@ export function HomeScreen() {
             <ChatComposer
               aria-label="Message Yak"
               placeholder="Ask Yak, or tell it what to do…"
-              onSubmit={() => shell.notBuilt('Yak')}
+              onSubmit={askYak}
               // Yet Social's Yak composers are rounder than a form field.
               className="w-full rounded-xl"
               actions={
@@ -94,23 +99,14 @@ export function HomeScreen() {
                   onClick={() => shell.notBuilt('Adding context')}
                 />
               }
+              // No model picker: Yet Social took it out of Yak's composers (#370).
               endActions={
-                <>
-                  <Button
-                    appearance="ghost"
-                    size="small"
-                    endIcon={ChevronDown}
-                    onClick={() => shell.notBuilt('Choosing a model')}
-                  >
-                    Opus 5.5
-                  </Button>
-                  <Button
-                    appearance="ghost"
-                    startIcon={AudioLines}
-                    aria-label="Voice input"
-                    onClick={() => shell.notBuilt('Voice input')}
-                  />
-                </>
+                <Button
+                  appearance="ghost"
+                  startIcon={AudioLines}
+                  aria-label="Voice input"
+                  onClick={() => shell.notBuilt('Voice input')}
+                />
               }
             />
             <div className="flex flex-wrap gap-2">
@@ -119,7 +115,7 @@ export function HomeScreen() {
                   key={prompt}
                   appearance="secondary"
                   size="small"
-                  onClick={() => shell.notBuilt('Yak')}
+                  onClick={() => askYak(prompt)}
                 >
                   {prompt}
                 </Button>
