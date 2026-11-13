@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import {
@@ -82,6 +82,14 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
   const openTask = tasks.find(
     (task) => task.projectId === project.id && requested !== null && taskKey(task) === requested,
   )
+  // One panel at a time: a task opening closes Yak. Only when the task
+  // changes — Yak opening over a task clears `?task=` itself.
+  const { yakOpen, closeYak } = shell
+  const lastTaskId = useRef(openTask?.id)
+  useEffect(() => {
+    if (openTask && openTask.id !== lastTaskId.current && yakOpen) closeYak()
+    lastTaskId.current = openTask?.id
+  }, [openTask, yakOpen, closeYak])
   const [shownTaskId, setShownTaskId] = useState(openTask?.id)
   if (openTask && openTask.id !== shownTaskId) setShownTaskId(openTask.id)
   const closeTask = () => navigate(projectPath(project.id, tab))

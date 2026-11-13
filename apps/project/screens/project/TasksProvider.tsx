@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 
 import { priorityFor, statusFor } from '../../components/taskMeta'
-import { today } from '../../data/dates'
+import { addDays, day, shortDate, today } from '../../data/dates'
 import { me, personFor } from '../../data/people'
 import { boardOrder, tasks as initialTasks } from '../../data/tasks'
 import type { Task, TaskEvent } from '../../data/types'
@@ -119,9 +119,37 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [change],
   )
 
+  const setLag = useCallback(
+    (taskId: string, onTaskId: string, lagDays: number) =>
+      setTasks((current) => {
+        const before = current.find((task) => task.id === onTaskId)
+        if (!before) return current
+        // When it can start: the dependency's due date plus the lag.
+        const startOn = (lag: number) => shortDate.format(addDays(day(before.due), lag))
+        return current.map((task) => {
+          if (task.id !== taskId) return task
+          const dep = task.dependsOn?.find((d) => d.taskId === onTaskId)
+          if (!dep) return task
+          const event: TaskEvent = {
+            id: newId('e'),
+            actor: 'yak',
+            text: 'Yak moved the start, with your OK',
+            at: today,
+            change: { from: startOn(dep.lagDays ?? 0), to: startOn(lagDays) },
+          }
+          return {
+            ...task,
+            dependsOn: task.dependsOn?.map((d) => (d.taskId === onTaskId ? { ...d, lagDays } : d)),
+            activity: [event, ...(task.activity ?? [])],
+          }
+        })
+      }),
+    [],
+  )
+
   const value = useMemo<TasksState>(
-    () => ({ tasks, order, updateTask, moveTask, toggleSubtask, addComment }),
-    [tasks, order, updateTask, moveTask, toggleSubtask, addComment],
+    () => ({ tasks, order, updateTask, moveTask, toggleSubtask, addComment, setLag }),
+    [tasks, order, updateTask, moveTask, toggleSubtask, addComment, setLag],
   )
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>
 }

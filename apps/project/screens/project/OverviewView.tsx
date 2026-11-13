@@ -49,8 +49,11 @@ const money = new Intl.NumberFormat('en-US', {
 /**
  * A project's Overview tab (`Project - Overview`, `40006268:5150`): Yak's
  * summary, the latest update and the milestones in an 806 column, and the
- * properties and activity in a 340 side column beside it. Below `xl` the
- * side column drops under the main one, properties first.
+ * properties and activity in a 340 side column beside it. The page's own
+ * width decides (`@5xl/page`, 1024), not the window's: with Yak's panel open
+ * the page is about 800, and `Project - Overview + Yak` (`40006277:14114`)
+ * gives the main column all of it. There the side column goes under the
+ * main one rather than away, properties first.
  */
 export function OverviewView({ project }: { project: Project }) {
   const overview = overviewFor(project.id)
@@ -65,13 +68,13 @@ export function OverviewView({ project }: { project: Project }) {
     )
   }
   return (
-    <div className="flex flex-col gap-3 xl:flex-row xl:items-start">
+    <div className="flex flex-col gap-3 @5xl/page:flex-row @5xl/page:items-start">
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <YakSummary overview={overview} />
         <LatestUpdate overview={overview} />
         <Milestones project={project} overview={overview} />
       </div>
-      <div className="flex flex-col gap-3 xl:w-85 xl:shrink-0">
+      <div className="flex flex-col gap-3 @5xl/page:w-85 @5xl/page:shrink-0">
         <Properties project={project} overview={overview} />
         <Activity overview={overview} />
       </div>
@@ -82,7 +85,7 @@ export function OverviewView({ project }: { project: Project }) {
 /**
  * Yak's read of the project: a Subtle Card, its header a 16px mark and a
  * small subtle title with two Small Secondary buttons, then a paragraph a
- * line. Yak is not built in this app, so both buttons say so.
+ * line. Ask opens Yak's panel; Regenerate is not built and says so.
  */
 function YakSummary({ overview }: { overview: ProjectOverview }) {
   const shell = useShell()
@@ -105,7 +108,7 @@ function YakSummary({ overview }: { overview: ProjectOverview }) {
           appearance="secondary"
           size="small"
           startIcon={MessageCircle}
-          onClick={() => shell.notBuilt('Yak')}
+          onClick={shell.openYak}
         >
           Ask
         </Button>
