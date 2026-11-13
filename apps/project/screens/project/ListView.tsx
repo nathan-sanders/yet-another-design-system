@@ -23,15 +23,24 @@ import { ViewToolbar } from './ViewToolbar'
  * The name is the row's link, to the task's panel: a press anywhere on the
  * row that is not on one of its tokens opens it.
  */
-function TaskNameCell({ task }: { task: Task }) {
+export function TaskNameCell({
+  task,
+  title = task.title,
+  href = `#${taskPath(task)}`,
+}: {
+  task: Task
+  /** My work names a review by what you owe it, and opens the panel over itself. */
+  title?: string
+  href?: string
+}) {
   const count = subtaskCount(task)
   return (
     <span className="flex min-w-0 items-center gap-2">
       <a
-        href={`#${taskPath(task)}`}
+        href={href}
         className={cn('min-w-0 flex-1 truncate rounded-sm text-content-primary', focusRing)}
       >
-        {task.title}
+        {title}
       </a>
       {count ? (
         <span className="flex shrink-0 items-center gap-1 text-sm text-content-subtle">

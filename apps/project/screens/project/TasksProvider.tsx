@@ -54,6 +54,15 @@ function eventsFor(task: Task, edit: TaskEdit): TaskEvent[] {
 }
 
 /**
+ * When a task was finished, for My work's Done this week: the mock's today
+ * when a change marks it done, nothing when one reopens it.
+ */
+function completedAt(task: Task, status: Task['status'] | undefined): Date | undefined {
+  if (!status || status === task.status) return task.completedAt
+  return status === 'done' ? today : undefined
+}
+
+/**
  * Every task, held above the router, so an edit made in one view is still
  * there in the next — a status changed in the List shows in the task panel,
  * a subtask ticked in the panel moves the List's count.
@@ -69,6 +78,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       change(id, (task) => ({
         ...task,
         ...edit,
+        completedAt: completedAt(task, edit.status),
         activity: [...eventsFor(task, edit), ...(task.activity ?? [])],
       })),
     [change],
@@ -91,6 +101,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         return {
           ...task,
           status: status ?? task.status,
+          completedAt: completedAt(task, status),
           activity: [...events, ...(task.activity ?? [])],
         }
       })

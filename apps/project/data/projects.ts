@@ -19,6 +19,7 @@ export const projects: Project[] = [
     due: '2027-01-12',
     milestone: { name: 'Health permit', date: '2026-11-18' },
     key: 'AUS',
+    short: 'Austin',
   },
   {
     id: 'loyalty',
@@ -31,6 +32,7 @@ export const projects: Project[] = [
     due: '2027-03-02',
     milestone: { name: 'Pricing sign-off', date: '2026-11-09' },
     key: 'LOY',
+    short: 'Loyalty',
   },
   {
     id: 'protein-plates',
@@ -43,6 +45,7 @@ export const projects: Project[] = [
     due: '2026-11-17',
     milestone: { name: 'Menu boards live', date: '2026-11-12' },
     key: 'PRO',
+    short: 'Protein Plates',
   },
   {
     id: 'gift-cards',
@@ -55,6 +58,7 @@ export const projects: Project[] = [
     due: '2026-12-01',
     milestone: { name: 'Print approval', date: '2026-11-13' },
     key: 'GFT',
+    short: 'Gift Cards',
   },
   {
     id: 'winter-menu',
@@ -158,6 +162,6 @@ export const projects: Project[] = [
 /** The four the rail lists under Projects, and Home's three: the ones Nathan follows. */
 export const followed = ['austin', 'protein-plates', 'mobile-ordering', 'gift-cards']
 
-export function projectFor(id: string): Project | undefined {
+export function projectFor(id: string | undefined): Project | undefined {
   return projects.find((p) => p.id === id)
 }

@@ -16,5 +16,6 @@ export function floatingYakPlaceholder(pathname: string): string | null {
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1]
   const project = projectId ? projectFor(projectId) : undefined
   if (project) return `Ask Yak about ${project.name}…`
+  if (pathname.startsWith('/my-work')) return 'Ask Yak about your work…'
   return 'Ask Yak, or search projects, tasks and people…'
 }

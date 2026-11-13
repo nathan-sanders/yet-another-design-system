@@ -28,7 +28,8 @@ function crew(): Subtask[] {
  * week); the dates hold the page's schedule math: the permit on Nov 18, the
  * 5-day lag, equipment by Dec 1, six buffer days before crew training.
  *
- * Only Austin has tasks in this slice; the other projects' lists come later.
+ * Only Austin has a whole plan. The other projects have only Nathan's own
+ * tasks, the ones My work lists (`myTasks`, below).
  */
 export const tasks: Task[] = [
   {
@@ -380,6 +381,7 @@ export const tasks: Task[] = [
     projectId: 'austin',
     number: 31,
     title: 'Signage proof',
+    short: 'Signage proof',
     phase: 'Marketing & launch',
     assigneeId: 'katie',
     status: 'in-review',
@@ -389,6 +391,7 @@ export const tasks: Task[] = [
     description:
       'The storefront sign and window vinyl, from the printer’s proof, for Nathan’s sign-off.',
     estimate: '2h',
+    review: { personId: 'nathan', action: 'Approve the signage proof' },
     activity: [
       {
         id: 'e-31-2',
@@ -442,6 +445,7 @@ export const tasks: Task[] = [
       { id: 'e-35-1', actor: 'maya', text: 'Maya created this task', at: day('2026-10-22') },
     ],
   },
+  ...myTasks(),
 ]
 
 /**
@@ -564,3 +568,181 @@ export const myWeek: WeekItem[] = [
     date: '2026-11-09',
   },
 ]
+
+/**
+ * Nathan's own work, as `My work - List` (`40006266:4756`) and `My work -
+ * Board` (`40006315:45894`) draw it, across five projects and the Ops team.
+ * The numbers, titles, priorities and due dates are the frames'; the
+ * estimates are written so This week's four make the frames' 14h. Austin's
+ * four join Austin's plan in their phases. Signage proof, the fifth Austin
+ * row, is Katie's task waiting on Nathan's review (`review`).
+ */
+function myTasks(): Task[] {
+  const mine = { assigneeId: 'nathan' } as const
+  return [
+    {
+      ...mine,
+      id: 'aus-12',
+      projectId: 'austin',
+      number: 12,
+      title: 'Confirm Austin opening date with landlord',
+      short: 'Landlord date',
+      phase: 'Permits & build-out',
+      status: 'todo',
+      priority: 'high',
+      due: '2026-11-03',
+      description:
+        'The lease gives the landlord a say in the opening date. Confirm {2027-01-12} with them before the press list goes out.',
+      estimate: '1h',
+      activity: [
+        { id: 'e-12-1', actor: 'dana', text: 'Dana created this task', at: day('2026-10-26') },
+      ],
+    },
+    {
+      ...mine,
+      id: 'pro-18',
+      projectId: 'protein-plates',
+      number: 18,
+      title: 'Sign off Protein Plates menu boards',
+      short: 'Menu boards',
+      phase: 'In-store',
+      status: 'in-review',
+      priority: 'medium',
+      due: '2026-11-05',
+      estimate: '1h',
+    },
+    {
+      ...mine,
+      id: 'aus-29',
+      projectId: 'austin',
+      number: 29,
+      title: 'Answer Priya on the supplier list',
+      short: 'Supplier list',
+      phase: 'Supply & equipment',
+      status: 'in-progress',
+      priority: 'medium',
+      due: '2026-11-05',
+      description:
+        'Priya asked which growers to keep on Finalize Austin supplier list before she prices the dry goods.',
+      estimate: '1h',
+      subtasks: [
+        { id: 'aus-29-1', title: 'Read Priya’s shortlist', done: true },
+        { id: 'aus-29-2', title: 'Check the growers’ delivery days', done: false },
+        { id: 'aus-29-3', title: 'Reply in the thread', done: false },
+      ],
+      activity: [
+        { id: 'e-29-1', actor: 'priya', text: 'Priya created this task', at: day('2026-11-04') },
+      ],
+    },
+    {
+      ...mine,
+      id: 'pro-21',
+      projectId: 'protein-plates',
+      number: 21,
+      title: 'Post weekly update',
+      short: 'Weekly update',
+      phase: 'Launch',
+      status: 'todo',
+      priority: 'medium',
+      due: '2026-11-06',
+      estimate: '2h',
+    },
+    {
+      ...mine,
+      id: 'hir-07',
+      projectId: 'spring-hiring',
+      number: 7,
+      title: 'Review Q1 hiring plan',
+      short: 'Hiring plan',
+      phase: 'Role plan',
+      status: 'todo',
+      priority: 'low',
+      due: '2026-11-06',
+      estimate: '4h',
+    },
+    {
+      ...mine,
+      id: 'loy-14',
+      projectId: 'loyalty',
+      number: 14,
+      title: 'Review loyalty pricing model',
+      short: 'Loyalty pricing',
+      phase: 'Pricing',
+      status: 'in-progress',
+      priority: 'high',
+      due: '2026-11-06',
+      estimate: '6h',
+      subtasks: [
+        { id: 'loy-14-1', title: 'Read Theo’s model', done: true },
+        { id: 'loy-14-2', title: 'Check the tiers against last year', done: true },
+        { id: 'loy-14-3', title: 'Price the free-bowl reward', done: false },
+        { id: 'loy-14-4', title: 'Send notes to Theo', done: false },
+      ],
+    },
+    {
+      ...mine,
+      id: 'aus-34',
+      projectId: 'austin',
+      number: 34,
+      title: 'Book Austin press walkthrough',
+      short: 'Press walkthrough',
+      phase: 'Marketing & launch',
+      status: 'todo',
+      priority: 'low',
+      due: '2026-11-08',
+      estimate: '2h',
+    },
+    {
+      ...mine,
+      id: 'gft-09',
+      projectId: 'gift-cards',
+      number: 9,
+      title: 'Approve gift card print run',
+      short: 'Gift card print run',
+      phase: 'Print',
+      status: 'todo',
+      priority: 'medium',
+      due: '2026-11-13',
+      estimate: '1h',
+    },
+    {
+      ...mine,
+      id: 'aus-36',
+      projectId: 'austin',
+      number: 36,
+      title: 'Plan grand opening staffing',
+      short: 'Opening staffing',
+      phase: 'Hiring & training',
+      status: 'todo',
+      priority: 'medium',
+      due: '2026-12-02',
+      estimate: '4h',
+    },
+    {
+      ...mine,
+      id: 'ops-3',
+      team: { name: 'Ops', key: 'OPS' },
+      number: 3,
+      title: 'Sign the Q4 ops budget',
+      short: 'Ops budget',
+      phase: 'Q4 planning',
+      status: 'done',
+      priority: 'low',
+      due: '2026-11-04',
+      completedAt: day('2026-11-04'),
+    },
+    {
+      ...mine,
+      id: 'hir-05',
+      projectId: 'spring-hiring',
+      number: 5,
+      title: 'Review crew pay bands',
+      short: 'Crew pay bands',
+      phase: 'Role plan',
+      status: 'done',
+      priority: 'low',
+      due: '2026-11-03',
+      completedAt: day('2026-11-03'),
+    },
+  ]
+}

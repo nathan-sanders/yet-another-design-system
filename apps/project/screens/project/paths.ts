@@ -35,7 +35,7 @@ export const TASK_PARAM = 'task'
 
 /** A task's number with its project's key, as the panel's header and the Number column read. */
 export function taskKey(task: Task): string {
-  return `${projectFor(task.projectId)?.key ?? ''}-${task.number}`
+  return `${projectFor(task.projectId)?.key ?? task.team?.key ?? ''}-${String(task.number).padStart(2, '0')}`
 }
 
 /**
@@ -44,5 +44,7 @@ export function taskKey(task: Task): string {
  * state, so it is in the URL: a task has a link, and Back closes it.
  */
 export function taskPath(task: Task, tab: ProjectTab = 'list'): string {
+  // A team's task has no project to open over; My work is where it lives.
+  if (!task.projectId) return `/my-work/list?${TASK_PARAM}=${taskKey(task)}`
   return `${projectPath(task.projectId, tab)}?${TASK_PARAM}=${taskKey(task)}`
 }

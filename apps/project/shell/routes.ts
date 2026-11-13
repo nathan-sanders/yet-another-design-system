@@ -46,7 +46,7 @@ export const home: AppRoute = {
 
 export const top: AppRoute[] = [
   home,
-  { path: '/my-work', label: 'My work', icon: CircleCheck, figma: '40006266-4756' },
+  { path: '/my-work', label: 'My work', icon: CircleCheck, built: true, figma: '40006266-4756' },
   { path: '/inbox', label: 'Inbox', icon: Inbox, badge: 4, figma: '40006278-12738' },
 ]
 

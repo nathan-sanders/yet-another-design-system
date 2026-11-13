@@ -23,6 +23,11 @@ export interface Project {
   key: string
   /** Runs in sprints, so its last tab is Sprints rather than Rules. */
   sprints?: boolean
+  /**
+   * The name a task card's tag gives it in My work, where cards from every
+   * project share a column: Austin, Gift Cards. The whole name when unset.
+   */
+  short?: string
 }
 
 export type TaskStatus = 'todo' | 'in-progress' | 'in-review' | 'blocked' | 'done'
@@ -30,10 +35,21 @@ export type TaskPriority = 'none' | 'low' | 'medium' | 'high' | 'critical'
 
 export interface Task {
   id: string
-  projectId: string
+  /**
+   * The project it is in. A task can be a team's rather than a project's —
+   * Sign the Q4 ops budget is Ops' — and then it has a `team` instead.
+   */
+  projectId?: string
+  /** The team a task outside any project belongs to, as its card's tag names it: Ops. */
+  team?: { name: string; key: string }
   /** The number after the project's key: 24 for AUS-24. */
   number: number
   title: string
+  /**
+   * A short name, where a whole title will not fit in a 154px chip: My
+   * work's calendar writes Signage proof's review as "Signage proof".
+   */
+  short?: string
   /** The project phase it belongs to, which the List groups by. */
   phase: string
   assigneeId: string
@@ -66,6 +82,14 @@ export interface Task {
   comments?: TaskComment[]
   /** Newest first, as the Activity tab lists them. */
   activity?: TaskEvent[]
+  /**
+   * Someone else's task waiting on your review, so it is in your My work
+   * too, under what you owe it: Katie's Signage proof is Nathan's "Approve
+   * the signage proof".
+   */
+  review?: { personId: string; action: string }
+  /** When it was marked done, for My work's "Done this week". */
+  completedAt?: Date
 }
 
 export interface Subtask {

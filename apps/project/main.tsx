@@ -5,6 +5,8 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
 import { HomeScreen } from './screens/home/HomeScreen'
+import { BlocksProvider } from './screens/my-work/BlocksProvider'
+import { MyWorkIndex, MyWorkScreen } from './screens/my-work/MyWorkScreen'
 import { NotBuilt } from './screens/NotBuilt'
 import { ProjectIndex, ProjectPage } from './screens/project/ProjectPage'
 import { RulesProvider } from './screens/project/RulesProvider'
@@ -20,6 +22,8 @@ const router = createHashRouter([
     children: [
       { index: true, element: <Navigate to="/home" replace /> },
       { path: 'home', element: <HomeScreen /> },
+      { path: 'my-work', element: <MyWorkIndex /> },
+      { path: 'my-work/:view', element: <MyWorkScreen /> },
       { path: 'projects', element: <ProjectsScreen /> },
       { path: 'projects/:projectId', element: <ProjectIndex /> },
       { path: 'projects/:projectId/:tab', element: <ProjectPage /> },
@@ -33,7 +37,9 @@ createRoot(document.getElementById('root')!).render(
     <Toast.Provider>
       <TasksProvider>
         <RulesProvider>
-          <RouterProvider router={router} />
+          <BlocksProvider>
+            <RouterProvider router={router} />
+          </BlocksProvider>
         </RulesProvider>
       </TasksProvider>
     </Toast.Provider>
