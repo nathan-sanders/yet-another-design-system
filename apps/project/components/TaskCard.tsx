@@ -30,15 +30,28 @@ export function TaskCard({
   selected = false,
   onClick,
   className,
+  title = task.title,
+  tag = phaseTag(task.phase),
+  personId = task.assigneeId,
+  due = dueLabel(task),
 }: {
   task: Task
   /** The task whose panel is open. */
   selected?: boolean
   onClick?: () => void
   className?: string
+  /**
+   * My work's cards hold work from every project, so they say it their own
+   * way: what you owe the task, the project for a tag, your face, and the
+   * due date as a weekday. A project's Board leaves all four to the task.
+   */
+  title?: string
+  tag?: string
+  personId?: string
+  due?: string
 }) {
   const id = useId()
-  const assignee = personFor(task.assigneeId)
+  const assignee = personFor(personId)
   const subtasks = subtaskCount(task)
   const comments = commentCount(task)
   const priority = priorityFor(task.priority)
@@ -53,7 +66,7 @@ export function TaskCard({
     >
       <span className="flex w-full min-w-0 flex-col gap-2 text-left">
         <span id={`${id}-top`} className="flex h-6 items-center gap-1">
-          <Token>{phaseTag(task.phase)}</Token>
+          <Token>{tag}</Token>
           {task.status === 'blocked' && (
             <>
               <span className="sr-only">, </span>
@@ -68,7 +81,7 @@ export function TaskCard({
           )}
         </span>
         <Text id={`${id}-title`} render={<span />} weight="semibold" color="emphasized">
-          {task.title}
+          {title}
         </Text>
         <span id={`${id}-meta`} className="flex h-5 items-center gap-2 text-sm text-content-subtle">
           <Avatar name={assignee.name} src={assignee.avatar} alt="" size="x-small" />
@@ -76,7 +89,7 @@ export function TaskCard({
           <span className="flex items-center gap-1">
             <Icon icon={Calendar} size="small" />
             <span className="sr-only">Due </span>
-            {dueLabel(task)}
+            {due}
           </span>
           {(subtasks || comments > 0) && (
             <span className="ml-auto flex items-center gap-2">

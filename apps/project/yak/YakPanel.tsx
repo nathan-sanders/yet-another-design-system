@@ -22,6 +22,7 @@ import { Heading, Text } from '../../../src/components/Text'
 import { Toast } from '../../../src/components/Toast'
 import { Tooltip } from '../../../src/components/Tooltip'
 import { me, personFor } from '../data/people'
+import { useBlocks } from '../screens/my-work/blocksState'
 import { useTasks } from '../screens/project/tasksState'
 import { useShell } from '../shell/ShellContext'
 import { useYakChat, type Turn } from './chat'
@@ -273,27 +274,46 @@ function Conversation({ turns }: { turns: Turn[] }) {
 
 /**
  * Something Yak offers to change: a Subtle Card holding the words and its
- * own actions — Apply change Secondary, Not now Ghost, both Small. Applying
- * really moves the task (its lag behind the permit, so its start), writes it
- * into the task's Activity as Yak's, and says who heard; Undo puts it back.
- * Not now leaves the plan alone and keeps Apply within reach.
+ * own actions — the apply button Secondary, Not now Ghost, both Small.
+ * Applying really does it: a lag widens (the task's start moves, its
+ * Activity says Yak did it, and its owner hears), or time is blocked on My
+ * work's calendar. Undo puts it back. Not now leaves things alone and keeps
+ * the apply button within reach.
  */
 function ProposalCard({ turn, proposal }: { turn: Turn; proposal: Proposal }) {
   const chat = useYakChat()
   const { setLag } = useTasks()
+  const { blocks, addBlocks, removeBlocks } = useBlocks()
   const toast = Toast.useToast()
-  const { taskId, onTaskId, from, to } = proposal.lag
+  const { change } = proposal
+  const applyLabel = proposal.applyLabel ?? 'Apply change'
 
   const apply = () => {
-    setLag(taskId, onTaskId, to)
+    if (change.kind === 'lag') {
+      setLag(change.taskId, change.onTaskId, change.to)
+    } else {
+      // A task given time by hand since Yak asked keeps that time.
+      const blocked = new Set(blocks.flatMap((block) => block.taskIds))
+      addBlocks(change.blocks.filter((block) => !block.taskIds.some((id) => blocked.has(id))))
+    }
     chat.decide(turn.id, 'applied')
-    toast.add({
-      title: 'Change applied',
-      description: `${personFor(proposal.headsUpId).name} got a heads-up.`,
-    })
+    toast.add(
+      change.kind === 'lag'
+        ? {
+            title: 'Change applied',
+            description: proposal.headsUpId
+              ? `${personFor(proposal.headsUpId).name} got a heads-up.`
+              : undefined,
+          }
+        : {
+            title: 'Time blocked',
+            description: 'It’s on your calendar in My work.',
+          },
+    )
   }
   const undo = () => {
-    setLag(taskId, onTaskId, from)
+    if (change.kind === 'lag') setLag(change.taskId, change.onTaskId, change.from)
+    else removeBlocks(change.blocks.map((block) => block.id))
     chat.decide(turn.id, undefined)
   }
 
@@ -314,13 +334,13 @@ function ProposalCard({ turn, proposal }: { turn: Turn; proposal: Proposal }) {
               Left as planned
             </Text>
             <Button appearance="ghost" size="small" onClick={apply}>
-              Apply change
+              {applyLabel}
             </Button>
           </>
         ) : (
           <>
             <Button appearance="secondary" size="small" onClick={apply}>
-              Apply change
+              {applyLabel}
             </Button>
             <Button
               appearance="ghost"

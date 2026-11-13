@@ -1,18 +1,29 @@
 import { datedText } from '../data/dates'
+import { FREE_HOURS, type TimeBlock } from '../data/myWork'
 import type { Task } from '../data/types'
+import { bucketOf, hoursOf, openWork } from '../screens/my-work/model'
 
 // What Yak says back. A turn settles its reply the moment it is asked
 // (`chat.ts`), so the log never changes its mind, and `Conversation` only
 // draws what it is handed. One question is scripted, from `Project -
-// Overview + Yak` (`40006277:14114`); everything else gets the house line.
+// Overview + Yak` (`40006277:14114`) and `My work - Yak plans the week`
+// (`40006316:44219`); everything else gets the house line.
+
+/** What applying a proposal does. */
+export type ProposalChange =
+  /** Push a task's start back by widening the lag behind its dependency. */
+  | { kind: 'lag'; taskId: string; onTaskId: string; from: number; to: number }
+  /** Block time on My work's calendar. */
+  | { kind: 'blocks'; blocks: TimeBlock[] }
 
 /** Something Yak offers to change, drawn as a Subtle Card with its actions inside. */
 export interface Proposal {
   text: string
-  /** Push a task's start back by widening the lag behind its dependency. */
-  lag: { taskId: string; onTaskId: string; from: number; to: number }
+  change: ProposalChange
+  /** The apply button's words, when "Apply change" is not what it does. */
+  applyLabel?: string
   /** Who is told when it is applied. */
-  headsUpId: string
+  headsUpId?: string
 }
 
 /** One paragraph of a reply: prose, or a proposal. */
@@ -70,7 +81,7 @@ function blockingAustin(tasks: Task[]): ScriptedReply {
           text: datedText(
             'Move Equipment delivery from {2026-11-23} to {2026-11-27}. That gives the permit four days of slack, and Marcus gets a heads-up.',
           ),
-          lag: { taskId: 'aus-26', onTaskId: 'aus-24', from: 5, to: 9 },
+          change: { kind: 'lag', taskId: 'aus-26', onTaskId: 'aus-24', from: 5, to: 9 },
           headsUpId: 'marcus',
         },
       },
@@ -90,6 +101,67 @@ function blockingAustin(tasks: Task[]): ScriptedReply {
 }
 
 /**
+ * "Plan the rest of my week", from `My work - Yak plans the week`
+ * (`40006316:44219`): this week's work weighed against the hours free, the
+ * order to take it in, and an offer to block the time. Today's four already
+ * have time on the calendar, and so do Friday's first two; applying blocks
+ * Friday's last two, the hiring plan and the press walkthrough, which is
+ * what empties the calendar's Not scheduled tray. The counts are the tasks'
+ * own, so they agree with the List.
+ */
+function planWeek(tasks: Task[]): ScriptedReply {
+  const work = openWork(tasks)
+  const week = work.filter((task) => bucketOf(task) === 'week')
+  return {
+    summary: 'Checked your tasks, calendar and free hours',
+    phrases: ['Reading your tasks', 'Checking your calendar', 'Planning'],
+    tools: [`Read ${work.length} tasks and this week’s calendar`],
+    bubbles: [
+      {
+        kind: 'text',
+        text: `You have ${hoursOf(week)} hours of work against ${FREE_HOURS} free, so it all fits. The landlord call comes first, because it’s two days late and Austin’s dates depend on it.`,
+      },
+      {
+        kind: 'proposal',
+        proposal: {
+          text: 'Today: landlord call, signage proof, menu boards, supplier list. Friday: weekly update, loyalty pricing, hiring plan, press walkthrough.',
+          applyLabel: 'Block time on my calendar',
+          change: {
+            kind: 'blocks',
+            blocks: [
+              {
+                id: 'b-yak-hiring',
+                label: 'Hiring plan',
+                date: '2026-11-06',
+                start: 11,
+                end: 13,
+                taskIds: ['hir-07'],
+              },
+              {
+                id: 'b-yak-press',
+                label: 'Press walkthrough',
+                date: '2026-11-06',
+                start: 15,
+                end: 17,
+                taskIds: ['aus-34'],
+              },
+            ],
+          },
+        },
+      },
+      { kind: 'text', text: 'Everything still lands on or before its due date.' },
+    ],
+    followUps: [
+      'Move Friday’s work to Monday',
+      'Draft my weekly update',
+      'Show what can wait',
+      'Find me two free hours',
+      'Remind me at 3 pm',
+    ],
+  }
+}
+
+/**
  * The house line: this mock answers one question so far, and says which,
  * rather than inventing an answer about the person's real plan.
  */
@@ -101,15 +173,16 @@ function fallback(): ScriptedReply {
     bubbles: [
       {
         kind: 'text',
-        text: 'I can only answer one question in this mock so far: what’s blocking Austin. In the real product I’d read your projects and tasks to answer this one.',
+        text: 'I can only answer two questions in this mock so far: what’s blocking Austin, and planning the rest of your week. In the real product I’d read your projects and tasks to answer this one.',
       },
     ],
-    followUps: [SUGGESTIONS[0]],
+    followUps: [SUGGESTIONS[0], SUGGESTIONS[1]],
   }
 }
 
 export function scriptedReply(prompt: string, tasks: Task[]): ScriptedReply {
   const q = norm(prompt)
   if (q === 'whats blocking austin' || q === 'what is blocking austin') return blockingAustin(tasks)
+  if (q === 'plan the rest of my week' || q === 'plan my week') return planWeek(tasks)
   return fallback()
 }

@@ -390,3 +390,52 @@ None open.
 56. **`MenuBlock` takes a plain header action.** Rules' header holds "New rule", a labeled Ghost
     button, where Home's and the Overview's hold a ⋯ menu.
 
+## Slice 8 — My work (2026-11-13)
+
+From `My work - List` (`40006266:4756`), `My work - Board` (`40006315:45894`), `My work - Calendar`
+(`40006315:49546`) and `My work - Yak plans the week` (`40006316:44219`). `#/my-work/list`,
+`/board` and `/calendar`, switched by the Top Bar's Segment Control; a task opens in its panel over
+whichever view it came from (`?task=PRO-21`), and switching views keeps it open.
+
+- **List**: Overdue, Today, This week and Later, the file's columns at its widths (88 / fill / 210 /
+  130 / 110 / 96). Status and priority edit in place; a task marked done leaves for the Board's
+  Done this week. With a task's panel or Yak open, Priority goes, as the Yak frame draws it.
+- **Board**: Today (overdue work first), This week, Later and Done this week, the project Board's
+  cards with the project for a tag, Nathan's face, and a weekday for a date.
+- **Calendar**: Monday to Friday, 9 am to 6 pm at the frame's 72px an hour, a Due row, meetings in
+  neutral and blocked time in the project's color, past days hatched, a line for now. Not
+  scheduled lists this week's work with no time blocked; drag a card onto an hour to block it,
+  with Undo in the toast.
+- **Yak**: "Plan the rest of my week" (Home's second suggestion, or the floating bar) is scripted
+  from the Yak frame. Block time on my calendar really blocks Friday's last two, which empties the
+  calendar's tray; Undo takes them off.
+
+axe is clean on all three views, light and dark, with a task's panel open and with Yak's.
+
+### Open: library changes worth making
+
+None open.
+
+### Kept in the app, worth knowing
+
+57. **Nathan's work is real tasks.** The frames' twelve are in `data/tasks.ts` (`myTasks`), so
+    Austin's four (AUS-12, -29, -34, -36) join Austin's List and Board in their phases, and the
+    other projects now hold just Nathan's. Estimates are written so This week makes the frames'
+    14h. "22h free" is the file's number (`FREE_HOURS`): the mock's calendar is one work week and
+    cannot add up the hours left in it.
+58. **A review is the reviewer's work.** AUS-31 is Katie's Signage proof, the task the project
+    Board draws, and it is in Nathan's My work because it waits on his sign-off (`Task.review`).
+    My work names it by what he owes ("Approve the signage proof") and wears his face; the panel
+    is still Katie's task. Task numbers are two digits, as the frames print them (HIR-07, OPS-03).
+59. **Sign the Q4 ops budget belongs to a team, not a project.** The Board tags it "Ops" and the
+    calendar paints its block neutral, and there is no Ops among the twelve projects, so a task
+    can now have a `team` instead of a `projectId`.
+60. **The Board does not drag.** Its columns are spans of dates, so a drop would have to choose a
+    due date the frame never shows. Cards open their panel; each column's add button is drawn and
+    not built.
+61. **The Due row shows everything due that day.** The frame leaves out the landlord date
+    (Tuesday), the supplier list (Thursday) and the hiring plan (Friday); here every open task due
+    that day is a chip, so Thursday and Friday hold three and the row grows. The chips use each
+    task's `short` name, the same words Home's week strip uses. Dragging a card is pointer only,
+    like Yet Social's drafts; the keyboard's way to block time is Yak's plan. Thursday afternoon's
+    block covers both approvals and is purple, the menu boards' project, as drawn.
