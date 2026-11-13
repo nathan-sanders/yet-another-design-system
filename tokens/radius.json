@@ -1,0 +1,10 @@
+[
+{"n":"Button","default":"@border-radius/rounded-md","soft":"@border-radius/rounded-lg","round":"@border-radius/rounded-2xl","sharp":"@border-radius/rounded-xs"},
+{"n":"Input","default":"@border-radius/rounded-md","soft":"@border-radius/rounded-lg","round":"@border-radius/rounded-2xl","sharp":"@border-radius/rounded-xs"},
+{"n":"Input Inner","default":"@border-radius/rounded-sm","soft":"@border-radius/rounded-md","round":"@border-radius/rounded-xl","sharp":"@border-radius/rounded-2xs"},
+{"n":"Input Checkbox","default":"@border-radius/rounded-sm","soft":"@border-radius/rounded-sm","round":"@border-radius/rounded-sm","sharp":"@border-radius/rounded-2xs"},
+{"n":"Container Outer","default":"@border-radius/rounded-lg","soft":"@border-radius/rounded-xl","round":"@border-radius/rounded-2xl","sharp":"@border-radius/rounded-xs"},
+{"n":"Container Inner","default":"@border-radius/rounded-md","soft":"@border-radius/rounded-lg","round":"@border-radius/rounded-xl","sharp":"@border-radius/rounded-2xs"},
+{"n":"Bubble","default":"@border-radius/rounded-xl","soft":"@border-radius/rounded-2xl","round":"@border-radius/rounded-2xl","sharp":"@border-radius/rounded-xs"},
+{"n":"Bubble Tip","default":"@border-radius/rounded-xs","soft":"@border-radius/rounded-sm","round":"@border-radius/rounded-sm","sharp":"@border-radius/rounded-none"}
+]

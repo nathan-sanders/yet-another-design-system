@@ -101,7 +101,7 @@ const item = tv({
   base: [
     'group flex w-full items-center gap-3',
     // px-3 = spacing/3 (12px), py-1 = spacing/1 (4px), so 24 + 8 = 32px tall.
-    'rounded-md px-3 py-1',
+    'rounded-input px-3 py-1',
     'cursor-pointer text-base select-none',
     'text-content-primary',
     // Hover and keyboard highlight are the same attribute — see the header.
@@ -151,7 +151,7 @@ const indicatorBox = tv({
   variants: {
     shape: {
       // Figma's Checkbox: border-radius/rounded-sm (6px).
-      box: 'rounded-sm',
+      box: 'rounded-input-checkbox',
       // Figma's Radio: border-radius/rounded-full.
       dial: 'rounded-full',
     },

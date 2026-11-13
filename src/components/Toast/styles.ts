@@ -59,7 +59,7 @@ export const toastCard = tv({
     'flex w-full items-start',
     // gap-1 = 4px (spacing/1), px-4 = 16px, py-3 = 12px. Banner's box exactly.
     'gap-1 px-4 py-3',
-    'rounded-lg shadow-medium',
+    'rounded-container-outer shadow-medium',
     // 14/24 body type, inherited by both rows.
     'font-sans text-base [word-break:break-word]',
     // Figma has overflow-clip on the frame. Not ported, for the third time in

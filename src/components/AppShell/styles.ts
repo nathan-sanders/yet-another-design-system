@@ -93,7 +93,7 @@ export const appShellPage = tv({
     mode: {
       floating: '',
       contained: [
-        'rounded-lg border border-surface-border bg-surface-background-primary',
+        'rounded-container-outer border border-surface-border bg-surface-background-primary',
         // The scrolling `<main>` inside has square corners; without this its
         // content would poke through the rounded ones. `overflow-clip` rather
         // than `overflow-hidden` so it never becomes a scroll container itself.

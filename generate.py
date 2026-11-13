@@ -118,6 +118,7 @@ prims = load("primitives.json")
 sem = load("semantic.json")
 dims = load("dimensions.json") + load_optional("motion.json")
 navs = load("navigation.json")
+radii = load("radius.json")
 
 # Derive the code-only modes, one ramp at a time, straight onto the rows the
 # export just produced. They come out in the same "@Teal/900" shape a Figma
@@ -431,7 +432,7 @@ theme.append("  /* spacing scale (4px base reproduces the full numeric scale, in
 theme.append("  --spacing: 0.25rem;")
 theme.append("")
 theme.append("  /* radius */")
-radius_order = ["none","xs","sm","md","lg","xl","2xl","3xl","4xl","full"]
+radius_order = ["none","2xs","xs","sm","md","lg","xl","2xl","3xl","4xl","full"]
 for k in radius_order:
     if k in radius: theme.append(f"  --radius-{k}: {radius[k]};")
 theme.append("")
@@ -508,6 +509,33 @@ for mode in NAV_MODES:
 
 nav_theme_lines = [f"  --color-{nav_slug(n['n'])}: var(--{nav_slug(n['n'])});" for n in navs]
 
+# ---- 2c. the radius tier ----
+# Figma's Border Radius collection: eight roles (Button, Input, Container
+# Outer, ...) across four modes. Same shape as the nav tier -- a bare :root for
+# the default, then one attribute block per mode -- except every value is an
+# alias of a primitive step, so it resolves to var(--radius-md) and not a
+# color. The tier is named --shape-* so the @theme inline exposure below can
+# own --radius-<role>, which is the namespace Tailwind builds rounded-* from.
+RADIUS_MODES = ["default", "soft", "round", "sharp"]
+
+def radius_ref(val):
+    m = re.fullmatch(r"@border-radius/rounded-([a-z0-9]+)", val)
+    if not m or m.group(1) not in radius:
+        raise SystemExit(f"radius.json: {val!r} is not a border-radius primitive")
+    return f"var(--radius-{m.group(1)})"
+
+def radius_block(selector, mode):
+    return ([f"{selector} {{"]
+            + [f"  --shape-{slug(r['n'])}: {radius_ref(r[mode])};" for r in radii]
+            + ["}"])
+
+radius_lines = radius_block(":root", RADIUS_MODES[0])
+for mode in RADIUS_MODES:
+    radius_lines.append("")
+    radius_lines += radius_block(f':root[data-radius="{mode}"]', mode)
+
+radius_theme_lines = [f"  --radius-{slug(r['n'])}: var(--shape-{slug(r['n'])});" for r in radii]
+
 # ---- write file ----
 out = []
 out.append("/* ============================================================")
@@ -573,6 +601,16 @@ out.append("/*     clears 4.5:1 on four ramps out of seventeen. nav-contrast.tes
 out.append("/*     every mode to that, so a ramp that fails cannot quietly ship.             */")
 out += nav_lines
 out.append("")
+out.append("/* ---- 2c. The radius roles. Eight corner radii across %d modes, switched by ---- */" % len(RADIUS_MODES))
+out.append("/*     one attribute: <html data-radius=\"soft\">. Default is the default, and   */")
+out.append("/*     also has its own block so the attribute is never a lie.                 */")
+out.append("/*                                                                              */")
+out.append("/*     A component rounds with a role (rounded-button, rounded-container-outer) */")
+out.append("/*     wherever Figma binds one, and with a primitive step only where Figma     */")
+out.append("/*     does: pills, avatars, charts. Every Default value is the step the code   */")
+out.append("/*     used before the roles existed, so Default changes nothing on screen.     */")
+out += radius_lines
+out.append("")
 out.append("/* ---- 4. Expose semantic tokens as color utilities (bg-*, text-*, border-*). ---- */")
 out.append("/*    'inline' keeps the var reference live so utilities respond to .dark.        */")
 out.append("@theme inline {")
@@ -580,6 +618,9 @@ out += sem_theme_lines
 out.append("")
 out.append("  /* the navigation theme — bg-nav-background, text-nav-content-subtle, … */")
 out += nav_theme_lines
+out.append("")
+out.append("  /* the radius roles — rounded-button, rounded-l-input, rounded-br-bubble-tip, … */")
+out += radius_theme_lines
 out.append("}")
 out.append("")
 out.append("/* ---- Reference-only tokens (Tailwind already generates these utilities) ---- */")
@@ -756,6 +797,6 @@ if stats["drifted"]:
     print("    set Figma back to match, or move the color into the semantic layer:")
     for name, fig, tw, d in sorted(stats["drifted"], key=lambda r: -r[3]):
         print(f"      {name:16} figma {fig}  ignored in favor of  {tw}")
-print(f"radius:{len(radius)} text:{len(text_fs)} blur:{len(blur)} "
+print(f"radius:{len(radius)} radius-roles:{len(radii)}x{len(RADIUS_MODES)} text:{len(text_fs)} blur:{len(blur)} "
       f"drop-shadows:{len(shadows_drop)} inner-shadows:{len(shadows_inner)}")
 print(f"wrote {out_path} ({len(css)} bytes, {css.count(chr(10))} lines)")

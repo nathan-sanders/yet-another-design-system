@@ -157,7 +157,7 @@ const barRow = tv({
  * over a statically positioned one whatever the DOM order.
  */
 const track = tv({
-  base: 'relative z-10 h-2 w-full overflow-hidden rounded-full bg-surface-border',
+  base: 'relative z-10 h-2 w-full overflow-hidden rounded-input bg-surface-border',
 })
 
 /**
@@ -189,7 +189,7 @@ const track = tv({
  */
 const indicator = tv({
   base: [
-    'h-full rounded-full',
+    'h-full rounded-input',
     'transition-[width] duration-fast ease-standard',
     'data-indeterminate:w-2/5 data-indeterminate:animate-progress-indeterminate',
     'motion-reduce:data-indeterminate:w-full motion-reduce:data-indeterminate:animate-none',

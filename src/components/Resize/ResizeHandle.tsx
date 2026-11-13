@@ -63,7 +63,7 @@ import { focusRing } from '../../lib/focus'
 
 const handle = tv({
   base: [
-    'group/handle relative flex shrink-0 rounded-sm',
+    'group/handle relative flex shrink-0 rounded-input-inner',
     // Without this a drag on a touch device scrolls the page instead.
     'touch-none select-none',
     'hover:bg-surface-overlay-subtle transition-colors duration-fast-min ease-standard',

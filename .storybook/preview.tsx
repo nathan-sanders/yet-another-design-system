@@ -34,6 +34,9 @@ const NAV_THEMES = [
   ...NAV_CODE_RAMPS.flatMap((ramp) => [`${ramp}-inverse`, ramp]),
 ]
 
+/** The four Border Radius modes, in Figma's order — generate.py's RADIUS_MODES. */
+const RADII = ['default', 'soft', 'round', 'sharp']
+
 const titleCase = (v: string) =>
   v.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
 
@@ -69,16 +72,26 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    radius: {
+      description: 'Which Border Radius mode the corner roles resolve to',
+      toolbar: {
+        title: 'Radius',
+        icon: 'component',
+        items: RADII.map((value) => ({ value, title: titleCase(value) })),
+        dynamicTitle: true,
+      },
+    },
   },
 
   initialGlobals: {
     theme: 'light',
     neutral: 'stone',
     navTheme: 'neutral-inverse',
+    radius: 'default',
   },
 
   decorators: [
-    // All three switches are attributes on <html>, exactly as they are in a real
+    // All four switches are attributes on <html>, exactly as they are in a real
     // app — so stories exercise the same mechanism the library ships with. They
     // are orthogonal: the ramp is theme-independent, and the semantic layer
     // picks which of its steps each theme uses.
@@ -92,6 +105,7 @@ const preview: Preview = {
       const dark = context.globals.theme === 'dark'
       const neutral = context.globals.neutral as string
       const navTheme = context.globals.navTheme as string
+      const radius = context.globals.radius as string
       useEffect(() => {
         document.documentElement.classList.toggle('dark', dark)
       }, [dark])
@@ -101,6 +115,9 @@ const preview: Preview = {
       useEffect(() => {
         document.documentElement.dataset.navTheme = navTheme
       }, [navTheme])
+      useEffect(() => {
+        document.documentElement.dataset.radius = radius
+      }, [radius])
       // `parameters.canvasPadding: false` drops the 24px for a story that *is*
       // the viewport — AppShell, whose own 8px frame is the padding, and where
       // 24 around 8 reads as the component being wrong.

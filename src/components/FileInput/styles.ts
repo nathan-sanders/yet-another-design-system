@@ -68,7 +68,7 @@ export const fileList = tv({ base: 'flex flex-col gap-2' })
  */
 export const fileRow = tv({
   base: [
-    'flex min-h-8 items-center gap-2 rounded-md border pr-1 pl-3',
+    'flex min-h-8 items-center gap-2 rounded-input border pr-1 pl-3',
     'border-surface-border bg-surface-background-primary text-content-primary',
   ],
 })

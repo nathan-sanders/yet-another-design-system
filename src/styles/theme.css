@@ -314,6 +314,7 @@
 
   /* radius */
   --radius-none: 0;
+  --radius-2xs: 0.125rem;
   --radius-xs: 0.25rem;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -1309,6 +1310,69 @@
   --nav-item-border-selected: var(--color-rose-300);
 }
 
+/* ---- 2c. The radius roles. Eight corner radii across 4 modes, switched by ---- */
+/*     one attribute: <html data-radius="soft">. Default is the default, and   */
+/*     also has its own block so the attribute is never a lie.                 */
+/*                                                                              */
+/*     A component rounds with a role (rounded-button, rounded-container-outer) */
+/*     wherever Figma binds one, and with a primitive step only where Figma     */
+/*     does: pills, avatars, charts. Every Default value is the step the code   */
+/*     used before the roles existed, so Default changes nothing on screen.     */
+:root {
+  --shape-button: var(--radius-md);
+  --shape-input: var(--radius-md);
+  --shape-input-inner: var(--radius-sm);
+  --shape-input-checkbox: var(--radius-sm);
+  --shape-container-outer: var(--radius-lg);
+  --shape-container-inner: var(--radius-md);
+  --shape-bubble: var(--radius-xl);
+  --shape-bubble-tip: var(--radius-xs);
+}
+
+:root[data-radius="default"] {
+  --shape-button: var(--radius-md);
+  --shape-input: var(--radius-md);
+  --shape-input-inner: var(--radius-sm);
+  --shape-input-checkbox: var(--radius-sm);
+  --shape-container-outer: var(--radius-lg);
+  --shape-container-inner: var(--radius-md);
+  --shape-bubble: var(--radius-xl);
+  --shape-bubble-tip: var(--radius-xs);
+}
+
+:root[data-radius="soft"] {
+  --shape-button: var(--radius-lg);
+  --shape-input: var(--radius-lg);
+  --shape-input-inner: var(--radius-md);
+  --shape-input-checkbox: var(--radius-sm);
+  --shape-container-outer: var(--radius-xl);
+  --shape-container-inner: var(--radius-lg);
+  --shape-bubble: var(--radius-2xl);
+  --shape-bubble-tip: var(--radius-sm);
+}
+
+:root[data-radius="round"] {
+  --shape-button: var(--radius-2xl);
+  --shape-input: var(--radius-2xl);
+  --shape-input-inner: var(--radius-xl);
+  --shape-input-checkbox: var(--radius-sm);
+  --shape-container-outer: var(--radius-2xl);
+  --shape-container-inner: var(--radius-xl);
+  --shape-bubble: var(--radius-2xl);
+  --shape-bubble-tip: var(--radius-sm);
+}
+
+:root[data-radius="sharp"] {
+  --shape-button: var(--radius-xs);
+  --shape-input: var(--radius-xs);
+  --shape-input-inner: var(--radius-2xs);
+  --shape-input-checkbox: var(--radius-2xs);
+  --shape-container-outer: var(--radius-xs);
+  --shape-container-inner: var(--radius-2xs);
+  --shape-bubble: var(--radius-xs);
+  --shape-bubble-tip: var(--radius-none);
+}
+
 /* ---- 4. Expose semantic tokens as color utilities (bg-*, text-*, border-*). ---- */
 /*    'inline' keeps the var reference live so utilities respond to .dark.        */
 @theme inline {
@@ -1501,6 +1565,16 @@
   --color-nav-item-border-hover: var(--nav-item-border-hover);
   --color-nav-item-background-selected: var(--nav-item-background-selected);
   --color-nav-item-border-selected: var(--nav-item-border-selected);
+
+  /* the radius roles — rounded-button, rounded-l-input, rounded-br-bubble-tip, … */
+  --radius-button: var(--shape-button);
+  --radius-input: var(--shape-input);
+  --radius-input-inner: var(--shape-input-inner);
+  --radius-input-checkbox: var(--shape-input-checkbox);
+  --radius-container-outer: var(--shape-container-outer);
+  --radius-container-inner: var(--shape-container-inner);
+  --radius-bubble: var(--shape-bubble);
+  --radius-bubble-tip: var(--shape-bubble-tip);
 }
 
 /* ---- Reference-only tokens (Tailwind already generates these utilities) ---- */

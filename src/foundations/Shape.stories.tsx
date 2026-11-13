@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Mono, Page, Panel, Section } from './Showcase'
-import { borderWidths, opacities, radii } from './tokens'
+import { Mono, Page, Panel, Section, ShowcaseTable, ShowcaseTd, ShowcaseTh } from './Showcase'
+import { borderWidths, opacities, radii, radiusModes, radiusRoles } from './tokens'
 
 /**
  * Corner radius, stroke weight and opacity — the non-color parts of how a
@@ -18,9 +18,11 @@ type Story = StoryObj<typeof meta>
 /**
  * The radius scale, from square to pill.
  *
- * Components pick from this and expose the choice as a `radius` prop only where
- * Figma models it as a variant — `Token` has `md` and `sm`, most things have
- * one radius and no prop. A scale is not an invitation to use all of it.
+ * Components mostly do not pick from this directly. Where Figma binds a corner to
+ * one of the Border Radius roles — Button, Input, Container Outer and the rest —
+ * the component rounds with the role (`rounded-button`), and the role picks the
+ * step per mode. The scale is what a role points at, and what the few unbound
+ * corners use: pills, avatars, charts.
  */
 export const Radius: Story = {
   render: () => (
@@ -28,7 +30,7 @@ export const Radius: Story = {
       title="Shape"
       lede={
         <>
-          Ten radii, six stroke weights and a twenty-one step opacity scale. The last two are
+          {radii.length} radii, eight corner roles, six stroke weights and a twenty-one step opacity scale. The last two are
           reference-only — Tailwind already generates <Mono>border-*</Mono> and <Mono>opacity-*</Mono>{' '}
           utilities, so the tokens exist to keep Figma and code naming the same values.
         </>
@@ -36,7 +38,7 @@ export const Radius: Story = {
     >
       <Section title="Radius">
         <Panel>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-6">
             {radii.map((r) => (
               <div key={r.name} className="flex flex-col gap-1.5">
                 <div
@@ -48,6 +50,56 @@ export const Radius: Story = {
             ))}
           </div>
         </Panel>
+      </Section>
+
+      <Section
+        title="Radius roles"
+        hint={
+          <>
+            What a component rounds with. Switched by <Mono>{'<html data-radius="soft">'}</Mono> — the
+            Radius toolbar here. The last column is drawn live, so it follows that switch.
+          </>
+        }
+      >
+        <ShowcaseTable label="Each radius role and the step it takes in every mode">
+          <thead>
+            <tr>
+              <ShowcaseTh className="w-48">Role</ShowcaseTh>
+              {radiusModes.map((m) => (
+                <ShowcaseTh key={m} className="capitalize">
+                  {m}
+                </ShowcaseTh>
+              ))}
+              <ShowcaseTh className="w-24">Now</ShowcaseTh>
+            </tr>
+          </thead>
+          <tbody>
+            {radiusRoles.map((r) => (
+              <tr key={r.name}>
+                <ShowcaseTd>
+                  <Mono>rounded-{r.name}</Mono>
+                </ShowcaseTd>
+                {r.modes.map((m) => (
+                  <ShowcaseTd key={m.mode}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="size-6 border border-surface-border bg-surface-background-subtle"
+                        style={{ borderRadius: m.value }}
+                      />
+                      <Mono muted>{m.step}</Mono>
+                    </div>
+                  </ShowcaseTd>
+                ))}
+                <ShowcaseTd>
+                  <div
+                    className="size-6 border border-surface-border-emphasized bg-surface-background-emphasized"
+                    style={{ borderRadius: `var(--shape-${r.name})` }}
+                  />
+                </ShowcaseTd>
+              </tr>
+            ))}
+          </tbody>
+        </ShowcaseTable>
       </Section>
 
       <Section title="Border width" hint="One pixel is the system default; the rest are for emphasis and dividers.">

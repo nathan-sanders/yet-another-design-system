@@ -63,6 +63,8 @@ PR, never inside an app PR.
 - `:root { --neutral-50 … --neutral-950 }` plus one `:root[data-neutral="…"]` block per ramp — the
   **neutral tier**, see below.
 - `:root { --surface-canvas … }` and `.dark { … }` — the **semantic** tokens (role-based, theme-aware).
+- `:root { --shape-button … }` plus one `:root[data-radius="…"]` block per mode — the **radius
+  roles**, see below.
 - `@theme inline { --color-surface-canvas: var(--surface-canvas) … }` — exposes semantic tokens as
   color utilities.
 - A trailing `:root` for reference-only values: `--border-width-*`, `--opacity-*`,
@@ -73,7 +75,7 @@ PR, never inside an app PR.
 **Style components with semantic-token utilities, never raw primitives or hex.** Use classes like
 `bg-surface-background-primary`, `text-content-primary`, `border-surface-border`,
 `bg-action-primary-background`, `text-action-primary-foreground`, `hover:bg-action-primary-background-hover`,
-`shadow-low`, `rounded-md`. Primitive utilities (`bg-blue-500`) exist but are for defining semantics,
+`shadow-low`, `rounded-button`. Primitive utilities (`bg-blue-500`) exist but are for defining semantics,
 not for use inside components.
 
 ### Dark mode
@@ -321,6 +323,49 @@ needs separating from its ground.
 The benchmark, alt and placeholder entries are the exception to all of it and still differ per mode
 on their own logic, because they are ground, not series.
 
+### The radius roles
+
+A third swappable collection, and the first that is not color: **`Border Radius`**, eight roles
+across four modes — **Default**, Soft, Round, Sharp. Each value aliases a step of the
+`border-radius/*` scale, which gained **`rounded-2xs`** (2px) for Sharp at the same time.
+
+| Role | Default | Soft | Round | Sharp | What rounds with it |
+|---|---|---|---|---|---|
+| `button` | md | lg | 2xl | xs | Button, tab, accordion trigger, outline item, calendar day, carousel dot, the Link/Breadcrumbs ring |
+| `input` | md | lg | 2xl | xs | every field box, menu/select/combobox rows, tree rows, the labelled control row, Token, OTP slot, SegmentedControl, ProgressBar |
+| `input-inner` | sm | md | xl | 2xs | a part inside a field: segments, a Token nested in a Combobox, the resize grip |
+| `input-checkbox` | sm | sm | sm | 2xs | the checkbox box, and the check boxes in Menu, Select and Combobox |
+| `container-outer` | lg | xl | 2xl | xs | Dialog, Popover, Toast, Banner, ContentBlock, Panel, Drawer, every popup, the nav bars and Nav items |
+| `container-inner` | md | lg | xl | 2xs | Card, clickable Card, Radio.Card, sortable item, Tooltip |
+| `bubble` | xl | 2xl | 2xl | xs | the chat bubble |
+| `bubble-tip` | xs | sm | sm | none | the bubble's tail corner |
+
+`tokens/radius.json` (the export, same shape as `navigation.json`) → section 2c of `generate.py` →
+section 2c of `theme.css` → `@theme inline { --radius-button: var(--shape-button) }`, which is what
+makes `rounded-button`, `rounded-l-input`, `rounded-br-bubble-tip` and the rest exist. The switch is
+`<html data-radius="soft">`, and the Storybook toolbar has a **Radius** menu for it.
+
+- **A component rounds with a role wherever Figma binds one, and with a step only where Figma
+  does.** Pills (`rounded-full` on Switch, Radio's dial, Avatar, Badge), Kbd, Skeleton, Table, the
+  charts and Top Bar's search wash are bound to the scale directly, so they keep a step and do not
+  move with the mode. Read the node's binding before choosing; it is the whole decision.
+- **Default changes nothing on screen.** Every Default value is the step the code used before the
+  roles existed — that was checked per component against the file when the tier landed — so the
+  modes are the only thing that can move a corner.
+- **tailwind-merge has to be told the names.** It only knows Tailwind's own scale, so
+  `rounded-input` and a caller's `rounded-none` were two unrelated classes, both kept, with the
+  stylesheet order picking a winner. `src/lib/cn.ts` extends the merge with `RADIUS_ROLES`, and sets
+  the same extension on tailwind-variants' shared `defaultConfig`, because `tv()` carries its own
+  merger. `tokens.test.ts` holds that list to the generated file and checks both merges, so adding a
+  role in Figma fails the suite until the list follows.
+- **Two corners take a different role from the one Figma draws, on purpose.** NumberInput's steppers
+  sit flush inside the box with only their outer side rounded, where Figma's `_Number Stepper` is an
+  inset square on `Input Inner`. Flush, the corner has to match the box's, so they are
+  `rounded-l-input` / `rounded-r-input`. And Link keeps its `rounded-[0.4em]`, the proportional ring
+  its record explains, rather than a px role.
+- Figma's variable was spelled `Container Outter` and was renamed at source to `Container Outer` on
+  2026-11-12. A rename keeps every binding.
+
 ### Color is OKLCH, and Tailwind owns the primitives
 
 Every color is emitted as `oklch()`. Figma cannot store OKLCH, so its hex values are 8-bit
@@ -454,7 +499,7 @@ to the card and draws none on the box — the box is inside the card, so both wo
 ### Refreshing tokens
 
 Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the
-three JSON files and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
+JSON files (`primitives`, `semantic`, `dimensions`, `navigation`, `radius`) and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
 
 `generate.py` refuses to write if it would emit an invalid CSS custom property name. This matters:
 an invalid name is dropped **silently** by the browser, which is how eight diverging colors once

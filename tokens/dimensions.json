@@ -34,6 +34,7 @@
 {"n":"text/9xl/font-size","t":"FLOAT","v":128},
 {"n":"text/9xl/line-height","t":"FLOAT","v":128},
 {"n":"border-radius/rounded-none","t":"FLOAT","v":0},
+{"n":"border-radius/rounded-2xs","t":"FLOAT","v":2},
 {"n":"border-radius/rounded-xs","t":"FLOAT","v":4},
 {"n":"border-radius/rounded-sm","t":"FLOAT","v":6},
 {"n":"border-radius/rounded-md","t":"FLOAT","v":8},

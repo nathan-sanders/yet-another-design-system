@@ -97,7 +97,7 @@ import { Text } from '../Text'
 const trigger = tv({
   base: [
     'group flex w-full items-center gap-3',
-    'rounded-md border border-input-border bg-input-background px-3',
+    'rounded-input border border-input-border bg-input-background px-3',
     'font-sans text-left text-content-primary',
     'cursor-pointer select-none',
     'hover:border-input-border-hover',
@@ -175,7 +175,7 @@ const value = tv({
 const field = tv({
   base: [
     'flex w-full flex-wrap items-center',
-    'rounded-md border border-input-border bg-input-background',
+    'rounded-input border border-input-border bg-input-background',
     'hover:border-input-border-hover',
     // `focusRing`'s two strokes, fired by the caret rather than by the box.
     'has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus-focus-outer-border',
@@ -356,7 +356,7 @@ const indicatorBox = tv({
   variants: {
     /** Figma's Multi Select row is a square; its Radio row is a circle. */
     shape: {
-      check: 'rounded-sm',
+      check: 'rounded-input-checkbox',
       radio: 'rounded-full',
     },
   },

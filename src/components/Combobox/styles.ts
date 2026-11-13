@@ -50,7 +50,7 @@ import { focusRing } from '../../lib/focus'
 export const popup = tv({
   base: [
     'flex flex-col',
-    'rounded-lg border border-surface-border bg-surface-background-primary shadow-medium',
+    'rounded-container-outer border border-surface-border bg-surface-background-primary shadow-medium',
     'font-sans',
     'outline-none',
     'min-w-(--anchor-width) max-h-(--available-height)',
@@ -103,7 +103,7 @@ export const item = tv({
   base: [
     'group flex w-full items-center gap-3',
     // px-3 = spacing/3 (12px), py-1 = spacing/1 (4px), so 24 + 8 = 32px tall.
-    'rounded-md px-3 py-1',
+    'rounded-input px-3 py-1',
     'cursor-pointer text-base select-none',
     'text-content-primary',
     'data-highlighted:bg-surface-background-subtle',

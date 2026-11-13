@@ -61,8 +61,8 @@ const stepper = tv({
     },
 
     align: {
-      start: 'order-2 rounded-l-md',
-      end: 'order-5 rounded-r-md',
+      start: 'order-2 rounded-l-input',
+      end: 'order-5 rounded-r-input',
     },
   },
 

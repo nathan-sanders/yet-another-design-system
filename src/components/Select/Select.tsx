@@ -89,7 +89,7 @@ import { Text } from '../Text'
 const trigger = tv({
   base: [
     'flex items-center gap-3',
-    'rounded-md border border-input-border bg-input-background px-3',
+    'rounded-input border border-input-border bg-input-background px-3',
     'font-sans text-left text-content-primary',
     'cursor-pointer select-none',
     'hover:border-input-border-hover',
@@ -182,7 +182,7 @@ const value = tv({
 const popup = tv({
   base: [
     'flex flex-col',
-    'rounded-lg border border-surface-border bg-surface-background-primary shadow-medium',
+    'rounded-container-outer border border-surface-border bg-surface-background-primary shadow-medium',
     'font-sans',
     'outline-none',
     'min-w-(--anchor-width) max-h-(--available-height)',
@@ -211,7 +211,7 @@ const item = tv({
   base: [
     'group flex w-full items-center gap-3',
     // px-3 = spacing/3 (12px), py-1 = spacing/1 (4px), so 24 + 8 = 32px tall.
-    'rounded-md px-3 py-1',
+    'rounded-input px-3 py-1',
     'cursor-pointer text-base select-none',
     'text-content-primary',
     'data-highlighted:bg-surface-background-subtle',
@@ -233,7 +233,7 @@ const item = tv({
  */
 const indicatorBox = tv({
   base: [
-    'flex size-5 shrink-0 items-center justify-center rounded-sm border',
+    'flex size-5 shrink-0 items-center justify-center rounded-input-checkbox border',
     'bg-input-background border-input-border',
     'group-data-selected:bg-input-selected group-data-selected:border-input-selected',
     'text-input-selected-foreground',
@@ -257,7 +257,7 @@ const scrollArrow = tv({
   base: [
     'z-1 flex h-6 w-full shrink-0 items-center justify-center',
     'bg-surface-background-primary text-content-subtle',
-    'data-[direction=up]:rounded-t-lg data-[direction=down]:rounded-b-lg',
+    'data-[direction=up]:rounded-t-container-outer data-[direction=down]:rounded-b-container-outer',
   ],
 })
 

@@ -53,6 +53,9 @@ what `Combobox` passes for its chips: two curves of the same radius on different
 as parallel, and subtracting the gap between them (8 − 3) lands almost exactly on the 6 the scale
 already has. A prop, not a derivation, because a token cannot see what it is sitting in — and one
 nothing but Combobox should ever pass.
+**Both are radius roles since 2026-11-12**: `md` is `rounded-input` and `sm` is `rounded-input-inner`,
+8 and 6 at Default. The prop names stay, because callers already pass them, but the pair now stays a
+step apart in every `data-radius` mode.
 **`Token.Remove` and the click overlay follow it, and `Token.Remove` reads it off context**, because
 it is rendered by `Combobox.ChipRemove` as often as by Token itself. Both reach over the pill's
 border, so their outer corners land exactly on its; a mismatch shows as a sliver of hover wash

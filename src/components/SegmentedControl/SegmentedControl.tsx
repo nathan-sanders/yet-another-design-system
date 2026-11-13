@@ -60,7 +60,7 @@ const SegmentedControlContext = createContext<{
 const segmentedControl = tv({
   base: [
     'items-center gap-px',
-    'rounded-md border p-px font-sans',
+    'rounded-input border p-px font-sans',
     // No `overflow-clip`, even though Figma has it. Figma draws focus as an
     // overlay *inside* the segment, so clipping costs it nothing. Here focus is
     // a ring 4px deep that paints outside the segment, and the segment sits only
@@ -109,7 +109,7 @@ const segment = tv({
     'inline-flex items-center justify-center',
     // gap-2 = 8px (spacing/2) at every size — Figma sets it unconditionally, so
     // this does not tighten to gap-1 at small the way Button does.
-    'gap-2 rounded-sm font-sans whitespace-nowrap select-none',
+    'gap-2 rounded-input-inner font-sans whitespace-nowrap select-none',
     // Labels come from the Content ramp, not the Action one: an unselected
     // segment is `content-primary` and the selected one darkens to
     // `content-emphasized`, so selection is carried by color as well as by

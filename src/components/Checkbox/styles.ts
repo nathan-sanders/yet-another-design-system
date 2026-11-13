@@ -47,7 +47,7 @@ export const controlRow = tv({
       false: 'inline-flex items-center gap-3',
       true: [
         'flex w-full px-3 py-2',
-        'rounded-md inset-ring inset-ring-surface-border',
+        'rounded-input inset-ring inset-ring-surface-border',
         'hover:bg-surface-background-subtle',
         ...focusRingWithin,
         'has-[[data-invalid]]:inset-ring-feedback-danger-highlight',
@@ -220,7 +220,7 @@ const stateFrom = {
 export const checkboxBox = tv({
   base: [
     'flex shrink-0 items-center justify-center',
-    'size-5 rounded-sm border',
+    'size-5 rounded-input-checkbox border',
     'cursor-pointer',
     // Unticked. The Input ramp, not the Action one: this is a form control.
     'bg-input-background border-input-border',

@@ -35,7 +35,7 @@ import { focusRing } from '../../lib/focus'
  */
 const box = [
   'flex w-full min-w-0 flex-col gap-2',
-  'rounded-md border',
+  'rounded-container-inner border',
   // 14/24 body type, so a card's content starts from the library's base rather
   // than from whatever the page happens to set. ContentBlock's line.
   'font-sans text-base',

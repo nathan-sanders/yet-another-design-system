@@ -227,6 +227,35 @@ export const typeScale: TypeStep[] = pick(THEME, /^--text-[\w]+$/).map((d) => ({
 export const fontFamilies: Decl[] = pick(THEME, /^--font-(sans|mono)$/)
 export const fontWeights: Decl[] = pick(THEME, /^--font-weight-/)
 export const radii: Decl[] = pick(THEME, /^--radius-/)
+
+export type RadiusRole = { name: string; modes: { mode: string; step: string; value: string }[] }
+
+/** The Border Radius modes, from the `:root[data-radius="…"]` blocks, in source order. */
+export const radiusModes: string[] = BLOCKS.flatMap((b) => {
+  const m = /^:root\[data-radius="([a-z]+)"\]$/.exec(b.selector)
+  return m ? [m[1]] : []
+})
+
+/**
+ * Each corner role and the scale step it takes in every mode — `--shape-button`
+ * is `var(--radius-md)` at Default and `var(--radius-2xl)` at Round. The step is
+ * looked up in the scale so the page can draw it, rather than leaning on a
+ * `@theme` variable Tailwind may have dropped.
+ */
+export const radiusRoles: RadiusRole[] = (() => {
+  const roles = new Map<string, RadiusRole>()
+  for (const mode of radiusModes) {
+    for (const d of block((b) => b.selector === `:root[data-radius="${mode}"]`)) {
+      const name = d.name.slice('--shape-'.length)
+      const step = /var\(--radius-([a-z0-9]+)\)/.exec(d.value)?.[1] ?? d.value
+      const value = radii.find((r) => r.name === `--radius-${step}`)?.value ?? d.value
+      const role = roles.get(name) ?? { name, modes: [] }
+      role.modes.push({ mode, step, value })
+      roles.set(name, role)
+    }
+  }
+  return [...roles.values()]
+})()
 export const shadows: Decl[] = pick(THEME, /^--shadow-/)
 export const insetShadows: Decl[] = pick(THEME, /^--inset-shadow-/)
 export const blurs: Decl[] = pick(THEME, /^--blur-/)

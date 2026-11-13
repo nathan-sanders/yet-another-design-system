@@ -77,10 +77,10 @@ export const dayButton = tv({
      * side-suffixed color utility that `tokens.test.ts` cannot see.
      */
     selection: {
-      none: 'rounded-md',
-      single: 'rounded-md',
-      start: 'rounded-l-md rounded-r-none',
-      end: 'rounded-r-md rounded-l-none',
+      none: 'rounded-button',
+      single: 'rounded-button',
+      start: 'rounded-l-button rounded-r-none',
+      end: 'rounded-r-button rounded-l-none',
       middle: 'rounded-none',
     },
 
@@ -178,7 +178,7 @@ export const gridRow = 'flex'
  */
 export const panel = [
   'inline-flex overflow-hidden font-sans',
-  'rounded-lg bg-surface-background-primary shadow-medium',
+  'rounded-container-outer bg-surface-background-primary shadow-medium',
   'inset-ring inset-ring-surface-border',
 ].join(' ')
 

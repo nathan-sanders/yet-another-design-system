@@ -35,7 +35,7 @@ import { Icon, type IconProps } from '../Icon'
 const button = tv({
   base: [
     'inline-flex shrink-0 items-center justify-center',
-    'rounded-md border font-sans font-semibold whitespace-nowrap',
+    'rounded-button border font-sans font-semibold whitespace-nowrap',
     'cursor-pointer transition-colors',
     // Focus is the library's shared ring — see src/lib/focus.ts. It paints
     // entirely outside the button, so a focused button is exactly the size of

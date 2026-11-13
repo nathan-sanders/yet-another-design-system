@@ -108,7 +108,7 @@ const indicator = tv({
 
 const item = tv({
   base: [
-    'flex w-full items-center rounded-md pr-2 text-left',
+    'flex w-full items-center rounded-button pr-2 text-left',
     // Content/Subtle at rest, Content/Primary on hover: the Breadcrumbs
     // treatment, because an outline is navigation chrome beside the page, not
     // a link inside body copy — so not the blue Action/Link pair.

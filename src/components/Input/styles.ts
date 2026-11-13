@@ -56,7 +56,7 @@ export const box = tv({
     // `border` with no color: the width is constant so the box never changes
     // size, and which color it takes is the `appearance` variant's business.
     // Button's ghost does the same thing with a fully transparent border.
-    'rounded-md border',
+    'rounded-input border',
     // Same crossfade Checkbox and SegmentedControl use, for the same reason: the
     // border color changes on hover and on invalid, and 130ms is the shortest
     // motion token.

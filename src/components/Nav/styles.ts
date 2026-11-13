@@ -25,7 +25,7 @@ export const navItem = tv({
     // min-h-10 = height/h-10 (40px), p-2 = spacing/2 (8px), gap-1 = spacing/1
     // (4px), rounded-lg = border-radius/rounded-lg (12px). A min-height rather
     // than a height so a label that wraps grows the row instead of spilling.
-    'min-h-10 rounded-lg p-2',
+    'min-h-10 rounded-container-outer p-2',
     'text-nav-content-primary',
     // The icon inherits this, which is what Figma binds its stroke to.
     'text-left',
@@ -88,7 +88,7 @@ export const navItem = tv({
  * the nav.
  */
 export const navSurface = tv({
-  base: 'bg-nav-background text-nav-content-primary font-sans rounded-lg',
+  base: 'bg-nav-background text-nav-content-primary font-sans rounded-container-outer',
 
   variants: {
     /**

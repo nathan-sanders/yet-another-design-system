@@ -73,7 +73,7 @@ const popup = tv({
     // Background Primary, under the Elevation/Drop Shadow/Medium effect style.
     // That shadow's color is itself a semantic token, so it flips for dark mode
     // on its own and there is no `dark:` class here.
-    'p-3 rounded-lg border border-surface-border bg-surface-background-primary shadow-medium',
+    'p-3 rounded-container-outer border border-surface-border bg-surface-background-primary shadow-medium',
     // 14/24 body type, so a panel's content starts from the library's base
     // rather than from whatever the page happens to set.
     'font-sans text-base text-content-primary',

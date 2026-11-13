@@ -43,7 +43,7 @@ const banner = tv({
     'flex w-full items-start',
     // gap-1 = 4px (spacing/1), px-4 = 16px, py-3 = 12px.
     'gap-1 px-4 py-3',
-    'rounded-lg',
+    'rounded-container-outer',
     // 14/24 body type. Set here so the icon rail can center against a known
     // line-height, and so both text rows inherit it.
     'font-sans text-base [word-break:break-word]',
