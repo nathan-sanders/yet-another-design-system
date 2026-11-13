@@ -415,6 +415,16 @@ export type {
 export { Slider } from './components/Slider'
 export type { SliderProps, SliderMark } from './components/Slider'
 
+export { Stepper } from './components/Stepper'
+export type {
+  StepperProps,
+  StepperStepProps,
+  StepperOrientation,
+  StepperLayout,
+  StepperIndicator,
+  StepperStepStatus,
+} from './components/Stepper'
+
 export { Switch } from './components/Switch'
 export type { SwitchProps } from './components/Switch'
 
