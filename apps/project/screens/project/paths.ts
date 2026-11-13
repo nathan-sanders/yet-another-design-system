@@ -4,13 +4,13 @@ import type { Task } from '../../data/types'
 /**
  * A project's tabs, in the file's order (`Yet Project / Project shell`,
  * `40006263:1152`). A project that runs in sprints swaps Rules for Sprints.
- * `figma` is the frame each is drawn on; Overview, List and Board are built so far.
+ * `figma` is the frame each is drawn on; Overview, List, Board and Timeline are built so far.
  */
 export const PROJECT_TABS = [
   { id: 'overview', label: 'Overview', figma: '40006268-5150', built: true },
   { id: 'list', label: 'List', figma: '40006268-6554', built: true },
   { id: 'board', label: 'Board', figma: '40006268-8728', built: true },
-  { id: 'timeline', label: 'Timeline', figma: '40006272-7631' },
+  { id: 'timeline', label: 'Timeline', figma: '40006272-7631', built: true },
   { id: 'calendar', label: 'Calendar', figma: '40006272-9258' },
   { id: 'docs', label: 'Docs', figma: '40006309-36927' },
   { id: 'rules', label: 'Rules', figma: '40006284-21772' },
