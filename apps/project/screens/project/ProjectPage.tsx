@@ -34,6 +34,7 @@ import { BoardView } from './BoardView'
 import { CalendarView } from './CalendarView'
 import { DocsView } from './DocsView'
 import { ListView } from './ListView'
+import { RulesView } from './RulesView'
 import { OverviewView } from './OverviewView'
 import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
 import { TaskPanel } from './TaskPanel'
@@ -227,6 +228,8 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
                   <CalendarView project={project} />
                 ) : t.id === 'docs' ? (
                   <DocsView project={project} />
+                ) : t.id === 'rules' ? (
+                  <RulesView project={project} />
                 ) : (
                   <NotBuiltMessage
                     icon={PencilRuler}
