@@ -9,6 +9,8 @@ import {
   navTokens,
   neutralRamps,
   radii,
+  radiusModes,
+  radiusRoles,
   paint,
   readAlias,
   semanticGroups,
@@ -124,13 +126,14 @@ export const Overview: Story = {
       >
         <Section title="By the numbers">
           <Panel>
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-7">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8">
               <Stat value={chromaticRamps.length + neutralRamps.length} label="Primitive ramps" />
               <Stat value={swappableNeutrals.length} label="Swappable neutrals" />
               <Stat value={semanticTokenCount} label="Semantic tokens" />
               <Stat value={navThemes.length} label="Nav themes" />
               <Stat value={typeScale.length} label="Type steps" />
               <Stat value={radii.length} label="Radii" />
+              <Stat value={radiusModes.length} label="Radius modes" />
               <Stat value={durations.length} label="Durations" />
             </div>
           </Panel>
@@ -246,8 +249,8 @@ export const Overview: Story = {
         </Section>
 
         <Section
-          title="The three switches"
-          hint="All three are attributes on <html>, and all three are orthogonal — the same public mechanism a consumer gets. The Storybook toolbar sets them."
+          title="The four switches"
+          hint="All four are attributes on <html>, and all four are orthogonal — the same public mechanism a consumer gets. The Storybook toolbar sets them."
         >
           <Panel className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
@@ -272,6 +275,14 @@ export const Overview: Story = {
                 it is mostly absolute — the page can go dark underneath a nav that does not move.
               </p>
             </div>
+            <div className="flex flex-col gap-1">
+              <Mono>data-radius="soft"</Mono>
+              <p className="text-base text-content-subtle">
+                Repoints the {radiusRoles.length} corner roles at different steps of the radius
+                scale — {radiusModes.join(', ')}. The only switch that is not color, so it composes
+                with all three of the others.
+              </p>
+            </div>
           </Panel>
         </Section>
 
@@ -286,7 +297,7 @@ export const Overview: Story = {
                 ['Semantic Color', `All ${semanticTokenCount} roles, with their light and dark targets side by side.`],
                 ['Typography', `Two families, three weights, ${typeScale.length} steps that carry their own line height.`],
                 ['Space', 'One base number, and the multiples every layout is built from.'],
-                ['Shape', `${radii.length} radii, six stroke weights, twenty-one opacities.`],
+                ['Shape', `${radii.length} radii, ${radiusRoles.length} corner roles in ${radiusModes.length} modes, six stroke weights, twenty-one opacities.`],
                 ['Elevation', `${shadows.length} shadows whose color is itself a token, so they adapt in dark mode.`],
                 ['Motion', `${durations.length} durations in three tiers, and one easing curve.`],
               ].map(([term, def]) => (

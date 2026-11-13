@@ -77,7 +77,9 @@ const preview: Preview = {
       toolbar: {
         title: 'Radius',
         icon: 'component',
-        items: RADII.map((value) => ({ value, title: titleCase(value) })),
+        // "Default" alone does not say what it switches, the way "Stone" does,
+        // so every item names the tier.
+        items: RADII.map((value) => ({ value, title: `${titleCase(value)} radius` })),
         dynamicTitle: true,
       },
     },
