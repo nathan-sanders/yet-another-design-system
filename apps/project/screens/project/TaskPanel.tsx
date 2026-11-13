@@ -41,9 +41,10 @@ import { Heading, Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
+import { PropertyRow } from '../../components/PropertyRow'
 import { AssigneeToken, DueToken, PriorityToken, StatusToken } from '../../components/TaskTokens'
 import { blockerOf, statusFor, subtaskCount } from '../../components/taskMeta'
-import { addDays, day, sameDay, shortDate, today } from '../../data/dates'
+import { addDays, datedText, day, sameDay, shortDate, today } from '../../data/dates'
 import { personFor } from '../../data/people'
 import { projectFor } from '../../data/projects'
 import type { Task, TaskComment, TaskEvent, TaskPriority } from '../../data/types'
@@ -75,31 +76,6 @@ const PRIORITY_SIGNAL: Record<TaskPriority, LucideIcon> = {
   critical: Signal,
 }
 
-/**
- * `_Property Row` (`40006261:1606`): a 144px label of icon and subtle text,
- * then the value — an Interactive Token when it can be changed, a link Token
- * when it goes somewhere. 32 tall, rows touching.
- */
-function Property({
-  icon,
-  label,
-  children,
-}: {
-  icon: LucideIcon
-  label: string
-  children: ReactNode
-}) {
-  return (
-    <div className="flex h-8 items-center gap-2">
-      <dt className="flex w-36 shrink-0 items-center gap-2 text-content-subtle">
-        <Icon icon={icon} />
-        {label}
-      </dt>
-      <dd className="flex min-w-0 flex-1">{children}</dd>
-    </div>
-  )
-}
-
 /** A section's title: body size, semibold, as every panel section draws it. */
 function SectionHeading({ id, children }: { id: string; children: ReactNode }) {
   return (
@@ -117,35 +93,35 @@ function Properties({ task }: { task: Task }) {
   return (
     <dl aria-label="Properties" className="flex flex-col">
       {/* The label icon follows the value, as the file draws it: `circle-slash` by Blocked. */}
-      <Property icon={statusFor(task.status).icon} label="Status">
+      <PropertyRow icon={statusFor(task.status).icon} label="Status">
         <StatusToken task={task} onChange={onChange} />
-      </Property>
-      <Property icon={CircleUser} label="Assignee">
+      </PropertyRow>
+      <PropertyRow icon={CircleUser} label="Assignee">
         <AssigneeToken task={task} onChange={onChange} />
-      </Property>
-      <Property icon={Calendar} label="Due">
+      </PropertyRow>
+      <PropertyRow icon={Calendar} label="Due">
         <DueToken
           label={shortDate.format(day(task.due))}
           onClick={() => shell.notBuilt('The due date picker')}
         />
-      </Property>
-      <Property icon={PRIORITY_SIGNAL[task.priority]} label="Priority">
+      </PropertyRow>
+      <PropertyRow icon={PRIORITY_SIGNAL[task.priority]} label="Priority">
         <PriorityToken task={task} onChange={onChange} />
-      </Property>
-      <Property icon={Tag} label="Phase">
+      </PropertyRow>
+      <PropertyRow icon={Tag} label="Phase">
         <Token onClick={() => shell.notBuilt('Moving a task to another phase')}>{task.phase}</Token>
-      </Property>
+      </PropertyRow>
       {project ? (
-        <Property icon={FolderKanban} label="Project">
+        <PropertyRow icon={FolderKanban} label="Project">
           <Token onClick={() => shell.notBuilt('Moving a task to another project')}>
             {project.name}
           </Token>
-        </Property>
+        </PropertyRow>
       ) : null}
       {task.estimate ? (
-        <Property icon={Timer} label="Estimate">
+        <PropertyRow icon={Timer} label="Estimate">
           <Token onClick={() => shell.notBuilt('Changing the estimate')}>{task.estimate}</Token>
-        </Property>
+        </PropertyRow>
       ) : null}
     </dl>
   )
@@ -164,14 +140,14 @@ function Linked({ task }: { task: Task }) {
       <SectionHeading id={`${task.id}-linked`}>Linked</SectionHeading>
       <dl className="flex flex-col">
         {doc ? (
-          <Property icon={FileText} label="Doc">
+          <PropertyRow icon={FileText} label="Doc">
             <Token href="#/docs">{doc}</Token>
-          </Property>
+          </PropertyRow>
         ) : null}
         {request ? (
-          <Property icon={ClipboardList} label="Request">
+          <PropertyRow icon={ClipboardList} label="Request">
             <Token href="#/requests">{request}</Token>
-          </Property>
+          </PropertyRow>
         ) : null}
       </dl>
     </section>
@@ -311,7 +287,7 @@ function Comment({ comment }: { comment: TaskComment }) {
             {comment.age}
           </Text>
         </div>
-        <Text>{comment.body}</Text>
+        <Text>{datedText(comment.body)}</Text>
       </div>
     </div>
   )
@@ -440,10 +416,10 @@ function Activity({ task }: { task: Task }) {
                   <Text>{event.text}</Text>
                   {event.change ? (
                     <div className="flex items-center gap-1">
-                      <Token>{event.change.from}</Token>
+                      <Token>{datedText(event.change.from)}</Token>
                       <Icon icon={ArrowRight} size="small" />
                       <span className="sr-only">to</span>
-                      <Token>{event.change.to}</Token>
+                      <Token>{datedText(event.change.to)}</Token>
                     </div>
                   ) : null}
                 </div>
@@ -621,7 +597,7 @@ function TaskDetail({ task, tasks }: { task: Task; tasks: Task[] }) {
               </Button>
             </Card>
           ) : null}
-          {task.description ? <Text>{task.description}</Text> : null}
+          {task.description ? <Text>{datedText(task.description)}</Text> : null}
           <Properties task={task} />
           <Linked task={task} />
           <Subtasks task={task} />

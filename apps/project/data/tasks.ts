@@ -42,7 +42,7 @@ export const tasks: Task[] = [
     priority: 'high',
     due: '2026-11-10',
     description:
-      'The city’s final sign-off on the build-out’s electrical. It slipped from Nov 7 to Nov 10, and the health permit can’t be scheduled until it passes.',
+      'The city’s final sign-off on the build-out’s electrical. It slipped from {2026-11-04} to {2026-11-10}, and the health permit can’t be scheduled until it passes.',
     estimate: '4h',
     subtasks: [
       { id: 'aus-38', title: 'Send the panel schedule to the city', done: true },
@@ -55,7 +55,7 @@ export const tasks: Task[] = [
         id: 'c-21-1',
         authorId: 'dana',
         age: '3h',
-        body: 'Do we have a window for the 10th? I want the health inspector lined up behind it.',
+        body: 'Do we have a window for the {2026-11-10:th}? I want the health inspector lined up behind it.',
       },
     ],
     activity: [
@@ -63,8 +63,8 @@ export const tasks: Task[] = [
         id: 'e-21-2',
         actor: 'marcus',
         text: 'Marcus moved the due date',
-        at: day('2026-11-04'),
-        change: { from: 'Nov 7', to: 'Nov 10' },
+        at: day('2026-11-05'),
+        change: { from: '{2026-11-04}', to: '{2026-11-10}' },
       },
       { id: 'e-21-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-20') },
     ],
@@ -94,7 +94,7 @@ export const tasks: Task[] = [
         id: 'c-24-1',
         authorId: 'marcus',
         age: '2h',
-        body: 'City confirmed the 10th. If it passes I’ll send the certificate over the same day.',
+        body: 'City confirmed the {2026-11-10:th}. If it passes I’ll send the certificate over the same day.',
         likes: 2,
         replies: [
           {
@@ -131,7 +131,7 @@ export const tasks: Task[] = [
         actor: 'dana',
         text: 'Dana moved the due date',
         at: day('2026-11-03'),
-        change: { from: 'Nov 16', to: 'Nov 18' },
+        change: { from: '{2026-11-16}', to: '{2026-11-18}' },
       },
       {
         id: 'e-24-2',
@@ -273,7 +273,7 @@ export const tasks: Task[] = [
     priority: 'medium',
     due: '2026-12-14',
     description:
-      'A week of paid training in the finished kitchen, starting Dec 7. It needs the equipment in and working first.',
+      'A week of paid training in the finished kitchen, starting {2026-12-07}. It needs the equipment in and working first.',
     estimate: '40h',
     dependsOn: [{ taskId: 'aus-26' }],
     activity: [

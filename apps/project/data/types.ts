@@ -40,7 +40,10 @@ export interface Task {
   status: TaskStatus
   priority: TaskPriority
   due: string
-  /** What the task is, under its title in the panel. */
+  /**
+   * What the task is, under its title in the panel. A date in it is written
+   * `{2026-11-10}`, so `datedText` moves it with the schedule.
+   */
   description?: string
   /** Hours, as the panel's Estimate token reads: "6h". */
   estimate?: string
@@ -85,5 +88,35 @@ export interface TaskEvent {
   actor: string | 'rule' | 'yak'
   text: string
   at: Date
+  /** A date in either is written `{2026-11-10}`, so it moves with the schedule. */
   change?: { from: string; to: string }
+}
+
+/**
+ * A project's Overview tab (`Project - Overview`, `40006268:5150`): what Yak
+ * makes of it, the owner's latest update, the milestones, the properties the
+ * header has no room for, and the latest activity. Dates inside prose are
+ * written `{2026-11-18}` so `datedText` can move them onto this week with the
+ * rest of the schedule.
+ */
+export interface ProjectOverview {
+  projectId: string
+  /** Yak's summary, one paragraph a line. */
+  summary: string[]
+  latestUpdate: {
+    authorId: string
+    /** The day it was posted, in the file's calendar. */
+    posted: string
+    health: ProjectHealth
+    body: string
+    /** "Since last update": what moved, each as a view-only Token. */
+    changes: { kind: 'date' | 'people' | 'progress'; text: string }[]
+  }
+  milestones: { name: string; date: string; health: ProjectHealth }[]
+  team: string[]
+  budget: { spent: number; total: number }
+  goal: string
+  portfolio: string
+  /** Newest first, ages as drawn ("2h"). */
+  activity: { actorId: string; text: string; age: string }[]
 }

@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import {
   AudioLines,
@@ -15,11 +14,10 @@ import { AppShell } from '../../../../src/components/AppShell'
 import { Button } from '../../../../src/components/Button'
 import { ClickableCard } from '../../../../src/components/Card'
 import { ChatComposer } from '../../../../src/components/Chat'
-import { ContentBlock } from '../../../../src/components/ContentBlock'
-import { Menu } from '../../../../src/components/Menu'
 import { Heading, Text } from '../../../../src/components/Text'
 import { TopBar } from '../../../../src/components/TopBar'
 import { HomeTaskRow } from '../../components/HomeTaskRow'
+import { MenuBlock } from '../../components/MenuBlock'
 import { HealthBadge, ProjectDot, ProjectProgress } from '../../components/ProjectCells'
 import { day, fullDate, shortDate, today } from '../../data/dates'
 import { projectFor } from '../../data/projects'
@@ -129,7 +127,7 @@ export function HomeScreen() {
             </div>
           </section>
 
-          <Block
+          <MenuBlock
             title={`Needs you · ${tasks.length}`}
             menu={[{ label: 'Hide this card', onClick: () => shell.notBuilt('Hiding cards') }]}
           >
@@ -138,9 +136,9 @@ export function HomeScreen() {
                 <HomeTaskRow key={task.id} {...task} />
               ))}
             </ul>
-          </Block>
+          </MenuBlock>
 
-          <Block
+          <MenuBlock
             title="Your projects"
             menu={[{ label: 'All projects', onClick: () => navigate('/projects') }]}
           >
@@ -149,15 +147,15 @@ export function HomeScreen() {
                 <ProjectCard key={id} project={projectFor(id)!} />
               ))}
             </div>
-          </Block>
+          </MenuBlock>
 
-          <Block
+          <MenuBlock
             title="This week"
             menu={[{ label: 'Open My work', onClick: () => navigate('/my-work') }]}
             flush
           >
             <WeekStrip />
-          </Block>
+          </MenuBlock>
         </div>
       </AppShell.Content>
     </>
@@ -187,48 +185,6 @@ function ProjectCard({ project }: { project: Project }) {
         {project.milestone.name} · {shortDate.format(day(project.milestone.date))}
       </Text>
     </ClickableCard>
-  )
-}
-
-/** A Home card: Content Block with the file's header and its ⋯ menu. */
-function Block({
-  title,
-  menu,
-  flush = false,
-  children,
-}: {
-  title: string
-  menu: { label: string; onClick: () => void }[]
-  /** Content runs to the block's edges, for the week strip. */
-  flush?: boolean
-  children: ReactNode
-}) {
-  return (
-    <ContentBlock headingLevel={2} className="h-auto shrink-0">
-      <ContentBlock.Header
-        actions={
-          <Menu>
-            <Menu.Trigger
-              render={
-                <Button appearance="ghost" startIcon={Ellipsis} aria-label={`${title} options`} />
-              }
-            />
-            <Menu.Popup aria-label={`${title} options`}>
-              <Menu.Group>
-                {menu.map((item) => (
-                  <Menu.Item key={item.label} onClick={item.onClick}>
-                    {item.label}
-                  </Menu.Item>
-                ))}
-              </Menu.Group>
-            </Menu.Popup>
-          </Menu>
-        }
-      >
-        {title}
-      </ContentBlock.Header>
-      <ContentBlock.Content className={flush ? 'p-0' : undefined}>{children}</ContentBlock.Content>
-    </ContentBlock>
   )
 }
 

@@ -32,6 +32,7 @@ import { NotBuiltMessage } from '../NotBuiltMessage'
 import { NotBuilt } from '../NotBuilt'
 import { BoardView } from './BoardView'
 import { ListView } from './ListView'
+import { OverviewView } from './OverviewView'
 import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
 import { TaskPanel } from './TaskPanel'
 import { useTasks } from './tasksState'
@@ -199,7 +200,9 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
             </div>
             {tabs.map((t) => (
               <Tabs.Panel key={t.id} value={t.id} className="flex flex-1 flex-col">
-                {t.id === 'list' ? (
+                {t.id === 'overview' ? (
+                  <OverviewView project={project} />
+                ) : t.id === 'list' ? (
                   <ListView
                     project={project}
                     selectedTaskId={openTask?.id}
