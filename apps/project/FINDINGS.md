@@ -339,3 +339,54 @@ campaign bars, this one a scrolling chart with rows, groups and dependency lines
 49. **The "No date" button is hidden.** Every open task in the data has dates, so the count is 0
     and the button would open an empty tray; it shows when a task without a start exists.
 
+## Slice 7 — Calendar, Docs and Rules (2026-11-13)
+
+Three tabs in one go, which leaves Sprints (the Mobile ordering app's, which has no tasks yet) as
+the only project tab not built.
+
+- **Calendar**, from `Project - Calendar` (`40006272:9258`): a Sunday-first month, each open task
+  a bar across its days in the Timeline's colors, cut at each week's edge. Today, the arrows and
+  the month are in the toolbar; the month is in the URL (`?month=2026-12`). Weeks measured the
+  frame's 148, bars 4 in from each column and 34 under the day's number.
+- **Docs**, from `Docs - Project Docs tab` (`40006309:36927`): Filter, Upload, New doc, the pinned
+  brief as a card (1158×70, as drawn), and a Table at the file's widths (666 / 110 / 170 / 110 /
+  100, rows 40). Opening a doc and the editor frames are not built and say so.
+- **Rules**, from `Project - Rules` (`40006284:21772`): Active rules with their Switches, Suggested
+  by Yak with Add, and a rule's panel (`?rule=blocked`) with its steps and recent runs. Blocks and
+  rows measured the frame's (766×306, 766×162; rows 60 and 44). New rule and Add step are drawn
+  in `Intake & automation · Deep dive` and not built.
+
+axe is clean on all three, light and dark.
+
+### Open: library changes worth making
+
+None open.
+
+### Kept in the app, worth knowing
+
+50. **The Calendar's bars come from the tasks, not the frame.** The frame's bars are drawn by
+    hand and several disagree with the dates the Timeline measures (Finalize the supplier list
+    ending Friday, then a separate "Supplier list due" piece). Here each bar runs from the task's
+    start to its due date, so the two views agree. Done work is left out, as on the Timeline.
+51. **Calendar lanes are packed.** A task takes the first lane free across its days that week, so
+    the permit rides behind the electrical inspection once that ends. The frame gives every task a
+    lane of its own; packing keeps four lanes inside the 148 a week is drawn at. A week that needs
+    more grows rather than hiding work behind a "more".
+52. **Each doc lists its linked tasks.** A task names one doc (its panel's Linked row), so counting
+    from tasks gave the opening plan 2 where the frame says 12. `data/docs.ts` gives each doc the
+    real tasks it is linked to instead, chosen to make the file's 12, 3, 5, 1 and 2; the two tasks
+    whose panel names the plan are in its list. Linked tasks is a real number, so the Table sets it
+    in mono, left as drawn.
+53. **A Token in a Table cell sits in a block.** The Type column's Token measured 25 in a line box
+    and made every row 41; in a `flex` span the rows are the file's 40 (entry 10, again).
+54. **Rules live above the router.** `RulesProvider` holds them like `TasksProvider` holds the
+    tasks, so a rule switched off or a suggestion added is still that way after another tab. Off,
+    a rule reads "Paused" and leaves the header's count; added, it reads "Hasn't run yet". Test
+    checks the rule and changes nothing, and says so.
+55. **Only the first rule is drawn open.** The other three, and both suggestions, have steps and
+    runs written in the same shape, code-first. One of the drawn runs said Signage install was
+    blocked on Oct 29, which cannot be — it starts Dec 1 — so that run is Install hood and
+    ventilation's, Marcus's, as the face drawn beside it is.
+56. **`MenuBlock` takes a plain header action.** Rules' header holds "New rule", a labeled Ghost
+    button, where Home's and the Overview's hold a ⋯ menu.
+

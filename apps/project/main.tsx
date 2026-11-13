@@ -7,6 +7,7 @@ import { Toast } from '../../src/components/Toast'
 import { HomeScreen } from './screens/home/HomeScreen'
 import { NotBuilt } from './screens/NotBuilt'
 import { ProjectIndex, ProjectPage } from './screens/project/ProjectPage'
+import { RulesProvider } from './screens/project/RulesProvider'
 import { TasksProvider } from './screens/project/TasksProvider'
 import { ProjectsScreen } from './screens/projects/ProjectsScreen'
 import { ProjectShell } from './shell/ProjectShell'
@@ -31,7 +32,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Toast.Provider>
       <TasksProvider>
-        <RouterProvider router={router} />
+        <RulesProvider>
+          <RouterProvider router={router} />
+        </RulesProvider>
       </TasksProvider>
     </Toast.Provider>
   </StrictMode>,

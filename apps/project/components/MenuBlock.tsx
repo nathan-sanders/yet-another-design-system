@@ -10,11 +10,13 @@ import { cn } from '../../../src/lib/cn'
  * A Content Block with the file's header and, when it has one, its ⋯ menu:
  * the default Ghost icon-only Button in `Actions Items`. Home's blocks and a
  * project's Overview both draw it. `contentClassName` takes the file's own
- * gap where it is not the default 8.
+ * gap where it is not the default 8. A block whose header holds a labeled
+ * action instead (Rules' New rule) passes it as `actions`.
  */
 export function MenuBlock({
   title,
   menu,
+  actions,
   flush = false,
   contentClassName,
   className,
@@ -22,6 +24,8 @@ export function MenuBlock({
 }: {
   title: string
   menu?: { label: string; onClick: () => void }[]
+  /** A header action in place of the menu. */
+  actions?: ReactNode
   /** Content runs to the block's edges, for Home's week strip. */
   flush?: boolean
   contentClassName?: string
@@ -49,7 +53,9 @@ export function MenuBlock({
                 </Menu.Group>
               </Menu.Popup>
             </Menu>
-          ) : undefined
+          ) : (
+            actions
+          )
         }
       >
         {title}

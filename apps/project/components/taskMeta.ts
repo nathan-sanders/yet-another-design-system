@@ -155,3 +155,24 @@ export function dueLabel(task: Task): string {
   const due = day(task.due)
   return sameDay(due, today) ? 'Today' : shortDate.format(due)
 }
+
+/**
+ * A task's bar color on the Timeline and the Calendar, as the file paints
+ * them: Permits orange, Hiring sky, Supply teal, Marketing purple. A blocked
+ * task is red whatever its phase. Written out whole so Tailwind can see the
+ * classes.
+ */
+const PHASE_TONE: Record<string, string> = {
+  'Permits & build-out': 'bg-decorative-orange-background text-decorative-orange-foreground',
+  'Hiring & training': 'bg-decorative-sky-background text-decorative-sky-foreground',
+  'Supply & equipment': 'bg-decorative-teal-background text-decorative-teal-foreground',
+  'Marketing & launch': 'bg-decorative-purple-background text-decorative-purple-foreground',
+}
+
+export function barTone(task: Task): string {
+  if (task.status === 'blocked')
+    return 'bg-decorative-red-background text-decorative-red-foreground'
+  return (
+    PHASE_TONE[task.phase] ?? 'bg-decorative-neutral-background text-decorative-neutral-foreground'
+  )
+}

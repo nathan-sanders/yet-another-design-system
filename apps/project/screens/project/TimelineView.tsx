@@ -18,7 +18,7 @@ import { SegmentedControl } from '../../../../src/components/SegmentedControl'
 import { Token } from '../../../../src/components/Token'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
-import { statusFor } from '../../components/taskMeta'
+import { barTone, statusFor } from '../../components/taskMeta'
 import { day, rangeLabel, shortDate, today } from '../../data/dates'
 import { overviewFor } from '../../data/overview'
 import { personFor } from '../../data/people'
@@ -46,19 +46,6 @@ import {
 /** Everything before today, hatched, as the calendar's `_Past Day Pattern` draws it. */
 const pastDayPattern =
   'bg-[repeating-linear-gradient(135deg,var(--surface-border)_0_1px,transparent_1px_8px)]'
-
-/**
- * A phase's bar color, as the file paints them: Permits orange, Hiring sky,
- * Supply teal, Marketing purple. A blocked task is red whatever its phase.
- * Written out whole so Tailwind can see the classes.
- */
-const PHASE_TONE: Record<string, string> = {
-  'Permits & build-out': 'bg-decorative-orange-background text-decorative-orange-foreground',
-  'Hiring & training': 'bg-decorative-sky-background text-decorative-sky-foreground',
-  'Supply & equipment': 'bg-decorative-teal-background text-decorative-teal-foreground',
-  'Marketing & launch': 'bg-decorative-purple-background text-decorative-purple-foreground',
-}
-const BLOCKED_TONE = 'bg-decorative-red-background text-decorative-red-foreground'
 
 /** Narrower than this, a bar drops its face and puts its name beside it, as Finalize's does. */
 const LABEL_INSIDE = 88
@@ -399,10 +386,7 @@ function TaskRow({
   const slip = baseline ? slipDays(task) : 0
   const inside = bar.width >= LABEL_INSIDE
   const labelRight = bar.x + bar.width + 6 + task.title.length * CHAR_PX <= range.width
-  const tone =
-    task.status === 'blocked'
-      ? BLOCKED_TONE
-      : (PHASE_TONE[task.phase] ?? PHASE_TONE['Permits & build-out'])
+  const tone = barTone(task)
   const status = statusFor(task.status)
 
   return (
