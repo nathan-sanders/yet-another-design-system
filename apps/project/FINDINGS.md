@@ -67,9 +67,8 @@ None open.
    `shasum` matched Dana, Sofia and Maya to photos Yet Social already carries (its `maya.jpg`,
    `priya.jpg` and `jonah.jpg`, under other names there). The other four came out of
    `download_assets` and were labeled the same way, with no contact sheet needed.
-7. **A project opens on List, not Overview.** Overview is the file's first tab but is not built,
-   so `DEFAULT_TAB` in `screens/project/paths.ts` is `list` for now. Change it when Overview
-   lands.
+7. **A project opened on List, not Overview,** while Overview was not built. Slice 4 built it and
+   made it `DEFAULT_TAB`, so a project now opens on the file's first tab (entry 33).
 8. **Only Austin has tasks.** Every project has a page, and the others' List says so with a link
    to Austin. Their start dates are placeholders; only Austin's (Nov 2) is drawn.
 9. **The due date is a Token with no menu yet.** Status, priority and assignee change from their
@@ -187,3 +186,46 @@ are drawn and not built.
     like "SupplyPriority: High3Equipment delivery". It is named by the title and described by the
     rest, with the words a glyph stands for written out for a screen reader: "Supply, Priority:
     High", "Marcus Bell, Due Dec 8, Subtasks: 2/3, Comments: 1".
+
+## Slice 4 — a project's Overview (2026-11-13)
+
+From `Project - Overview` (`40006268:5150`). A project now opens on it: Yak's summary, the latest
+update and the milestones in an 806 column, the properties and the activity in a 340 one beside
+it, below each other under `xl`. Every block measured the frame's height (170, 218, 246, 238;
+36-tall milestone rows; 40/20 activity rows) except Properties (entry 30). Regenerate and Ask
+are Yak's and say so; the update's ⋯ leads to Post update and the update history, drawn and not
+built; the milestones' ⋯ opens the Timeline tab.
+
+### Open: library changes worth making
+
+None open.
+
+### Kept in the app, worth knowing
+
+29. **Dates in words now move with the schedule.** `day()` slides every date onto this week, and
+    the List, the Board and the header followed it, while the words did not: AUS-21's
+    description, its Activity tokens and Dana's comment still said Nov 10 when the List said
+    Nov 17. Dates in prose are now written `{2026-11-10}` (or `{2026-11-10:th}` for "the 10th")
+    and `datedText` in `data/dates.ts` moves them, in the task panel and the Overview alike. Two
+    numbers disagreed underneath it. The Overview frame says the inspection moved from Nov 4 to
+    Nov 10 and calls that "six days behind"; AUS-21, which was invented for the panel, said Nov 7.
+    The frame's six days settle it, so AUS-21 now slipped from Nov 4, and its move is today's,
+    as the Overview's "2h" has it.
+30. **A property value wraps rather than being cut off.** "Ops, People, Marketing" is 155px in
+    Chrome and the file's value column is 154, so the row truncated it to "Marketi…". `PropertyRow`
+    now lets a value wrap: the label keeps the first line's 32, the value has 4px above and below,
+    and a one-line row is still 32 (the task panel's seven measured 32 after the change). Team
+    takes two lines, so Properties is 282 tall to the frame's 258.
+31. **Two pieces moved to `components/` because a second screen needed them.** `PropertyRow` was
+    the task panel's `_Property Row`, and `MenuBlock` was Home's Content Block with its ⋯ menu.
+    The Overview's Properties and Activity draw the header's `Actions Items` slot empty, so
+    `MenuBlock` takes no menu for them and leaves the slot out.
+32. **Only Austin has an overview.** Its numbers are the rest of the app's: 9 of 14 crew is the
+    crew task's checklist, 46% the project's progress, the milestones' dates the List's. The
+    other projects' Overview says it is not in the mock yet and links Austin's, as their List
+    does. Goal and Portfolio are view-only Tokens in the file, so they are links, to Plan ›
+    Goals and Portfolios, as the task panel's Linked rows are.
+33. **Overview is the default tab.** `#/projects/austin`, the rail and the project cards now land
+    on `#/projects/austin/overview`; Home's "Health permit is blocked" still opens the List,
+    where the task is.
+

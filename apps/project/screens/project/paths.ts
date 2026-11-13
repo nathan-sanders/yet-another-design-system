@@ -4,10 +4,10 @@ import type { Task } from '../../data/types'
 /**
  * A project's tabs, in the file's order (`Yet Project / Project shell`,
  * `40006263:1152`). A project that runs in sprints swaps Rules for Sprints.
- * `figma` is the frame each is drawn on; List and Board are built so far.
+ * `figma` is the frame each is drawn on; Overview, List and Board are built so far.
  */
 export const PROJECT_TABS = [
-  { id: 'overview', label: 'Overview', figma: '40006268-5150' },
+  { id: 'overview', label: 'Overview', figma: '40006268-5150', built: true },
   { id: 'list', label: 'List', figma: '40006268-6554', built: true },
   { id: 'board', label: 'Board', figma: '40006268-8728', built: true },
   { id: 'timeline', label: 'Timeline', figma: '40006272-7631' },
@@ -19,11 +19,8 @@ export const PROJECT_TABS = [
 
 export type ProjectTab = (typeof PROJECT_TABS)[number]['id']
 
-/**
- * Where a project opens. List for now, because it is the tab that is built;
- * Overview is the file's first tab and becomes the default once it is.
- */
-export const DEFAULT_TAB: ProjectTab = 'list'
+/** Where a project opens: Overview, the file's first tab. */
+export const DEFAULT_TAB: ProjectTab = 'overview'
 
 export function projectPath(id: string, tab: ProjectTab = DEFAULT_TAB): string {
   return `/projects/${id}/${tab}`
