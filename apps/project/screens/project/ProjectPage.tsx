@@ -31,6 +31,7 @@ import { useShell } from '../../shell/ShellContext'
 import { NotBuiltMessage } from '../NotBuiltMessage'
 import { NotBuilt } from '../NotBuilt'
 import { BoardView } from './BoardView'
+import { CalendarView } from './CalendarView'
 import { ListView } from './ListView'
 import { OverviewView } from './OverviewView'
 import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
@@ -221,6 +222,8 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
                   <BoardView project={project} selectedTaskId={openTask?.id} />
                 ) : t.id === 'timeline' ? (
                   <TimelineView project={project} />
+                ) : t.id === 'calendar' ? (
+                  <CalendarView project={project} />
                 ) : (
                   <NotBuiltMessage
                     icon={PencilRuler}
