@@ -98,7 +98,7 @@ export function ProjectsScreen() {
     <>
       <TopBar
         start={
-          <Heading level={1} size="base" weight="semibold">
+          <Heading level={1} size="base" weight="bold">
             Projects
           </Heading>
         }

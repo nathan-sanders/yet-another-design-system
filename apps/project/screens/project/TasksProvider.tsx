@@ -162,9 +162,48 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const approveReview = useCallback(
+    (taskId: string, nextId: string) =>
+      change(taskId, (task) => ({
+        ...task,
+        review: task.review ? { ...task.review, personId: nextId } : undefined,
+        activity: [
+          {
+            id: newId('e'),
+            actor: me.id,
+            text: `You approved this, and it went to ${personFor(nextId).name}`,
+            at: today,
+          },
+          ...(task.activity ?? []),
+        ],
+      })),
+    [change],
+  )
+  const restoreTask = useCallback((snapshot: Task) => change(snapshot.id, () => snapshot), [change])
+
   const value = useMemo<TasksState>(
-    () => ({ tasks, order, updateTask, moveTask, toggleSubtask, addComment, setLag }),
-    [tasks, order, updateTask, moveTask, toggleSubtask, addComment, setLag],
+    () => ({
+      tasks,
+      order,
+      updateTask,
+      moveTask,
+      toggleSubtask,
+      addComment,
+      setLag,
+      approveReview,
+      restoreTask,
+    }),
+    [
+      tasks,
+      order,
+      updateTask,
+      moveTask,
+      toggleSubtask,
+      addComment,
+      setLag,
+      approveReview,
+      restoreTask,
+    ],
   )
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>
 }

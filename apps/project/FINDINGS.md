@@ -439,3 +439,57 @@ None open.
     task's `short` name, the same words Home's week strip uses. Dragging a card is pointer only,
     like Yet Social's drafts; the keyboard's way to block time is Yak's plan. Thursday afternoon's
     block covers both approvals and is purple, the menu boards' project, as drawn.
+
+## Slice 9 — Inbox (2026-11-13)
+
+From `Inbox - Approval` (`40006278:12738`) and the deep dive's `Bundled updates`
+(`40006316:47749`), `Reply in place` (`40006316:49186`), `Later and undo` (`40006316:50589`),
+`All caught up` (`40006316:52229`) and `Inbox settings` (`40006316:53658`). `#/inbox/primary`,
+`/other`, `/later` and `/cleared`, each segment carrying its count, and the open message in
+`?item=`.
+
+- **List**: `_Project Message Content` in Ghost Clickable Cards, grouped Today / Yesterday /
+  Earlier: the pink dot for new, the sender and the kind's glyph, the summary, the words, and View
+  Only tokens for the task or project and the due date.
+- **Detail**: Open task, Later (Bring this back: later today, tomorrow morning, Monday morning;
+  Pick a date not built) and Clear. An approval shows the proof and Request changes / Approve; a
+  mention or question shows the task's facts, the conversation and the reply box; Yak's bundle
+  lists what moved and what finished.
+- **Doing things**: Approve really signs off AUS-31 and hands it to Dana, so it leaves My work too.
+  A reply lands on the task's comments. Clear, Later, Clear all, Approve and Reply and clear each
+  toast with Undo, and ⌘Z undoes the last one. The rail's badge is Primary's new count, live. An
+  empty Primary is All caught up, which says what comes back from Later and when.
+- **Settings**: More › Inbox settings (`?settings=1`), every switch working for the session.
+- **Home**: "Needs you"'s Review and Reply now open their inbox messages.
+
+axe is clean on every segment, the approval, the bundle, the reply, All caught up and settings,
+light and dark.
+
+### Open: library changes worth making
+
+62. **A toast's action can't show its shortcut.** `Later and undo` draws `⌘Z` as a Kbd beside
+    Undo. `Toast` renders any `action` node, but `toast.add` takes `{ label, onClick }`, so an
+    app can't put the key there. ⌘Z works; the toast just doesn't say so.
+
+### Kept in the app, worth knowing
+
+63. **The conversations are the tasks' own comments.** The approval's two comments, Marcus's
+    mention and Priya's question are on AUS-31, AUS-21 and AUS-27 (`data/inbox.ts`
+    `inboxComments`), so the task panel shows the same thread, and a reply from the inbox is a
+    comment there too.
+64. **Opening a message doesn't mark it read.** The frame draws Katie's message selected and still
+    new. A message stops being new when it leaves Primary, when you reply, or with More › Mark all
+    as read.
+65. **With none chosen, the first message is open beside the list** and drawn selected, as every
+    frame has one. On a phone, where the list and the message take turns, the list shows alone,
+    with `usePhone` as Yet Social's inbox has it.
+66. **Other is code-first.** The frames name the segment and never open it; it holds Katie's
+    Protein Plates update, Maya's comment on the opening plan and the gift card assignment.
+    Assignments, health changes and updates have no drawn detail either, so each shows its
+    sender's words as one comment, with Open task or Open project.
+67. **No floating Yak on the inbox.** None of the six frames draws one, and it would sit over the
+    reply box.
+68. **Top Bar titles are Bold.** Every Yet Project frame sets the page title in 14 Bold; Home, All
+    projects, My work and the not-built page had Semibold and now follow. axe's `region` rule
+    flags any open Menu popup in this app, the inbox's and Home's alike, because Base UI portals it
+    outside the landmarks; the story suite does not run that rule.
