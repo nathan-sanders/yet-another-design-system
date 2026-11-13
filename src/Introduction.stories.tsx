@@ -8,6 +8,8 @@ import {
   navThemes,
   navTokens,
   neutralRamps,
+  radiusModes,
+  radiusRoles,
   semanticTokenCount,
   typeScale,
 } from './foundations/tokens'
@@ -201,15 +203,16 @@ export const Introduction: Story = {
       </Section>
 
       <Section
-        title="Three switches"
-        hint="All three are attributes on the html element, and they are orthogonal — try them from the Theme, Neutral and Nav controls in the toolbar above."
+        title="Four switches"
+        hint="All four are attributes on the html element, and they are orthogonal — try them from the Theme, Neutral, Nav and Radius controls in the toolbar above."
       >
-        <Code label="The theme, neutral and nav switches">
+        <Code label="The theme, neutral, nav and radius switches">
           {`<html class="dark">                    <!-- dark mode -->
 <html data-neutral="taupe">           <!-- one of ${neutralRamps.length} neutral ramps -->
-<html data-nav-theme="blue-inverse">  <!-- one of ${navThemes.length} nav themes -->`}
+<html data-nav-theme="blue-inverse">  <!-- one of ${navThemes.length} nav themes -->
+<html data-radius="soft">             <!-- one of ${radiusModes.length} radius modes -->`}
         </Code>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Note title="Dark mode is free">
             Color lives in the semantic layer, so a component never needs a <Mono>dark:</Mono>{' '}
             variant. The token swaps itself, and a theme toggle only adds or removes a class.
@@ -223,6 +226,12 @@ export const Introduction: Story = {
             Its {navThemes.length} modes run from Neutral Inverse to Rose. All but Canvas are
             absolute, so a nav stays put while the page around it switches to dark — a navigation
             surface is a brand decision rather than a reading surface.
+          </Note>
+          <Note title="The corners are swappable">
+            {radiusModes.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ')}. A component rounds
+            with one of {radiusRoles.length} roles — <Mono>rounded-button</Mono>,{' '}
+            <Mono>rounded-container-outer</Mono> — never a size, so one attribute re-shapes
+            everything. Default is the shape the library always had.
           </Note>
         </div>
         <p className="max-w-2xl text-base text-content-subtle">

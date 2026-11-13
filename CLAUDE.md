@@ -343,7 +343,11 @@ across four modes — **Default**, Soft, Round, Sharp. Each value aliases a step
 `tokens/radius.json` (the export, same shape as `navigation.json`) → section 2c of `generate.py` →
 section 2c of `theme.css` → `@theme inline { --radius-button: var(--shape-button) }`, which is what
 makes `rounded-button`, `rounded-l-input`, `rounded-br-bubble-tip` and the rest exist. The switch is
-`<html data-radius="soft">`, and the Storybook toolbar has a **Radius** menu for it.
+`<html data-radius="soft">`, and the Storybook toolbar has a **Radius** menu for it. **Foundations →
+Shape → Radius Roles** is its page, the radius counterpart of Color → The neutral ramp: a live sample,
+the same sample pinned to each of the four modes, and the role-by-mode table. The pinned columns
+re-declare the `--shape-*` properties on a wrapper, which works because the roles are custom
+properties and inherit — the trick to reach for whenever one page has to show several modes at once.
 
 - **A component rounds with a role wherever Figma binds one, and with a step only where Figma
   does.** Pills (`rounded-full` on Switch, Radio's dial, Avatar, Badge), Kbd, Skeleton, Table, the
