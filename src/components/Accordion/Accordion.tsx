@@ -86,7 +86,7 @@ const accordion = tv({
      * component keeps its content and gives up its frame.
      */
     container: {
-      true: 'rounded-lg border border-surface-border bg-surface-background-primary',
+      true: 'rounded-container-outer border border-surface-border bg-surface-background-primary',
       false: '',
     },
   },
@@ -119,7 +119,7 @@ const trigger = tv({
     // This was 32 (height/h-8) when the component first landed, went to 40 here
     // at Nathan's request, and Figma has since been updated to match: the
     // trigger's variants are 40 tall and bind height/h-10.
-    'min-h-10 rounded-md px-3',
+    'min-h-10 rounded-button px-3',
     'cursor-pointer text-left font-sans text-base font-semibold text-content-emphasized select-none',
     'hover:bg-surface-background-subtle',
     'transition-colors duration-fast-min ease-standard',

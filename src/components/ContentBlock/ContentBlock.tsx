@@ -62,7 +62,7 @@ const contentBlock = tv({
     // height against an indefinite parent resolves to auto, so this costs
     // nothing outside a grid or a stretched flex line.
     'h-full',
-    'rounded-lg border',
+    'rounded-container-outer border',
     // 14/24 body type, so a block's content starts from the library's base
     // rather than from whatever the page happens to set.
     'font-sans text-base',

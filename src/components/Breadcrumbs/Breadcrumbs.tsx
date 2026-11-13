@@ -81,7 +81,7 @@ const breadcrumbItem = tv({
 
     interactive: {
       true: [
-        'cursor-pointer rounded-md hover:underline',
+        'cursor-pointer rounded-button hover:underline',
         // Focus is the library's shared ring — see src/lib/focus.ts. A crumb has
         // no border and no fixed height, so it is the clearest case for a ring
         // that is pure `box-shadow`: nothing it does can move the trail.

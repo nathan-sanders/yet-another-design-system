@@ -104,7 +104,7 @@ export const popup = tv({
     // cornerRadius 12, strokeWeight 1 INSIDE, Surface/Background Primary,
     // Elevation/Drop Shadow/High. The shadow's color is a semantic token, so it
     // flips for dark mode on its own and there is no `dark:` class here.
-    'rounded-lg border border-surface-border bg-surface-background-primary shadow-high',
+    'rounded-container-outer border border-surface-border bg-surface-background-primary shadow-high',
     // 14/24 body type, so content starts from the library's base rather than
     // from whatever the page happens to set.
     'font-sans text-base text-content-primary',

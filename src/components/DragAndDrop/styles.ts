@@ -19,7 +19,7 @@ import { tv } from 'tailwind-variants'
  * documents, one layer down.
  */
 export const sortableItem = tv({
-  base: 'relative rounded-md',
+  base: 'relative rounded-container-inner',
   variants: {
     dragging: {
       true: 'z-10 opacity-50 shadow-medium select-none',

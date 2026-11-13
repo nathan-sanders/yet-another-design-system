@@ -179,7 +179,7 @@ const slide = tv({
 const dot = tv({
   base: [
     'relative flex shrink-0 cursor-pointer items-center justify-center',
-    'h-6 rounded-md',
+    'h-6 rounded-button',
     ...focusRing,
     'transition-[width] duration-fast ease-standard',
   ],

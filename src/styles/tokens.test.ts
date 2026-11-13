@@ -68,3 +68,40 @@ generates nothing for them and the element paints as if unstyled:\n  ${missing.j
       .toEqual([])
   })
 })
+
+/**
+ * The same guard for corner radius. `rounded-input` names a role from section
+ * 2c, `rounded-md` a step of the scale; both have to exist, or Tailwind builds
+ * nothing and the element renders square.
+ */
+const ROUNDED_RE = /(?<![-\w])rounded(?:-(?:tl|tr|br|bl|ss|se|es|ee|t|r|b|l|s|e))?-([a-z0-9]+(?:-[a-z0-9]+)*)/g
+
+describe('radius utilities', () => {
+  const theme = readFileSync(join(ROOT, 'styles/theme.css'), 'utf8')
+
+  it('every radius a component rounds with exists in theme.css', () => {
+    const defined = new Set([...theme.matchAll(/^\s*--radius-([a-z0-9-]+):/gm)].map((m) => m[1]))
+    const missing: string[] = []
+    for (const file of sourceFiles(ROOT)) {
+      for (const m of readFileSync(file, 'utf8').matchAll(ROUNDED_RE)) {
+        if (!defined.has(m[1])) missing.push(`${file.slice(ROOT.length + 1)} → ${m[0]}`)
+      }
+    }
+    expect(missing, `these name a radius that does not exist:\n  ${missing.join('\n  ')}\n`).toEqual([])
+  })
+
+  it("cn's merge list is exactly the generated roles", async () => {
+    const { RADIUS_ROLES } = await import('../lib/cn')
+    const generated = [...theme.matchAll(/^\s*--radius-([a-z0-9-]+): var\(--shape-\1\);/gm)].map((m) => m[1])
+    expect(RADIUS_ROLES).toEqual(generated)
+  })
+
+  it('a role and a step are one merge group, in cn and in tv', async () => {
+    const { cn } = await import('../lib/cn')
+    const { tv } = await import('tailwind-variants')
+    expect(cn('rounded-container-outer', 'rounded-none')).toBe('rounded-none')
+    expect(cn('rounded-l-button rounded-r-none', 'rounded-l-none')).toBe('rounded-r-none rounded-l-none')
+    const recipe = tv({ base: 'rounded-input', variants: { flush: { true: 'rounded-none' } } })
+    expect(recipe({ flush: true })).toBe('rounded-none')
+  })
+})

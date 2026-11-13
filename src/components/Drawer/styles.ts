@@ -102,14 +102,14 @@ export const drawerPopup = tv({
     side: {
       right: [
         'self-stretch w-(--drawer-width) max-w-full my-(--drawer-stack)',
-        'rounded-l-lg border-l border-surface-border shadow-high-left',
+        'rounded-l-container-outer border-l border-surface-border shadow-high-left',
         'translate-x-[calc(var(--drawer-swipe-movement-x,0px)-var(--drawer-stack))]',
         'data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full',
         'after:inset-y-0 after:left-full after:w-12',
       ],
       left: [
         'self-stretch w-(--drawer-width) max-w-full my-(--drawer-stack)',
-        'rounded-r-lg border-r border-surface-border shadow-high-right',
+        'rounded-r-container-outer border-r border-surface-border shadow-high-right',
         'translate-x-[calc(var(--drawer-swipe-movement-x,0px)+var(--drawer-stack))]',
         'data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full',
         'after:inset-y-0 after:right-full after:w-12',
@@ -123,7 +123,7 @@ export const drawerPopup = tv({
         'h-(--drawer-height,auto)',
         'data-nested-drawer-open:h-(--drawer-frontmost-height,var(--drawer-height))',
         'pb-[env(safe-area-inset-bottom,0px)]',
-        'rounded-t-lg border-t border-surface-border shadow-high-top',
+        'rounded-t-container-outer border-t border-surface-border shadow-high-top',
         'translate-y-[calc(var(--drawer-swipe-movement-y,0px)-var(--drawer-stack))]',
         'data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full',
         'after:inset-x-0 after:top-full after:h-12',

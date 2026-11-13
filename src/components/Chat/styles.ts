@@ -125,7 +125,7 @@ export type ChatMessageLayout = NonNullable<MessageVariants['layout']>
  */
 export const bubble = tv({
   base: [
-    'relative max-w-full rounded-xl',
+    'relative max-w-full rounded-bubble',
     'font-sans text-content-primary',
     // Real messages wrap, and a pasted URL must not push the column wider.
     // `pre-wrap` keeps the newlines a person typed with Shift+Enter.
@@ -144,8 +144,8 @@ export const bubble = tv({
       small: 'px-2 py-1 text-sm', // 4 + 20 + 4 = 28
     },
     direction: {
-      sent: 'rounded-br-xs',
-      received: 'rounded-bl-xs',
+      sent: 'rounded-br-bubble-tip',
+      received: 'rounded-bl-bubble-tip',
     },
   },
   defaultVariants: { appearance: 'default', size: 'default', direction: 'received' },
@@ -245,7 +245,7 @@ export const DELIVERY_LABEL: Record<ChatDeliveryStatus, string> = {
  */
 export const disclosureTrigger = tv({
   base: [
-    'group inline-flex min-h-6 items-center gap-1 rounded-md',
+    'group inline-flex min-h-6 items-center gap-1 rounded-button',
     'font-sans text-base text-content-subtle',
     'cursor-pointer transition-colors duration-fast-min ease-standard',
     'hover:bg-action-ghost-background-hover',

@@ -73,7 +73,9 @@ export const token = tv({
      * an 8px pill sitting a few pixels inside an 8px box reads as a mistake:
      * two curves of the same radius on different centers never look parallel.
      * Subtracting the gap is the usual rule of thumb, and 8 − 3 lands almost
-     * exactly on the 6px the scale already has.
+     * exactly on the 6px the scale already has. Both are radius roles now —
+     * `Input` and `Input Inner` — so the pair stays a step apart in every
+     * `data-radius` mode, not just at Default.
      *
      * **Code first here, and the file wants catching up** — Figma binds
      * `border-radius/rounded-md` on the Token instances inside its Multi Select
@@ -84,8 +86,8 @@ export const token = tv({
      * sitting in: `Combobox` passes it, and nothing else needs to.
      */
     radius: {
-      md: 'rounded-md', // 8px — standing on its own
-      sm: 'rounded-sm', // 6px — nested inside a field
+      md: 'rounded-input', // 8px at Default — standing on its own
+      sm: 'rounded-input-inner', // 6px at Default — nested inside a field
     },
 
     /**
@@ -187,8 +189,8 @@ export const tokenRemove = tv({
 
   variants: {
     radius: {
-      md: 'rounded-md',
-      sm: 'rounded-sm',
+      md: 'rounded-input',
+      sm: 'rounded-input-inner',
     },
   },
 
@@ -223,8 +225,8 @@ export const tokenOverlay = tv({
   variants: {
     /** The pill's, for the same reason `tokenRemove` takes it: it covers it. */
     radius: {
-      md: 'rounded-md',
-      sm: 'rounded-sm',
+      md: 'rounded-input',
+      sm: 'rounded-input-inner',
     },
   },
 

@@ -277,7 +277,7 @@ export const panelCard = tv({
     'max-md:h-(--panel-height) max-md:w-full',
     // ContentBlock's default surface. Only that one: a panel is a region of
     // the page, not a bento cell, so there is no subtle or accent here.
-    'rounded-lg border border-surface-border bg-surface-background-primary',
+    'rounded-container-outer border border-surface-border bg-surface-background-primary',
     'font-sans text-base text-content-primary',
     // The square-cornered scrolling Body inside would otherwise paint through
     // the rounded corners — the contained Page's reason and spelling. The

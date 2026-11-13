@@ -23,7 +23,7 @@ export const popup = tv({
   base: [
     // min-w-30 = 120px, the min-width Figma sets on Menu Group.
     'flex min-w-30 flex-col',
-    'rounded-lg border border-surface-border bg-surface-background-primary shadow-medium',
+    'rounded-container-outer border border-surface-border bg-surface-background-primary shadow-medium',
     'font-sans',
     // Base UI parks focus on the popup itself when a menu is opened by click,
     // and the browser draws its own focus ring on it — the system accent color,

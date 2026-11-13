@@ -22,7 +22,7 @@ import type { InputSize } from '../Input/styles'
 const slot = tv({
   base: [
     'flex items-center justify-center',
-    'rounded-md border border-input-border bg-input-background',
+    'rounded-input border border-input-border bg-input-background',
     'text-center text-content-primary',
     'hover:border-input-border-hover',
     // The ring goes on the slot, not on the row. Every slot is a real focusable

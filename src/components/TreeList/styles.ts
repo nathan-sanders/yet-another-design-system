@@ -47,7 +47,7 @@ export const panel = tv({
  */
 export const row = tv({
   base: [
-    'flex min-h-8 items-center gap-2 rounded-md pr-2',
+    'flex min-h-8 items-center gap-2 rounded-input pr-2',
     'cursor-pointer select-none text-left',
     'transition-colors duration-fast-min ease-standard',
     'hover:bg-surface-overlay-subtle',

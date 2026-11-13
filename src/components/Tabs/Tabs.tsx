@@ -135,7 +135,7 @@ const tab = tv({
   base: [
     'inline-flex items-center justify-center',
     // gap-2 = 8px (spacing/2) at every size — Figma sets it unconditionally.
-    'gap-2 rounded-md font-sans whitespace-nowrap select-none',
+    'gap-2 rounded-button font-sans whitespace-nowrap select-none',
     // Inactive is the resting state, so it is the base: Content/Primary at
     // weight 400. Base UI marks the active tab with `data-active`, and there is
     // no matching inactive attribute, which is why this reads as a default plus
