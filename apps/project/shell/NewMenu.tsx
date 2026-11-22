@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import { useNavigate } from 'react-router'
 import {
   CircleCheck,
   CircleUser,
@@ -19,14 +20,16 @@ interface NewItem {
   icon: LucideIcon
   /** What the not-built toast calls it. */
   what: string
+  /** Where it opens, for one that is built. */
+  path?: string
 }
 
 /*
  * The file draws no menu under Yet Project's New button, so this is Yet
  * Social's (`40005939:57476`) with Yet Project's things in it. Task, Project
  * and Goal each have a dialog drawn (`New task` 40006275:13678, `New project /
- * Template` 40006285:18672, `Plan - Goals / New goal` 40006298:29382); none
- * is built yet.
+ * Template` 40006285:18672, `Plan - Goals / New goal` 40006298:29382). Goal
+ * is built, and opens its dialog over Goals; the others are not yet.
  */
 const create: NewItem[] = [
   { label: 'Task', description: 'Something to get done', icon: CircleCheck, what: 'New task' },
@@ -43,7 +46,13 @@ const create: NewItem[] = [
     icon: ClipboardList,
     what: 'New request',
   },
-  { label: 'Goal', description: 'An outcome projects ladder up to', icon: Goal, what: 'New goal' },
+  {
+    label: 'Goal',
+    description: 'An outcome projects ladder up to',
+    icon: Goal,
+    what: 'New goal',
+    path: '/plan/goals?new=1',
+  },
 ]
 
 const invite: NewItem[] = [
@@ -62,12 +71,13 @@ const invite: NewItem[] = [
  */
 export function NewMenu({ trigger, tooltip }: { trigger: ReactElement; tooltip?: string }) {
   const shell = useShell()
+  const navigate = useNavigate()
   const row = (item: NewItem) => (
     <Menu.Item
       key={item.label}
       startIcon={item.icon}
       description={item.description}
-      onClick={() => shell.notBuilt(item.what)}
+      onClick={() => (item.path ? navigate(item.path) : shell.notBuilt(item.what))}
     >
       {item.label}
     </Menu.Item>

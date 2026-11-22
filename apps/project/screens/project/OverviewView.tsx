@@ -23,7 +23,9 @@ import { MenuBlock } from '../../components/MenuBlock'
 import { PropertyRow } from '../../components/PropertyRow'
 import { HEALTH } from '../../components/taskMeta'
 import { datedText, day, rangeLabel, shortDate, weekdayLong } from '../../data/dates'
+import { goals } from '../../data/goals'
 import { overviewFor } from '../../data/overview'
+import { portfolios } from '../../data/portfolios'
 import { personFor } from '../../data/people'
 import type { Project, ProjectOverview } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
@@ -224,11 +226,13 @@ function Milestones({ project, overview }: { project: Project; overview: Project
 
 /**
  * What the header has no room for, as `_Property Row`s. Goal and Portfolio
- * are view-only Tokens in the file, links rather than values, so each goes to
- * its Plan page — drawn and not built — as the task panel's Linked rows do.
+ * are view-only Tokens in the file, links rather than values, so each opens
+ * its Plan page: the goal's panel, and the portfolio.
  */
 function Properties({ project, overview }: { project: Project; overview: ProjectOverview }) {
   const owner = personFor(project.ownerId)
+  const goal = goals.find((g) => g.title === overview.goal)
+  const portfolio = portfolios.find((p) => p.name === overview.portfolio)
   return (
     <MenuBlock title="Properties" contentClassName="gap-0">
       <dl aria-label="Properties" className="flex flex-col">
@@ -246,10 +250,16 @@ function Properties({ project, overview }: { project: Project; overview: Project
           {money.format(overview.budget.spent)} of {money.format(overview.budget.total)}
         </PropertyRow>
         <PropertyRow icon={Target} label="Goal">
-          <Token href="#/plan/goals">{overview.goal}</Token>
+          <Token href={goal ? `#/plan/goals?goal=${goal.id}` : '#/plan/goals'}>
+            {overview.goal}
+          </Token>
         </PropertyRow>
         <PropertyRow icon={Folders} label="Portfolio">
-          <Token href="#/plan/portfolios">{overview.portfolio}</Token>
+          <Token
+            href={portfolio ? `#/plan/portfolios/${portfolio.id}/projects` : '#/plan/portfolios'}
+          >
+            {overview.portfolio}
+          </Token>
         </PropertyRow>
       </dl>
     </MenuBlock>

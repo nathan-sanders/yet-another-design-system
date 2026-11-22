@@ -1,3 +1,4 @@
+import { datedText } from './dates'
 import type { ProjectHealth } from './types'
 
 /**
@@ -21,10 +22,17 @@ export interface Goal {
    * 8% says, so it carries a `manual` value as well.
    */
   projectId?: string
+  /**
+   * Several projects it averages, with its health the lowest of theirs — a
+   * goal made with New goal's Measure progress from › Projects.
+   */
+  projectIds?: string[]
   /** A goal measured by hand: crew turnover's 64%, the signed lease's 100%. */
   manual?: { progress: number; health: ProjectHealth | 'done' }
   /** Every goal checks in on Friday; the property row says so. */
   checkIn: string
+  /** Who is reminded to check in; the owner unless New goal said otherwise. */
+  remindId?: string
   portfolioId?: string
 }
 
@@ -41,7 +49,8 @@ export const goals: Goal[] = [
   },
   {
     id: 'open-austin',
-    title: 'Open Austin by Jan 12',
+    // The date in the title moves with the schedule, as prose dates do.
+    title: datedText('Open Austin by {2027-01-12}'),
     ownerId: 'dana',
     due: '2027-01-12',
     parentId: 'texas',
@@ -146,6 +155,8 @@ export interface CheckIn {
   posted: string
   text: string
   health?: GoalHealth
+  /** Posted in this session: dated today rather than moved by `day()`. */
+  fresh?: boolean
 }
 
 /** The three the file draws on Open 3 Texas stores (`40006279:18644`). */

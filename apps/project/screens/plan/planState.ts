@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 
+import type { CheckIn, Goal, GoalHealth } from '../../data/goals'
 import type { Project } from '../../data/types'
 import type { StagedChange } from './roadmap/model'
 
@@ -26,6 +27,22 @@ export interface PlanState {
   /** Everything as it is now, for an Undo to put back. */
   snapshot: () => PlanSnapshot
   restore: (snapshot: PlanSnapshot) => void
+
+  /** Every goal, the file's and any made with New goal. */
+  goals: Goal[]
+  addGoal: (goal: Goal) => void
+  /** Every check-in, newest first. */
+  checkIns: CheckIn[]
+  /**
+   * What each goal's owner said its health was at their last check-in; it
+   * wins over what the goal's subgoals or project would make it.
+   */
+  said: Record<string, GoalHealth>
+  /** Posts a check-in as you, and sets the goal's health to what it says. Returns an Undo. */
+  checkIn: (goalId: string, text: string, health: GoalHealth) => () => void
+  /** Projects whose owner has been nudged for an update this session. */
+  nudged: string[]
+  nudge: (projectId: string) => void
 }
 
 export const PlanContext = createContext<PlanState | null>(null)
