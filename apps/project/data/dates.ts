@@ -83,3 +83,14 @@ export function datedText(text: string): string {
 }
 
 export const weekdayLong = new Intl.DateTimeFormat('en-US', { weekday: 'long' })
+
+/**
+ * When something was posted, as the file writes it: "Today", the weekday
+ * within the last week ("Monday", or "Fri" with `weekdayShort`), and the
+ * date before that ("Oct 26").
+ */
+export function recentDay(date: Date, weekday: Intl.DateTimeFormat = weekdayLong): string {
+  if (sameDay(date, today)) return 'Today'
+  const days = Math.round((startOfDay(today).getTime() - startOfDay(date).getTime()) / DAY_MS)
+  return days > 0 && days < 7 ? weekday.format(date) : shortDate.format(date)
+}

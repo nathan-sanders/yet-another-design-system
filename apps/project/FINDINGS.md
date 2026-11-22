@@ -554,3 +554,57 @@ None open.
     weeks and drift by up to a month after that.
 77. **Both grids scroll sideways below about 800 wide** rather than squash. Each is a focusable,
     named region, so axe's `scrollable-region-focusable` holds.
+
+## Slice 11 — Plan › Portfolios and Goals (2026-11-22)
+
+- **Portfolios**, from `Plan - Portfolios` (`40006296:27641`): the four portfolios at the Spacious
+  density, the health of each one's projects as a Small `StackedBar` in the Badge hues.
+  A portfolio (`#/plan/portfolios/:id/:tab`, `40006279:12996`) has Projects — three Metric Cards
+  over its projects, a row opening that project's Latest status in a Panel (`?project=austin`) —
+  Timeline, which is the Roadmap's chart for its projects alone, and Updates (`40006296:29615`):
+  each project's latest update, and a Nudge for the one gone quiet. Austin's update is its
+  Overview's (`data/updates.ts`).
+- **Goals**, from `Plan - Goals` (`40006279:15314`), `/ Goal detail` (`40006279:18644`), `/ Map`
+  (`40006298:26717`), `/ Check-in` (`40006298:28745`) and `/ New goal` (`40006298:29382`): the
+  company goals with their subgoals folding under them, scoped All / Company / My team, as a list
+  or a map; a goal's panel (`?goal=texas`); Check in, which posts to the goal and sets its health,
+  with Undo; and New › Goal, which opens New goal here (`?new=1`) and opens the goal it makes.
+  Every percent and health comes from `screens/plan/goals/model.ts` (node-tested): 59, 27 and 71
+  are the averages of the subgoals, and health is the lowest subgoal's. Austin's Overview now
+  links its Goal and Portfolio tokens to these pages.
+
+axe is clean on every view, light and dark, with the panels and both dialogs open, and at 375 wide.
+
+### Open: library changes worth making
+
+None open.
+
+### Kept in the app, worth knowing
+
+78. **Open 3 Texas stores is due Mar 31.** The goal panel's Due token reads May 31, but the
+    table, the Apply dialog ("misses its Mar 31 due date by 19 days") and the Plan deep dive's notes
+    all say Mar 31, so the panel follows them.
+79. **Portfolios hold the twelve projects between them**: Store expansion four (with San Antonio),
+    Menu three, Digital two, and Brand & people Gift Cards, Spring hiring and Supplier audit, the
+    one project left over. The file draws the counts and never lists the third.
+80. **The Latest status panel and the Updates card show the same update.** The file shortens
+    Austin's on the Updates card and drops one of its three tokens; here both read the Overview's,
+    so the three places agree.
+81. **Other portfolios' Updates are empty.** Only Store expansion's projects have updates in the
+    file; the other three say so and link to it. Their Projects tab is built, with "On track" as
+    the third metric where Store expansion has "Stores open by Mar".
+82. **A portfolio's Timeline is code-first**: the Roadmap's chart with one lane, staged changes and
+    all. The file names the tab and never draws it.
+83. **Goals' scopes are code-first.** Company is the four company goals without their subgoals;
+    My team is Ops' goals — Dana's and Marcus's — with the company goal they ladder into. The List |
+    Map switch is drawn only on the Map frame; here it is on both, and hidden on a phone, where the
+    map would not fit.
+84. **Yak's check-in draft reads the Roadmap.** For Open 3 Texas stores it says Dallas *may* move
+    while the move is staged, that it *moved* once it is applied, and neither before; other goals
+    get a line naming the subgoal furthest behind. The text area is the draft, editable.
+85. **New goal's Tasks is honest about itself.** Counting done tasks is not built, so a goal
+    measured by Tasks is made as a by-hand goal, and the dialog says so under the control. Tampa
+    and Orlando site search are not projects in the data, so the Projects field offers the twelve
+    real ones. Owner defaults to you, not Dana.
+86. **A goal's title can carry a date**, and it moves with the schedule: "Open Austin by Jan 12" is
+    written `{2027-01-12}` so it agrees with its own Due column.

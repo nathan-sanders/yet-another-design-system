@@ -10,7 +10,10 @@ import { InboxIndex, InboxScreen } from './screens/inbox/InboxScreen'
 import { BlocksProvider } from './screens/my-work/BlocksProvider'
 import { MyWorkIndex, MyWorkScreen } from './screens/my-work/MyWorkScreen'
 import { NotBuilt } from './screens/NotBuilt'
+import { GoalsScreen } from './screens/plan/goals/GoalsScreen'
 import { PlanProvider } from './screens/plan/PlanProvider'
+import { PortfolioIndex, PortfolioPage } from './screens/plan/portfolios/PortfolioPage'
+import { PortfoliosScreen } from './screens/plan/portfolios/PortfoliosScreen'
 import { RoadmapScreen } from './screens/plan/roadmap/RoadmapScreen'
 import { WorkloadScreen } from './screens/plan/workload/WorkloadScreen'
 import { ProjectIndex, ProjectPage } from './screens/project/ProjectPage'
@@ -36,6 +39,10 @@ const router = createHashRouter([
       { path: 'projects/:projectId/:tab', element: <ProjectPage /> },
       { path: 'plan', element: <Navigate to="/plan/roadmap" replace /> },
       { path: 'plan/roadmap', element: <RoadmapScreen /> },
+      { path: 'plan/portfolios', element: <PortfoliosScreen /> },
+      { path: 'plan/portfolios/:portfolioId', element: <PortfolioIndex /> },
+      { path: 'plan/portfolios/:portfolioId/:tab', element: <PortfolioPage /> },
+      { path: 'plan/goals', element: <GoalsScreen /> },
       { path: 'plan/workload', element: <WorkloadScreen /> },
       { path: '*', element: <NotBuilt /> },
     ],

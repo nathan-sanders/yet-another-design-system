@@ -21,5 +21,8 @@ export function floatingYakPlaceholder(pathname: string): string | null {
   // Plan's, as each frame writes it.
   if (pathname.startsWith('/plan/roadmap')) return 'Ask Yak what this plan changes…'
   if (pathname.startsWith('/plan/workload')) return 'Ask Yak to rebalance the team…'
+  if (pathname === '/plan/portfolios') return 'Ask Yak to compare your portfolios…'
+  if (pathname.startsWith('/plan/portfolios/')) return 'Ask Yak about this portfolio…'
+  if (pathname.startsWith('/plan/goals')) return 'Ask Yak how your goals are tracking…'
   return 'Ask Yak, or search projects, tasks and people…'
 }
