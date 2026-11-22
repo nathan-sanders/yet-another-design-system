@@ -37,7 +37,8 @@ import { ShellContext, type ShellState } from './ShellContext'
 export function ProjectShell() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [theme, setTheme] = useDocumentTheme()
+  // Yet Project opens dark, and remembers its own choice (`<html class="dark">` paints it first).
+  const [theme, setTheme] = useDocumentTheme({ initial: 'dark', storageKey: 'yads-project-theme' })
   // Held here only so the New button can drop its label on the 56px rail.
   const [railCollapsed, setRailCollapsed] = useState(false)
   const toast = Toast.useToast()
