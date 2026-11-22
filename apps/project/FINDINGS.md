@@ -714,7 +714,7 @@ None open.
 
 ### Fixed in the library
 
-98. **`Autocomplete` can't be an inline field.** *Fixed in #PR.* The slash line is the
+98. **`Autocomplete` can't be an inline field.** *Fixed in #403.* The slash line is the
     Autocomplete, because it is the one control that keeps the caret in the text while the arrows
     walk a list. But it always drew Input's box, and a doc's line is bare text: the app turned the
     box off with overrides (border, fill, hover, ring, the input's padding), and narrowed the field
@@ -723,7 +723,7 @@ None open.
     the text flush with the column, and a menu at the library's own `Autocomplete Menu` width, 296,
     rather than the line's. The slash line is `appearance="bare"` with no overrides and no
     narrowing; its menu is 4px narrower than the frame's 300.
-99. **An `Autocomplete` pick arrives as the row's `label`.** *Fixed in #PR.*
+99. **An `Autocomplete` pick arrives as the row's `label`.** *Fixed in #403.*
     `AutocompleteItemData.value` was documented as "the text written into the input when this row
     is chosen", but Base UI's `stringifyAsLabel` prefers `label`, so `onValueChange` gets "Task
     list", not `task-list`. The comment now says so and names `itemToStringValue` for writing the
@@ -782,11 +782,11 @@ None open.
 
 ### Fixed in the library
 
-105. **`LineSeries` drew a missing value's point at the top edge.** *Fixed in #PR.* Its dot
+105. **`LineSeries` drew a missing value's point at the top edge.** *Fixed in #403.* Its dot
      renderer fell back to `cy ?? 0`, so a row with no value for a series (the burndown's days
      still to come) painted that series' marker along the top of the plot. It returns nothing for
      a row with no `cy` now. The Sprints tab keeps points off, because the frame draws none.
-106. **`LineSeries`' day ticks could collide at the end.** *Fixed in #PR.* At some widths
+106. **`LineSeries`' day ticks could collide at the end.** *Fixed in #403.* At some widths
      Completed vs. overdue wrote "Nov 2" and "Nov 4" on top of each other. The cause was not the
      last tick: Recharts hands `tickFormatter` the index among the ticks it keeps, and the date
      charts read `data[index - 1]` as the label before. With every other day labeled, each label
