@@ -4,6 +4,9 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router'
 
 import '../shared/setup'
 import { Toast } from '../../src/components/Toast'
+import { AllDocsScreen } from './screens/docs/AllDocsScreen'
+import { DocPage } from './screens/docs/DocPage'
+import { DocsProvider } from './screens/docs/DocsProvider'
 import { HomeScreen } from './screens/home/HomeScreen'
 import { InboxProvider } from './screens/inbox/InboxProvider'
 import { InboxIndex, InboxScreen } from './screens/inbox/InboxScreen'
@@ -55,6 +58,8 @@ const router = createHashRouter([
       { path: 'requests/mine', element: <MyRequestsScreen /> },
       { path: 'requests/forms/:formId', element: <FormBuilderScreen /> },
       { path: 'requests/forms/:formId/submit', element: <SubmitFormScreen /> },
+      { path: 'docs', element: <AllDocsScreen /> },
+      { path: 'docs/:docId', element: <DocPage /> },
       { path: '*', element: <NotBuilt /> },
     ],
   },
@@ -69,7 +74,9 @@ createRoot(document.getElementById('root')!).render(
             <InboxProvider>
               <PlanProvider>
                 <RequestsProvider>
-                  <RouterProvider router={router} />
+                  <DocsProvider>
+                    <RouterProvider router={router} />
+                  </DocsProvider>
                 </RequestsProvider>
               </PlanProvider>
             </InboxProvider>

@@ -678,3 +678,71 @@ turns and nothing scrolls the page sideways.
     New goal had the same slip (a goal due Dec 31 showed two weeks later) and uses it now.
 95. **No floating Yak bar on Requests.** None of the frames draw one, and it sat over the reply
     box and the form's buttons.
+
+## Slice 13 — Docs (2026-11-22)
+
+The rail's Docs and a doc's page, from `Docs & status` (`40006281:37297`) and its deep dive
+(`40006309:36926`):
+
+- **All docs**, from `Docs - All docs` (`40006283:18038`): every doc across projects in a Table at
+  the file's 556 / 220 / 170 / 110 / 100, under "Docs" and an All / Mine / Shared segment
+  (`#/docs?show=mine`). Mine is what you own or have edited, so editing a doc puts it there.
+- **A doc's page**, from `Docs - Austin opening plan` (`40006283:20532`): `#/docs/:id`, the doc
+  in a 680 column and the side column 300 beside it, 32 apart and centered. Headings, paragraphs
+  and checklist lines are typed in place (`contenteditable="plaintext-only"`), and a task's Token
+  ends the line it is linked from. Clicking a paragraph selects it and puts Create task, Ask Yak
+  and Comment under it.
+- **The slash menu** (`40006309:39451`): the line under the doc takes a new paragraph, or a slash
+  for Linked task (a search of the project's tasks), Task list, Project status and Ask Yak to
+  draft. The last three are live blocks that read the tasks and the latest update as they stand.
+- **Comments and Yak's suggestion** (`40006309:40642`): Comment quotes the selected words and
+  starts a thread in the side column (`?side=comments&thread=`); a paragraph with a thread shows
+  its count in the margin. Ask Yak rewrites the partner line to what the thread settled on.
+- **Yak finds to-dos** (`40006310:39655`): ⋯ › Find to-dos with Yak (`?yak=todos`) lights the two
+  paragraphs and offers three tasks for Katie; Create 3 tasks makes them in Austin, linked.
+- **Version history** (`40006310:40709`): ⋯ › Version history (`?side=history`), and picking a
+  version compares the doc against it (`&version=`), with Restore and Done.
+- The project's Docs tab opens docs here now, and its New doc makes an untitled one.
+
+axe is clean on every view, light and dark. Not built: Share's people picker (it copies the link),
+a file's viewer, Filter, and Project - Post update / Update history, which belong with the status
+updates rather than with docs.
+
+### Open: library changes worth making
+
+98. **`Autocomplete` can't be an inline field.** The slash line is the Autocomplete, because it is
+    the one control that keeps the caret in the text while the arrows walk a list. But it always
+    draws Input's box, and a doc's line is bare text: the app turns the box off with overrides
+    (border, fill, hover, ring, the input's padding), and narrows the field to 300 while what is
+    typed is short, because the popup's `min-w-(--anchor-width)` would otherwise make the menu the
+    doc's 680 rather than the file's 300. Worth a bare appearance, or a popup width of its own.
+99. **An `Autocomplete` pick arrives as the row's `label`.** `AutocompleteItemData.value` is
+    documented as "the text written into the input when this row is chosen", but Base UI's
+    `stringifyAsLabel` prefers `label`, so `onValueChange` gets "Task list", not `task-list`. The
+    app looks a row up by either. The doc comment (or the data shape) wants correcting.
+
+### Kept in the app, worth knowing
+
+96. **The side column lists what the doc mentions, then the rest.** `Docs - Austin opening plan`
+    says "Linked tasks · 3", the three the checklist names, while All docs says the plan has 12
+    (FINDINGS 52). Both are true of the same data: the column counts all twelve and lists the three
+    the doc mentions first, with "Show 9 more" for the others.
+97. **Five docs carry the file's count, not tasks.** Protein Plates, Mobile ordering, Gift Cards,
+    Winter menu and Loyalty have no tasks in the mock, so their Linked tasks (8, 21, 4, 6, 2) are
+    written as numbers, and their pages say their words aren't in the mock. Only the opening plan
+    has text, as the file draws only it.
+100. **The slash menu filters.** The frame shows all four commands under "/task"; here a command
+     shows when a word of its name starts with what follows the slash, so "/task" finds Linked
+     task and Task list.
+101. **Comparing counts an edited line once.** "Comparing with yesterday · 2 changes" is the crew
+     line (twelve → fourteen) and the soft open. A changed block shows its old words Removed above
+     the new ones, which read as they do in the doc, as drawn; a block that is gone is Removed
+     where it used to sit, and a new one is Added. Editing a doc here adds "Just now" to its
+     history, and that is what Restore leaves the old version under.
+102. **Create task opens a dialog the file doesn't draw**: name, assignee and due, the Accept
+     dialog's fields, with the selected words as the name. The task goes in a "From docs" phase,
+     like "From requests" (FINDINGS 92).
+103. **The Task list block includes late work.** "Open, due by" two weeks out, so a task past due
+     is not left off a list meant to say what needs doing.
+104. **A doc's page draws no floating Yak**, as the frames don't: the line under the doc is where
+     you write. All docs has the bar, with the frame's "Ask Yak to find or draft a doc…".
