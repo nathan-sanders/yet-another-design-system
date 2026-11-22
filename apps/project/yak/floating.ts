@@ -18,5 +18,8 @@ export function floatingYakPlaceholder(pathname: string): string | null {
   const project = projectId ? projectFor(projectId) : undefined
   if (project) return `Ask Yak about ${project.name}…`
   if (pathname.startsWith('/my-work')) return 'Ask Yak about your work…'
+  // Plan's, as each frame writes it.
+  if (pathname.startsWith('/plan/roadmap')) return 'Ask Yak what this plan changes…'
+  if (pathname.startsWith('/plan/workload')) return 'Ask Yak to rebalance the team…'
   return 'Ask Yak, or search projects, tasks and people…'
 }

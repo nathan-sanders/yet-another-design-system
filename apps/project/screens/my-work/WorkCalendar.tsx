@@ -10,7 +10,8 @@ import { focusRing } from '../../../../src/lib/focus'
 import { day, fullDate, sameDay, today, weekdayLong, weekdayShort } from '../../data/dates'
 import { FILE_WEEK, meetings, type TimeBlock } from '../../data/myWork'
 import { projectFor } from '../../data/projects'
-import type { ProjectColor, Task } from '../../data/types'
+import { PROJECT_BAR } from '../../components/taskMeta'
+import type { Task } from '../../data/types'
 import { useTasks } from '../project/tasksState'
 import { useBlocks } from './blocksState'
 import {
@@ -40,23 +41,14 @@ const dropRing =
 
 /**
  * A block's fill: its project's Decorative hue, as `_Timeline Task Bar` is
- * painted in the frame, and the neutral one for meetings and work outside a
- * project. Written out whole so Tailwind can see the classes.
+ * painted in the frame (`PROJECT_BAR`, shared with the Roadmap), and the
+ * neutral one for meetings and work outside a project.
  */
-const TONE: Record<ProjectColor | 'neutral', string> = {
-  orange: 'bg-decorative-orange-background text-decorative-orange-foreground',
-  pink: 'bg-decorative-pink-background text-decorative-pink-foreground',
-  purple: 'bg-decorative-purple-background text-decorative-purple-foreground',
-  red: 'bg-decorative-red-background text-decorative-red-foreground',
-  teal: 'bg-decorative-teal-background text-decorative-teal-foreground',
-  blue: 'bg-decorative-blue-background text-decorative-blue-foreground',
-  yellow: 'bg-decorative-yellow-background text-decorative-yellow-foreground',
-  sky: 'bg-decorative-sky-background text-decorative-sky-foreground',
-  neutral: 'bg-decorative-neutral-background text-decorative-neutral-foreground',
-}
+const NEUTRAL_TONE = 'bg-decorative-neutral-background text-decorative-neutral-foreground'
 
 function toneOf(task: Task | undefined): string {
-  return TONE[projectFor(task?.projectId)?.color ?? 'neutral']
+  const color = projectFor(task?.projectId)?.color
+  return color ? PROJECT_BAR[color] : NEUTRAL_TONE
 }
 
 const HOURS = Array.from({ length: DAY_END - DAY_START }, (_, i) => DAY_START + i)
@@ -333,7 +325,7 @@ function DayColumn({
           const when = spanLabel(item.start, item.end)
           const className = cn(
             'absolute top-(--top) left-(--left) flex h-(--height) w-(--width) min-w-0 items-center rounded-md px-2 text-left text-sm font-semibold',
-            entry.kind === 'meeting' ? TONE.neutral : toneOf(task),
+            entry.kind === 'meeting' ? NEUTRAL_TONE : toneOf(task),
           )
           return (
             <li key={item.id} className="contents">

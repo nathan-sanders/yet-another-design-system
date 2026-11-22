@@ -10,6 +10,9 @@ import { InboxIndex, InboxScreen } from './screens/inbox/InboxScreen'
 import { BlocksProvider } from './screens/my-work/BlocksProvider'
 import { MyWorkIndex, MyWorkScreen } from './screens/my-work/MyWorkScreen'
 import { NotBuilt } from './screens/NotBuilt'
+import { PlanProvider } from './screens/plan/PlanProvider'
+import { RoadmapScreen } from './screens/plan/roadmap/RoadmapScreen'
+import { WorkloadScreen } from './screens/plan/workload/WorkloadScreen'
 import { ProjectIndex, ProjectPage } from './screens/project/ProjectPage'
 import { RulesProvider } from './screens/project/RulesProvider'
 import { TasksProvider } from './screens/project/TasksProvider'
@@ -31,6 +34,9 @@ const router = createHashRouter([
       { path: 'projects', element: <ProjectsScreen /> },
       { path: 'projects/:projectId', element: <ProjectIndex /> },
       { path: 'projects/:projectId/:tab', element: <ProjectPage /> },
+      { path: 'plan', element: <Navigate to="/plan/roadmap" replace /> },
+      { path: 'plan/roadmap', element: <RoadmapScreen /> },
+      { path: 'plan/workload', element: <WorkloadScreen /> },
       { path: '*', element: <NotBuilt /> },
     ],
   },
@@ -43,7 +49,9 @@ createRoot(document.getElementById('root')!).render(
         <RulesProvider>
           <BlocksProvider>
             <InboxProvider>
-              <RouterProvider router={router} />
+              <PlanProvider>
+                <RouterProvider router={router} />
+              </PlanProvider>
             </InboxProvider>
           </BlocksProvider>
         </RulesProvider>

@@ -193,6 +193,28 @@ const planned: Task[] = [
     ],
   },
   {
+    // Drawn on Plan - Workload (`40006279:21820`) and its Rebalance preview
+    // (`40006299:28257`): the 12 hours that put Marcus at 52 next week, and
+    // the ones Yak moves to Maya. Workload reads who has it to know whose
+    // week the hours are in.
+    id: 'aus-41',
+    projectId: 'austin',
+    number: 41,
+    title: 'Signage install prep',
+    phase: 'Permits & build-out',
+    assigneeId: 'marcus',
+    status: 'todo',
+    priority: 'medium',
+    due: '2026-11-13',
+    start: '2026-11-09',
+    description:
+      'Brackets, power to the sign box and the window measurements, so the install on {2026-12-04} is a day’s work.',
+    estimate: '12h',
+    activity: [
+      { id: 'e-41-1', actor: 'marcus', text: 'Marcus created this task', at: day('2026-10-28') },
+    ],
+  },
+  {
     id: 'aus-20',
     projectId: 'austin',
     number: 20,

@@ -1,5 +1,6 @@
 /** The Decorative hues a project's dot is drawn in. */
-export type ProjectColor = 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'blue' | 'yellow' | 'sky'
+export type ProjectColor =
+  'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'blue' | 'yellow' | 'sky' | 'green'
 
 /**
  * A project's health, as the Health column's Badge and the header's first
