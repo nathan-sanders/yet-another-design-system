@@ -169,6 +169,12 @@ export type {
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps, CheckboxGroupProps } from './components/Checkbox'
 
+export { Code } from './components/Code'
+export type { CodeColor, CodeProps, CodeSize } from './components/Code'
+
+export { CodeBlock } from './components/CodeBlock'
+export type { CodeBlockProps } from './components/CodeBlock'
+
 export { Combobox } from './components/Combobox'
 export type {
   ComboboxProps,

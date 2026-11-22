@@ -723,6 +723,25 @@
   --data-viz-utility-accessibility-overlay: color-mix(in oklab, var(--neutral-900) 55%, transparent);
   --data-viz-sentiment-negative: var(--color-red-600);
   --data-viz-sentiment-neutral: var(--color-neutral-500);
+  --syntax-keyword: var(--color-fuchsia-900);
+  --syntax-string: var(--color-green-900);
+  --syntax-comment: var(--neutral-600);
+  --syntax-number: var(--color-orange-900);
+  --syntax-function: var(--color-blue-900);
+  --syntax-type: var(--color-fuchsia-900);
+  --syntax-variable: var(--neutral-900);
+  --syntax-operator: var(--neutral-600);
+  --syntax-constant: var(--color-orange-900);
+  --syntax-tag: var(--color-red-900);
+  --syntax-attribute: var(--color-yellow-900);
+  --syntax-property: var(--color-teal-900);
+  --syntax-punctuation: var(--neutral-600);
+  --syntax-background: var(--color-white);
+  --syntax-added: oklch(87% 0.1499 154.283 / 0.25);
+  --syntax-removed: oklch(80.2% 0.1134 18.526 / 0.25);
+  --syntax-diff-header: oklch(100% 0 none / 0);
+  --syntax-added-marker: var(--neutral-600);
+  --syntax-removed-marker: var(--neutral-600);
 }
 
 .dark {
@@ -906,6 +925,25 @@
   --data-viz-utility-accessibility-overlay: color-mix(in oklab, var(--neutral-100) 55%, transparent);
   --data-viz-sentiment-negative: var(--color-red-600);
   --data-viz-sentiment-neutral: var(--color-neutral-500);
+  --syntax-keyword: var(--color-fuchsia-300);
+  --syntax-string: var(--color-green-300);
+  --syntax-comment: var(--neutral-400);
+  --syntax-number: var(--color-orange-300);
+  --syntax-function: var(--color-blue-300);
+  --syntax-type: var(--color-fuchsia-300);
+  --syntax-variable: var(--neutral-200);
+  --syntax-operator: var(--neutral-400);
+  --syntax-constant: var(--color-orange-300);
+  --syntax-tag: var(--color-red-300);
+  --syntax-attribute: var(--color-yellow-400);
+  --syntax-property: var(--color-teal-300);
+  --syntax-punctuation: var(--neutral-400);
+  --syntax-background: var(--neutral-900);
+  --syntax-added: oklch(39.1% 0.0932 153.119 / 0.25);
+  --syntax-removed: oklch(39.4% 0.1406 25.826 / 0.25);
+  --syntax-diff-header: color-mix(in oklab, var(--neutral-900) 0%, transparent);
+  --syntax-added-marker: var(--neutral-400);
+  --syntax-removed-marker: var(--neutral-400);
 }
 
 /* ---- 2b. The navigation theme. Seven tokens across 37 modes, switched by ---- */
@@ -1556,6 +1594,25 @@
   --color-data-viz-utility-accessibility-overlay: var(--data-viz-utility-accessibility-overlay);
   --color-data-viz-sentiment-negative: var(--data-viz-sentiment-negative);
   --color-data-viz-sentiment-neutral: var(--data-viz-sentiment-neutral);
+  --color-syntax-keyword: var(--syntax-keyword);
+  --color-syntax-string: var(--syntax-string);
+  --color-syntax-comment: var(--syntax-comment);
+  --color-syntax-number: var(--syntax-number);
+  --color-syntax-function: var(--syntax-function);
+  --color-syntax-type: var(--syntax-type);
+  --color-syntax-variable: var(--syntax-variable);
+  --color-syntax-operator: var(--syntax-operator);
+  --color-syntax-constant: var(--syntax-constant);
+  --color-syntax-tag: var(--syntax-tag);
+  --color-syntax-attribute: var(--syntax-attribute);
+  --color-syntax-property: var(--syntax-property);
+  --color-syntax-punctuation: var(--syntax-punctuation);
+  --color-syntax-background: var(--syntax-background);
+  --color-syntax-added: var(--syntax-added);
+  --color-syntax-removed: var(--syntax-removed);
+  --color-syntax-diff-header: var(--syntax-diff-header);
+  --color-syntax-added-marker: var(--syntax-added-marker);
+  --color-syntax-removed-marker: var(--syntax-removed-marker);
 
   /* the navigation theme — bg-nav-background, text-nav-content-subtle, … */
   --color-nav-background: var(--nav-background);
