@@ -465,9 +465,9 @@ function matches(command: Command, query: string): boolean {
  * project's tasks not yet linked.
  *
  * It is the library's `Autocomplete`, which keeps the caret in the line while
- * the arrows walk the list. Its field box is turned off here so the line
- * reads as the doc's own text, and its width follows what is typed so the
- * menu is the file's 300 wide (FINDINGS 98).
+ * the arrows walk the list, in its `bare` appearance: no field drawn, so the
+ * line reads as the doc's own text, and a menu the library's 296 wide rather
+ * than the doc's 680 (FINDINGS 98).
  */
 export function SlashLine({
   linkable,
@@ -514,13 +514,9 @@ export function SlashLine({
   }
 
   return (
-    <form
-      onSubmit={submit}
-      onFocus={onFocus}
-      aria-label="Add to this doc"
-      className={cn(text.length < 30 && 'w-75')}
-    >
+    <form onSubmit={submit} onFocus={onFocus} aria-label="Add to this doc">
       <Autocomplete
+        appearance="bare"
         aria-label={picking ? 'Find a task to link' : 'Add to this doc'}
         placeholder={picking ? 'Find a task to link…' : 'Type, or / to add a task, list or status'}
         startIcon={null}
@@ -532,8 +528,8 @@ export function SlashLine({
           if (!next) setDismissed(true)
         }}
         inputRef={inputRef}
-        // A pick arrives as the row's label, not its `value`, whatever the
-        // library's type says (FINDINGS 99), so a row is found by either.
+        // A pick arrives as the row's label, not its `value` (FINDINGS 99),
+        // so a row is found by either.
         onValueChange={(next, details) => {
           setDismissed(false)
           if (details.reason !== 'item-press') return setText(next)
@@ -551,9 +547,6 @@ export function SlashLine({
           if (command) onCommand(command.run as Exclude<Command['run'], 'linked-task'>)
           reset()
         }}
-        // The Autocomplete's field, turned off: no box, no fill, no ring, the
-        // text flush with the paragraphs above (FINDINGS 98).
-        className="min-h-6 border-transparent bg-transparent hover:bg-transparent has-focus-visible:border-transparent has-focus-visible:bg-transparent has-focus-visible:ring-0 has-focus-visible:ring-offset-0 [&_input]:px-0"
       >
         {(item) => {
           const command = COMMANDS.find((c) => c.value === item.value)

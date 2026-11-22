@@ -186,6 +186,30 @@ export function formatDateTick(
 }
 
 /**
+ * The x axis' `tickFormatter` for a date axis thinned by `tickInterval`.
+ *
+ * `formatDateTick` writes the month where it changes, so it needs the label
+ * *before* this one — and that is the previous visible tick, not the previous
+ * row. Recharts hands `tickFormatter` the index among the ticks it kept, so
+ * with every other day labeled, tick 14 is row 28 while `index - 1` names row
+ * 13. Reading the row did that, and every label past a month boundary compared
+ * itself with a day in the month before: Oct 21 – Nov 19 at 600px wrote "Nov 2"
+ * through "Nov 12", and the wider ones overlapped (FINDINGS 106 in Yet
+ * Project). The interval here is `xAxisProps`' own, so tick `i` is row
+ * `i × (interval + 1)` — `getEveryNth`, which is what a numeric `interval` is
+ * in Recharts.
+ */
+export function dateTickFormatter(
+  values: readonly unknown[],
+  preset: ChartXPreset,
+  { wide = true, timeZone = 'UTC' }: { wide?: boolean; timeZone?: string } = {},
+) {
+  const step = tickInterval(values.length, wide) + 1
+  return (value: unknown, index: number) =>
+    formatDateTick(value, preset, index > 0 ? values[(index - 1) * step] : undefined, timeZone)
+}
+
+/**
  * `CartesianGrid` props.
  *
  * **Gridlines run perpendicular to the value axis and never along the category

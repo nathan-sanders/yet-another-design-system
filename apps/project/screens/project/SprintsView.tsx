@@ -370,8 +370,7 @@ function SprintHealth({
             xKey="day"
             xPreset="categories"
             interpolation="linear"
-            // The frame draws the lines bare; points would also paint the days
-            // still to come at the top edge (FINDINGS 105).
+            // The frame draws the lines bare.
             showPoints={false}
             series={[
               { key: 'remaining', label: 'Remaining' },
