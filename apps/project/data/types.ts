@@ -91,6 +91,12 @@ export interface Task {
   review?: { personId: string; action: string }
   /** When it was marked done, for My work's "Done this week". */
   completedAt?: Date
+  /**
+   * The sprint it is in, for a project that runs in sprints (`Project -
+   * Sprint`, `40006281:34376`): its number, the day it joined when that was
+   * after the sprint began, and the sprint it came over from unfinished.
+   */
+  sprint?: { number: number; added?: string; carriedFrom?: number }
 }
 
 export interface Subtask {

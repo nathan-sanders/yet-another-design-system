@@ -1,5 +1,6 @@
 import { datedText } from '../data/dates'
 import { FREE_HOURS, type TimeBlock } from '../data/myWork'
+import { personFor } from '../data/people'
 import type { Task } from '../data/types'
 import { bucketOf, hoursOf, openWork } from '../screens/my-work/model'
 
@@ -180,8 +181,44 @@ function fallback(): ScriptedReply {
   }
 }
 
+/**
+ * "Write today's standup for Sprint 14", from the Sprints tab's Standup
+ * button: a line a person, from the sprint's tasks as they stand — what is
+ * done, what they are on, what is next. Not drawn in the file; it reads the
+ * same tasks as the table, so the two agree.
+ */
+function standup(tasks: Task[], number: number): ScriptedReply {
+  const sprint = tasks.filter((t) => t.sprint?.number === number)
+  const names = (list: Task[]) => list.map((t) => t.title).join(', ')
+  const people = [...new Set(sprint.map((t) => t.assigneeId))]
+  const lines = people.map((id) => {
+    const own = sprint.filter((t) => t.assigneeId === id)
+    const done = own.filter((t) => t.status === 'done')
+    const doing = own.filter((t) => t.status === 'in-progress' || t.status === 'in-review')
+    const next = own.filter((t) => t.status === 'todo')
+    const parts = [
+      done.length ? `done: ${names(done)}` : '',
+      doing.length ? `on: ${names(doing)}` : '',
+      next.length ? `next: ${names(next)}` : '',
+    ].filter(Boolean)
+    return `${personFor(id).name.split(' ')[0]} — ${parts.join('; ')}.`
+  })
+  return {
+    summary: `Read Sprint ${number}`,
+    phrases: ['Reading the sprint', 'Drafting the standup'],
+    tools: [`Read ${sprint.length} tasks in Sprint ${number}`],
+    bubbles: [
+      { kind: 'text', text: `Here’s today’s standup for Sprint ${number}, a line each:` },
+      ...lines.map((text) => ({ kind: 'text' as const, text })),
+    ],
+    followUps: ['Post it to the project', 'Who needs help?'],
+  }
+}
+
 export function scriptedReply(prompt: string, tasks: Task[]): ScriptedReply {
   const q = norm(prompt)
+  const sprint = q.match(/^write todays standup for sprint (\d+)$/)
+  if (sprint) return standup(tasks, Number(sprint[1]))
   if (q === 'whats blocking austin' || q === 'what is blocking austin') return blockingAustin(tasks)
   if (q === 'plan the rest of my week' || q === 'plan my week') return planWeek(tasks)
   return fallback()

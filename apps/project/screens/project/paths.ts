@@ -4,7 +4,7 @@ import type { Task } from '../../data/types'
 /**
  * A project's tabs, in the file's order (`Yet Project / Project shell`,
  * `40006263:1152`). A project that runs in sprints swaps Rules for Sprints.
- * `figma` is the frame each is drawn on; every tab but Sprints is built so far.
+ * `figma` is the frame each is drawn on; every tab is built.
  */
 export const PROJECT_TABS = [
   { id: 'overview', label: 'Overview', figma: '40006268-5150', built: true },
@@ -14,7 +14,7 @@ export const PROJECT_TABS = [
   { id: 'calendar', label: 'Calendar', figma: '40006272-9258', built: true },
   { id: 'docs', label: 'Docs', figma: '40006309-36927', built: true },
   { id: 'rules', label: 'Rules', figma: '40006284-21772', built: true },
-  { id: 'sprints', label: 'Sprints', figma: '40006281-34376' },
+  { id: 'sprints', label: 'Sprints', figma: '40006281-34376', built: true },
 ] as const
 
 export type ProjectTab = (typeof PROJECT_TABS)[number]['id']

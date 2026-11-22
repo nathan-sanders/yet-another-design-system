@@ -8,7 +8,6 @@ import {
   CircleUser,
   Ellipsis,
   Link as LinkIcon,
-  PencilRuler,
   SquarePen,
   TriangleAlert,
   type LucideIcon,
@@ -28,13 +27,13 @@ import { personFor } from '../../data/people'
 import { projectFor } from '../../data/projects'
 import type { Project, ProjectHealth } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
-import { NotBuiltMessage } from '../NotBuiltMessage'
 import { NotBuilt } from '../NotBuilt'
 import { BoardView } from './BoardView'
 import { CalendarView } from './CalendarView'
 import { DocsView } from './DocsView'
 import { ListView } from './ListView'
 import { RulesView } from './RulesView'
+import { SprintsView } from './SprintsView'
 import { OverviewView } from './OverviewView'
 import { DEFAULT_TAB, projectPath, TASK_PARAM, tabsFor, taskKey, type ProjectTab } from './paths'
 import { TaskPanel } from './TaskPanel'
@@ -231,12 +230,7 @@ function ProjectView({ project, tab }: { project: Project; tab: ProjectTab }) {
                 ) : t.id === 'rules' ? (
                   <RulesView project={project} />
                 ) : (
-                  <NotBuiltMessage
-                    icon={PencilRuler}
-                    title="Designed, not built yet"
-                    body={`${project.name}’s ${t.label} view is drawn in Figma and comes in a later slice of this app.`}
-                    figma={t.figma}
-                  />
+                  <SprintsView project={project} selectedTaskId={openTask?.id} />
                 )}
               </Tabs.Panel>
             ))}

@@ -34,6 +34,9 @@ export function CreateTaskDialog({
   onClose: () => void
   onCreate: (fields: NewTaskFields) => void
 }) {
+  // Kept after the dialog closes, so it keeps its title while it fades.
+  const [shown, setShown] = useState(seed)
+  if (seed !== undefined && seed !== shown) setShown(seed)
   return (
     <Dialog
       open={seed !== undefined}
@@ -42,9 +45,10 @@ export function CreateTaskDialog({
       }}
     >
       <Dialog.Popup>
-        {seed !== undefined ? (
+        {shown !== undefined ? (
           <CreateTaskForm
-            seed={seed}
+            key={shown}
+            seed={shown}
             projectName={projectName}
             onClose={onClose}
             onCreate={onCreate}

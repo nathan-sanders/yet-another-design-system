@@ -746,3 +746,77 @@ updates rather than with docs.
      is not left off a list meant to say what needs doing.
 104. **A doc's page draws no floating Yak**, as the frames don't: the line under the doc is where
      you write. All docs has the bar, with the frame's "Ask Yak to find or draft a doc…".
+
+## Slice 14 — Sprints and Reports (2026-11-22)
+
+The last two unbuilt areas of the app.
+
+- **Sprints**, from `Project - Sprint` (`40006281:34376`): Mobile ordering app's Sprints tab. The
+  sprint's menu (`?sprint=13`), its dates and days left, Standup and Complete sprint over a Table
+  of its tasks grouped In progress / To do / Done at the file's 88 / fill / 160 / 128, with
+  editable Assignee and Status Tokens; beside it, 360 wide, Sprint health (the verdict and the
+  burndown) and This sprint. Every number is computed from the tasks and `data/sprints.ts`, and
+  `sprint.test.ts` holds them to the frame: 9 → 10 → 9 → 8, trailing by 2, 6 days left, 2 of 10,
+  1 added, 2 from Sprint 13, 8 a sprint.
+- **Reports**, from `Reports - Delivery` (`40006283:21661`) and the deep dive: Delivery (Yak's
+  read, four Metric Cards, Completed vs. overdue, Open work by team, the overdue tasks), the
+  drill-in panel a team's bar opens (`40006323:56072`, `?team=ops`), Budget (`40006312:43935`), the
+  chart builder (`40006312:39249`, `#/reports/new`, its fields in the URL), and Email this report
+  (`40006312:47130`, `?email=1`). The range menu (`?range=7|30|90`) moves the line chart and the
+  metrics. `reports/model.test.ts` holds Delivery and Budget to the frames' numbers.
+
+axe is clean on every view, light and dark, including all six builder visualizations and both
+dialogs.
+
+### Open: library changes worth making
+
+105. **`LineSeries` draws a missing value's point at the top edge.** Its dot renderer falls back
+     to `cy ?? 0`, so a row with no value for a series (the burndown's days still to come) paints
+     that series' marker along the top of the plot. The Sprints tab turns points off, as the
+     frame draws them anyway; the fix is to return nothing when `cy` is missing.
+106. **`LineSeries`' day ticks can collide at the end.** At some widths Completed vs. overdue
+     writes "Nov 2" and "Nov 4" on top of each other: the last tick is kept however close it is
+     to the one before.
+
+### Kept in the app, worth knowing
+
+107. **Seven overdue tasks are real tasks.** `Reports - Delivery` counts 7 overdue, six of them
+     Ops, and the drill-in names them; the data had one. AUS-37 and AUS-42…45 (Ops paperwork) and
+     AUS-46 (Katie's press list) were added, each a day late, so the metric,
+     the bar, the table and the panel all read them off the live tasks. They join Austin's List
+     and Timeline (the Permits group's open count went 5 → 10 in `timeline.test.ts`).
+108. **History is seeded, overdue is live.** Tasks done per day, the on-time rate and cycle time
+     come from `data/reports.ts` (a weekly pattern, tuned so the frame's 30 days are 184 done, +12%);
+     today's overdue count is always the tasks', so finishing one moves the report.
+109. **Open work by team is the company's**, seeded per team (38, 31, 24, 17, 12) since the mock
+     has only two projects' tasks; the overdue segment stacked after it is live. The note under it
+     is computed: "Ops holds six of the seven overdue tasks, all in Austin store opening" — the
+     frame's "tied to the Austin permit" isn't something the data records.
+110. **Cycle time going down is the good direction.** The frame shows "0.6d" with a green up
+     arrow; here 4.8d → 4.2d is a green ↘, since a shorter cycle is the improvement.
+111. **The drill-in's "Today" is "1 day".** The frame's last row is late by "Today", which is not
+     late; all five of the Ops paperwork tasks are a day late.
+112. **Workload has no Reports frame.** The segment says so and links Plan › Workload, which
+     already is that report.
+113. **Budget shows only the projects the file breaks out** (Austin under Store expansion; Mobile
+     ordering and Loyalty under Digital). Menu and Brand & people have no chevron, since there is
+     nothing under them to fold.
+114. **The builder reads a request.** The Yak line at the top is a real field: "Mobile tasks by
+     assignee and status" sets Data, Group by and Split by. Status and priority keep one color
+     each across charts (Blocked is always the fourth categorical), where the library would color
+     by position and repaint them per chart.
+115. **Add to dashboard puts the chart on Delivery**, after the two drawn charts, with Remove in
+     its ⋯ and Undo.
+116. **MOB-08 moved to the backlog.** It was in a "Sprint 14" phase from the Requests slice, but
+     `Project - Sprint` doesn't list it and it is due after the sprint ends.
+117. **"Trailing by 2" is the tasks you'd have to finish to be back on the ideal line**, rounded
+     up: 8 remaining against 6.67 ideal. Yak's line is computed the same way, so it reads "Dropping
+     it would leave you 1 behind" where the frame says "would put you back on pace", which the
+     numbers don't support.
+118. **Complete sprint and Standup aren't drawn past their buttons.** Complete sprint asks where
+     the open work goes (the next sprint, or the backlog) and makes Sprint 15, with Undo; work
+     moved on counts as carried over there. Standup opens Yak on "Write today's standup for
+     Sprint 14", now a scripted reply that reads the sprint's tasks a person at a time.
+119. **A closing dialog keeps its contents.** Email this report and the Docs Create task dialog
+     rendered nothing once closed, so axe caught a nameless dialog mid-fade; both now keep what
+     they showed until they're gone, and Complete sprint keeps the sprint it was opened on.

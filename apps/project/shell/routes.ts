@@ -84,7 +84,7 @@ export const bottom: AppRoute[] = [
     figma: '40006284-19161',
   },
   { path: '/docs', label: 'Docs', icon: FileText, built: true, figma: '40006283-18038' },
-  { path: '/reports', label: 'Reports', icon: ChartColumn, figma: '40006283-21661' },
+  { path: '/reports', label: 'Reports', icon: ChartColumn, built: true, figma: '40006283-21661' },
 ]
 
 export const allRoutes: AppRoute[] = [
