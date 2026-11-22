@@ -4,8 +4,12 @@ import type { Project } from './types'
  * The twelve projects, in All projects' order (`40006264:1069`). Health,
  * progress, owner, next milestone and due date are the file's; the numbers
  * are cross-checked across the page (Austin's permit on Nov 18, Dallas ending
- * Mar 29). Start dates are only drawn for Austin (Nov 2); the others are
- * placeholders that sit before each project's first milestone.
+ * Mar 29). Start dates are drawn for Austin (Nov 2) and, on the Roadmap
+ * (`40006278:14156`), for Dallas (late December, before its three-week move)
+ * and Spring hiring (January); the others are placeholders that sit before
+ * each project's first milestone. Colors follow the dots most frames agree
+ * on — Dallas green and Houston orange, as the Goals map, the portfolio and
+ * the Apply dialog draw them — where the Roadmap's bars differ (FINDINGS 69).
  */
 export const projects: Project[] = [
   {
@@ -88,11 +92,11 @@ export const projects: Project[] = [
   {
     id: 'dallas',
     name: 'Dallas store opening',
-    color: 'teal',
+    color: 'green',
     health: 'on-track',
     progress: 8,
     ownerId: 'dana',
-    start: '2026-11-02',
+    start: '2026-12-28',
     due: '2027-03-29',
     milestone: { name: 'Site plan', date: '2026-11-24' },
     key: 'DAL',
@@ -100,7 +104,7 @@ export const projects: Project[] = [
   {
     id: 'houston',
     name: 'Houston site search',
-    color: 'teal',
+    color: 'orange',
     health: 'on-track',
     progress: 30,
     ownerId: 'marcus',
@@ -124,11 +128,11 @@ export const projects: Project[] = [
   {
     id: 'spring-hiring',
     name: 'Spring hiring',
-    color: 'sky',
+    color: 'green',
     health: 'not-started',
     progress: 0,
     ownerId: 'sofia',
-    start: '2026-12-01',
+    start: '2027-01-04',
     due: '2027-03-16',
     milestone: { name: 'Role plan', date: '2026-12-01' },
     key: 'HIR',
@@ -148,7 +152,7 @@ export const projects: Project[] = [
   {
     id: 'san-antonio',
     name: 'San Antonio feasibility',
-    color: 'teal',
+    color: 'sky',
     health: 'not-started',
     progress: 0,
     ownerId: 'marcus',

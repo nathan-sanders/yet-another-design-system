@@ -100,6 +100,25 @@ export const PROJECT_DOT: Record<ProjectColor, string> = {
   blue: 'bg-decorative-blue-background inset-ring-decorative-blue-highlight',
   yellow: 'bg-decorative-yellow-background inset-ring-decorative-yellow-highlight',
   sky: 'bg-decorative-sky-background inset-ring-decorative-sky-highlight',
+  green: 'bg-decorative-green-background inset-ring-decorative-green-highlight',
+}
+
+/**
+ * A project's bar on the Roadmap (`Plan - Roadmap`, `40006278:14156`): its
+ * hue's Decorative background with that hue's foreground. The file's bars
+ * all carry `_Timeline Task Bar`'s default Blue foreground, which is a
+ * component default left in place rather than a choice (FINDINGS 69).
+ */
+export const PROJECT_BAR: Record<ProjectColor, string> = {
+  orange: 'bg-decorative-orange-background text-decorative-orange-foreground',
+  pink: 'bg-decorative-pink-background text-decorative-pink-foreground',
+  purple: 'bg-decorative-purple-background text-decorative-purple-foreground',
+  red: 'bg-decorative-red-background text-decorative-red-foreground',
+  teal: 'bg-decorative-teal-background text-decorative-teal-foreground',
+  blue: 'bg-decorative-blue-background text-decorative-blue-foreground',
+  yellow: 'bg-decorative-yellow-background text-decorative-yellow-foreground',
+  sky: 'bg-decorative-sky-background text-decorative-sky-foreground',
+  green: 'bg-decorative-green-background text-decorative-green-foreground',
 }
 
 /**

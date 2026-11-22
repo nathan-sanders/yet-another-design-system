@@ -68,10 +68,10 @@ export const planGroup: RouteGroup = {
   label: 'Plan',
   icon: Compass,
   routes: [
-    { path: '/plan/roadmap', label: 'Roadmap', figma: '40006278-14156' },
+    { path: '/plan/roadmap', label: 'Roadmap', built: true, figma: '40006278-14156' },
     { path: '/plan/portfolios', label: 'Portfolios', figma: '40006296-27641' },
     { path: '/plan/goals', label: 'Goals', figma: '40006279-15314' },
-    { path: '/plan/workload', label: 'Workload', figma: '40006279-21820' },
+    { path: '/plan/workload', label: 'Workload', built: true, figma: '40006279-21820' },
   ],
 }
 

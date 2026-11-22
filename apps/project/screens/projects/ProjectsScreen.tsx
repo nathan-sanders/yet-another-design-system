@@ -13,9 +13,9 @@ import {
   ProjectProgress,
 } from '../../components/ProjectCells'
 import { day, shortDate } from '../../data/dates'
-import { projects } from '../../data/projects'
 import type { Project } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { usePlan } from '../plan/planState'
 import { projectPath } from '../project/paths'
 
 const columns: TableColumn<Project>[] = [
@@ -90,10 +90,12 @@ function groupOf(project: Project): string {
 
 /**
  * Projects › All projects (`40006264:1069`): every project in one table,
- * grouped by health. A row opens the project.
+ * grouped by health. A row opens the project. The projects are Plan's, so a
+ * change applied on the Roadmap — Dallas's new due date — shows here too.
  */
 export function ProjectsScreen() {
   const shell = useShell()
+  const { projects } = usePlan()
   return (
     <>
       <TopBar

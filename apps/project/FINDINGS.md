@@ -493,3 +493,64 @@ light and dark.
     projects, My work and the not-built page had Semibold and now follow. axe's `region` rule
     flags any open Menu popup in this app, the inbox's and Home's alike, because Base UI portals it
     outside the landmarks; the story suite does not run that rule.
+
+## Slice 10 — Plan › Roadmap and Workload (2026-11-22)
+
+- **Roadmap**, from `Plan - Roadmap / Unsaved changes` (`40006278:14156`), `/ Capacity`
+  (`40006297:28703`) and `/ Apply changes` (`40006297:29985`): every project on six months (or four
+  quarters), a lane a portfolio (`data/portfolios.ts`), today's line, and the three changes the file
+  draws staged — Dallas three weeks later, Loyalty two weeks longer, Houston to Dana. Discard and
+  Apply both Undo. Apply's dialog works out what the changes do (`screens/plan/roadmap/model.ts`,
+  node-tested): Open 3 Texas stores misses its due date by 19 days, and Ops' January drops from 124%
+  to 104%. Applied changes live in `PlanProvider` and reach All projects. Capacity adds the team rows
+  and shades a month any team is over in.
+- **Workload**, from `Plan - Workload` (`40006279:21820`), `/ Rebalance preview` (`40006299:28257`)
+  and `/ By team` (`40006299:29363`): People (two weeks a day a column) and Teams (eight weeks, a
+  team opening onto its people). Yak's Apply opens the preview; applying it reassigns Signage install
+  prep (AUS-41) to Maya, and the hours follow whoever holds the task, so the task panel and Workload
+  agree, and Undo puts both back. Every number in the three frames comes out of
+  `screens/plan/workload/model.ts` (node-tested): Ops' 111% is (52 + 37) / 80.
+
+axe is clean on both, light and dark, with the dialog and the preview open, and at 375 wide.
+
+### Open: library changes worth making
+
+None open.
+
+### Kept in the app, worth knowing
+
+69. **Bars follow the projects' data, not the frame's drawing.** The Roadmap draws Houston from Dec
+    10 to Mar 10, Loyalty from Dec 1 and Spring menu from Jan 21, which the cross-checked due dates
+    (Houston Feb 26, the Goals page) and starts contradict; the code draws the data. It draws all
+    twelve projects where the frame leaves out San Antonio and Supplier audit. Two placeholder starts
+    moved to the frame's: Dallas Dec 28 (so the three-week move lands it on Apr 19) and Spring hiring
+    Jan 4. Project colors follow the dot most frames agree on — Dallas green and Houston orange, as
+    the Goals map, the portfolio page and the Apply dialog draw them — so `green` joined
+    `ProjectColor`. Every bar in the file carries `_Timeline Task Bar`'s default Blue foreground; the
+    code uses each hue's own (`PROJECT_BAR`, which My work's calendar now shares).
+70. **Days and shares are colored on two scales.** On the People view an 8-hour day is Full and 6
+    or 7 hours Balanced; on the Capacity rows and the By team view 100% is Balanced and Full starts
+    above it, while 82% is Light. Both are the file's, so `components/load.ts` has `loadOfDay` and
+    `loadOfShare`. Worth settling in the file if one rule is wanted.
+71. **Capacity's ✓ is its pressed look.** The file draws the button with a check when the rows are
+    showing and has no off state; the code drops the check when they are hidden and says
+    `aria-pressed`, since YADS Button has no pressed look of its own. Capacity is a month a column,
+    so turning it on from Quarters switches to Months.
+72. **Workload's views are People and Teams.** The first frame's Segment Control reads Hours | Tasks
+    and draws only Hours; the later By team frame reads People | Teams. The code follows the later
+    one, and a Tasks view is not built.
+73. **Signage install prep is a real task now** (AUS-41, Marcus, Nov 9–13, 12h), because the
+    rebalance moves it. It shows in Austin's List, Board and Timeline, which the project frames
+    predate; the Timeline test's Permits count went from 4 to 5.
+74. **The moving task sits in a strip under Maya**, where the preview draws it mid-drag over her row
+    with a shadow. A static preview has nothing being dragged, so it is laid out like Marcus's strip,
+    with its hours, and the receiving strip has no visible label.
+75. **The Roadmap opens with the file's three changes staged**, as if Nathan had left them there.
+    With nothing staged, Yak's Capacity line offers its fix as a Small Secondary "Try it", which
+    stages the Dallas move; the frame draws the line with no button. Group and Filter are drawn and
+    toast; bars are not dragged.
+76. **The Capacity months are the file's November onward**, labeled by the chart's own months. The
+    app slides dates by whole weeks onto the real calendar, so the two stay in step for the next few
+    weeks and drift by up to a month after that.
+77. **Both grids scroll sideways below about 800 wide** rather than squash. Each is a focusable,
+    named region, so axe's `scrollable-region-focusable` holds.
