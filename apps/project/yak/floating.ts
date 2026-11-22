@@ -20,8 +20,12 @@ export function floatingYakPlaceholder(pathname: string): string | null {
   // A doc's page draws none: the line under the doc is where you write, and Yak is in its bar.
   if (pathname.startsWith('/docs/')) return null
   if (pathname === '/docs') return 'Ask Yak to find or draft a doc…'
+  // The builder's own Yak line is at the top of its column.
+  if (pathname === '/reports/new') return null
+  if (pathname.startsWith('/reports')) return 'Ask Yak to chart anything…'
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1]
   const project = projectId ? projectFor(projectId) : undefined
+  if (project && pathname.endsWith('/sprints')) return 'Ask Yak about this sprint…'
   if (project) return `Ask Yak about ${project.name}…`
   if (pathname.startsWith('/my-work')) return 'Ask Yak about your work…'
   // Plan's, as each frame writes it.

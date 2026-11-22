@@ -77,8 +77,9 @@ describe('timelineRows', () => {
 
   it('keeps a collapsed phase’s band and drops its tasks', () => {
     const rows = timelineRows(tasks, new Set(['Permits & build-out']))
-    // Four drawn on the Timeline, and Signage install prep from Plan - Workload.
-    expect(rows[0]).toMatchObject({ kind: 'group', count: 5 })
+    // Four drawn on the Timeline, Signage install prep from Plan - Workload,
+    // and the five late Ops tasks Reports - Drill into a chart lists.
+    expect(rows[0]).toMatchObject({ kind: 'group', count: 10 })
     expect(rows[1]).toMatchObject({ kind: 'group', phase: 'Hiring & training' })
   })
 })

@@ -21,6 +21,7 @@ import { RoadmapScreen } from './screens/plan/roadmap/RoadmapScreen'
 import { WorkloadScreen } from './screens/plan/workload/WorkloadScreen'
 import { ProjectIndex, ProjectPage } from './screens/project/ProjectPage'
 import { RulesProvider } from './screens/project/RulesProvider'
+import { SprintsProvider } from './screens/project/SprintsProvider'
 import { FormBuilderScreen } from './screens/requests/FormBuilder'
 import { MyRequestsScreen } from './screens/requests/MyRequestsScreen'
 import { QueueScreen, RequestsIndex } from './screens/requests/QueueScreen'
@@ -28,6 +29,9 @@ import { RequestsProvider } from './screens/requests/RequestsProvider'
 import { SubmitFormScreen } from './screens/requests/SubmitForm'
 import { TasksProvider } from './screens/project/TasksProvider'
 import { ProjectsScreen } from './screens/projects/ProjectsScreen'
+import { ChartBuilder } from './screens/reports/ChartBuilder'
+import { ReportsProvider } from './screens/reports/ReportsProvider'
+import { ReportsIndex, ReportsScreen } from './screens/reports/ReportsScreen'
 import { ProjectShell } from './shell/ProjectShell'
 
 // Hash routes (`#/projects/austin/list`) so every screen has a link that works
@@ -60,6 +64,9 @@ const router = createHashRouter([
       { path: 'requests/forms/:formId/submit', element: <SubmitFormScreen /> },
       { path: 'docs', element: <AllDocsScreen /> },
       { path: 'docs/:docId', element: <DocPage /> },
+      { path: 'reports', element: <ReportsIndex /> },
+      { path: 'reports/new', element: <ChartBuilder /> },
+      { path: 'reports/:view', element: <ReportsScreen /> },
       { path: '*', element: <NotBuilt /> },
     ],
   },
@@ -75,7 +82,11 @@ createRoot(document.getElementById('root')!).render(
               <PlanProvider>
                 <RequestsProvider>
                   <DocsProvider>
-                    <RouterProvider router={router} />
+                    <SprintsProvider>
+                      <ReportsProvider>
+                        <RouterProvider router={router} />
+                      </ReportsProvider>
+                    </SprintsProvider>
                   </DocsProvider>
                 </RequestsProvider>
               </PlanProvider>

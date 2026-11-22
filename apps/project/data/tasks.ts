@@ -468,15 +468,51 @@ const planned: Task[] = [
       { id: 'e-35-1', actor: 'maya', text: 'Maya created this task', at: day('2026-10-22') },
     ],
   },
+  // The overdue paperwork `Reports - Drill into a chart` (`40006323:56072`)
+  // lists under Ops, with AUS-12 (Nathan's, in `myTasks`): six late Ops tasks,
+  // and Katie's press list the seventh, as `Reports - Delivery` counts them.
+  ...(
+    [
+      [37, 'Sign the access letter', 'dana', 'in-progress'],
+      [42, 'Send fire plan to the city', 'marcus', 'todo'],
+      [43, 'Update insurance certificate', 'dana', 'todo'],
+      [44, 'Confirm hood vendor date', 'marcus', 'todo'],
+      [45, 'Share floor plan with inspector', 'marcus', 'todo'],
+    ] as const
+  ).map(([number, title, assigneeId, status]): Task => ({
+    id: `aus-${number}`,
+    projectId: 'austin',
+    number,
+    title,
+    phase: 'Permits & build-out',
+    assigneeId,
+    status,
+    priority: 'high',
+    start: '2026-11-02',
+    due: '2026-11-04',
+  })),
+  {
+    id: 'aus-46',
+    projectId: 'austin',
+    number: 46,
+    title: 'Send the press list to the PR agency',
+    phase: 'Marketing & launch',
+    assigneeId: 'katie',
+    status: 'todo',
+    priority: 'medium',
+    start: '2026-11-02',
+    due: '2026-11-04',
+  },
   ...myTasks(),
   {
-    // Mobile ordering's one task so far: the open task `Requests - Possible
-    // duplicate` (`40006300:29523`) compares Katie's store-hours request to.
+    // The open task `Requests - Possible duplicate` (`40006300:29523`)
+    // compares Katie's store-hours request to. It is due after Sprint 14 ends
+    // and `Project - Sprint` does not list it, so it waits in the backlog.
     id: 'mob-08',
     projectId: 'mobile-ordering',
     number: 8,
     title: 'Add holiday hours to store pages',
-    phase: 'Sprint 14',
+    phase: 'Backlog',
     assigneeId: 'theo',
     status: 'in-progress',
     priority: 'medium',
@@ -488,7 +524,49 @@ const planned: Task[] = [
       { id: 'e-mob-8-1', actor: 'theo', text: 'Theo created this task', at: day('2026-11-02') },
     ],
   },
+  ...sprintTasks(),
 ]
+
+/**
+ * Sprint 14 of Mobile ordering app, as `Project - Sprint` (`40006281:34376`)
+ * lists it: ten tasks, two done, Allergen filters added the day after it
+ * began, and two carried over from Sprint 13. The sprint runs Monday Nov 2
+ * to Friday Nov 13.
+ */
+function sprintTasks(): Task[] {
+  const rows: [
+    number,
+    string,
+    string,
+    Task['status'],
+    { added?: string; carriedFrom?: number; done?: string }?,
+  ][] = [
+    [52, 'Apple Pay at checkout', 'theo', 'in-progress'],
+    [53, 'Reorder from history', 'sofia', 'in-progress'],
+    [48, 'Store picker map', 'katie', 'in-review', { carriedFrom: 13 }],
+    [49, 'Menu search', 'katie', 'in-review', { carriedFrom: 13 }],
+    [51, 'Pickup time slots', 'sofia', 'in-progress'],
+    [55, 'Order-ready push notification', 'theo', 'todo'],
+    [56, 'Allergen filters on menu', 'priya', 'todo', { added: '2026-11-03' }],
+    [57, 'Loyalty points on receipt', 'theo', 'todo'],
+    [44, 'Saved cards', 'theo', 'done', { done: '2026-11-04' }],
+    [45, 'Guest checkout', 'theo', 'done', { done: '2026-11-05' }],
+  ]
+  return rows.map(([number, title, assigneeId, status, extra = {}]) => ({
+    id: `mob-${number}`,
+    projectId: 'mobile-ordering',
+    number,
+    title,
+    phase: 'Sprint 14',
+    assigneeId,
+    status,
+    priority: 'medium',
+    start: extra.added ?? '2026-11-02',
+    due: '2026-11-13',
+    sprint: { number: 14, added: extra.added, carriedFrom: extra.carriedFrom },
+    completedAt: extra.done ? day(extra.done) : undefined,
+  }))
+}
 
 /**
  * Every task, with the comments the inbox quotes (`data/inbox.ts`) put at
