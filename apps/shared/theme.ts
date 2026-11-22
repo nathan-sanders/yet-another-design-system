@@ -7,29 +7,36 @@ import type { Theme } from '../../src/components/ThemeControl'
  *
  * `ThemeControl` reports the intent and never touches the document, so the app
  * writes `.dark` itself — on `<html>`, where the semantic tokens look for it. It
- * starts dark, whatever the system prefers, and remembers a choice made with
- * the toggle per browser. Each page's `<html>` starts with `class="dark"` too,
- * so the first paint is dark rather than a flash of light before React runs.
+ * starts from the system preference and remembers the choice per browser.
+ *
+ * An app can start from a theme of its own instead: Yet Project opens dark.
+ * It then keeps its choice under its own key, because the apps share an
+ * origin, and every visit saves the theme it shows — on the shared key one
+ * app's default would become every app's.
  */
-export function useDocumentTheme(): [Theme, (theme: Theme) => void] {
+export function useDocumentTheme({
+  initial,
+  storageKey = 'yads-apps-theme',
+}: { initial?: Theme; storageKey?: string } = {}): [Theme, (theme: Theme) => void] {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
-      const saved = localStorage.getItem('yads-apps-theme')
+      const saved = localStorage.getItem(storageKey)
       if (saved === 'light' || saved === 'dark') return saved
     } catch {
       // Storage can be unavailable (private windows); the default stands in.
     }
-    return 'dark'
+    if (initial) return initial
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     try {
-      localStorage.setItem('yads-apps-theme', theme)
+      localStorage.setItem(storageKey, theme)
     } catch {
       // Not remembered, still applied.
     }
-  }, [theme])
+  }, [theme, storageKey])
 
   return [theme, setTheme]
 }
