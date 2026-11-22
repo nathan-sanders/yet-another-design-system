@@ -12,8 +12,11 @@ export const floatingYakClearance = 'md:pb-24'
  * there is no bar.
  */
 export function floatingYakPlaceholder(pathname: string): string | null {
-  // Home opens on Yak's own composer; the inbox's frames draw no bar over the message.
-  if (pathname === '/home' || pathname.startsWith('/inbox')) return null
+  // Home opens on Yak's own composer; the inbox's frames draw no bar over the
+  // message, and none of the Requests frames draw one (the reply box and the
+  // form's buttons sit where it would).
+  if (pathname === '/home' || pathname.startsWith('/inbox') || pathname.startsWith('/requests'))
+    return null
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1]
   const project = projectId ? projectFor(projectId) : undefined
   if (project) return `Ask Yak about ${project.name}…`

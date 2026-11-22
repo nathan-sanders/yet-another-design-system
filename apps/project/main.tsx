@@ -18,6 +18,11 @@ import { RoadmapScreen } from './screens/plan/roadmap/RoadmapScreen'
 import { WorkloadScreen } from './screens/plan/workload/WorkloadScreen'
 import { ProjectIndex, ProjectPage } from './screens/project/ProjectPage'
 import { RulesProvider } from './screens/project/RulesProvider'
+import { FormBuilderScreen } from './screens/requests/FormBuilder'
+import { MyRequestsScreen } from './screens/requests/MyRequestsScreen'
+import { QueueScreen, RequestsIndex } from './screens/requests/QueueScreen'
+import { RequestsProvider } from './screens/requests/RequestsProvider'
+import { SubmitFormScreen } from './screens/requests/SubmitForm'
 import { TasksProvider } from './screens/project/TasksProvider'
 import { ProjectsScreen } from './screens/projects/ProjectsScreen'
 import { ProjectShell } from './shell/ProjectShell'
@@ -44,6 +49,12 @@ const router = createHashRouter([
       { path: 'plan/portfolios/:portfolioId/:tab', element: <PortfolioPage /> },
       { path: 'plan/goals', element: <GoalsScreen /> },
       { path: 'plan/workload', element: <WorkloadScreen /> },
+      { path: 'requests', element: <RequestsIndex /> },
+      { path: 'requests/queue', element: <RequestsIndex /> },
+      { path: 'requests/queue/:view', element: <QueueScreen /> },
+      { path: 'requests/mine', element: <MyRequestsScreen /> },
+      { path: 'requests/forms/:formId', element: <FormBuilderScreen /> },
+      { path: 'requests/forms/:formId/submit', element: <SubmitFormScreen /> },
       { path: '*', element: <NotBuilt /> },
     ],
   },
@@ -57,7 +68,9 @@ createRoot(document.getElementById('root')!).render(
           <BlocksProvider>
             <InboxProvider>
               <PlanProvider>
-                <RouterProvider router={router} />
+                <RequestsProvider>
+                  <RouterProvider router={router} />
+                </RequestsProvider>
               </PlanProvider>
             </InboxProvider>
           </BlocksProvider>

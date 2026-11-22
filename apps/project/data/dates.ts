@@ -39,6 +39,17 @@ export function day(iso: string): Date {
   return addDays(new Date(year, month - 1, date), SHIFT)
 }
 
+/**
+ * The other way: a real date — one picked in a date field, or `today` — as
+ * the file writes it, so that `day()` brings it back to the same day. Data
+ * saved from a picker goes through this, or it lands `SHIFT` days late.
+ */
+export function fileIso(date: Date): string {
+  const back = addDays(date, -SHIFT)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${back.getFullYear()}-${pad(back.getMonth() + 1)}-${pad(back.getDate())}`
+}
+
 /** A date as the file writes it, moved by whole days and written back the same way. */
 export function shiftIso(iso: string, days: number): string {
   const [year, month, date] = iso.split('-').map(Number)

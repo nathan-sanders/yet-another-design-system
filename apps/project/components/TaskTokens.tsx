@@ -46,7 +46,7 @@ export function PriorityMark({
 }
 
 /** A word only a screen reader hears, so "High" is read as "Priority: High". */
-function Spoken({ children }: { children: string }) {
+export function Spoken({ children }: { children: string }) {
   return <span className="sr-only">{children} </span>
 }
 
@@ -57,7 +57,7 @@ function Spoken({ children }: { children: string }) {
  * `DueToken` is: an `inline-flex` token on the cell's text line takes a
  * descender's worth of room and makes the row 41.
  */
-function PickerMenu({
+export function PickerMenu({
   label,
   value,
   onValueChange,
@@ -98,7 +98,15 @@ function PickerMenu({
 }
 
 /** A radio row that closes the menu: a picker of one value is done once it is picked. */
-function Choice({ value, start, children }: { value: string; start: ReactNode; children: string }) {
+export function Choice({
+  value,
+  start,
+  children,
+}: {
+  value: string
+  start: ReactNode
+  children: string
+}) {
   return (
     <Menu.RadioItem value={value} closeOnClick>
       <span className="flex items-center gap-2">

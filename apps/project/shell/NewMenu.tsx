@@ -29,7 +29,9 @@ interface NewItem {
  * Social's (`40005939:57476`) with Yet Project's things in it. Task, Project
  * and Goal each have a dialog drawn (`New task` 40006275:13678, `New project /
  * Template` 40006285:18672, `Plan - Goals / New goal` 40006298:29382). Goal
- * is built, and opens its dialog over Goals; the others are not yet.
+ * is built, and opens its dialog over Goals; Request opens the Creative
+ * request form (`Requests - Submit form`, 40006301:29578); the others are not
+ * built yet.
  */
 const create: NewItem[] = [
   { label: 'Task', description: 'Something to get done', icon: CircleCheck, what: 'New task' },
@@ -45,6 +47,7 @@ const create: NewItem[] = [
     description: 'Ask another team for something',
     icon: ClipboardList,
     what: 'New request',
+    path: '/requests/forms/creative/submit',
   },
   {
     label: 'Goal',
