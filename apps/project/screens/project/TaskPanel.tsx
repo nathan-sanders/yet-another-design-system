@@ -49,6 +49,8 @@ import { personFor } from '../../data/people'
 import { projectFor } from '../../data/projects'
 import type { Task, TaskComment, TaskEvent, TaskPriority } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { queuePath } from '../requests/paths'
+import { useRequests } from '../requests/requestsState'
 import { YakMark } from '../../yak/YakMark'
 import { taskKey, taskPath, type ProjectTab } from './paths'
 import { useTasks } from './tasksState'
@@ -130,10 +132,13 @@ function Properties({ task }: { task: Task }) {
 /**
  * Linked: the doc and the request a task came from. Links rather than values
  * (the file keeps them View Only for that reason), so each is a Token with an
- * `href`, to Docs and Requests, which are drawn and not built.
+ * `href`: Docs, which is drawn and not built, and the request itself in the
+ * queue, under whichever segment it is in now.
  */
 function Linked({ task }: { task: Task }) {
+  const { requests } = useRequests()
   const { doc, request } = task.linked ?? {}
+  const found = requests.find((r) => r.title === request)
   if (!doc && !request) return null
   return (
     <section aria-labelledby={`${task.id}-linked`} className="flex flex-col gap-1">
@@ -146,7 +151,9 @@ function Linked({ task }: { task: Task }) {
         ) : null}
         {request ? (
           <PropertyRow icon={ClipboardList} label="Request">
-            <Token href="#/requests">{request}</Token>
+            <Token href={`#${found ? queuePath(found.state, found.id) : '/requests'}`}>
+              {request}
+            </Token>
           </PropertyRow>
         ) : null}
       </dl>
@@ -597,7 +604,10 @@ function TaskDetail({ task, tasks }: { task: Task; tasks: Task[] }) {
               </Button>
             </Card>
           ) : null}
-          {task.description ? <Text>{datedText(task.description)}</Text> : null}
+          {/* pre-line: a task made from a request carries its answers a line each. */}
+          {task.description ? (
+            <Text className="whitespace-pre-line">{datedText(task.description)}</Text>
+          ) : null}
           <Properties task={task} />
           <Linked task={task} />
           <Subtasks task={task} />

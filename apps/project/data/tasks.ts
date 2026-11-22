@@ -469,6 +469,25 @@ const planned: Task[] = [
     ],
   },
   ...myTasks(),
+  {
+    // Mobile ordering's one task so far: the open task `Requests - Possible
+    // duplicate` (`40006300:29523`) compares Katie's store-hours request to.
+    id: 'mob-08',
+    projectId: 'mobile-ordering',
+    number: 8,
+    title: 'Add holiday hours to store pages',
+    phase: 'Sprint 14',
+    assigneeId: 'theo',
+    status: 'in-progress',
+    priority: 'medium',
+    due: '2026-11-24',
+    start: '2026-11-03',
+    description: 'Thanksgiving and December hours for every store page and the app.',
+    estimate: '4h',
+    activity: [
+      { id: 'e-mob-8-1', actor: 'theo', text: 'Theo created this task', at: day('2026-11-02') },
+    ],
+  },
 ]
 
 /**

@@ -180,6 +180,31 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [change],
   )
   const restoreTask = useCallback((snapshot: Task) => change(snapshot.id, () => snapshot), [change])
+  const addTask = useCallback((task: Task) => {
+    setTasks((current) => [...current, task])
+    setOrder((current) => [...current, task.id])
+  }, [])
+  const removeTask = useCallback((id: string) => {
+    setTasks((current) => current.filter((task) => task.id !== id))
+    setOrder((current) => current.filter((taskId) => taskId !== id))
+  }, [])
+  const mergeRequest = useCallback(
+    (taskId: string, request: { title: string; fromName: string }) =>
+      change(taskId, (task) => ({
+        ...task,
+        linked: { ...task.linked, request: request.title },
+        activity: [
+          {
+            id: newId('e'),
+            actor: me.id,
+            text: `You merged ${request.fromName}’s request “${request.title}” into this`,
+            at: today,
+          },
+          ...(task.activity ?? []),
+        ],
+      })),
+    [change],
+  )
 
   const value = useMemo<TasksState>(
     () => ({
@@ -192,6 +217,9 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       setLag,
       approveReview,
       restoreTask,
+      addTask,
+      removeTask,
+      mergeRequest,
     }),
     [
       tasks,
@@ -203,6 +231,9 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       setLag,
       approveReview,
       restoreTask,
+      addTask,
+      removeTask,
+      mergeRequest,
     ],
   )
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>

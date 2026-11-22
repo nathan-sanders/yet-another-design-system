@@ -76,7 +76,13 @@ export const planGroup: RouteGroup = {
 }
 
 export const bottom: AppRoute[] = [
-  { path: '/requests', label: 'Requests', icon: ClipboardList, figma: '40006284-19161' },
+  {
+    path: '/requests',
+    label: 'Requests',
+    icon: ClipboardList,
+    built: true,
+    figma: '40006284-19161',
+  },
   { path: '/docs', label: 'Docs', icon: FileText, figma: '40006283-18038' },
   { path: '/reports', label: 'Reports', icon: ChartColumn, figma: '40006283-21661' },
 ]

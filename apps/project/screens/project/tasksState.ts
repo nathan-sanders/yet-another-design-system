@@ -41,6 +41,15 @@ export interface TasksState {
   approveReview: (taskId: string, nextId: string) => void
   /** Puts a task back exactly as it was: an Undo. */
   restoreTask: (task: Task) => void
+  /** A new task, as accepting a request makes one; it joins the end of the Board's order. */
+  addTask: (task: Task) => void
+  /** Takes a task away again: the Undo of `addTask`. */
+  removeTask: (id: string) => void
+  /**
+   * Folds a request into a task already open, as Possible duplicate's Merge
+   * does: the request is linked, and the task's Activity says whose it was.
+   */
+  mergeRequest: (taskId: string, request: { title: string; fromName: string }) => void
 }
 
 export const TasksContext = createContext<TasksState | null>(null)

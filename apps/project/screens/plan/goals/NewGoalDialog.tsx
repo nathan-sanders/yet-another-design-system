@@ -12,7 +12,7 @@ import { Select } from '../../../../../src/components/Select'
 import { Heading, Text } from '../../../../../src/components/Text'
 import { Toast } from '../../../../../src/components/Toast'
 import { PropertyRow } from '../../../components/PropertyRow'
-import { day } from '../../../data/dates'
+import { day, fileIso } from '../../../data/dates'
 import type { Goal } from '../../../data/goals'
 import { me, people, personFor } from '../../../data/people'
 import { usePlan } from '../planState'
@@ -35,11 +35,6 @@ const MEASURE_NOTE: Record<Exclude<Measure, 'projects'>, string> = {
 }
 
 const NO_PARENT = '__none'
-
-function isoOf(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-}
 
 let made = 0
 
@@ -116,7 +111,7 @@ function NewGoalForm({
       id: `goal-new-${++made}`,
       title: title.trim(),
       ownerId,
-      due: isoOf(due ?? day('2026-12-31')),
+      due: fileIso(due ?? day('2026-12-31')),
       parentId: parent?.id,
       projectIds: measure === 'projects' ? projectIds : undefined,
       manual:

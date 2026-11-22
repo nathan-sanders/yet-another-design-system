@@ -608,3 +608,73 @@ None open.
     real ones. Owner defaults to you, not Dana.
 86. **A goal's title can carry a date**, and it moves with the schedule: "Open Austin by Jan 12" is
     written `{2027-01-12}` so it agrees with its own Due column.
+
+## Slice 12 — Requests (2026-11-22)
+
+From Intake & automation (`40006284:19160`) and its deep dive (`40006300:27547`). Data in
+`data/requests.ts`; state in `RequestsProvider` (main.tsx); pure model in
+`screens/requests/model.ts`, node-tested against the frames' numbers.
+
+- **The queue** (`#/requests/queue/:view?item=`), from `Requests - Queue` (`40006284:19161`),
+  `Waiting on requester` (`40006300:28384`) and `Possible duplicate` (`40006300:29523`): New,
+  Waiting, Accepted and Declined, the request open beside the list. Accept into's four rows are
+  Interactive Tokens Yak fills in and you can change; Accept opens `Requests - Accept`
+  (`40006300:30817`), which makes a **real task** in the project (`WIN-01` in Winter menu R&D, its
+  answers as the description, the request in its Linked section), or adds the request to an open
+  task. Ask for info asks in the reply box and moves the request to Waiting; Nudge now, Decline,
+  Reopen, Keep both and Merge into Theo's task all work, and every change has Undo.
+- **My requests** (`#/requests/mine?request=`), from `Requests - My requests` (`40006301:30717`):
+  the table and the Request panel. New POS quote is waiting on you, and answering it puts it back
+  with Theo.
+- **The form builder** (`#/requests/forms/creative`), from `Requests - Form builder`
+  (`40006284:20412`) and its Question editor (`40006301:32493`): questions drag to reorder within
+  their level; a question opens the Question panel (`?question=`), Settings opens Form settings
+  (`?settings=1`). Save changes changes the form itself, so the Submit page asks the edited
+  question. Published, Preview and Copy link work.
+- **Submit form** (`#/requests/forms/creative/submit`), from `Requests - Submit form`
+  (`40006301:29578`), built from the form's questions: the branch appears when Photo or video is
+  picked, Yak's card when what you write sounds like Winter menu R&D, and Submit files it in My
+  requests. New › Request opens it.
+- A task's Linked request token now opens that request in the queue.
+
+Measured against the frames: list 432, cards 70, answers 366 beside Accept into's 320, Yak's line
+50, question cards 50, the questions column 640, the dialog 600. axe is clean on every view,
+light and dark, with the Accept dialog and both panels open; at 375 the list and the request take
+turns and nothing scrolls the page sideways.
+
+### Open: library changes worth making
+
+87. **`Combobox` has no clear button.** The Question panel's Saves to is drawn as a single-select
+    Combobox with `Show Clear` on, and the code has no `Combobox.Clear` (its record lists it as
+    left out). The panel offers "Nowhere, it stays in the request" as the first option instead.
+
+### Kept in the app, worth knowing
+
+88. **The queue opens on three New and two Waiting.** `Requests - Queue` and `Possible duplicate`
+    list all five as New ("New · 5", no Waiting segment); the deep dive's Waiting frame, drawn
+    after, has "New · 3 / Waiting · 2", and My requests' "Queue · 5" counts both. The later frame
+    wins, so every detail pane is reachable as drawn.
+89. **The queue gets a My requests button.** The queue frames have no way to My requests, and the
+    My requests frame has a "Queue · 5 / My requests" segment the queue frames don't. Rather than
+    pick one Top Bar for both, the queue keeps its four segments and gains a Ghost My requests
+    button (in More below 1024), and My requests keeps its own segment back.
+90. **The question rows' grip is a Small `DragHandle`.** The Card's row is a 24px line (50 with its
+    12 padding, as drawn); the default 32px grip would make it 58. Measured, not assumed. Options
+    in the Question panel are `InputGroup`s with the grip as the start addon, so they can be
+    renamed; the frame draws them as plain bordered rows of text.
+91. **Written here, not drawn:** Laptops' answers and routing, the two Accepted requests (the
+    ones Austin's Linked sections already named, Permit check and Austin crew hiring), the Declined
+    aprons, My requests' steps for the three rows the panel isn't drawn for, and Theo's
+    `MOB-08 Add holiday hours to store pages`, the open task Possible duplicate compares against —
+    so Mobile ordering app's List now shows one task.
+92. **A task made from a request goes in a "From requests" phase**, so the List shows where it
+    came from rather than guessing which of the project's phases it belongs in.
+93. **Accept into's Due token doesn't open a picker**; the dialog's Due field does, so the token
+    says so. Form settings' Access and Responses are Interactive Tokens, where the frame draws
+    them View Only, because they can change (the file's own rule since 2026-11-06).
+94. **A picked date was being saved two weeks late.** `day()` moves the file's dates onto this
+    week, so a date from a `DateInput` is already this week's; writing it back as-is and reading
+    it through `day()` again moved it once more. `fileIso()` in `data/dates.ts` is the inverse.
+    New goal had the same slip (a goal due Dec 31 showed two weeks later) and uses it now.
+95. **No floating Yak bar on Requests.** None of the frames draw one, and it sat over the reply
+    box and the form's buttons.
