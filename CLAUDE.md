@@ -632,7 +632,7 @@ this component and when not to*, where the rest of the record answers *how it is
 the half to read when you are choosing between two components rather than changing one. **The two
 copies are one text in two places**: change a rule here and change it in Figma in the same breath,
 or the file and the repo start disagreeing about what the component is for, which is the one kind of
-drift nothing in CI can catch. **Fifty-nine records carry it.** The data-viz family shares one: the `↪ Data Viz`
+drift nothing in CI can catch. **Sixty-one records carry it.** The data-viz family shares one: the `↪ Data Viz`
 page has a single Docs frame for all fifteen charts, so `Chart`'s record holds the family's rules —
 which chart answers which question, and the rules that hold across all of them — and each chart's
 own record adds only what is its alone.
@@ -712,6 +712,8 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [ContentBlock](src/components/ContentBlock/CLAUDE.md) | a card that owns one region of a page | header slots, three emphases, the part a bento view is made of |
 | [BentoGrid](src/components/BentoGrid/CLAUDE.md) | the mosaic those blocks sit in | columns, spans, and one breakpoint doing all the collapsing |
 | [Kbd](src/components/Kbd/CLAUDE.md) | a keyboard shortcut | Figma draws the key and the group, Astryx's `keys` string API; `mod` resolves per platform |
+| [Code](src/components/Code/CLAUDE.md) | a short technical reference inside a sentence | one type step below the prose; `inline-block` so the fill is the file's full line, where Astryx's inline chip is 17px on a 20px line |
+| [CodeBlock](src/components/CodeBlock/CLAUDE.md) | read-only code that stands on its own, diffs included | `prism-react-renderer` tokenizes and one table maps it onto the `Syntax/*` tokens, none of its themes used; `Header` and `_Code Line`'s `Type` are derived, not props; bash added; Copy copies the source exactly |
 | [Card](src/components/Card/CLAUDE.md) | the plain container | `rounded-md` inside ContentBlock's `rounded-lg`; the border tracks the fill unless the file says otherwise; `selected` for a card that holds its own controls, `ClickableCard`'s surface |
 | [ClickableCard](src/components/Card/CLAUDE.md) | the same card as a hit target | `href` picks the element; `ghost` is the list row, `selected` is `aria-current` |
 | [Carousel](src/components/Carousel/CLAUDE.md) | a browsable set, one screen at a time | the last motion-library candidate, answered by `overflow-x: auto` and two utility classes; Figma owns the layout, Astryx the engine |
