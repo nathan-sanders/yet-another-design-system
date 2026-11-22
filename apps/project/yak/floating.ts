@@ -17,6 +17,9 @@ export function floatingYakPlaceholder(pathname: string): string | null {
   // form's buttons sit where it would).
   if (pathname === '/home' || pathname.startsWith('/inbox') || pathname.startsWith('/requests'))
     return null
+  // A doc's page draws none: the line under the doc is where you write, and Yak is in its bar.
+  if (pathname.startsWith('/docs/')) return null
+  if (pathname === '/docs') return 'Ask Yak to find or draft a doc…'
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1]
   const project = projectId ? projectFor(projectId) : undefined
   if (project) return `Ask Yak about ${project.name}…`

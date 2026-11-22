@@ -84,13 +84,16 @@ function ordinal(n: number): string {
 
 /**
  * Prose with dates in it, each moved onto this week: `{2026-11-18}` reads
- * "Nov 18", and `{2026-11-18:th}` the way people write it in a comment,
- * "18th". Data writes its dates this way so the words agree with the List.
+ * "Nov 18", `{2026-11-18:th}` the way people write it in a comment,
+ * "18th", and `{2026-11-18:d}` the bare day, for the end of a range: "Jan 8
+ * to 10". Data writes its dates this way so the words agree with the List.
  */
 export function datedText(text: string): string {
-  return text.replace(/\{(\d{4}-\d{2}-\d{2})(:th)?\}/g, (_, iso: string, th?: string) =>
-    th ? ordinal(day(iso).getDate()) : shortDate.format(day(iso)),
-  )
+  return text.replace(/\{(\d{4}-\d{2}-\d{2})(:th|:d)?\}/g, (_, iso: string, form?: string) => {
+    if (form === ':th') return ordinal(day(iso).getDate())
+    if (form === ':d') return String(day(iso).getDate())
+    return shortDate.format(day(iso))
+  })
 }
 
 export const weekdayLong = new Intl.DateTimeFormat('en-US', { weekday: 'long' })

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router'
 import { FileText, FolderOpen, ListFilter, Paperclip, Plus } from 'lucide-react'
 
 import { Button } from '../../../../src/components/Button'
@@ -14,6 +15,9 @@ import { docsFor, type ProjectDoc } from '../../data/docs'
 import { personFor } from '../../data/people'
 import type { Project } from '../../data/types'
 import { useShell } from '../../shell/ShellContext'
+import { useDocs } from '../docs/docsState'
+import { linkedCount } from '../docs/model'
+import { docPath } from '../docs/paths'
 import { NotBuiltMessage } from '../NotBuiltMessage'
 import { projectPath } from './paths'
 
@@ -27,21 +31,25 @@ function updatedLabel(doc: ProjectDoc, inSentence = false): string {
  * A project's Docs (`Docs - Project Docs tab`, `40006309:36927`): Filter on
  * the left and Upload and New doc on the right; the pinned brief as a card;
  * then every doc and file in a Table — Name, Type, Owner, Linked tasks,
- * Updated. Opening a doc, the editor and its comments, history and Yak's
- * to-dos (`Docs & status · Deep dive`, `40006309:36926`) are drawn and not
- * built, so a doc says so when opened.
+ * Updated. A doc opens on its own page (`screens/docs/DocPage`), whose back
+ * arrow returns here; a file's viewer is not drawn, so a file says so. New
+ * doc makes an untitled one in this project and opens it.
  */
 export function DocsView({ project }: { project: Project }) {
   const shell = useShell()
-  const docs = docsFor(project.id)
-  const open = () => shell.notBuilt('Opening a doc')
+  const navigate = useNavigate()
+  const { docs: allDocs, createDoc } = useDocs()
+  const docs = docsFor(allDocs, project.id)
+  const here = projectPath(project.id, 'docs')
+  const open = (doc: ProjectDoc) =>
+    doc.kind === 'doc' ? navigate(docPath(doc.id, here)) : shell.notBuilt('Opening a file')
 
   if (docs.length === 0) {
     return (
       <NotBuiltMessage
         icon={FolderOpen}
         title="No docs in this mock yet"
-        body={`Only Austin store opening has docs so far; ${project.name}’s come in a later slice.`}
+        body={`${project.name} has no docs in the mock yet.`}
         link={{ href: `#${projectPath('austin', 'docs')}`, label: 'Open Austin store opening' }}
       />
     )
@@ -59,7 +67,7 @@ export function DocsView({ project }: { project: Project }) {
           <Icon icon={doc.kind === 'doc' ? FileText : Paperclip} className="shrink-0" />
           <button
             type="button"
-            onClick={open}
+            onClick={() => open(doc)}
             className={cn('min-w-0 truncate rounded-sm text-left', focusRing)}
           >
             {doc.name}
@@ -90,7 +98,7 @@ export function DocsView({ project }: { project: Project }) {
       header: 'Linked tasks',
       width: pixel(110),
       align: 'left',
-      renderCell: (doc) => doc.taskIds.length,
+      renderCell: (doc) => linkedCount(doc),
     },
     {
       key: 'updated',
@@ -119,13 +127,17 @@ export function DocsView({ project }: { project: Project }) {
         >
           Upload
         </Button>
-        <Button appearance="secondary" startIcon={Plus} onClick={() => shell.notBuilt('New doc')}>
+        <Button
+          appearance="secondary"
+          startIcon={Plus}
+          onClick={() => navigate(docPath(createDoc(project.id).id, here))}
+        >
           New doc
         </Button>
       </div>
 
       {pinned ? (
-        <ClickableCard onClick={open} className="shrink-0 px-4">
+        <ClickableCard onClick={() => open(pinned)} className="shrink-0 px-4">
           <span className="flex w-full items-center gap-3 text-left">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-background-subtle text-content-primary">
               <Icon icon={FileText} />
