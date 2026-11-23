@@ -16,7 +16,7 @@ import { focusRing } from '../../lib/focus'
 import { Button } from '../Button'
 import { Icon } from '../Icon'
 import { Tooltip } from '../Tooltip'
-import { parseDiff, type DiffLineType } from './diff'
+import { parseDiff, splitRows, type DiffLineType } from './diff'
 import { SYNTAX_CLASS, isPlain, tokenizeLines, type SyntaxToken } from './syntax'
 
 /**
@@ -93,7 +93,14 @@ const block = tv({
     wrap: {
       true: { lines: 'w-full' },
     },
+    // Before | after, in one grid so a row's two sides share its height. Each
+    // side is as wide as its longest line and they share any room left over;
+    // wrapped, they split the width evenly.
+    split: {
+      true: { lines: 'grid grid-cols-[repeat(2,minmax(max-content,1fr))]' },
+    },
   },
+  compoundVariants: [{ split: true, wrap: true, class: { lines: 'grid-cols-2' } }],
 })
 
 const row = tv({
@@ -135,6 +142,13 @@ const row = tv({
     },
     wrap: {
       true: { code: 'min-w-0 whitespace-pre-wrap break-words' },
+    },
+    // In the split view the before side carries the rule between the sides,
+    // and each side's gutter is drawn per row: the block's one rule can only
+    // stand at one place.
+    side: {
+      before: { base: 'border-r border-surface-border', gutterSpace: 'bg-surface-border' },
+      after: { gutterSpace: 'bg-surface-border' },
     },
   },
 })
@@ -246,9 +260,16 @@ export interface CodeBlockProps extends Omit<ComponentPropsWithRef<'div'>, 'titl
   /**
    * Read `code` as a unified diff: `+` added, `-` removed, `@@` a hunk header,
    * anything else context. The marker gets its own column and the rest of each
-   * line keeps `language`'s highlighting. The label reads `diff`.
+   * line keeps `language`'s highlighting. The label is still the language,
+   * as the file draws it; a diff with no language reads `diff`.
    */
   diff?: boolean
+  /**
+   * Show a diff as two sides, before and after: context on both, a removed
+   * line beside the line that replaced it, a hunk header across both. With
+   * `lineNumbers`, each side counts from its hunk header. Needs `diff`.
+   */
+  split?: boolean
   /** Wrap long lines instead of scrolling sideways. */
   wrap?: boolean
   /**
@@ -292,6 +313,7 @@ export function CodeBlock({
   startLineNumber = 1,
   highlightLines,
   diff = false,
+  split: splitProp = false,
   wrap = false,
   maxHeight,
   copyButton = true,
@@ -333,13 +355,64 @@ export function CodeBlock({
     }))
   }, [source, language, diff])
 
+  const split = splitProp && diff
+  const pairs = useMemo(
+    () => (split ? splitRows(parseDiff(source.split('\n')), first) : []),
+    [split, source, first],
+  )
+
   const highlighted = new Set(highlightLines)
-  const label = diff ? 'diff' : isPlain(language) ? undefined : language
+  // The language a diff is in, not that it is one: the file labels its diffs
+  // `tsx` and `ts` (FINDINGS 137).
+  const label = isPlain(language) ? (diff ? 'diff' : undefined) : language
   const showLanguage = languageLabel && label !== undefined
   const hasHeader = Boolean(title) || showLanguage
   const isCollapsible = collapsible && hasHeader
-  const slots = block({ container, hasHeader, size, wrap })
-  const digits = String(first + rows.length - 1).length
+  const slots = block({ container, hasHeader, size, wrap, split })
+  const lastNumber = split
+    ? Math.max(
+        first,
+        ...pairs.flatMap((r) =>
+          r.kind === 'pair' ? [r.before?.number ?? 0, r.after?.number ?? 0] : [],
+        ),
+      )
+    : first + rows.length - 1
+  const digits = String(lastNumber).length
+
+  /** One `_Code Line`: its number and gutter, its marker, its tokens. */
+  const line = (
+    key: string,
+    type: LineType,
+    content: { number?: number; marker?: string; tokens: SyntaxToken[] } | undefined,
+    extra: { side?: 'before' | 'after'; className?: string; dataLine?: number } = {},
+  ) => {
+    const parts = row({ type, size, wrap, side: extra.side })
+    return (
+      <span
+        key={key}
+        className={cn('block', parts.base(), extra.className)}
+        data-line={extra.dataLine ?? content?.number}
+        data-side={extra.side}
+      >
+        {lineNumbers && !(split && type === 'hunk') && (
+          <span aria-hidden className={parts.numberGroup()}>
+            <span className={parts.number()}>{content?.number}</span>
+            <span className={parts.gutterSpace()} />
+          </span>
+        )}
+        {content && (
+          <span className={parts.content()}>
+            {content.marker !== undefined && (
+              <span className={parts.marker()}>{content.marker}</span>
+            )}
+            <span className={parts.code()}>
+              <Tokens tokens={content.tokens} />
+            </span>
+          </span>
+        )}
+      </span>
+    )
+  }
 
   const controls = (actions || copyButton) && (
     <>
@@ -386,31 +459,42 @@ export function CodeBlock({
             className={slots.lines()}
             style={{ '--code-block-digits': digits } as CSSProperties}
           >
-            {lineNumbers && <span aria-hidden className={slots.gutter()} />}
-            {rows.map((line, i) => {
-              const number = first + i
-              const type: LineType =
-                line.type === 'default' && highlighted.has(number) ? 'highlighted' : line.type
-              const parts = row({ type, size, wrap })
-              return (
-                <span key={i} className={cn('block', parts.base())} data-line={number}>
-                  {lineNumbers && (
-                    <span aria-hidden className={parts.numberGroup()}>
-                      <span className={parts.number()}>{number}</span>
-                      <span className={parts.gutterSpace()} />
-                    </span>
-                  )}
-                  <span className={parts.content()}>
-                    {line.marker !== undefined && (
-                      <span className={parts.marker()}>{line.marker}</span>
-                    )}
-                    <span className={parts.code()}>
-                      <Tokens tokens={line.tokens} />
-                    </span>
-                  </span>
-                </span>
+            {split ? (
+              pairs.map((pair, i) =>
+                pair.kind === 'hunk'
+                  ? line(
+                      `${i}`,
+                      'hunk',
+                      { tokens: rows[pair.index].tokens },
+                      {
+                        className: 'col-span-2',
+                      },
+                    )
+                  : (['before', 'after'] as const).map((side) => {
+                      const cell = pair[side]
+                      return line(
+                        `${i}-${side}`,
+                        cell ? (cell.line.type as LineType) : 'context',
+                        cell && {
+                          number: cell.number,
+                          marker: rows[cell.index].marker,
+                          tokens: rows[cell.index].tokens,
+                        },
+                        { side },
+                      )
+                    }),
               )
-            })}
+            ) : (
+              <>
+                {lineNumbers && <span aria-hidden className={slots.gutter()} />}
+                {rows.map((row, i) => {
+                  const number = first + i
+                  const type: LineType =
+                    row.type === 'default' && highlighted.has(number) ? 'highlighted' : row.type
+                  return line(`${i}`, type, { number, marker: row.marker, tokens: row.tokens })
+                })}
+              </>
+            )}
           </code>
         </pre>
       </div>
