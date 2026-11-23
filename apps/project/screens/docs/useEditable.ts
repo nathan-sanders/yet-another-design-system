@@ -1,11 +1,13 @@
 import { useCallback, useLayoutEffect, useRef, type KeyboardEvent } from 'react'
 
 /**
- * A line you can type in: `contenteditable="plaintext-only"`, so a paste
- * arrives as words and nothing else. React renders no children into it — the
- * words are written in while it is not being edited, so typing is never
- * interrupted by a render — and they are saved when it loses focus. Enter
- * finishes the line rather than breaking it.
+ * The doc's title, typed in place: `contenteditable="plaintext-only"`, so a
+ * paste arrives as words and nothing else. It saves as you type, like the
+ * doc's lines (`DocEditor`). React renders no children into it — the words
+ * are written in while it is not being edited, so typing is never
+ * interrupted by a render — and once it loses focus it shows what was saved,
+ * which is "Untitled doc" for a title typed away to nothing. Enter finishes
+ * it and goes on to the doc.
  *
  * The words go in from a callback ref as well as on a change, because the
  * element can be swapped while the hook lives on: the title leaves the page
@@ -28,14 +30,15 @@ export function useEditable(value: string, onCommit: (text: string) => void, onE
   useLayoutEffect(() => fill(element.current), [value])
 
   return {
-    ref: ref as never,
+    ref: ref as (el: HTMLElement | null) => void,
     contentEditable: 'plaintext-only' as const,
     suppressContentEditableWarning: true,
     spellCheck: true,
-    onBlur: () => {
+    onInput: () => {
       const text = (element.current?.textContent ?? '').replace(/\s+/g, ' ').trim()
       if (text !== value) onCommit(text)
     },
+    onBlur: () => fill(element.current),
     onKeyDown: (event: KeyboardEvent) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault()

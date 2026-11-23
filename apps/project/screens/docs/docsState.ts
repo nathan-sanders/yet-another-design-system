@@ -11,6 +11,10 @@ export interface DocsState {
   /** Adds a block after `afterId`, or at the end. */
   insertBlock: (docId: string, block: DocBlock, afterId?: string) => void
   removeBlock: (docId: string, blockId: string) => void
+  /** Any edit of the blocks as a whole: what the editor's Enter, Backspace, paste and moves make. */
+  editBlocks: (docId: string, update: (blocks: DocBlock[]) => DocBlock[]) => void
+  /** A line joined into another takes its comment threads with it. */
+  moveThreads: (fromBlockId: string, toBlockId: string) => void
   /** Links a task to the doc, and puts its Token on a block when one is named. */
   linkTask: (docId: string, taskId: string, blockId?: string) => void
   /** The doc's blocks become an older version's; its history keeps a "Just now". */

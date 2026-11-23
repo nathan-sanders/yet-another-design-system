@@ -820,3 +820,63 @@ dialogs.
 119. **A closing dialog keeps its contents.** Email this report and the Docs Create task dialog
      rendered nothing once closed, so axe caught a nameless dialog mid-fade; both now keep what
      they showed until they're gone, and Complete sprint keeps the sprint it was opened on.
+
+## Slice 15 — Docs as a page editor (2026-11-22)
+
+A doc's page was a column of lines you could type in, with new writing going in one line under
+the doc. It is now a page editor in the way of Notion and Confluence's live docs
+(`screens/docs/DocEditor.tsx`, the edits as pure functions in `model.ts`, the caret in
+`caret.ts`):
+
+- **Every line is a block, and the blocks flow.** Enter breaks a line at the caret (a heading is
+  followed by a paragraph, a bulleted line or to-do by another), Enter in an empty bullet or to-do
+  ends the list, Backspace at the start of a line makes it a paragraph and then joins it to the
+  line above, Delete at the end takes the next line up, and the arrows walk from line to line,
+  wrapped lines included. Pasting several lines makes several blocks.
+- **Markdown at the start of a line** — `# `, `- ` or `* `, `[] ` — makes a heading, a bulleted
+  line or a **to-do**, a new block kind with a checkbox that strikes the line through.
+- **A slash on any line opens the slash menu there**, under the caret: the four line kinds, then the
+  file's Linked task, Task list, Project status and Ask Yak to draft. The line before it stays;
+  Linked task turns what follows the slash into a search of the project's tasks.
+- **Each block has a gutter** (56 to the left of the words, so the text column is still 680): a
+  menu — Turn into, Create task, Ask Yak, Comment, Add a line below, Duplicate, Move up, Move down,
+  Delete — and a grip to drag it by, or to lift with Space and move with the arrows. ⌘⇧↑ / ⌘⇧↓
+  move the block the caret is in.
+- **Live, with no Save.** Every keystroke is saved; the top bar says Saving… then Saved, and the
+  title renames the doc everywhere as it is typed. A new doc opens with its title selected and one
+  empty line reading "Start writing, or type / for blocks and tasks"; a click under the last line
+  writes on.
+
+axe is clean on the page in both themes, with the slash menu open and a to-do on it.
+
+### Open: library changes worth making
+
+120. **Menu's rows can't be drawn outside a Menu.** The slash menu has to leave the caret in the
+     line while the arrows walk the list, so it can't be a `Menu` (which takes focus) or an
+     `Autocomplete` (which needs an `<input>`). It is Menu's popup recipe (`Menu/styles.ts`
+     exports it) with Menu's row classes copied, because the row's `tv()` isn't exported. A
+     `row` export next to `popup`, or a caret-anchored listbox, would end the copy. This replaces
+     FINDINGS 98: the doc no longer overrides Autocomplete into a bare line.
+121. **A press in a portalled popup inside a `Sortable.Item` reaches the item's drag handler.**
+     React carries `pointerdown` up the component tree, through the portal, to the item's
+     `onPointerDown`; `data-drag-ignore` is checked with `closest()` on the DOM, where the popup is
+     not inside the item. The block menu stops the press at its popup. `useSortableItem` could
+     ignore a press whose target is outside the item's own node
+     (`!event.currentTarget.contains(event.target)`), and every caller would be safe.
+
+### Kept in the app, worth knowing
+
+122. **Clicking a paragraph no longer selects it.** The file draws a selected paragraph with Create
+     task, Ask Yak and Comment under it; in an editor every click is a caret, so the bar now comes
+     up under selected words (and floats, so the lines below don't move), and the block menu has
+     the same three for the whole line.
+123. **Backspace never deletes a live card.** Above a Task list or Project status an empty line
+     goes and a line with words stays put; the cards are removed with their cross or the block
+     menu, with an Undo either way. Two lines that each end in a task's Token are not joined.
+124. **The other person in the doc is a mock.** Dana is on the last line with words when you
+     arrive — a bar in indigo at its edge and her face at its end — and stays there; nobody else
+     types. It is what the top bar's "Viewing now" avatars promise, drawn on the page.
+125. **On a phone there is no gutter.** Markdown and the slash menu are how a line changes kind
+     there; moving a block needs the wider layout.
+126. **Lines are still plain text.** Bold, italic and links would need a rich-text model under the
+     blocks, not `contenteditable="plaintext-only"`; not built.

@@ -44,9 +44,11 @@ export interface ProjectDoc {
  * `taskId` puts a task's Token at the end of the line, as the checklist does.
  */
 export type DocBlock =
-  | { id: string; kind: 'heading'; text: string }
+  | { id: string; kind: 'heading'; text: string; taskId?: string }
   | { id: string; kind: 'paragraph'; text: string; taskId?: string }
   | { id: string; kind: 'item'; text: string; taskId?: string }
+  /** A to-do line: a checkbox, then the words, struck through once it is done. */
+  | { id: string; kind: 'todo'; text: string; done?: boolean; taskId?: string }
   /** The slash menu's Task list: the project's open tasks due in the next two weeks, kept live. */
   | { id: string; kind: 'tasks' }
   /** The slash menu's Project status: the project's latest health and update, kept live. */
