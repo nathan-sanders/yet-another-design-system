@@ -1,9 +1,10 @@
+import { code } from '../../../../src/components/Code/styles'
 import { datedText } from '../../data/dates'
 
 /**
- * The words of a line with their formatting: bold, italic and links. A line is
- * saved as a short string in a Markdown dialect — `**bold**`, `*italic*`,
- * `[words](https://…)` — so a doc's blocks, versions and comparisons stay
+ * The words of a line with their formatting: bold, italic, inline code and
+ * links. A line is saved as a short string in a Markdown dialect — `**bold**`,
+ * `*italic*`, `` `code` ``, `[words](https://…)` — so a doc's blocks, versions and comparisons stay
  * strings, and a line with no formatting is saved exactly as before. The editor
  * works on runs: stretches of words that share their formatting.
  */
@@ -11,14 +12,17 @@ export interface Run {
   text: string
   bold?: boolean
   italic?: boolean
+  /** A name or flag inside the sentence, drawn as the library's Code (`Docs - Code block from slash menu`). */
+  code?: boolean
   href?: string
 }
 
-export type Mark = 'bold' | 'italic'
+export type Mark = 'bold' | 'italic' | 'code'
 
 const same = (a: Run, b: Run) =>
   Boolean(a.bold) === Boolean(b.bold) &&
   Boolean(a.italic) === Boolean(b.italic) &&
+  Boolean(a.code) === Boolean(b.code) &&
   a.href === b.href
 
 /** Runs with the empty ones dropped and neighbours that look alike joined. */
@@ -32,6 +36,7 @@ export function normalize(runs: Run[]): Run[] {
       const clean: Run = { text: run.text }
       if (run.bold) clean.bold = true
       if (run.italic) clean.italic = true
+      if (run.code) clean.code = true
       if (run.href) clean.href = run.href
       out.push(clean)
     }
@@ -100,6 +105,15 @@ export function parseInline(md: string, marks: Omit<Run, 'text'> = {}): Run[] {
         i = end + 1
         continue
       }
+    } else if (c === '`') {
+      // Code is read as the characters it holds: no stars or brackets inside it.
+      const end = md.indexOf('`', i + 1)
+      if (end > i + 1) {
+        flush()
+        out.push({ text: md.slice(i + 1, end), ...marks, code: true })
+        i = end + 1
+        continue
+      }
     } else if (c === '[') {
       const end = closeBracket(md, i + 1)
       const close = end > i ? md.indexOf(')', end) : -1
@@ -118,9 +132,9 @@ export function parseInline(md: string, marks: Omit<Run, 'text'> = {}): Run[] {
   return normalize(out)
 }
 
-const escape = (text: string) => text.replace(/[\\*[\]]/g, (c) => `\\${c}`)
+const escape = (text: string) => text.replace(/[\\*[\]`]/g, (c) => `\\${c}`)
 
-/** Runs as the saved string: links outermost, then bold, then italic. */
+/** Runs as the saved string: links outermost, then bold, then italic, then code. */
 export function serializeInline(runs: Run[]): string {
   const groups = (list: Run[], key: (r: Run) => string | boolean | undefined) => {
     const out: Run[][] = []
@@ -136,9 +150,15 @@ export function serializeInline(runs: Run[]): string {
       const inner = groups(linked, (r) => Boolean(r.bold))
         .map((bolded) => {
           const words = groups(bolded, (r) => Boolean(r.italic))
-            .map((g) => {
-              const text = escape(g.map((r) => r.text).join(''))
-              return g[0].italic ? `*${text}*` : text
+            .map((italic) => {
+              const text = groups(italic, (r) => Boolean(r.code))
+                .map((g) => {
+                  const raw = g.map((r) => r.text).join('')
+                  // Inside backticks nothing is escaped, and a backtick cannot be said.
+                  return g[0].code ? `\`${raw.replace(/`/g, '')}\`` : escape(raw)
+                })
+                .join('')
+              return italic[0].italic ? `*${text}*` : text
             })
             .join('')
           return bolded[0].bold ? `**${words}**` : words
@@ -253,14 +273,30 @@ export function normalizeHref(input: string): string | null {
 }
 
 /**
- * `**words**` or `*words*` typed and closed: the stars go and the words take
- * the mark, as Notion does it. `caret` is just after the closing star.
+ * `**words**`, `*words*` or `` `words` `` typed and closed: the marks go and
+ * the words take the formatting, as Notion does it. `caret` is just after the
+ * closing star or backtick.
  */
 export function inlineShortcut(
   runs: Run[],
   caret: number,
 ): { runs: Run[]; caret: number; mark: Mark } | null {
   const before = plainText(runs).slice(0, caret)
+  const code = /`([^`\s](?:[^`]*[^`\s])?)`$/.exec(before)
+  if (code) {
+    const start = caret - code[1].length - 2
+    const marked = toggleMark(
+      [
+        ...sliceRuns(runs, 0, start),
+        ...sliceRuns(runs, start + 1, caret - 1),
+        ...sliceRuns(runs, caret),
+      ],
+      start,
+      start + code[1].length,
+      'code',
+    )
+    return { runs: marked, caret: start + code[1].length, mark: 'code' }
+  }
   const bold = /\*\*([^*\s](?:[^*]*[^*\s])?)\*\*$/.exec(before)
   const italic = bold ? null : /(?:^|[^*])\*([^*\s](?:[^*]*[^*\s])?)\*$/.exec(before)
   const hit = bold ?? italic
@@ -296,10 +332,22 @@ export function isInternal(href: string): boolean {
 export const LINK_CLASS =
   'cursor-pointer text-action-link-foreground hover:text-action-link-foreground-hover underline decoration-from-font [text-decoration-skip-ink:none] [text-underline-position:from-font]'
 
-/** A line's runs as elements: `<a>` round `<strong>` round `<em>` round the words. */
+/**
+ * Inline code inside a line wears the library's Code recipe: these `<code>`s
+ * are written by hand into the editable line, so they can't be the component.
+ */
+const CODE_CLASS = code()
+
+/** A line's runs as elements: `<a>` round `<strong>` round `<em>` round `<code>` round the words. */
 export function runsToNodes(runs: Run[]): Node[] {
   return normalize(runs).map((run) => {
     let node: Node = document.createTextNode(run.text)
+    if (run.code) {
+      const code = document.createElement('code')
+      code.className = CODE_CLASS
+      code.append(node)
+      node = code
+    }
     if (run.italic) {
       const em = document.createElement('em')
       em.append(node)
@@ -346,6 +394,7 @@ export function runsFromDom(el: Node, marks: Omit<Run, 'text'> = {}): Run[] {
     if (tag === 'STRONG' || tag === 'B' || weight === 'bold' || Number(weight) >= 600)
       next.bold = true
     if (tag === 'EM' || tag === 'I' || node.style.fontStyle === 'italic') next.italic = true
+    if (tag === 'CODE') next.code = true
     if (tag === 'A' && node.getAttribute('href')) next.href = node.getAttribute('href')!
     out.push(...runsFromDom(node, next))
   })

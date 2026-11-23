@@ -20,7 +20,8 @@ const plan = docs.find((d) => d.id === 'austin-plan')!
 const version = (id: string) => plan.versions!.find((v) => v.id === id)!
 
 describe('All docs', () => {
-  it('lists the file’s eight docs and leaves files out', () => {
+  // The file's eight, then the Code & reviews section's Checkout API guide.
+  it('lists the file’s docs and leaves files out', () => {
     const all = docsShown(docs, 'all', 'nathan')
     expect(all.map((d) => d.name)).toEqual([
       'Austin opening plan',
@@ -28,11 +29,12 @@ describe('All docs', () => {
       'Crew training guide',
       'Protein Plates launch brief',
       'Mobile ordering PRD',
+      'Checkout API guide',
       'Holiday gift card copy deck',
       'Winter tasting notes',
       'Loyalty pricing model',
     ])
-    expect(all.map(linkedCount)).toEqual([12, 3, 5, 8, 21, 4, 6, 2])
+    expect(all.map(linkedCount)).toEqual([12, 3, 5, 8, 21, 2, 4, 6, 2])
   })
 
   it('Mine is what you own or edited; Shared is what was shared with you by name', () => {
@@ -43,6 +45,7 @@ describe('All docs', () => {
     ])
     expect(docsShown(docs, 'shared', 'nathan').map((d) => d.id)).toEqual([
       'mobile-prd',
+      'checkout-api',
       'gift-card-copy',
       'winter-tasting',
     ])

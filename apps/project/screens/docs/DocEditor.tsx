@@ -15,7 +15,9 @@ import {
 import {
   ArrowDown,
   ArrowUp,
+  Braces,
   CircleDot,
+  CodeXml,
   Copy,
   Ellipsis,
   Flag,
@@ -31,6 +33,7 @@ import {
   AtSign,
   Trash2,
   Unlink,
+  Workflow,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -49,9 +52,11 @@ import { statusFor } from '../../components/taskMeta'
 import type { DocBlock } from '../../data/docs'
 import type { Person } from '../../data/people'
 import type { Project, Task } from '../../data/types'
+import { useShell } from '../../shell/ShellContext'
 import { taskKey } from '../project/paths'
 import { caretLine, caretRange, caretRect, placeCaret } from './caret'
-import { SelectionToolbar, StatusBlock, TaskListBlock, TaskToken } from './DocBlocks'
+import { CodeDialog, type CodeFields } from './CodeDialog'
+import { CodeDocBlock, SelectionToolbar, StatusBlock, TaskListBlock, TaskToken } from './DocBlocks'
 import {
   domIsCanonical,
   hasMark,
@@ -97,18 +102,34 @@ const KINDS: { kind: TextKind; label: string; description: string; icon: LucideI
 ]
 
 type Command =
-  { run: 'turn'; kind: TextKind } | { run: 'linked-task' | 'task-list' | 'status' | 'yak-draft' }
+  | { run: 'turn'; kind: TextKind }
+  | {
+      run:
+        | 'code-block'
+        | 'inline-code'
+        | 'diagram'
+        | 'linked-task'
+        | 'task-list'
+        | 'status'
+        | 'yak-draft'
+    }
 
 interface Option {
   id: string
   label: string
   description?: string
+  /** More words it answers to after the slash: Diagram is found by "code" too. */
+  keywords?: string[]
   icon: LucideIcon
   group: string
   action: Command | { run: 'link'; task: Task }
 }
 
-/** "Add to this doc", from `Docs - Slash menu` (`40006309:39451`), after the line kinds. */
+/**
+ * "Add to this doc", from `Docs - Slash menu` (`40006309:39451`), after the
+ * line kinds. Code block, Inline code and Diagram lead it, as `Docs - Code
+ * block from slash menu` (`40006589:61927`) draws "/code".
+ */
 const COMMANDS: Option[] = [
   ...KINDS.map((k): Option => ({
     id: k.kind,
@@ -118,6 +139,31 @@ const COMMANDS: Option[] = [
     group: 'Turn into',
     action: { run: 'turn', kind: k.kind },
   })),
+  {
+    id: 'code-block',
+    label: 'Code block',
+    description: 'Syntax color and a copy button',
+    icon: CodeXml,
+    group: 'Add to this doc',
+    action: { run: 'code-block' },
+  },
+  {
+    id: 'inline-code',
+    label: 'Inline code',
+    description: 'A name or flag inside a sentence',
+    icon: Braces,
+    group: 'Add to this doc',
+    action: { run: 'inline-code' },
+  },
+  {
+    id: 'diagram',
+    label: 'Diagram',
+    description: 'Draw a flow from text',
+    keywords: ['code', 'flow', 'mermaid'],
+    icon: Workflow,
+    group: 'Add to this doc',
+    action: { run: 'diagram' },
+  },
   {
     id: 'linked-task',
     label: 'Linked task',
@@ -157,10 +203,9 @@ function matches(option: Option, query: string): boolean {
   const q = query.trim().toLowerCase()
   return (
     q === '' ||
-    option.label
-      .toLowerCase()
-      .split(' ')
-      .some((w) => w.startsWith(q))
+    [...option.label.toLowerCase().split(' '), ...(option.keywords ?? [])].some((w) =>
+      w.startsWith(q),
+    )
   )
 }
 
@@ -231,6 +276,7 @@ function under(el: HTMLElement, width: number) {
 function blockLabel(block: DocBlock): string {
   if (block.kind === 'tasks') return 'Task list'
   if (block.kind === 'status') return 'Project status'
+  if (block.kind === 'code') return block.title ?? 'Code block'
   const words = readText(block).trim()
   const name = KINDS.find((k) => k.kind === block.kind)!.label
   if (!words) return `Empty ${name.toLowerCase()} line`
@@ -290,6 +336,14 @@ export function DocEditor(props: DocEditorProps) {
   const elements = useRef(new Map<string, HTMLElement>())
   const pending = useRef<Caret | null>(null)
   const [menu, setMenu] = useState<SlashMenu | null>(null)
+  const shell = useShell()
+  /**
+   * The code block being written: a new one from the slash on a line (the
+   * line's words without the slash kept), or an existing one being edited.
+   */
+  const [coding, setCoding] = useState<
+    { fields: CodeFields } & ({ lineId: string; rest: string } | { editId: string })
+  >()
   const [selected, setSelected] = useState<Selected | null>(null)
   const [linking, setLinking] = useState<Linking | null>(null)
   const [linkAt, setLinkAt] = useState<LinkAt | null>(null)
@@ -492,6 +546,40 @@ export function DocEditor(props: DocEditorProps) {
         at,
       )
 
+    if (action.run === 'code-block') {
+      // The line keeps its words, slash gone, while the block is written.
+      apply(
+        setLine(block.id, (b) => ({ ...b, text: rest })),
+        at,
+      )
+      setCoding({ lineId: block.id, rest, fields: { language: 'ts', code: '' } })
+      return
+    }
+
+    if (action.run === 'inline-code') {
+      // A code chip where the slash was, its placeholder selected, so what is
+      // typed next replaces it as code.
+      const runs = parseInline(rest)
+      const chip = [
+        ...sliceRuns(runs, 0, menu.start),
+        { text: 'code', code: true },
+        ...sliceRuns(runs, menu.start),
+      ]
+      return apply(
+        setLine(block.id, (b) => ({ ...b, text: serializeInline(chip) })),
+        { id: block.id, offset: menu.start, end: menu.start + 4 },
+      )
+    }
+
+    if (action.run === 'diagram') {
+      apply(
+        setLine(block.id, (b) => ({ ...b, text: rest })),
+        at,
+      )
+      shell.notBuilt('Diagrams')
+      return
+    }
+
     if (action.run === 'linked-task') {
       apply(
         setLine(block.id, (b) => ({ ...b, text: rest })),
@@ -536,12 +624,18 @@ export function DocEditor(props: DocEditorProps) {
       )
     }
 
-    // Task list and Project status: a live card, in place of an empty line or
-    // under one with words, and a line after it to go on writing in.
-    const card: DocBlock = {
+    // Task list and Project status: a live card.
+    insertCard(block, rest, {
       id: newBlockId(),
       kind: action.run === 'task-list' ? 'tasks' : 'status',
-    }
+    })
+  }
+
+  /**
+   * A card block — Task list, Project status, Code block — in place of an
+   * empty line or under one with words, and a line after it to go on writing in.
+   */
+  const insertCard = (block: TextBlock, rest: string, card: DocBlock) => {
     const index = blocks.indexOf(block)
     const out = [...blocks]
     if (blank(rest)) out.splice(index, 1, card)
@@ -553,6 +647,21 @@ export function DocEditor(props: DocEditorProps) {
       out.splice(cardAt + 1, 0, next)
     }
     apply(out, { id: next.id, offset: 0 })
+  }
+
+  const saveCode = (fields: CodeFields) => {
+    const current = coding
+    setCoding(undefined)
+    if (!current) return
+    const lineNumbers = fields.code.split('\n').length >= 5
+    if ('editId' in current) {
+      return apply(
+        blocks.map((b) => (b.id === current.editId ? { ...b, ...fields, lineNumbers } : b)),
+      )
+    }
+    const line = blocks.find((b) => b.id === current.lineId)
+    if (!isText(line)) return
+    insertCard(line, current.rest, { id: newBlockId(), kind: 'code', ...fields, lineNumbers })
   }
 
   // ---- Typing
@@ -579,10 +688,18 @@ export function DocEditor(props: DocEditorProps) {
     // Typing just after a link writes plain words, as Notion does: the browser
     // would otherwise carry the link on over them.
     const was = typed ? linkAround(parseInline(readLine(block)), caret - typed.length) : null
-    const closed = typed === '*' && !menu ? inlineShortcut(runs, caret) : null
+    // A backtick typed inside code closes it, as Notion does: the backtick
+    // goes, and what is typed next is plain.
+    const leavesCode = typed === '`' && !menu && hasMark(runs, caret - 1, caret, 'code')
+    const closed =
+      (typed === '*' || typed === '`') && !menu && !leavesCode ? inlineShortcut(runs, caret) : null
     const after = closedAt.current
     closedAt.current = null
-    if (closed) {
+    if (leavesCode) {
+      runs = [...sliceRuns(runs, 0, caret - 1), ...sliceRuns(runs, caret)]
+      redraw(el, runs, caret - 1)
+      closedAt.current = { id: block.id, at: caret - 1, mark: 'code' }
+    } else if (closed) {
       // **words** and *words*, closed: the stars go and the words take the mark.
       runs = closed.runs
       redraw(el, runs, closed.caret)
@@ -662,9 +779,9 @@ export function DocEditor(props: DocEditorProps) {
 
     const mod = (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey
     const letter = event.key.toLowerCase()
-    if (mod && (letter === 'b' || letter === 'i')) {
+    if (mod && (letter === 'b' || letter === 'i' || letter === 'e')) {
       event.preventDefault()
-      return format(block.id, letter === 'b' ? 'bold' : 'italic', range)
+      return format(block.id, letter === 'b' ? 'bold' : letter === 'i' ? 'italic' : 'code', range)
     }
     if (mod && letter === 'k') {
       event.preventDefault()
@@ -960,6 +1077,20 @@ export function DocEditor(props: DocEditorProps) {
                         tasks={props.tasks}
                         onRemove={() => props.onRemove(block.id)}
                       />
+                    ) : block.kind === 'code' ? (
+                      <CodeDocBlock
+                        block={block}
+                        onEdit={() =>
+                          setCoding({
+                            editId: block.id,
+                            fields: {
+                              title: block.title,
+                              language: block.language,
+                              code: block.code,
+                            },
+                          })
+                        }
+                      />
                     ) : (
                       <StatusBlock
                         project={props.project}
@@ -1078,6 +1209,7 @@ export function DocEditor(props: DocEditorProps) {
       </DragAndDrop>
       {/* The page under the last line: a click there writes on, as a page editor's does. */}
       <div aria-hidden className="min-h-24 flex-1 cursor-text" onClick={writeAtEnd} />
+      <CodeDialog seed={coding?.fields} onClose={() => setCoding(undefined)} onSave={saveCode} />
     </>
   )
 }

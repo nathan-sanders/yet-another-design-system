@@ -67,6 +67,8 @@ export type DiffRow =
 
 function sameBlock(a: DocBlock, b: DocBlock): boolean {
   if (a.kind !== b.kind) return false
+  if (a.kind === 'code' && b.kind === 'code')
+    return a.code === b.code && a.title === b.title && a.language === b.language
   if (!isText(a) || !isText(b)) return true
   const doneA = a.kind === 'todo' && Boolean(a.done)
   const doneB = b.kind === 'todo' && Boolean(b.done)

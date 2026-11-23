@@ -97,6 +97,62 @@ export interface Task {
    * after the sprint began, and the sprint it came over from unfinished.
    */
   sprint?: { number: number; added?: string; carriedFrom?: number }
+  /** The pull request its branch is in review as (`Task - Linked pull request`, `40006589:62036`). */
+  pullRequest?: PullRequest
+  /** An agent working the task, and the change it has proposed (`Task - Yak coding agent`, `40006589:63143`). */
+  agent?: AgentRun
+}
+
+/** One file of a change, as a unified diff the library's `CodeBlock` reads with `diff`. */
+export interface DiffFile {
+  path: string
+  /** The CodeBlock language: tsx, ts. */
+  language: string
+  diff: string
+}
+
+/** Where a reviewer stands, as the `_Reviewer Row` badge says it. */
+export type ReviewState = 'requested' | 'approved' | 'changes'
+
+/**
+ * A pull request, as `Task - Linked pull request` and `Review - Pull request
+ * changes` (`40006589:62699`) draw it. Its counts are worked out from `files`.
+ */
+export interface PullRequest {
+  number: number
+  title: string
+  authorId: string
+  commits: number
+  base: string
+  branch: string
+  /** Open is "In review"; merged moves the task to Done. */
+  state: 'open' | 'merged'
+  reviewers: { personId: string; state: ReviewState }[]
+  checks: { passed: number; total: number }
+  files: DiffFile[]
+  /** Line comments, oldest first: `PaymentSheet.tsx:29` over the words. */
+  comments: ReviewComment[]
+}
+
+export interface ReviewComment extends TaskComment {
+  /** The file name and line it is on, as the comment's Code says it. */
+  at?: string
+}
+
+/**
+ * A coding agent's run on a task: what it was asked from, the steps it took,
+ * the command it checked with and the change it proposes. `attempt` counts
+ * Try again.
+ */
+export interface AgentRun {
+  /** Read after "Yak drafted this change from". */
+  from: string
+  steps: string[]
+  command: string
+  files: DiffFile[]
+  attempt: number
+  /** Set once Open pull request turns the change into one. */
+  opened?: boolean
 }
 
 export interface Subtask {

@@ -1,3 +1,4 @@
+import { codeDetails } from './code'
 import { day } from './dates'
 import { inboxComments } from './inbox'
 import type { Subtask, Task } from './types'
@@ -565,6 +566,8 @@ function sprintTasks(): Task[] {
     due: '2026-11-13',
     sprint: { number: 14, added: extra.added, carriedFrom: extra.carriedFrom },
     completedAt: extra.done ? day(extra.done) : undefined,
+    // Apple Pay and Allergen filters as the Code & reviews section draws them.
+    ...codeDetails[`mob-${number}`],
   }))
 }
 

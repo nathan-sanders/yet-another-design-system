@@ -32,6 +32,8 @@ import { ProjectsScreen } from './screens/projects/ProjectsScreen'
 import { ChartBuilder } from './screens/reports/ChartBuilder'
 import { ReportsProvider } from './screens/reports/ReportsProvider'
 import { ReportsIndex, ReportsScreen } from './screens/reports/ReportsScreen'
+import { ReviewPage } from './screens/task/ReviewPage'
+import { TaskPage } from './screens/task/TaskPage'
 import { ProjectShell } from './shell/ProjectShell'
 
 // Hash routes (`#/projects/austin/list`) so every screen has a link that works
@@ -49,6 +51,9 @@ const router = createHashRouter([
       { path: 'projects', element: <ProjectsScreen /> },
       { path: 'projects/:projectId', element: <ProjectIndex /> },
       { path: 'projects/:projectId/:tab', element: <ProjectPage /> },
+      { path: 'projects/:projectId/tasks/:taskKey', element: <TaskPage /> },
+      { path: 'projects/:projectId/tasks/:taskKey/pull', element: <ReviewPage /> },
+      { path: 'my-work/tasks/:taskKey', element: <TaskPage /> },
       { path: 'plan', element: <Navigate to="/plan/roadmap" replace /> },
       { path: 'plan/roadmap', element: <RoadmapScreen /> },
       { path: 'plan/portfolios', element: <PortfoliosScreen /> },

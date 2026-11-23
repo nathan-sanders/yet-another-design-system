@@ -56,6 +56,18 @@ export type DocBlock =
   | { id: string; kind: 'tasks' }
   /** The slash menu's Project status: the project's latest health and update, kept live. */
   | { id: string; kind: 'status' }
+  /**
+   * The slash menu's Code block (`Docs - Code block from slash menu`,
+   * `40006589:61927`): the library's CodeBlock, its file name in the header.
+   */
+  | {
+      id: string
+      kind: 'code'
+      language: string
+      title?: string
+      code: string
+      lineNumbers?: boolean
+    }
 
 export interface DocVersion {
   id: string
@@ -116,6 +128,46 @@ const current: DocBlock[] = [
     id: 'soft-open',
     kind: 'paragraph',
     text: 'Soft open runs {2027-01-08} to {2027-01-10:d} for friends and family, with Katie handling invites from [Austin vendor contacts](#/docs/austin-vendors).',
+  },
+]
+
+/**
+ * `Docs - Code block from slash menu` (`40006589:61927`): Theo's API guide,
+ * with the request and response the Apple Pay task calls, as code blocks.
+ */
+const checkoutGuide: DocBlock[] = [
+  { id: 'pay', kind: 'heading', text: 'Pay for an order' },
+  {
+    id: 'pay-body',
+    kind: 'paragraph',
+    text: 'Call `POST /v1/orders/{id}/pay` with the payment token from Apple Pay or a saved card. A `402` response means the card was declined.',
+  },
+  {
+    id: 'pay-request',
+    kind: 'code',
+    language: 'bash',
+    title: 'Request',
+    code: [
+      'curl -X POST https://api.example.com/v1/orders/ord_8421/pay \\',
+      '  -H "Authorization: Bearer $YET_API_KEY" \\',
+      `  -d '{"token": "tok_applepay_3f9a"}'`,
+    ].join('\n'),
+  },
+  { id: 'response', kind: 'heading', text: 'Response' },
+  {
+    id: 'pay-response',
+    kind: 'code',
+    language: 'json',
+    title: 'Response',
+    lineNumbers: true,
+    code: [
+      '{',
+      '  "id": "ord_8421",',
+      '  "status": "paid",',
+      '  "total": 1840,',
+      '  "currency": "usd"',
+      '}',
+    ].join('\n'),
   },
 ]
 
@@ -228,6 +280,27 @@ export const docs: ProjectDoc[] = [
     taskIds: [],
     linkedCount: 21,
     sharedWith: ['nathan'],
+  },
+  {
+    id: 'checkout-api',
+    projectId: 'mobile-ordering',
+    name: 'Checkout API guide',
+    kind: 'doc',
+    ownerId: 'theo',
+    updated: '1h ago',
+    // Apple Pay at checkout and Guest checkout, the frame's Linked tasks · 2.
+    taskIds: ['mob-52', 'mob-45'],
+    sharedWith: ['nathan'],
+    blocks: checkoutGuide,
+    versions: [
+      {
+        id: 'today',
+        label: 'Today, 9:40 am',
+        name: 'today',
+        authorId: 'theo',
+        blocks: checkoutGuide,
+      },
+    ],
   },
   {
     id: 'gift-card-copy',
