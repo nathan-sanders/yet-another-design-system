@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import {
   ArrowLeft,
+  Check,
   Ellipsis,
   FolderKanban,
   History,
@@ -15,19 +16,14 @@ import { AppShell } from '../../../../src/components/AppShell'
 import { Avatar, AvatarGroup } from '../../../../src/components/Avatar'
 import { Button } from '../../../../src/components/Button'
 import { Menu } from '../../../../src/components/Menu'
+import { Icon } from '../../../../src/components/Icon'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Toast } from '../../../../src/components/Toast'
 import { Token } from '../../../../src/components/Token'
 import { TopBar } from '../../../../src/components/TopBar'
 import { cn } from '../../../../src/lib/cn'
 import { datedText, day, fileIso, today } from '../../data/dates'
-import {
-  yakRewrites,
-  yakTodos,
-  type DocBlock,
-  type DocThread,
-  type ProjectDoc,
-} from '../../data/docs'
+import { yakRewrites, yakTodos, type DocThread, type ProjectDoc } from '../../data/docs'
 import { me, personFor } from '../../data/people'
 import { projectFor } from '../../data/projects'
 import type { Project, Task } from '../../data/types'
@@ -37,36 +33,18 @@ import { TaskPanel } from '../project/TaskPanel'
 import { useTasks } from '../project/tasksState'
 import { nextTaskNumber } from '../requests/model'
 import { CreateTaskDialog, type NewTaskFields } from './CreateTaskDialog'
-import {
-  DiffLine,
-  DocBlockView,
-  SelectionToolbar,
-  SlashLine,
-  YakSuggestion,
-  type BlockHandlers,
-} from './DocBlocks'
+import { DiffLine, YakSuggestion } from './DocBlocks'
+import { DocEditor } from './DocEditor'
 import { CommentsSide, DetailsSide, HistorySide, TodosCard } from './DocSide'
 import { useDocs } from './docsState'
-import { compareBlocks, versionRows } from './model'
+import { compareBlocks, isText, newBlockId, readText, versionRows } from './model'
 import { useEditable } from './useEditable'
 import { docsPath, type DocSide } from './paths'
-
-let made = 0
-const newBlockId = () => `block-new-${++made}`
 
 /** "updated 2h ago", "updated yesterday", "updated Oct 30". */
 function updatedLine(doc: ProjectDoc): string {
   const label = datedText(doc.updated)
   return `updated ${label === 'Yesterday' || label === 'Just now' ? label.toLowerCase() : label}`
-}
-
-/** The words of the selection, when it sits inside one block. */
-function selectedWords(blockId: string): string | undefined {
-  const selection = window.getSelection()
-  const words = selection?.toString().trim()
-  if (!selection || !words || !selection.anchorNode) return undefined
-  const block = (selection.anchorNode.parentElement ?? null)?.closest('[data-block]')
-  return block?.getAttribute('data-block') === blockId ? words : undefined
 }
 
 function shortQuote(text: string): string {
@@ -116,7 +94,7 @@ function DocView({ doc }: { doc: ProjectDoc }) {
   const [params, setParams] = useSearchParams()
   const project = projectFor(doc.projectId)!
   const owner = personFor(doc.ownerId)
-  const slashRef = useRef<HTMLInputElement>(null)
+  const startRef = useRef<(() => void) | null>(null)
 
   const side: DocSide =
     params.get('side') === 'comments' || params.get('side') === 'history'
@@ -134,8 +112,13 @@ function DocView({ doc }: { doc: ProjectDoc }) {
     setParams(out)
   }
 
-  const [selectedId, setSelectedId] = useState<string>()
-  const [suggestion, setSuggestion] = useState<{ blockId?: string; text: string; title: string }>()
+  // Yak's words: a rewrite of `blockId`, or a draft to go after `afterId`.
+  const [suggestion, setSuggestion] = useState<{
+    blockId?: string
+    afterId?: string
+    text: string
+    title: string
+  }>()
   const [draft, setDraft] = useState<{ blockId: string; quote: string }>()
   const [creating, setCreating] = useState<{ blockId: string; seed: string }>()
 
@@ -218,7 +201,7 @@ function DocView({ doc }: { doc: ProjectDoc }) {
     const task = makeTask(fields, nextTaskNumber(tasks, project.id))
     addTask(task)
     const block = blocks?.find((b) => b.id === creating.blockId)
-    const chip = block && (block.kind === 'paragraph' || block.kind === 'item') && !block.taskId
+    const chip = isText(block) && block.kind !== 'heading' && !block.taskId
     docsState.linkTask(doc.id, task.id, chip ? block.id : undefined)
     setCreating(undefined)
     say(`${taskKey(task)} created`, `Linked to ${doc.name}.`, () => {
@@ -265,17 +248,25 @@ function DocView({ doc }: { doc: ProjectDoc }) {
   const acceptSuggestion = () => {
     if (!suggestion) return
     const before = doc
+    const after = blocks?.find((b) => b.id === suggestion.afterId)
     if (suggestion.blockId) docsState.updateBlock(doc.id, suggestion.blockId, suggestion.text)
+    // A draft asked for on an empty line fills it; on a line with words, it goes under it.
+    else if (after?.kind === 'paragraph' && readText(after) === '')
+      docsState.updateBlock(doc.id, after.id, suggestion.text)
     else
-      docsState.insertBlock(doc.id, { id: newBlockId(), kind: 'paragraph', text: suggestion.text })
+      docsState.insertBlock(
+        doc.id,
+        { id: newBlockId(), kind: 'paragraph', text: suggestion.text },
+        suggestion.afterId,
+      )
     setSuggestion(undefined)
     say(suggestion.blockId ? 'Paragraph updated' : 'Yak’s draft added', doc.name, () =>
       docsState.restoreDoc(before),
     )
   }
 
-  const startComment = (blockId: string) => {
-    const quote = shortQuote(selectedWords(blockId) ?? blockText(blockId))
+  const startComment = (blockId: string, words?: string) => {
+    const quote = shortQuote(words ?? blockText(blockId))
     setDraft({ blockId, quote })
     view({ side: 'comments', thread: undefined, version: undefined, yak: undefined })
   }
@@ -286,66 +277,63 @@ function DocView({ doc }: { doc: ProjectDoc }) {
     say('Resolved', `“${thread.quote}”`, () => docsState.setResolved(thread.id, false))
   }
 
-  const handlers: BlockHandlers = {
-    selectedId: comparing ? undefined : selectedId,
-    highlighted,
-    onSelect: (id) => {
-      setSelectedId(id)
-      if (suggestion?.blockId && suggestion.blockId !== id) setSuggestion(undefined)
-    },
-    onText: (id, text) => {
-      const block = blocks?.find((b) => b.id === id)
-      // An emptied line with nothing else on it goes.
-      if (!text && block && block.kind !== 'heading' && !('taskId' in block && block.taskId))
-        docsState.removeBlock(doc.id, id)
-      else docsState.updateBlock(doc.id, id, text)
-    },
-    onRemove: (id) => {
-      const before = doc
-      docsState.removeBlock(doc.id, id)
-      say('Removed from the doc', doc.name, () => docsState.restoreDoc(before))
-    },
-    onEnter: () => slashRef.current?.focus(),
-    threads: threadByBlock,
-    onOpenThread: (id) => view({ side: 'comments', thread: id, version: undefined }),
-  }
-
-  const insert = (block: DocBlock) => docsState.insertBlock(doc.id, block)
   const linkable = tasks.filter((t) => t.projectId === project.id && !doc.taskIds.includes(t.id))
   const viewers = [...new Set([doc.ownerId, ...(doc.editorIds ?? []), me.id])].map(personFor)
 
   const title = useEditable(
     doc.name,
     (name) => docsState.renameDoc(doc.id, name || 'Untitled doc'),
-    () => slashRef.current?.focus(),
+    () => startRef.current?.(),
   )
+
+  // A doc just made opens with its title selected, so the first thing typed names it.
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const fresh = useRef(doc.name === 'Untitled doc' && doc.blocks?.length === 1)
+  useEffect(() => {
+    const el = titleRef.current
+    if (!fresh.current || !el) return
+    fresh.current = false
+    el.focus()
+    const range = document.createRange()
+    range.selectNodeContents(el)
+    window.getSelection()?.removeAllRanges()
+    window.getSelection()?.addRange(range)
+  }, [])
+
+  // Live editing: nothing to save or publish. The top bar says when the last
+  // change has been kept, the way Confluence's live docs do.
+  const [saved, setSaved] = useState<'saving' | 'saved'>()
+  // Compared by reference, so React's development double-run of effects is not a change.
+  const shown = useRef({ blocks: doc.blocks, name: doc.name })
+  useEffect(() => {
+    if (shown.current.blocks === doc.blocks && shown.current.name === doc.name) return
+    shown.current = { blocks: doc.blocks, name: doc.name }
+    setSaved('saving')
+    const timer = window.setTimeout(() => setSaved('saved'), 600)
+    return () => window.clearTimeout(timer)
+  }, [doc.blocks, doc.name])
+
+  // Whoever else has the doc open sits on the last line with words when you
+  // arrive, as the viewing-now avatars promise, and stays there as you write.
+  const other = viewers.find((person) => person.id !== me.id)
+  const [otherOn] = useState(
+    () => [...(blocks ?? [])].reverse().find((b) => isText(b) && readText(b).trim() !== '')?.id,
+  )
+  const presence =
+    other && otherOn && blocks?.some((b) => b.id === otherOn)
+      ? { blockId: otherOn, person: other }
+      : undefined
+
+  const removeBlock = (id: string) => {
+    const before = doc
+    docsState.removeBlock(doc.id, id)
+    say('Removed from the doc', doc.name, () => docsState.restoreDoc(before))
+  }
 
   const copyLink = () => {
     void navigator.clipboard?.writeText(window.location.href)
     say('Link copied', `Anyone in ${project.name} can open ${doc.name}.`)
   }
-
-  const renderBlock = (block: DocBlock) => (
-    <div key={block.id} className="flex flex-col gap-3">
-      <DocBlockView block={block} project={project} tasks={tasks} handlers={handlers} />
-      {suggestion?.blockId === block.id ? (
-        <YakSuggestion
-          title={suggestion.title}
-          text={suggestion.text}
-          onAccept={acceptSuggestion}
-          onDismiss={() => setSuggestion(undefined)}
-        />
-      ) : selectedId === block.id && 'text' in block && block.kind !== 'heading' ? (
-        <SelectionToolbar
-          onCreateTask={() =>
-            setCreating({ blockId: block.id, seed: selectedWords(block.id) ?? blockText(block.id) })
-          }
-          onAskYak={() => askYak(block.id)}
-          onComment={() => startComment(block.id)}
-        />
-      ) : null}
-    </div>
-  )
 
   return (
     <>
@@ -365,6 +353,16 @@ function DocView({ doc }: { doc: ProjectDoc }) {
         }
         end={
           <>
+            <Text
+              render={<span />}
+              size="sm"
+              color="subtle"
+              aria-live="polite"
+              className="flex items-center gap-1 max-md:hidden"
+            >
+              {saved === 'saved' ? <Icon icon={Check} size="small" /> : null}
+              {saved === 'saving' ? 'Saving…' : saved === 'saved' ? 'Saved' : ''}
+            </Text>
             <AvatarGroup
               size="small"
               aria-label={`Viewing now: ${viewers.map((p) => p.name).join(', ')}`}
@@ -421,7 +419,11 @@ function DocView({ doc }: { doc: ProjectDoc }) {
       />
       <AppShell.Content className="px-4 pt-6 pb-4">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-center">
-          <article aria-label={doc.name} className="flex w-full max-w-170 min-w-0 flex-col gap-3">
+          {/* 680 of words, and a 56 gutter to their left for each block's grip and menu. */}
+          <article
+            aria-label={doc.name}
+            className="flex w-full max-w-170 min-w-0 flex-col gap-3 md:max-w-184 md:pl-14"
+          >
             {comparing && diff ? (
               <div className="flex items-center gap-2 rounded-lg bg-surface-background-subtle py-2 pr-2 pl-3">
                 <Text
@@ -472,6 +474,10 @@ function DocView({ doc }: { doc: ProjectDoc }) {
                 size="2xl"
                 weight="bold"
                 {...title}
+                ref={(el: HTMLHeadingElement | null) => {
+                  titleRef.current = el
+                  title.ref(el)
+                }}
                 className="outline-none"
               />
             )}
@@ -498,33 +504,37 @@ function DocView({ doc }: { doc: ProjectDoc }) {
                 />
               ))
             ) : (
-              <>
-                {blocks.map(renderBlock)}
-                {suggestion && !suggestion.blockId ? (
-                  <YakSuggestion
-                    title={suggestion.title}
-                    text={suggestion.text}
-                    onAccept={acceptSuggestion}
-                    onDismiss={() => setSuggestion(undefined)}
-                  />
-                ) : null}
-                <SlashLine
-                  inputRef={slashRef}
-                  onFocus={() => setSelectedId(undefined)}
-                  linkable={linkable}
-                  onParagraph={(text) => insert({ id: newBlockId(), kind: 'paragraph', text })}
-                  onCommand={(run) => {
-                    if (run === 'task-list') insert({ id: newBlockId(), kind: 'tasks' })
-                    if (run === 'status') insert({ id: newBlockId(), kind: 'status' })
-                    if (run === 'yak-draft')
-                      setSuggestion({ text: yakDraft(project, tasks), title: 'Yak drafted' })
-                  }}
-                  onLink={(task) => {
-                    insert({ id: newBlockId(), kind: 'item', text: '', taskId: task.id })
-                    docsState.linkTask(doc.id, task.id)
-                  }}
-                />
-              </>
+              <DocEditor
+                blocks={blocks}
+                project={project}
+                tasks={tasks}
+                linkable={linkable}
+                edit={(update) => docsState.editBlocks(doc.id, update)}
+                onLinkTask={(taskId) => docsState.linkTask(doc.id, taskId)}
+                onJoined={docsState.moveThreads}
+                onRemove={removeBlock}
+                onYakDraft={(afterId) =>
+                  setSuggestion({ afterId, text: yakDraft(project, tasks), title: 'Yak drafted' })
+                }
+                onCreateTask={(blockId, seed) => setCreating({ blockId, seed })}
+                onAskYak={askYak}
+                onComment={startComment}
+                highlighted={highlighted}
+                threads={threadByBlock}
+                onOpenThread={(id) => view({ side: 'comments', thread: id, version: undefined })}
+                presence={presence}
+                startRef={startRef}
+                after={(block) =>
+                  suggestion && (suggestion.blockId ?? suggestion.afterId) === block.id ? (
+                    <YakSuggestion
+                      title={suggestion.title}
+                      text={suggestion.text}
+                      onAccept={acceptSuggestion}
+                      onDismiss={() => setSuggestion(undefined)}
+                    />
+                  ) : null
+                }
+              />
             )}
           </article>
 

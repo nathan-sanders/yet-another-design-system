@@ -60,17 +60,25 @@ export function DocsProvider({ children }: { children: ReactNode }) {
     [change],
   )
 
+  const editBlocks = useCallback(
+    (docId: string, update: (blocks: DocBlock[]) => DocBlock[]) =>
+      change(docId, (doc) => ({ ...doc, blocks: update(doc.blocks ?? []) })),
+    [change],
+  )
+
+  const moveThreads = useCallback((fromBlockId: string, toBlockId: string) => {
+    setThreads((all) =>
+      all.map((t) => (t.blockId === fromBlockId ? { ...t, blockId: toBlockId } : t)),
+    )
+  }, [])
+
   const linkTask = useCallback(
     (docId: string, taskId: string, blockId?: string) =>
       change(docId, (doc) => ({
         ...doc,
         taskIds: doc.taskIds.includes(taskId) ? doc.taskIds : [...doc.taskIds, taskId],
         blocks: blockId
-          ? doc.blocks?.map((b) =>
-              b.id === blockId && (b.kind === 'paragraph' || b.kind === 'item')
-                ? { ...b, taskId }
-                : b,
-            )
+          ? doc.blocks?.map((b) => (b.id === blockId && 'text' in b ? { ...b, taskId } : b))
           : doc.blocks,
       })),
     [change],
@@ -98,7 +106,8 @@ export function DocsProvider({ children }: { children: ReactNode }) {
       ownerId: me.id,
       updated: 'Just now',
       taskIds: [],
-      blocks: [],
+      // One empty line with the caret's placeholder in it, as a new page opens.
+      blocks: [{ id: newId('block'), kind: 'paragraph', text: '' }],
       edited: true,
     }
     setDocs((all) => [doc, ...all])
@@ -139,6 +148,8 @@ export function DocsProvider({ children }: { children: ReactNode }) {
       renameDoc,
       insertBlock,
       removeBlock,
+      editBlocks,
+      moveThreads,
       linkTask,
       restoreVersion,
       restoreDoc,
@@ -154,6 +165,8 @@ export function DocsProvider({ children }: { children: ReactNode }) {
       renameDoc,
       insertBlock,
       removeBlock,
+      editBlocks,
+      moveThreads,
       linkTask,
       restoreVersion,
       restoreDoc,
