@@ -72,6 +72,27 @@ props.
 search entry that sits quieter than a form field. A borderless field has no 3:1 boundary under WCAG
 1.4.11, so it leans on what is beside it; here the magnifier is what does that, which is why the
 search case is the safe one for ghost and a bare ghost field is not.
+**A pick writes the row's `label`, and `value` is only its id.** Base UI turns a `{ value, label }`
+item into text with `stringifyAsLabel`, which prefers `label`, so `onValueChange` reports "Task list"
+for a row whose `value` is `task-list`. `AutocompleteItemData.value` used to be documented as "the
+text written into the input when this row is chosen", which it never was (Yet Project, FINDINGS
+99). The comment now says what happens, and names `itemToStringValue` as the way to write the value
+instead. The `Bare` story picks a row and checks what arrived.
+**`appearance="bare"` is this component's own, for a line of text with a menu under it** — a slash
+command at the end of a doc, an @-mention in prose (Yet Project, FINDINGS 98). It is the one control
+that keeps the caret in the text while the arrows walk a list, and Input's box round that text
+breaks the page. So nothing is drawn: no border (none at all rather than a transparent one, so the text is flush
+with the column rather than 1px in), no fill, no hover, no ring, the input's padding gone, and the
+glyph, if there is one, 12px before the text as in the box. The caret is the focus indicator, as it
+is in the editable paragraphs round such a line. **Two things follow from having no box.** The
+menu is the file's `Autocomplete Menu`, **296** wide (`40004147:7345`), not `--anchor-width`: a box's
+menu lines up with the box's edges, and a bare line is the column's width, so the same rule made a
+slash menu the doc's 680. And it is **not an `Input` appearance**, because a field with no boundary
+fails WCAG 1.4.11 on its own; it is safe only where the text round it says "you can write here",
+and a form is the one place that is never true. `invalid` draws nothing on it for the same reason.
+`Bare` measures all of it: 0px border, transparent fill, text flush with the paragraph, a 680 line
+under a 296 menu, no ring on focus. Not in Figma, like `ghost`; it owes the Autocomplete set an
+`Appearance` axis.
 **`Autocomplete.Empty` has no Figma counterpart and is not optional** — a filter that empties the
 list without saying so looks broken, and here it is also the moment the point of the component
 applies: what you typed is still a perfectly good answer. Recorded as a gap in the file, like

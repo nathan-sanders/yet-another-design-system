@@ -240,6 +240,16 @@ Figma's 13 x presets × wide/narrow and 8 y presets are `tickInterval` plus `for
 `inferXPreset`. The check that the rules reproduce the design: 31 points in a wide chart gives
 `ceil(31/16) - 1 = 1`, labeling days 1, 3, 5 … 31 — exactly the sixteen labels the file draws.
 
+**"Where it changes" means between two labels, not two rows**, and the difference was a bug for as
+long as the axis had an interval. Recharts hands `tickFormatter` the index among the ticks it
+*kept*, and the three date charts read `data[index - 1]` as the label before — so with every other
+day labeled, tick 14 compared row 28 with row 13. On a span that crosses a month every label after
+the boundary wrote the month, and at 600px "Nov 10" and "Nov 12" overlapped (Yet Project, FINDINGS
+106). Nothing in a single-month story could show it, which is every story the charts had.
+`dateTickFormatter` maps the index back through `tickInterval`, which is exactly what a numeric
+`interval` is in Recharts (`getEveryNth`); `axes.test.ts` pins the labels and LineSeries'
+`AcrossMonths` measures them. A date chart uses it rather than calling `formatDateTick` with a row.
+
 Wide/narrow is Figma's own `Chart Breakpoint` variable (600), measured by a `ResizeObserver` rather
 than declared. A zero width is treated as "not laid out yet" rather than "narrow", and the initial
 state is wide, so a chart does not visibly shed its labels and put them back.

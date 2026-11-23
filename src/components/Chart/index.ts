@@ -81,6 +81,7 @@ export {
   formatCompactNumber,
   formatFullNumber,
   formatDateTick,
+  dateTickFormatter,
   inferXPreset,
   tickInterval,
 } from './axes'

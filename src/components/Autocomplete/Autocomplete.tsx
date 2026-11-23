@@ -95,12 +95,48 @@ type RootProps = AutocompleteRootProps<AutocompleteItemData>
 export type AutocompleteSize = InputSize
 
 /**
- * Shared with `Input`, and not in Figma yet — see the `appearance` variant in
- * `Input/styles.ts`. `ghost` is the case that note names out loud: a global
- * search entry that should sit quieter than a form field, kept findable by the
- * magnifier beside it.
+ * `default` and `ghost` are shared with `Input`, and not in Figma yet — see the
+ * `appearance` variant in `Input/styles.ts`. `ghost` is the case that note names
+ * out loud: a global search entry that should sit quieter than a form field,
+ * kept findable by the magnifier beside it.
+ *
+ * `bare` is this component's own: see `bareField`.
  */
-export type AutocompleteAppearance = InputAppearance
+export type AutocompleteAppearance = InputAppearance | 'bare'
+
+/**
+ * `appearance="bare"` — a line of text with a menu, and no field drawn round it.
+ *
+ * For writing in the flow of a document: a slash command at the end of a page,
+ * an @-mention in a line of prose. Autocomplete is the control that keeps the
+ * caret in the text while the arrows walk a list, and Input's box around that
+ * text breaks the page it is written in. So nothing is drawn — no border, no
+ * fill, no hover wash, no focus ring — and the text sits flush with the column,
+ * the glyph (if any) 12px before it as in the box. The caret is the focus
+ * indicator, as it is in the editable paragraphs around such a line.
+ *
+ * **Only there.** A field with no boundary fails WCAG 1.4.11 on its own, and
+ * one with no ring leaves focus to the caret, so it is safe only where the
+ * surrounding text already says "you can write here" and a placeholder says
+ * what. That is also why it is not an `Input` appearance: a form field is the
+ * one place it is wrong. `invalid` draws nothing on it, for the same reason
+ * there is nothing to draw on.
+ *
+ * Yet Project's doc page drew it by overriding the box from outside (FINDINGS
+ * 98): five classes to undo the border, the fill, the hover, the ring and the
+ * input's padding.
+ */
+const bareField = 'flex w-full items-center gap-3 has-[input:disabled]:pointer-events-none has-[input:disabled]:opacity-40'
+
+/**
+ * A bare field's menu is the file's `Autocomplete Menu`, 296 wide
+ * (`40004147:7345`), rather than the field's width. The box's menu lines up
+ * with the box's edges because `min-w-(--anchor-width)` makes it at least as
+ * wide; a bare line has no edges, and is as wide as the column it is written
+ * in, so the same rule made a slash menu the doc's 680. A fixed width also
+ * keeps the menu still while typing narrows the list.
+ */
+const barePopup = 'w-74 min-w-0'
 
 /**
  * The picture at the start of a row. Deliberately narrower than `AvatarProps`:
@@ -114,7 +150,14 @@ export type AutocompleteItemAvatar = Pick<
 
 /** One row's worth of data. `label` is what the filter matches against. */
 export interface AutocompleteItemData {
-  /** The text written into the input when this row is chosen. */
+  /**
+   * The row's id: its React key, and what a custom row is matched by.
+   *
+   * **Not what a pick writes.** Choosing a row writes its `label` into the
+   * input, and `onValueChange` reports that — Base UI turns a `{ value, label }`
+   * item into text by its label (`stringifyAsLabel`). Pass
+   * `itemToStringValue={(item) => item.value}` to write the value instead.
+   */
   value: string
   /** The visible text, and what typing filters on. */
   label: string
@@ -280,7 +323,11 @@ export interface AutocompleteProps
   items?: readonly AutocompleteItemData[] | readonly AutocompleteItemGroup[]
   /** Maps to the Figma `Size` property: Small 24 · Default 32 · Large 40. */
   size?: AutocompleteSize
-  /** Shared with `Input`. `ghost` is the quiet global-search field. */
+  /**
+   * `ghost` is the quiet global-search field, shared with `Input`. `bare` is a
+   * line of text in a document with a menu under it — no field drawn, and a
+   * menu the file's 296 wide rather than the line's width. Not for forms.
+   */
   appearance?: AutocompleteAppearance
   /** Maps to `State=Invalid`, for an Autocomplete standing outside a Field. */
   invalid?: boolean
@@ -321,6 +368,7 @@ export function Autocomplete({
   'aria-labelledby': ariaLabelledBy,
   ...props
 }: AutocompleteProps) {
+  const bare = appearance === 'bare'
   const grouped = isGrouped(items)
   const renderItem = typeof children === 'function' ? children : defaultItem
   const custom = children != null && typeof children !== 'function'
@@ -345,16 +393,16 @@ export function Autocomplete({
     >
       <AutocompleteContext.Provider value={{ size }}>
         <AutocompletePrimitive.InputGroup
-          className={cn(box({ appearance, size, invalid }), className)}
+          className={cn(appearance === 'bare' ? bareField : box({ appearance, size, invalid }), className)}
         >
           {startIcon != null && (
-            <span className={startSlot({ align: 'inline-start', size })}>
+            <span className={cn(startSlot({ align: 'inline-start', size }), bare && 'pl-0')}>
               <Icon icon={startIcon} size={ICON_SIZE[size]} />
             </span>
           )}
           <AutocompletePrimitive.Input
             aria-invalid={invalid || undefined}
-            className={control({ size })}
+            className={cn(control({ size }), bare && 'px-0')}
             placeholder={placeholder}
             {...naming}
           />
@@ -374,7 +422,7 @@ export function Autocomplete({
                 single-select shape, where the same element is a real dialog
                 because the search field lives inside it. There is no such shape
                 here. */}
-            <AutocompletePrimitive.Popup className={popup()}>
+            <AutocompletePrimitive.Popup className={cn(popup(), bare && barePopup)}>
               <AutocompletePrimitive.Empty>
                 <div className={empty()}>{emptyMessage}</div>
               </AutocompletePrimitive.Empty>

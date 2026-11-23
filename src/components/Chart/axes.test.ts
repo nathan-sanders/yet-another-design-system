@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   categoryYAxisProps,
+  dateTickFormatter,
   formatCompactNumber,
   formatDateTick,
   inferXPreset,
@@ -86,6 +87,42 @@ describe('formatDateTick', () => {
     expect(formatDateTick(at(0), 'hours')).toBe('12AM')
     expect(formatDateTick(at(4), 'hours', at(0))).toBe('4')
     expect(formatDateTick(at(12), 'hours', at(11))).toBe('12PM')
+  })
+})
+
+describe('dateTickFormatter', () => {
+  /**
+   * What the axis writes: Recharts keeps every `interval + 1`th tick (its
+   * `getEveryNth`) and hands `tickFormatter` the index among the kept ones.
+   */
+  function labels(values: string[], wide: boolean) {
+    const format = dateTickFormatter(values, 'days', { wide })
+    const step = tickInterval(values.length, wide) + 1
+    return values.filter((_, i) => i % step === 0).map((value, i) => format(value, i))
+  }
+
+  /** Thirty days to Thursday, Nov 19 — Yet Project's Completed vs. overdue. */
+  const days = Array.from({ length: 30 }, (_, i) => new Date(Date.UTC(2026, 9, 21 + i)).toISOString())
+
+  /**
+   * FINDINGS 106. Reading `data[index - 1]` compared each kept tick with a row
+   * from half the axis back, so every label from Nov 2 to Nov 12 wrote the
+   * month, and at 600px the 6-character ones overlapped. The month is written
+   * once, where it changes between two *labels*.
+   */
+  it('compares a label with the label before it, not the row before it', () => {
+    expect(labels(days, true)).toEqual([
+      'Oct 21', '23', '25', '27', '29', '31', 'Nov 2', '4', '6', '8', '10', '12', '14', '16', '18',
+    ])
+  })
+
+  it('does the same below the breakpoint, where it keeps one tick in five', () => {
+    expect(labels(days, false)).toEqual(['Oct 21', '26', '31', 'Nov 5', '10', '15'])
+  })
+
+  it('is formatDateTick on consecutive rows when every tick is kept', () => {
+    const week = days.slice(8, 15)
+    expect(labels(week, true)).toEqual(['Oct 29', '30', '31', 'Nov 1', '2', '3', '4'])
   })
 })
 

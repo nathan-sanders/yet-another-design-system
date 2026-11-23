@@ -13,6 +13,7 @@ import {
   formatDateTick,
   formatFullNumber,
   cursorHighlight,
+  dateTickFormatter,
   inferXPreset,
   markerShape,
   surface,
@@ -192,9 +193,11 @@ function LineSeriesPlot({
       <XAxis
         dataKey={xKey}
         {...xAxisProps({ wide, count: data.length })}
-        tickFormatter={(value, index) =>
-          formatDateTick(value, preset, index > 0 ? data[index - 1]?.[xKey] : undefined, timeZone)
-        }
+        tickFormatter={dateTickFormatter(
+          data.map((row) => row[xKey]),
+          preset,
+          { wide, timeZone },
+        )}
       />
 
       <YAxis {...yAxisProps({ lines: yLines })} />
@@ -233,8 +236,12 @@ function LineSeriesPlot({
             isAnimationActive={false}
             dot={
               showPoints && marker !== false
-                ? (props: { cx?: number; cy?: number; index?: number }) =>
-                    markerShape({
+                ? (props: { cx?: number; cy?: number | null; index?: number }) =>
+                    // A row with no value for this series has no point to
+                    // mark. Recharts still calls the renderer for it, with no
+                    // `cy`, and falling back to 0 drew the marker on the top
+                    // edge of the plot (FINDINGS 105 in Yet Project).
+                    props.cy == null ? null : markerShape({
                       marker,
                       color: s.color,
                       // The real surface, not `'none'`: a plot point sits on its
@@ -244,7 +251,7 @@ function LineSeriesPlot({
                       size: POINT_SIZE,
                       strokeWidth: POINT_STROKE,
                       cx: props.cx ?? 0,
-                      cy: props.cy ?? 0,
+                      cy: props.cy,
                       key: `${s.key}-${props.index}`,
                     })
                 : false

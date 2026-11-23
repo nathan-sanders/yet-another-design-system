@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Clock, Hash, MapPin } from 'lucide-react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Autocomplete } from './Autocomplete'
 import samplePhoto from '../Avatar/sample-photo.png'
@@ -403,4 +405,88 @@ export const InContext: Story = {
       </Field>
     </div>
   ),
+}
+
+/** A doc's slash commands: an id for the program, a name for the person. */
+const commands = [
+  { value: 'linked-task', label: 'Linked task', description: 'Search this project’s tasks' },
+  { value: 'task-list', label: 'Task list', description: 'Open tasks, due soon' },
+  { value: 'project-status', label: 'Project status', description: 'The latest update' },
+]
+
+/**
+ * `appearance="bare"` — a line of text in a document, with a menu under it.
+ *
+ * Nothing is drawn round the field: no border, no fill, no hover, no ring, and
+ * the text starts where the paragraph above it starts. The menu is the file's
+ * `Autocomplete Menu`, 296 wide, rather than the line's width — a bare line is
+ * as wide as the column, and the box's `--anchor-width` rule made a slash menu
+ * the doc's 680 (Yet Project's FINDINGS 98).
+ *
+ * **Not for forms.** A field with no boundary is only findable where the text
+ * around it already says you can write there; here that is the doc and the
+ * placeholder.
+ *
+ * Choosing a row reports its **label**, not its `value`: Base UI writes the
+ * row's text into the input and `onValueChange` reports the input. Read the
+ * row by its label, as this story does (FINDINGS 99).
+ */
+export const Bare: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [picked, setPicked] = useState<string>()
+    return (
+      <div className="flex w-170 flex-col gap-2">
+        <Text>Doors open at 7 on the first night, with the soft open the evening before.</Text>
+        <Autocomplete
+          appearance="bare"
+          open
+          items={commands}
+          startIcon={null}
+          filter={null}
+          placeholder="Type, or / to add a task, list or status"
+          aria-label="Add to this doc"
+          onValueChange={(next, details) => {
+            if (details.reason === 'item-press') setPicked(next)
+          }}
+        />
+        <Text role="status" size="sm" color="subtle">
+          {picked ? `Picked: ${picked}` : 'Pick a command'}
+        </Text>
+      </div>
+    )
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole('combobox', { name: 'Add to this doc' })
+    const field = input.parentElement!
+    const paragraph = canvasElement.querySelector('p')!
+
+    await step('no field is drawn, and the text is flush with the paragraph', async () => {
+      const style = getComputedStyle(field)
+      await expect(style.borderTopWidth).toBe('0px')
+      await expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      await expect(getComputedStyle(input).paddingLeft).toBe('0px')
+      await expect(input.getBoundingClientRect().left).toBe(paragraph.getBoundingClientRect().left)
+    })
+
+    await step('the menu is 296 wide, not the line’s 680', async () => {
+      const listbox = await within(document.body).findByRole('listbox')
+      const popup = listbox.closest('[data-side]') ?? listbox.parentElement!
+      await expect(field.getBoundingClientRect().width).toBe(680)
+      await expect(popup.getBoundingClientRect().width).toBe(296)
+    })
+
+    await step('focus draws no ring', async () => {
+      await userEvent.click(input)
+      await expect(getComputedStyle(field).boxShadow).toBe('none')
+    })
+
+    await step('a pick reports the row’s label', async () => {
+      // `hidden`: while the menu is open Base UI hides the rest of the page
+      // from assistive technology, the status line with it.
+      await userEvent.click(within(document.body).getByRole('option', { name: /Task list/ }))
+      await waitFor(() => expect(canvas.getByRole('status', { hidden: true })).toHaveTextContent('Picked: Task list'))
+    })
+  },
 }

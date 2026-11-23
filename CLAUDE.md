@@ -717,7 +717,7 @@ wrong instruction sitting on the canvas where the next person reads it.
 | [Card](src/components/Card/CLAUDE.md) | the plain container | `rounded-md` inside ContentBlock's `rounded-lg`; the border tracks the fill unless the file says otherwise; `selected` for a card that holds its own controls, `ClickableCard`'s surface |
 | [ClickableCard](src/components/Card/CLAUDE.md) | the same card as a hit target | `href` picks the element; `ghost` is the list row, `selected` is `aria-current` |
 | [Carousel](src/components/Carousel/CLAUDE.md) | a browsable set, one screen at a time | the last motion-library candidate, answered by `overflow-x: auto` and two utility classes; Figma owns the layout, Astryx the engine |
-| [Autocomplete](src/components/Autocomplete/CLAUDE.md) | free text that suggests without constraining | Combobox with one rule removed; `Input`'s box, Combobox's popup, shared not copied |
+| [Autocomplete](src/components/Autocomplete/CLAUDE.md) | free text that suggests without constraining | Combobox with one rule removed; `Input`'s box, Combobox's popup, shared not copied; `bare` for a line of text in a doc, with a menu at the file's 296 |
 | [Chart](src/components/Chart/CLAUDE.md) | the chrome every chart sits in | container, legend, tooltip, swatch, palette, axis rules; half the Figma page is a drawing mechanism, not an API |
 | [LineSeries](src/components/LineSeries/CLAUDE.md) | change over time | the chart that proved the chrome; 30-odd Figma components become three props |
 | [AreaSeries](src/components/AreaSeries/CLAUDE.md) | how much, over time | two fills that are different drawings; opaque areas make paint order part of the API |
