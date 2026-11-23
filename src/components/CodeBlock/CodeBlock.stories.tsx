@@ -241,6 +241,15 @@ export const Split: Story = {
         data-testid="split"
       />
       <CodeBlock code={themeDiff} title="theme.css" diff split wrap data-testid="plain" />
+      {/* A new file: nothing before, long lines after. */}
+      <CodeBlock
+        code={`@@ -0,0 +1,2 @@\n+export const radius = { inner: '0.25rem', outer: '0.75rem', button: 'var(--shape-button)' };\n+export const spacing = { gutter: 'var(--spacing-3)', page: 'var(--spacing-4)' };`}
+        language="ts"
+        title="tokens.ts"
+        diff
+        split
+        data-testid="new-file"
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -276,6 +285,18 @@ export const Split: Story = {
     const lines = split.querySelector<HTMLElement>('code')!
     const hunk = within(split).getByText('@@ -1,5 +1,6 @@').closest<HTMLElement>('.col-span-2')!
     await expect(hunk.getBoundingClientRect().width).toBe(lines.getBoundingClientRect().width)
+
+    // The sides share the width, so the after side starts by the middle —
+    // even in a new file, where it is all long lines and the before side is
+    // empty. A max-content grid once doubled that block and hid this side.
+    for (const id of ['split', 'new-file']) {
+      const block = canvasElement.querySelector<HTMLElement>(`[data-testid="${id}"]`)!
+      const scroll = block.querySelector<HTMLElement>('[role=group]')!
+      const side = block.querySelector<HTMLElement>('[data-side="after"]')!
+      await expect(side.getBoundingClientRect().left).toBeLessThanOrEqual(
+        scroll.getBoundingClientRect().left + scroll.clientWidth / 2 + 1,
+      )
+    }
 
     // A diff in no language says it is a diff; one in css said css.
     await expect(within(plain).getByText('diff')).toBeVisible()
