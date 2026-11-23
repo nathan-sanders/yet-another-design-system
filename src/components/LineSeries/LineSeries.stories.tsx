@@ -305,3 +305,88 @@ export const PointClick: Story = {
     })
   },
 }
+
+/** A sprint burndown on day 6 of 11: `remaining` stops at today, `ideal` runs to the end. */
+const burndown = Array.from({ length: 11 }, (_, i) => ({
+  day: `Day ${i + 1}`,
+  remaining: [12, 12, 11, 10, 9, 9][i],
+  ideal: 12 - (12 / 10) * i,
+}))
+
+/**
+ * A series with gaps — rows that have no value for it.
+ *
+ * A burndown halfway through its sprint is the ordinary case: the ideal line
+ * runs to the last day, and the remaining work stops at today. The line breaks
+ * where the values stop, and so do the points. A row with no value for a series
+ * draws nothing for it; it used to put that series' marker on the top edge of
+ * the plot, one per missing day (Yet Project's FINDINGS 105).
+ */
+export const MissingValues: Story = {
+  args: {
+    data: burndown,
+    xKey: 'day',
+    xPreset: 'categories',
+    interpolation: 'linear',
+    series: [
+      { key: 'remaining', label: 'Remaining' },
+      { key: 'ideal', label: 'Ideal', dashed: true, marker: false },
+    ],
+    label: 'Sprint burndown: tasks remaining against the ideal',
+  },
+  play: async ({ canvasElement }) => {
+    const dots = canvasElement.querySelector('.recharts-line-dots')!
+    await expect(dots.children).toHaveLength(6)
+
+    // The top gridline is the plot's top edge; no marker is anywhere near it.
+    const lines = [...canvasElement.querySelectorAll('.recharts-cartesian-grid-horizontal line')]
+    const top = Math.min(...lines.map((line) => line.getBoundingClientRect().top))
+    for (const dot of dots.children) {
+      const box = dot.getBoundingClientRect()
+      await expect(box.top + box.height / 2).toBeGreaterThan(top + 20)
+    }
+  },
+}
+
+/**
+ * Thirty days across a month, at the breakpoint.
+ *
+ * Every other day is labeled, and the month is written once, where it changes
+ * between two labels: "31", "Nov 2", "4". The axis used to compare each label
+ * with the row before it rather than the label before it, so every label from
+ * Nov 2 to Nov 12 wrote the month — and at 600px "Nov 10" and "Nov 12" ran into
+ * each other (Yet Project's FINDINGS 106). The rule is pinned in
+ * `Chart/axes.test.ts`; this story measures the labels on screen.
+ */
+export const AcrossMonths: Story = {
+  // 600 inside the surface's 16px padding, so the chart is exactly wide.
+  parameters: { surfaceWidth: 'w-[632px]' },
+  args: {
+    data: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.UTC(2026, 9, 21 + i)).toISOString(),
+      completed: [6, 7, 5, 8, 6, 3, 2][i % 7],
+      overdue: 3 + (i % 4),
+    })),
+    series: [
+      { key: 'completed', label: 'Completed', marker: false },
+      { key: 'overdue', label: 'Overdue', marker: false },
+    ],
+    showPoints: false,
+    label: 'Tasks completed and overdue each day, last 30 days',
+  },
+  play: async ({ canvasElement }) => {
+    const ticks = await waitFor(() => {
+      const found = [...canvasElement.querySelectorAll('.recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-label')]
+      expect(found).toHaveLength(15)
+      return found
+    })
+    await expect(ticks.map((tick) => tick.textContent)).toEqual([
+      'Oct 21', '23', '25', '27', '29', '31', 'Nov 2', '4', '6', '8', '10', '12', '14', '16', '18',
+    ])
+
+    const boxes = ticks.map((tick) => tick.querySelector('text')!.getBoundingClientRect())
+    for (let i = 1; i < boxes.length; i++) {
+      await expect(boxes[i]!.left).toBeGreaterThan(boxes[i - 1]!.right)
+    }
+  },
+}

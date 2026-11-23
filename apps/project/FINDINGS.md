@@ -710,16 +710,24 @@ updates rather than with docs.
 
 ### Open: library changes worth making
 
-98. **`Autocomplete` can't be an inline field.** The slash line is the Autocomplete, because it is
-    the one control that keeps the caret in the text while the arrows walk a list. But it always
-    draws Input's box, and a doc's line is bare text: the app turns the box off with overrides
-    (border, fill, hover, ring, the input's padding), and narrows the field to 300 while what is
-    typed is short, because the popup's `min-w-(--anchor-width)` would otherwise make the menu the
-    doc's 680 rather than the file's 300. Worth a bare appearance, or a popup width of its own.
-99. **An `Autocomplete` pick arrives as the row's `label`.** `AutocompleteItemData.value` is
-    documented as "the text written into the input when this row is chosen", but Base UI's
-    `stringifyAsLabel` prefers `label`, so `onValueChange` gets "Task list", not `task-list`. The
-    app looks a row up by either. The doc comment (or the data shape) wants correcting.
+None open.
+
+### Fixed in the library
+
+98. **`Autocomplete` can't be an inline field.** *Fixed in #403.* The slash line is the
+    Autocomplete, because it is the one control that keeps the caret in the text while the arrows
+    walk a list. But it always drew Input's box, and a doc's line is bare text: the app turned the
+    box off with overrides (border, fill, hover, ring, the input's padding), and narrowed the field
+    to 300 while what was typed was short, because the popup's `min-w-(--anchor-width)` would
+    otherwise make the menu the doc's 680. Autocomplete now has `appearance="bare"`: nothing drawn,
+    the text flush with the column, and a menu at the library's own `Autocomplete Menu` width, 296,
+    rather than the line's. The slash line is `appearance="bare"` with no overrides and no
+    narrowing; its menu is 4px narrower than the frame's 300.
+99. **An `Autocomplete` pick arrives as the row's `label`.** *Fixed in #403.*
+    `AutocompleteItemData.value` was documented as "the text written into the input when this row
+    is chosen", but Base UI's `stringifyAsLabel` prefers `label`, so `onValueChange` gets "Task
+    list", not `task-list`. The comment now says so and names `itemToStringValue` for writing the
+    value instead. The app still looks a row up by either.
 
 ### Kept in the app, worth knowing
 
@@ -770,13 +778,22 @@ dialogs.
 
 ### Open: library changes worth making
 
-105. **`LineSeries` draws a missing value's point at the top edge.** Its dot renderer falls back
-     to `cy ?? 0`, so a row with no value for a series (the burndown's days still to come) paints
-     that series' marker along the top of the plot. The Sprints tab turns points off, as the
-     frame draws them anyway; the fix is to return nothing when `cy` is missing.
-106. **`LineSeries`' day ticks can collide at the end.** At some widths Completed vs. overdue
-     writes "Nov 2" and "Nov 4" on top of each other: the last tick is kept however close it is
-     to the one before.
+None open.
+
+### Fixed in the library
+
+105. **`LineSeries` drew a missing value's point at the top edge.** *Fixed in #403.* Its dot
+     renderer fell back to `cy ?? 0`, so a row with no value for a series (the burndown's days
+     still to come) painted that series' marker along the top of the plot. It returns nothing for
+     a row with no `cy` now. The Sprints tab keeps points off, because the frame draws none.
+106. **`LineSeries`' day ticks could collide at the end.** *Fixed in #403.* At some widths
+     Completed vs. overdue wrote "Nov 2" and "Nov 4" on top of each other. The cause was not the
+     last tick: Recharts hands `tickFormatter` the index among the ticks it keeps, and the date
+     charts read `data[index - 1]` as the label before. With every other day labeled, each label
+     after a month boundary compared itself with a day in the month before and wrote the month
+     again ("Nov 2", "Nov 4" … "Nov 12"), wide enough to overlap at 600px. A shared
+     `dateTickFormatter` maps the index back to its row, for LineSeries, AreaSeries and
+     VerticalBar alike, so the axis reads "31, Nov 2, 4, 6".
 
 ### Kept in the app, worth knowing
 
@@ -855,8 +872,9 @@ axe is clean on the page in both themes, with the slash menu open and a to-do on
      line while the arrows walk the list, so it can't be a `Menu` (which takes focus) or an
      `Autocomplete` (which needs an `<input>`). It is Menu's popup recipe (`Menu/styles.ts`
      exports it) with Menu's row classes copied, because the row's `tv()` isn't exported. A
-     `row` export next to `popup`, or a caret-anchored listbox, would end the copy. This replaces
-     FINDINGS 98: the doc no longer overrides Autocomplete into a bare line.
+     `row` export next to `popup`, or a caret-anchored listbox, would end the copy. The slash line
+     that FINDINGS 98 gave `appearance="bare"` for is gone with this slice; the bare Autocomplete
+     stays in the library for the next inline field.
 121. **A press in a portalled popup inside a `Sortable.Item` reaches the item's drag handler.**
      React carries `pointerdown` up the component tree, through the portal, to the item's
      `onPointerDown`; `data-drag-ignore` is checked with `closest()` on the DOM, where the popup is

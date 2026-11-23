@@ -13,6 +13,7 @@ import {
   formatDateTick,
   formatFullNumber,
   cursorHighlight,
+  dateTickFormatter,
   inferXPreset,
   surface,
   useChart,
@@ -181,9 +182,11 @@ function AreaSeriesPlot({
       <XAxis
         dataKey={xKey}
         {...xAxisProps({ wide, count: data.length })}
-        tickFormatter={(value, index) =>
-          formatDateTick(value, preset, index > 0 ? data[index - 1]?.[xKey] : undefined, timeZone)
-        }
+        tickFormatter={dateTickFormatter(
+          data.map((row) => row[xKey]),
+          preset,
+          { wide, timeZone },
+        )}
       />
 
       <YAxis {...yAxisProps({ lines: yLines })} />

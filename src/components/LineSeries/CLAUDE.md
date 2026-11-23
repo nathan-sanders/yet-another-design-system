@@ -44,6 +44,14 @@ and a segment is not something a caller has.
 Past roughly forty points per series the markers stop separating anything and merge into a band along
 the line. The `Dense` story is 90 days with them off. The line's shape is still doing the work.
 
+## A row with no value draws nothing
+
+A burndown halfway through its sprint has an ideal line that runs to the end and a remaining line
+that stops at today. Recharts breaks the line at the gap and still calls the `dot` renderer for every
+row, with no `cy` for the missing ones — and the renderer's `cy ?? 0` put those markers on the top
+edge of the plot, one per day still to come (Yet Project, FINDINGS 105). It returns nothing now. The
+`MissingValues` story counts the markers and checks none is near the top.
+
 ## A benchmark is not a series
 
 `benchmark: true` takes the chromaless benchmark gray and a dashed line, and — the part worth

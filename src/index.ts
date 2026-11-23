@@ -130,6 +130,7 @@ export {
   formatCompactNumber,
   formatFullNumber,
   formatDateTick,
+  dateTickFormatter,
   inferXPreset,
   CHART_BREAKPOINT,
 } from './components/Chart'
