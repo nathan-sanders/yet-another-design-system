@@ -101,7 +101,7 @@ instances — two exposed `_Code Line`s, Before and After, with a 1px rule betwe
 `Surface/Border` and `border-width/border` — and a plain `_Code Line` `Type=Hunk` across both sides
 for a hunk header, with no number, as the code draws it. An empty side is `Type=Context` with no line
 and no code. Each side's own `_Code Line` draws its gutter, so the split variants drop the block's
-absolute `Gutter` — the code's per-row gutter, mirrored. The tokens are coloured by range with the
+absolute `Gutter` — the code's per-row gutter, mirrored. The tokens are colored by range with the
 `Syntax/*` variables, the same tokenizing as the unified variants. The Docs Preview shows a split
 block under the two examples in both themes, and its theme.css diff now reads `css`.
 
