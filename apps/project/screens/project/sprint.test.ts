@@ -27,7 +27,9 @@ describe('Sprint 14', () => {
   it('runs ten weekdays with six left after today, a Thursday', () => {
     expect(workdays(sprint14)).toHaveLength(10)
     expect(daysLeft(sprint14)).toBe(6)
-    expect(sprintRange(sprint14)).toMatch(/^\w{3} \d+ – \d+$/)
+    // The frame's Nov 2 – 13 is one month, but today is this week's Thursday,
+    // so some weeks the sprint crosses one and the end gets its own month.
+    expect(sprintRange(sprint14)).toMatch(/^\w{3} \d+ – (\w{3} )?\d+$/)
   })
 
   it('burns down as drawn: 9, up to 10 when Allergen filters joins, then 9 and 8', () => {
