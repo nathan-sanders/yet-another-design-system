@@ -4,10 +4,11 @@ Read-only code that stands on its own: a source file, a terminal command, a conf
 diff.
 
 **Sources.** The Figma page `↪ Code Block` (`40006563:157818`): the `Code Block` set
-(`40006580:1235`, sixteen variants: `Container` Card | Section × `Header` × `Size` Default | Small
-× `Line Numbers`, plus `Title`, `Language`, `Language Label`, `Copy Button` and `Collapsible`
-properties and a `Code` slot) and the `_Code Line` set (`40006579:438`, twelve variants: `Type`
-Default | Highlighted | Added | Removed | Context | Hunk × `Size`). Docs frame `40006582:914`. Meta's
+(`40006580:1235`, twenty-four variants: `Container` Card | Section × `Header` × `Size` Default |
+Small × `Line Numbers` × `Split`, plus `Title`, `Language`, `Language Label`, `Copy Button` and
+`Collapsible` properties and a `Code` slot), the `_Code Line` set (`40006579:438`, twelve variants:
+`Type` Default | Highlighted | Added | Removed | Context | Hunk × `Size`) and the `_Code Split Row`
+set (`40006635:1269`, `Size`). Docs frame `40006582:914`. Meta's
 Astryx `CodeBlock` owns the API — one `code` string, a `language`, booleans for the chrome — and
 its anatomy, which the Figma set already follows (the headerless copy column is Astryx's rule,
 written into the set's description).
@@ -80,8 +81,8 @@ An unknown language, or `plaintext`, is plain text — not an error.
   which said how the block was drawing the code rather than what the code was (Yet Project's
   FINDINGS 137).
 
-**`split` is code-first: the file has no split variant yet.** Yet Project's review page asked for
-a Unified / Split switch (the frame draws the switch and only the unified side). A split diff is
+**`split` went code-first, and the file caught up the same day.** Yet Project's review page asked
+for a Unified / Split switch (the frame draws the switch and only the unified side). A split diff is
 one grid of rows, before | after, so a row's two sides always share its height, wrapped or not:
 context on both sides, a run of removed lines beside the run of added lines that replaced it with
 the shorter side left empty and unfilled, a hunk header spanning both. With `lineNumbers` each side
@@ -90,8 +91,24 @@ point is old and new numbering side by side; the unified block keeps its plain c
 is `splitRows` in `diff.ts`, node-tested. Each side is as wide as its longest line and the two share
 what is left; the before side carries the 1px rule between them, and each side draws its gutter
 per row, since the block's one absolute gutter can only stand in one place. It needs `diff`; on
-anything else it does nothing. **The file owes it a drawing** — a `Split` axis on `Code Block`, or
-a preview on the Docs frame — the same debt Popover's parts once were.
+anything else it does nothing.
+
+**How the file draws it.** `Split` is a variant axis on `Code Block`, but only eight of its sixteen
+combinations exist — `Split=true` with `Header=true` (Card and Section, both sizes, with and without
+numbers), each 800 wide so a side holds a real line. A headerless diff is a case nobody draws, and
+the empty cells in the variant grid say so. The split variants' `Code` slot holds `_Code Split Row`
+instances — two exposed `_Code Line`s, Before and After, with a 1px rule between bound to
+`Surface/Border` and `border-width/border` — and a plain `_Code Line` `Type=Hunk` across both sides
+for a hunk header, with no number, as the code draws it. An empty side is `Type=Context` with no line
+and no code. Each side's own `_Code Line` draws its gutter, so the split variants drop the block's
+absolute `Gutter` — the code's per-row gutter, mirrored. The tokens are coloured by range with the
+`Syntax/*` variables, the same tokenizing as the unified variants. The Docs Preview shows a split
+block under the two examples in both themes, and its theme.css diff now reads `css`.
+
+**Building it hit the clone trap again**: each cloned variant came back with five property
+references dropped (Title, Language, the Copy and Chevron toggles, and the slot), and they had to be
+copied back node by node after appending to the set. A clone that renders complete is not a clone
+that is wired; read `componentPropertyReferences` back.
 
 Astryx props kept because they are behaviour the canvas cannot show: `startLineNumber`, `wrap`,
 `maxHeight`, `diff`, `onCopy` / `onCopyError`, and `endContent` — renamed **`actions`**, the word
