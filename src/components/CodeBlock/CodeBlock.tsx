@@ -93,11 +93,13 @@ const block = tv({
     wrap: {
       true: { lines: 'w-full' },
     },
-    // Before | after, in one grid so a row's two sides share its height. Each
-    // side is as wide as its longest line and they share any room left over;
-    // wrapped, they split the width evenly.
+    // Before | after, in one grid so a row's two sides share its height. The
+    // sides split the block's width evenly and a side with a longer line
+    // grows past its half, scrolling the block. `w-full` and not `w-max`: a
+    // max-content grid sizes both fr tracks to the longer side, so one long
+    // side doubled the width and pushed the other out of view.
     split: {
-      true: { lines: 'grid grid-cols-[repeat(2,minmax(max-content,1fr))]' },
+      true: { lines: 'grid w-full grid-cols-[repeat(2,minmax(max-content,1fr))]' },
     },
   },
   compoundVariants: [{ split: true, wrap: true, class: { lines: 'grid-cols-2' } }],
