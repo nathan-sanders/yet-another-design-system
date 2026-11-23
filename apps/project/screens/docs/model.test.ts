@@ -147,6 +147,20 @@ describe('the editor', () => {
     expect(blocks[1]).toEqual({ id: 'a', kind: 'paragraph', text: '', taskId: 'aus-24' })
   })
 
+  it('keeps bold, italic and links on both sides of a break, and through a join', () => {
+    const rich: DocBlock[] = [
+      { id: 'r', kind: 'paragraph', text: 'a **bold** [link](https://x.co)' },
+    ]
+    const split = splitBlock(rich, 'r', 'a **bold** [link](https://x.co)', 4, 'n')
+    expect(split.blocks).toEqual([
+      { id: 'r', kind: 'paragraph', text: 'a **bo**' },
+      { id: 'n', kind: 'paragraph', text: '**ld** [link](https://x.co)' },
+    ])
+    const joined = joinBack(split.blocks, 'n', '**ld** [link](https://x.co)')!
+    expect(joined.blocks).toEqual(rich)
+    expect(joined.caret).toEqual({ id: 'r', offset: 4 })
+  })
+
   it('makes a bulleted line a paragraph before it joins anything', () => {
     expect(joinBack(lines, 'a', 'Permits clear')?.blocks[1]).toMatchObject({
       id: 'a',

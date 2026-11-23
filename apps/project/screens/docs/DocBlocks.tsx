@@ -1,4 +1,5 @@
-import { AtSign, Check, MessageCircle, Plus, X } from 'lucide-react'
+import { Fragment, type ReactNode } from 'react'
+import { AtSign, Bold, Check, Italic, Link2, MessageCircle, Plus, X } from 'lucide-react'
 
 import { Avatar } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
@@ -17,6 +18,7 @@ import { latestUpdates } from '../../data/updates'
 import { YakMark } from '../../yak/YakMark'
 import { taskKey } from '../project/paths'
 import { dueSoon, type DiffRow } from './model'
+import { isInternal, LINK_CLASS, readRuns } from './richText'
 
 /** A task as a view-only Token at the end of a line, its status glyph first, as the checklist draws it. */
 export function TaskToken({ task }: { task: Task }) {
@@ -112,16 +114,26 @@ export function StatusBlock({ project, onRemove }: { project: Project; onRemove?
 }
 
 /**
- * The selected paragraph's bar (`Selection toolbar`): Create task, Ask Yak
- * and Comment, small ghost Buttons in a 4px-padded box under it. They take
- * no focus on a press, so a selection of words inside the paragraph is still
- * there when Comment reads it.
+ * The bar under selected words (`Selection toolbar`): Bold, Italic and Link,
+ * then Create task, Ask Yak and Comment, small ghost Buttons in a 4px-padded
+ * box. The first three are toggles, pressed when every selected word has
+ * the formatting. None takes focus on a press, so the selection is still
+ * there when a button reads it.
  */
 export function SelectionToolbar({
+  format,
   onCreateTask,
   onAskYak,
   onComment,
 }: {
+  format?: {
+    bold: boolean
+    italic: boolean
+    link: boolean
+    onBold: () => void
+    onItalic: () => void
+    onLink: () => void
+  }
   onCreateTask: () => void
   onAskYak: () => void
   onComment: () => void
@@ -130,9 +142,47 @@ export function SelectionToolbar({
   return (
     <div
       role="toolbar"
-      aria-label="Paragraph"
-      className="flex gap-1 self-start rounded-md border border-surface-border bg-surface-background-primary p-1 shadow-low"
+      aria-label="Selected words"
+      className="flex items-center gap-1 self-start rounded-md border border-surface-border bg-surface-background-primary p-1 shadow-low"
     >
+      {format ? (
+        <>
+          <Button
+            appearance="ghost"
+            size="small"
+            startIcon={Bold}
+            aria-label="Bold"
+            aria-pressed={format.bold}
+            title="Bold (⌘B)"
+            className="aria-pressed:bg-surface-background-subtle"
+            onClick={format.onBold}
+            {...keep}
+          />
+          <Button
+            appearance="ghost"
+            size="small"
+            startIcon={Italic}
+            aria-label="Italic"
+            aria-pressed={format.italic}
+            title="Italic (⌘I)"
+            className="aria-pressed:bg-surface-background-subtle"
+            onClick={format.onItalic}
+            {...keep}
+          />
+          <Button
+            appearance="ghost"
+            size="small"
+            startIcon={Link2}
+            aria-label="Link"
+            aria-pressed={format.link}
+            title="Link (⌘K)"
+            className="aria-pressed:bg-surface-background-subtle"
+            onClick={format.onLink}
+            {...keep}
+          />
+          <span aria-hidden className="mx-0.5 h-4 w-px bg-surface-border" />
+        </>
+      ) : null}
       <Button appearance="ghost" size="small" startIcon={Plus} onClick={onCreateTask} {...keep}>
         Create task
       </Button>
@@ -149,6 +199,30 @@ export function SelectionToolbar({
         Comment
       </Button>
     </div>
+  )
+}
+
+/** A line's saved words drawn read-only, bold, italic and links kept, its dates written out. */
+export function RichText({ md }: { md: string }) {
+  return (
+    <>
+      {readRuns(md).map((run, i) => {
+        let node: ReactNode = run.text
+        if (run.italic) node = <em>{node}</em>
+        if (run.bold) node = <strong>{node}</strong>
+        if (run.href)
+          node = (
+            <a
+              href={run.href}
+              {...(isInternal(run.href) ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+              className={LINK_CLASS}
+            >
+              {node}
+            </a>
+          )
+        return <Fragment key={i}>{node}</Fragment>
+      })}
+    </>
   )
 }
 
@@ -229,11 +303,13 @@ export function DiffLine({
   const removed = row.kind === 'removed'
   const task = 'taskId' in block ? tasks.find((t) => t.id === block.taskId) : undefined
   const words =
-    block.kind === 'tasks'
-      ? 'Task list'
-      : block.kind === 'status'
-        ? 'Project status'
-        : datedText(block.text)
+    block.kind === 'tasks' ? (
+      'Task list'
+    ) : block.kind === 'status' ? (
+      'Project status'
+    ) : (
+      <RichText md={block.text} />
+    )
 
   if (!added && !removed) {
     if (block.kind === 'tasks') return <TaskListBlock project={project} tasks={tasks} />

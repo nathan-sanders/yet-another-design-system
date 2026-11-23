@@ -1,6 +1,18 @@
 import type { DocBlock, DocVersion, ProjectDoc } from '../../data/docs'
 import type { Task } from '../../data/types'
-import { addDays, datedText, day, today } from '../../data/dates'
+import { addDays, day, today } from '../../data/dates'
+import {
+  inlineLength,
+  insertPlain,
+  joinInline,
+  parseInline,
+  plainText,
+  readInline,
+  readRuns,
+  serializeInline,
+  sliceRuns,
+  splitInline,
+} from './richText'
 
 /** All docs' segments: every doc, yours, and those shared with you by name. */
 export type DocsShow = 'all' | 'mine' | 'shared'
@@ -158,11 +170,23 @@ export const newBlockId = () => `block-new-${++made}`
 export interface Caret {
   id: string
   offset: number
+  /** The other end, when the edit leaves words selected (⌘B keeps them selected). */
+  end?: number
 }
 
-/** A line's words as you read them, which is how an edited line is saved. */
+/** A line's words as you read them, with no formatting: for counting, quoting and labels. */
 export function readText(block: TextBlock): string {
-  return datedText(block.text)
+  return plainText(readRuns(block.text))
+}
+
+/**
+ * A line as the editor holds it: its dates written out and its bold, italic
+ * and links kept (`richText.ts`). An edited line is saved like this. Every
+ * edit below takes a line's words in this form and counts the caret in the
+ * characters you see.
+ */
+export function readLine(block: TextBlock): string {
+  return readInline(block.text)
 }
 
 /** The same line as another kind, keeping its words and its task. A to-do starts open. */
@@ -234,9 +258,8 @@ export function splitBlock(
     return { blocks: out, caret: { id, offset: 0 } }
   }
 
-  const head = text.slice(0, at)
-  const tail = text.slice(at)
-  const tailTakesTask = Boolean(block.taskId) && tail.trim() !== ''
+  const [head, tail] = splitInline(text, at)
+  const tailTakesTask = Boolean(block.taskId) && plainText(parseInline(tail)).trim() !== ''
   const kept: TextBlock = { ...block, text: head }
   if (tailTakesTask) delete kept.taskId
   const below: TextBlock = { ...blank(), text: tail }
@@ -292,14 +315,18 @@ export function joinBack(
       caret: up ? { id: up.id, offset: readText(up).length } : undefined,
     }
   }
-  const aboveText = readText(above)
-  if (above.taskId && block.taskId)
-    return { blocks, caret: { id: above.id, offset: aboveText.length } }
+  const aboveText = readLine(above)
+  const meet = inlineLength(aboveText)
+  if (above.taskId && block.taskId) return { blocks, caret: { id: above.id, offset: meet } }
   const taskId = above.taskId ?? block.taskId
-  const into: TextBlock = { ...above, text: aboveText + text, ...(taskId ? { taskId } : {}) }
+  const into: TextBlock = {
+    ...above,
+    text: joinInline(aboveText, text),
+    ...(taskId ? { taskId } : {}),
+  }
   return {
     blocks: blocks.flatMap((b) => (b.id === id ? [] : b.id === above.id ? [into] : [b])),
-    caret: { id: above.id, offset: aboveText.length },
+    caret: { id: above.id, offset: meet },
     joined: { from: id, into: above.id },
   }
 }
@@ -319,7 +346,7 @@ export function joinForward(
     below.kind === 'paragraph'
       ? withText
       : withText.map((b) => (b.id === below.id ? turnInto(below, 'paragraph') : b))
-  return joinBack(plain, below.id, readText(below))
+  return joinBack(plain, below.id, readLine(below))
 }
 
 /** A block one place up or down; the same blocks when it is already at that end. */
@@ -349,23 +376,30 @@ export function pasteLines(
   const index = blocks.findIndex((b) => b.id === id)
   const block = blocks[index]
   const lines = pasted.replace(/\r\n?/g, '\n').split('\n')
+  const runs = parseInline(text)
   if (!isText(block) || lines.length < 2) {
-    const next = text.slice(0, at) + pasted + text.slice(at)
+    const next = serializeInline(insertPlain(runs, at, pasted))
     return {
       blocks: blocks.map((b) => (b.id === id && isText(b) ? { ...b, text: next } : b)),
       caret: { id, offset: at + pasted.length },
     }
   }
-  const tail = text.slice(at)
-  const first: TextBlock = { ...block, text: text.slice(0, at) + lines[0] }
+  const tail = sliceRuns(runs, at)
+  const first: TextBlock = {
+    ...block,
+    text: serializeInline([...sliceRuns(runs, 0, at), { text: lines[0] }]),
+  }
   const rest = lines.slice(1).map((line, i, all): TextBlock => {
     const marker = SHORTCUTS.find(([m]) => line.startsWith(m))
     const words = marker ? line.slice(marker[0].length) : line
-    const text = i === all.length - 1 ? words + tail : words
+    const text = serializeInline([{ text: words }, ...(i === all.length - 1 ? tail : [])])
     return turnInto({ id: makeId(), kind: 'paragraph', text }, marker?.[1] ?? 'paragraph')
   })
   const end = rest[rest.length - 1]
   const out = [...blocks]
   out.splice(index, 1, first, ...rest)
-  return { blocks: out, caret: { id: end.id, offset: end.text.length - tail.length } }
+  return {
+    blocks: out,
+    caret: { id: end.id, offset: inlineLength(end.text) - plainText(tail).length },
+  }
 }

@@ -18,31 +18,34 @@ export function caretRange(el: HTMLElement): { start: number; end: number } | nu
   return { start, end: before.toString().length }
 }
 
-/** Focuses `el` with the caret `offset` characters in, or at the end. */
-export function placeCaret(el: HTMLElement, offset: number | 'end') {
+/** A character count inside `el` as a DOM position, in the text node that holds it. */
+function position(el: HTMLElement, offset: number): [Node, number] {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+  let left = offset
+  let node = walker.nextNode()
+  let last: Node | null = null
+  while (node) {
+    const length = node.textContent?.length ?? 0
+    if (left <= length) return [node, left]
+    left -= length
+    last = node
+    node = walker.nextNode()
+  }
+  // Past the end: the end of the last text, not a place on the element after
+  // it, where a caret has no box and `caretLine` would read it as the first line.
+  return last ? [last, last.textContent?.length ?? 0] : [el, el.childNodes.length]
+}
+
+/** Focuses `el` with the caret `offset` characters in (or at the end), or a selection to `end`. */
+export function placeCaret(el: HTMLElement, offset: number | 'end', end?: number) {
   el.focus({ preventScroll: false })
   const selection = window.getSelection()
   if (!selection) return
+  const length = el.textContent?.length ?? 0
   const range = document.createRange()
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-  // The end is the end of the last text, not a place on the element after it:
-  // a caret there has no box, and `caretLine` would read it as the first line.
-  let left = offset === 'end' ? (el.textContent?.length ?? 0) : offset
-  let node = walker.nextNode()
-  while (node) {
-    const length = node.textContent?.length ?? 0
-    if (left <= length) {
-      range.setStart(node, left)
-      range.collapse(true)
-      selection.removeAllRanges()
-      selection.addRange(range)
-      return
-    }
-    left -= length
-    node = walker.nextNode()
-  }
-  range.selectNodeContents(el)
-  range.collapse(false)
+  range.setStart(...position(el, offset === 'end' ? length : offset))
+  if (end !== undefined && end !== offset) range.setEnd(...position(el, end))
+  else range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
 }

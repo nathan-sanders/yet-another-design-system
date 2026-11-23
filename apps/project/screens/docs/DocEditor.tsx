@@ -8,6 +8,7 @@ import {
   type ClipboardEvent,
   type FormEvent,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactNode,
   type RefObject,
 } from 'react'
@@ -24,10 +25,12 @@ import {
   ListTodo,
   MessageCircle,
   MessageSquare,
+  Pencil,
   Pilcrow,
   Plus,
   AtSign,
   Trash2,
+  Unlink,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -37,17 +40,36 @@ import { Checkbox } from '../../../../src/components/Checkbox'
 import { DragAndDrop, DragHandle, reorder, Sortable } from '../../../../src/components/DragAndDrop'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Icon } from '../../../../src/components/Icon'
+import { Input } from '../../../../src/components/Input'
+import { Link } from '../../../../src/components/Link'
 import { Menu } from '../../../../src/components/Menu'
 import { popup } from '../../../../src/components/Menu/styles'
 import { cn } from '../../../../src/lib/cn'
 import { statusFor } from '../../components/taskMeta'
-import { datedText } from '../../data/dates'
 import type { DocBlock } from '../../data/docs'
 import type { Person } from '../../data/people'
 import type { Project, Task } from '../../data/types'
 import { taskKey } from '../project/paths'
 import { caretLine, caretRange, caretRect, placeCaret } from './caret'
 import { SelectionToolbar, StatusBlock, TaskListBlock, TaskToken } from './DocBlocks'
+import {
+  domIsCanonical,
+  hasMark,
+  inlineShortcut,
+  isInternal,
+  linkAround,
+  normalizeHref,
+  parseInline,
+  plainText,
+  runsFromDom,
+  runsToNodes,
+  serializeInline,
+  setLink,
+  sliceRuns,
+  toggleMark,
+  type Mark,
+  type Run,
+} from './richText'
 import {
   isText,
   joinBack,
@@ -57,6 +79,7 @@ import {
   neighbourText,
   newBlockId,
   pasteLines,
+  readLine,
   readText,
   splitBlock,
   turnInto,
@@ -73,7 +96,7 @@ const KINDS: { kind: TextKind; label: string; description: string; icon: LucideI
   { kind: 'todo', label: 'To-do list', description: 'Lines to tick off · []', icon: ListChecks },
 ]
 
-type Run =
+type Command =
   { run: 'turn'; kind: TextKind } | { run: 'linked-task' | 'task-list' | 'status' | 'yak-draft' }
 
 interface Option {
@@ -82,7 +105,7 @@ interface Option {
   description?: string
   icon: LucideIcon
   group: string
-  action: Run | { run: 'link'; task: Task }
+  action: Command | { run: 'link'; task: Task }
 }
 
 /** "Add to this doc", from `Docs - Slash menu` (`40006309:39451`), after the line kinds. */
@@ -160,8 +183,48 @@ interface SlashMenu {
 interface Selected {
   blockId: string
   words: string
+  start: number
+  end: number
   top: number
   left: number
+}
+
+/** A link being written or changed, over the words it is for (⌘K). */
+interface Linking {
+  blockId: string
+  start: number
+  end: number
+  href: string
+  top: number
+  left: number
+}
+
+/** The caret in a link: its address, and ways to change or remove it, under the line. */
+type LinkAt = Linking
+
+/** Whether a saved line has no words in it. */
+const blank = (md: string) => plainText(parseInline(md)).trim() === ''
+
+/** A line's formatted words with the characters between two counts taken out. */
+const cut = (runs: Run[], start: number, end: number) =>
+  serializeInline([...sliceRuns(runs, 0, start), ...sliceRuns(runs, end)])
+
+/** A line redrawn from its runs, with the caret put back where it was. */
+function redraw(el: HTMLElement, runs: Run[], caret: number) {
+  el.replaceChildren(...runsToNodes(runs))
+  placeCaret(el, caret)
+}
+
+/** Where a box goes under the caret or the selection, inside the block it belongs to. */
+function under(el: HTMLElement, width: number) {
+  const box = el.closest('[data-block]')!.getBoundingClientRect()
+  const selection = window.getSelection()
+  const range = selection?.rangeCount ? selection.getRangeAt(0) : null
+  const rect = range && !range.collapsed ? range.getBoundingClientRect() : caretRect(el)
+  return {
+    top: Math.round(rect.bottom - box.top + 4),
+    left: Math.round(Math.max(0, Math.min(rect.left - box.left, box.width - width))),
+  }
 }
 
 /** What a block is called by its grip and its menu: "Move Opening checklist". */
@@ -228,7 +291,12 @@ export function DocEditor(props: DocEditorProps) {
   const pending = useRef<Caret | null>(null)
   const [menu, setMenu] = useState<SlashMenu | null>(null)
   const [selected, setSelected] = useState<Selected | null>(null)
+  const [linking, setLinking] = useState<Linking | null>(null)
+  const [linkAt, setLinkAt] = useState<LinkAt | null>(null)
   const toolbarRef = useRef<HTMLDivElement>(null)
+  const linkBarRef = useRef<HTMLDivElement>(null)
+  // Where a typed **closing** left off, so the next words are plain again.
+  const closedAt = useRef<{ id: string; at: number; mark: Mark } | null>(null)
   const menuId = useId()
 
   const register = useCallback((id: string, el: HTMLElement | null) => {
@@ -243,7 +311,7 @@ export function DocEditor(props: DocEditorProps) {
     const el = elements.current.get(want.id)
     if (!el) return
     pending.current = null
-    placeCaret(el, want.offset)
+    placeCaret(el, want.offset, want.end)
   })
 
   const apply = (next: DocBlock[], caret?: Caret) => {
@@ -251,7 +319,7 @@ export function DocEditor(props: DocEditorProps) {
     if (next !== blocks) edit(() => next)
     else if (caret) {
       const el = elements.current.get(caret.id)
-      if (el) placeCaret(el, caret.offset)
+      if (el) placeCaret(el, caret.offset, caret.end)
       pending.current = null
     }
   }
@@ -277,41 +345,95 @@ export function DocEditor(props: DocEditorProps) {
     apply([...blocks, { id, kind: 'paragraph', text: '' }], { id, offset: 0 })
   }
 
-  // Words selected inside one line put the selection bar under them.
+  // Words selected inside one line put the selection bar under them; the
+  // caret in a link puts the link bar under it.
   useEffect(() => {
     const onChange = () => {
-      if (toolbarRef.current?.contains(document.activeElement)) return
+      const active = document.activeElement
+      if (toolbarRef.current?.contains(active) || linkBarRef.current?.contains(active)) return
       const selection = window.getSelection()
-      if (!selection || selection.isCollapsed || !selection.rangeCount) return setSelected(null)
-      const range = selection.getRangeAt(0)
+      const range = selection?.rangeCount ? selection.getRangeAt(0) : null
       const lineOf = (node: Node) =>
         (node instanceof Element ? node : node.parentElement)?.closest<HTMLElement>(
           '[data-editable]',
         )
-      const line = lineOf(range.startContainer)
-      const words = selection.toString().trim()
-      if (!line || line !== lineOf(range.endContainer) || !words) return setSelected(null)
-      const box = line.closest('[data-block]')!.getBoundingClientRect()
-      const rect = range.getBoundingClientRect()
-      const next: Selected = {
-        blockId: line.dataset.editable!,
-        words,
-        top: Math.round(rect.bottom - box.top + 4),
-        left: Math.round(Math.max(0, Math.min(rect.left - box.left, box.width - 280))),
+      const line = range ? lineOf(range.startContainer) : null
+      const at = line ? caretRange(line) : null
+      if (!range || !line || !at || line !== lineOf(range.endContainer)) {
+        setSelected(null)
+        setLinkAt(null)
+        return
       }
-      setSelected((was) =>
-        was &&
-        was.blockId === next.blockId &&
-        was.words === next.words &&
-        was.top === next.top &&
-        was.left === next.left
-          ? was
-          : next,
-      )
+      const id = line.dataset.editable!
+      if (range.collapsed) {
+        setSelected(null)
+        const link = linkAround(runsFromDom(line), at.start)
+        if (!link || active !== line) return setLinkAt(null)
+        const next = { blockId: id, ...link, ...under(line, 320) }
+        setLinkAt((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next))
+        return
+      }
+      setLinkAt(null)
+      const words = selection!.toString().trim()
+      if (!words) return setSelected(null)
+      const next: Selected = { blockId: id, words, ...at, ...under(line, 400) }
+      setSelected((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next))
     }
     document.addEventListener('selectionchange', onChange)
     return () => document.removeEventListener('selectionchange', onChange)
   }, [])
+
+  // ---- Bold, italic and links
+
+  /** ⌘B or ⌘I on the selected words, which stay selected. */
+  const format = (id: string, mark: Mark, range: { start: number; end: number }) => {
+    const el = elements.current.get(id)
+    if (!el || range.start === range.end) return
+    const next = serializeInline(toggleMark(runsFromDom(el), range.start, range.end, mark))
+    apply(
+      setLine(id, (b) => ({ ...b, text: next })),
+      { id, offset: range.start, end: range.end },
+    )
+  }
+
+  /**
+   * ⌘K: the link editor over the selected words, or over the whole link the
+   * caret is in. With neither, there is nothing to link.
+   */
+  const openLinkEditor = (id: string, given?: { start: number; end: number }) => {
+    const el = elements.current.get(id)
+    const range = given ?? (el ? caretRange(el) : null)
+    if (!el || !range) return
+    const runs = runsFromDom(el)
+    const around = linkAround(runs, range.start)
+    const span =
+      range.start === range.end ? (around ? { start: around.start, end: around.end } : null) : range
+    if (!span) return
+    const href = hasMark(runs, span.start, span.end, 'href') ? (around?.href ?? '') : ''
+    setSelected(null)
+    setLinkAt(null)
+    setLinking({ blockId: id, ...span, href, ...under(el, 360) })
+  }
+
+  /** A link put on (or, with no address, taken off) a stretch of a line. */
+  const linkWords = (id: string, start: number, end: number, href?: string) => {
+    const el = elements.current.get(id)
+    if (!el) return
+    const next = serializeInline(setLink(runsFromDom(el), start, end, href))
+    setLinking(null)
+    setLinkAt(null)
+    apply(
+      setLine(id, (b) => ({ ...b, text: next })),
+      { id, offset: end },
+    )
+  }
+
+  const closeLinkEditor = () => {
+    const open = linking
+    setLinking(null)
+    const el = open ? elements.current.get(open.blockId) : undefined
+    if (el && open) placeCaret(el, open.start, open.end)
+  }
 
   // ---- The slash menu
 
@@ -345,11 +467,10 @@ export function DocEditor(props: DocEditorProps) {
     }
   }
 
-  /** A line's words with the slash and what was typed after it taken out. */
+  /** A line's words with the slash and what was typed after it taken out, formatting kept. */
   const withoutSlash = (el: HTMLElement, open: SlashMenu) => {
-    const text = el.textContent ?? ''
-    const caret = caretRange(el)?.start ?? text.length
-    return text.slice(0, open.start) + text.slice(Math.max(caret, open.start))
+    const caret = caretRange(el)?.start ?? (el.textContent ?? '').length
+    return cut(runsFromDom(el), open.start, Math.max(caret, open.start))
   }
 
   const setLine = (id: string, update: (block: TextBlock) => TextBlock) =>
@@ -407,7 +528,7 @@ export function DocEditor(props: DocEditorProps) {
       }
       return apply(
         setLine(block.id, (b) =>
-          rest.trim() === '' && b.kind === 'paragraph'
+          blank(rest) && b.kind === 'paragraph'
             ? { id: b.id, kind: 'item', text: '', taskId: task.id }
             : { ...b, text: rest, taskId: task.id },
         ),
@@ -423,7 +544,7 @@ export function DocEditor(props: DocEditorProps) {
     }
     const index = blocks.indexOf(block)
     const out = [...blocks]
-    if (rest.trim() === '') out.splice(index, 1, card)
+    if (blank(rest)) out.splice(index, 1, card)
     else out.splice(index, 1, { ...block, text: rest }, card)
     const cardAt = out.indexOf(card)
     let next = out[cardAt + 1]
@@ -442,20 +563,57 @@ export function DocEditor(props: DocEditorProps) {
     // An emptied line can keep a stray <br>, which stops `:empty` showing its placeholder.
     if (text === '' && el.childNodes.length) el.replaceChildren()
     const caret = caretRange(el)?.start ?? text.length
+    const typed = (event.nativeEvent as InputEvent).data
+    let runs = runsFromDom(el)
 
     // On any line, as in Notion: "[] " in a bulleted line makes it a to-do.
     const shortcut = menu ? null : markdownShortcut(text, caret)
     if (shortcut && shortcut.kind !== block.kind) {
-      const words = text.slice(shortcut.marker.length)
+      const words = serializeInline(sliceRuns(runs, shortcut.marker.length))
       return apply(
         setLine(block.id, (b) => turnInto({ ...b, text: words }, shortcut.kind)),
         { id: block.id, offset: 0 },
       )
     }
 
-    edit((all) => all.map((b) => (b.id === block.id && isText(b) ? { ...b, text } : b)))
+    // Typing just after a link writes plain words, as Notion does: the browser
+    // would otherwise carry the link on over them.
+    const was = typed ? linkAround(parseInline(readLine(block)), caret - typed.length) : null
+    const closed = typed === '*' && !menu ? inlineShortcut(runs, caret) : null
+    const after = closedAt.current
+    closedAt.current = null
+    if (closed) {
+      // **words** and *words*, closed: the stars go and the words take the mark.
+      runs = closed.runs
+      redraw(el, runs, closed.caret)
+      closedAt.current = { id: block.id, at: closed.caret, mark: closed.mark }
+    } else if (
+      typed &&
+      after?.id === block.id &&
+      after.at === caret - typed.length &&
+      hasMark(runs, after.at, caret, after.mark)
+    ) {
+      // The caret sits at the end of the words just marked, and the browser
+      // would carry the mark on; what is typed next is plain, as in Notion.
+      runs = toggleMark(runs, after.at, caret, after.mark)
+      redraw(el, runs, caret)
+    } else if (
+      typed &&
+      was &&
+      was.end === caret - typed.length &&
+      hasMark(runs, caret - typed.length, caret, 'href')
+    ) {
+      runs = setLink(runs, caret - typed.length, caret)
+      redraw(el, runs, caret)
+    } else if (!domIsCanonical(el, runs)) {
+      // Whatever else the browser left — a styled <span> after a deletion
+      // across marks, an <u> — is drawn again from what it means.
+      redraw(el, runs, caret)
+    }
 
-    const typed = (event.nativeEvent as InputEvent).data
+    const md = serializeInline(runs)
+    edit((all) => all.map((b) => (b.id === block.id && isText(b) ? { ...b, text: md } : b)))
+
     if (!menu || menu.blockId !== block.id) {
       if (typed === '/' && (caret === 1 || /\s/.test(text[caret - 2] ?? ' ')))
         setMenu(menuAt(el, block.id, caret - 1, 'commands'))
@@ -468,14 +626,22 @@ export function DocEditor(props: DocEditorProps) {
     setMenu({ ...menu, query, active: 0 })
   }
 
+  /**
+   * A paste is always taken as plain words, so nothing styled comes in from
+   * another page. An address pasted over selected words links them; lines
+   * become blocks.
+   */
   const onPaste = (block: TextBlock) => (event: ClipboardEvent<HTMLElement>) => {
-    const pasted = event.clipboardData.getData('text/plain')
-    if (!/\r|\n/.test(pasted)) return
     event.preventDefault()
+    const pasted = event.clipboardData.getData('text/plain')
     const el = event.currentTarget
     const text = el.textContent ?? ''
     const range = caretRange(el) ?? { start: text.length, end: text.length }
-    const without = text.slice(0, range.start) + text.slice(range.end)
+    const runs = runsFromDom(el)
+    const address = /^(https?:\/\/|mailto:)\S+$/i.test(pasted.trim()) ? pasted.trim() : null
+    if (address && range.start !== range.end)
+      return linkWords(block.id, range.start, range.end, address)
+    const without = cut(runs, range.start, range.end)
     const result = pasteLines(blocks, block.id, without, range.start, pasted, newBlockId)
     apply(result.blocks, result.caret)
   }
@@ -493,6 +659,19 @@ export function DocEditor(props: DocEditorProps) {
     const text = el.textContent ?? ''
     const range = caretRange(el) ?? { start: text.length, end: text.length }
     const collapsed = range.start === range.end
+
+    const mod = (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey
+    const letter = event.key.toLowerCase()
+    if (mod && (letter === 'b' || letter === 'i')) {
+      event.preventDefault()
+      return format(block.id, letter === 'b' ? 'bold' : 'italic', range)
+    }
+    if (mod && letter === 'k') {
+      event.preventDefault()
+      return openLinkEditor(block.id, range)
+    }
+    // No underline here: the browser's own would come and go on the next keystroke.
+    if (mod && letter === 'u') return event.preventDefault()
 
     if (menu?.blockId === block.id) {
       const n = options.length
@@ -523,13 +702,13 @@ export function DocEditor(props: DocEditorProps) {
       case 'Enter': {
         event.preventDefault()
         if (event.shiftKey) return
-        const words = text.slice(0, range.start) + text.slice(range.end)
+        const words = cut(runsFromDom(el), range.start, range.end)
         const result = splitBlock(blocks, block.id, words, range.start, newBlockId())
         return apply(result.blocks, result.caret)
       }
       case 'Backspace': {
         if (!collapsed || range.start !== 0) return
-        const result = joinBack(blocks, block.id, text)
+        const result = joinBack(blocks, block.id, serializeInline(runsFromDom(el)))
         if (!result) return
         event.preventDefault()
         if (result.joined) props.onJoined(result.joined.from, result.joined.into)
@@ -537,7 +716,7 @@ export function DocEditor(props: DocEditorProps) {
       }
       case 'Delete': {
         if (!collapsed || range.start !== text.length) return
-        const result = joinForward(blocks, block.id, text)
+        const result = joinForward(blocks, block.id, serializeInline(runsFromDom(el)))
         if (!result) return
         event.preventDefault()
         if (result.joined) props.onJoined(result.joined.from, result.joined.into)
@@ -595,6 +774,21 @@ export function DocEditor(props: DocEditorProps) {
     const from = blocks.findIndex((b) => b.id === active.id)
     const to = blocks.findIndex((b) => b.id === over.id)
     apply(reorder(blocks, from, to))
+  }
+
+  /** The selection bar's Bold, Italic and Link, pressed when every selected word has it. */
+  const formatState = (sel: Selected) => {
+    const el = elements.current.get(sel.blockId)
+    const runs = el ? runsFromDom(el) : []
+    const range = { start: sel.start, end: sel.end }
+    return {
+      bold: hasMark(runs, sel.start, sel.end, 'bold'),
+      italic: hasMark(runs, sel.start, sel.end, 'italic'),
+      link: hasMark(runs, sel.start, sel.end, 'href'),
+      onBold: () => format(sel.blockId, 'bold', range),
+      onItalic: () => format(sel.blockId, 'italic', range),
+      onLink: () => openLinkEditor(sel.blockId, range),
+    }
   }
 
   const lone = blocks.length === 1 && isText(blocks[0]) && readText(blocks[0]) === ''
@@ -658,7 +852,7 @@ export function DocEditor(props: DocEditorProps) {
                                   onValueChange={(kind: TextKind) =>
                                     apply(
                                       setLine(block.id, (b) =>
-                                        turnInto({ ...b, text: readText(b) }, kind),
+                                        turnInto({ ...b, text: readLine(b) }, kind),
                                       ),
                                       { id: block.id, offset: readText(block).length },
                                     )
@@ -810,7 +1004,7 @@ export function DocEditor(props: DocEditorProps) {
                     />
                   ) : null}
 
-                  {selected?.blockId === block.id && !menu ? (
+                  {selected?.blockId === block.id && !menu && !linking ? (
                     <div
                       ref={toolbarRef}
                       data-drag-ignore
@@ -818,9 +1012,60 @@ export function DocEditor(props: DocEditorProps) {
                       style={{ top: selected.top, left: selected.left }}
                     >
                       <SelectionToolbar
+                        format={formatState(selected)}
                         onCreateTask={() => props.onCreateTask(block.id, selected.words)}
                         onAskYak={() => props.onAskYak(block.id)}
                         onComment={() => props.onComment(block.id, selected.words)}
+                      />
+                    </div>
+                  ) : null}
+
+                  {linking?.blockId === block.id ? (
+                    <LinkEditor
+                      linking={linking}
+                      onApply={(href) => linkWords(block.id, linking.start, linking.end, href)}
+                      onRemove={() => linkWords(block.id, linking.start, linking.end)}
+                      onCancel={closeLinkEditor}
+                    />
+                  ) : null}
+
+                  {linkAt?.blockId === block.id && !linking && !menu ? (
+                    <div
+                      ref={linkBarRef}
+                      data-drag-ignore
+                      role="group"
+                      aria-label="Link"
+                      className={cn(
+                        popup(),
+                        'absolute z-20 max-w-80 flex-row items-center gap-1 py-1 pr-1 pl-3',
+                      )}
+                      style={{ top: linkAt.top, left: linkAt.left }}
+                    >
+                      <Link
+                        href={linkAt.href}
+                        external={!isInternal(linkAt.href)}
+                        className="inline-block min-w-0 truncate text-sm"
+                      >
+                        {linkAt.href.replace(/^(https?:\/\/|mailto:)/, '')}
+                      </Link>
+                      <Button
+                        appearance="ghost"
+                        size="small"
+                        startIcon={Pencil}
+                        className="shrink-0"
+                        onClick={() =>
+                          openLinkEditor(block.id, { start: linkAt.start, end: linkAt.end })
+                        }
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        appearance="ghost"
+                        size="small"
+                        startIcon={Unlink}
+                        aria-label="Remove link"
+                        className="shrink-0"
+                        onClick={() => linkWords(block.id, linkAt.start, linkAt.end)}
                       />
                     </div>
                   ) : null}
@@ -834,6 +1079,85 @@ export function DocEditor(props: DocEditorProps) {
       {/* The page under the last line: a click there writes on, as a page editor's does. */}
       <div aria-hidden className="min-h-24 flex-1 cursor-text" onClick={writeAtEnd} />
     </>
+  )
+}
+
+/** Draws a line's formatted words into it, unless what it holds already says the same. */
+function sync(el: HTMLElement, md: string) {
+  if (serializeInline(runsFromDom(el)) !== md) el.replaceChildren(...runsToNodes(parseInline(md)))
+}
+
+/**
+ * ⌘K's box, under the words it links: the address, Link to set it, and
+ * Remove when there is one already. Enter sets it, Escape puts the words back
+ * selected. A bare domain gets https; anything else that is not an address
+ * says so rather than making a link that goes nowhere.
+ */
+function LinkEditor({
+  linking,
+  onApply,
+  onRemove,
+  onCancel,
+}: {
+  linking: Linking
+  onApply: (href: string) => void
+  onRemove: () => void
+  onCancel: () => void
+}) {
+  const [address, setAddress] = useState(linking.href)
+  const [wrong, setWrong] = useState(false)
+  const messageId = useId()
+  return (
+    <form
+      data-drag-ignore
+      aria-label={linking.href ? 'Edit link' : 'Add a link'}
+      className={cn(popup(), 'absolute z-30 w-90 gap-1 p-2')}
+      style={{ top: linking.top, left: linking.left }}
+      onSubmit={(event) => {
+        event.preventDefault()
+        const href = normalizeHref(address)
+        if (href) onApply(href)
+        else setWrong(true)
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape') return
+        event.preventDefault()
+        onCancel()
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <Input
+          aria-label="Link address"
+          placeholder="Paste or type a link"
+          value={address}
+          onValueChange={(next) => {
+            setAddress(next)
+            setWrong(false)
+          }}
+          autoFocus
+          invalid={wrong}
+          aria-describedby={wrong ? messageId : undefined}
+          className="min-w-0 flex-1"
+        />
+        <Button type="submit" appearance="primary">
+          Link
+        </Button>
+        {linking.href ? (
+          <Button
+            type="button"
+            appearance="ghost"
+            startIcon={Unlink}
+            aria-label="Remove link"
+            onClick={onRemove}
+          />
+        ) : null}
+      </div>
+      {wrong ? (
+        <Text id={messageId} size="sm" className="text-content-danger" role="alert">
+          That isn’t a web address. Try one like example.com.
+        </Text>
+      ) : null}
+    </form>
   )
 }
 
@@ -878,7 +1202,9 @@ function LineContent({
   onBlur: () => void
   onToggle: (done: boolean) => void
 }) {
-  const value = datedText(block.text)
+  // The line as the editor holds it, formatted (`readLine`), and its plain words.
+  const value = readLine(block)
+  const words = readText(block)
   const element = useRef<HTMLElement | null>(null)
   const latest = useRef(value)
   latest.current = value
@@ -886,20 +1212,23 @@ function LineContent({
     (el: HTMLElement | null) => {
       element.current = el
       register(block.id, el)
-      if (el && el.textContent !== latest.current) el.textContent = latest.current
+      if (el) sync(el, latest.current)
     },
     [block.id, register],
   )
   useLayoutEffect(() => {
     const el = element.current
-    if (el && el.textContent !== value) el.textContent = value
+    if (el) sync(el, value)
   }, [value])
 
   const task = block.taskId ? tasks.find((t) => t.id === block.taskId) : undefined
   const done = block.kind === 'todo' && Boolean(block.done)
   const line = {
     ref: ref as never,
-    contentEditable: 'plaintext-only' as const,
+    // Not plaintext-only: the line holds <strong>, <em> and <a>. What the
+    // browser puts in is read back as runs on every keystroke, and a paste
+    // always arrives as plain words (`onPaste`).
+    contentEditable: 'true' as const,
     suppressContentEditableWarning: true,
     spellCheck: true,
     'data-editable': block.id,
@@ -919,6 +1248,15 @@ function LineContent({
     onKeyDown,
     onPaste,
     onBlur,
+    // ⌘-click (Ctrl-click) opens a link; a plain click puts the caret in it.
+    onClick: (event: MouseEvent<HTMLElement>) => {
+      const a = (event.target as Element).closest('a')
+      if (!a || !(event.metaKey || event.ctrlKey)) return
+      event.preventDefault()
+      const href = a.getAttribute('href') ?? ''
+      if (isInternal(href)) window.location.hash = href.slice(1)
+      else window.open(href, '_blank', 'noopener,noreferrer')
+    },
     className: cn(
       'min-h-[1lh] min-w-0 whitespace-pre-wrap outline-none',
       'empty:before:pointer-events-none empty:before:text-content-subtle',
@@ -954,7 +1292,7 @@ function LineContent({
         <Checkbox
           checked={done}
           onCheckedChange={onToggle}
-          aria-label={value ? `Done: ${value}` : 'Done'}
+          aria-label={words ? `Done: ${words}` : 'Done'}
           className="mt-0.5"
         />
       )}

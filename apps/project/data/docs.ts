@@ -41,6 +41,9 @@ export interface ProjectDoc {
 /**
  * One block of a doc. Text is prose with its dates written `{2026-11-18}` for
  * `datedText`, until someone edits it here and it is saved as they read it.
+ * Bold, italic and links are written `**bold**`, `*italic*` and
+ * `[words](address)` (`screens/docs/richText.ts`); a link to another doc is
+ * its hash route.
  * `taskId` puts a task's Token at the end of the line, as the checklist does.
  */
 export type DocBlock =
@@ -79,7 +82,7 @@ export interface DocThread {
 
 const why = 'Why Austin, why now'
 const whyBody =
-  'South Congress gives us a lunch crowd and weekend foot traffic, and it’s a three-hour drive from the Dallas team. We want to open before the January health resolutions run out.'
+  'South Congress gives us a **lunch crowd** and weekend foot traffic, and it’s a three-hour drive from the Dallas team. We want to open *before* the January health resolutions run out.'
 
 const oct26: DocBlock[] = [
   { id: 'why', kind: 'heading', text: why },
@@ -112,7 +115,7 @@ const current: DocBlock[] = [
   {
     id: 'soft-open',
     kind: 'paragraph',
-    text: 'Soft open runs {2027-01-08} to {2027-01-10:d} for friends and family, with Katie handling invites.',
+    text: 'Soft open runs {2027-01-08} to {2027-01-10:d} for friends and family, with Katie handling invites from [Austin vendor contacts](#/docs/austin-vendors).',
   },
 ]
 

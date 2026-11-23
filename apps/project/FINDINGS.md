@@ -896,5 +896,46 @@ axe is clean on the page in both themes, with the slash menu open and a to-do on
      types. It is what the top bar's "Viewing now" avatars promise, drawn on the page.
 125. **On a phone there is no gutter.** Markdown and the slash menu are how a line changes kind
      there; moving a block needs the wider layout.
-126. **Lines are still plain text.** Bold, italic and links would need a rich-text model under the
-     blocks, not `contenteditable="plaintext-only"`; not built.
+126. **Lines were plain text when this slice opened**; bold, italic and links followed the same day,
+     below.
+
+### Bold, italic and links (same day)
+
+- **⌘B and ⌘I** toggle the mark on the selected words, which stay selected; the selection bar
+  gained Bold, Italic and Link, pressed when every selected word has it. `**words**` and
+  `*words*` typed and closed become bold and italic, as in Notion.
+- **⌘K or the bar's Link** opens a box under the words: the address (a bare domain gets
+  `https://`), Link, and Remove for a link that is already there. The caret in a link puts a bar
+  under it with the address (opening in a new tab), Edit and Remove. ⌘-click opens a link from the
+  line; a plain click puts the caret in it.
+- A line is `contenteditable="true"` now, holding `<strong>`, `<em>` and `<a>`. Every keystroke
+  reads it back as runs (`richText.ts`), and anything else the browser leaves is drawn again from
+  what it means. Breaking, joining and pasting keep the formatting on both sides.
+
+axe is clean in both themes with the selection bar, the link bar and the link editor open.
+
+#### Open: library changes worth making
+
+127. **Link's recipe isn't exported.** The anchors in a line are written into the editable element
+     by hand, so they can't be the `Link` component; they copy its color, hover and from-font
+     underline classes (`LINK_CLASS`). Exporting `link` from `Link.tsx`, as Menu exports `popup`,
+     would let them share it. The link bar under the caret is the real `Link`.
+
+#### Kept in the app, worth knowing
+
+128. **Formatting is saved as a little Markdown**: `**bold**`, `*italic*`, `[words](address)`, with
+     typed stars and brackets escaped. A doc's blocks, versions and comparisons stay strings, a
+     line with no formatting is saved exactly as before, and the compare view draws the marks.
+129. **What you type after a link or a closed shortcut is plain.** The browser would carry the
+     link or the mark on over the next words; Notion doesn't, and neither does this.
+130. **A paste is always plain words**, so nothing styled comes in from another page; an address
+     pasted over selected words links them.
+131. **A link to another doc is its hash route** (`#/docs/austin-vendors`) and opens in place;
+     web addresses open in a new tab. The opening plan's soft open line links Austin vendor
+     contacts, and its first paragraph has a bold and an italic, so the formatting shows on
+     first open.
+132. **No underline.** ⌘U is turned off: the library's only underline is a link's, and an
+     underlined word would read as one.
+133. **Yak's rewrites and drafts are plain**; accepting one replaces a line's formatting with its
+     words.
+
