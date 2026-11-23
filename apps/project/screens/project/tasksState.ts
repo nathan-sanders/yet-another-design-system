@@ -50,6 +50,14 @@ export interface TasksState {
    * does: the request is linked, and the task's Activity says whose it was.
    */
   mergeRequest: (taskId: string, request: { title: string; fromName: string }) => void
+  /** Approve or Request changes on a task's pull request, as you; its Activity says so. */
+  reviewPull: (taskId: string, verdict: 'approved' | 'changes') => void
+  /** A comment on the pull request as a whole, from the review's composer. */
+  addReviewComment: (taskId: string, body: string) => void
+  /** Turns the agent's proposed change into a pull request, numbered after the last one. */
+  openAgentPull: (taskId: string) => void
+  /** Try again: the agent runs the task once more. */
+  retryAgent: (taskId: string) => void
 }
 
 export const TasksContext = createContext<TasksState | null>(null)

@@ -939,3 +939,61 @@ axe is clean in both themes with the selection bar, the link bar and the link ed
 133. **Yak's rewrites and drafts are plain**; accepting one replaces a line's formatting with its
      words.
 
+
+## Slice 16 — Code and reviews (2026-11-22)
+
+The section `Mobile ordering app · Code & reviews` (`40006589:61263`): five frames on two of Sprint
+14's tasks and the Checkout API guide.
+
+- **A task's full view is built** (`screens/task/TaskPage.tsx`), `#/projects/:id/tasks/MOB-52`. It
+  is the panel's own pieces in two columns — 798 and 320, 40 apart, measured against the frame —
+  so the panel and the page can't drift. The panel's expand opens it; the top bar's arrows step
+  through the project's tasks ("2 of 11").
+- **Descriptions and comments carry code** (`components/RichBody.tsx`, `body.ts`): `inline code`
+  in backticks is the library's Code, a fenced block is a CodeBlock — with a file name, a header
+  and (from five lines) numbers; without one, the headerless snippet. A comment's code is the small
+  step, as drawn. Apple Pay's description measures 307 tall, the frame's number.
+- **A pull request under the description** (`screens/task/PullParts.tsx`): title, state,
+  who-wants-to-merge-what, the `_Reviewer Row`s, checks, and "3 files · +13 −1" counted from the
+  diffs, not written down. Under it, the branch as a one-line command and the rule's note. Linked
+  gains a Pull request row.
+- **The review page** (`screens/task/ReviewPage.tsx`, `…/MOB-52/pull`, `?view=split`): each file a
+  diff CodeBlock on a subtle well, the reviewers, line comments with their `file:line` as Code, and
+  a composer. Approve and Request changes are real: you join the reviewers, your row says where you
+  stand, and the task's Activity says what you did.
+- **Yak's proposed change** on Allergen filters: the steps, the test command and the diff in a
+  Subtle Card, with Open pull request (it becomes #219, from Yak's branch, Priya asked to review,
+  and the rule moves the task to In review), Review changes (the same review page, as a Draft) and
+  Try again. An agent's task shows an Agent row and Dates, as the frame does.
+- **Docs: Code block, Inline code and Diagram** lead the slash menu's "Add to this doc", and "/code"
+  finds all three. Code block is a dialog — file name, language, code — because CodeBlock is
+  read-only; the block has Edit beside Copy. Inline code is a third mark beside bold and italic,
+  saved as backticks, with ⌘E and the Markdown shortcut. The Checkout API guide is added with the
+  frame's request and response.
+
+axe is clean on all seven screens in both themes.
+
+### Open: library changes worth making
+
+135. **Code's recipe isn't exported**, Link's case again (127). Inline code written into an
+     editable line has to be a hand-made `<code>`, so it copies Code's classes (`CODE_CLASS`);
+     the read-only line is the real `Code`.
+136. **CodeBlock has no split view.** The review's Split is two diff blocks side by side, each side
+     padded with blank rows so the context stays level (`splitDiff`, node-tested). It works, but the
+     before side's blank rows are rows, and a library split would share one gutter and one scroll.
+137. **A diff CodeBlock always labels itself "diff".** The file's diffs say the language they are
+     in — `tsx`, `ts` — and `diff` is how the block draws them, not what they are. The label should
+     be the language, with `languageLabel` to hide it as today.
+
+### Kept in the app, worth knowing
+
+134. **The phase stays Sprint 14.** The frames give Apple Pay the phase Checkout and Allergen
+     filters Menu, but a sprint project's List groups by phase, so the file's names would split
+     Sprint 14 into three groups. Due, priority, estimate and status follow the frames.
+138. **A backtick typed inside code closes it**, as in Notion: the backtick goes and what is typed
+     next is plain. Without it, code picked from the slash menu carried on for the rest of the line.
+139. **Inline code from the slash menu** drops a `code` chip where the slash was with its word
+     selected, so typing replaces it as code.
+140. **No floating Yak on a task's page or its review**; the comment box sits where the bar would.
+141. **Diagram isn't built**: picking it says so. The file draws the row and nothing after it.
+142. **Open in GitHub says it isn't built**: there is no repository behind the mock.

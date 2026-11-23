@@ -19,6 +19,8 @@ export function floatingYakPlaceholder(pathname: string): string | null {
     return null
   // A doc's page draws none: the line under the doc is where you write, and Yak is in its bar.
   if (pathname.startsWith('/docs/')) return null
+  // A task's page and its review draw none: the comment box is where the bar would sit.
+  if (pathname.includes('/tasks/')) return null
   if (pathname === '/docs') return 'Ask Yak to find or draft a doc…'
   // The builder's own Yak line is at the top of its column.
   if (pathname === '/reports/new') return null

@@ -48,3 +48,18 @@ export function taskPath(task: Task, tab: ProjectTab = 'list'): string {
   if (!task.projectId) return `/my-work/list?${TASK_PARAM}=${taskKey(task)}`
   return `${projectPath(task.projectId, tab)}?${TASK_PARAM}=${taskKey(task)}`
 }
+
+/**
+ * A task's full view (`Task - Full view`, `40006275:12027`, and the Code &
+ * reviews frames from `40006589:61264`): its own page under its project,
+ * `#/projects/mobile-ordering/tasks/MOB-52`. A team's task is under My work.
+ */
+export function taskPagePath(task: Task): string {
+  const base = task.projectId ? `/projects/${task.projectId}` : '/my-work'
+  return `${base}/tasks/${taskKey(task)}`
+}
+
+/** Its pull request's changes (`Review - Pull request changes`, `40006589:62699`), `?view=split` for Split. */
+export function reviewPath(task: Task): string {
+  return `${taskPagePath(task)}/pull`
+}

@@ -5,6 +5,7 @@ import { addDays, day, shiftIso, shortDate, today } from '../../data/dates'
 import { me, personFor } from '../../data/people'
 import { boardOrder, tasks as initialTasks } from '../../data/tasks'
 import type { Task, TaskEvent } from '../../data/types'
+import { openedFromAgent, retried, reviewed, withReviewComment } from '../task/pullState'
 import { TasksContext, type TaskEdit, type TaskMove, type TasksState } from './tasksState'
 
 /** The Board's drawn order, then every task the frame does not show, in the data's order. */
@@ -206,6 +207,29 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [change],
   )
 
+  const reviewPull = useCallback(
+    (taskId: string, verdict: 'approved' | 'changes') =>
+      change(taskId, (task) => reviewed(task, verdict)),
+    [change],
+  )
+  const addReviewComment = useCallback(
+    (taskId: string, body: string) => change(taskId, (task) => withReviewComment(task, body)),
+    [change],
+  )
+  const openAgentPull = useCallback(
+    (taskId: string) =>
+      setTasks((current) => {
+        // The next number after every pull request the mock knows.
+        const number = Math.max(0, ...current.map((t) => t.pullRequest?.number ?? 0)) + 1
+        return current.map((task) => (task.id === taskId ? openedFromAgent(task, number) : task))
+      }),
+    [],
+  )
+  const retryAgent = useCallback(
+    (taskId: string) => change(taskId, (task) => retried(task)),
+    [change],
+  )
+
   const value = useMemo<TasksState>(
     () => ({
       tasks,
@@ -220,6 +244,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       addTask,
       removeTask,
       mergeRequest,
+      reviewPull,
+      addReviewComment,
+      openAgentPull,
+      retryAgent,
     }),
     [
       tasks,
@@ -234,6 +262,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       addTask,
       removeTask,
       mergeRequest,
+      reviewPull,
+      addReviewComment,
+      openAgentPull,
+      retryAgent,
     ],
   )
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>

@@ -1,10 +1,12 @@
 import { Fragment, type ReactNode } from 'react'
-import { AtSign, Bold, Check, Italic, Link2, MessageCircle, Plus, X } from 'lucide-react'
+import { AtSign, Bold, Check, Italic, Link2, MessageCircle, Pencil, Plus, X } from 'lucide-react'
 
 import { Avatar } from '../../../../src/components/Avatar'
 import { Badge } from '../../../../src/components/Badge'
 import { Button } from '../../../../src/components/Button'
 import { Card } from '../../../../src/components/Card'
+import { Code } from '../../../../src/components/Code'
+import { CodeBlock } from '../../../../src/components/CodeBlock'
 import { Icon } from '../../../../src/components/Icon'
 import { Heading, Text } from '../../../../src/components/Text'
 import { Token } from '../../../../src/components/Token'
@@ -13,6 +15,7 @@ import { HealthBadge } from '../../components/ProjectCells'
 import { dueLabel, statusFor } from '../../components/taskMeta'
 import { addDays, datedText, day, shortDate, today } from '../../data/dates'
 import { personFor } from '../../data/people'
+import type { DocBlock } from '../../data/docs'
 import type { Project, Task } from '../../data/types'
 import { latestUpdates } from '../../data/updates'
 import { YakMark } from '../../yak/YakMark'
@@ -208,6 +211,7 @@ export function RichText({ md }: { md: string }) {
     <>
       {readRuns(md).map((run, i) => {
         let node: ReactNode = run.text
+        if (run.code) node = <Code>{node}</Code>
         if (run.italic) node = <em>{node}</em>
         if (run.bold) node = <strong>{node}</strong>
         if (run.href)
@@ -223,6 +227,40 @@ export function RichText({ md }: { md: string }) {
         return <Fragment key={i}>{node}</Fragment>
       })}
     </>
+  )
+}
+
+/**
+ * A doc's code block: the library's CodeBlock as the slash menu makes it, its
+ * file name and language in the header and, when it is in the editor, an
+ * Edit beside Copy — the header is where the record says actions go, never
+ * over the code.
+ */
+export function CodeDocBlock({
+  block,
+  onEdit,
+}: {
+  block: Extract<DocBlock, { kind: 'code' }>
+  onEdit?: () => void
+}) {
+  return (
+    <CodeBlock
+      code={block.code}
+      language={block.language}
+      title={block.title}
+      lineNumbers={block.lineNumbers}
+      actions={
+        onEdit ? (
+          <Button
+            appearance="ghost"
+            size="small"
+            startIcon={Pencil}
+            aria-label={`Edit ${block.title ?? 'code block'}`}
+            onClick={onEdit}
+          />
+        ) : undefined
+      }
+    />
   )
 }
 
@@ -307,6 +345,8 @@ export function DiffLine({
       'Task list'
     ) : block.kind === 'status' ? (
       'Project status'
+    ) : block.kind === 'code' ? (
+      (block.title ?? 'Code block')
     ) : (
       <RichText md={block.text} />
     )
@@ -314,6 +354,7 @@ export function DiffLine({
   if (!added && !removed) {
     if (block.kind === 'tasks') return <TaskListBlock project={project} tasks={tasks} />
     if (block.kind === 'status') return <StatusBlock project={project} />
+    if (block.kind === 'code') return <CodeDocBlock block={block} />
     if (block.kind === 'heading')
       return (
         <Heading level={2} size="lg">

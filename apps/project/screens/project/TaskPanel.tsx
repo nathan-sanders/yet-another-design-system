@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from 'react'
+import { useContext, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import {
   ArrowRight,
   AtSign,
+  Bot,
   Calendar,
   ChevronDown,
   Circle,
@@ -12,6 +13,7 @@ import {
   Ellipsis,
   FileText,
   FolderKanban,
+  GitPullRequest,
   ListFilter,
   Maximize2,
   Paperclip,
@@ -42,9 +44,11 @@ import { Token } from '../../../../src/components/Token'
 import { cn } from '../../../../src/lib/cn'
 import { focusRing } from '../../../../src/lib/focus'
 import { PropertyRow } from '../../components/PropertyRow'
+import { RichBody } from '../../components/RichBody'
 import { AssigneeToken, DueToken, PriorityToken, StatusToken } from '../../components/TaskTokens'
 import { blockerOf, statusFor, subtaskCount } from '../../components/taskMeta'
 import { addDays, datedText, day, sameDay, shortDate, today } from '../../data/dates'
+import { docs } from '../../data/docs'
 import { personFor } from '../../data/people'
 import { projectFor } from '../../data/projects'
 import type { Task, TaskComment, TaskEvent, TaskPriority } from '../../data/types'
@@ -52,7 +56,8 @@ import { useShell } from '../../shell/ShellContext'
 import { queuePath } from '../requests/paths'
 import { useRequests } from '../requests/requestsState'
 import { YakMark } from '../../yak/YakMark'
-import { taskKey, taskPath, type ProjectTab } from './paths'
+import { SectionLevel } from './sectionLevel'
+import { reviewPath, taskKey, taskPagePath, taskPath, type ProjectTab } from './paths'
 import { useTasks } from './tasksState'
 
 /*
@@ -61,8 +66,8 @@ import { useTasks } from './tasksState'
  * the title, a blocked banner, the description, the properties, Linked,
  * Subtasks and Dependencies, then Comments and Activity in tabs with the
  * composer pinned under Comments. Empty sections hide. The full view
- * (`Task - Full view`, `40006275:12027`) is the same layout in two columns
- * and is not built yet.
+ * (`Task - Full view`, `40006275:12027`) is the same pieces in two columns:
+ * `screens/task/TaskPage.tsx`, which imports them from here.
  */
 
 /**
@@ -79,15 +84,25 @@ const PRIORITY_SIGNAL: Record<TaskPriority, LucideIcon> = {
 }
 
 /** A section's title: body size, semibold, as every panel section draws it. */
-function SectionHeading({ id, children }: { id: string; children: ReactNode }) {
+export function SectionHeading({ id, children }: { id: string; children: ReactNode }) {
+  const level = useContext(SectionLevel)
   return (
-    <Heading level={4} id={id}>
+    <Heading level={level} size="base" id={id}>
       {children}
     </Heading>
   )
 }
 
-function Properties({ task }: { task: Task }) {
+/**
+ * A day range as the Dates token says it: "Nov 24 – 28", or with both months
+ * when it crosses one.
+ */
+function dateRange(start: Date, end: Date): string {
+  if (start.getMonth() === end.getMonth()) return `${shortDate.format(start)} – ${end.getDate()}`
+  return `${shortDate.format(start)} – ${shortDate.format(end)}`
+}
+
+export function Properties({ task }: { task: Task }) {
   const shell = useShell()
   const { updateTask } = useTasks()
   const project = projectFor(task.projectId)
@@ -101,9 +116,25 @@ function Properties({ task }: { task: Task }) {
       <PropertyRow icon={CircleUser} label="Assignee">
         <AssigneeToken task={task} onChange={onChange} />
       </PropertyRow>
-      <PropertyRow icon={Calendar} label="Due">
+      {/* An agent's task is worked in a window, so it shows Dates where
+          others show Due (`Task - Yak coding agent`, `40006589:63143`). */}
+      {task.agent ? (
+        <PropertyRow icon={Bot} label="Agent">
+          <Token
+            startIcon={<YakMark className="size-3.5" />}
+            onClick={() => shell.notBuilt('Choosing another agent')}
+          >
+            Yak
+          </Token>
+        </PropertyRow>
+      ) : null}
+      <PropertyRow icon={Calendar} label={task.agent ? 'Dates' : 'Due'}>
         <DueToken
-          label={shortDate.format(day(task.due))}
+          label={
+            task.agent && task.start
+              ? dateRange(day(task.start), day(task.due))
+              : shortDate.format(day(task.due))
+          }
           onClick={() => shell.notBuilt('The due date picker')}
         />
       </PropertyRow>
@@ -130,29 +161,39 @@ function Properties({ task }: { task: Task }) {
 }
 
 /**
- * Linked: the doc and the request a task came from. Links rather than values
- * (the file keeps them View Only for that reason), so each is a Token with an
- * `href`: Docs, which is drawn and not built, and the request itself in the
- * queue, under whichever segment it is in now.
+ * Linked: the doc and the request a task came from, and the pull request its
+ * branch is in. Links rather than values (the file keeps them View Only for
+ * that reason), so each is a Token with an `href`: the doc itself, the
+ * request in the queue under whichever segment it is in now, and the pull
+ * request's changes.
  */
-function Linked({ task }: { task: Task }) {
+export function Linked({ task }: { task: Task }) {
   const { requests } = useRequests()
   const { doc, request } = task.linked ?? {}
   const found = requests.find((r) => r.title === request)
-  if (!doc && !request) return null
+  const docId = docs.find((d) => d.name === doc)?.id
+  const pull = task.pullRequest
+  if (!doc && !request && !pull) return null
   return (
     <section aria-labelledby={`${task.id}-linked`} className="flex flex-col gap-1">
       <SectionHeading id={`${task.id}-linked`}>Linked</SectionHeading>
       <dl className="flex flex-col">
         {doc ? (
           <PropertyRow icon={FileText} label="Doc">
-            <Token href="#/docs">{doc}</Token>
+            <Token href={`#/docs${docId ? `/${docId}` : ''}`}>{doc}</Token>
           </PropertyRow>
         ) : null}
         {request ? (
           <PropertyRow icon={ClipboardList} label="Request">
             <Token href={`#${found ? queuePath(found.state, found.id) : '/requests'}`}>
               {request}
+            </Token>
+          </PropertyRow>
+        ) : null}
+        {pull ? (
+          <PropertyRow icon={GitPullRequest} label="Pull request">
+            <Token href={`#${reviewPath(task)}`}>
+              {`#${pull.number} · ${pull.state === 'merged' ? 'Merged' : 'In review'}`}
             </Token>
           </PropertyRow>
         ) : null}
@@ -166,7 +207,7 @@ function Linked({ task }: { task: Task }) {
  * a checkbox you press anywhere on, so ticking one moves the count here and
  * the List's `list-tree` meta together.
  */
-function Subtasks({ task }: { task: Task }) {
+export function Subtasks({ task }: { task: Task }) {
   const shell = useShell()
   const { toggleSubtask } = useTasks()
   const count = subtaskCount(task)
@@ -226,7 +267,7 @@ interface DependencyRow {
  * lag is the gap the file draws between them — the permit plus five days
  * is when equipment can arrive, "5d lag · Nov 23".
  */
-function Dependencies({ task, tasks }: { task: Task; tasks: Task[] }) {
+export function Dependencies({ task, tasks }: { task: Task; tasks: Task[] }) {
   const tab = useParams().tab as ProjectTab
   const rows: DependencyRow[] = [
     ...(task.dependsOn ?? []).flatMap((dep) => {
@@ -294,7 +335,8 @@ export function Comment({ comment }: { comment: TaskComment }) {
             {comment.age}
           </Text>
         </div>
-        <Text>{datedText(comment.body)}</Text>
+        {/* Code in a comment is a step down, as `Task - Code in description` draws it. */}
+        <RichBody body={comment.body} size="small" />
       </div>
     </div>
   )
@@ -327,7 +369,11 @@ function Reactions({ comment }: { comment: TaskComment }) {
   )
 }
 
-function Comments({ task }: { task: Task }) {
+/**
+ * The thread. The full view's frame draws no thumbs-up or Reply under a
+ * comment, so it passes `reactions={false}`.
+ */
+function Comments({ task, reactions = true }: { task: Task; reactions?: boolean }) {
   const comments = task.comments ?? []
   if (comments.length === 0) {
     return (
@@ -343,7 +389,7 @@ function Comments({ task }: { task: Task }) {
         {comments.map((comment) => (
           <li key={comment.id} className="flex flex-col gap-3">
             <Comment comment={comment} />
-            <Reactions comment={comment} />
+            {reactions ? <Reactions comment={comment} /> : null}
             {comment.replies?.length ? (
               <ul
                 aria-label={`Replies to ${personFor(comment.authorId).name}`}
@@ -391,6 +437,7 @@ function Actor({ actor }: { actor: TaskEvent['actor'] }) {
  */
 function Activity({ task }: { task: Task }) {
   const shell = useShell()
+  const level = useContext(SectionLevel)
   const events = task.activity ?? []
   const groups = (['Today', 'Yesterday', 'Earlier'] as const)
     .map((label) => ({ label, events: events.filter((event) => bucket(event.at) === label) }))
@@ -400,7 +447,7 @@ function Activity({ task }: { task: Task }) {
       {groups.map((group, i) => (
         <section key={group.label} aria-label={group.label} className="flex flex-col gap-3">
           <div className="flex min-h-8 items-center">
-            <Text render={<h4 />} size="sm" weight="semibold" color="subtle">
+            <Text render={level === 2 ? <h3 /> : <h4 />} size="sm" weight="semibold" color="subtle">
               {group.label}
             </Text>
             {i === 0 ? (
@@ -442,17 +489,21 @@ function Activity({ task }: { task: Task }) {
   )
 }
 
-type DetailTab = 'comments' | 'activity'
+export type DetailTab = 'comments' | 'activity'
 
 /** Comments, then Activity, behind tabs whose strip sticks to the top of the scroll. */
-function DetailTabs({
+export function DetailTabs({
   task,
   tab,
   onTabChange,
+  reactions,
+  className = 'px-4 pt-2',
 }: {
   task: Task
   tab: DetailTab
   onTabChange: (tab: DetailTab) => void
+  reactions?: boolean
+  className?: string
 }) {
   const count = (task.comments ?? []).reduce(
     (sum, comment) => sum + 1 + (comment.replies?.length ?? 0),
@@ -462,7 +513,7 @@ function DetailTabs({
     <Tabs
       value={tab}
       onValueChange={(value) => onTabChange(value as DetailTab)}
-      className="px-4 pt-2"
+      className={className}
     >
       <Tabs.List
         aria-label="Task conversation"
@@ -472,7 +523,7 @@ function DetailTabs({
         <Tabs.Tab value="activity">Activity</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="comments" className="py-4">
-        <Comments task={task} />
+        <Comments task={task} reactions={reactions} />
       </Tabs.Panel>
       <Tabs.Panel value="activity" className="py-4">
         <Activity task={task} />
@@ -482,7 +533,7 @@ function DetailTabs({
 }
 
 /** The composer under Comments: `Leave a comment. @mention to notify`. */
-function CommentComposer({ task }: { task: Task }) {
+export function CommentComposer({ task }: { task: Task }) {
   const shell = useShell()
   const { addComment } = useTasks()
   return (
@@ -569,7 +620,7 @@ function TaskDetail({ task, tasks }: { task: Task; tasks: Task[] }) {
               appearance="ghost"
               startIcon={Maximize2}
               aria-label="Open full view"
-              onClick={() => shell.notBuilt('The full task view')}
+              onClick={() => navigate(taskPagePath(task))}
             />
             <Button
               appearance="ghost"
@@ -604,10 +655,7 @@ function TaskDetail({ task, tasks }: { task: Task; tasks: Task[] }) {
               </Button>
             </Card>
           ) : null}
-          {/* pre-line: a task made from a request carries its answers a line each. */}
-          {task.description ? (
-            <Text className="whitespace-pre-line">{datedText(task.description)}</Text>
-          ) : null}
+          {task.description ? <RichBody body={task.description} /> : null}
           <Properties task={task} />
           <Linked task={task} />
           <Subtasks task={task} />
