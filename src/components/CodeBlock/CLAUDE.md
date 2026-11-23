@@ -75,6 +75,23 @@ An unknown language, or `plaintext`, is plain text — not an error.
   comes from `highlightLines`, the four diff types from `diff`. It is a drawing mechanism, the Data
   Viz rule about underscored components.
 - **`copyButton`**, **`languageLabel`** and **`collapsible`** are the BOOLEANs.
+- **A diff's label is its language**, `tsx` or `ts`, as the Review frame in Yet Project draws it
+  (`40006589:62699`); only a diff with no language reads `diff`. It used to read `diff` always,
+  which said how the block was drawing the code rather than what the code was (Yet Project's
+  FINDINGS 137).
+
+**`split` is code-first: the file has no split variant yet.** Yet Project's review page asked for
+a Unified / Split switch (the frame draws the switch and only the unified side). A split diff is
+one grid of rows, before | after, so a row's two sides always share its height, wrapped or not:
+context on both sides, a run of removed lines beside the run of added lines that replaced it with
+the shorter side left empty and unfilled, a hunk header spanning both. With `lineNumbers` each side
+counts from its hunk header (`@@ -24,5 +24,9 @@` starts both at 24), because a split view's whole
+point is old and new numbering side by side; the unified block keeps its plain count. The pairing
+is `splitRows` in `diff.ts`, node-tested. Each side is as wide as its longest line and the two share
+what is left; the before side carries the 1px rule between them, and each side draws its gutter
+per row, since the block's one absolute gutter can only stand in one place. It needs `diff`; on
+anything else it does nothing. **The file owes it a drawing** — a `Split` axis on `Code Block`, or
+a preview on the Docs frame — the same debt Popover's parts once were.
 
 Astryx props kept because they are behaviour the canvas cannot show: `startLineNumber`, `wrap`,
 `maxHeight`, `diff`, `onCopy` / `onCopyError`, and `endContent` — renamed **`actions`**, the word

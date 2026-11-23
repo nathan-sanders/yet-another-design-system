@@ -1,7 +1,9 @@
 import type { ComponentPropsWithRef } from 'react'
-import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '../../lib/cn'
+import { code, type CodeColor, type CodeSize } from './styles'
+
+export type { CodeColor, CodeSize } from './styles'
 
 /**
  * Code — a short technical reference inside running text: a function name, a
@@ -42,40 +44,6 @@ import { cn } from '../../lib/cn'
  * Not interactive: no hover, no focus. Figma's guidance is explicit that a copy
  * or a link goes in a Button or Link beside it, never on it.
  */
-const code = tv({
-  base: [
-    // inline-block with the line height as its height: see the docblock.
-    'inline-block max-w-full rounded-xs px-1 py-0 align-baseline',
-    'bg-surface-overlay-subtle',
-    'font-mono font-normal',
-    // A path too long for its column breaks inside the box, rather than overflow.
-    'break-words',
-  ],
-  variants: {
-    color: {
-      primary: 'text-content-primary',
-      // Figma calls it Secondary and binds Content/Subtle — for code inside
-      // helper or caption copy that is itself set subtle.
-      secondary: 'text-content-subtle',
-    },
-    // Each size sets its line height with it — the theme ships
-    // `--text-sm--line-height` beside `--text-sm` — so the box is 20 / 24 / 28px.
-    size: {
-      sm: 'text-sm',
-      base: 'text-base',
-      lg: 'text-lg',
-    },
-  },
-  defaultVariants: {
-    color: 'primary',
-    size: 'sm',
-  },
-})
-
-type CodeVariants = VariantProps<typeof code>
-export type CodeSize = NonNullable<CodeVariants['size']>
-export type CodeColor = NonNullable<CodeVariants['color']>
-
 export interface CodeProps extends Omit<ComponentPropsWithRef<'code'>, 'color'> {
   /**
    * `primary` (the default) or `secondary`. Use `secondary` when the sentence
