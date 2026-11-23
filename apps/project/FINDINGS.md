@@ -973,17 +973,16 @@ The section `Mobile ordering app · Code & reviews` (`40006589:61263`): five fra
 
 axe is clean on all seven screens in both themes.
 
-### Open: library changes worth making
+### Fixed in the library (#407)
 
-135. **Code's recipe isn't exported**, Link's case again (127). Inline code written into an
-     editable line has to be a hand-made `<code>`, so it copies Code's classes (`CODE_CLASS`);
-     the read-only line is the real `Code`.
-136. **CodeBlock has no split view.** The review's Split is two diff blocks side by side, each side
-     padded with blank rows so the context stays level (`splitDiff`, node-tested). It works, but the
-     before side's blank rows are rows, and a library split would share one gutter and one scroll.
-137. **A diff CodeBlock always labels itself "diff".** The file's diffs say the language they are
-     in — `tsx`, `ts` — and `diff` is how the block draws them, not what they are. The label should
-     be the language, with `languageLabel` to hide it as today.
+135. **Code's recipe is exported** (`Code/styles.ts`, `code`), Menu's `popup` arrangement. Inline
+     code written into an editable line is a hand-made `<code>`, and it now wears `code()` rather
+     than a copy of the class string. Link's recipe (127) is still the open one of the pair.
+136. **CodeBlock has a split view**, `split`. The review's Split had been two diff blocks side by
+     side, padded with blank rows; it is one block now, before | after in one grid, each side
+     numbered from its hunk header, hunk headers across both.
+137. **A diff CodeBlock is labeled by its language**, `tsx` or `ts`, as the frame draws it; only a
+     diff with no language reads "diff".
 
 ### Kept in the app, worth knowing
 

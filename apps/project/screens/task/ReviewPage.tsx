@@ -28,42 +28,24 @@ import { YakMark } from '../../yak/YakMark'
 import { taskPagePath } from '../project/paths'
 import { Comment } from '../project/TaskPanel'
 import { useTasks } from '../project/tasksState'
-import { fileName, splitDiff, statLine } from './model'
+import { statLine } from './model'
 import { AgentSteps, Checks, MergeLine, ReviewerRow } from './PullParts'
 import { NoSuchTask, TaskTrail } from './TaskPage'
 import { useTaskFromKey } from './useTaskFromKey'
 
 type DiffView = 'unified' | 'split'
 
-/**
- * One file's change. Unified is the library's diff CodeBlock as drawn; Split
- * is the same diff as two blocks, before and after, its rows padded level
- * (`splitDiff`), because CodeBlock has no side-by-side form (FINDINGS 136).
- */
+/** One file's change: the library's diff CodeBlock, split before | after when asked. */
 function FileChange({ file, view }: { file: DiffFile; view: DiffView }) {
-  if (view === 'unified')
-    return (
-      <CodeBlock code={file.diff} diff language={file.language} title={file.path} size="small" />
-    )
-  const { before, after } = splitDiff(file.diff)
   return (
-    <div className="grid gap-2 md:grid-cols-2">
-      <CodeBlock
-        code={before}
-        diff
-        language={file.language}
-        title={`${fileName(file.path)} · before`}
-        languageLabel={false}
-        size="small"
-      />
-      <CodeBlock
-        code={after}
-        diff
-        language={file.language}
-        title={`${fileName(file.path)} · after`}
-        size="small"
-      />
-    </div>
+    <CodeBlock
+      code={file.diff}
+      diff
+      split={view === 'split'}
+      language={file.language}
+      title={file.path}
+      size="small"
+    />
   )
 }
 

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { parseBody } from '../../components/body'
 import { codeDetails } from '../../data/code'
 import { tasks } from '../../data/tasks'
-import { diffStat, neighbours, splitDiff, statLine } from './model'
+import { diffStat, neighbours, statLine } from './model'
 
 describe('diffStat', () => {
   it('counts Apple Pay’s pull request as the file draws it: 3 files, +13 −1', () => {
@@ -17,35 +17,6 @@ describe('diffStat', () => {
       added: 1,
       removed: 1,
     })
-  })
-})
-
-describe('splitDiff', () => {
-  it('sets a replaced line beside its replacement and keeps the context level', () => {
-    const { before, after } = splitDiff(
-      '@@ -8,3 +8,5 @@\n export function f() {\n-  old\n+  one\n+  two\n }',
-    )
-    expect(before.split('\n')).toEqual([
-      '@@ -8,3 +8,5 @@',
-      ' export function f() {',
-      '-  old',
-      ' ',
-      ' }',
-    ])
-    expect(after.split('\n')).toEqual([
-      '@@ -8,3 +8,5 @@',
-      ' export function f() {',
-      '+  one',
-      '+  two',
-      ' }',
-    ])
-  })
-
-  it('gives both sides the same number of rows', () => {
-    for (const file of codeDetails['mob-52'].pullRequest!.files) {
-      const { before, after } = splitDiff(file.diff)
-      expect(before.split('\n')).toHaveLength(after.split('\n').length)
-    }
   })
 })
 

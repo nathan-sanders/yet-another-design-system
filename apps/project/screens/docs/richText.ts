@@ -1,3 +1,4 @@
+import { code } from '../../../../src/components/Code/styles'
 import { datedText } from '../../data/dates'
 
 /**
@@ -332,12 +333,10 @@ export const LINK_CLASS =
   'cursor-pointer text-action-link-foreground hover:text-action-link-foreground-hover underline decoration-from-font [text-decoration-skip-ink:none] [text-underline-position:from-font]'
 
 /**
- * Inline code inside a line, as the library's `Code` draws it: the subtle
- * overlay fill, the xs corner and mono a step down. Copied, for Link's reason:
- * these are written by hand into the editable line (FINDINGS 135).
+ * Inline code inside a line wears the library's Code recipe: these `<code>`s
+ * are written by hand into the editable line, so they can't be the component.
  */
-export const CODE_CLASS =
-  'inline-block max-w-full rounded-xs px-1 py-0 align-baseline bg-surface-overlay-subtle font-mono font-normal break-words text-content-primary text-sm'
+const CODE_CLASS = code()
 
 /** A line's runs as elements: `<a>` round `<strong>` round `<em>` round `<code>` round the words. */
 export function runsToNodes(runs: Run[]): Node[] {
