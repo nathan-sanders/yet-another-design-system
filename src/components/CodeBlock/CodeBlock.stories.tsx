@@ -147,7 +147,8 @@ export const Preview: Story = {
     await expect(getComputedStyle(diffRows[3]).backgroundColor).toBe(tokenColor('syntax-removed'))
     await expect(getComputedStyle(diffRows[4]).backgroundColor).toBe(tokenColor('syntax-added'))
     await expect(diffRows[4].textContent).toBe('+  --radius: 0.75rem;')
-    await expect(within(diff).getByText('diff')).toBeVisible()
+    // The label is the language the diff is in, as the file draws it.
+    await expect(within(diff).getByText('css')).toBeVisible()
   },
 }
 
@@ -217,6 +218,90 @@ export const LineTypes: Story = {
       ))}
     </div>
   ),
+}
+
+/**
+ * A diff in two sides, `split`: context on both, the removed line beside the
+ * two lines that replaced it (the second with nothing beside it), the hunk
+ * header across both, and each side numbered from that header. Below it, the
+ * same diff wrapped and with no language, which labels itself `diff`.
+ */
+export const Split: Story = {
+  parameters: { controls: { disable: true } },
+  decorators: [(Story) => <Story />],
+  render: () => (
+    <div className="flex w-180 flex-col gap-6">
+      <CodeBlock
+        code={themeDiff}
+        language="css"
+        title="theme.css"
+        diff
+        split
+        lineNumbers
+        data-testid="split"
+      />
+      <CodeBlock code={themeDiff} title="theme.css" diff split wrap data-testid="plain" />
+      {/* A new file: nothing before, long lines after. */}
+      <CodeBlock
+        code={`@@ -0,0 +1,2 @@\n+export const radius = { inner: '0.25rem', outer: '0.75rem', button: 'var(--shape-button)' };\n+export const spacing = { gutter: 'var(--spacing-3)', page: 'var(--spacing-4)' };`}
+        language="ts"
+        title="tokens.ts"
+        diff
+        split
+        data-testid="new-file"
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const split = canvasElement.querySelector<HTMLElement>('[data-testid="split"]')!
+    const plain = canvasElement.querySelector<HTMLElement>('[data-testid="plain"]')!
+    const before = split.querySelectorAll<HTMLElement>('[data-side="before"]')
+    const after = split.querySelectorAll<HTMLElement>('[data-side="after"]')
+    const numberOf = (cell: HTMLElement) =>
+      cell.querySelector('[aria-hidden] > span')?.textContent ?? ''
+
+    // Five rows a side, and each row's two sides share a top and a height.
+    await expect(before).toHaveLength(5)
+    await expect(after).toHaveLength(5)
+    for (const [i, cell] of before.entries()) {
+      await expect(cell.getBoundingClientRect().top).toBe(after[i].getBoundingClientRect().top)
+      await expect(cell.getBoundingClientRect().height).toBe(24)
+    }
+
+    // The removed line sits beside its replacement; the second added line has
+    // an empty, unfilled side beside it.
+    await expect(getComputedStyle(before[2]).backgroundColor).toBe(tokenColor('syntax-removed'))
+    await expect(getComputedStyle(after[2]).backgroundColor).toBe(tokenColor('syntax-added'))
+    await expect(before[3].textContent).toBe('')
+    await expect(getComputedStyle(before[3]).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    await expect(getComputedStyle(after[3]).backgroundColor).toBe(tokenColor('syntax-added'))
+
+    // Each side counts from `@@ -1,5 +1,6 @@`: the closing brace is line 4
+    // before and line 5 after.
+    await expect(numberOf(before[4])).toBe('4')
+    await expect(numberOf(after[4])).toBe('5')
+
+    // The hunk header runs across both sides.
+    const lines = split.querySelector<HTMLElement>('code')!
+    const hunk = within(split).getByText('@@ -1,5 +1,6 @@').closest<HTMLElement>('.col-span-2')!
+    await expect(hunk.getBoundingClientRect().width).toBe(lines.getBoundingClientRect().width)
+
+    // The sides share the width, so the after side starts by the middle —
+    // even in a new file, where it is all long lines and the before side is
+    // empty. A max-content grid once doubled that block and hid this side.
+    for (const id of ['split', 'new-file']) {
+      const block = canvasElement.querySelector<HTMLElement>(`[data-testid="${id}"]`)!
+      const scroll = block.querySelector<HTMLElement>('[role=group]')!
+      const side = block.querySelector<HTMLElement>('[data-side="after"]')!
+      await expect(side.getBoundingClientRect().left).toBeLessThanOrEqual(
+        scroll.getBoundingClientRect().left + scroll.clientWidth / 2 + 1,
+      )
+    }
+
+    // A diff in no language says it is a diff; one in css said css.
+    await expect(within(plain).getByText('diff')).toBeVisible()
+    await expect(within(split).getByText('css')).toBeVisible()
+  },
 }
 
 /**

@@ -46,6 +46,12 @@ whatever is behind, so it reads on the canvas, on a card and on a highlighted ro
 trap the Kbd record warned about, flipped: here mono is wanted, so nothing would *look* wrong if it
 were missing. The story reads the class as well as the computed family.
 
+**The recipe is exported, from `styles.ts`, as `code`.** Menu's `popup` arrangement: a run that
+cannot be the component still wears its classes. The case is Yet Project's doc editor, which writes
+inline code into a `contenteditable` line by hand, where React never renders the children; it had
+been copying the class string (that app's FINDINGS 135), which would have silently stopped
+following any change made here. `code()` is the default, Primary at `sm`.
+
 **Not interactive.** No hover, no focus, no Base UI primitive — a styled `<code>`, Kbd's case. The
 file's guidance sends a copy or a link to a Button or Link beside it.
 
