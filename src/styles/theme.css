@@ -1466,8 +1466,8 @@
 }
 
 /* ---- 2b. The navigation theme. Seven tokens across 37 modes, switched by ---- */
-/*     one attribute: <html data-nav-theme="blue-inverse">. Neutral Inverse is    */
-/*     the default, and also has its own block so the attribute is never a lie.  */
+/*     one attribute: <html data-nav-theme="blue-inverse">. Canvas is the        */
+/*     default, and also has its own block so the attribute is never a lie.      */
 /*                                                                              */
 /*     Sits AFTER the semantic block on purpose. All but one mode is absolute    */
 /*     -- a nav on "neutral" stays white in dark mode, because a navigation      */
@@ -1488,13 +1488,23 @@
 /*     clears 4.5:1 on four ramps out of seventeen. nav-contrast.test.ts holds   */
 /*     every mode to that, so a ramp that fails cannot quietly ship.             */
 :root {
-  --nav-background: var(--neutral-900);
-  --nav-content-primary: var(--neutral-100);
-  --nav-content-subtle: var(--neutral-400);
-  --nav-item-background-hover: var(--neutral-950);
-  --nav-item-border-hover: var(--neutral-700);
-  --nav-item-background-selected: var(--neutral-700);
-  --nav-item-border-selected: var(--neutral-600);
+  --nav-background: var(--surface-canvas);
+  --nav-content-primary: var(--content-primary);
+  --nav-content-subtle: var(--content-subtle);
+  --nav-item-background-hover: var(--surface-overlay-subtle);
+  --nav-item-border-hover: var(--surface-overlay-subtle);
+  --nav-item-background-selected: var(--surface-background-primary);
+  --nav-item-border-selected: var(--surface-overlay-subtle);
+}
+
+:root[data-nav-theme="canvas"] {
+  --nav-background: var(--surface-canvas);
+  --nav-content-primary: var(--content-primary);
+  --nav-content-subtle: var(--content-subtle);
+  --nav-item-background-hover: var(--surface-overlay-subtle);
+  --nav-item-border-hover: var(--surface-overlay-subtle);
+  --nav-item-background-selected: var(--surface-background-primary);
+  --nav-item-border-selected: var(--surface-overlay-subtle);
 }
 
 :root[data-nav-theme="neutral-inverse"] {
@@ -1515,16 +1525,6 @@
   --nav-item-border-hover: var(--neutral-200);
   --nav-item-background-selected: var(--neutral-200);
   --nav-item-border-selected: var(--neutral-300);
-}
-
-:root[data-nav-theme="canvas"] {
-  --nav-background: var(--surface-canvas);
-  --nav-content-primary: var(--content-primary);
-  --nav-content-subtle: var(--content-subtle);
-  --nav-item-background-hover: var(--surface-overlay-subtle);
-  --nav-item-border-hover: var(--surface-overlay-subtle);
-  --nav-item-background-selected: var(--surface-background-primary);
-  --nav-item-border-selected: var(--surface-overlay-subtle);
 }
 
 :root[data-nav-theme="blue-inverse"] {

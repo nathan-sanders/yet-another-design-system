@@ -35,6 +35,11 @@ of its thirty-seven modes are absolute**, so a nav on `neutral` is white in dark
 measured, not assumed: `--nav-content-primary` moves between light and dark on `canvas` and holds
 everywhere else.
 
+**`canvas` is the default**, since 2026-11-24 when it became Figma's. Before that it was
+`neutral-inverse`, so anything that relied on a dark bar without writing the attribute now has to
+write `data-nav-theme="neutral-inverse"`. It also means an untouched nav follows `.dark`, which is
+the reverse of what the older notes below assume.
+
 Nine modes come from Figma and twenty-eight are derived in `generate.py`, because the Figma
 collection is full. Nothing here has to know which is which — a mode is a `:root[data-nav-theme=…]`
 block either way. See the tier's entry in the root `CLAUDE.md` before adding a ramp.

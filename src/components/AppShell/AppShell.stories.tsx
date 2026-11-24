@@ -132,8 +132,8 @@ function UtilityRows() {
 
 /**
  * The `ThemeControl` is wired to the document so pressing it moves the page
- * around the rail — the quickest way to see that the two tiers are independent,
- * and that only the `canvas` nav theme follows.
+ * around the rail — the quickest way to see that the two tiers are independent:
+ * on `canvas`, the default, the rail follows, and on any other nav theme it stays.
  */
 function Bar() {
   const [theme, setTheme] = useState<Theme>('light')
@@ -297,8 +297,8 @@ function Page() {
  * the blocks straight on the canvas with the nav lifted above it on its shadow,
  * and works on any nav theme. **Contained** puts the page in a bordered
  * `surface-background-primary` panel with the nav flush against the canvas, and
- * reads best with the **Nav** toolbar on `canvas` — that mode paints the rail in
- * the page's own background, so the panel is the only surface on screen.
+ * reads best with the **Nav** toolbar on `canvas`, the default — it paints the
+ * rail in the page's own background, so the panel is the only surface on screen.
  *
  * Every story here fills the viewport: the shell is `h-dvh`, and the global
  * decorator's 24px is switched off (`canvasPadding: false`) so the only padding

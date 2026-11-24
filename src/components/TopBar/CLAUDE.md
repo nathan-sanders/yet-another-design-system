@@ -19,10 +19,11 @@ occasionally what you want — but the doc block says so at the top, because the
 of thing that is obvious while drawing it and invisible six months later.
 
 **Different tier from the navigation components.** `SideNav` and `TopNav` paint from `--nav-*`,
-which does not follow `.dark` on six of its seven modes. This one is ordinary semantic tokens: it is
+which does not follow `.dark` on any mode but `canvas`, the default. This one is ordinary semantic tokens: it is
 part of the page rather than part of the navigation surface, so it follows the theme like everything
 else and the Storybook **Nav** toolbar does nothing to it. The `WithSideNav` story exists mostly to
-show those two tiers side by side and independent.
+show those two tiers side by side and independent, so it pins `neutral-inverse`: on `canvas` the
+rail and the page move together and there is nothing to see.
 
 **Three slots named for where they sit, since 2026-09-25.** Nathan replaced the `Type` =
 Default | Breadcrumbs set (`40004511:34845`, now deleted) with one component whose slots are

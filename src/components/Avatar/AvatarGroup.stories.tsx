@@ -20,7 +20,7 @@ const SURFACE_CLASS: Record<(typeof surfaces)[number], string> = {
   nav: 'bg-nav-background',
 }
 
-/** `card-emphasized` and `nav` are the dark ones, so their labels have to flip. */
+/** `card-emphasized` is dark and `nav` can be, so their labels cannot be the page's. */
 const SURFACE_LABEL_CLASS: Record<(typeof surfaces)[number], string> = {
   canvas: 'text-content-subtle',
   'card-primary': 'text-content-subtle',

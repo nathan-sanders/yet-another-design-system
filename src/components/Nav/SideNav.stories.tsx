@@ -356,9 +356,10 @@ export const GroupFollowsSelection: Story = {
 }
 
 /**
- * In place, beside the page it navigates — which is the only way to see that
- * the rail does not follow the theme. Switch **Theme** to Dark: the canvas
- * moves and a `neutral-inverse` rail stays exactly where it was.
+ * In place, beside the page it navigates — which is the only way to see what
+ * the rail does when the theme moves. On `canvas`, the default, it goes with the
+ * page. Set **Nav** to Neutral Inverse and **Theme** to Dark: the canvas moves
+ * and the rail stays exactly where it was.
  */
 export const InContext: Story = {
   parameters: { controls: { disable: true } },

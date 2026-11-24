@@ -13,7 +13,7 @@ const NEUTRALS = ['stone', 'taupe', 'mauve', 'mist', 'olive',
                   'slate', 'gray', 'zinc', 'neutral']
 
 /** The nine navigation themes Figma holds, in Figma's order. */
-const NAV_FIGMA_THEMES = ['neutral-inverse', 'neutral', 'canvas',
+const NAV_FIGMA_THEMES = ['canvas', 'neutral-inverse', 'neutral',
                           'blue-inverse', 'blue', 'purple-inverse', 'purple',
                           'pink-inverse', 'pink']
 
@@ -111,7 +111,7 @@ const preview: Preview = {
   initialGlobals: {
     theme: 'light',
     neutral: 'stone',
-    navTheme: 'neutral-inverse',
+    navTheme: 'canvas',
     primaryTheme: 'neutral',
     radius: 'default',
   },

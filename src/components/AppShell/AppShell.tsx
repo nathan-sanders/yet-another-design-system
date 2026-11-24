@@ -34,10 +34,11 @@ import {
  * Example 2 (`40005257:47448`): the page is a `Surface/Background Primary` panel
  * inside a `Surface/Border`, the content sits in it with 16px of room, and the
  * nav is flush with the canvas. The first works on any nav theme; the second
- * reads best with `<html data-nav-theme="canvas">`, which paints the rail in the
- * page's own background so the panel is the only surface on screen. The shell
- * cannot set that attribute — the navigation tier is switched on `<html>`, on
- * purpose — so it is the application's line to write.
+ * reads best on the `canvas` nav theme, which paints the rail in the page's own
+ * background so the panel is the only surface on screen. That is the default, so
+ * there is nothing to write for it. The shell cannot set any other — the
+ * navigation tier is switched on `<html>`, on purpose — so a different nav theme
+ * is the application's line to write.
  *
  * **The nav's `floating` default comes from here.** A shadow under a rail that is
  * meant to sit flush is the mistake `contained` invites, and a caller who has

@@ -226,9 +226,9 @@ export const Introduction: Story = {
             badge at once, in both themes.
           </Note>
           <Note title="The nav has its own theme">
-            Its {navThemes.length} modes run from Neutral Inverse to Rose. All but Canvas are
-            absolute, so a nav stays put while the page around it switches to dark — a navigation
-            surface is a brand decision rather than a reading surface.
+            Canvas is the default, and it takes the page's own background and follows the theme. The
+            rest of its {navThemes.length} modes are absolute, so a nav stays put while the page
+            around it switches to dark — there, the surface is a brand decision.
           </Note>
           <Note title="The primary color is swappable">
             The primary Button and every selected control take one color, from {primaryThemes.length}{' '}

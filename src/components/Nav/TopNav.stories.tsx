@@ -103,8 +103,8 @@ export const IconUtilities: Story = {
  * `floating={false}` on the `canvas` nav theme — the combination the marketing
  * example in the docs frame draws. The shadow goes and the bar takes the page's
  * own background colour, so it sits flush with the page and only the selected
- * pill says where you are. Switch the **Nav** toolbar to Canvas to see it as
- * drawn.
+ * pill says where you are. Canvas is the default, so this is as drawn unless the
+ * **Nav** toolbar says otherwise.
  */
 export const Docked: Story = {
   parameters: { controls: { disable: true } },
