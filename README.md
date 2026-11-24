@@ -52,11 +52,12 @@ Figma variables  →  tokens/*.json  →  generate.py  →  src/styles/theme.css
 | **Colors** (primitives) | `@theme { --color-blue-500 … }` | `bg-blue-500` |
 | — (a code-side tier) | `:root { --neutral-800 … }` | the ramp `data-neutral` chooses |
 | **Semantic Theme** (Light/Dark) | `:root { … }` + `.dark { … }` | `bg-surface-canvas`, `text-content-primary` |
+| **Primary Theme** | `:root { --primary-background-light … }` + one `[data-primary-theme]` block per mode | the color behind `bg-action-primary-background` and `bg-input-selected` |
 | **Design Tokens** (spacing, type, radius, shadows) | `@theme { --radius-md … }` | `rounded-md`, `text-base`, `shadow-low` |
 | **Motion** (durations, easing) | `@theme { --transition-duration-fast … }` | `duration-fast`, `ease-standard` |
 
 `src/styles/theme.css` is **generated — never edit it by hand.** When Figma changes, re-export the
-three JSON files into `tokens/` and run `python3 generate.py`.
+JSON files into `tokens/` and run `python3 generate.py`.
 
 ### The rule for components
 
@@ -110,6 +111,22 @@ Two things worth knowing:
 
 Contrast is not automatic. The ramps differ slightly in lightness at the same step, so a pair that
 clears 4.5:1 on Stone is not guaranteed to on Olive. Check before shipping a non-default ramp.
+
+### Primary theme
+
+The primary Button and every selected control — Checkbox, Radio, Switch, Slider, ProgressBar — take
+one color, and it is swappable the same way:
+
+```html
+<html data-primary-theme="blue">                <!-- the whole app -->
+<section data-primary-theme="neutral-inverse">  <!-- or just one section -->
+```
+
+There are 36 modes: `neutral` (the default) and all seventeen Tailwind color ramps, each with an
+`-inverse`. Use an inverse on an emphasized surface, where the default would disappear. All of them
+follow dark mode, and the neutral pair follows `data-neutral`.
+
+Every mode is measured for contrast in `src/styles/primary-contrast.test.ts`.
 
 ### Color is OKLCH
 

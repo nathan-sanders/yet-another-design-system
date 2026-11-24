@@ -541,6 +541,500 @@
   --neutral-950: var(--color-neutral-950);
 }
 
+/* ---- 1c. The primary theme. Ten values across 36 modes, switched by ---- */
+/*    data-primary-theme="red" on <html> or on any section of the page.      */
+/*    Neutral is the default and also has its own block, so a section can      */
+/*    switch back. An inverse mode is for an emphasized surface.               */
+/*                                                                             */
+/*    Both themes are here at once, spelled -light and -dark: the semantic     */
+/*    layer picks one, so .dark needs no block in this tier. The neutral pair   */
+/*    goes through --neutral-*, so it follows data-neutral.                     */
+/*                                                                             */
+/*    Not in @theme, for the neutral ramp's reason: nobody paints with it.      */
+/*                                                                             */
+/*    The first ten modes are Figma's. The rest are derived in generate.py      */
+/*    from Red's steps or Green's, because the collection is full.             */
+:root {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--neutral-800);
+  --primary-background-dark: var(--neutral-100);
+  --primary-background-hover-light: var(--neutral-950);
+  --primary-background-hover-dark: var(--neutral-50);
+  --primary-border-light: var(--neutral-800);
+  --primary-border-dark: var(--neutral-100);
+  --primary-border-hover-light: var(--neutral-950);
+  --primary-border-hover-dark: var(--neutral-50);
+}
+
+[data-primary-theme="neutral"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--neutral-800);
+  --primary-background-dark: var(--neutral-100);
+  --primary-background-hover-light: var(--neutral-950);
+  --primary-background-hover-dark: var(--neutral-50);
+  --primary-border-light: var(--neutral-800);
+  --primary-border-dark: var(--neutral-100);
+  --primary-border-hover-light: var(--neutral-950);
+  --primary-border-hover-dark: var(--neutral-50);
+}
+
+[data-primary-theme="neutral-inverse"] {
+  --primary-foreground-light: var(--color-black);
+  --primary-foreground-dark: var(--color-white);
+  --primary-background-light: var(--neutral-100);
+  --primary-background-dark: var(--neutral-800);
+  --primary-background-hover-light: var(--neutral-50);
+  --primary-background-hover-dark: var(--neutral-950);
+  --primary-border-light: var(--neutral-100);
+  --primary-border-dark: var(--neutral-800);
+  --primary-border-hover-light: var(--neutral-50);
+  --primary-border-hover-dark: var(--neutral-950);
+}
+
+[data-primary-theme="red"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-red-600);
+  --primary-background-dark: var(--color-red-300);
+  --primary-background-hover-light: var(--color-red-700);
+  --primary-background-hover-dark: var(--color-red-200);
+  --primary-border-light: var(--color-red-600);
+  --primary-border-dark: var(--color-red-300);
+  --primary-border-hover-light: var(--color-red-700);
+  --primary-border-hover-dark: var(--color-red-200);
+}
+
+[data-primary-theme="red-inverse"] {
+  --primary-foreground-light: var(--color-red-950);
+  --primary-foreground-dark: var(--color-red-50);
+  --primary-background-light: var(--color-red-300);
+  --primary-background-dark: var(--color-red-800);
+  --primary-background-hover-light: var(--color-red-400);
+  --primary-background-hover-dark: var(--color-red-900);
+  --primary-border-light: var(--color-red-300);
+  --primary-border-dark: var(--color-red-800);
+  --primary-border-hover-light: var(--color-red-400);
+  --primary-border-hover-dark: var(--color-red-900);
+}
+
+[data-primary-theme="green"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-green-700);
+  --primary-background-dark: var(--color-green-300);
+  --primary-background-hover-light: var(--color-green-800);
+  --primary-background-hover-dark: var(--color-green-200);
+  --primary-border-light: var(--color-green-700);
+  --primary-border-dark: var(--color-green-300);
+  --primary-border-hover-light: var(--color-green-800);
+  --primary-border-hover-dark: var(--color-green-200);
+}
+
+[data-primary-theme="green-inverse"] {
+  --primary-foreground-light: var(--color-green-950);
+  --primary-foreground-dark: var(--color-green-50);
+  --primary-background-light: var(--color-green-300);
+  --primary-background-dark: var(--color-green-800);
+  --primary-background-hover-light: var(--color-green-400);
+  --primary-background-hover-dark: var(--color-green-900);
+  --primary-border-light: var(--color-green-300);
+  --primary-border-dark: var(--color-green-800);
+  --primary-border-hover-light: var(--color-green-400);
+  --primary-border-hover-dark: var(--color-green-900);
+}
+
+[data-primary-theme="blue"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-blue-600);
+  --primary-background-dark: var(--color-blue-300);
+  --primary-background-hover-light: var(--color-blue-700);
+  --primary-background-hover-dark: var(--color-blue-200);
+  --primary-border-light: var(--color-blue-600);
+  --primary-border-dark: var(--color-blue-300);
+  --primary-border-hover-light: var(--color-blue-700);
+  --primary-border-hover-dark: var(--color-blue-200);
+}
+
+[data-primary-theme="blue-inverse"] {
+  --primary-foreground-light: var(--color-blue-950);
+  --primary-foreground-dark: var(--color-blue-50);
+  --primary-background-light: var(--color-blue-300);
+  --primary-background-dark: var(--color-blue-800);
+  --primary-background-hover-light: var(--color-blue-400);
+  --primary-background-hover-dark: var(--color-blue-900);
+  --primary-border-light: var(--color-blue-300);
+  --primary-border-dark: var(--color-blue-800);
+  --primary-border-hover-light: var(--color-blue-400);
+  --primary-border-hover-dark: var(--color-blue-900);
+}
+
+[data-primary-theme="purple"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-purple-600);
+  --primary-background-dark: var(--color-purple-300);
+  --primary-background-hover-light: var(--color-purple-700);
+  --primary-background-hover-dark: var(--color-purple-200);
+  --primary-border-light: var(--color-purple-600);
+  --primary-border-dark: var(--color-purple-300);
+  --primary-border-hover-light: var(--color-purple-700);
+  --primary-border-hover-dark: var(--color-purple-200);
+}
+
+[data-primary-theme="purple-inverse"] {
+  --primary-foreground-light: var(--color-purple-950);
+  --primary-foreground-dark: var(--color-purple-50);
+  --primary-background-light: var(--color-purple-300);
+  --primary-background-dark: var(--color-purple-800);
+  --primary-background-hover-light: var(--color-purple-400);
+  --primary-background-hover-dark: var(--color-purple-900);
+  --primary-border-light: var(--color-purple-300);
+  --primary-border-dark: var(--color-purple-800);
+  --primary-border-hover-light: var(--color-purple-400);
+  --primary-border-hover-dark: var(--color-purple-900);
+}
+
+[data-primary-theme="orange"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-orange-700);
+  --primary-background-dark: var(--color-orange-300);
+  --primary-background-hover-light: var(--color-orange-800);
+  --primary-background-hover-dark: var(--color-orange-200);
+  --primary-border-light: var(--color-orange-700);
+  --primary-border-dark: var(--color-orange-300);
+  --primary-border-hover-light: var(--color-orange-800);
+  --primary-border-hover-dark: var(--color-orange-200);
+}
+
+[data-primary-theme="orange-inverse"] {
+  --primary-foreground-light: var(--color-orange-950);
+  --primary-foreground-dark: var(--color-orange-50);
+  --primary-background-light: var(--color-orange-300);
+  --primary-background-dark: var(--color-orange-800);
+  --primary-background-hover-light: var(--color-orange-400);
+  --primary-background-hover-dark: var(--color-orange-900);
+  --primary-border-light: var(--color-orange-300);
+  --primary-border-dark: var(--color-orange-800);
+  --primary-border-hover-light: var(--color-orange-400);
+  --primary-border-hover-dark: var(--color-orange-900);
+}
+
+[data-primary-theme="amber"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-amber-700);
+  --primary-background-dark: var(--color-amber-300);
+  --primary-background-hover-light: var(--color-amber-800);
+  --primary-background-hover-dark: var(--color-amber-200);
+  --primary-border-light: var(--color-amber-700);
+  --primary-border-dark: var(--color-amber-300);
+  --primary-border-hover-light: var(--color-amber-800);
+  --primary-border-hover-dark: var(--color-amber-200);
+}
+
+[data-primary-theme="amber-inverse"] {
+  --primary-foreground-light: var(--color-amber-950);
+  --primary-foreground-dark: var(--color-amber-50);
+  --primary-background-light: var(--color-amber-300);
+  --primary-background-dark: var(--color-amber-800);
+  --primary-background-hover-light: var(--color-amber-400);
+  --primary-background-hover-dark: var(--color-amber-900);
+  --primary-border-light: var(--color-amber-300);
+  --primary-border-dark: var(--color-amber-800);
+  --primary-border-hover-light: var(--color-amber-400);
+  --primary-border-hover-dark: var(--color-amber-900);
+}
+
+[data-primary-theme="yellow"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-yellow-700);
+  --primary-background-dark: var(--color-yellow-300);
+  --primary-background-hover-light: var(--color-yellow-800);
+  --primary-background-hover-dark: var(--color-yellow-200);
+  --primary-border-light: var(--color-yellow-700);
+  --primary-border-dark: var(--color-yellow-300);
+  --primary-border-hover-light: var(--color-yellow-800);
+  --primary-border-hover-dark: var(--color-yellow-200);
+}
+
+[data-primary-theme="yellow-inverse"] {
+  --primary-foreground-light: var(--color-yellow-950);
+  --primary-foreground-dark: var(--color-yellow-50);
+  --primary-background-light: var(--color-yellow-300);
+  --primary-background-dark: var(--color-yellow-800);
+  --primary-background-hover-light: var(--color-yellow-400);
+  --primary-background-hover-dark: var(--color-yellow-900);
+  --primary-border-light: var(--color-yellow-300);
+  --primary-border-dark: var(--color-yellow-800);
+  --primary-border-hover-light: var(--color-yellow-400);
+  --primary-border-hover-dark: var(--color-yellow-900);
+}
+
+[data-primary-theme="lime"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-lime-700);
+  --primary-background-dark: var(--color-lime-300);
+  --primary-background-hover-light: var(--color-lime-800);
+  --primary-background-hover-dark: var(--color-lime-200);
+  --primary-border-light: var(--color-lime-700);
+  --primary-border-dark: var(--color-lime-300);
+  --primary-border-hover-light: var(--color-lime-800);
+  --primary-border-hover-dark: var(--color-lime-200);
+}
+
+[data-primary-theme="lime-inverse"] {
+  --primary-foreground-light: var(--color-lime-950);
+  --primary-foreground-dark: var(--color-lime-50);
+  --primary-background-light: var(--color-lime-300);
+  --primary-background-dark: var(--color-lime-800);
+  --primary-background-hover-light: var(--color-lime-400);
+  --primary-background-hover-dark: var(--color-lime-900);
+  --primary-border-light: var(--color-lime-300);
+  --primary-border-dark: var(--color-lime-800);
+  --primary-border-hover-light: var(--color-lime-400);
+  --primary-border-hover-dark: var(--color-lime-900);
+}
+
+[data-primary-theme="emerald"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-emerald-700);
+  --primary-background-dark: var(--color-emerald-300);
+  --primary-background-hover-light: var(--color-emerald-800);
+  --primary-background-hover-dark: var(--color-emerald-200);
+  --primary-border-light: var(--color-emerald-700);
+  --primary-border-dark: var(--color-emerald-300);
+  --primary-border-hover-light: var(--color-emerald-800);
+  --primary-border-hover-dark: var(--color-emerald-200);
+}
+
+[data-primary-theme="emerald-inverse"] {
+  --primary-foreground-light: var(--color-emerald-950);
+  --primary-foreground-dark: var(--color-emerald-50);
+  --primary-background-light: var(--color-emerald-300);
+  --primary-background-dark: var(--color-emerald-800);
+  --primary-background-hover-light: var(--color-emerald-400);
+  --primary-background-hover-dark: var(--color-emerald-900);
+  --primary-border-light: var(--color-emerald-300);
+  --primary-border-dark: var(--color-emerald-800);
+  --primary-border-hover-light: var(--color-emerald-400);
+  --primary-border-hover-dark: var(--color-emerald-900);
+}
+
+[data-primary-theme="teal"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-teal-700);
+  --primary-background-dark: var(--color-teal-300);
+  --primary-background-hover-light: var(--color-teal-800);
+  --primary-background-hover-dark: var(--color-teal-200);
+  --primary-border-light: var(--color-teal-700);
+  --primary-border-dark: var(--color-teal-300);
+  --primary-border-hover-light: var(--color-teal-800);
+  --primary-border-hover-dark: var(--color-teal-200);
+}
+
+[data-primary-theme="teal-inverse"] {
+  --primary-foreground-light: var(--color-teal-950);
+  --primary-foreground-dark: var(--color-teal-50);
+  --primary-background-light: var(--color-teal-300);
+  --primary-background-dark: var(--color-teal-800);
+  --primary-background-hover-light: var(--color-teal-400);
+  --primary-background-hover-dark: var(--color-teal-900);
+  --primary-border-light: var(--color-teal-300);
+  --primary-border-dark: var(--color-teal-800);
+  --primary-border-hover-light: var(--color-teal-400);
+  --primary-border-hover-dark: var(--color-teal-900);
+}
+
+[data-primary-theme="cyan"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-cyan-700);
+  --primary-background-dark: var(--color-cyan-300);
+  --primary-background-hover-light: var(--color-cyan-800);
+  --primary-background-hover-dark: var(--color-cyan-200);
+  --primary-border-light: var(--color-cyan-700);
+  --primary-border-dark: var(--color-cyan-300);
+  --primary-border-hover-light: var(--color-cyan-800);
+  --primary-border-hover-dark: var(--color-cyan-200);
+}
+
+[data-primary-theme="cyan-inverse"] {
+  --primary-foreground-light: var(--color-cyan-950);
+  --primary-foreground-dark: var(--color-cyan-50);
+  --primary-background-light: var(--color-cyan-300);
+  --primary-background-dark: var(--color-cyan-800);
+  --primary-background-hover-light: var(--color-cyan-400);
+  --primary-background-hover-dark: var(--color-cyan-900);
+  --primary-border-light: var(--color-cyan-300);
+  --primary-border-dark: var(--color-cyan-800);
+  --primary-border-hover-light: var(--color-cyan-400);
+  --primary-border-hover-dark: var(--color-cyan-900);
+}
+
+[data-primary-theme="sky"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-sky-700);
+  --primary-background-dark: var(--color-sky-300);
+  --primary-background-hover-light: var(--color-sky-800);
+  --primary-background-hover-dark: var(--color-sky-200);
+  --primary-border-light: var(--color-sky-700);
+  --primary-border-dark: var(--color-sky-300);
+  --primary-border-hover-light: var(--color-sky-800);
+  --primary-border-hover-dark: var(--color-sky-200);
+}
+
+[data-primary-theme="sky-inverse"] {
+  --primary-foreground-light: var(--color-sky-950);
+  --primary-foreground-dark: var(--color-sky-50);
+  --primary-background-light: var(--color-sky-300);
+  --primary-background-dark: var(--color-sky-800);
+  --primary-background-hover-light: var(--color-sky-400);
+  --primary-background-hover-dark: var(--color-sky-900);
+  --primary-border-light: var(--color-sky-300);
+  --primary-border-dark: var(--color-sky-800);
+  --primary-border-hover-light: var(--color-sky-400);
+  --primary-border-hover-dark: var(--color-sky-900);
+}
+
+[data-primary-theme="indigo"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-indigo-600);
+  --primary-background-dark: var(--color-indigo-300);
+  --primary-background-hover-light: var(--color-indigo-700);
+  --primary-background-hover-dark: var(--color-indigo-200);
+  --primary-border-light: var(--color-indigo-600);
+  --primary-border-dark: var(--color-indigo-300);
+  --primary-border-hover-light: var(--color-indigo-700);
+  --primary-border-hover-dark: var(--color-indigo-200);
+}
+
+[data-primary-theme="indigo-inverse"] {
+  --primary-foreground-light: var(--color-indigo-950);
+  --primary-foreground-dark: var(--color-indigo-50);
+  --primary-background-light: var(--color-indigo-300);
+  --primary-background-dark: var(--color-indigo-800);
+  --primary-background-hover-light: var(--color-indigo-400);
+  --primary-background-hover-dark: var(--color-indigo-900);
+  --primary-border-light: var(--color-indigo-300);
+  --primary-border-dark: var(--color-indigo-800);
+  --primary-border-hover-light: var(--color-indigo-400);
+  --primary-border-hover-dark: var(--color-indigo-900);
+}
+
+[data-primary-theme="violet"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-violet-600);
+  --primary-background-dark: var(--color-violet-300);
+  --primary-background-hover-light: var(--color-violet-700);
+  --primary-background-hover-dark: var(--color-violet-200);
+  --primary-border-light: var(--color-violet-600);
+  --primary-border-dark: var(--color-violet-300);
+  --primary-border-hover-light: var(--color-violet-700);
+  --primary-border-hover-dark: var(--color-violet-200);
+}
+
+[data-primary-theme="violet-inverse"] {
+  --primary-foreground-light: var(--color-violet-950);
+  --primary-foreground-dark: var(--color-violet-50);
+  --primary-background-light: var(--color-violet-300);
+  --primary-background-dark: var(--color-violet-800);
+  --primary-background-hover-light: var(--color-violet-400);
+  --primary-background-hover-dark: var(--color-violet-900);
+  --primary-border-light: var(--color-violet-300);
+  --primary-border-dark: var(--color-violet-800);
+  --primary-border-hover-light: var(--color-violet-400);
+  --primary-border-hover-dark: var(--color-violet-900);
+}
+
+[data-primary-theme="fuchsia"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-fuchsia-600);
+  --primary-background-dark: var(--color-fuchsia-300);
+  --primary-background-hover-light: var(--color-fuchsia-700);
+  --primary-background-hover-dark: var(--color-fuchsia-200);
+  --primary-border-light: var(--color-fuchsia-600);
+  --primary-border-dark: var(--color-fuchsia-300);
+  --primary-border-hover-light: var(--color-fuchsia-700);
+  --primary-border-hover-dark: var(--color-fuchsia-200);
+}
+
+[data-primary-theme="fuchsia-inverse"] {
+  --primary-foreground-light: var(--color-fuchsia-950);
+  --primary-foreground-dark: var(--color-fuchsia-50);
+  --primary-background-light: var(--color-fuchsia-300);
+  --primary-background-dark: var(--color-fuchsia-800);
+  --primary-background-hover-light: var(--color-fuchsia-400);
+  --primary-background-hover-dark: var(--color-fuchsia-900);
+  --primary-border-light: var(--color-fuchsia-300);
+  --primary-border-dark: var(--color-fuchsia-800);
+  --primary-border-hover-light: var(--color-fuchsia-400);
+  --primary-border-hover-dark: var(--color-fuchsia-900);
+}
+
+[data-primary-theme="pink"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-pink-600);
+  --primary-background-dark: var(--color-pink-300);
+  --primary-background-hover-light: var(--color-pink-700);
+  --primary-background-hover-dark: var(--color-pink-200);
+  --primary-border-light: var(--color-pink-600);
+  --primary-border-dark: var(--color-pink-300);
+  --primary-border-hover-light: var(--color-pink-700);
+  --primary-border-hover-dark: var(--color-pink-200);
+}
+
+[data-primary-theme="pink-inverse"] {
+  --primary-foreground-light: var(--color-pink-950);
+  --primary-foreground-dark: var(--color-pink-50);
+  --primary-background-light: var(--color-pink-300);
+  --primary-background-dark: var(--color-pink-800);
+  --primary-background-hover-light: var(--color-pink-400);
+  --primary-background-hover-dark: var(--color-pink-900);
+  --primary-border-light: var(--color-pink-300);
+  --primary-border-dark: var(--color-pink-800);
+  --primary-border-hover-light: var(--color-pink-400);
+  --primary-border-hover-dark: var(--color-pink-900);
+}
+
+[data-primary-theme="rose"] {
+  --primary-foreground-light: var(--color-white);
+  --primary-foreground-dark: var(--color-black);
+  --primary-background-light: var(--color-rose-600);
+  --primary-background-dark: var(--color-rose-300);
+  --primary-background-hover-light: var(--color-rose-700);
+  --primary-background-hover-dark: var(--color-rose-200);
+  --primary-border-light: var(--color-rose-600);
+  --primary-border-dark: var(--color-rose-300);
+  --primary-border-hover-light: var(--color-rose-700);
+  --primary-border-hover-dark: var(--color-rose-200);
+}
+
+[data-primary-theme="rose-inverse"] {
+  --primary-foreground-light: var(--color-rose-950);
+  --primary-foreground-dark: var(--color-rose-50);
+  --primary-background-light: var(--color-rose-300);
+  --primary-background-dark: var(--color-rose-800);
+  --primary-background-hover-light: var(--color-rose-400);
+  --primary-background-hover-dark: var(--color-rose-900);
+  --primary-border-light: var(--color-rose-300);
+  --primary-border-dark: var(--color-rose-800);
+  --primary-border-hover-light: var(--color-rose-400);
+  --primary-border-hover-dark: var(--color-rose-900);
+}
+
 /* ---- 2. Semantic tokens (theme-aware). Light is default; .dark overrides. ---- */
 :root {
   --surface-canvas: var(--neutral-100);
@@ -554,11 +1048,11 @@
   --surface-border-emphasized: var(--neutral-800);
   --surface-border-ghost: var(--color-white);
   --content-emphasized: var(--neutral-950);
-  --action-primary-foreground: var(--color-white);
-  --action-primary-background: var(--neutral-800);
-  --action-primary-background-hover: var(--neutral-950);
-  --action-primary-border: var(--neutral-800);
-  --action-primary-border-hover: var(--neutral-950);
+  --action-primary-foreground: var(--primary-foreground-light);
+  --action-primary-background: var(--primary-background-light);
+  --action-primary-background-hover: var(--primary-background-hover-light);
+  --action-primary-border: var(--primary-border-light);
+  --action-primary-border-hover: var(--primary-border-hover-light);
   --action-secondary-foreground: var(--neutral-800);
   --action-secondary-background: var(--neutral-200);
   --action-secondary-background-hover: var(--neutral-200);
@@ -582,8 +1076,8 @@
   --input-background: var(--color-white);
   --input-border: var(--neutral-500);
   --input-border-hover: var(--neutral-700);
-  --input-selected: var(--neutral-600);
-  --input-selected-foreground: var(--color-white);
+  --input-selected: var(--primary-background-light);
+  --input-selected-foreground: var(--primary-foreground-light);
   --content-primary: var(--neutral-800);
   --content-subtle: var(--neutral-600);
   --content-inverse: var(--color-white);
@@ -756,11 +1250,11 @@
   --surface-border-emphasized: var(--neutral-100);
   --surface-border-ghost: var(--neutral-700);
   --content-emphasized: var(--color-white);
-  --action-primary-foreground: var(--color-black);
-  --action-primary-background: var(--neutral-100);
-  --action-primary-background-hover: var(--neutral-50);
-  --action-primary-border: var(--neutral-100);
-  --action-primary-border-hover: var(--neutral-50);
+  --action-primary-foreground: var(--primary-foreground-dark);
+  --action-primary-background: var(--primary-background-dark);
+  --action-primary-background-hover: var(--primary-background-hover-dark);
+  --action-primary-border: var(--primary-border-dark);
+  --action-primary-border-hover: var(--primary-border-hover-dark);
   --action-secondary-foreground: var(--neutral-100);
   --action-secondary-background: var(--neutral-800);
   --action-secondary-background-hover: var(--neutral-800);
@@ -784,8 +1278,8 @@
   --input-background: var(--neutral-900);
   --input-border: var(--neutral-500);
   --input-border-hover: var(--neutral-400);
-  --input-selected: var(--neutral-100);
-  --input-selected-foreground: var(--color-black);
+  --input-selected: var(--primary-background-dark);
+  --input-selected-foreground: var(--primary-foreground-dark);
   --content-primary: var(--neutral-100);
   --content-subtle: var(--neutral-400);
   --content-inverse: var(--neutral-950);
@@ -944,6 +1438,31 @@
   --syntax-diff-header: color-mix(in oklab, var(--neutral-900) 0%, transparent);
   --syntax-added-marker: var(--neutral-400);
   --syntax-removed-marker: var(--neutral-400);
+}
+
+/* ---- 2a. The semantic tokens that resolve through the primary theme, ---- */
+/*    declared again wherever the attribute is. A custom property resolves on   */
+/*    the element that declares it, so without this a section's attribute       */
+/*    would move --primary-* and nothing painted with it.                       */
+[data-primary-theme] {
+  --action-primary-foreground: var(--primary-foreground-light);
+  --action-primary-background: var(--primary-background-light);
+  --action-primary-background-hover: var(--primary-background-hover-light);
+  --action-primary-border: var(--primary-border-light);
+  --action-primary-border-hover: var(--primary-border-hover-light);
+  --input-selected: var(--primary-background-light);
+  --input-selected-foreground: var(--primary-foreground-light);
+}
+
+.dark[data-primary-theme],
+.dark [data-primary-theme] {
+  --action-primary-foreground: var(--primary-foreground-dark);
+  --action-primary-background: var(--primary-background-dark);
+  --action-primary-background-hover: var(--primary-background-hover-dark);
+  --action-primary-border: var(--primary-border-dark);
+  --action-primary-border-hover: var(--primary-border-hover-dark);
+  --input-selected: var(--primary-background-dark);
+  --input-selected-foreground: var(--primary-foreground-dark);
 }
 
 /* ---- 2b. The navigation theme. Seven tokens across 37 modes, switched by ---- */

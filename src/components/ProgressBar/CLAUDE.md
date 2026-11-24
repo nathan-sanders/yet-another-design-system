@@ -82,11 +82,13 @@ as a percentage. A plain `Intl.NumberFormat` on the raw number gives "80" beside
 "75%". Slider does not hit this because its bounds *are* raw values on the same scale.
 
 **There are four types, not Astryx's five — `neutral` has nowhere to be.** Astryx's accent is blue
-and its neutral is gray, so those are plainly different things. Here `default` is already gray
-(`Input/Selected`, Slider's fill), and every other gray in the semantic layer collides with it in one
-theme or the other: `Surface/Background Emphasized` and `Surface/Border Emphasized` are both Stone/100
-in dark, which is exactly `Input/Selected`, and `Content/Subtle` is Stone/600 in light, which is also
-exactly `Input/Selected`. It shipped with a neutral first and **the Figma dark preview is where the
+and its neutral is gray, so those are plainly different things. Here `default` is already gray by
+default (`Input/Selected`, Slider's fill, through the primary theme), and the darkest grays in the
+semantic layer collide with it: `Surface/Background Emphasized` and `Surface/Border Emphasized` are
+Stone/800 in light and Stone/100 in dark, which is exactly `Input/Selected` in both. When this was
+decided `Input/Selected` was Stone/600 in light, so `Content/Subtle` collided too. It stopped on
+2026-11-24, when the primary theme moved `Input/Selected` to Stone/800, so a `neutral` on
+`Content/Subtle` could be reopened; nobody has asked for one. It shipped with a neutral first and **the Figma dark preview is where the
 collision showed** — two rows that were identical bars. A variant that vanishes into another one in
 half the themes is worse than an absent variant.
 

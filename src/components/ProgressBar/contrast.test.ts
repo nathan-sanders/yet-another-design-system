@@ -122,8 +122,9 @@ function resolve(token: string): Themed {
   /**
    * Follow the aliases down to a primitive. A semantic can point at another
    * semantic (`--feedback-warning-highlight: var(--decorative-yellow-highlight)`),
-   * at the neutral tier (`var(--neutral-200)`), or straight at a ramp
-   * (`var(--color-yellow-600)`), so all three cases have to be walked.
+   * at the neutral tier (`var(--neutral-200)`), at the primary theme
+   * (`var(--primary-background-light)`), or straight at a ramp
+   * (`var(--color-yellow-600)`), so all four cases have to be walked.
    */
   const toPrimitive = (body: string, name: string): string => {
     if (name.startsWith('color-')) return name.slice('color-'.length)
@@ -131,11 +132,19 @@ function resolve(token: string): Themed {
     // currently says. Stone is the default and the one the stories render.
     if (name.startsWith('neutral-')) return `stone-${name.slice('neutral-'.length)}`
 
+    // The primary theme, at its default. Its values live in their own `:root`
+    // block; `primary-contrast.test.ts` holds the other thirty-five modes to
+    // this same track.
+    if (name.startsWith('primary-') && body !== primaryBlock) {
+      return toPrimitive(primaryBlock, name)
+    }
+
     const match = body.match(new RegExp(`--${name}:\\s*var\\(--([a-z0-9-]+)\\);`))
     if (!match) throw new Error(`--${name} does not name a variable in that block`)
     return toPrimitive(body, match[1])
   }
 
+  const primaryBlock = block(/:root\s*\{\s*\n(\s*--primary-[\s\S]*?)\n\}/)
   const lightBlock = block(/:root\s*\{\s*\n(\s*--surface-canvas:[\s\S]*?)\n\}/)
   const darkBlock = block(/\.dark\s*\{\s*\n(\s*--surface-canvas:[\s\S]*?)\n\}/)
 

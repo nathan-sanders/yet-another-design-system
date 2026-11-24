@@ -98,6 +98,39 @@ NAV_RECIPE_OVERRIDES = {
     ("Nav Content/Subtle", "light"): 700,
 }
 
+# ---------- the primary theme ----------
+# What a primary action and a ticked control are painted in: ten variables, one
+# mode per color, and an inverse of each. The default is the solid fill for an
+# ordinary surface; the inverse is the one that still shows on an emphasized
+# (dark in light mode) surface.
+#
+# Unlike the navigation theme it follows .dark, and it does so without a dark
+# block of its own: Figma spells both themes into the variable names
+# ("Background - Light", "Background - Dark") and the semantic token picks one.
+#
+# The order is Figma's, and the first entry is Figma's default mode.
+PRIMARY_MODES = ["neutral", "neutral-inverse", "red", "red-inverse",
+                 "green", "green-inverse", "blue", "blue-inverse",
+                 "purple", "purple-inverse"]
+
+# Figma is full at ten modes, so the other thirteen ramps are derived here, as
+# the navigation theme's are -- but from TWO recipes, and the split is contrast.
+# White on step 600 clears 4.5:1 on eight ramps out of seventeen (worst rose,
+# 4.51:1) and fails on nine (worst yellow, 2.93:1). The nine take 700 with an
+# 800 hover, worst yellow at 4.92:1. Green is the one of the nine Figma holds,
+# so it is the recipe for the rest of them; Red is the recipe for the others.
+# Both recipes are the export's: retune Red or Green in Figma and its family
+# follows on the next run. primary-contrast.test.ts holds every mode to it.
+PRIMARY_RECIPES = {
+    "red": ["indigo", "violet", "fuchsia", "pink", "rose"],
+    "green": ["orange", "amber", "yellow", "lime", "emerald", "teal", "cyan",
+              "sky"],
+}
+# Tailwind's spectrum order, for the stylesheet.
+PRIMARY_CODE_RAMPS = ["orange", "amber", "yellow", "lime", "emerald", "teal",
+                      "cyan", "sky", "indigo", "violet", "fuchsia", "pink",
+                      "rose"]
+
 def load(name):
     with open(os.path.join(T, name)) as f:
         return json.load(f)
@@ -119,6 +152,7 @@ sem = load("semantic.json")
 dims = load("dimensions.json") + load_optional("motion.json")
 navs = load("navigation.json")
 radii = load("radius.json")
+primary = load("primary.json")
 
 # Derive the code-only modes, one ramp at a time, straight onto the rows the
 # export just produced. They come out in the same "@Teal/900" shape a Figma
@@ -149,6 +183,33 @@ for _ramp in NAV_CODE_RAMPS:
             _row[f"{_ramp}-inverse" if _variant == "inverse" else _ramp] = \
                 f"@{_title}/{_step}"
     NAV_MODES += [f"{_ramp}-inverse", _ramp]
+
+# The same for the primary theme. White and Black are copied through -- they are
+# the foreground of every default mode -- and anything else that is not a step of
+# the recipe's own ramp means there is no recipe left to copy.
+_primary_recipe = {r: recipe for recipe, ramps in PRIMARY_RECIPES.items()
+                   for r in ramps}
+if sorted(_primary_recipe) != sorted(PRIMARY_CODE_RAMPS):
+    raise SystemExit("primary: PRIMARY_RECIPES and PRIMARY_CODE_RAMPS list "
+                     "different ramps")
+
+for _ramp in PRIMARY_CODE_RAMPS:
+    _recipe = _primary_recipe[_ramp]
+    for _row in primary:
+        for _suffix in ("", "-inverse"):
+            _val = _row[_recipe + _suffix]
+            if _val not in ("@White", "@Black"):
+                _m = NAV_STEP_RE.match(_val)
+                if not _m or _m.group(1).lower() != _recipe:
+                    raise SystemExit(
+                        f"primary: cannot derive from {_recipe}{_suffix} — "
+                        f"{_row['n']} is {_val!r}, not a step of that ramp")
+                _val = f"@{_ramp.capitalize()}/{_m.group(2)}"
+                if _val[1:] not in _prim_names:
+                    raise SystemExit(f"primary: {_val[1:]} is not in "
+                                     f"primitives.json, needed by {_ramp}")
+            _row[_ramp + _suffix] = _val
+    PRIMARY_MODES += [_ramp, f"{_ramp}-inverse"]
 
 def slug(name):
     """Figma variable name -> CSS custom property name (without the leading --).
@@ -311,6 +372,12 @@ for p in prims:
     ref[p["n"]] = f"var(--color-{slug(p['n'])})"
 for s in sem:
     ref[s["n"]] = f"var(--{slug(s['n'])})"
+# Primary Theme's names, spelled with the collection the way "Neutral Palette/"
+# is -- and bare as well, because the exporter writes an alias as the variable's
+# own name and "Background - Light" collides with nothing.
+for _row in primary:
+    ref[f"Primary Theme/{_row['n']}"] = ref[_row["n"]] = \
+        f"var(--primary-{slug(_row['n'])})"
 
 # Figma stores an alias-times-opacity as a COMPOSE_COLOR expression. The
 # exporter spells it "COMPOSE_COLOR(@Surface/Canvas, 0)"; the second argument is
@@ -488,6 +555,45 @@ for scale in NEUTRAL_SCALES:
     neutral_lines.append("")
     neutral_lines += neutral_block(f':root[data-neutral="{scale}"]', scale)
 
+# ---- 1c. the primary theme tier ----
+def primary_block(selector, mode):
+    return ([f"{selector} {{"]
+            + [f"  --primary-{slug(r['n'])}: {resolve(r[mode])};" for r in primary]
+            + ["}"])
+
+primary_lines = primary_block(":root", PRIMARY_MODES[0])
+for mode in PRIMARY_MODES:
+    primary_lines.append("")
+    primary_lines += primary_block(f'[data-primary-theme="{mode}"]', mode)
+
+# ---- 2a. the semantic tokens that resolve through it ----
+# A custom property is resolved on the element that declares it, so setting
+# --primary-* on a section would not move an --action-primary-background already
+# computed on <html>. Re-declaring these where the attribute is does. Found by
+# following the aliases rather than listed, so a token Figma re-points at Primary
+# Theme joins the list on the next export.
+_primary_refs = {f"var(--primary-{slug(r['n'])})" for r in primary}
+def _aliases_into(s, targets):
+    # ref, not resolve(): resolve() logs every alpha it re-points.
+    return any(ref.get(str(s[t])[1:]) in targets for t in ("light", "dark"))
+
+_themed = [s for s in sem if _aliases_into(s, _primary_refs)]
+if not _themed:
+    raise SystemExit("primary: no semantic token aliases Primary Theme, so the "
+                     "switch would move nothing")
+_themed_vars = {f"var(--{slug(s['n'])})" for s in _themed}
+for s in sem:
+    if _aliases_into(s, _themed_vars):
+        raise SystemExit(f"primary: {s['n']} aliases a token that aliases Primary "
+                         "Theme; point it at Primary Theme so a section can move it")
+
+primary_semantic_lines = (
+    ["[data-primary-theme] {"]
+    + [f"  --{slug(s['n'])}: {resolve(s['light'])};" for s in _themed]
+    + ["}", "", ".dark[data-primary-theme],", ".dark [data-primary-theme] {"]
+    + [f"  --{slug(s['n'])}: {resolve(s['dark'])};" for s in _themed]
+    + ["}"])
+
 # ---- 2b. the navigation theme tier ----
 # Figma names six of the seven "Nav Content/Primary", "Nav Item/Border Hover"
 # and so on, and the seventh just "Background". Strip a leading "Nav" and
@@ -568,6 +674,21 @@ out.append("/*    :root[data-neutral=…] is (0,2,0) so it beats bare :root what
 out.append("/*    source order — both land on the same <html> element.                      */")
 out += neutral_lines
 out.append("")
+out.append("/* ---- 1c. The primary theme. Ten values across %d modes, switched by ---- */" % len(PRIMARY_MODES))
+out.append("/*    data-primary-theme=\"red\" on <html> or on any section of the page.      */")
+out.append("/*    Neutral is the default and also has its own block, so a section can      */")
+out.append("/*    switch back. An inverse mode is for an emphasized surface.               */")
+out.append("/*                                                                             */")
+out.append("/*    Both themes are here at once, spelled -light and -dark: the semantic     */")
+out.append("/*    layer picks one, so .dark needs no block in this tier. The neutral pair   */")
+out.append("/*    goes through --neutral-*, so it follows data-neutral.                     */")
+out.append("/*                                                                             */")
+out.append("/*    Not in @theme, for the neutral ramp's reason: nobody paints with it.      */")
+out.append("/*                                                                             */")
+out.append("/*    The first ten modes are Figma's. The rest are derived in generate.py      */")
+out.append("/*    from Red's steps or Green's, because the collection is full.             */")
+out += primary_lines
+out.append("")
 out.append("/* ---- 2. Semantic tokens (theme-aware). Light is default; .dark overrides. ---- */")
 out.append(":root {")
 out += light_lines
@@ -576,6 +697,12 @@ out.append("")
 out.append(".dark {")
 out += dark_lines
 out.append("}")
+out.append("")
+out.append("/* ---- 2a. The semantic tokens that resolve through the primary theme, ---- */")
+out.append("/*    declared again wherever the attribute is. A custom property resolves on   */")
+out.append("/*    the element that declares it, so without this a section's attribute       */")
+out.append("/*    would move --primary-* and nothing painted with it.                       */")
+out += primary_semantic_lines
 out.append("")
 out.append("/* ---- 2b. The navigation theme. Seven tokens across %d modes, switched by ---- */" % len(NAV_MODES))
 out.append("/*     one attribute: <html data-nav-theme=\"blue-inverse\">. Neutral Inverse is    */")
@@ -787,6 +914,8 @@ print(f"neutral ramp: {len(NEUTRAL_SCALES)} scales x {len(NEUTRAL_STEPS)} steps 
       f"(default {NEUTRAL_SCALES[0]}), via --neutral-*")
 print(f"navigation: {len(navs)} tokens x {len(NAV_MODES)} modes "
       f"(default {NAV_MODES[0]}), via --nav-*")
+print(f"primary: {len(primary)} values x {len(PRIMARY_MODES)} modes "
+      f"(default {PRIMARY_MODES[0]}), moving {len(_themed)} semantic tokens")
 if stats["neutralized"]:
     print(f"  {len(stats['neutralized'])} raw alpha color(s) re-pointed onto the neutral tier:")
     for hexval, mixed in stats["neutralized"]:
