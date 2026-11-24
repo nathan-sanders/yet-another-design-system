@@ -214,6 +214,29 @@ export function navMode(mode: string): Decl[] {
 /** The seven roles a nav theme re-points, `--nav-background` … in file order. */
 export const navTokens: string[] = navMode(navThemes[0]).map((d) => d.name.slice(2))
 
+/* ----------------------------------------------------------------- primary */
+
+/**
+ * The modes `data-primary-theme` can put a page or a section in, in file order:
+ * each color family, then its inverse.
+ */
+export const primaryThemes: string[] = BLOCKS.flatMap((b) => {
+  const m = /^\[data-primary-theme="([a-z-]+)"\]$/.exec(b.selector)
+  return m ? [m[1]] : []
+})
+
+/** What one mode declares. Both themes at once: `--primary-background-light`, `-dark`. */
+export function primaryMode(mode: string): Map<string, string> {
+  return new Map(
+    block((b) => b.selector === `[data-primary-theme="${mode}"]`).map((d) => [d.name, d.value]),
+  )
+}
+
+/** The semantic tokens the switch moves — the ones a themed section declares again. */
+export const primaryTokens: string[] = block((b) => b.selector === '[data-primary-theme]').map((d) =>
+  d.name.slice(2),
+)
+
 /* -------------------------------------------------------------- dimensions */
 
 export type TypeStep = { name: string; size: string; lineHeight: string }

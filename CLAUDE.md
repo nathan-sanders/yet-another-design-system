@@ -65,6 +65,8 @@ PR, never inside an app PR.
 - `:root { --surface-canvas … }` and `.dark { … }` — the **semantic** tokens (role-based, theme-aware).
 - `:root { --shape-button … }` plus one `:root[data-radius="…"]` block per mode — the **radius
   roles**, see below.
+- `:root { --primary-background-light … }` plus one `[data-primary-theme="…"]` block per mode, and
+  the semantic tokens that resolve through it declared again — the **primary theme**, see below.
 - `@theme inline { --color-surface-canvas: var(--surface-canvas) … }` — exposes semantic tokens as
   color utilities.
 - A trailing `:root` for reference-only values: `--border-width-*`, `--opacity-*`,
@@ -323,6 +325,52 @@ needs separating from its ground.
 The benchmark, alt and placeholder entries are the exception to all of it and still differ per mode
 on their own logic, because they are ground, not series.
 
+### The primary theme
+
+A swappable collection like the navigation theme, but it sits **under** the semantic layer rather
+than beside it: **`Primary Theme`** (`VariableCollectionId:40006648:117108`), ten variables, and seven
+semantic tokens alias it — `Action/Primary/*` (five), `Input/Selected` and `Input/Selected
+Foreground`. So it is the color of the primary Button and of every selected control, and no component
+had to change to get it. `tokens/primary.json` (the export) → sections 1c and 2a of `theme.css`. The
+switch is `data-primary-theme="blue"`; the Storybook toolbar has a **Primary** menu, and **Foundations
+→ Semantic Color → Primary Theme** shows every mode at once.
+
+**Thirty-six modes: neutral and the seventeen color ramps, each with an inverse.** Ten are Figma's
+(Neutral, Red, Green, Blue, Purple, and their inverses), which is all a collection holds on the Pro
+plan. The other thirteen ramps are derived in `generate.py`.
+
+- **Light and dark are in the variable names, not in modes.** `Background - Light`, `Background -
+  Dark`: the collection has one mode axis and spends it on the color, and the semantic token's own
+  Light/Dark picks the half. So the tier has no `.dark` block and follows the theme anyway.
+- **It works on a section, and the inverses are why it has to.** Neutral Inverse is step 100 in light
+  — the canvas color — so it only means something on an emphasized surface, beside a page that is on
+  the default. A custom property is resolved on the element that *declares* it, so putting
+  `--primary-*` on a section would not move an `--action-primary-background` already computed on
+  `<html>`; section 2a declares those seven again under `[data-primary-theme]`. The list is found by
+  following the aliases, so a token Figma re-points at Primary Theme joins it by itself, and
+  `generate.py` refuses a token that reaches it through *another* semantic token.
+- **A popup wears the page's theme.** It is portalled to `<body>`, out of the section. That is
+  usually right, because the popup paints its own surface.
+- **There are two recipes, and the split is contrast.** White on step 600 clears 4.5:1 on eight
+  ramps (worst rose, 4.51) and fails on nine (worst yellow, 2.93). Nathan settled it on 2026-11-24:
+  the nine take **700 with an 800 hover** (worst yellow, 4.92). Green was the one of the nine in
+  Figma, at 3.22:1, and moved at source. So Red is the recipe for the ramps that hold at 600 and
+  Green for the ones that do not, both read out of the export: retune either and its family follows.
+  Adding a ramp is one word in `PRIMARY_RECIPES` and one in `PRIMARY_CODE_RAMPS`.
+- **`primary-contrast.test.ts` holds all thirty-six**, in both themes: the label on its fill at rest
+  and hovered, a default's fill on the canvas, a card and a Slider's track, an inverse's fill on
+  `surface-background-emphasized`. A Figma mode that goes red is fixed in Figma.
+- **Never paint with `--primary-*`.** It is not in `@theme`, so there is no `bg-primary-*`, for the
+  neutral tier's reason.
+- **Two alias spellings resolve**: `@Primary Theme/Background - Light`, which is what the JSON says,
+  and the bare `@Background - Light` a re-export may write.
+- **`Input/Selected` moved from step 600 to 800 in light** when Figma aliased it, so a selected
+  control and the primary Button are now one color in both themes. Not a slip to restore.
+- Figma's 🎨 Token Reference page documents it as `06 · Primary Theme` (`40006653:631`). Its hex and
+  step captions are typed text, so a retuned step means retyping them.
+- The red themes are close to Destructive, which the primary theme does not move. A red app should
+  know its Delete button is the paler of the two.
+
 ### The radius roles
 
 A third swappable collection, and the first that is not color: **`Border Radius`**, eight roles
@@ -503,7 +551,7 @@ to the card and draws none on the box — the box is inside the card, so both wo
 ### Refreshing tokens
 
 Figma → `tokens/*.json` → `generate.py` → `src/styles/theme.css`. When Figma changes, re-export the
-JSON files (`primitives`, `semantic`, `dimensions`, `navigation`, `radius`) and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
+JSON files (`primitives`, `semantic`, `dimensions`, `navigation`, `primary`, `radius`) and run `python3 generate.py`. Never hand-edit the generated `theme.css`.
 
 `generate.py` refuses to write if it would emit an invalid CSS custom property name. This matters:
 an invalid name is dropped **silently** by the browser, which is how eight diverging colors once

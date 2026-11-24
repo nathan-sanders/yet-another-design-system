@@ -263,11 +263,9 @@ const markLabel = tv({
  * **There is no `neutral`, because there is nowhere for it to be.** Astryx's
  * accent is blue and its neutral is gray, so the two are plainly different
  * things. Here `default` is already gray — `Input/Selected`, Slider's fill — and
- * every other gray in the semantic layer collides with it in one theme or the
- * other: `Surface/Background Emphasized` and `Surface/Border Emphasized` are both
- * Stone/100 in dark, exactly what `Input/Selected` is, and `Content/Subtle` is
- * Stone/600 in light, exactly what `Input/Selected` is. It was built with a
- * neutral first, and the dark preview is where the collision showed.
+ * when this was decided every other gray in the semantic layer collided with it
+ * in one theme or the other. It was built with a neutral first, and the dark
+ * preview is where the collision showed. The record has which grays still do.
  *
  * A variant that disappears into another one in half of the themes is worse than
  * an absent variant, so `default` carries the quiet case on its own.

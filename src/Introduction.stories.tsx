@@ -8,6 +8,7 @@ import {
   navThemes,
   navTokens,
   neutralRamps,
+  primaryThemes,
   radiusModes,
   radiusRoles,
   semanticTokenCount,
@@ -134,6 +135,7 @@ export const Introduction: Story = {
           <Stat value={chromaticRamps.length} label="Color ramps" />
           <Stat value={typeScale.length} label="Type steps" />
           <Stat value={navThemes.length} label="Nav themes" />
+          <Stat value={primaryThemes.length} label="Primary themes" />
           <Stat value={2} label="Themes" />
         </Panel>
         <p className="max-w-2xl text-base text-content-subtle">
@@ -203,16 +205,17 @@ export const Introduction: Story = {
       </Section>
 
       <Section
-        title="Four switches"
-        hint="All four are attributes on the html element, and they are orthogonal — try them from the Theme, Neutral, Nav and Radius controls in the toolbar above."
+        title="Five switches"
+        hint="All five are attributes on the html element, and they are orthogonal — try them from the Theme, Neutral, Nav, Primary and Radius controls in the toolbar above."
       >
-        <Code label="The theme, neutral, nav and radius switches">
+        <Code label="The theme, neutral, nav, primary and radius switches">
           {`<html class="dark">                    <!-- dark mode -->
 <html data-neutral="taupe">           <!-- one of ${neutralRamps.length} neutral ramps -->
 <html data-nav-theme="blue-inverse">  <!-- one of ${navThemes.length} nav themes -->
+<html data-primary-theme="blue">      <!-- one of ${primaryThemes.length} primary themes -->
 <html data-radius="soft">             <!-- one of ${radiusModes.length} radius modes -->`}
         </Code>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <Note title="Dark mode is free">
             Color lives in the semantic layer, so a component never needs a <Mono>dark:</Mono>{' '}
             variant. The token swaps itself, and a theme toggle only adds or removes a class.
@@ -227,6 +230,11 @@ export const Introduction: Story = {
             absolute, so a nav stays put while the page around it switches to dark — a navigation
             surface is a brand decision rather than a reading surface.
           </Note>
+          <Note title="The primary color is swappable">
+            The primary Button and every selected control take one color, from {primaryThemes.length}{' '}
+            modes: neutral and each ramp, with an inverse for emphasized surfaces. The same
+            attribute works on a single section of a page.
+          </Note>
           <Note title="The corners are swappable">
             {radiusModes.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ')}. A component rounds
             with one of {radiusRoles.length} roles — <Mono>rounded-button</Mono>,{' '}
@@ -237,10 +245,11 @@ export const Introduction: Story = {
         <p className="max-w-2xl text-base text-content-subtle">
           Contrast is not automatic, though. The ramps differ slightly in lightness at the same
           step, so a pair that clears 4.5:1 on Stone is not guaranteed to on Olive. Check before
-          shipping a non-default ramp. The nav tier is the exception, because it has too many modes
-          to check by eye: <Mono>nav-contrast.test.ts</Mono> measures every pair the navigation
-          components actually paint, in all {navThemes.length} modes, and a ramp that fails cannot
-          ship.
+          shipping a non-default ramp. The nav and primary tiers are the exceptions, because they
+          have too many modes to check by eye: <Mono>nav-contrast.test.ts</Mono> measures every pair
+          the navigation components actually paint, in all {navThemes.length} modes, and{' '}
+          <Mono>primary-contrast.test.ts</Mono> does the same for the {primaryThemes.length} primary
+          themes, so a ramp that fails cannot ship.
         </p>
       </Section>
 
@@ -326,7 +335,7 @@ import { Plus } from 'lucide-react'
           <Mono> error</Mono> level — an accessibility violation breaks the build the same way a
           type error does. Alongside it a node-side suite reads the generated stylesheet, so the
           two failures a rendered story cannot show — a utility naming a token that does not exist,
-          and a nav mode that does not clear its contrast threshold — fail loudly rather than
+          and a nav or primary mode that does not clear its contrast threshold — fail loudly rather than
           quietly painting nothing.
         </p>
       </Section>
@@ -368,7 +377,7 @@ import { Plus } from 'lucide-react'
                 <Mono>npm test</Mono>
               </ShowcaseTd>
               <ShowcaseTd className="text-content-subtle">
-                Every story, in real Chromium, checked with axe — plus the token and nav-contrast
+                Every story, in real Chromium, checked with axe — plus the token and contrast
                 checks, which need no browser
               </ShowcaseTd>
             </tr>

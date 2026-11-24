@@ -8,6 +8,9 @@ import {
   navThemes,
   navTokens,
   neutralRamps,
+  primaryMode,
+  primaryThemes,
+  primaryTokens,
   radii,
   radiusModes,
   radiusRoles,
@@ -112,8 +115,10 @@ function Stat({ value, label }: { value: string | number; label: string }) {
  */
 export const Overview: Story = {
   render: () => {
-    const alias = exampleToken ? readAlias(exampleToken.light).alias : 'neutral-800'
-    const rampStep = alias.replace(/^neutral-/, '')
+    // `primary-background-light`, then the neutral step its default mode takes.
+    const themed = exampleToken ? readAlias(exampleToken.light).alias : 'primary-background-light'
+    const step = primaryMode(primaryThemes[0]).get(`--${themed}`) ?? 'var(--neutral-800)'
+    const rampStep = readAlias(step).alias.replace(/^neutral-/, '')
     return (
       <Page
         title="Foundations"
@@ -126,11 +131,12 @@ export const Overview: Story = {
       >
         <Section title="By the numbers">
           <Panel>
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-9">
               <Stat value={chromaticRamps.length + neutralRamps.length} label="Primitive ramps" />
               <Stat value={swappableNeutrals.length} label="Swappable neutrals" />
               <Stat value={semanticTokenCount} label="Semantic tokens" />
               <Stat value={navThemes.length} label="Nav themes" />
+              <Stat value={primaryThemes.length} label="Primary themes" />
               <Stat value={typeScale.length} label="Type steps" />
               <Stat value={radii.length} label="Radii" />
               <Stat value={radiusModes.length} label="Radius modes" />
@@ -148,7 +154,8 @@ export const Overview: Story = {
             </>
           }
         >
-          <div className="flex flex-col gap-4 lg:flex-row">
+          {/* Pinned to the default, or the chain would change color halfway along it. */}
+          <div data-primary-theme={primaryThemes[0]} className="flex flex-col gap-4 lg:flex-row">
             <Tier
               step={1}
               name="Primitive"
@@ -167,6 +174,14 @@ export const Overview: Story = {
             </Tier>
             <Tier
               step={3}
+              name="Primary theme"
+              swatch={`var(--${themed})`}
+              detail="Which color a primary action is, from one attribute on <html> or on a section. Neutral by default. Only the primary and selected roles pass through it."
+            >
+              --{themed}
+            </Tier>
+            <Tier
+              step={4}
               name="Semantic"
               swatch={`var(--${EXAMPLE})`}
               detail="The role. This is the only tier that knows about light and dark — it picks a different step in each, which is why no component carries a dark: class."
@@ -174,7 +189,7 @@ export const Overview: Story = {
               --{EXAMPLE}
             </Tier>
             <Tier
-              step={4}
+              step={5}
               name="Utility"
               swatch={`var(--${EXAMPLE})`}
               detail="Tailwind builds a class from the semantic tier. This is all a component ever writes."
@@ -249,8 +264,8 @@ export const Overview: Story = {
         </Section>
 
         <Section
-          title="The four switches"
-          hint="All four are attributes on <html>, and all four are orthogonal — the same public mechanism a consumer gets. The Storybook toolbar sets them."
+          title="The five switches"
+          hint="All five are attributes on <html>, and all five are orthogonal — the same public mechanism a consumer gets. The Storybook toolbar sets them."
         >
           <Panel className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
@@ -276,11 +291,19 @@ export const Overview: Story = {
               </p>
             </div>
             <div className="flex flex-col gap-1">
+              <Mono>data-primary-theme="blue"</Mono>
+              <p className="text-base text-content-subtle">
+                Repoints the {primaryTokens.length} tokens behind the primary Button and every
+                selected control. It follows the theme, and it is the one switch that also works on
+                a section, which is what its inverse modes are for.
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
               <Mono>data-radius="soft"</Mono>
               <p className="text-base text-content-subtle">
                 Repoints the {radiusRoles.length} corner roles at different steps of the radius
                 scale — {radiusModes.join(', ')}. The only switch that is not color, so it composes
-                with all three of the others.
+                with all four of the others.
               </p>
             </div>
           </Panel>
@@ -294,7 +317,7 @@ export const Overview: Story = {
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               {[
                 ['Color', `The ${chromaticRamps.length + neutralRamps.length} primitive ramps, and the swappable neutral tier.`],
-                ['Semantic Color', `All ${semanticTokenCount} roles, with their light and dark targets side by side.`],
+                ['Semantic Color', `All ${semanticTokenCount} roles, with their light and dark targets side by side, and the ${primaryThemes.length} primary themes.`],
                 ['Typography', `Two families, three weights, ${typeScale.length} steps that carry their own line height.`],
                 ['Space', 'One base number, and the multiples every layout is built from.'],
                 ['Shape', `${radii.length} radii, ${radiusRoles.length} corner roles in ${radiusModes.length} modes, six stroke weights, twenty-one opacities.`],

@@ -57,7 +57,7 @@ type Story = StoryObj<typeof Slider>
 /**
  * Uncontrolled, with controls — use the Theme switch in the toolbar for dark
  * mode. Nothing here carries a `dark:` class: the fill is `Input/Selected`, which
- * is stone-600 in light and stone-100 in dark, so the track inverts itself.
+ * is stone-800 in light and stone-100 in dark, so the track inverts itself.
  *
  * Three things to try. **Drag the handle** and watch it grow, 16px to 20px, which
  * is what Figma draws (node `40004155:14467`) and what Switch's knob also does.

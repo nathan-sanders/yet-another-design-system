@@ -34,6 +34,18 @@ const NAV_THEMES = [
   ...NAV_CODE_RAMPS.flatMap((ramp) => [`${ramp}-inverse`, ramp]),
 ]
 
+/** The five color families Figma's Primary Theme holds, in Figma's order. */
+const PRIMARY_FIGMA_FAMILIES = ['neutral', 'red', 'green', 'blue', 'purple']
+
+/** ...and the ramps generate.py derives, its PRIMARY_CODE_RAMPS: that collection is full too. */
+const PRIMARY_CODE_RAMPS = ['orange', 'amber', 'yellow', 'lime', 'emerald', 'teal', 'cyan',
+                            'sky', 'indigo', 'violet', 'fuchsia', 'pink', 'rose']
+
+const PRIMARY_THEMES = [...PRIMARY_FIGMA_FAMILIES, ...PRIMARY_CODE_RAMPS].flatMap((family) => [
+  family,
+  `${family}-inverse`,
+])
+
 /** The four Border Radius modes, in Figma's order — generate.py's RADIUS_MODES. */
 const RADII = ['default', 'soft', 'round', 'sharp']
 
@@ -72,6 +84,17 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    primaryTheme: {
+      description: 'Which color the primary Button and every selected control are painted in',
+      toolbar: {
+        title: 'Primary',
+        icon: 'starhollow',
+        // "Neutral" and "Blue" are also names in the two menus beside this one,
+        // so every item names the tier.
+        items: PRIMARY_THEMES.map((value) => ({ value, title: `${titleCase(value)} primary` })),
+        dynamicTitle: true,
+      },
+    },
     radius: {
       description: 'Which Border Radius mode the corner roles resolve to',
       toolbar: {
@@ -89,11 +112,12 @@ const preview: Preview = {
     theme: 'light',
     neutral: 'stone',
     navTheme: 'neutral-inverse',
+    primaryTheme: 'neutral',
     radius: 'default',
   },
 
   decorators: [
-    // All four switches are attributes on <html>, exactly as they are in a real
+    // All five switches are attributes on <html>, exactly as they are in a real
     // app — so stories exercise the same mechanism the library ships with. They
     // are orthogonal: the ramp is theme-independent, and the semantic layer
     // picks which of its steps each theme uses.
@@ -103,10 +127,15 @@ const preview: Preview = {
     // Dark moves the page around a nav that does not move with it. Only Canvas
     // follows the theme — and the neutral modes still follow the ramp, because
     // they alias the same --neutral-* tier the semantic layer does.
+    //
+    // The primary theme is the one that also works on a section. The toolbar
+    // sets it for the page; Foundations → Semantic Color → Primary Theme shows
+    // the other use.
     (Story, context) => {
       const dark = context.globals.theme === 'dark'
       const neutral = context.globals.neutral as string
       const navTheme = context.globals.navTheme as string
+      const primaryTheme = context.globals.primaryTheme as string
       const radius = context.globals.radius as string
       useEffect(() => {
         document.documentElement.classList.toggle('dark', dark)
@@ -117,6 +146,9 @@ const preview: Preview = {
       useEffect(() => {
         document.documentElement.dataset.navTheme = navTheme
       }, [navTheme])
+      useEffect(() => {
+        document.documentElement.dataset.primaryTheme = primaryTheme
+      }, [primaryTheme])
       useEffect(() => {
         document.documentElement.dataset.radius = radius
       }, [radius])
