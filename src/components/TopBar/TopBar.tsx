@@ -28,7 +28,7 @@ import { cn } from '../../lib/cn'
  * both, put the actions in `TopNav` instead.
  *
  * **Different tier from the navigation components.** `SideNav` and `TopNav`
- * draw from `--nav-*`, which does not follow `.dark`. This one is ordinary
+ * draw from `--nav-*`, which follows `.dark` on `canvas` alone. This one is ordinary
  * semantic tokens, because it is part of the page rather than part of the
  * navigation surface: it sits on whatever is behind it and follows the theme
  * like everything else.

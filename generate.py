@@ -51,8 +51,9 @@ NEUTRAL_ROLE = "Stone"
 # now: the nav sits flush with the page rather than disappearing into it, which
 # is what the new name says. Renamed in Figma 2026-09-02.
 #
-# The order is Figma's, and the first entry is Figma's default mode.
-NAV_MODES = ["neutral-inverse", "neutral", "canvas", "blue-inverse", "blue",
+# The order is Figma's, and the first entry is Figma's default mode. It was
+# "neutral-inverse" until 2026-11-24, when Canvas became the default there.
+NAV_MODES = ["canvas", "neutral-inverse", "neutral", "blue-inverse", "blue",
              "purple-inverse", "purple", "pink-inverse", "pink"]
 
 # The ramps Figma has no room for. A variable collection can only hold so many
@@ -705,8 +706,8 @@ out.append("/*    would move --primary-* and nothing painted with it.           
 out += primary_semantic_lines
 out.append("")
 out.append("/* ---- 2b. The navigation theme. Seven tokens across %d modes, switched by ---- */" % len(NAV_MODES))
-out.append("/*     one attribute: <html data-nav-theme=\"blue-inverse\">. Neutral Inverse is    */")
-out.append("/*     the default, and also has its own block so the attribute is never a lie.  */")
+out.append("/*     one attribute: <html data-nav-theme=\"blue-inverse\">. Canvas is the        */")
+out.append("/*     default, and also has its own block so the attribute is never a lie.      */")
 out.append("/*                                                                              */")
 out.append("/*     Sits AFTER the semantic block on purpose. All but one mode is absolute    */")
 out.append("/*     -- a nav on \"neutral\" stays white in dark mode, because a navigation      */")

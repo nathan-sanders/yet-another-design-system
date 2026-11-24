@@ -211,8 +211,11 @@ collection. So "does the id still resolve" is not a deletion test — check
 A second swappable collection alongside the neutral one: **`Navigation Theme`**, seven variables
 (`Background`, `Nav Content/Primary`, `Nav Content/Subtle`, `Nav Item/Background Hover`,
 `Nav Item/Border Hover`, `Nav Item/Background Selected`, `Nav Item/Border Selected`) across
-**thirty-seven modes** — Neutral and Neutral Inverse, Canvas, and a light/inverse pair for each of
-the seventeen chromatic Tailwind ramps.
+**thirty-seven modes** — Canvas, Neutral and Neutral Inverse, and a light/inverse pair for each of
+the seventeen chromatic Tailwind ramps. **Canvas is the default**, in Figma and here, as of
+2026-11-24; it was Neutral Inverse before that, so an app that wrote no attribute and wants the dark
+bar back now writes `data-nav-theme="neutral-inverse"`. The default is `NAV_MODES[0]`, which is
+Figma's first mode, and Storybook's `initialGlobals` has to name the same one.
 
 It is in code as of 2026-09-01: `tokens/navigation.json`, section 1c of `generate.py`, section 2b of
 `theme.css`, and `NavItem` / `SideNav` / `TopNav` consuming it. The switch is one attribute,

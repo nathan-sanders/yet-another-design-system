@@ -128,14 +128,16 @@ export const Slots: Story = {
 
 /**
  * What it is for: docked beside a `SideNav`, in the 8px app frame both Figma
- * examples draw. The rail is the navigation theme and does not follow the
- * page's light/dark; the bar and the content do.
+ * examples draw. The rail is the navigation theme, pinned here to
+ * `neutral-inverse`, and does not follow the page's light/dark; the bar and the
+ * content do.
  *
  * The `ThemeControl` here is wired to the document, so pressing it moves the
  * page around the rail — which is the clearest way to see that the two tiers
  * are independent by design.
  */
 export const WithSideNav: Story = {
+  globals: { navTheme: 'neutral-inverse' },
   parameters: { controls: { disable: true }, layout: 'fullscreen' },
   render: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

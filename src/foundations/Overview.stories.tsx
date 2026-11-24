@@ -43,14 +43,14 @@ const exampleToken = semanticGroups
 
 /**
  * Three of the nav modes, one per shape of alias the tier uses — a mode reaching
- * into the ramp tier, one reaching into the semantics, and one naming a
+ * into the semantics, one reaching into the ramp tier, and one naming a
  * primitive outright. Which three is a judgement call, so the
  * names are written here; what they resolve to is not, and a mode that has been
  * renamed drops its column rather than showing an invented value.
  */
 const NAV_SHAPES = [
-  { mode: 'neutral-inverse', title: 'Neutral Inverse' },
   { mode: 'canvas', title: 'Canvas' },
+  { mode: 'neutral-inverse', title: 'Neutral Inverse' },
   { mode: 'blue-inverse', title: 'Blue Inverse' },
 ]
 
@@ -244,9 +244,9 @@ export const Overview: Story = {
           </ShowcaseTable>
           <p className="max-w-3xl text-base text-content-subtle">
             The Live column follows the Nav control in the toolbar; the three after it are fixed, and
-            they are the three shapes the tier uses. Neutral Inverse aliases the <em>ramp</em> tier,
-            so it moves with the neutral. Canvas aliases the <em>semantic</em> tier, so it moves with
-            the theme. Blue Inverse names a <em>primitive</em>, so it moves with neither — and that
+            they are the three shapes the tier uses. Canvas, the default, aliases the{' '}
+            <em>semantic</em> tier, so it moves with the theme. Neutral Inverse aliases the{' '}
+            <em>ramp</em> tier, so it moves with the neutral. Blue Inverse names a <em>primitive</em>, so it moves with neither — and that
             is the point. A navigation surface is a brand decision rather than a reading surface, so
             all but Canvas are absolute: the page can go dark underneath a nav that does not.
           </p>
@@ -287,7 +287,8 @@ export const Overview: Story = {
               <Mono>data-nav-theme="blue-inverse"</Mono>
               <p className="text-base text-content-subtle">
                 Repoints the navigation tier, and only it. Orthogonal to both of the others because
-                it is mostly absolute — the page can go dark underneath a nav that does not move.
+                every mode but the default, Canvas, is absolute — the page can go dark underneath a
+                nav that does not move.
               </p>
             </div>
             <div className="flex flex-col gap-1">

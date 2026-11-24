@@ -74,7 +74,8 @@ first as everywhere, and because it is the one that works with any nav theme.
 **The shell cannot set the nav theme, and should not.** Every `Navigation Theme` mode is a
 `:root[data-nav-theme=…]` block, switched on `<html>` on purpose (the tier is absolute; see the root
 record). So `contained` *recommends* `canvas` rather than applying it, and the `Contained` story sets
-the toolbar global for itself. An application writes the attribute once, where it writes `.dark`.
+the toolbar global for itself. `canvas` has been the default since 2026-11-24, so an application
+writes the attribute, once, where it writes `.dark`, only to have something else.
 
 **The nav's `floating` default comes from the shell.** Confirmed with Nathan before building. A
 shadow under a rail that is meant to sit flush is the mistake `contained` invites, and a caller who
