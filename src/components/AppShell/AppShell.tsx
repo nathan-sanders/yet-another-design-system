@@ -34,16 +34,17 @@ import {
  * sits in it with 16px of room, and the nav is flush with the canvas. `floating`
  * is Example 1 (`40005257:45475`): the page paints nothing, the blocks sit
  * straight on the canvas, and the nav floats above it on its shadow. The second
- * works on any nav theme; the first reads best on the `canvas` nav theme, which paints the rail in the page's own
- * background so the panel is the only surface on screen. That is the default, so
- * there is nothing to write for it. The shell cannot set any other — the
- * navigation tier is switched on `<html>`, on purpose — so a different nav theme
- * is the application's line to write.
+ * works on any nav theme and is drawn on `neutral-inverse`; the first is drawn on
+ * `canvas`, which paints the rail in the page's own background so the panel is
+ * the only surface on screen. `canvas` is the default, so there is nothing to
+ * write for it. The shell cannot set any other — the navigation tier is switched
+ * on `<html>`, on purpose — so a `floating` application writes
+ * `data-nav-theme="neutral-inverse"` itself.
  *
  * **The nav's `floating` default comes from here.** A shadow under a rail that is
  * meant to sit flush is the mistake `contained` invites, and a caller who has
- * picked a mode should not have to say it a second time on the `SideNav`. So the shell publishes its mode through context and both bars
- * read it for their default: floating in `floating`, flush in `contained`, flush
+ * picked a mode should not have to say it a second time on the `SideNav`. So the
+ * shell publishes its mode through context and both bars read it for their default: floating in `floating`, flush in `contained`, flush
  * whenever the frame is off. An explicit `floating` on the bar still wins. A rail
  * or a top bar outside a shell is flush too; only a `MobileNav`, which pins
  * itself over the page there, is lifted on its own.

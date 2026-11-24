@@ -460,6 +460,7 @@ export const LeftKeyboard: Story = {
  * without saying so twice. An explicit `floating={false}` still wins.
  */
 export const Floating: Story = {
+  globals: { navTheme: 'neutral-inverse' },
   render: () => <Shell defaultOpen mode="floating" />,
   play: async ({ canvasElement }) => {
     const { card } = measure(canvasElement)
@@ -476,6 +477,7 @@ export const Floating: Story = {
  */
 export const FloatingOverridden: Story = {
   name: 'Floating, overridden',
+  globals: { navTheme: 'neutral-inverse' },
   render: () => <Shell defaultOpen mode="floating" floating={false} />,
   play: async ({ canvasElement }) => {
     const { card } = measure(canvasElement)

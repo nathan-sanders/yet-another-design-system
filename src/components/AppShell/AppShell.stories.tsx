@@ -378,14 +378,21 @@ export const Contained: Story = {
  * Figma's Example 1: the blocks on the canvas, the rail lifted above it, the
  * TopBar's rule the only chrome on the page. Content is `py-4` with no side
  * padding, so the grid lines up with the bar's edges.
+ *
+ * Every floating story here is on the `neutral-inverse` nav theme, which is how
+ * Figma draws all six Floating variants, the phone bar included. The shell does
+ * not set it: the application writes `data-nav-theme` on `<html>`.
  */
 export const Floating: Story = {
   args: { mode: 'floating' },
+  globals: { navTheme: 'neutral-inverse' },
   play: async ({ canvasElement }) => {
     const { root, nav, page, main } = measure(canvasElement)
     await expect(root.flexDirection).toBe('row')
     await expect(root.gap).toBe('8px')
     await expect(root.padding).toBe('8px')
+    // On the dark nav theme the file draws it with, not the page's own canvas.
+    await expect(nav.backgroundColor).not.toBe(root.backgroundColor)
     // The rail casts; the page paints nothing.
     await expect(nav.boxShadow).not.toBe('none')
     await expect(page.borderTopWidth).toBe('0px')
@@ -457,6 +464,7 @@ export const Docked: Story = {
 export const FloatingDocked: Story = {
   name: 'Floating, docked',
   args: { mode: 'floating', frame: false },
+  globals: { navTheme: 'neutral-inverse' },
   play: async ({ canvasElement }) => {
     const { root, nav, main } = measure(canvasElement)
     // An unset gap computes to `normal`, not `0px`.
@@ -752,9 +760,10 @@ export const ResponsiveFloating: Story = {
   name: 'Responsive, floating',
   args: { ...Responsive.args, mode: 'floating' },
   parameters: { ...phone, controls: { disable: true } },
-  globals: { viewport: { value: 'phone' } },
+  globals: { viewport: { value: 'phone' }, navTheme: 'neutral-inverse' },
   play: async ({ canvasElement }) => {
-    const { root, mobile } = measureBars(canvasElement)
+    const { root, mobile, shell } = measureBars(canvasElement)
+    await expect(getComputedStyle(mobile).backgroundColor).not.toBe(shell.backgroundColor)
     await expect(getComputedStyle(mobile).boxShadow).not.toBe('none')
     await expect(mobile.getBoundingClientRect().bottom).toBe(root.getBoundingClientRect().bottom - 8)
   },
