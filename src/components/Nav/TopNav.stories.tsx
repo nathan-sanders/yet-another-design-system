@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, within } from 'storybook/test'
 import { Bell, CircleHelp, Search, ShoppingCart } from 'lucide-react'
 
 import { Avatar } from '../Avatar'
@@ -59,7 +60,12 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Playground: Story = {}
+export const Playground: Story = {
+  play: async ({ canvasElement }) => {
+    const nav = within(canvasElement).getByRole('navigation', { name: 'Main' })
+    await expect(getComputedStyle(nav).boxShadow).toBe('none')
+  },
+}
 
 /**
  * A marketing site: a wordmark, a few pages, and one call to action. No
@@ -100,16 +106,19 @@ export const IconUtilities: Story = {
 }
 
 /**
- * `floating={false}` on the `canvas` nav theme — the combination the marketing
- * example in the docs frame draws. The shadow goes and the bar takes the page's
- * own background colour, so it sits flush with the page and only the selected
- * pill says where you are. Canvas is the default, so this is as drawn unless the
- * **Nav** toolbar says otherwise.
+ * `floating` — Figma's `Floating=True`, which adds the drop shadow and changes
+ * nothing else. Every other story here is the default: on the `canvas` nav theme
+ * the bar takes the page's own background color with no shadow under it, so it
+ * sits flush with the page and only the selected pill says where you are.
  */
-export const Docked: Story = {
+export const Floating: Story = {
   parameters: { controls: { disable: true } },
+  play: async ({ canvasElement }) => {
+    const nav = within(canvasElement).getByRole('navigation', { name: 'Main' })
+    await expect(getComputedStyle(nav).boxShadow).not.toBe('none')
+  },
   args: {
-    floating: false,
+    floating: true,
     children: (
       <>
         <NavItem href="#home" selected>
@@ -130,7 +139,7 @@ export const Docked: Story = {
 }
 
 /**
- * Over the page it navigates. On `canvas` — the **Nav** toolbar's last mode —
+ * Over the page it navigates. On `canvas` — the **Nav** toolbar's first mode —
  * the bar paints the page's own background and follows light and dark like
  * everything else, which is the mode a marketing site usually wants.
  */

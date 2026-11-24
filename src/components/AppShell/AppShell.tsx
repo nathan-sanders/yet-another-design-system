@@ -20,7 +20,7 @@ import {
  * the code going first, with the file owing a component. Composed, like
  * `SideNav`:
  *
- *     <AppShell mode="contained">
+ *     <AppShell>
  *       <SideNav aria-label="Main">…</SideNav>
  *       <AppShell.Page>
  *         <TopBar start={…} end={…} />
@@ -28,13 +28,13 @@ import {
  *       </AppShell.Page>
  *     </AppShell>
  *
- * **Two modes, and they are about the page, not the nav.** `floating` is
- * Example 1 (`40005257:45475`): the page paints nothing, the blocks sit straight
- * on the canvas, and the nav floats above it on its shadow. `contained` is
- * Example 2 (`40005257:47448`): the page is a `Surface/Background Primary` panel
- * inside a `Surface/Border`, the content sits in it with 16px of room, and the
- * nav is flush with the canvas. The first works on any nav theme; the second
- * reads best on the `canvas` nav theme, which paints the rail in the page's own
+ * **Two modes, and they are about the page, not the nav.** `contained`, the
+ * default, is Example 2 (`40005257:47448`) and how Yet Social is drawn: the page
+ * is a `Surface/Background Primary` panel inside a `Surface/Border`, the content
+ * sits in it with 16px of room, and the nav is flush with the canvas. `floating`
+ * is Example 1 (`40005257:45475`): the page paints nothing, the blocks sit
+ * straight on the canvas, and the nav floats above it on its shadow. The second
+ * works on any nav theme; the first reads best on the `canvas` nav theme, which paints the rail in the page's own
  * background so the panel is the only surface on screen. That is the default, so
  * there is nothing to write for it. The shell cannot set any other — the
  * navigation tier is switched on `<html>`, on purpose — so a different nav theme
@@ -42,11 +42,11 @@ import {
  *
  * **The nav's `floating` default comes from here.** A shadow under a rail that is
  * meant to sit flush is the mistake `contained` invites, and a caller who has
- * already written `mode="contained"` should not have to say it a second time on
- * the `SideNav`. So the shell publishes its mode through context and both bars
+ * picked a mode should not have to say it a second time on the `SideNav`. So the shell publishes its mode through context and both bars
  * read it for their default: floating in `floating`, flush in `contained`, flush
- * whenever the frame is off. An explicit `floating` on the bar still wins, and a
- * bar outside a shell is exactly as it was.
+ * whenever the frame is off. An explicit `floating` on the bar still wins. A rail
+ * or a top bar outside a shell is flush too; only a `MobileNav`, which pins
+ * itself over the page there, is lifted on its own.
  *
  * **`frame` is the 8px.** Figma draws each layout twice — once inside
  * `spacing/2` of padding and gap, once docked to the window edge with neither.
@@ -79,9 +79,9 @@ export interface AppShellProps extends Omit<
   /** The nav and the page: a `SideNav` or `TopNav`, then an `AppShell.Page`. */
   children: ReactNode
   /**
-   * How the page is drawn. `floating` puts the blocks on the canvas with the nav
-   * lifted above it; `contained` puts them inside a bordered surface with the
-   * nav flush. Figma's Example 1 and Example 2.
+   * How the page is drawn. `contained` puts the blocks inside a bordered surface
+   * with the nav flush; `floating` puts them on the canvas with the nav lifted
+   * above it. Figma's Example 2 and Example 1.
    */
   mode?: AppShellMode
   /** Where the nav is. `side` lays the frame as a row, `top` as a column. */
@@ -97,7 +97,7 @@ export interface AppShellProps extends Omit<
 
 export function AppShell({
   children,
-  mode = 'floating',
+  mode = 'contained',
   navigation = 'side',
   frame = true,
   className,

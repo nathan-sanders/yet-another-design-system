@@ -55,13 +55,13 @@ export interface TopNavProps
   utilities?: ReactNode
   /**
    * Whether the bar is lifted off the page. Figma's `Floating` axis, and it is
-   * **only the drop shadow**. `false` is what the marketing example draws: a
-   * `canvas`-themed bar painted in the page's own background colour, sitting
+   * **only the drop shadow**. `false`, the default, is what the marketing
+   * example draws: a `canvas`-themed bar painted in the page's own background colour, sitting
    * flush with it rather than floating above it, so there is nothing to cast.
    *
    * Inside an `AppShell` the default comes from the shell: lifted in
    * `floating`, flush in `contained` and whenever the frame is off. Setting it
-   * here overrides that. Outside a shell it is `true`.
+   * here overrides that. Outside a shell it is `false`.
    */
   floating?: boolean
   className?: string
@@ -77,7 +77,7 @@ export function TopNav({
 }: TopNavProps) {
   const shell = useContext(AppShellContext)
   // Same as SideNav: the shell states what the bar sits in, the bar reads it.
-  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
+  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : false)
   // Square corners against the window edge. Only the shell can say it.
   const docked = shell ? !shell.frame : false
   const ctx = useMemo<NavContextValue>(

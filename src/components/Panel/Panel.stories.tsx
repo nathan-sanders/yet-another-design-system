@@ -321,14 +321,15 @@ export const PlaygroundDriven: Story = {
     })
 
     await step(
-      'settled, nothing clips: the transition marker is gone and the shadow paints',
+      'settled, nothing clips: the transition marker is gone and the overflow shows',
       async () => {
         const panel = aside()!
         await waitFor(() => expect(panel.hasAttribute('data-transitioning')).toBe(false))
         await expect(getComputedStyle(panel.firstElementChild!).overflow).toBe('visible')
+        // The contained shell is the default, so the card is flat like the rail.
         await expect(
           getComputedStyle(panel.firstElementChild!.firstElementChild!).boxShadow,
-        ).not.toBe('none')
+        ).toBe('none')
       },
     )
 
@@ -459,7 +460,7 @@ export const LeftKeyboard: Story = {
  * without saying so twice. An explicit `floating={false}` still wins.
  */
 export const Floating: Story = {
-  render: () => <Shell defaultOpen />,
+  render: () => <Shell defaultOpen mode="floating" />,
   play: async ({ canvasElement }) => {
     const { card } = measure(canvasElement)
     const style = getComputedStyle(card()!)
@@ -475,7 +476,7 @@ export const Floating: Story = {
  */
 export const FloatingOverridden: Story = {
   name: 'Floating, overridden',
-  render: () => <Shell defaultOpen floating={false} />,
+  render: () => <Shell defaultOpen mode="floating" floating={false} />,
   play: async ({ canvasElement }) => {
     const { card } = measure(canvasElement)
     await expect(getComputedStyle(card()!).boxShadow).toBe('none')
@@ -483,8 +484,8 @@ export const FloatingOverridden: Story = {
 }
 
 /**
- * A contained shell on the canvas nav theme: the page is a card and the panel
- * is a second one, flush like the rail, 8 apart. The panel is opened from a
+ * The default shell, contained on the canvas nav theme: the page is a card and the
+ * panel is a second one, flush like the rail, 8 apart. The panel is opened from a
  * Menu item rather than a button — the ordinary relationship between the two
  * — and `finalFocus` says where focus goes when it closes, because the item
  * that opened it is gone by then.
@@ -1027,7 +1028,8 @@ export const StackedDriven: Story = {
       await expect(middle().content).toHaveProperty('inert', true)
       await expect(front().content).toHaveProperty('inert', false)
       await waitFor(() => expect(getComputedStyle(root().content!).opacity).toBe('0'))
-      await expect(getComputedStyle(root().card!).boxShadow).not.toBe('none')
+      await expect(getComputedStyle(root().card!).borderTopWidth).toBe('1px')
+      await expect(getComputedStyle(root().card!).backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
       await expect(getComputedStyle(front().content!).opacity).toBe('1')
     })
 

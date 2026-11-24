@@ -19,7 +19,7 @@ BentoGrid still carries is closed here.
 
 | Thing | Node | Became |
 |---|---|---|
-| App Shell (`Mode` × `Navigation` × `Frame`, 12 variants) | `40005265:10346` | `AppShell` — defaults Floating / Side / True, the code's; `Navigation=Mobile` is the shell with a `MobileNav` child, below 768 |
+| App Shell (`Mode` × `Navigation` × `Frame`, 12 variants) | `40005265:10346` | `AppShell` — defaults Contained / Side / True, the code's (Floating until 2026-11-24); `Navigation=Mobile` is the shell with a `MobileNav` child, below 768 |
 | `Content` slot | `Content#40005268:9` | `AppShell.Content` |
 | `Panel` boolean (off by default) | `Panel#40005385:0` | a `Panel` child after the Page — 384 beside it in a `Side` shell, full width and 320 tall under it in `Top` and `Mobile`; floating only in a floating framed shell, corners squared when docked. Added 2026-09-19 |
 | Docs frame (header, Light + Dark preview, 4 Do / 3 Don't) | `40005266:487` | this record's Best practices |
@@ -63,29 +63,35 @@ The four source frames stayed on the page as they were.
 
 ## Decisions
 
+**`contained` is the default** (2026-11-24; `floating` before that). Nathan's call: the rail should not
+float and the page should be white, the way Yet Social is drawn (`40005972:26336`), and that is the
+default shell. It goes with `canvas` becoming the default nav theme the same day, which is the pairing
+`contained` is drawn for, so a shell with no props and a page with no `data-nav-theme` is Yet Social's.
+The rail and the top bar follow it outside a shell too: `floating` is `false` unless something says
+otherwise. `MobileNav` on its own is the exception, since it is pinned over the page it would blend into.
+
 **Two modes, and they are about the page.** `floating` is Example 1: the blocks sit straight on the
 canvas, the TopBar's own `border-b` is the only chrome, and the nav floats above the page on its
 shadow. `contained` is Example 2: the page is a `surface-background-primary` panel inside a
 `surface-border` at `rounded-lg`, the content sits in it with 16px of room, and the nav is flush with
 the canvas. Nathan's framing: the first "works good with the navigation floating and any theme", the
-second "works best with the navigation using the canvas theme not floating". Floating is the default,
-first as everywhere, and because it is the one that works with any nav theme.
+second "works best with the navigation using the canvas theme not floating". Floating was the default first, because it is the one that works with any
+nav theme.
 
 **The shell cannot set the nav theme, and should not.** Every `Navigation Theme` mode is a
 `:root[data-nav-theme=…]` block, switched on `<html>` on purpose (the tier is absolute; see the root
-record). So `contained` *recommends* `canvas` rather than applying it, and the `Contained` story sets
-the toolbar global for itself. `canvas` has been the default since 2026-11-24, so an application
+record). So `contained` *recommends* `canvas` rather than applying it. `canvas` has been the default since 2026-11-24, so an application
 writes the attribute, once, where it writes `.dark`, only to have something else.
 
 **The nav's `floating` default comes from the shell.** Confirmed with Nathan before building. A
 shadow under a rail that is meant to sit flush is the mistake `contained` invites, and a caller who
-has already written `mode="contained"` should not have to write `floating={false}` as well — that is
+has already picked a mode should not have to write `floating` as well — that is
 the same fact twice, and MobileNav's record already explains why a duplicated fact is a bug waiting
 to happen. So `AppShell` publishes `{ mode, frame }` through `AppShellContext` (in `context.ts`, not
 barrel-exported) and `SideNav` / `TopNav` read it:
-`floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)`. An explicit
-prop wins — the `Contained, rail overridden` story asserts it — and a bar outside a shell is exactly
-as it was. This is the exception the root record draws for Avatar's `surface`: derive what the
+`floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : false)`. An explicit
+prop wins — the `Contained, rail overridden` story asserts it. The fallback outside a shell was `true`
+until 2026-11-24, and still is on `MobileNav`. This is the exception the root record draws for Avatar's `surface`: derive what the
 element itself knows, declare what only its **ancestors** know; here the ancestor is the shell, and
 context is the ancestor declaring it so the caller does not have to.
 
@@ -95,10 +101,10 @@ because there is nothing for it to float above. In the file both docked frames w
 mode only; `contained` with `frame={false}` was first built keeping the panel's radius, and Nathan
 squared it (2026-09-17): hard against the window edge a rounded corner shows canvas behind it, the
 same reason the nav squares off. The border stays — it is what separates the panel from the rail.
-Both the two Figma variants and the `Contained, docked` story assert it.
+Both the two Figma variants and the `Docked` story assert it.
 
 **Docked, the nav squares its corners and the content takes 16px at the sides.** Both Nathan's calls
-on the first `Docked` story (2026-09-17). The corners: a `rounded-lg` bar hard against the viewport
+on the first `Docked` story (2026-09-17; that story is `Floating, docked` now). The corners: a `rounded-lg` bar hard against the viewport
 shows a sliver of canvas behind each corner, which a bar inside an 8px frame never does — so this is
 *not* the Nav record's `floating: false`, which keeps its radius on purpose, but a second axis,
 `navSurface({ docked })`, set only through `AppShellContext` (`!frame`). A bar on its own is never
@@ -240,6 +246,7 @@ Against the Figma frames, in the story `play` functions (Chromium, `npm test`):
 | Contained + `<SideNav floating>` | — | shadow present (prop wins) |
 | Collapsed rail width | 56 | 56 |
 | Phone (393 × 852): rail / frame direction | — | `display: none` / `column` |
+| Phone: bar shadow, contained / floating | none / Low | `none` / `shadow-low` present |
 | Phone: bar inset, width, position | 8 / 377 / at the edge | 8px / 377px / `static`, bottom 8 above the frame's |
 | Phone: page bottom to bar top | 8 | 8px (the frame's gap) |
 | Phone, docked: bar left / width / radius / shadow | 0 / 393 / 0 / none | 0 / 393 / 0px / `none` |
@@ -271,9 +278,9 @@ to point here.
 
 **Do**
 
-- Pick the mode for the page, not the nav. `floating` puts the blocks on the canvas and works with
-  every nav theme; `contained` puts them in a panel and reads best with the `canvas` nav theme, so
-  the panel is the only surface on screen.
+- Pick the mode for the page, not the nav. `contained`, the default, puts the blocks in a panel and
+  reads best with the `canvas` nav theme, so the panel is the only surface on screen; `floating` puts
+  them on the canvas and works with every nav theme.
 - Let the shell decide whether the nav floats. Write `mode` once; the rail and the bar take their
   shadow from it. Reach for `floating` on the nav only to disagree on purpose.
 - Put a `TopBar` beside a `SideNav` and the actions in a `TopNav`'s `utilities`. The shell does not

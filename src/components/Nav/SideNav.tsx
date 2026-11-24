@@ -127,12 +127,12 @@ export interface SideNavProps
   /**
    * Whether the rail is lifted off the page. Figma's `Floating` axis, and it is
    * **only the drop shadow** — the radius and padding are identical either way.
-   * `false` is the docked case the docs frame shows: the rail inset inside the
-   * app window, still rounded, just not casting onto it.
+   * `false`, the default, is the rail inset inside the app window, still
+   * rounded, just not casting onto it.
    *
    * Inside an `AppShell` the default comes from the shell: lifted in
    * `floating`, flush in `contained` and whenever the frame is off. Setting it
-   * here overrides that. Outside a shell it is `true`.
+   * here overrides that. Outside a shell it is `false`.
    */
   floating?: boolean
   /**
@@ -178,7 +178,7 @@ export function SideNav({
   // The shell knows what the rail is sitting in and the rail does not, so the
   // default is the ancestor's to state — once, on the shell, rather than again
   // here. An explicit prop still wins.
-  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
+  const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : false)
   // Square corners against the window edge. Only the shell can say it.
   const docked = shell ? !shell.frame : false
   const [uncontrolled, setUncontrolled] = useState(defaultCollapsed)
