@@ -293,12 +293,13 @@ function Page() {
 /**
  * The frame an application sits in — a nav, and the page beside or below it.
  *
- * Two modes, and they are about the page rather than the nav. **Floating** puts
- * the blocks straight on the canvas with the nav lifted above it on its shadow,
- * and works on any nav theme. **Contained** puts the page in a bordered
- * `surface-background-primary` panel with the nav flush against the canvas, and
- * reads best with the **Nav** toolbar on `canvas`, the default — it paints the
- * rail in the page's own background, so the panel is the only surface on screen.
+ * Two modes, and they are about the page rather than the nav. **Contained**, the
+ * default, puts the page in a bordered `surface-background-primary` panel with
+ * the nav flush against the canvas, and reads best with the **Nav** toolbar on
+ * `canvas`, also the default — it paints the rail in the page's own background,
+ * so the panel is the only surface on screen. **Floating** puts the blocks
+ * straight on the canvas with the nav lifted above it on its shadow, and works
+ * on any nav theme.
  *
  * Every story here fills the viewport: the shell is `h-dvh`, and the global
  * decorator's 24px is switched off (`canvasPadding: false`) so the only padding
@@ -309,7 +310,7 @@ const meta = {
   component: AppShell,
   parameters: { layout: 'fullscreen', canvasPadding: false },
   args: {
-    mode: 'floating',
+    mode: 'contained',
     navigation: 'side',
     frame: true,
     children: (
@@ -348,11 +349,38 @@ function measure(canvasElement: HTMLElement) {
 }
 
 /**
+ * Figma's Example 2: the page is a `surface-background-primary` panel inside a
+ * `surface-border` at `rounded-lg`, the content sits in it with `spacing/4`
+ * all round, and the rail is flush — no shadow, because the shell told it so.
+ *
+ * This is the shell with no props, and `canvas` is the nav theme it is drawn
+ * for. Switch the **Nav** toolbar to Neutral Inverse to see the same shell with
+ * a dark rail; it still works, it just has two surfaces instead of one.
+ */
+export const Contained: Story = {
+  // Nothing passed: this is also what proves the default.
+  args: { mode: undefined, navigation: undefined, frame: undefined },
+  play: async ({ canvasElement }) => {
+    const { root, nav, page, main } = measure(canvasElement)
+    await expect(root.flexDirection).toBe('row')
+    await expect(root.padding).toBe('8px')
+    await expect(nav.boxShadow).toBe('none')
+    await expect(page.borderTopWidth).toBe('1px')
+    await expect(page.borderTopLeftRadius).toBe('12px')
+    await expect(page.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+    await expect(page.overflow).toBe('clip')
+    await expect(main.padding).toBe('16px')
+    await expect(main.marginLeft).toBe('0px')
+  },
+}
+
+/**
  * Figma's Example 1: the blocks on the canvas, the rail lifted above it, the
  * TopBar's rule the only chrome on the page. Content is `py-4` with no side
  * padding, so the grid lines up with the bar's edges.
  */
 export const Floating: Story = {
+  args: { mode: 'floating' },
   play: async ({ canvasElement }) => {
     const { root, nav, page, main } = measure(canvasElement)
     await expect(root.flexDirection).toBe('row')
@@ -380,37 +408,12 @@ export const Floating: Story = {
 }
 
 /**
- * Figma's Example 2: the page is a `surface-background-primary` panel inside a
- * `surface-border` at `rounded-lg`, the content sits in it with `spacing/4`
- * all round, and the rail is flush — no shadow, because the shell told it so.
- *
- * The **Nav** toolbar is set to `canvas` for this story, which is the pairing
- * the mode is drawn for. Switch it to `neutral-inverse` to see the same shell
- * with a dark rail; it still works, it just has two surfaces instead of one.
- */
-export const Contained: Story = {
-  args: { mode: 'contained' },
-  globals: { navTheme: 'canvas' },
-  play: async ({ canvasElement }) => {
-    const { nav, page, main } = measure(canvasElement)
-    await expect(nav.boxShadow).toBe('none')
-    await expect(page.borderTopWidth).toBe('1px')
-    await expect(page.borderTopLeftRadius).toBe('12px')
-    await expect(page.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
-    await expect(page.overflow).toBe('clip')
-    await expect(main.padding).toBe('16px')
-    await expect(main.marginLeft).toBe('0px')
-  },
-}
-
-/**
  * The prop wins. A `SideNav` that says `floating` inside a `contained` shell
  * keeps its shadow — the shell only supplies the default.
  */
 export const ContainedFloatingRail: Story = {
   name: 'Contained, rail overridden',
   args: {
-    mode: 'contained',
     children: (
       <>
         <Rail floating />
@@ -418,7 +421,6 @@ export const ContainedFloatingRail: Story = {
       </>
     ),
   },
-  globals: { navTheme: 'canvas' },
   parameters: { controls: { disable: true } },
   play: async ({ canvasElement }) => {
     const { nav } = measure(canvasElement)
@@ -428,13 +430,33 @@ export const ContainedFloatingRail: Story = {
 
 /**
  * `frame={false}` — Figma's second pair of frames, with the rail docked to the
- * window edge and the page hard against it. No padding, no gap, no shadow on
- * the rail and no corners on it either — a rounded corner at the edge of the
- * screen shows a sliver of canvas behind it. The content takes 16px at the
- * sides instead, since there is no frame to hold the blocks off the edge.
+ * window edge and the page hard against it. No padding, no gap, and no corners
+ * on the rail — a rounded corner at the edge of the screen shows a sliver of
+ * canvas behind it. The panel squares its corners for the same reason, and keeps
+ * its border, which is what separates it from the rail.
  */
 export const Docked: Story = {
   args: { frame: false },
+  play: async ({ canvasElement }) => {
+    const { root, nav, page, main } = measure(canvasElement)
+    await expect(root.padding).toBe('0px')
+    await expect(nav.boxShadow).toBe('none')
+    await expect(nav.borderTopLeftRadius).toBe('0px')
+    await expect(page.borderTopLeftRadius).toBe('0px')
+    await expect(page.borderTopWidth).toBe('1px')
+    await expect(main.padding).toBe('16px')
+  },
+}
+
+/**
+ * Both axes off the default at once: the blocks are on the canvas and the frame
+ * is gone. The rail loses its shadow with the frame, since there is nothing for
+ * it to float above, and the content takes 16px at the sides, since there is no
+ * frame to hold the blocks off the edge.
+ */
+export const FloatingDocked: Story = {
+  name: 'Floating, docked',
+  args: { mode: 'floating', frame: false },
   play: async ({ canvasElement }) => {
     const { root, nav, main } = measure(canvasElement)
     // An unset gap computes to `normal`, not `0px`.
@@ -446,25 +468,6 @@ export const Docked: Story = {
     // No frame to hold the blocks off the edge, so the content does it.
     await expect(main.paddingLeft).toBe('16px')
     await expect(main.marginLeft).toBe('0px')
-  },
-}
-
-/**
- * Both axes off the default at once: the page is a bordered panel and the
- * frame is gone. The panel squares its corners for the same reason the rail
- * does — hard against the window edge, a rounded corner shows canvas behind
- * it — and keeps its border, which is what separates it from the rail.
- */
-export const ContainedDocked: Story = {
-  name: 'Contained, docked',
-  args: { mode: 'contained', frame: false },
-  globals: { navTheme: 'canvas' },
-  play: async ({ canvasElement }) => {
-    const { nav, page, main } = measure(canvasElement)
-    await expect(nav.borderTopLeftRadius).toBe('0px')
-    await expect(page.borderTopLeftRadius).toBe('0px')
-    await expect(page.borderTopWidth).toBe('1px')
-    await expect(main.padding).toBe('16px')
   },
 }
 
@@ -510,9 +513,10 @@ export const TopNavigation: Story = {
     ),
   },
   play: async ({ canvasElement }) => {
-    const { root, nav } = measure(canvasElement)
+    const { root, nav, page } = measure(canvasElement)
     await expect(root.flexDirection).toBe('column')
-    await expect(nav.boxShadow).not.toBe('none')
+    await expect(nav.boxShadow).toBe('none')
+    await expect(page.borderTopWidth).toBe('1px')
   },
 }
 
@@ -712,14 +716,14 @@ export const Responsive: Story = {
       await expect(shell.flexDirection).toBe('column')
       await expect(getComputedStyle(mobile).position).toBe('static')
       // 8 in from the bottom and both sides — Figma's 377 in 393 — with the
-      // shell's own padding doing it, and the shadow the floating shell gives.
+      // shell's own padding doing it, and flush, as the contained shell says.
       const frame = root.getBoundingClientRect()
       const bar = mobile.getBoundingClientRect()
       await expect(frame.width).toBe(393)
       await expect(bar.left).toBe(frame.left + 8)
       await expect(bar.width).toBe(frame.width - 16)
       await expect(bar.bottom).toBe(frame.bottom - 8)
-      await expect(getComputedStyle(mobile).boxShadow).not.toBe('none')
+      await expect(getComputedStyle(mobile).boxShadow).toBe('none')
       // The page ends 8 above the bar: the frame's gap, nothing overlapped.
       const page = canvasElement.querySelector<HTMLElement>('main')!.parentElement!
       await expect(page.getBoundingClientRect().bottom).toBe(bar.top - 8)
@@ -740,6 +744,19 @@ export const Responsive: Story = {
       await userEvent.keyboard('{Escape}')
       await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull())
     })
+  },
+}
+
+/** The floating shell lifts its phone bar, as it does the rail. Nothing else moves. */
+export const ResponsiveFloating: Story = {
+  name: 'Responsive, floating',
+  args: { ...Responsive.args, mode: 'floating' },
+  parameters: { ...phone, controls: { disable: true } },
+  globals: { viewport: { value: 'phone' } },
+  play: async ({ canvasElement }) => {
+    const { root, mobile } = measureBars(canvasElement)
+    await expect(getComputedStyle(mobile).boxShadow).not.toBe('none')
+    await expect(mobile.getBoundingClientRect().bottom).toBe(root.getBoundingClientRect().bottom - 8)
   },
 }
 

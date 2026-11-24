@@ -124,7 +124,8 @@ options as the content block, just the default with the options of floating or n
 no `subtle` or `accent` — a panel is a region of the page, not a bento cell — and `floating`
 adds `shadow-low`, ContentBlock's exact variant. Its default is the shell's, the rail's rule:
 `floating ?? (shell ? shell.mode === 'floating' && shell.frame : false)` — lifted in a floating
-framed shell, flush in a contained or docked one, flat on its own. An explicit prop wins; the
+framed shell, flush in a contained or docked one, flat on its own. The contained shell has been the
+default since 2026-11-24, so a panel is flat unless the shell says otherwise. An explicit prop wins; the
 `Floating` and `Floating, overridden` stories assert both.
 
 **Focus goes in on open, comes out on close, and never moves for `defaultOpen`.** Opening a panel

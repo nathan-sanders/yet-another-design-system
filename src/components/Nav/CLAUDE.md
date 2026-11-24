@@ -91,8 +91,14 @@ the test exists to close. `inset-ring` is now in the list.
 **`Floating` is only the drop shadow.** Both bars gained the axis, and it is worth saying plainly
 because the name suggests more: radius, padding, fill and size are byte-for-byte identical across the
 two variants. A docked bar does **not** square its corners — the docs frame shows the rail inset
-inside the app window, still `rounded-lg`, just not casting onto it. `floating` defaults to `true`,
-which is Figma's default and the more common case.
+inside the app window, still `rounded-lg`, just not casting onto it. `floating` defaults to `false` on
+`SideNav` and `TopNav`, in both places since 2026-11-24: Nathan wants the nav flush with the canvas
+unless somebody lifts it, as Yet Social draws it. It was `true` before.
+
+**`MobileNav` on its own is still `true`, and it is not an oversight.** Outside a shell it is `fixed`
+over a page that scrolls under it, and on the `canvas` theme it is painted in that page's own color.
+Without the shadow nothing says where the bar ends. Inside a shell the bar is in the frame with nothing
+behind it, so it takes the shell's answer like the other two.
 
 **One exception, and it is a different axis.** An `AppShell` with `frame={false}` puts the bar hard
 against the viewport, where a rounded corner shows a sliver of canvas behind it. `navSurface` has a
@@ -638,7 +644,7 @@ the one the file shows.
 **`AppShell` owns it now** (2026-09-17; see `src/components/AppShell/CLAUDE.md`). One thing about
 that reaches into this folder: both bars read `AppShellContext` for their `floating` default —
 lifted in the shell's `floating` mode, flush in `contained` and whenever the shell's frame is off. An
-explicit `floating` still wins, and a bar outside a shell is unchanged at `true`. The shell can tell
+explicit `floating` still wins, and a bar outside a shell is flush, bar `MobileNav`. The shell can tell
 the bar what it sits in where the bar cannot find out for itself, which is the Avatar `surface`
 exception seen from the ancestor's side.
 

@@ -380,14 +380,17 @@ export const InContext: Story = {
 }
 
 /**
- * `floating={false}` — Figma's `Floating=False`, which drops the drop shadow and
- * changes nothing else. The docs frame draws this one: the rail docked inside
- * the app window against the page it navigates, still rounded, just not lifted
- * off it.
+ * `floating` — Figma's `Floating=True`, which adds the drop shadow and changes
+ * nothing else. Left off, the default, the rail sits flush inside the app window
+ * against the page it navigates, still rounded, just not lifted off it.
  */
-export const Docked: Story = {
+export const Floating: Story = {
   parameters: { controls: { disable: true } },
-  args: { floating: false },
+  args: { floating: true },
+  play: async ({ canvasElement }) => {
+    const nav = within(canvasElement).getByRole('navigation', { name: 'Main' })
+    await expect(getComputedStyle(nav).boxShadow).not.toBe('none')
+  },
   render: (args) => (
     <div className="flex h-full gap-2 rounded-lg border border-surface-border p-2">
       <SideNav {...args} />

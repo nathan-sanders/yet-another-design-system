@@ -132,7 +132,8 @@ export interface MobileNavProps
    *
    * Inside an `AppShell` the default comes from the shell, as it does for the
    * rail: lifted in `floating`, flush in `contained` and whenever the frame is
-   * off. Setting it here overrides that. Outside a shell it is `true`.
+   * off. Setting it here overrides that. Outside a shell it is `true`, unlike the
+   * other two bars: it is pinned over the page rather than beside it.
    */
   floating?: boolean
   /** Sheet open state, controlled. */
@@ -172,7 +173,10 @@ export function MobileNav({
   ...props
 }: MobileNavProps) {
   const shell = useContext(AppShellContext)
-  // The rail's two reads, verbatim: the shell knows what the bar sits in.
+  // The rail's two reads: the shell knows what the bar sits in. On its own the
+  // default is the other way round from the rail's, because out here the bar is
+  // `fixed` over a page that scrolls under it. Flush and painted in the page's
+  // own canvas, nothing would say where it ends.
   const floating = floatingProp ?? (shell ? shell.mode === 'floating' && shell.frame : true)
   const docked = shell ? !shell.frame : false
   const [uncontrolled, setUncontrolled] = useState(defaultOpen)

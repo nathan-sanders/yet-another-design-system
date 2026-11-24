@@ -68,7 +68,11 @@ export interface ResponsiveNavProps
   sectionIcon?: LucideIcon
   /** Which edge the phone bar pins to. `bottom` by default. */
   placement?: 'bottom' | 'top'
-  /** Whether both bars are lifted off the page. Only the drop shadow. */
+  /**
+   * Whether both bars are lifted off the page. Only the drop shadow. Left unset
+   * each takes its own default: the wide bar is flush, and the phone bar is
+   * lifted because it is pinned over the page.
+   */
   floating?: boolean
   /** Where the phone sheet is portalled. See `MobileNav`. */
   container?: ComponentPropsWithRef<typeof MobileNav>['container']

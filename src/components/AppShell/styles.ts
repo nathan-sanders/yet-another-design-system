@@ -52,8 +52,8 @@ export const appShell = tv({
      * from one place through context.
      */
     mode: {
-      floating: '',
       contained: '',
+      floating: '',
     },
     /** Which way the nav lies. A rail beside the page, or a bar above it. */
     navigation: {
@@ -71,7 +71,7 @@ export const appShell = tv({
     },
   },
   defaultVariants: {
-    mode: 'floating',
+    mode: 'contained',
     navigation: 'side',
     frame: true,
   },
@@ -79,10 +79,10 @@ export const appShell = tv({
 
 /**
  * Figma's "Page": the column beside the rail that holds a `TopBar` and the
- * content. In `floating` it paints nothing — the TopBar's own `border-b` is
- * the only chrome, and the blocks sit straight on the canvas (Example 1,
- * `40005257:45477`). In `contained` it is the surface: `Surface/Background
+ * content. In `contained`, the default, it is the surface: `Surface/Background
  * Primary` inside `Surface/Border` at `rounded-lg` (Example 2, `40005257:47450`).
+ * In `floating` it paints nothing — the TopBar's own `border-b` is the only
+ * chrome, and the blocks sit straight on the canvas (Example 1, `40005257:45477`).
  */
 export const appShellPage = tv({
   // `min-w-0 min-h-0`: a flex child will not shrink below its content without
@@ -91,7 +91,6 @@ export const appShellPage = tv({
   base: 'flex min-h-0 min-w-0 flex-1 flex-col',
   variants: {
     mode: {
-      floating: '',
       contained: [
         'rounded-container-outer border border-surface-border bg-surface-background-primary',
         // The scrolling `<main>` inside has square corners; without this its
@@ -102,6 +101,7 @@ export const appShellPage = tv({
         // at least 12px of room before it reaches this edge.
         'overflow-clip',
       ],
+      floating: '',
     },
     frame: {
       true: '',
@@ -114,7 +114,7 @@ export const appShellPage = tv({
     // The border stays: it is what separates the panel from the nav.
     { mode: 'contained', frame: false, class: 'rounded-none' },
   ],
-  defaultVariants: { mode: 'floating', frame: true },
+  defaultVariants: { mode: 'contained', frame: true },
 })
 
 /**
@@ -157,7 +157,7 @@ export const appShellContent = tv({
     // slot and does not say.
     { mode: 'floating', frame: false, class: 'mx-0 px-4' },
   ],
-  defaultVariants: { mode: 'floating', frame: true },
+  defaultVariants: { mode: 'contained', frame: true },
 })
 
 type AppShellVariants = VariantProps<typeof appShell>

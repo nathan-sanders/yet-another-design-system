@@ -117,8 +117,8 @@ export const navSurface = tv({
   },
 
   defaultVariants: {
-    // Figma's default, and the more common case: a nav lifted off the page.
-    floating: true,
+    // Figma's default since 2026-11-24: the bar sits flush on the canvas.
+    floating: false,
     docked: false,
   },
 })
