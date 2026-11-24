@@ -75,13 +75,19 @@ canvas, the TopBar's own `border-b` is the only chrome, and the nav floats above
 shadow. `contained` is Example 2: the page is a `surface-background-primary` panel inside a
 `surface-border` at `rounded-lg`, the content sits in it with 16px of room, and the nav is flush with
 the canvas. Nathan's framing: the first "works good with the navigation floating and any theme", the
-second "works best with the navigation using the canvas theme not floating". Floating was the default first, because it is the one that works with any
-nav theme.
+second "works best with the navigation using the canvas theme not floating". Floating was the default
+first, because it is the one that works with any nav theme.
+
+**`floating` is drawn on `neutral-inverse`, on every bar** (2026-11-24). Nathan's rule: when the shell is
+not contained the nav is Neutral Inverse, the phone bar included. In the file that is an explicit
+`Navigation Theme` mode on the nav instance in all six Floating variants. Here it is the floating
+stories' `globals`, for the reason the next paragraph gives.
 
 **The shell cannot set the nav theme, and should not.** Every `Navigation Theme` mode is a
 `:root[data-nav-theme=…]` block, switched on `<html>` on purpose (the tier is absolute; see the root
-record). So `contained` *recommends* `canvas` rather than applying it. `canvas` has been the default since 2026-11-24, so an application
-writes the attribute, once, where it writes `.dark`, only to have something else.
+record). So `contained` *recommends* `canvas` rather than applying it, and `floating` recommends
+`neutral-inverse`. `canvas` has been the default since 2026-11-24, so an application writes the
+attribute, once, where it writes `.dark`, only to have something else.
 
 **The nav's `floating` default comes from the shell.** Confirmed with Nathan before building. A
 shadow under a rail that is meant to sit flush is the mistake `contained` invites, and a caller who
