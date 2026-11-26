@@ -41,6 +41,13 @@ jobs:
       - name: Type-check and build
         run: npm run build
 
+      # Builds the shadcn registry the same way the Pages deploy would, so a
+      # registry that `shadcn build` rejects fails here rather than on main.
+      # Whether registry.json is current is checked by src/registry.test.ts,
+      # which runs with the stories below.
+      - name: Build the shadcn registry
+        run: npm run registry
+
       # The story suite runs in real Chromium through Playwright, so the browser
       # has to be there. Only chromium: vite.config.ts configures no others.
       #

@@ -14,7 +14,8 @@
     "build-storybook": "storybook build",
     "apps:dev": "vite --config apps/vite.config.ts",
     "apps:build": "vite build --config apps/vite.config.ts",
-    "apps:preview": "vite preview --config apps/vite.config.ts"
+    "apps:preview": "vite preview --config apps/vite.config.ts",
+    "registry": "node scripts/build-registry.ts && shadcn build --output dist-registry/r"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -52,6 +53,7 @@
     "@vitest/coverage-v8": "latest",
     "oxlint": "^1.75.0",
     "playwright": "latest",
+    "shadcn": "4.23.0",
     "storybook": "^10.5.8",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",

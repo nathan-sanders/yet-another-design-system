@@ -60,6 +60,23 @@ jobs:
       - name: Put the apps beside Storybook
         run: cp -R dist-apps storybook-static/apps
 
+      # The shadcn registry — the files `npx shadcn add @yads/<name>` downloads —
+      # would ride along at /r/. A repo has one Pages site and Storybook already
+      # owns it, so the registry cannot be a workflow of its own: a second Pages
+      # deploy would replace Storybook rather than sit beside it.
+      #
+      # Off until the registry's public address is decided. To turn it on, set
+      # the repository variable PUBLISH_REGISTRY to `true` (Settings → Secrets and
+      # variables → Actions → Variables) and re-run this workflow; delete the
+      # variable to take /r/ down again on the next deploy.
+      - name: Build the shadcn registry
+        if: vars.PUBLISH_REGISTRY == 'true'
+        run: npm run registry
+
+      - name: Put the registry beside Storybook
+        if: vars.PUBLISH_REGISTRY == 'true'
+        run: cp -R dist-registry/r storybook-static/r
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v4
