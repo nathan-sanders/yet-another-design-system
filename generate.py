@@ -58,7 +58,9 @@ NAV_MODES = ["canvas", "neutral-inverse", "neutral", "blue-inverse", "blue",
 
 # The ramps Figma has no room for. A variable collection can only hold so many
 # modes, and Navigation Theme is full at nine -- so the rest of the palette is
-# built here instead. These are NOT in navigation.json, which stays exactly what
+# built here instead. The cap is the file's Figma plan (Professional), not a
+# design decision: on a plan that allows more modes per collection, every ramp
+# could live in Figma and this derivation would go. These are NOT in navigation.json, which stays exactly what
 # it says it is: the Figma export, and nothing else. A re-export overwrites that
 # file wholesale, and anything hand-added to it would go with it.
 #
@@ -114,7 +116,9 @@ PRIMARY_MODES = ["neutral", "neutral-inverse", "red", "red-inverse",
                  "green", "green-inverse", "blue", "blue-inverse",
                  "purple", "purple-inverse"]
 
-# Figma is full at ten modes, so the other thirteen ramps are derived here, as
+# Figma is full at ten modes -- the Professional plan's cap per collection, so
+# the account type sets this number, not the design -- and the other thirteen
+# ramps are derived here, as
 # the navigation theme's are -- but from TWO recipes, and the split is contrast.
 # White on step 600 clears 4.5:1 on eight ramps out of seventeen (worst rose,
 # 4.51:1) and fails on nine (worst yellow, 2.93:1). The nine take 700 with an
@@ -516,7 +520,7 @@ for k in ["xs","sm","md","lg","xl","2xl","3xl"]:
     if k in blur: theme.append(f"  --blur-{k}: {blur[k]};")
 theme.append("")
 theme.append("  /* elevation — color flips automatically via the semantic shadow token */")
-drop_order = ["extra low","low","low top","medium","medium top 2","high","high top","high right","high left"]
+drop_order = ["extra low","low","low top","medium","medium top","high","high top","high right","high left"]
 for g in drop_order:
     if g in shadows_drop:
         theme.append(f"  --shadow-{slug(g)}: {build_shadow(shadows_drop[g])};")
@@ -687,7 +691,8 @@ out.append("/*                                                                  
 out.append("/*    Not in @theme, for the neutral ramp's reason: nobody paints with it.      */")
 out.append("/*                                                                             */")
 out.append("/*    The first ten modes are Figma's. The rest are derived in generate.py      */")
-out.append("/*    from Red's steps or Green's, because the collection is full.             */")
+out.append("/*    from Red's steps or Green's, because the collection is full: the file's   */")
+out.append("/*    Figma plan (Professional) caps a collection at ten modes.                 */")
 out += primary_lines
 out.append("")
 out.append("/* ---- 2. Semantic tokens (theme-aware). Light is default; .dark overrides. ---- */")
@@ -720,7 +725,8 @@ out.append("/*     --neutral-* tier, so a nav on one still follows data-neutral 
 out.append("/*                                                                              */")
 out.append("/*     The first nine modes are Figma's, in Figma's order. The other twenty-     */")
 out.append("/*     eight are derived in generate.py from Blue's own steps, because a Figma   */")
-out.append("/*     variable collection cannot hold any more modes than this one already has. */")
+out.append("/*     variable collection cannot hold any more modes than this one already has  */")
+out.append("/*     on the file's plan (Figma Professional caps modes per collection).        */")
 out.append("/*     So they are not in navigation.json, and retuning Blue in Figma retunes    */")
 out.append("/*     every one of them -- bar one correction, which is contrast and not      */")
 out.append("/*     taste. Nav Content/Subtle is step 700 in the light variant, not Blue's    */")

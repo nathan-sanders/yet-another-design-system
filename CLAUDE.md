@@ -223,7 +223,9 @@ It is in code as of 2026-09-01: `tokens/navigation.json`, section 1c of `generat
 
 **Nine of those modes are Figma's and twenty-eight are not, and the split is a hard limit rather
 than a preference.** A Figma variable collection holds a bounded number of modes and this one is
-full, so Blue, Purple, Pink, the two neutrals and Canvas come from the export, and the other
+full. **The bound is the account, not Figma itself**: the file is on the Professional plan, which
+caps the modes per collection (Primary Theme sits at its ten). A plan with a higher cap could hold
+every ramp in Figma, and the derived ones could move into the export. So Blue, Purple, Pink, the two neutrals and Canvas come from the export, and the other
 fourteen ramps are derived in `generate.py` from Blue's own steps. `tokens/navigation.json` stays
 what it says it is — the export, and nothing else — because a re-export overwrites that file
 wholesale and anything hand-added to it would go with it. **Adding a ramp is one word in
@@ -340,7 +342,8 @@ switch is `data-primary-theme="blue"`; the Storybook toolbar has a **Primary** m
 
 **Thirty-six modes: neutral and the seventeen color ramps, each with an inverse.** Ten are Figma's
 (Neutral, Red, Green, Blue, Purple, and their inverses), which is all a collection holds on the Pro
-plan. The other thirteen ramps are derived in `generate.py`.
+plan — the account type sets that number, not the design. The other thirteen ramps are derived in
+`generate.py`, and would move into Figma on a plan with a higher mode cap.
 
 - **Light and dark are in the variable names, not in modes.** `Background - Light`, `Background -
   Dark`: the collection has one mode axis and spends it on the color, and the semantic token's own
