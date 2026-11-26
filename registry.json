@@ -1,0 +1,2685 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "yads",
+  "homepage": "https://nathan-sanders.github.io/yet-another-design-system/",
+  "items": [
+    {
+      "name": "theme",
+      "type": "registry:style",
+      "extends": "none",
+      "title": "Theme",
+      "description": "Every YADS token — primitives, semantic colors for light and dark, type, spacing, radius, shadows and motion — as one generated theme.css. Re-add with --overwrite to pick up token changes.",
+      "dependencies": [
+        "@fontsource/inter@^5.3.0",
+        "@fontsource-variable/geist-mono@^5.3.0"
+      ],
+      "files": [
+        {
+          "path": "src/styles/theme.css",
+          "type": "registry:file",
+          "target": "src/styles/theme.css"
+        }
+      ]
+    },
+    {
+      "name": "accordion",
+      "type": "registry:component",
+      "title": "Accordion",
+      "description": "The YADS Accordion component, in components/Accordion.",
+      "files": [
+        {
+          "path": "src/components/Accordion/Accordion.tsx",
+          "type": "registry:file",
+          "target": "@components/Accordion/Accordion.tsx"
+        },
+        {
+          "path": "src/components/Accordion/index.ts",
+          "type": "registry:file",
+          "target": "@components/Accordion/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:component",
+      "title": "AlertDialog",
+      "description": "The YADS AlertDialog component, in components/AlertDialog.",
+      "files": [
+        {
+          "path": "src/components/AlertDialog/AlertDialog.tsx",
+          "type": "registry:file",
+          "target": "@components/AlertDialog/AlertDialog.tsx"
+        },
+        {
+          "path": "src/components/AlertDialog/index.ts",
+          "type": "registry:file",
+          "target": "@components/AlertDialog/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0"
+      ],
+      "registryDependencies": [
+        "@yads/dialog"
+      ]
+    },
+    {
+      "name": "app-shell",
+      "type": "registry:component",
+      "title": "AppShell",
+      "description": "The YADS AppShell component, in components/AppShell.",
+      "files": [
+        {
+          "path": "src/components/AppShell/AppShell.tsx",
+          "type": "registry:file",
+          "target": "@components/AppShell/AppShell.tsx"
+        },
+        {
+          "path": "src/components/AppShell/context.ts",
+          "type": "registry:file",
+          "target": "@components/AppShell/context.ts"
+        },
+        {
+          "path": "src/components/AppShell/index.ts",
+          "type": "registry:file",
+          "target": "@components/AppShell/index.ts"
+        },
+        {
+          "path": "src/components/AppShell/styles.ts",
+          "type": "registry:file",
+          "target": "@components/AppShell/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "area-series",
+      "type": "registry:component",
+      "title": "AreaSeries",
+      "description": "The YADS AreaSeries component, in components/AreaSeries.",
+      "files": [
+        {
+          "path": "src/components/AreaSeries/AreaSeries.tsx",
+          "type": "registry:file",
+          "target": "@components/AreaSeries/AreaSeries.tsx"
+        },
+        {
+          "path": "src/components/AreaSeries/index.ts",
+          "type": "registry:file",
+          "target": "@components/AreaSeries/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "aspect-ratio",
+      "type": "registry:component",
+      "title": "AspectRatio",
+      "description": "The YADS AspectRatio component, in components/AspectRatio.",
+      "files": [
+        {
+          "path": "src/components/AspectRatio/AspectRatio.tsx",
+          "type": "registry:file",
+          "target": "@components/AspectRatio/AspectRatio.tsx"
+        },
+        {
+          "path": "src/components/AspectRatio/index.ts",
+          "type": "registry:file",
+          "target": "@components/AspectRatio/index.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "autocomplete",
+      "type": "registry:component",
+      "title": "Autocomplete",
+      "description": "The YADS Autocomplete component, in components/Autocomplete.",
+      "files": [
+        {
+          "path": "src/components/Autocomplete/Autocomplete.tsx",
+          "type": "registry:file",
+          "target": "@components/Autocomplete/Autocomplete.tsx"
+        },
+        {
+          "path": "src/components/Autocomplete/context.ts",
+          "type": "registry:file",
+          "target": "@components/Autocomplete/context.ts"
+        },
+        {
+          "path": "src/components/Autocomplete/index.ts",
+          "type": "registry:file",
+          "target": "@components/Autocomplete/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0"
+      ],
+      "registryDependencies": [
+        "@yads/avatar",
+        "@yads/combobox",
+        "@yads/icon",
+        "@yads/input",
+        "@yads/lib-cn",
+        "@yads/lib-layers",
+        "@yads/text"
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:component",
+      "title": "Avatar",
+      "description": "The YADS Avatar component, in components/Avatar.",
+      "files": [
+        {
+          "path": "src/components/Avatar/Avatar.tsx",
+          "type": "registry:file",
+          "target": "@components/Avatar/Avatar.tsx"
+        },
+        {
+          "path": "src/components/Avatar/AvatarGroup.tsx",
+          "type": "registry:file",
+          "target": "@components/Avatar/AvatarGroup.tsx"
+        },
+        {
+          "path": "src/components/Avatar/context.ts",
+          "type": "registry:file",
+          "target": "@components/Avatar/context.ts"
+        },
+        {
+          "path": "src/components/Avatar/index.ts",
+          "type": "registry:file",
+          "target": "@components/Avatar/index.ts"
+        },
+        {
+          "path": "src/components/Avatar/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Avatar/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:component",
+      "title": "Badge",
+      "description": "The YADS Badge component, in components/Badge.",
+      "files": [
+        {
+          "path": "src/components/Badge/Badge.tsx",
+          "type": "registry:file",
+          "target": "@components/Badge/Badge.tsx"
+        },
+        {
+          "path": "src/components/Badge/index.ts",
+          "type": "registry:file",
+          "target": "@components/Badge/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "banner",
+      "type": "registry:component",
+      "title": "Banner",
+      "description": "The YADS Banner component, in components/Banner.",
+      "files": [
+        {
+          "path": "src/components/Banner/Banner.tsx",
+          "type": "registry:file",
+          "target": "@components/Banner/Banner.tsx"
+        },
+        {
+          "path": "src/components/Banner/index.ts",
+          "type": "registry:file",
+          "target": "@components/Banner/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/icon",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "bento-grid",
+      "type": "registry:component",
+      "title": "BentoGrid",
+      "description": "The YADS BentoGrid component, in components/BentoGrid.",
+      "files": [
+        {
+          "path": "src/components/BentoGrid/BentoGrid.tsx",
+          "type": "registry:file",
+          "target": "@components/BentoGrid/BentoGrid.tsx"
+        },
+        {
+          "path": "src/components/BentoGrid/index.ts",
+          "type": "registry:file",
+          "target": "@components/BentoGrid/index.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "breadcrumbs",
+      "type": "registry:component",
+      "title": "Breadcrumbs",
+      "description": "The YADS Breadcrumbs component, in components/Breadcrumbs.",
+      "files": [
+        {
+          "path": "src/components/Breadcrumbs/Breadcrumbs.tsx",
+          "type": "registry:file",
+          "target": "@components/Breadcrumbs/Breadcrumbs.tsx"
+        },
+        {
+          "path": "src/components/Breadcrumbs/index.ts",
+          "type": "registry:file",
+          "target": "@components/Breadcrumbs/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:component",
+      "title": "Button",
+      "description": "The YADS Button component, in components/Button.",
+      "files": [
+        {
+          "path": "src/components/Button/Button.tsx",
+          "type": "registry:file",
+          "target": "@components/Button/Button.tsx"
+        },
+        {
+          "path": "src/components/Button/index.ts",
+          "type": "registry:file",
+          "target": "@components/Button/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "calendar",
+      "type": "registry:component",
+      "title": "Calendar",
+      "description": "The YADS Calendar component, in components/Calendar.",
+      "files": [
+        {
+          "path": "src/components/Calendar/Calendar.tsx",
+          "type": "registry:file",
+          "target": "@components/Calendar/Calendar.tsx"
+        },
+        {
+          "path": "src/components/Calendar/DateInput.tsx",
+          "type": "registry:file",
+          "target": "@components/Calendar/DateInput.tsx"
+        },
+        {
+          "path": "src/components/Calendar/DatePicker.tsx",
+          "type": "registry:file",
+          "target": "@components/Calendar/DatePicker.tsx"
+        },
+        {
+          "path": "src/components/Calendar/context.ts",
+          "type": "registry:file",
+          "target": "@components/Calendar/context.ts"
+        },
+        {
+          "path": "src/components/Calendar/index.ts",
+          "type": "registry:file",
+          "target": "@components/Calendar/index.ts"
+        },
+        {
+          "path": "src/components/Calendar/month.ts",
+          "type": "registry:file",
+          "target": "@components/Calendar/month.ts"
+        },
+        {
+          "path": "src/components/Calendar/presets.ts",
+          "type": "registry:file",
+          "target": "@components/Calendar/presets.ts"
+        },
+        {
+          "path": "src/components/Calendar/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Calendar/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/field",
+        "@yads/icon",
+        "@yads/input",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/lib-layers",
+        "@yads/popover",
+        "@yads/select"
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:component",
+      "title": "Card",
+      "description": "The YADS Card component, in components/Card.",
+      "files": [
+        {
+          "path": "src/components/Card/Card.tsx",
+          "type": "registry:file",
+          "target": "@components/Card/Card.tsx"
+        },
+        {
+          "path": "src/components/Card/ClickableCard.tsx",
+          "type": "registry:file",
+          "target": "@components/Card/ClickableCard.tsx"
+        },
+        {
+          "path": "src/components/Card/index.ts",
+          "type": "registry:file",
+          "target": "@components/Card/index.ts"
+        },
+        {
+          "path": "src/components/Card/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Card/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "carousel",
+      "type": "registry:component",
+      "title": "Carousel",
+      "description": "The YADS Carousel component, in components/Carousel.",
+      "files": [
+        {
+          "path": "src/components/Carousel/Carousel.tsx",
+          "type": "registry:file",
+          "target": "@components/Carousel/Carousel.tsx"
+        },
+        {
+          "path": "src/components/Carousel/index.ts",
+          "type": "registry:file",
+          "target": "@components/Carousel/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:component",
+      "title": "Chart",
+      "description": "The YADS Chart component, in components/Chart.",
+      "files": [
+        {
+          "path": "src/components/Chart/ChartClickParts.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/ChartClickParts.tsx"
+        },
+        {
+          "path": "src/components/Chart/ChartContainer.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/ChartContainer.tsx"
+        },
+        {
+          "path": "src/components/Chart/ChartLegend.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/ChartLegend.tsx"
+        },
+        {
+          "path": "src/components/Chart/ChartTooltip.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/ChartTooltip.tsx"
+        },
+        {
+          "path": "src/components/Chart/Swatch.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/Swatch.tsx"
+        },
+        {
+          "path": "src/components/Chart/axes.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/axes.ts"
+        },
+        {
+          "path": "src/components/Chart/bars.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/bars.tsx"
+        },
+        {
+          "path": "src/components/Chart/clicks.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/clicks.ts"
+        },
+        {
+          "path": "src/components/Chart/context.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/context.ts"
+        },
+        {
+          "path": "src/components/Chart/index.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/index.ts"
+        },
+        {
+          "path": "src/components/Chart/palette.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/palette.ts"
+        },
+        {
+          "path": "src/components/Chart/polar.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/polar.ts"
+        },
+        {
+          "path": "src/components/Chart/shapes.tsx",
+          "type": "registry:file",
+          "target": "@components/Chart/shapes.tsx"
+        },
+        {
+          "path": "src/components/Chart/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Chart/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/text"
+      ]
+    },
+    {
+      "name": "chat",
+      "type": "registry:component",
+      "title": "Chat",
+      "description": "The YADS Chat component, in components/Chat.",
+      "files": [
+        {
+          "path": "src/components/Chat/ChatComposer.tsx",
+          "type": "registry:file",
+          "target": "@components/Chat/ChatComposer.tsx"
+        },
+        {
+          "path": "src/components/Chat/ChatMessage.tsx",
+          "type": "registry:file",
+          "target": "@components/Chat/ChatMessage.tsx"
+        },
+        {
+          "path": "src/components/Chat/ThoughtProcess.tsx",
+          "type": "registry:file",
+          "target": "@components/Chat/ThoughtProcess.tsx"
+        },
+        {
+          "path": "src/components/Chat/ToolCall.tsx",
+          "type": "registry:file",
+          "target": "@components/Chat/ToolCall.tsx"
+        },
+        {
+          "path": "src/components/Chat/context.ts",
+          "type": "registry:file",
+          "target": "@components/Chat/context.ts"
+        },
+        {
+          "path": "src/components/Chat/elapsed.ts",
+          "type": "registry:file",
+          "target": "@components/Chat/elapsed.ts"
+        },
+        {
+          "path": "src/components/Chat/index.ts",
+          "type": "registry:file",
+          "target": "@components/Chat/index.ts"
+        },
+        {
+          "path": "src/components/Chat/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Chat/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/card",
+        "@yads/icon",
+        "@yads/input",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/text",
+        "@yads/tooltip"
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:component",
+      "title": "Checkbox",
+      "description": "The YADS Checkbox component, in components/Checkbox.",
+      "files": [
+        {
+          "path": "src/components/Checkbox/Checkbox.tsx",
+          "type": "registry:file",
+          "target": "@components/Checkbox/Checkbox.tsx"
+        },
+        {
+          "path": "src/components/Checkbox/index.ts",
+          "type": "registry:file",
+          "target": "@components/Checkbox/index.ts"
+        },
+        {
+          "path": "src/components/Checkbox/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Checkbox/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/divider",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "code",
+      "type": "registry:component",
+      "title": "Code",
+      "description": "The YADS Code component, in components/Code.",
+      "files": [
+        {
+          "path": "src/components/Code/Code.tsx",
+          "type": "registry:file",
+          "target": "@components/Code/Code.tsx"
+        },
+        {
+          "path": "src/components/Code/index.ts",
+          "type": "registry:file",
+          "target": "@components/Code/index.ts"
+        },
+        {
+          "path": "src/components/Code/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Code/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "code-block",
+      "type": "registry:component",
+      "title": "CodeBlock",
+      "description": "The YADS CodeBlock component, in components/CodeBlock.",
+      "files": [
+        {
+          "path": "src/components/CodeBlock/CodeBlock.tsx",
+          "type": "registry:file",
+          "target": "@components/CodeBlock/CodeBlock.tsx"
+        },
+        {
+          "path": "src/components/CodeBlock/diff.ts",
+          "type": "registry:file",
+          "target": "@components/CodeBlock/diff.ts"
+        },
+        {
+          "path": "src/components/CodeBlock/index.ts",
+          "type": "registry:file",
+          "target": "@components/CodeBlock/index.ts"
+        },
+        {
+          "path": "src/components/CodeBlock/syntax.ts",
+          "type": "registry:file",
+          "target": "@components/CodeBlock/syntax.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "prism-react-renderer@^2.4.1",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/tooltip"
+      ]
+    },
+    {
+      "name": "combobox",
+      "type": "registry:component",
+      "title": "Combobox",
+      "description": "The YADS Combobox component, in components/Combobox.",
+      "files": [
+        {
+          "path": "src/components/Combobox/Combobox.tsx",
+          "type": "registry:file",
+          "target": "@components/Combobox/Combobox.tsx"
+        },
+        {
+          "path": "src/components/Combobox/context.ts",
+          "type": "registry:file",
+          "target": "@components/Combobox/context.ts"
+        },
+        {
+          "path": "src/components/Combobox/index.ts",
+          "type": "registry:file",
+          "target": "@components/Combobox/index.ts"
+        },
+        {
+          "path": "src/components/Combobox/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Combobox/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/lib-layers",
+        "@yads/text",
+        "@yads/token"
+      ]
+    },
+    {
+      "name": "content-block",
+      "type": "registry:component",
+      "title": "ContentBlock",
+      "description": "The YADS ContentBlock component, in components/ContentBlock.",
+      "files": [
+        {
+          "path": "src/components/ContentBlock/BlockHeader.tsx",
+          "type": "registry:file",
+          "target": "@components/ContentBlock/BlockHeader.tsx"
+        },
+        {
+          "path": "src/components/ContentBlock/ContentBlock.tsx",
+          "type": "registry:file",
+          "target": "@components/ContentBlock/ContentBlock.tsx"
+        },
+        {
+          "path": "src/components/ContentBlock/index.ts",
+          "type": "registry:file",
+          "target": "@components/ContentBlock/index.ts"
+        },
+        {
+          "path": "src/components/ContentBlock/styles.ts",
+          "type": "registry:file",
+          "target": "@components/ContentBlock/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:component",
+      "title": "ContextMenu",
+      "description": "The YADS ContextMenu component, in components/ContextMenu.",
+      "files": [
+        {
+          "path": "src/components/ContextMenu/ContextMenu.tsx",
+          "type": "registry:file",
+          "target": "@components/ContextMenu/ContextMenu.tsx"
+        },
+        {
+          "path": "src/components/ContextMenu/index.ts",
+          "type": "registry:file",
+          "target": "@components/ContextMenu/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-layers",
+        "@yads/menu"
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:component",
+      "title": "Dialog",
+      "description": "The YADS Dialog component, in components/Dialog.",
+      "files": [
+        {
+          "path": "src/components/Dialog/Dialog.tsx",
+          "type": "registry:file",
+          "target": "@components/Dialog/Dialog.tsx"
+        },
+        {
+          "path": "src/components/Dialog/index.ts",
+          "type": "registry:file",
+          "target": "@components/Dialog/index.ts"
+        },
+        {
+          "path": "src/components/Dialog/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Dialog/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/lib-cn",
+        "@yads/lib-layers"
+      ]
+    },
+    {
+      "name": "divider",
+      "type": "registry:component",
+      "title": "Divider",
+      "description": "The YADS Divider component, in components/Divider.",
+      "files": [
+        {
+          "path": "src/components/Divider/Divider.tsx",
+          "type": "registry:file",
+          "target": "@components/Divider/Divider.tsx"
+        },
+        {
+          "path": "src/components/Divider/index.ts",
+          "type": "registry:file",
+          "target": "@components/Divider/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "donut",
+      "type": "registry:component",
+      "title": "Donut",
+      "description": "The YADS Donut component, in components/Donut.",
+      "files": [
+        {
+          "path": "src/components/Donut/Donut.tsx",
+          "type": "registry:file",
+          "target": "@components/Donut/Donut.tsx"
+        },
+        {
+          "path": "src/components/Donut/index.ts",
+          "type": "registry:file",
+          "target": "@components/Donut/index.ts"
+        },
+        {
+          "path": "src/components/Donut/slices.tsx",
+          "type": "registry:file",
+          "target": "@components/Donut/slices.tsx"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "drag-and-drop",
+      "type": "registry:component",
+      "title": "DragAndDrop",
+      "description": "The YADS DragAndDrop component, in components/DragAndDrop.",
+      "files": [
+        {
+          "path": "src/components/DragAndDrop/DragAndDrop.tsx",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/DragAndDrop.tsx"
+        },
+        {
+          "path": "src/components/DragAndDrop/DragHandle.tsx",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/DragHandle.tsx"
+        },
+        {
+          "path": "src/components/DragAndDrop/Sortable.tsx",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/Sortable.tsx"
+        },
+        {
+          "path": "src/components/DragAndDrop/Source.tsx",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/Source.tsx"
+        },
+        {
+          "path": "src/components/DragAndDrop/announcements.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/announcements.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/board.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/board.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/collision.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/collision.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/context.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/context.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/index.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/index.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/move.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/move.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/spans.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/spans.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/styles.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/styles.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/useDragSource.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/useDragSource.ts"
+        },
+        {
+          "path": "src/components/DragAndDrop/useSortableItem.ts",
+          "type": "registry:file",
+          "target": "@components/DragAndDrop/useSortableItem.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "@dnd-kit/core@^6.3.1",
+        "@dnd-kit/sortable@^10.0.0",
+        "@dnd-kit/utilities@^3.2.2",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/lib-cn",
+        "@yads/lib-layers"
+      ]
+    },
+    {
+      "name": "drawer",
+      "type": "registry:component",
+      "title": "Drawer",
+      "description": "The YADS Drawer component, in components/Drawer.",
+      "files": [
+        {
+          "path": "src/components/Drawer/Drawer.tsx",
+          "type": "registry:file",
+          "target": "@components/Drawer/Drawer.tsx"
+        },
+        {
+          "path": "src/components/Drawer/context.ts",
+          "type": "registry:file",
+          "target": "@components/Drawer/context.ts"
+        },
+        {
+          "path": "src/components/Drawer/index.ts",
+          "type": "registry:file",
+          "target": "@components/Drawer/index.ts"
+        },
+        {
+          "path": "src/components/Drawer/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Drawer/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/content-block",
+        "@yads/dialog",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-layers",
+        "@yads/lib-viewport"
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:component",
+      "title": "Field",
+      "description": "The YADS Field component, in components/Field.",
+      "files": [
+        {
+          "path": "src/components/Field/Field.tsx",
+          "type": "registry:file",
+          "target": "@components/Field/Field.tsx"
+        },
+        {
+          "path": "src/components/Field/index.ts",
+          "type": "registry:file",
+          "target": "@components/Field/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "file-input",
+      "type": "registry:component",
+      "title": "FileInput",
+      "description": "The YADS FileInput component, in components/FileInput.",
+      "files": [
+        {
+          "path": "src/components/FileInput/FileInput.tsx",
+          "type": "registry:file",
+          "target": "@components/FileInput/FileInput.tsx"
+        },
+        {
+          "path": "src/components/FileInput/files.ts",
+          "type": "registry:file",
+          "target": "@components/FileInput/files.ts"
+        },
+        {
+          "path": "src/components/FileInput/index.ts",
+          "type": "registry:file",
+          "target": "@components/FileInput/index.ts"
+        },
+        {
+          "path": "src/components/FileInput/styles.ts",
+          "type": "registry:file",
+          "target": "@components/FileInput/styles.ts"
+        },
+        {
+          "path": "src/components/FileInput/useFileDrop.ts",
+          "type": "registry:file",
+          "target": "@components/FileInput/useFileDrop.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/icon",
+        "@yads/input",
+        "@yads/lib-cn",
+        "@yads/text"
+      ]
+    },
+    {
+      "name": "form",
+      "type": "registry:component",
+      "title": "Form",
+      "description": "The YADS Form component, in components/Form.",
+      "files": [
+        {
+          "path": "src/components/Form/Form.tsx",
+          "type": "registry:file",
+          "target": "@components/Form/Form.tsx"
+        },
+        {
+          "path": "src/components/Form/index.ts",
+          "type": "registry:file",
+          "target": "@components/Form/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "gauge",
+      "type": "registry:component",
+      "title": "Gauge",
+      "description": "The YADS Gauge component, in components/Gauge.",
+      "files": [
+        {
+          "path": "src/components/Gauge/Gauge.tsx",
+          "type": "registry:file",
+          "target": "@components/Gauge/Gauge.tsx"
+        },
+        {
+          "path": "src/components/Gauge/index.ts",
+          "type": "registry:file",
+          "target": "@components/Gauge/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/donut",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "heat-map",
+      "type": "registry:component",
+      "title": "HeatMap",
+      "description": "The YADS HeatMap component, in components/HeatMap.",
+      "files": [
+        {
+          "path": "src/components/HeatMap/HeatMap.tsx",
+          "type": "registry:file",
+          "target": "@components/HeatMap/HeatMap.tsx"
+        },
+        {
+          "path": "src/components/HeatMap/index.ts",
+          "type": "registry:file",
+          "target": "@components/HeatMap/index.ts"
+        },
+        {
+          "path": "src/components/HeatMap/scale.ts",
+          "type": "registry:file",
+          "target": "@components/HeatMap/scale.ts"
+        }
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "horizontal-bar",
+      "type": "registry:component",
+      "title": "HorizontalBar",
+      "description": "The YADS HorizontalBar component, in components/HorizontalBar.",
+      "files": [
+        {
+          "path": "src/components/HorizontalBar/HorizontalBar.tsx",
+          "type": "registry:file",
+          "target": "@components/HorizontalBar/HorizontalBar.tsx"
+        },
+        {
+          "path": "src/components/HorizontalBar/index.ts",
+          "type": "registry:file",
+          "target": "@components/HorizontalBar/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "icon",
+      "type": "registry:component",
+      "title": "Icon",
+      "description": "The YADS Icon component, in components/Icon.",
+      "files": [
+        {
+          "path": "src/components/Icon/Icon.tsx",
+          "type": "registry:file",
+          "target": "@components/Icon/Icon.tsx"
+        },
+        {
+          "path": "src/components/Icon/LeadingIcon.tsx",
+          "type": "registry:file",
+          "target": "@components/Icon/LeadingIcon.tsx"
+        },
+        {
+          "path": "src/components/Icon/index.ts",
+          "type": "registry:file",
+          "target": "@components/Icon/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:component",
+      "title": "Input",
+      "description": "The YADS Input component, in components/Input.",
+      "files": [
+        {
+          "path": "src/components/Input/Input.tsx",
+          "type": "registry:file",
+          "target": "@components/Input/Input.tsx"
+        },
+        {
+          "path": "src/components/Input/InputGroup.tsx",
+          "type": "registry:file",
+          "target": "@components/Input/InputGroup.tsx"
+        },
+        {
+          "path": "src/components/Input/context.ts",
+          "type": "registry:file",
+          "target": "@components/Input/context.ts"
+        },
+        {
+          "path": "src/components/Input/index.ts",
+          "type": "registry:file",
+          "target": "@components/Input/index.ts"
+        },
+        {
+          "path": "src/components/Input/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Input/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:component",
+      "title": "Kbd",
+      "description": "The YADS Kbd component, in components/Kbd.",
+      "files": [
+        {
+          "path": "src/components/Kbd/Kbd.tsx",
+          "type": "registry:file",
+          "target": "@components/Kbd/Kbd.tsx"
+        },
+        {
+          "path": "src/components/Kbd/index.ts",
+          "type": "registry:file",
+          "target": "@components/Kbd/index.ts"
+        },
+        {
+          "path": "src/components/Kbd/keys.ts",
+          "type": "registry:file",
+          "target": "@components/Kbd/keys.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-platform"
+      ]
+    },
+    {
+      "name": "line-series",
+      "type": "registry:component",
+      "title": "LineSeries",
+      "description": "The YADS LineSeries component, in components/LineSeries.",
+      "files": [
+        {
+          "path": "src/components/LineSeries/LineSeries.tsx",
+          "type": "registry:file",
+          "target": "@components/LineSeries/LineSeries.tsx"
+        },
+        {
+          "path": "src/components/LineSeries/index.ts",
+          "type": "registry:file",
+          "target": "@components/LineSeries/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "link",
+      "type": "registry:component",
+      "title": "Link",
+      "description": "The YADS Link component, in components/Link.",
+      "files": [
+        {
+          "path": "src/components/Link/Link.tsx",
+          "type": "registry:file",
+          "target": "@components/Link/Link.tsx"
+        },
+        {
+          "path": "src/components/Link/index.ts",
+          "type": "registry:file",
+          "target": "@components/Link/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "menu",
+      "type": "registry:component",
+      "title": "Menu",
+      "description": "The YADS Menu component, in components/Menu.",
+      "files": [
+        {
+          "path": "src/components/Menu/Menu.tsx",
+          "type": "registry:file",
+          "target": "@components/Menu/Menu.tsx"
+        },
+        {
+          "path": "src/components/Menu/index.ts",
+          "type": "registry:file",
+          "target": "@components/Menu/index.ts"
+        },
+        {
+          "path": "src/components/Menu/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Menu/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/lib-layers",
+        "@yads/text"
+      ]
+    },
+    {
+      "name": "metric",
+      "type": "registry:component",
+      "title": "Metric",
+      "description": "The YADS Metric component, in components/Metric.",
+      "files": [
+        {
+          "path": "src/components/Metric/Metric.tsx",
+          "type": "registry:file",
+          "target": "@components/Metric/Metric.tsx"
+        },
+        {
+          "path": "src/components/Metric/MetricCard.tsx",
+          "type": "registry:file",
+          "target": "@components/Metric/MetricCard.tsx"
+        },
+        {
+          "path": "src/components/Metric/MetricGrid.tsx",
+          "type": "registry:file",
+          "target": "@components/Metric/MetricGrid.tsx"
+        },
+        {
+          "path": "src/components/Metric/TrendBadge.tsx",
+          "type": "registry:file",
+          "target": "@components/Metric/TrendBadge.tsx"
+        },
+        {
+          "path": "src/components/Metric/index.ts",
+          "type": "registry:file",
+          "target": "@components/Metric/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/badge",
+        "@yads/card",
+        "@yads/lib-cn",
+        "@yads/text"
+      ]
+    },
+    {
+      "name": "nav",
+      "type": "registry:component",
+      "title": "Nav",
+      "description": "The YADS Nav component, in components/Nav.",
+      "files": [
+        {
+          "path": "src/components/Nav/MobileNav.tsx",
+          "type": "registry:file",
+          "target": "@components/Nav/MobileNav.tsx"
+        },
+        {
+          "path": "src/components/Nav/NavItem.tsx",
+          "type": "registry:file",
+          "target": "@components/Nav/NavItem.tsx"
+        },
+        {
+          "path": "src/components/Nav/ResponsiveNav.tsx",
+          "type": "registry:file",
+          "target": "@components/Nav/ResponsiveNav.tsx"
+        },
+        {
+          "path": "src/components/Nav/SideNav.tsx",
+          "type": "registry:file",
+          "target": "@components/Nav/SideNav.tsx"
+        },
+        {
+          "path": "src/components/Nav/TopNav.tsx",
+          "type": "registry:file",
+          "target": "@components/Nav/TopNav.tsx"
+        },
+        {
+          "path": "src/components/Nav/context.ts",
+          "type": "registry:file",
+          "target": "@components/Nav/context.ts"
+        },
+        {
+          "path": "src/components/Nav/dismiss.ts",
+          "type": "registry:file",
+          "target": "@components/Nav/dismiss.ts"
+        },
+        {
+          "path": "src/components/Nav/index.ts",
+          "type": "registry:file",
+          "target": "@components/Nav/index.ts"
+        },
+        {
+          "path": "src/components/Nav/selected.ts",
+          "type": "registry:file",
+          "target": "@components/Nav/selected.ts"
+        },
+        {
+          "path": "src/components/Nav/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Nav/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/app-shell",
+        "@yads/drawer",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/lib-layers",
+        "@yads/popover",
+        "@yads/resize",
+        "@yads/text",
+        "@yads/tooltip"
+      ]
+    },
+    {
+      "name": "number-input",
+      "type": "registry:component",
+      "title": "NumberInput",
+      "description": "The YADS NumberInput component, in components/NumberInput.",
+      "files": [
+        {
+          "path": "src/components/NumberInput/NumberInput.tsx",
+          "type": "registry:file",
+          "target": "@components/NumberInput/NumberInput.tsx"
+        },
+        {
+          "path": "src/components/NumberInput/index.ts",
+          "type": "registry:file",
+          "target": "@components/NumberInput/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/input",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "otp-input",
+      "type": "registry:component",
+      "title": "OTPInput",
+      "description": "The YADS OTPInput component, in components/OTPInput.",
+      "files": [
+        {
+          "path": "src/components/OTPInput/OTPInput.tsx",
+          "type": "registry:file",
+          "target": "@components/OTPInput/OTPInput.tsx"
+        },
+        {
+          "path": "src/components/OTPInput/index.ts",
+          "type": "registry:file",
+          "target": "@components/OTPInput/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/input",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "outline",
+      "type": "registry:component",
+      "title": "Outline",
+      "description": "The YADS Outline component, in components/Outline.",
+      "files": [
+        {
+          "path": "src/components/Outline/Outline.tsx",
+          "type": "registry:file",
+          "target": "@components/Outline/Outline.tsx"
+        },
+        {
+          "path": "src/components/Outline/index.ts",
+          "type": "registry:file",
+          "target": "@components/Outline/index.ts"
+        },
+        {
+          "path": "src/components/Outline/scrollspy.ts",
+          "type": "registry:file",
+          "target": "@components/Outline/scrollspy.ts"
+        },
+        {
+          "path": "src/components/Outline/useOutlineFromDOM.ts",
+          "type": "registry:file",
+          "target": "@components/Outline/useOutlineFromDOM.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "pagination",
+      "type": "registry:component",
+      "title": "Pagination",
+      "description": "The YADS Pagination component, in components/Pagination.",
+      "files": [
+        {
+          "path": "src/components/Pagination/Pagination.tsx",
+          "type": "registry:file",
+          "target": "@components/Pagination/Pagination.tsx"
+        },
+        {
+          "path": "src/components/Pagination/index.ts",
+          "type": "registry:file",
+          "target": "@components/Pagination/index.ts"
+        },
+        {
+          "path": "src/components/Pagination/labels.ts",
+          "type": "registry:file",
+          "target": "@components/Pagination/labels.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/lib-cn",
+        "@yads/select"
+      ]
+    },
+    {
+      "name": "panel",
+      "type": "registry:component",
+      "title": "Panel",
+      "description": "The YADS Panel component, in components/Panel.",
+      "files": [
+        {
+          "path": "src/components/Panel/Panel.tsx",
+          "type": "registry:file",
+          "target": "@components/Panel/Panel.tsx"
+        },
+        {
+          "path": "src/components/Panel/context.ts",
+          "type": "registry:file",
+          "target": "@components/Panel/context.ts"
+        },
+        {
+          "path": "src/components/Panel/index.ts",
+          "type": "registry:file",
+          "target": "@components/Panel/index.ts"
+        },
+        {
+          "path": "src/components/Panel/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Panel/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/app-shell",
+        "@yads/button",
+        "@yads/content-block",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-presence",
+        "@yads/resize"
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:component",
+      "title": "Popover",
+      "description": "The YADS Popover component, in components/Popover.",
+      "files": [
+        {
+          "path": "src/components/Popover/Popover.tsx",
+          "type": "registry:file",
+          "target": "@components/Popover/Popover.tsx"
+        },
+        {
+          "path": "src/components/Popover/index.ts",
+          "type": "registry:file",
+          "target": "@components/Popover/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/lib-cn",
+        "@yads/lib-layers"
+      ]
+    },
+    {
+      "name": "progress-bar",
+      "type": "registry:component",
+      "title": "ProgressBar",
+      "description": "The YADS ProgressBar component, in components/ProgressBar.",
+      "files": [
+        {
+          "path": "src/components/ProgressBar/ProgressBar.tsx",
+          "type": "registry:file",
+          "target": "@components/ProgressBar/ProgressBar.tsx"
+        },
+        {
+          "path": "src/components/ProgressBar/index.ts",
+          "type": "registry:file",
+          "target": "@components/ProgressBar/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "questionnaire",
+      "type": "registry:component",
+      "title": "Questionnaire",
+      "description": "The YADS Questionnaire component, in components/Questionnaire.",
+      "files": [
+        {
+          "path": "src/components/Questionnaire/Questionnaire.tsx",
+          "type": "registry:file",
+          "target": "@components/Questionnaire/Questionnaire.tsx"
+        },
+        {
+          "path": "src/components/Questionnaire/answers.ts",
+          "type": "registry:file",
+          "target": "@components/Questionnaire/answers.ts"
+        },
+        {
+          "path": "src/components/Questionnaire/context.ts",
+          "type": "registry:file",
+          "target": "@components/Questionnaire/context.ts"
+        },
+        {
+          "path": "src/components/Questionnaire/index.ts",
+          "type": "registry:file",
+          "target": "@components/Questionnaire/index.ts"
+        },
+        {
+          "path": "src/components/Questionnaire/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Questionnaire/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@shadcn/react@^0.3.1",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/card",
+        "@yads/checkbox",
+        "@yads/form",
+        "@yads/icon",
+        "@yads/input",
+        "@yads/kbd",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "radar",
+      "type": "registry:component",
+      "title": "Radar",
+      "description": "The YADS Radar component, in components/Radar.",
+      "files": [
+        {
+          "path": "src/components/Radar/Radar.tsx",
+          "type": "registry:file",
+          "target": "@components/Radar/Radar.tsx"
+        },
+        {
+          "path": "src/components/Radar/index.ts",
+          "type": "registry:file",
+          "target": "@components/Radar/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart"
+      ]
+    },
+    {
+      "name": "radial",
+      "type": "registry:component",
+      "title": "Radial",
+      "description": "The YADS Radial component, in components/Radial.",
+      "files": [
+        {
+          "path": "src/components/Radial/Radial.tsx",
+          "type": "registry:file",
+          "target": "@components/Radial/Radial.tsx"
+        },
+        {
+          "path": "src/components/Radial/index.ts",
+          "type": "registry:file",
+          "target": "@components/Radial/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "radio",
+      "type": "registry:component",
+      "title": "Radio",
+      "description": "The YADS Radio component, in components/Radio.",
+      "files": [
+        {
+          "path": "src/components/Radio/Radio.tsx",
+          "type": "registry:file",
+          "target": "@components/Radio/Radio.tsx"
+        },
+        {
+          "path": "src/components/Radio/RadioCard.tsx",
+          "type": "registry:file",
+          "target": "@components/Radio/RadioCard.tsx"
+        },
+        {
+          "path": "src/components/Radio/index.ts",
+          "type": "registry:file",
+          "target": "@components/Radio/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/card",
+        "@yads/checkbox",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "resize",
+      "type": "registry:component",
+      "title": "Resize",
+      "description": "The YADS Resize component, in components/Resize.",
+      "files": [
+        {
+          "path": "src/components/Resize/ResizeHandle.tsx",
+          "type": "registry:file",
+          "target": "@components/Resize/ResizeHandle.tsx"
+        },
+        {
+          "path": "src/components/Resize/index.ts",
+          "type": "registry:file",
+          "target": "@components/Resize/index.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "sankey",
+      "type": "registry:component",
+      "title": "Sankey",
+      "description": "The YADS Sankey component, in components/Sankey.",
+      "files": [
+        {
+          "path": "src/components/Sankey/Sankey.tsx",
+          "type": "registry:file",
+          "target": "@components/Sankey/Sankey.tsx"
+        },
+        {
+          "path": "src/components/Sankey/graph.ts",
+          "type": "registry:file",
+          "target": "@components/Sankey/graph.ts"
+        },
+        {
+          "path": "src/components/Sankey/index.ts",
+          "type": "registry:file",
+          "target": "@components/Sankey/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart"
+      ]
+    },
+    {
+      "name": "scatter",
+      "type": "registry:component",
+      "title": "Scatter",
+      "description": "The YADS Scatter component, in components/Scatter.",
+      "files": [
+        {
+          "path": "src/components/Scatter/Scatter.tsx",
+          "type": "registry:file",
+          "target": "@components/Scatter/Scatter.tsx"
+        },
+        {
+          "path": "src/components/Scatter/index.ts",
+          "type": "registry:file",
+          "target": "@components/Scatter/index.ts"
+        },
+        {
+          "path": "src/components/Scatter/quadrant.ts",
+          "type": "registry:file",
+          "target": "@components/Scatter/quadrant.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart"
+      ]
+    },
+    {
+      "name": "segmented-control",
+      "type": "registry:component",
+      "title": "SegmentedControl",
+      "description": "The YADS SegmentedControl component, in components/SegmentedControl.",
+      "files": [
+        {
+          "path": "src/components/SegmentedControl/SegmentedControl.tsx",
+          "type": "registry:file",
+          "target": "@components/SegmentedControl/SegmentedControl.tsx"
+        },
+        {
+          "path": "src/components/SegmentedControl/index.ts",
+          "type": "registry:file",
+          "target": "@components/SegmentedControl/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:component",
+      "title": "Select",
+      "description": "The YADS Select component, in components/Select.",
+      "files": [
+        {
+          "path": "src/components/Select/Select.tsx",
+          "type": "registry:file",
+          "target": "@components/Select/Select.tsx"
+        },
+        {
+          "path": "src/components/Select/context.ts",
+          "type": "registry:file",
+          "target": "@components/Select/context.ts"
+        },
+        {
+          "path": "src/components/Select/index.ts",
+          "type": "registry:file",
+          "target": "@components/Select/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/lib-layers",
+        "@yads/text"
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:component",
+      "title": "Skeleton",
+      "description": "The YADS Skeleton component, in components/Skeleton.",
+      "files": [
+        {
+          "path": "src/components/Skeleton/Skeleton.tsx",
+          "type": "registry:file",
+          "target": "@components/Skeleton/Skeleton.tsx"
+        },
+        {
+          "path": "src/components/Skeleton/index.ts",
+          "type": "registry:file",
+          "target": "@components/Skeleton/index.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "slider",
+      "type": "registry:component",
+      "title": "Slider",
+      "description": "The YADS Slider component, in components/Slider.",
+      "files": [
+        {
+          "path": "src/components/Slider/Slider.tsx",
+          "type": "registry:file",
+          "target": "@components/Slider/Slider.tsx"
+        },
+        {
+          "path": "src/components/Slider/index.ts",
+          "type": "registry:file",
+          "target": "@components/Slider/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-focus",
+        "@yads/number-input",
+        "@yads/text",
+        "@yads/tooltip"
+      ]
+    },
+    {
+      "name": "spark",
+      "type": "registry:component",
+      "title": "Spark",
+      "description": "The YADS Spark component, in components/Spark.",
+      "files": [
+        {
+          "path": "src/components/Spark/Spark.tsx",
+          "type": "registry:file",
+          "target": "@components/Spark/Spark.tsx"
+        },
+        {
+          "path": "src/components/Spark/index.ts",
+          "type": "registry:file",
+          "target": "@components/Spark/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "stacked-bar",
+      "type": "registry:component",
+      "title": "StackedBar",
+      "description": "The YADS StackedBar component, in components/StackedBar.",
+      "files": [
+        {
+          "path": "src/components/StackedBar/StackedBar.tsx",
+          "type": "registry:file",
+          "target": "@components/StackedBar/StackedBar.tsx"
+        },
+        {
+          "path": "src/components/StackedBar/index.ts",
+          "type": "registry:file",
+          "target": "@components/StackedBar/index.ts"
+        },
+        {
+          "path": "src/components/StackedBar/segments.ts",
+          "type": "registry:file",
+          "target": "@components/StackedBar/segments.ts"
+        }
+      ],
+      "dependencies": [
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "stepper",
+      "type": "registry:component",
+      "title": "Stepper",
+      "description": "The YADS Stepper component, in components/Stepper.",
+      "files": [
+        {
+          "path": "src/components/Stepper/Stepper.tsx",
+          "type": "registry:file",
+          "target": "@components/Stepper/Stepper.tsx"
+        },
+        {
+          "path": "src/components/Stepper/compact.ts",
+          "type": "registry:file",
+          "target": "@components/Stepper/compact.ts"
+        },
+        {
+          "path": "src/components/Stepper/index.ts",
+          "type": "registry:file",
+          "target": "@components/Stepper/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:component",
+      "title": "Switch",
+      "description": "The YADS Switch component, in components/Switch.",
+      "files": [
+        {
+          "path": "src/components/Switch/Switch.tsx",
+          "type": "registry:file",
+          "target": "@components/Switch/Switch.tsx"
+        },
+        {
+          "path": "src/components/Switch/index.ts",
+          "type": "registry:file",
+          "target": "@components/Switch/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/checkbox",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:component",
+      "title": "Table",
+      "description": "The YADS Table component, in components/Table.",
+      "files": [
+        {
+          "path": "src/components/Table/ResizeHandle.tsx",
+          "type": "registry:file",
+          "target": "@components/Table/ResizeHandle.tsx"
+        },
+        {
+          "path": "src/components/Table/Table.tsx",
+          "type": "registry:file",
+          "target": "@components/Table/Table.tsx"
+        },
+        {
+          "path": "src/components/Table/context.ts",
+          "type": "registry:file",
+          "target": "@components/Table/context.ts"
+        },
+        {
+          "path": "src/components/Table/index.ts",
+          "type": "registry:file",
+          "target": "@components/Table/index.ts"
+        },
+        {
+          "path": "src/components/Table/numeric.ts",
+          "type": "registry:file",
+          "target": "@components/Table/numeric.ts"
+        },
+        {
+          "path": "src/components/Table/rows.ts",
+          "type": "registry:file",
+          "target": "@components/Table/rows.ts"
+        },
+        {
+          "path": "src/components/Table/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Table/styles.ts"
+        },
+        {
+          "path": "src/components/Table/widths.ts",
+          "type": "registry:file",
+          "target": "@components/Table/widths.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/badge",
+        "@yads/button",
+        "@yads/checkbox",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:component",
+      "title": "Tabs",
+      "description": "The YADS Tabs component, in components/Tabs.",
+      "files": [
+        {
+          "path": "src/components/Tabs/Tabs.tsx",
+          "type": "registry:file",
+          "target": "@components/Tabs/Tabs.tsx"
+        },
+        {
+          "path": "src/components/Tabs/index.ts",
+          "type": "registry:file",
+          "target": "@components/Tabs/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "text",
+      "type": "registry:component",
+      "title": "Text",
+      "description": "The YADS Text component, in components/Text.",
+      "files": [
+        {
+          "path": "src/components/Text/Heading.tsx",
+          "type": "registry:file",
+          "target": "@components/Text/Heading.tsx"
+        },
+        {
+          "path": "src/components/Text/Text.tsx",
+          "type": "registry:file",
+          "target": "@components/Text/Text.tsx"
+        },
+        {
+          "path": "src/components/Text/index.ts",
+          "type": "registry:file",
+          "target": "@components/Text/index.ts"
+        },
+        {
+          "path": "src/components/Text/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Text/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "text-area",
+      "type": "registry:component",
+      "title": "TextArea",
+      "description": "The YADS TextArea component, in components/TextArea.",
+      "files": [
+        {
+          "path": "src/components/TextArea/TextArea.tsx",
+          "type": "registry:file",
+          "target": "@components/TextArea/TextArea.tsx"
+        },
+        {
+          "path": "src/components/TextArea/index.ts",
+          "type": "registry:file",
+          "target": "@components/TextArea/index.ts"
+        },
+        {
+          "path": "src/components/TextArea/styles.ts",
+          "type": "registry:file",
+          "target": "@components/TextArea/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/input",
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "theme-control",
+      "type": "registry:component",
+      "title": "ThemeControl",
+      "description": "The YADS ThemeControl component, in components/ThemeControl.",
+      "files": [
+        {
+          "path": "src/components/ThemeControl/ThemeControl.tsx",
+          "type": "registry:file",
+          "target": "@components/ThemeControl/ThemeControl.tsx"
+        },
+        {
+          "path": "src/components/ThemeControl/index.ts",
+          "type": "registry:file",
+          "target": "@components/ThemeControl/index.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0"
+      ],
+      "registryDependencies": [
+        "@yads/button"
+      ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:component",
+      "title": "Toast",
+      "description": "The YADS Toast component, in components/Toast.",
+      "files": [
+        {
+          "path": "src/components/Toast/Toast.tsx",
+          "type": "registry:file",
+          "target": "@components/Toast/Toast.tsx"
+        },
+        {
+          "path": "src/components/Toast/index.ts",
+          "type": "registry:file",
+          "target": "@components/Toast/index.ts"
+        },
+        {
+          "path": "src/components/Toast/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Toast/styles.ts"
+        },
+        {
+          "path": "src/components/Toast/useToast.ts",
+          "type": "registry:file",
+          "target": "@components/Toast/useToast.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/button",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "token",
+      "type": "registry:component",
+      "title": "Token",
+      "description": "The YADS Token component, in components/Token.",
+      "files": [
+        {
+          "path": "src/components/Token/Token.tsx",
+          "type": "registry:file",
+          "target": "@components/Token/Token.tsx"
+        },
+        {
+          "path": "src/components/Token/context.ts",
+          "type": "registry:file",
+          "target": "@components/Token/context.ts"
+        },
+        {
+          "path": "src/components/Token/index.ts",
+          "type": "registry:file",
+          "target": "@components/Token/index.ts"
+        },
+        {
+          "path": "src/components/Token/styles.ts",
+          "type": "registry:file",
+          "target": "@components/Token/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/avatar",
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:component",
+      "title": "Tooltip",
+      "description": "The YADS Tooltip component, in components/Tooltip.",
+      "files": [
+        {
+          "path": "src/components/Tooltip/Tooltip.tsx",
+          "type": "registry:file",
+          "target": "@components/Tooltip/Tooltip.tsx"
+        },
+        {
+          "path": "src/components/Tooltip/index.ts",
+          "type": "registry:file",
+          "target": "@components/Tooltip/index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn",
+        "@yads/lib-layers"
+      ]
+    },
+    {
+      "name": "top-bar",
+      "type": "registry:component",
+      "title": "TopBar",
+      "description": "The YADS TopBar component, in components/TopBar.",
+      "files": [
+        {
+          "path": "src/components/TopBar/TopBar.tsx",
+          "type": "registry:file",
+          "target": "@components/TopBar/TopBar.tsx"
+        },
+        {
+          "path": "src/components/TopBar/index.ts",
+          "type": "registry:file",
+          "target": "@components/TopBar/index.ts"
+        }
+      ],
+      "registryDependencies": [
+        "@yads/lib-cn"
+      ]
+    },
+    {
+      "name": "tree-list",
+      "type": "registry:component",
+      "title": "TreeList",
+      "description": "The YADS TreeList component, in components/TreeList.",
+      "files": [
+        {
+          "path": "src/components/TreeList/TreeList.tsx",
+          "type": "registry:file",
+          "target": "@components/TreeList/TreeList.tsx"
+        },
+        {
+          "path": "src/components/TreeList/index.ts",
+          "type": "registry:file",
+          "target": "@components/TreeList/index.ts"
+        },
+        {
+          "path": "src/components/TreeList/navigation.ts",
+          "type": "registry:file",
+          "target": "@components/TreeList/navigation.ts"
+        },
+        {
+          "path": "src/components/TreeList/styles.ts",
+          "type": "registry:file",
+          "target": "@components/TreeList/styles.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.7.0",
+        "lucide-react@^1.40.0",
+        "tailwind-variants@^3.3.1"
+      ],
+      "registryDependencies": [
+        "@yads/icon",
+        "@yads/lib-cn",
+        "@yads/lib-focus"
+      ]
+    },
+    {
+      "name": "tree-map",
+      "type": "registry:component",
+      "title": "TreeMap",
+      "description": "The YADS TreeMap component, in components/TreeMap.",
+      "files": [
+        {
+          "path": "src/components/TreeMap/TreeMap.tsx",
+          "type": "registry:file",
+          "target": "@components/TreeMap/TreeMap.tsx"
+        },
+        {
+          "path": "src/components/TreeMap/index.ts",
+          "type": "registry:file",
+          "target": "@components/TreeMap/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart"
+      ]
+    },
+    {
+      "name": "vertical-bar",
+      "type": "registry:component",
+      "title": "VerticalBar",
+      "description": "The YADS VerticalBar component, in components/VerticalBar.",
+      "files": [
+        {
+          "path": "src/components/VerticalBar/VerticalBar.tsx",
+          "type": "registry:file",
+          "target": "@components/VerticalBar/VerticalBar.tsx"
+        },
+        {
+          "path": "src/components/VerticalBar/index.ts",
+          "type": "registry:file",
+          "target": "@components/VerticalBar/index.ts"
+        }
+      ],
+      "dependencies": [
+        "recharts@^3.10.1"
+      ],
+      "registryDependencies": [
+        "@yads/chart"
+      ]
+    },
+    {
+      "name": "lib-cn",
+      "type": "registry:lib",
+      "title": "cn.ts",
+      "description": "Shared YADS helper cn.ts, in lib/.",
+      "files": [
+        {
+          "path": "src/lib/cn.ts",
+          "type": "registry:file",
+          "target": "@lib/cn.ts"
+        }
+      ],
+      "dependencies": [
+        "clsx@^2.1.1",
+        "tailwind-merge@^3.6.0",
+        "tailwind-variants@^3.3.1"
+      ]
+    },
+    {
+      "name": "lib-focus",
+      "type": "registry:lib",
+      "title": "focus.ts",
+      "description": "Shared YADS helper focus.ts, in lib/.",
+      "files": [
+        {
+          "path": "src/lib/focus.ts",
+          "type": "registry:file",
+          "target": "@lib/focus.ts"
+        }
+      ]
+    },
+    {
+      "name": "lib-layers",
+      "type": "registry:lib",
+      "title": "layers.ts",
+      "description": "Shared YADS helper layers.ts, in lib/.",
+      "files": [
+        {
+          "path": "src/lib/layers.ts",
+          "type": "registry:file",
+          "target": "@lib/layers.ts"
+        }
+      ]
+    },
+    {
+      "name": "lib-platform",
+      "type": "registry:lib",
+      "title": "platform.ts",
+      "description": "Shared YADS helper platform.ts, in lib/.",
+      "files": [
+        {
+          "path": "src/lib/platform.ts",
+          "type": "registry:file",
+          "target": "@lib/platform.ts"
+        }
+      ]
+    },
+    {
+      "name": "lib-presence",
+      "type": "registry:lib",
+      "title": "presence.ts",
+      "description": "Shared YADS helper presence.ts, in lib/.",
+      "files": [
+        {
+          "path": "src/lib/presence.ts",
+          "type": "registry:file",
+          "target": "@lib/presence.ts"
+        }
+      ]
+    },
+    {
+      "name": "lib-viewport",
+      "type": "registry:lib",
+      "title": "viewport.ts",
+      "description": "Shared YADS helper viewport.ts, in lib/.",
+      "files": [
+        {
+          "path": "src/lib/viewport.ts",
+          "type": "registry:file",
+          "target": "@lib/viewport.ts"
+        }
+      ]
+    }
+  ]
+}

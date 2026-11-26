@@ -26,6 +26,7 @@ dist-ssr
 # build output
 dist
 dist-apps
+dist-registry
 *.tsbuildinfo
 
 *storybook.log
