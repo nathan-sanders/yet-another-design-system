@@ -51,16 +51,21 @@ or written by hand).
    }
    ```
 
-2. Add the theme — every token, light and dark — and import it in place of Tailwind:
+2. Add the theme — every token, light and dark — and make it your stylesheet's only line:
 
    ```bash
    npx shadcn@latest add @yads/theme
    ```
 
    ```css
-   /* src/index.css — theme.css brings its own @import "tailwindcss", so it replaces that line */
+   /* src/index.css — the whole file, in place of @import "tailwindcss" */
    @import "./styles/theme.css";
    ```
+
+   **If you ran `shadcn init`,** it also wrote shadcn's own theme into this file: Geist as
+   `--font-sans`, its own radius scale (`--radius-sm` … `--radius-4xl`) and body colors. They come
+   after the import, so they win, and YADS renders in the wrong font with the wrong corners. Delete
+   them, so the import is all that's left.
 
    The theme also installs the two fonts. Import them once, in your entry file:
 
