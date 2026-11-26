@@ -318,7 +318,7 @@ export const PrimaryTheme: Story = {
 
       <Section
         title="The values"
-        hint="The first ten are Figma's. The other ramps are derived from Red's steps or Green's, because a Figma collection holds ten modes: white on step 600 clears 4.5:1 on eight ramps, and the other nine take 700 as Green does. The border is always the fill."
+        hint="The first ten are Figma's. The other ramps are derived from Red's steps or Green's, because a Figma collection holds ten modes on the file's Professional plan: white on step 600 clears 4.5:1 on eight ramps, and the other nine take 700 as Green does. The border is always the fill."
       >
         <ShowcaseTable label="Each primary theme and the step it takes for every value">
           <thead>

@@ -367,7 +367,7 @@
   --shadow-low: 0px 2px 4px 0px var(--surface-drop-shadow);
   --shadow-low-top: 0px -2px 4px 0px var(--surface-drop-shadow);
   --shadow-medium: 0px 8px 16px 0px var(--surface-drop-shadow);
-  --shadow-medium-top-2: 0px -8px 16px 0px var(--surface-drop-shadow);
+  --shadow-medium-top: 0px -8px 16px 0px var(--surface-drop-shadow);
   --shadow-high: 0px 16px 32px 0px var(--surface-drop-shadow);
   --shadow-high-top: 0px -16px 32px 0px var(--surface-drop-shadow);
   --shadow-high-right: 16px 0px 32px 0px var(--surface-drop-shadow);
@@ -553,7 +553,8 @@
 /*    Not in @theme, for the neutral ramp's reason: nobody paints with it.      */
 /*                                                                             */
 /*    The first ten modes are Figma's. The rest are derived in generate.py      */
-/*    from Red's steps or Green's, because the collection is full.             */
+/*    from Red's steps or Green's, because the collection is full: the file's   */
+/*    Figma plan (Professional) caps a collection at ten modes.                 */
 :root {
   --primary-foreground-light: var(--color-white);
   --primary-foreground-dark: var(--color-black);
@@ -1480,7 +1481,8 @@
 /*                                                                              */
 /*     The first nine modes are Figma's, in Figma's order. The other twenty-     */
 /*     eight are derived in generate.py from Blue's own steps, because a Figma   */
-/*     variable collection cannot hold any more modes than this one already has. */
+/*     variable collection cannot hold any more modes than this one already has  */
+/*     on the file's plan (Figma Professional caps modes per collection).        */
 /*     So they are not in navigation.json, and retuning Blue in Figma retunes    */
 /*     every one of them -- bar one correction, which is contrast and not      */
 /*     taste. Nav Content/Subtle is step 700 in the light variant, not Blue's    */

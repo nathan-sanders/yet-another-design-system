@@ -255,7 +255,8 @@ export const Overview: Story = {
             a nav component writes <Mono>bg-nav-background</Mono> and never reaches past it, and no
             other component may write a <Mono>--nav-*</Mono> role at all. There is no page of its own
             below because there is no second thing to show — the tier is the table above. Nine of the
-            modes come from Figma's Navigation Theme collection, which is full at nine, and{' '}
+            modes come from Figma's Navigation Theme collection, which is full at nine on the file's
+            Figma plan (Professional caps the modes a collection can hold), and{' '}
             <Mono>generate.py</Mono> derives the rest from the remaining Tailwind ramps.
             That is more than anyone can check by eye, so <Mono>nav-contrast.test.ts</Mono> measures
             every pair the components actually paint, in every mode, and a ramp that fails cannot
